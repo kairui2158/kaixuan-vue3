@@ -17,6 +17,7 @@ describe('generateSettingsArtifact', () => {
     expect(result.accepted.map(entry => entry.name)).toEqual(['林舟'])
     expect(result.rejected).toEqual([])
     expect(result.attempts).toHaveLength(1)
+    expect(result.attempts[0].validationMs).toBeGreaterThanOrEqual(0)
   })
 
   it('records rejected items while keeping the valid ones', async () => {
@@ -55,6 +56,8 @@ describe('generateSettingsArtifact', () => {
     expect(calls[1]).toContain('上一次输出没有可接受的设定项')
     expect(result.attempts).toHaveLength(2)
     expect(result.attempts[1].repairAttempt).toBe(1)
+    expect(result.attempts[0].validationMs).toBeGreaterThanOrEqual(0)
+    expect(result.attempts[1].validationMs).toBeGreaterThanOrEqual(0)
   })
 
   it('returns failed without items after the repair response is still invalid', async () => {

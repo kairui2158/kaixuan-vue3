@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1791835233158-6",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "记忆抽取",
+  "mode": "memory-extraction",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "skillNames": [
+    "S1-骨架师（文件夹）",
+    "S2-血肉师（文件夹）",
+    "S3-打磨师（文件夹）"
+  ],
+  "skillMode": "chain",
+  "status": "success",
+  "startedAt": 1791835233158,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "recordedAt": 1791835262227
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1791835233158-7",
+      "ts": 1791835233158,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 记忆抽取运行"
+    },
+    {
+      "id": "event-1791835233192-9",
+      "ts": 1791835233192,
+      "seq": 2,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1791835233199-11",
+      "ts": 1791835233199,
+      "seq": 3,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/api-1791835233192-8",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/api-1791835233192-8"
+      }
+    },
+    {
+      "id": "event-1791835233199-12",
+      "ts": 1791835233199,
+      "seq": 4,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1791835233198-10",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1791835233199-13",
+      "ts": 1791835233199,
+      "seq": 5,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal"
+    },
+    {
+      "id": "event-1791835248212-14",
+      "ts": 1791835248212,
+      "seq": 6,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal"
+    },
+    {
+      "id": "event-1791835248212-15",
+      "ts": 1791835248212,
+      "seq": 7,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/api-1791835233192-8",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/api-1791835233192-8"
+      }
+    },
+    {
+      "id": "event-1791835262213-16",
+      "ts": 1791835262213,
+      "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / stop"
+    },
+    {
+      "id": "event-1791835262214-17",
+      "ts": 1791835262214,
+      "seq": 9,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1791835233192-8 seq=1"
+    },
+    {
+      "id": "event-1791835262214-18",
+      "ts": 1791835262214,
+      "seq": 10,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": ""
+    },
+    {
+      "id": "event-1791835262227-19",
+      "ts": 1791835262227,
+      "seq": 11,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": ""
+    },
+    {
+      "id": "event-1791835262227-20",
+      "ts": 1791835262227,
+      "seq": 12,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "run=run-1791835233158-6"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1791835233192-8",
+      "seq": 1,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "status": "success",
+      "startedAt": 1791835233192,
+      "physicalCalls": [
+        {
+          "id": "physical-1791835233198-10",
+          "physicalCallId": "physical-1791835233195-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 1567,
+            "outputTokens": 2585,
+            "totalTokens": 4152,
+            "reasoningOutputTokens": 0
+          },
+          "usageUnavailable": false,
+          "startedAt": 1791835233198,
+          "durationMs": 29016,
+          "endedAt": 1791835262213,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 1080,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 1080 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 1080,
+            "actualInputTokens": 1567,
+            "driftRatio": 0.45092592592592595,
+            "correctedRatio": 1.450925925925926
+          },
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，在暴风雨夜于海边小屋中抄写旧信，身上携带一件会发热的贴身信物，能感知塔的方向。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"他用指甲先抠住油布包外的绳结。\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"胸口贴身信物突然发烫。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"用油布包裹的旧信，受潮发霉，纸面焦黄脆弱，内容"
+        }
+      ],
+      "lastExecutionActivityAt": 1791835233198,
+      "finishReason": "stop",
+      "durationMs": 29021,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 29016,
+        "localOverheadMs": 5
+      },
+      "usage": {
+        "inputTokens": 1567,
+        "outputTokens": 2585,
+        "totalTokens": 4152,
+        "reasoningOutputTokens": 0
+      },
+      "usageUnavailable": false,
+      "endedAt": 1791835262214,
+      "semantic": {
+        "conversationId": "run-1791835233158-6",
+        "usage": {
+          "inputTokens": 1567,
+          "outputTokens": 2585,
+          "totalTokens": 4152,
+          "reasoningOutputTokens": 0
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，在暴风雨夜于海边小屋中抄写旧信，身上携带一件会发热的贴身信物，能感知塔的方向。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"他用指甲先抠住油布包外的绳结。\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"胸口贴身信物突然发烫。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"用油布包裹的旧信，受潮发霉，纸面焦黄脆弱，内容"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 5947,
+      "chars": 2365,
+      "sha256": "b9c36fd319b233635167cae3cf47f980d8d6bde141f7286bc245b2a1b5535085",
+      "duplicateCount": 2,
+      "createdAt": 1791835262783
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 9291,
+      "chars": 6533,
+      "sha256": "3f5c0f1a8ecd7704f01048bbb43f09ef99b62e9b3c4b547b0e8791b3dd544771",
+      "duplicateCount": 2,
+      "createdAt": 1791835262783
+    }
+  ],
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 29016,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": 5,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "repeatedPromptBlocks": {},
+    "contextChars": 2208,
+    "outputChars": 6533,
+    "physicalDurationSumMs": 29016
+  },
+  "endedAt": 1791835262227,
+  "durationMs": 29069,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1791835233192-8",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "3f5c0f1a8ecd7704f01048bbb43f09ef99b62e9b3c4b547b0e8791b3dd544771",
+        "bytes": 9291,
+        "chars": 6533,
+        "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，在暴风雨夜于海边小屋中抄写旧信，身上携带一件会发热的贴身信物，能感知塔的方向。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"他用指甲先抠住油布包外的绳结。\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"胸口贴身信物突然发烫。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"用油布包裹的旧信，受潮发霉，纸面焦黄脆弱，内容"
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791835233195-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "3f5c0f1a8ecd7704f01048bbb43f09ef99b62e9b3c4b547b0e8791b3dd544771",
+            "bytes": 9291,
+            "chars": 6533,
+            "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，在暴风雨夜于海边小屋中抄写旧信，身上携带一件会发热的贴身信物，能感知塔的方向。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"他用指甲先抠住油布包外的绳结。\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1791826371487_d2emmt-001\",\n          \"snippet\": \"胸口贴身信物突然发烫。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"用油布包裹的旧信，受潮发霉，纸面焦黄脆弱，内容"
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

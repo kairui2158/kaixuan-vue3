@@ -1,4 +1,4 @@
-import { getAiService } from './aiService'
+import { getAiService, type PhysicalCallEvent } from './aiService'
 import { extractJsonObject } from './jsonExtraction'
 import type {
   Foreshadowing,
@@ -50,10 +50,14 @@ export interface UnifiedMemoryAiCallTrace {
   }): void
 }
 
+export type MemoryPhysicalCallEvent = PhysicalCallEvent
+
 export async function unifiedMemoryAiCall(
   prompt: string,
   systemPrompt: string,
-  trace?: UnifiedMemoryAiCallTrace
+  trace?: UnifiedMemoryAiCallTrace & {
+    onPhysicalCall?: (event: MemoryPhysicalCallEvent) => void
+  }
 ): Promise<string | null> {
   const service = await getAiService()
   const callId = trace?.beginApiCall({
@@ -69,7 +73,8 @@ export async function unifiedMemoryAiCall(
     stream: false,
     retry: false,
     timeoutMs: 300_000,
-    meta: { source: 'memory-extraction.unified' }
+    meta: { source: 'memory-extraction.unified' },
+    onPhysicalCall: (event: MemoryPhysicalCallEvent) => trace?.onPhysicalCall?.(event)
   })
   try {
     const result = await call

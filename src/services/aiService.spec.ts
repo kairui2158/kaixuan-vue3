@@ -823,6 +823,101 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   }, 30_000);
 
+  it('keeps a normal streaming response alive after output starts past the wall-clock timeout', async () => {
+    vi.useFakeTimers();
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        const signalId = request.signalId;
+        setTimeout(() => {
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n', signalId });
+        }, 500);
+        setTimeout(() => {
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n', signalId });
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n', signalId });
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: [DONE]\n\n', signalId });
+          emitMainNetEvent?.({ event: 'end', signalId });
+        }, 1_200);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: 1_000,
+      onPhysicalCall: () => {},
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'first-second' });
+    await vi.advanceTimersByTimeAsync(1_300);
+    await assertion;
+    expect(streamMock).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('measures retry first-token latency from the retry physical start', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([{ event: 'error', message: 'socket hang up' }]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      })
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"recovered"}}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    expect(result.text).toBe('recovered');
+    const success = physicalEvents.find(event => event.status === 'success' && event.phase === 'retry');
+    expect(success?.firstTokenMs).toBeGreaterThanOrEqual(0);
+    expect(success?.firstTokenMs).toBeLessThan(2_000);
+    vi.unstubAllGlobals();
+  });
+
   it('retries a slow-stream-tolerant request that never emits first output', async () => {
     const abortCalls: string[] = [];
     let emitMainNetEvent: ((payload: any) => void) | null = null;

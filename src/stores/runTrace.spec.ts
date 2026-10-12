@@ -357,6 +357,163 @@ describe('runTrace store', () => {
     })
   })
 
+  it('computes an observability-only step timing ledger when finishing a run', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'pipeline',
+      projectId: 'project-step-ledger',
+      step: 2,
+      stepName: '卷纲层',
+      mode: 'single'
+    })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'step-normal',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '卷纲',
+      durationMs: 1000,
+      firstTokenMs: 200,
+      outputMs: 800
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'step-continuation',
+      phase: 'continuation',
+      requestMessages: [{ role: 'user', content: '继续生成卷纲' }],
+      responseText: '续写卷纲',
+      durationMs: 700,
+      firstTokenMs: 150,
+      outputMs: 550
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'success',
+      responseText: '卷纲续写卷纲',
+      durationMs: 1800,
+      timingLedger: {
+        requestBuildMs: 100,
+        schemaRetryCount: 1,
+        repeatedPromptBlocks: { '[大纲]': 2 }
+      }
+    })
+    store.recordStepPhaseTiming(runId, 'validation', 30)
+    store.recordStepPhaseTiming(runId, 'validation', 20)
+    store.recordStepPhaseTiming(runId, 'persistence', 40)
+    store.recordStepPhaseTiming(runId, 'validation', -1)
+    store.finishRun(runId, 'success')
+
+    const run = store.getRun(runId)
+    expect(run?.stepTimingLedger).toMatchObject({
+      promptBuildMs: 100,
+      contextLoadMs: undefined,
+      apiCallCount: 1,
+      physicalCallCount: 2,
+      retryCallCount: 0,
+      schemaRetryCallCount: 1,
+      continuationCallCount: 1,
+      firstTokenSumMs: 350,
+      outputSumMs: 1350,
+      validationSumMs: 50,
+      persistenceSumMs: 40,
+      repeatedPromptBlocks: { '[大纲]': 2 },
+      contextChars: 4,
+      outputChars: 6,
+      physicalDurationSumMs: 1700
+    })
+  })
+
+  it('records step observations with explicit zero semantics and rejects invalid input', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 3, stepName: '章节层', mode: 'single' })
+
+    store.recordStepObservation(runId, 'validation', 0)
+    store.recordStepObservation(runId, 'validation', undefined)
+    store.recordStepObservation(runId, 'validation', 25)
+    store.recordStepObservation(runId, 'validation', -1)
+    store.recordStepObservation(runId, 'validation', Number.POSITIVE_INFINITY)
+    store.recordStepObservation(runId, 'persistence', Number.NaN)
+    store.finishRun(runId, 'success')
+    store.recordStepObservation(runId, 'validation', 100)
+
+    const run = store.getRun(runId)
+    expect(run?.stepPhaseTiming?.validation).toBe(25)
+    expect(run?.stepPhaseTiming).not.toHaveProperty('persistence')
+    expect(run?.stepTimingLedger?.validationSumMs).toBe(25)
+  })
+
+  it('does not backfill a step timing ledger into a legacy run object', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single' })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '旧结构请求' }]
+    })
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '旧结构返回' })
+    const run = store.getRun(runId)!
+    const legacyRun = JSON.parse(JSON.stringify({
+      ...run,
+      stepTimingLedger: undefined,
+      stepPhaseTiming: undefined,
+      stepBoundaryGapMs: undefined
+    }))
+
+    expect(legacyRun).not.toHaveProperty('stepTimingLedger')
+    expect(store.exportRunToJson(legacyRun as any)).toBeTruthy()
+  })
+
+  it('records the gap to the previous finished run in the same step scope', async () => {
+    const store = useRunTraceStore()
+    const input = {
+      source: 'pipeline' as const,
+      projectId: 'project-gap',
+      step: 2,
+      stepName: '卷纲层',
+      mode: 'single'
+    }
+    const firstRunId = store.startRun(input)
+    store.finishRun(firstRunId, 'success')
+    await new Promise(resolve => setTimeout(resolve, 2))
+    const secondRunId = store.startRun(input)
+
+    const run = store.getRun(secondRunId)
+    expect(run?.stepBoundaryGapMs).toBeGreaterThanOrEqual(0)
+  })
+
+  it('summarizes the worst repeated prompt block count across API calls', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const firstCallId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.finishApiCall(runId, firstCallId, {
+      status: 'success',
+      responseText: '卷纲一',
+      durationMs: 1000,
+      timingLedger: {
+        requestBuildMs: 10,
+        repeatedPromptBlocks: { '[大纲]': 1, '[已生成卷事实清单]': 1 }
+      }
+    })
+    const secondCallId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '续生成卷纲' }]
+    })
+    store.finishApiCall(runId, secondCallId, {
+      status: 'success',
+      responseText: '卷纲二',
+      durationMs: 1200,
+      timingLedger: {
+        requestBuildMs: 15,
+        repeatedPromptBlocks: { '[大纲]': 2, '[已生成卷事实清单]': 2, '[style reference]': 1 }
+      }
+    })
+    store.finishRun(runId, 'success')
+
+    expect(store.getRun(runId)?.timingLedger?.repeatedPromptBlocks).toEqual({
+      '[大纲]': 2,
+      '[已生成卷事实清单]': 2,
+      '[style reference]': 1
+    })
+  })
+
   it('updates the running api call execution settlement without changing terminal calls', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
@@ -1721,7 +1878,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(18)
+    expect(exported.schemaVersion).toBe(19)
   })
 
   it('exports pipeline artifact validation events for all three stages', () => {
@@ -1748,7 +1905,7 @@ describe('runTrace store', () => {
       expect(exported.events?.some(event => event.type === type)).toBe(true)
       expect(store.exportRunToText(run)).toContain(type)
     })
-    expect(exported.schemaVersion).toBe(18)
+    expect(exported.schemaVersion).toBe(19)
   })
 
   it('keeps a successful final body artifact successful while preserving degraded call evidence', () => {
@@ -2267,7 +2424,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(18)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(19)
   })
 
   it('records the requested and actual tool surface separately', () => {
@@ -2414,6 +2571,50 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'autosave-failed' && event.detail?.includes('disk full'))).toBe(true)
     consoleError.mockRestore()
+  })
+
+  it('restores only terminal persisted runs without hijacking active pointers', async () => {
+    const terminal = {
+      id: 'run-restored-terminal',
+      source: 'pipeline',
+      sourceName: '生成流水线',
+      mode: 'single',
+      status: 'success',
+      startedAt: 1770000000000,
+      events: [],
+      apiCalls: [{ id: 'call-restored', seq: 1, requestMessages: [], responseText: '响应', streamText: '', reasoningText: '' }]
+    }
+    const running = { ...terminal, id: 'run-restored-running', startedAt: 1770000001000, status: 'running' }
+    const runTraceList = vi.fn(async (source: string) => ({
+      success: true,
+      runs: source === 'pipeline'
+        ? [
+            { dirName: 'run-running', status: running.status },
+            { dirName: 'run-terminal', status: terminal.status }
+          ]
+        : []
+    }))
+    const runTraceRead = vi.fn(async (payload: { dirName: string }) => ({
+      success: payload.dirName === 'run-terminal',
+      run: payload.dirName === 'run-terminal' ? terminal : running
+    }))
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { electronAPI: { runTraceList, runTraceRead } }
+    })
+
+    const store = useRunTraceStore()
+    const activeRunId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
+    const result = await store.restorePersistedRuns()
+
+    expect(result).toEqual({ restored: 1, skipped: 1 })
+    expect(runTraceRead).toHaveBeenCalledTimes(1)
+    expect(runTraceRead).toHaveBeenCalledWith({ source: 'pipeline', dirName: 'run-terminal' })
+    const restored = store.getRun('run-restored-terminal')
+    expect(restored?.dirName).toBe('run-terminal')
+    expect(store.getRun('run-restored-running')).toBeNull()
+    expect(store.getRunId('pipeline')).toBe(activeRunId)
+    expect(store.getLastRunId('pipeline')).toBe(activeRunId)
   })
 
   it('persists long-running streams with a debounced snapshot save', async () => {

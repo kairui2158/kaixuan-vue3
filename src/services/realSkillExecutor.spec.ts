@@ -32,7 +32,7 @@ vi.stubGlobal('window', {
 })
 
 import { executeRealSkill } from './realSkillExecutor'
-import { buildFolderPassInputMeasurement } from './realSkillExecutor'
+import { buildFolderPassInputMeasurement, countRepeatedPromptBlocks } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
 import { DeAiSamples } from './deai-samples.js'
 import { getAiService } from './aiService'
@@ -68,6 +68,43 @@ function createPackage(overrides: Record<string, unknown> = {}) {
 }
 
 describe('realSkillExecutor single pass', () => {
+  it('counts repeated prompt marker blocks in the user prompt only', () => {
+    const counts = countRepeatedPromptBlocks(
+      '[style reference]\n样本\n\n--- text ---\n[大纲]\n正文\n[大纲]\n[已生成卷事实清单]\n第一卷\n[已生成卷事实清单]\n第二卷'
+    )
+
+    expect(counts).toEqual({
+      '[已生成卷事实清单]': 2,
+      '[大纲]': 2,
+      '[style reference]': 1,
+      '[上一步 SKILL 完整输出]': 0
+    })
+  })
+
+  it('records repeated prompt block counts in the timing ledger', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '[大纲]\n原文\n[大纲]\n[已生成卷事实清单]\n第一卷\n[已生成卷事实清单]\n第二卷',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('success')
+    expect(result.apiMeta?.timingLedger?.repeatedPromptBlocks).toEqual({
+      '[已生成卷事实清单]': 2,
+      '[大纲]': 2,
+      '[style reference]': 1,
+      '[上一步 SKILL 完整输出]': 0
+    })
+  })
+
   it('measures the real request caliber for a folder pass', () => {
     const measurement = buildFolderPassInputMeasurement({
       passIndex: 1,

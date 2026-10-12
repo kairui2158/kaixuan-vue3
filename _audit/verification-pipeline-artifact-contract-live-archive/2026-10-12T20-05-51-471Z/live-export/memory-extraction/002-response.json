@@ -1,0 +1,262 @@
+{
+  "entities": [
+    {
+      "name": "他",
+      "type": "character",
+      "description": "本章主角，在暴风雨夜于海边小屋中抄写旧信，身上携带一件会发热的贴身信物，能感知塔的方向。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他用指甲先抠住油布包外的绳结。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "胸口贴身信物突然发烫。"
+        }
+      ]
+    },
+    {
+      "name": "旧信",
+      "type": "object",
+      "description": "用油布包裹的旧信，受潮发霉，纸面焦黄脆弱，内容涉及灯塔、南方、入口等航图信息。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "旧信抽出来，纸面软得往下坠，一角几乎碰到桌面。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "不是乱写的字。是航图。"
+        }
+      ]
+    },
+    {
+      "name": "抄本",
+      "type": "object",
+      "description": "他用来抄写旧信内容的册子，右肘旁摊开，用镇纸压着上缘。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "抄本摊在右肘旁，镇纸压着上缘，笔尖含墨。"
+        }
+      ]
+    },
+    {
+      "name": "贴身信物",
+      "type": "object",
+      "description": "他胸口携带的信物，会突然发热，热感偏向窗户左侧、朝着塔的方向，消退后变凉。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "胸口贴身信物突然发烫。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "热从手心往开散，偏向窗户左侧，朝着塔的方向，不在灯那边。"
+        }
+      ]
+    },
+    {
+      "name": "灯塔",
+      "type": "location",
+      "description": "旧信中提到的地点，与南方并在一行，信物发热时朝向塔的方向。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "“灯塔”第二次出现，和“南方”并在一行。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "热从手心往开散，偏向窗户左侧，朝着塔的方向，不在灯那边。"
+        }
+      ]
+    },
+    {
+      "name": "小艇",
+      "type": "object",
+      "description": "停在礁后的小艇，暴风雨中看不见，只能看见礁后一道白沫时起时落。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "小艇停在礁后，看不见，只能看见礁后一道白沫时起时落。"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "source": "他",
+      "target": "旧信",
+      "relation": "抄写",
+      "description": "他在灯下将旧信内容抄写到抄本上。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "眼睛在旧信和抄本之间来回跳，每抄一个字，纸边就往里卷一点。"
+        }
+      ]
+    },
+    {
+      "source": "他",
+      "target": "贴身信物",
+      "relation": "携带",
+      "description": "他将贴身信物放在胸口衣内。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "左手伸进衣内把信物握住。"
+        }
+      ]
+    },
+    {
+      "source": "贴身信物",
+      "target": "灯塔",
+      "relation": "指向",
+      "description": "信物发热时偏向窗户左侧，朝着塔的方向。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "热从手心往开散，偏向窗户左侧，朝着塔的方向，不在灯那边。"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "抄写旧信",
+      "description": "他在暴风雨夜中拆开油布包，将旧信内容抄写到抄本上，辨认出“塔火偏南，航线可入。”等字样。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他把信平摊在灯前。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他把这几个字往一起拼——“塔火偏南，航线可入。”"
+        }
+      ]
+    },
+    {
+      "name": "信物发热",
+      "description": "他刚要补最后一行时，胸口贴身信物突然发烫，热感偏向窗户左侧、朝着塔的方向，持续几秒后消退。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他刚要往抄本上补最后一行，胸口贴身信物突然发烫。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "热感只持续几秒，消退后再探已经凉下去。"
+        }
+      ]
+    },
+    {
+      "name": "查看窗外",
+      "description": "他走到窗边查看，窗外只有斜雨和黑雾，看不到塔火。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他往窗边走了一步，水从鞋底渗进袜布。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "窗外只有斜雨和黑雾，能见度止于窗框，看不到塔火。"
+        }
+      ]
+    },
+    {
+      "name": "收拾并吹灯",
+      "description": "他将旧信和抄页叠齐，用油布包好压在胸口，走到门边查看后合上门，吹熄油灯。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "旧信和抄页先叠齐，重新用油布包好，压在胸口。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "转过身，朝油灯吹熄了火。"
+        }
+      ]
+    }
+  ],
+  "world": [
+    {
+      "name": "暴风雨夜",
+      "description": "故事发生在暴风雨夜，浪头比人高两倍，水花打进门槛，风向转偏，窗外有斜雨和黑雾。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "外头浪头比人高两倍，水花打进门槛，风向已经转偏。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "窗外只有斜雨和黑雾，能见度止于窗框，看不到塔火。"
+        }
+      ]
+    },
+    {
+      "name": "海边小屋",
+      "description": "他所在的小屋靠近海边，门板承浪震动，水从门底缝隙挤进来，桌角滴水。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "混着窗外浪头撞门的闷响，门板也随着震一下。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "外面的浪偶尔撞在门槛上，水从门底缝隙里挤进来，贴着他的脚背。"
+        }
+      ]
+    },
+    {
+      "name": "航图信息",
+      "description": "旧信内容涉及航图，包含“灯塔”“南方”“入口”“塔火偏南，航线可入”等信息。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "不是乱写的字。是航图。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他把这几个字往一起拼——“塔火偏南，航线可入。”"
+        }
+      ]
+    }
+  ],
+  "foreshadowing": [
+    {
+      "name": "信物指向灯塔",
+      "description": "贴身信物发热时偏向窗户左侧、朝着塔的方向，暗示信物与灯塔之间存在某种感应或指引关系。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "热从手心往开散，偏向窗户左侧，朝着塔的方向，不在灯那边。"
+        }
+      ]
+    },
+    {
+      "name": "旧信中的航线",
+      "description": "旧信拼出“塔火偏南，航线可入”，句尾断在焦洞里，暗示存在一条可进入的航线，但信息不完整。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他把这几个字往一起拼——“塔火偏南，航线可入。”句尾断在一个焦洞里，旧信左角跟着裂开一条细口。"
+        }
+      ]
+    },
+    {
+      "name": "小艇与出行",
+      "description": "他查看门外小艇并按住门闩，暗示他可能计划在暴风雨中乘小艇出行。",
+      "evidence": [
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "小艇停在礁后，看不见，只能看见礁后一道白沫时起时落。"
+        },
+        {
+          "chapterId": "ch-vol_1791826371487_d2emmt-001",
+          "snippet": "他站在门后，一手按油布包，一手按着门闩。"
+        }
+      ]
+    }
+  ]
+}

@@ -43,6 +43,8 @@ export interface ChainHandoffTemplateMeta {
     requiresFullUpstreamContext?: boolean
     previousOutput?: 'full' | 'excerpt' | 'structured'
     requires?: string[]
+    /** Why a full previous-output handoff is necessary. */
+    reason?: string
   }
 }
 

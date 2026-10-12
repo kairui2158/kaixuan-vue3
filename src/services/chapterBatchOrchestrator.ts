@@ -13,6 +13,8 @@ export interface ChapterBatchAttempt {
   missingStart: number
   missingCount: number
   errors: string[]
+  /** Observability only; validation timing never changes retry decisions. */
+  validationMs?: number
 }
 
 export interface GenerateChapterBatchInput {
@@ -171,7 +173,9 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
     }
 
     if (accepted.length === input.contract.requestedCount) {
+      const validationStartedAt = Date.now()
       const validation = validateChapterBatch(accepted, input.contract, input.historyTitles)
+      const validationMs = Math.max(0, Date.now() - validationStartedAt)
       const completeAttempt: ChapterBatchAttempt = {
         repairAttempt,
         status: 'complete',
@@ -179,6 +183,7 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
         acceptedCount: accepted.length,
         missingStart,
         missingCount,
+        validationMs,
         errors: validation.errors
       }
       recordAttempt(attempts, completeAttempt, input.onAttempt)

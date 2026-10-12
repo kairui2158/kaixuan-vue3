@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildVolumeBatchPrompt,
+  buildVolumeBatchPromptWithAudit,
   generateVolumeBatch
 } from './volumeBatchOrchestrator'
 import type { VolumeGenerationContract } from './volumeGenerationContract'
@@ -43,6 +44,41 @@ describe('buildVolumeBatchPrompt', () => {
     expect(prompt).toContain('全书计划到第3卷')
     expect(prompt).toContain('数组长度必须为1')
     expect(prompt).not.toContain('数组长度必须为2')
+  })
+
+  it('suppresses history context already present in the base prompt and reports the audit', () => {
+    const historyContext = '[已生成卷事实清单]\n第1卷《第一卷》'
+    const basePrompt = `[大纲] 全书大纲\n\n${historyContext}`
+    const baseWithAudit = (overrides: Record<string, unknown> = {}) =>
+      buildVolumeBatchPromptWithAudit({
+        contract,
+        repair: false,
+        basePrompt,
+        historyContext,
+        ...overrides
+      })
+
+    const batch = baseWithAudit()
+    expect(batch.audit.duplicateHistoryContextSuppressed).toBe(true)
+    expect(batch.prompt.match(/\[已生成卷事实清单\]/g)).toHaveLength(1)
+
+    const singleVolume = baseWithAudit({ requestPolicy: 'single-volume', missingStart: 2, missingCount: 2 })
+    expect(singleVolume.audit.duplicateHistoryContextSuppressed).toBe(true)
+    expect(singleVolume.prompt.match(/\[已生成卷事实清单\]/g)).toHaveLength(1)
+    expect(singleVolume.prompt).toContain('本次只生成第2卷')
+
+    const repair = baseWithAudit({
+      contract: { ...contract, mode: 'single', expectedCount: 1, existingCount: 1 },
+      repair: true,
+      missingStart: 2,
+      missingCount: 1,
+      repairErrors: ['卷名与历史重复：「第一卷」'],
+      forbiddenVolumeNames: ['第一卷']
+    })
+    expect(repair.audit.duplicateHistoryContextSuppressed).toBe(true)
+    expect(repair.prompt.match(/\[已生成卷事实清单\]/g)).toHaveLength(1)
+    expect(repair.prompt).toContain('【上一次验收失败原因】')
+    expect(repair.prompt).toContain('【禁止重复的已有卷名】')
   })
 
   it('renders the initial prompt with history facts and exact count', () => {
@@ -94,6 +130,23 @@ describe('buildVolumeBatchPrompt', () => {
 })
 
 describe('generateVolumeBatch', () => {
+  it('reports prompt audit for every batch and single-volume request', async () => {
+    const audits: Array<{ duplicateHistoryContextSuppressed: boolean }> = []
+    const result = await generateVolumeBatch({
+      contract,
+      historyVolumes: [],
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      requestPolicy: 'single-volume',
+      onPromptBuilt: (_prompt, audit) => audits.push({ ...audit }),
+      callVolumeApi: async () => json(['第一卷', '第二卷', '第三卷'])
+    })
+
+    expect(result.status).toBe('complete')
+    expect(audits).toHaveLength(1)
+    expect(audits.every(audit => !audit.duplicateHistoryContextSuppressed)).toBe(true)
+  })
+
   it('uses one-volume requests with rolling history for single-volume policy', async () => {
     const calls: string[] = []
     const responses = [json(['第一卷']), json(['第二卷']), json(['第三卷'])]
@@ -175,6 +228,7 @@ describe('generateVolumeBatch', () => {
     expect(result.volumes.map(item => item.name)).toEqual(['第一卷', '第二卷', '第三卷'])
     expect(result.attempts).toHaveLength(1)
     expect(result.attempts[0].status).toBe('complete')
+    expect(result.attempts[0].validationMs).toBeGreaterThanOrEqual(0)
     expect(calls).toHaveLength(1)
   })
 
@@ -195,6 +249,8 @@ describe('generateVolumeBatch', () => {
     expect(result.volumes.map(item => item.name)).toEqual(['第一卷', '第二卷', '第三卷'])
     expect(calls[1]).toContain('补充生成第3卷到第3卷，共1卷')
     expect(result.attempts[1].repairAttempt).toBe(1)
+    expect(result.attempts[0].validationMs).toBeUndefined()
+    expect(result.attempts[1].validationMs).toBeGreaterThanOrEqual(0)
   })
 
   it('passes duplicate errors and forbidden volume names into the repair prompt', async () => {

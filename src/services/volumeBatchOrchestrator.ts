@@ -19,6 +19,12 @@ export interface VolumeBatchAttempt {
   missingStart: number
   missingCount: number
   errors: string[]
+  /** Observability only; validation timing never changes retry decisions. */
+  validationMs?: number
+}
+
+export interface VolumeBatchPromptAudit {
+  duplicateHistoryContextSuppressed: boolean
 }
 
 export interface GenerateVolumeBatchInput {
@@ -31,6 +37,7 @@ export interface GenerateVolumeBatchInput {
   shouldContinue?: () => boolean
   maxRepairAttempts?: number
   onAttempt?: (attempt: VolumeBatchAttempt) => void
+  onPromptBuilt?: (prompt: string, audit: VolumeBatchPromptAudit) => void
 }
 
 export interface VolumeBatchResult {
@@ -40,7 +47,7 @@ export interface VolumeBatchResult {
   errors: string[]
 }
 
-export function buildVolumeBatchPrompt(input: {
+export function buildVolumeBatchPromptWithAudit(input: {
   contract: VolumeGenerationContract
   repair: boolean
   missingStart?: number
@@ -50,49 +57,60 @@ export function buildVolumeBatchPrompt(input: {
   requestPolicy?: 'batch' | 'single-volume'
   repairErrors?: string[]
   forbiddenVolumeNames?: string[]
-}): string {
+}): { prompt: string; audit: VolumeBatchPromptAudit } {
   const { contract } = input
+  const historyContext = input.historyContext.trim()
+  const duplicateHistoryContextSuppressed = Boolean(historyContext && input.basePrompt.includes(historyContext))
+  const historyLines = duplicateHistoryContextSuppressed ? [] : ['', input.historyContext, '']
+
   if (input.requestPolicy === 'single-volume') {
     const missingStart = input.missingStart ?? contract.existingCount + 1
     const missingEnd = contract.existingCount + contract.expectedCount
-    return [
-      input.basePrompt,
-      '',
-      input.historyContext,
-      '',
-      `本次只生成第${missingStart}卷，不生成其他卷。全书计划到第${missingEnd}卷。`,
-      '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为1。'
-    ].join('\n')
+    return {
+      audit: { duplicateHistoryContextSuppressed },
+      prompt: [
+        input.basePrompt,
+        ...historyLines,
+        `本次只生成第${missingStart}卷，不生成其他卷。全书计划到第${missingEnd}卷。`,
+        '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为1。'
+      ].join('\n')
+    }
   }
   if (input.repair) {
     const missingStart = input.missingStart ?? contract.existingCount + 1
     const missingCount = input.missingCount ?? contract.expectedCount
     const missingEnd = missingStart + missingCount - 1
-    return [
-      input.basePrompt,
-      '',
-      input.historyContext,
-      '',
-      `补充生成第${missingStart}卷到第${missingEnd}卷，共${missingCount}卷。只输出缺失卷，不要重复任何已有卷名。`,
-      '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + missingCount + '。'
-    ].concat(input.repairErrors?.length ? [
-      '',
-      '【上一次验收失败原因】',
-      ...input.repairErrors
-    ] : []).concat(input.forbiddenVolumeNames?.length ? [
-      '',
-      '【禁止重复的已有卷名】',
-      input.forbiddenVolumeNames.join('、')
-    ] : []).join('\n')
+    return {
+      audit: { duplicateHistoryContextSuppressed },
+      prompt: [
+        input.basePrompt,
+        ...historyLines,
+        `补充生成第${missingStart}卷到第${missingEnd}卷，共${missingCount}卷。只输出缺失卷，不要重复任何已有卷名。`,
+        '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + missingCount + '。'
+      ].concat(input.repairErrors?.length ? [
+        '',
+        '【上一次验收失败原因】',
+        ...input.repairErrors
+      ] : []).concat(input.forbiddenVolumeNames?.length ? [
+        '',
+        '【禁止重复的已有卷名】',
+        input.forbiddenVolumeNames.join('、')
+      ] : []).join('\n')
+    }
   }
-  return [
-    input.basePrompt,
-    '',
-    input.historyContext,
-    '',
-    `生成${contract.expectedCount}卷的卷纲。不要重复任何已有卷名。`,
-    '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + contract.expectedCount + '。'
-  ].join('\n')
+  return {
+    audit: { duplicateHistoryContextSuppressed },
+    prompt: [
+      input.basePrompt,
+      ...historyLines,
+      `生成${contract.expectedCount}卷的卷纲。不要重复任何已有卷名。`,
+      '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + contract.expectedCount + '。'
+    ].join('\n')
+  }
+}
+
+export function buildVolumeBatchPrompt(input: Parameters<typeof buildVolumeBatchPromptWithAudit>[0]): string {
+  return buildVolumeBatchPromptWithAudit(input).prompt
 }
 
 function volumeName(value: unknown): string {
@@ -143,7 +161,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
     const progressContext = requestPolicy === 'single-volume'
       ? renderProgressContext()
       : (input.historyContext || renderProgressContext())
-    const prompt = buildVolumeBatchPrompt({
+    const { prompt, audit } = buildVolumeBatchPromptWithAudit({
       contract: input.contract,
       repair: repairAttempt > 0,
       missingStart,
@@ -154,6 +172,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
       repairErrors: previousErrors,
       forbiddenVolumeNames
     })
+    input.onPromptBuilt?.(prompt, audit)
 
     const acceptedCountBefore = accepted.length
 
@@ -216,7 +235,9 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
     }
 
     if (accepted.length === expectedCount) {
+      const validationStartedAt = Date.now()
       const validation = validateVolumeBatch(accepted, input.contract, input.historyVolumes)
+      const validationMs = Math.max(0, Date.now() - validationStartedAt)
       const attempt: VolumeBatchAttempt = {
         repairAttempt,
         status: 'complete',
@@ -224,6 +245,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
         acceptedCount: accepted.length,
         missingStart,
         missingCount,
+        validationMs,
         errors: validation.valid ? validationErrors : [...validationErrors, ...validation.errors]
       }
       attempts.push(attempt)

@@ -483,6 +483,146 @@ async function removeRunDirectory(source, dirName) {
   return { success: true, path: target }
 }
 
+function normalizeTraceSource(source) {
+  return ['outline', 'home', 'eval', 'infra'].indexOf(source) >= 0 ? source : 'pipeline'
+}
+
+function isSinglePathSegment(value) {
+  return typeof value === 'string' && value.length > 0 && /^[^\\/]+$/.test(value) && path.basename(value) === value
+}
+
+async function listRunDirectories(source) {
+  if (!dataDir) return { success: false, reason: '数据目录未初始化' }
+  var dir = traceDir(source)
+  if (!dir) return { success: false, reason: '数据目录未初始化' }
+  var entries
+  try {
+    entries = await fs.promises.readdir(dir, { withFileTypes: true })
+  } catch (listError) {
+    if (listError && listError.code === 'ENOENT') return { success: true, path: dir, runs: [] }
+    throw listError
+  }
+  var runs = []
+  for (var i = 0; i < entries.length; i++) {
+    var entry = entries[i]
+    if (!entry.isDirectory() || !isSinglePathSegment(entry.name)) continue
+    var tracePath = path.join(dir, entry.name, 'run-trace.json')
+    try {
+      var content = await fs.promises.readFile(tracePath, 'utf8')
+      var run = JSON.parse(content)
+      runs.push({
+        dirName: entry.name,
+        id: run.id,
+        source: normalizeTraceSource(run.source || source),
+        step: run.step,
+        stepName: run.stepName,
+        status: run.status,
+        startedAt: run.startedAt,
+        endedAt: run.endedAt,
+        apiCallCount: Array.isArray(run.apiCalls) ? run.apiCalls.length : 0
+      })
+    } catch (readError) {
+      // Incomplete directories stay hidden instead of breaking the whole list.
+    }
+  }
+  runs.sort(function(a, b) { return (b.startedAt || 0) - (a.startedAt || 0) })
+  return { success: true, path: dir, runs: runs }
+}
+
+async function loadPayloadValues(dir, run) {
+  var values = new Map()
+  var refs = (run && run.payloads) || []
+  for (var i = 0; i < refs.length; i++) {
+    var ref = refs[i]
+    if (!ref || !ref.id || !ref.file) continue
+    var payloadPath = path.join(dir, 'payloads', ref.file)
+    if (payloadPath.indexOf(path.join(dir, 'payloads')) !== 0) continue
+    try {
+      var text = await fs.promises.readFile(payloadPath, 'utf8')
+      var value = text
+      if (ref.kind !== 'response' && ref.kind !== 'stream' && ref.kind !== 'reasoning' && ref.kind !== 'folder-output') {
+        try { value = JSON.parse(text) } catch (parseError) { /* keep raw text */ }
+      }
+      values.set(ref.id, value)
+    } catch (readError) {
+      // Missing payloads are reported by the existing integrity checks.
+    }
+  }
+  return values
+}
+
+function hydratePayloadWrapper(value, values) {
+  if (!value || typeof value !== 'object' || !value.__payload || !value.__payload.id) return value
+  return values.has(value.__payload.id) ? values.get(value.__payload.id) : value
+}
+
+function hydrateRefField(object, refField, targetField, values) {
+  var ref = object && object[refField]
+  if (!ref || !values.has(ref)) return
+  object[targetField] = values.get(ref)
+}
+
+function hydrateRunForRenderer(run, values) {
+  (run.apiCalls || []).forEach(function(call) {
+    call.requestMessages = hydratePayloadWrapper(call.requestMessages, values) || []
+    call.toolRequestDeltas = hydratePayloadWrapper(call.toolRequestDeltas, values)
+    call.streamText = hydratePayloadWrapper(call.streamText, values) || ''
+    call.reasoningText = hydratePayloadWrapper(call.reasoningText, values) || ''
+    hydrateRefField(call, 'responseTextPayloadRef', 'responseText', values)
+    ;(call.physicalCalls || []).forEach(function(physical) {
+      physical.requestMessages = hydratePayloadWrapper(physical.requestMessages, values) || []
+      physical.streamText = hydratePayloadWrapper(physical.streamText, values) || ''
+      physical.reasoningText = hydratePayloadWrapper(physical.reasoningText, values) || ''
+      hydrateRefField(physical, 'responseTextPayloadRef', 'responseText', values)
+    })
+    ;(call.toolCalls || []).forEach(function(tool) {
+      if (tool.input && tool.input.__payload) tool.input = hydratePayloadWrapper(tool.input, values)
+      if (tool.result && tool.result.__payload) tool.result = hydratePayloadWrapper(tool.result, values)
+    })
+  })
+  ;(run.promptSnapshots || []).forEach(function(snapshot) {
+    var value = snapshot && snapshot.payloadRef ? values.get(snapshot.payloadRef) : undefined
+    if (!value || typeof value !== 'object') return
+    if (Array.isArray(value.finalMessages)) snapshot.finalMessages = value.finalMessages
+    if (typeof value.systemPrompt === 'string') snapshot.systemPrompt = value.systemPrompt
+    if (typeof value.userPrompt === 'string') snapshot.userPrompt = value.userPrompt
+    if (Array.isArray(value.contextBlocks)) snapshot.contextBlocks = value.contextBlocks
+    if (Array.isArray(value.folderFingerprint)) snapshot.folderFingerprint = value.folderFingerprint
+  })
+  ;(run.processingReports || []).forEach(function(report) {
+    hydrateRefField(report, 'inputRef', 'inputPreview', values)
+    hydrateRefField(report, 'outputRef', 'output', values)
+  })
+  ;(run.folderDiagnostics || []).forEach(function(item) {
+    hydrateRefField(item, 'outputPayloadRef', 'output', values)
+    if (item && item.apiMeta && item.apiMeta.requestPayloadRef) {
+      hydrateRefField(item.apiMeta, 'requestPayloadRef', 'requestMessages', values)
+    }
+    if (item && item.postProcessReport) {
+      hydrateRefField(item.postProcessReport, 'outputPayloadRef', 'output', values)
+    }
+  })
+  return run
+}
+
+async function readRunDirectory(source, dirName) {
+  if (!dataDir) return { success: false, reason: '数据目录未初始化' }
+  if (!isSinglePathSegment(dirName)) return { success: false, reason: '无效目录' }
+  var sourceName = normalizeTraceSource(source)
+  var baseDir = path.join(dataDir, 'run-trace', sourceName)
+  var runDir = path.join(baseDir, dirName)
+  if (runDir.indexOf(baseDir + path.sep) !== 0) return { success: false, reason: '非法目录' }
+  var tracePath = path.join(runDir, 'run-trace.json')
+  try {
+    var run = JSON.parse(await fs.promises.readFile(tracePath, 'utf8'))
+    var values = await loadPayloadValues(runDir, run)
+    hydrateRunForRenderer(run, values)
+    return { success: true, path: tracePath, dirName: dirName, run: run }
+  } catch (e) {
+    return { success: false, reason: e && e.code === 'ENOENT' ? '运行记录不存在' : (e.message || String(e)) }
+  }
+}
+
 async function verifyPayloadFiles(dir, run) {
   var refs = (run && run.payloads) || []
   var missing = []
@@ -671,6 +811,23 @@ function registerRunTraceHandlers() {
     }
   })
 
+  ipcMain.handle('runTrace:list', async function(event, source) {
+    try {
+      return await listRunDirectories(source)
+    } catch (e) {
+      return { success: false, reason: e.message || String(e) }
+    }
+  })
+
+  ipcMain.handle('runTrace:read', async function(event, payload) {
+    try {
+      if (!payload || typeof payload !== 'object') return { success: false, reason: '无效的读取请求' }
+      return await readRunDirectory(payload.source, payload.dirName)
+    } catch (e) {
+      return { success: false, reason: e.message || String(e) }
+    }
+  })
+
   ipcMain.handle('runTrace:openFolder', async function(event, source) {
     try {
       var dir = traceDir(source)
@@ -688,6 +845,8 @@ function registerRunTraceHandlers() {
 module.exports = {
   registerRunTraceHandlers,
   setDataDir,
+  listRunDirectories,
+  readRunDirectory,
   buildRunWithPayloadRefs,
   deduplicatePayloads,
   verifyApiResponseIndex,

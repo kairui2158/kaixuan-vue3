@@ -12,6 +12,8 @@ export interface BodyArtifactAttempt {
   targetWords: number
   ratio: number
   errors: string[]
+  /** Observability only; validation timing never changes retry decisions. */
+  validationMs?: number
 }
 
 export interface GenerateBodyArtifactInput {
@@ -99,13 +101,16 @@ export async function generateBodyArtifact(
     }
 
     const generation = parseGenerationResult(raw)
+    const validationStartedAt = Date.now()
     const validation = validateBodyArtifact(generation.body, input.contract)
+    const validationMs = Math.max(0, Date.now() - validationStartedAt)
     const attempt: BodyArtifactAttempt = {
       repairAttempt,
       status: validation.status === 'valid' ? 'complete' : validation.status,
       wordCount: validation.wordCount,
       targetWords: input.contract.targetWords,
       ratio: validation.ratio,
+      validationMs,
       errors: validation.errors
     }
     attempts.push(attempt)

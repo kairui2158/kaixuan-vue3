@@ -139,4 +139,38 @@ describe('useAiCallTrace', () => {
     const run = useRunTraceStore().getRun(runId)
     expect(run?.apiCalls[0].durationMs).toBeGreaterThanOrEqual(100)
   })
+
+  it('records explicit phase timing and preserves it on finish', () => {
+    const trace = useAiCallTrace({ source: 'pipeline', step: 2, stepName: '卷纲层', mode: 'single' })
+    trace.begin()
+    const runId = trace.runId as string
+
+    trace.recordPhaseTiming('validation', 30)
+    trace.recordPhaseTiming('validation', 20)
+    trace.recordPhaseTiming('persistence', 40)
+    trace.finish('success')
+
+    expect(useRunTraceStore().getRun(runId)?.stepTimingLedger).toMatchObject({
+      validationSumMs: 50,
+      persistenceSumMs: 40
+    })
+  })
+
+  it('measures sync and async phase timing and keeps timing on failure', async () => {
+    const trace = useAiCallTrace({ source: 'pipeline', step: 3, stepName: '章节层', mode: 'single' })
+    trace.begin()
+    const runId = trace.runId as string
+
+    const syncResult = trace.measurePhase('promptBuild', () => 'prompt')
+    expect(syncResult).toBe('prompt')
+
+    await expect(trace.measurePhase('contextLoad', async () => {
+      throw new Error('context load failed')
+    })).rejects.toThrow('context load failed')
+
+    trace.fail(new Error('step failed'))
+    const ledger = useRunTraceStore().getRun(runId)?.stepTimingLedger
+    expect(ledger?.promptBuildMs).toBeGreaterThanOrEqual(0)
+    expect(ledger?.contextLoadMs).toBeGreaterThanOrEqual(0)
+  })
 })

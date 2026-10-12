@@ -149,6 +149,10 @@ export interface RealSkillExecutionResult {
       schemaValidateMs?: number
       retryMs?: number
       postProcessMs?: number
+      /** Number of schema-validation retries consumed before this terminal attempt. */
+      schemaRetryCount?: number
+      /** Marker-block occurrence counts in the final user prompt; observability only. */
+      repeatedPromptBlocks?: Record<string, number>
     }
   }
 }

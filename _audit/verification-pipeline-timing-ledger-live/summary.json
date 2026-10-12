@@ -1,34 +1,34 @@
 {
   "schema": "shenyi.pipeline-timing-ledger.electron-live",
   "version": 1,
-  "generatedAt": "2026-10-12T06:48:50.948Z",
+  "generatedAt": "2026-10-12T12:44:33.283Z",
   "script": "verify-pipeline-timing-ledger-electron.mjs",
   "model": "deepseek-v4-pro",
   "baseUrl": "https://openapi.cloud-ai.cn/v1",
   "projectId": "pipeline-timing-ledger-live",
-  "runId": "run-1791784391203-1",
+  "runId": "run-1791806811648-1",
   "runStatus": "success",
   "apiCallCount": 12,
-  "physicalCallCount": 13,
-  "retryPhysicalCallCount": 1,
+  "physicalCallCount": 12,
+  "retryPhysicalCallCount": 0,
   "top3": [
     {
       "key": "outputSumMs",
       "label": "模型流式输出",
-      "value": 3276691,
+      "value": 2219738,
       "kind": "conclusion"
     },
     {
       "key": "firstTokenSumMs",
       "label": "模型首 token 等待",
-      "value": 658956,
+      "value": 37762,
       "kind": "conclusion"
     },
     {
-      "key": "postProcessSumMs",
-      "label": "后处理",
-      "value": 115,
-      "kind": "conclusion"
+      "key": "localOverheadSumMs",
+      "label": "本地/编排等待候选",
+      "value": 1096,
+      "kind": "lead"
     }
   ],
   "hardRules": {

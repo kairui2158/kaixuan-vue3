@@ -10,6 +10,8 @@ export interface SettingsArtifactAttempt {
   acceptedCount: number
   rejectedCount: number
   errors: string[]
+  /** Observability only; validation timing never changes retry decisions. */
+  validationMs?: number
 }
 
 export interface GenerateSettingsArtifactInput {
@@ -85,12 +87,15 @@ export async function generateSettingsArtifact(
     }
 
     const parsed = extractJsonArray(raw) as any[]
+    const validationStartedAt = Date.now()
     const validation = validateSettingsArtifact(parsed, input.existing)
+    const validationMs = Math.max(0, Date.now() - validationStartedAt)
     const attempt: SettingsArtifactAttempt = {
       repairAttempt,
       status: validation.accepted.length > 0 ? 'complete' : 'rejected-all',
       acceptedCount: validation.accepted.length,
       rejectedCount: validation.rejected.length,
+      validationMs,
       errors: [
         ...validation.rejected.map(item => item.reason),
         ...validation.errors

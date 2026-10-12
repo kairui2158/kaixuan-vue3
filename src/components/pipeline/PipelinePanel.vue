@@ -806,7 +806,7 @@ import GenerationProgressBar from "./GenerationProgressBar.vue"
 import EmptyState from "../common/EmptyState.vue"
 import AppIcon from "../common/AppIcon.vue"
 import { useDragSort } from "../../composables/useDragSort"
-import { extractMemory, unifiedMemoryAiCall } from "../../services/memoryExtractor"
+import { extractMemory, unifiedMemoryAiCall, type UnifiedMemoryAiCallTrace } from "../../services/memoryExtractor"
 import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { conversationContextService } from "../../services/conversationContextService"
@@ -1357,8 +1357,15 @@ watch(() => ({
   set memoryPreviewVisible(value: boolean) { memoryPreviewVisible.value = value },
   get memoryPreviewChanges() { return memoryPreviewChanges.value },
   set memoryPreviewChanges(value: any[]) { memoryPreviewChanges.value = value },
+  get memoryPreviewLoading() { return memoryPreviewLoading.value },
+  get memoryPreviewSaving() { return memoryPreviewSaving.value },
+  get memoryPreviewError() { return memoryPreviewError.value },
+  get steps() { return steps.value },
   get projectStore() { return projectStore },
   get pipelineStore() { return pipelineStore },
+  get currentBodyChapter() {
+    return getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value).chapter
+  },
   get chapterDetailVisible() { return chapterDetailVisible.value },
   set chapterDetailVisible(value: boolean) { chapterDetailVisible.value = value },
   get chapterDetailEditTitle() { return chapterDetailEditTitle.value },
@@ -2323,29 +2330,56 @@ async function analyzeOutline() {
     console.warn("[WARN] No model selected, skipping outline analysis")
     return
   }
-  const prompt = "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.pipelineOutlineText
   const trace = startStepTrace(0, "大纲风格分析", "outline-analysis")
   try {
     const aiService = await getAiService()
     trace.begin()
+    const messages = await trace.measurePhase('promptBuild', () => [
+      { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
+      { role: "user", content: "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.pipelineOutlineText }
+    ])
+    const messagesForTrace = messages.map(m => ({ role: m.role, content: m.content }))
     const callId = trace.beginApiCall({
       providerId: provider.id,
       providerName: provider.name,
       model,
-      requestMessages: [
-        { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
-        { role: "user", content: prompt }
-      ]
+      requestMessages: messagesForTrace
     })
     const callResult = await aiService.callAi({
       purpose: 'generate',
-      messages: [
-        { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
-        { role: "user", content: prompt }
-      ],
+      messages,
       model,
       retry: true,
-      meta: { source: 'PipelinePanel.outline-analysis' }
+      meta: { source: 'PipelinePanel.outline-analysis' },
+      onPhysicalCall: (event) => {
+        runTraceStore.appendPhysicalCall(trace.runId!, callId, {
+          physicalCallId: event.physicalCallId,
+          phase: event.phase,
+          status: event.status,
+          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+          responseText: event.responseText || '',
+          streamText: event.streamText || '',
+          reasoningText: event.reasoningText || '',
+          finishReason: event.finishReason,
+          usage: event.usage,
+          durationMs: event.durationMs,
+          error: event.error,
+          toolsEnabled: event.toolsEnabled,
+          toolsDowngraded: event.toolsDowngraded,
+          downgradeReason: event.downgradeReason,
+          retryStrategy: event.retryStrategy,
+          maxTokens: event.maxTokens,
+          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+          contextBudgetDecision: event.contextBudget?.decision,
+          contextBudgetReason: event.contextBudget?.reason,
+          usageReconciliation: event.usageReconciliation,
+          interruptionCode: event.interruptionCode,
+          heartbeat: event.heartbeat,
+          firstTokenMs: event.firstTokenMs,
+          outputMs: event.outputMs
+        })
+      }
     })
     trace.finishApiCall(callId, {
       status: callResult.text ? 'success' : 'degraded',
@@ -3033,16 +3067,23 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       }
       const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       if (si > 0 && runTraceStore.currentRunId) {
+        const fullReason = templateMeta?.chainHandoff?.reason?.trim() || ""
+        const fullReasonMissing =
+          (templateMeta?.chainHandoff?.previousOutput === "full" ||
+            templateMeta?.chainHandoff?.requiresFullPreviousOutput === true) &&
+          !fullReason
         const deliveryDetail = JSON.stringify({
           delivery: handoffDelivery,
           fullTextLength: current.length,
           deliveredLength: previousResolution.output.length,
           declaredMode: templateMeta?.chainHandoff?.previousOutput || "default",
-          requires: templateMeta?.chainHandoff?.requires || []
+          requires: templateMeta?.chainHandoff?.requires || [],
+          fullReason,
+          fullReasonMissing
         })
         runTraceStore.addEvent(runTraceStore.currentRunId, {
           type: "chain-handoff-delivery",
-          level: "info",
+          level: fullReasonMissing ? "warn" : "info",
           label: `链式步骤 ${si + 1}/${templates.length} 上游交付决策`,
           detail: deliveryDetail
         })
@@ -3543,6 +3584,7 @@ async function genSettings() {
       callSettingsApi: (requestPrompt) => runStepSkills(1, requestPrompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。"),
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
       onAttempt: (attempt) => {
+        trace.recordStepObservation('validation', attempt.validationMs)
         trace.addEvent({
           type: "settings-artifact-attempt",
           level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
@@ -3579,7 +3621,7 @@ async function genSettings() {
           updatedAt: Date.now()
         })
       }
-      projectStore.saveProject()
+      await trace.measurePhase('persistence', () => projectStore.saveProject())
       if (sc2.categories.length > 0) {
         selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
       }
@@ -3670,17 +3712,30 @@ async function genVolumes(mode: string) {
       allocatedSum: volumePlan.allocatedWords,
       existingVolumes: previousVolumes
     })
-    const basePrompt = prompt + "\n\n" + volumeHistoryContext
+    const basePrompt = prompt
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
     const batchResult = await generateVolumeBatch({
       contract: volumeContract,
       historyVolumes: previousVolumes,
       basePrompt,
       historyContext: volumeHistoryContext,
-      callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。"),
+      callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, undefined, "你是卷纲生成专家。基于大纲和设定生成卷纲。"),
       requestPolicy: getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath) ? "single-volume" : "batch",
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
+      onPromptBuilt: (requestPrompt, promptAudit) => {
+        if (!promptAudit.duplicateHistoryContextSuppressed) return
+        trace.addEvent({
+          type: "duplicate-history-context-suppressed",
+          level: "warn",
+          label: "卷纲历史块重复注入已抑制",
+          detail: JSON.stringify({
+            promptLength: requestPrompt.length,
+            ...promptAudit
+          })
+        })
+      },
       onAttempt: (attempt) => {
+        trace.recordStepObservation('validation', attempt.validationMs)
         trace.addEvent({
           type: "volume-batch-attempt",
           level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
@@ -3759,7 +3814,7 @@ async function genVolumes(mode: string) {
           }
         })]
       }
-      projectStore.saveProject()
+      await trace.measurePhase('persistence', () => projectStore.saveProject())
       volumeGenerationLogs.value.push("卷纲已写入卷框并保存到当前项目")
       const ledger = validateVolumeGenerationLedger(projectStore.volumes.length, effectiveVolumes, mode as VolumeGenerationContract["mode"])
       if (!ledger.valid) {
@@ -3939,6 +3994,7 @@ async function genChapters() {
         callChapterApi,
         shouldContinue: () => !pipelineStore.isGenerationCanceled(),
         onAttempt: (attempt) => {
+          trace.recordStepObservation('validation', attempt.validationMs)
           trace.addEvent({
             type: "chapter-batch-attempt",
             level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
@@ -3963,7 +4019,7 @@ async function genChapters() {
       collected.push(...added)
       projectStore.setChapters(volId, [...untouchedChapters, ...collected])
       projectStore.refreshTree()
-      await saveChapterBreakpoint('progress')
+      await trace.measurePhase('persistence', () => saveChapterBreakpoint('progress'))
       chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
       trace.addEvent({
         type: "chapter-batch-validated",
@@ -4093,6 +4149,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       callBodyApi: (requestPrompt) => runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。"),
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
       onAttempt: (attempt) => {
+        trace.recordStepObservation('validation', attempt.validationMs)
         trace.addEvent({
           type: "body-artifact-attempt",
           level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
@@ -4245,7 +4302,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         repairAttempts: bodyArtifact.attempts.filter(attempt => attempt.repairAttempt > 0).length
       })
     })
-    await projectStore.saveProject()
+    await trace.measurePhase('persistence', () => projectStore.saveProject())
     bodyArtifactDelivered = true
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
@@ -4517,8 +4574,50 @@ async function callMemoryApi(
   systemPrompt: string,
   trace?: Parameters<typeof unifiedMemoryAiCall>[2]
 ): Promise<string | null> {
+  const traceRunIdForMemory = () => (trace as { runId?: string } | undefined)?.runId || null
+  const memoryTrace = trace as (UnifiedMemoryAiCallTrace & { runId?: string }) | undefined
+  const traceCallIdForMemory = () => (
+    memoryTrace && typeof memoryTrace.beginApiCall === 'function' && memoryTrace.runId
+      ? runTraceStore.getApiCallId('pipeline')
+      : null
+  )
   try {
-    return await unifiedMemoryAiCall(prompt, systemPrompt, trace)
+    return await unifiedMemoryAiCall(prompt, systemPrompt, trace ? {
+      ...trace,
+      onPhysicalCall: (event) => {
+        const runId = traceRunIdForMemory()
+        const callId = traceCallIdForMemory()
+        if (!runId) return
+        if (!callId) return
+        runTraceStore.appendPhysicalCall(runId, callId, {
+          physicalCallId: event.physicalCallId,
+          phase: event.phase,
+          status: event.status,
+          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+          responseText: event.responseText || '',
+          streamText: event.streamText || '',
+          reasoningText: event.reasoningText || '',
+          finishReason: event.finishReason,
+          usage: event.usage,
+          durationMs: event.durationMs,
+          error: event.error,
+          toolsEnabled: event.toolsEnabled,
+          toolsDowngraded: event.toolsDowngraded,
+          downgradeReason: event.downgradeReason,
+          retryStrategy: event.retryStrategy,
+          maxTokens: event.maxTokens,
+          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+          contextBudgetDecision: event.contextBudget?.decision,
+          contextBudgetReason: event.contextBudget?.reason,
+          usageReconciliation: event.usageReconciliation,
+          interruptionCode: event.interruptionCode,
+          heartbeat: event.heartbeat,
+          firstTokenMs: event.firstTokenMs,
+          outputMs: event.outputMs
+        })
+      }
+    } : undefined)
   } catch (error) {
     if ((error as any)?.message === "记忆抽取超时" || (error as any)?.kind === "timeout") throw error
     console.warn("[PIPELINE] memory extraction API failed:", error)

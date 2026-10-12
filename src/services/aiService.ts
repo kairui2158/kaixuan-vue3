@@ -1996,7 +1996,11 @@ async function mainNetStream(
           setTimeout(resolve, 100)
         })
         if (!ended) {
-          if (timeoutMs && Date.now() - startedAt > timeoutMs) {
+          // The wall-clock timeout is a first-output deadline. Once a stream
+          // has emitted content or reasoning, idle/progress watchdogs own
+          // stall detection; re-checking the total timeout here would kill
+          // an actively streaming long generation.
+          if (timeoutMs && !sawStreamOutput && Date.now() - startedAt > timeoutMs) {
             throw new DOMException('The operation was aborted', 'AbortError')
           }
         }
@@ -3652,7 +3656,9 @@ export function createAiService(
             : undefined,
           toolCallCount: requestedTools ? physicalToolCalls.length : 0,
           toolCallNames: requestedTools ? physicalToolCalls.map(call => call.name) : [],
-          firstTokenMs: physicalFirstTokenAt === null ? undefined : physicalFirstTokenAt - startTime,
+          firstTokenMs: physicalFirstTokenAt === null
+            ? undefined
+            : physicalFirstTokenAt - (physicalStartedAt ?? startTime),
           outputMs: physicalFirstTokenAt === null
             ? undefined
             : Date.now() - physicalFirstTokenAt,

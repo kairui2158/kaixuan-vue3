@@ -29,6 +29,7 @@ const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_ARTIFACT_CONTRACT_HEARTB
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_ARTIFACT_CONTRACT_STALLED_TIMEOUT_MS || 2 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_ARTIFACT_CONTRACT_DEAD_TIMEOUT_MS || 5 * 60_000)
 const KEEP_PROFILE = process.env.SHENYI_ARTIFACT_CONTRACT_KEEP_PROFILE === '1'
+const RUN_TRACE_SCHEMA_VERSION = 19
 const { safeStorage } = require('electron')
 
 const SKILL_SOURCES = [
@@ -246,8 +247,8 @@ async function seedApplication(page, apiKey, skills) {
       schemaVersion: 3,
       projectName: '流水线产物契约统一真实UI实测',
       outlineText: outline,
-      outlineLocked: true,
-      outlineLockedText: outline,
+      outlineLocked: false,
+      outlineLockedText: '',
       bookWordCount: 12000,
       volumesConfirmed: false,
       chaptersConfirmed: false,
@@ -272,6 +273,18 @@ async function seedApplication(page, apiKey, skills) {
       skillAgents: {},
     })
     await window.electronAPI.storageWrite('wa_deAiConfig', { hardruleEnabled: false, hardRuleMode: 'detect-report' })
+    await window.electronAPI.storageWrite('wa_appSettings', {
+      fontSize: 14,
+      uiFontSize: 14,
+      editorFont: 'lxgw-wenkai',
+      chatInputMode: 'enter-send',
+      autoSaveInterval: 30,
+      maxTabs: 20,
+      cdpPort: 9223,
+      memoryExtractionTimeoutSeconds: 300,
+      autoExtractMemory: true,
+      githubToken: ''
+    })
     await window.electronAPI.storageRemove('wa_pipeline_breakpoint')
   }, {
     apiKey,
@@ -356,12 +369,22 @@ function startHeartbeat(page, electronPid) {
       const settings = await currentRunSnapshot(page, 1)
       const volume = await currentRunSnapshot(page, 2)
       const body = await currentRunSnapshot(page, 4)
+      const outline = await currentRunSnapshot(page, 0)
+      const chapter = await currentRunSnapshot(page, 3)
+      const memory = await page.evaluate(() => ({
+        previewVisible: Boolean(document.querySelector('[data-modal-id="pl-memory-preview"]')),
+        previewLoading: Boolean(globalThis.__pipelinePanelState?.memoryPreviewLoading),
+        previewSaving: Boolean(globalThis.__pipelinePanelState?.memoryPreviewSaving),
+      })).catch(() => ({}))
       const state = {
         at: new Date().toISOString(),
         electronPid,
+        outline,
         settings,
         volume,
+        chapter,
         body,
+        memory,
       }
       fs.appendFileSync(HEARTBEAT_PATH, `${JSON.stringify(state)}\n`, 'utf8')
     } catch (error) {
@@ -414,6 +437,20 @@ async function waitForLayerCompletion(page, {
 async function confirmSettingsThroughUi(page) {
   await page.click('#btn-pl-confirm-settings')
   await sleep(600)
+}
+
+async function confirmOutlineThroughUi(page) {
+  await page.locator('#pl-steps .pl-step').nth(0).click()
+  await page.waitForSelector('#pl-step-1-content', { state: 'visible' })
+  await page.click('#btn-pl-confirm-outline')
+  const snapshot = await waitForLayerCompletion(page, {
+    step: 0,
+    isFinished: state => state.runStatus === 'success' || state.runStatus === 'degraded',
+    isFailed: state => state.status?.startsWith('failed:'),
+  })
+  assert(snapshot.runStatus === 'success' || snapshot.runStatus === 'degraded',
+    `outline style analysis reaches a terminal state, got ${snapshot.runStatus}`)
+  return snapshot
 }
 
 async function confirmVolumesThroughUi(page) {
@@ -540,6 +577,7 @@ async function openPipelineWithResume(page, apiKey, skills) {
   }
   await page.click('#btn-pipeline')
   await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+  if (inspection.resumable) await inspectTraceRestored(page)
   return { shouldGenerateUpstream: !inspection.resumable }
 }
 
@@ -561,6 +599,40 @@ async function generateChapterThroughUi(page) {
   await sleep(600)
 }
 
+async function inspectChapterResumeState(page) {
+  return await page.evaluate(() => {
+    const project = window.__pinia?._s?.get('project')
+    const volume = project?.volumes?.[0]
+    const volumeId = volume?.id || volume?.name
+    const chapters = volumeId ? (project?.chapters?.[volumeId] || []) : []
+    return {
+      generated: chapters.some(chapter => chapter?.pipelineGenerated === true),
+      chapterCount: chapters.filter(chapter => chapter?.pipelineGenerated === true).length,
+      confirmed: chapters.every(chapter => chapter?.confirmed === true) && chapters.length > 0,
+    }
+  })
+}
+
+async function inspectTraceRestored(page) {
+  const restored = await page.evaluate(() => Boolean(window.__pinia?._s?.get('runTrace')?.runs?.length))
+  assert(restored, 'runTrace store is available after startup')
+  await page.waitForFunction(() => {
+    const runs = window.__pinia?._s?.get('runTrace')?.runs || []
+    return runs.some(run => run.source === 'pipeline' && run.status !== 'running' && run.status !== 'blocked')
+  }, undefined, { timeout: 20_000, polling: 500 })
+}
+
+async function inspectBodyResumeState(page) {
+  return await page.evaluate(() => {
+    const state = globalThis.__pipelinePanelState
+    const selectedChapter = state?.currentBodyChapter || null
+    return {
+      generated: Boolean(selectedChapter?.bodyGenerated && selectedChapter?.body),
+      bodyLength: String(selectedChapter?.body || '').length,
+    }
+  })
+}
+
 async function generateBodyThroughUi(page) {
   await page.locator('#pl-steps .pl-step').nth(4).click()
   await page.waitForSelector('#pl-step-5-content', { state: 'visible' })
@@ -576,18 +648,93 @@ async function generateBodyThroughUi(page) {
   })
 }
 
+async function ensurePipelineBodyVisible(page) {
+  if (await page.locator('#btn-pl-confirm-body').count()) return
+
+  // Confirming body output opens the home editor by product design, unmounting
+  // this panel. Return through the real navigation path instead of bypassing it.
+  await page.click('#btn-pipeline')
+  await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+  await page.locator('#pl-steps .pl-step').nth(4).click()
+  await page.waitForSelector('#pl-step-5-content', { state: 'visible' })
+  const volumeSelect = page.locator('#pl-context-summary select').first()
+  if (await volumeSelect.count()) {
+    await volumeSelect.selectOption({ index: 0 })
+    await page.locator('#pl-context-summary select').nth(1).selectOption({ index: 0 })
+  }
+  await page.waitForFunction(() => {
+    const button = document.querySelector('#btn-pl-confirm-body')
+    return Boolean(button && !button.disabled)
+  }, undefined, { timeout: 20_000, polling: 250 })
+}
+
+async function confirmBodyAndMemoryThroughUi(page) {
+  await ensurePipelineBodyVisible(page)
+  const autoExtractMemory = await page.evaluate(() => {
+    const settings = window.__pinia?._s?.get('settings')
+    return Boolean(settings?.autoExtractMemory)
+  })
+  assert(autoExtractMemory,
+    'memory extraction is enabled; otherwise this verifier would silently sample only five layers')
+
+  await page.waitForFunction(() => {
+    const button = document.querySelector('#btn-pl-confirm-body')
+    return Boolean(button && !button.disabled)
+  }, undefined, { timeout: STEP_TIMEOUT_MS, polling: 500 })
+  await page.click('#btn-pl-confirm-body')
+
+  await page.waitForSelector('[data-modal-id="pl-memory-preview"]', { timeout: STEP_TIMEOUT_MS })
+  await page.waitForFunction(() => {
+    const state = globalThis.__pipelinePanelState
+    if (!state) return false
+    if (state.memoryPreviewLoading) return false
+    if (state.memoryPreviewSaving) return false
+    // The extraction API can legitimately return "no changes"; that is a
+    // terminal state only when the empty-state or error UI has rendered.
+    if (state.memoryPreviewError) return true
+    return document
+      .querySelector('[data-modal-id="pl-memory-preview"] .pl-memory-change-list, [data-modal-id="pl-memory-preview"] .empty-state, [data-modal-id="pl-memory-preview"] .pl-memory-preview-error')
+      !== null
+  }, undefined, { timeout: STEP_TIMEOUT_MS, polling: 1000 })
+  const memoryState = await page.evaluate(() => {
+    const state = globalThis.__pipelinePanelState
+    return {
+      error: state?.memoryPreviewError || '',
+      changes: (state?.memoryPreviewChanges || []).length,
+      stepCompleted: Boolean(state?.steps?.[4]?.completed),
+    }
+  })
+  assert(!memoryState.error, `memory extraction completes without error: ${memoryState.error}`)
+  await page.screenshot({
+    path: path.join(EVIDENCE_ROOT, 'memory-preview.png'),
+    fullPage: false,
+  })
+  if (await page.locator('[data-modal-id="pl-memory-preview"] .pl-memory-preview-footer .btn-primary').isVisible()) {
+    await page.click('[data-modal-id="pl-memory-preview"] .pl-memory-preview-footer .btn-primary')
+    await page.waitForSelector('[data-modal-id="pl-memory-preview"]', { state: 'detached' })
+  }
+  return memoryState
+}
+
 async function exportLatestRun(page, step) {
-  const runId = await page.evaluate(stepNumber => {
+  const exported = await page.evaluate(async ({ exportRoot, step: stepNumber }) => {
     const store = window.__pinia?._s?.get('runTrace')
+    const stepNames = {
+      0: '大纲风格分析',
+      1: '设定层',
+      2: '卷纲层',
+      3: '章节层',
+      4: '正文层',
+    }
+    // A resumed session can append a zero-API terminal marker run. Contract
+    // evidence must come from the run that actually contains API activity.
     const run = [...(store?.runs || [])]
-      .filter(item => item.source === 'pipeline' && item.step === stepNumber)
+      .filter(item => item.source === 'pipeline'
+        && item.step === stepNumber
+        && item.stepName === stepNames[stepNumber]
+        && (item.apiCalls || []).length > 0)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
-    return run?.id || null
-  }, step)
-  assert(runId, `pipeline step ${step} run trace exists`)
-  return await page.evaluate(async ({ exportRoot, runId: id }) => {
-    const store = window.__pinia?._s?.get('runTrace')
-    const run = [...(store?.runs || [])].find(item => item.id === id)
+    if (!run) return null
     const result = await window.electronAPI.runTraceExport({
       schema: 'shenyi.run-trace',
       version: 2,
@@ -595,8 +742,10 @@ async function exportLatestRun(page, step) {
       mode: 'deep',
       payloadDirectoryHint: exportRoot,
     })
-    return { runId: id, result }
-  }, { exportRoot: EXPORT_ROOT, runId })
+    return { runId: run.id, result }
+  }, { exportRoot: EXPORT_ROOT, step })
+  assert(exported, `pipeline step ${step} run trace exists`)
+  return exported
 }
 
 function readExportedRun(exported) {
@@ -633,7 +782,8 @@ function collectPayloadStrings(value, output = []) {
 }
 
 function assertSettingsRun({ run, payloads }) {
-  assert.equal(run.schemaVersion, 17, 'settings run uses runTrace schema v17')
+  assert.equal(run.schemaVersion, RUN_TRACE_SCHEMA_VERSION,
+    `settings run uses runTrace schema v${RUN_TRACE_SCHEMA_VERSION}`)
   assert.equal(run.status, 'success', 'settings run succeeds')
   assert.equal(run.step, 1, 'settings run belongs to step 1')
   const validated = parseEvents(run, 'settings-artifact-validated')
@@ -645,10 +795,12 @@ function assertSettingsRun({ run, payloads }) {
     .flatMap(payload => collectPayloadStrings(payload))
     .find(text => text.includes('请基于这份已确认的大纲'))
   assert(prompt, 'settings request contains the artifact prompt')
+  assertStepTimingLedger(run, 'settings')
 }
 
 function assertVolumeRun({ run, payloads }) {
-  assert.equal(run.schemaVersion, 17, 'volume run uses runTrace schema v17')
+  assert.equal(run.schemaVersion, RUN_TRACE_SCHEMA_VERSION,
+    `volume run uses runTrace schema v${RUN_TRACE_SCHEMA_VERSION}`)
   assert.equal(run.status, 'success', 'volume run succeeds')
   assert.equal(run.step, 2, 'volume run belongs to step 2')
   const validated = parseEvents(run, 'volume-batch-validated')
@@ -676,10 +828,12 @@ function assertVolumeRun({ run, payloads }) {
     'a clean successful volume run must not resume a stale breakpoint handoff')
   assert((run.apiCalls || []).length >= 12,
     `three complete S1-S4 chains require at least twelve API calls, got ${(run.apiCalls || []).length}`)
+  assertStepTimingLedger(run, 'volume')
 }
 
 function assertBodyRun({ run, payloads }) {
-  assert.equal(run.schemaVersion, 17, 'body run uses runTrace schema v17')
+  assert.equal(run.schemaVersion, RUN_TRACE_SCHEMA_VERSION,
+    `body run uses runTrace schema v${RUN_TRACE_SCHEMA_VERSION}`)
   assert.equal(run.status, 'success', 'body run succeeds')
   assert.equal(run.step, 4, 'body run belongs to step 4')
   const validated = parseEvents(run, 'body-artifact-validated')
@@ -698,6 +852,7 @@ function assertBodyRun({ run, payloads }) {
     .flatMap(payload => collectPayloadStrings(payload))
     .find(text => text.includes(targetContract))
   assert(prompt, `body request contains the target-word contract: ${targetContract}`)
+  assertStepTimingLedger(run, 'body')
 }
 
 function assertNoOpenApiCalls(run) {
@@ -705,6 +860,133 @@ function assertNoOpenApiCalls(run) {
     'no API call is left running')
   assert((run.turns || []).every(turn => turn.status !== 'running'),
     'no turn is left running')
+}
+
+function assertStepTimingLedger(run, layer) {
+  assert.equal(run.schemaVersion, RUN_TRACE_SCHEMA_VERSION,
+    `${layer} run uses runTrace schema v${RUN_TRACE_SCHEMA_VERSION}`)
+  const ledger = run.stepTimingLedger
+  assert(ledger, `${layer} run exports stepTimingLedger`)
+  assert(Number.isFinite(Number(ledger.apiCallCount)) && Number(ledger.apiCallCount) >= 1,
+    `${layer} ledger records at least one API call`)
+  assert(Number.isFinite(Number(ledger.physicalCallCount)) && Number(ledger.physicalCallCount) >= 1,
+    `${layer} ledger records at least one physical request`)
+  for (const key of [
+    'promptBuildMs', 'contextLoadMs', 'firstTokenSumMs', 'outputSumMs',
+    'postProcessSumMs', 'validationSumMs', 'persistenceSumMs', 'physicalDurationSumMs',
+  ]) {
+    // Optional phase fields may be undefined when a layer has no matching phase,
+    // but any recorded value must remain a finite non-negative duration.
+    if (ledger[key] === undefined) continue
+    assert(Number.isFinite(ledger[key]) && ledger[key] >= 0,
+      `${layer} ledger ${key} is non-negative and finite`)
+  }
+  assert(!ledger.contextChars || Number(ledger.contextChars) >= 0,
+    `${layer} contextChars is non-negative`)
+  assert(!ledger.outputChars || Number(ledger.outputChars) >= 0,
+    `${layer} outputChars is non-negative`)
+}
+
+function assertOutlineAnalysisRun({ run }) {
+  assert.equal(run.step, 0, 'outline analysis run belongs to step 0')
+  assert(run.status === 'success' || run.status === 'degraded',
+    `outline analysis reaches a terminal status, got ${run.status}`)
+  assertStepTimingLedger(run, 'outline-analysis')
+}
+
+function assertChapterRun({ run }) {
+  assert.equal(run.step, 3, 'chapter run belongs to step 3')
+  assert.equal(run.status, 'success', 'chapter run succeeds')
+  assertStepTimingLedger(run, 'chapter')
+  assert((run.apiCalls || []).length >= 1, 'chapter run records at least one API call')
+  assert((run.apiCalls || []).every(call => call.status !== 'running'),
+    'chapter run leaves no running API call')
+}
+
+function assertMemoryRun({ run }) {
+  assert.equal(run.step, 4, 'memory extraction run is recorded under step 4')
+  assert(run.stepName === '记忆抽取', `memory run has the expected step name, got ${run.stepName}`)
+  assert.equal(run.status, 'success', 'memory extraction run succeeds')
+  assertStepTimingLedger(run, 'memory-extraction')
+  assert((run.apiCalls || []).length >= 1, 'memory extraction records at least one API call')
+  const physicalCalls = (run.apiCalls || []).flatMap(call => call.physicalCalls || [])
+  assert(physicalCalls.length >= 1, 'memory extraction records at least one physical request')
+  assert((run.apiCalls || []).every(call => call.status !== 'running'),
+    'memory extraction leaves no running API call')
+}
+
+function formatMs(value) {
+  const ms = Number(value || 0)
+  if (ms >= 3_600_000) return `${(ms / 3_600_000).toFixed(2)}h`
+  if (ms >= 60_000) return `${(ms / 60_000).toFixed(2)}m`
+  if (ms >= 1_000) return `${(ms / 1_000).toFixed(2)}s`
+  return `${ms.toFixed(0)}ms`
+}
+
+function buildTimingAnalysis(runs) {
+  const layers = runs.map(({ layer, run }) => {
+    const ledger = run.stepTimingLedger || {}
+    return {
+      layer,
+      runId: run.id,
+      status: run.status,
+      durationMs: run.durationMs,
+      apiCallCount: ledger.apiCallCount,
+      physicalCallCount: ledger.physicalCallCount,
+      retryCallCount: ledger.retryCallCount,
+      schemaRetryCallCount: ledger.schemaRetryCallCount,
+      firstTokenSumMs: ledger.firstTokenSumMs,
+      outputSumMs: ledger.outputSumMs,
+      promptBuildMs: ledger.promptBuildMs,
+      contextLoadMs: ledger.contextLoadMs,
+      postProcessSumMs: ledger.postProcessSumMs,
+      validationSumMs: ledger.validationSumMs,
+      persistenceSumMs: ledger.persistenceSumMs,
+      stepBoundaryGapMs: ledger.stepBoundaryGapMs,
+      contextChars: ledger.contextChars,
+      outputChars: ledger.outputChars,
+      repeatedPromptBlocks: ledger.repeatedPromptBlocks,
+    }
+  })
+  const lines = [
+    '# Phase 5B 全层真实采样耗时结构',
+    '',
+    `- 生成时间: ${new Date().toISOString()}`,
+    `- 模型: ${MODEL}`,
+    `- 供应商: ${BASE_URL}`,
+    '',
+    '## 层级汇总',
+    '',
+    '| 层 | 状态 | 总耗时 | API call | 物理请求 | 重试 | 首 token | 流式输出 | 本地校验 | 持久化 | 层间 gap |',
+    '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+  ]
+  for (const row of layers) {
+    lines.push([
+      row.layer,
+      row.status,
+      formatMs(row.durationMs),
+      row.apiCallCount,
+      row.physicalCallCount,
+      Number(row.retryCallCount || 0) + Number(row.schemaRetryCallCount || 0),
+      formatMs(row.firstTokenSumMs),
+      formatMs(row.outputSumMs),
+      formatMs(row.validationSumMs),
+      formatMs(row.persistenceSumMs),
+      formatMs(row.stepBoundaryGapMs),
+    ].join(' | '))
+  }
+  lines.push('', '## 上下文与输出', '',
+    '| 层 | contextChars | outputChars | repeatedPromptBlocks |', '|---|---:|---:|---|')
+  for (const row of layers) {
+    lines.push([row.layer, row.contextChars || 0, row.outputChars || 0,
+      JSON.stringify(row.repeatedPromptBlocks || {})].join(' | '))
+  }
+  lines.push('', '## 归因边界', '',
+    '- firstTokenSumMs/outputSumMs 是模型侧结论。')
+  lines.push('- promptBuild/contextLoad/validation/persistence 是本地耗时结论。')
+  lines.push('- stepBoundaryGapMs 只表示同 scope 两次 run 之间的间隔，不能自动等同用户等待。')
+  lines.push('- 本文件只记录本批采样，不直接推出并发或路由改动。')
+  return { layers, text: lines.join('\n') }
 }
 
 async function captureEvidence(page, evidence) {
@@ -719,6 +1001,29 @@ async function captureEvidence(page, evidence) {
     projectId: PROJECT_ID,
     layers: evidence,
   }, null, 2), 'utf8')
+}
+
+async function exportRunByPredicate(page, target) {
+  const exported = await page.evaluate(async ({ exportRoot, filter }) => {
+    const store = window.__pinia?._s?.get('runTrace')
+    const run = [...(store?.runs || [])]
+      .sort((a, b) => b.startedAt - a.startedAt)
+      .find(run => run.source === 'pipeline'
+        && run.step === filter.step
+        && run.stepName === filter.stepName) || null
+    if (!run) return null
+    const result = await window.electronAPI.runTraceExport({
+      schema: 'shenyi.run-trace',
+      version: 2,
+      run: store.exportRunToJson(run),
+      mode: 'deep',
+      payloadDirectoryHint: exportRoot,
+    })
+    return { runId: run.id, result }
+  }, { exportRoot: EXPORT_ROOT, filter: target })
+  assert(exported,
+    `target run trace exists (step=${target.step}, stepName=${target.stepName})`)
+  return exported
 }
 
 async function archiveLiveExport({ directory, run, targetDir }) {
@@ -796,8 +1101,21 @@ async function main() {
     )
 
     heartbeat = startHeartbeat(page, electronProcess.pid)
+    const layerRuns = []
 
     if (shouldGenerateUpstream) {
+      await confirmOutlineThroughUi(page)
+      const outlineExport = await exportLatestRun(page, 0)
+      const outlineRun = readExportedRun(outlineExport)
+      assertOutlineAnalysisRun(outlineRun)
+      assertNoOpenApiCalls(outlineRun.run)
+      layerRuns.push({ layer: 'Step 0 大纲风格分析', run: outlineRun.run })
+      evidence.push(await archiveLiveExport({
+        directory: outlineRun.directory,
+        run: outlineRun.run,
+        targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'outline-analysis'),
+      }))
+
       await selectSkillsThroughUi(page, {
         stepIndex: 1,
         selectId: '#pl-s2-skill',
@@ -817,6 +1135,7 @@ async function main() {
       const settingsRun = readExportedRun(settingsExport)
       assertSettingsRun(settingsRun)
       assertNoOpenApiCalls(settingsRun.run)
+      layerRuns.push({ layer: 'Step 1 设定层', run: settingsRun.run })
       evidence.push(await archiveLiveExport({
         directory: settingsRun.directory,
         run: settingsRun.run,
@@ -846,6 +1165,41 @@ async function main() {
       const volumeRun = readExportedRun(volumeExport)
       assertVolumeRun(volumeRun)
       assertNoOpenApiCalls(volumeRun.run)
+      layerRuns.push({ layer: 'Step 2 卷纲层', run: volumeRun.run })
+      evidence.push(await archiveLiveExport({
+        directory: volumeRun.directory,
+        run: volumeRun.run,
+        targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'volume'),
+      }))
+    } else {
+      console.log('[RESUME] upstream layers already generated; exporting restored persisted traces')
+      const outlineExport = await exportLatestRun(page, 0)
+      const outlineRun = readExportedRun(outlineExport)
+      assertOutlineAnalysisRun(outlineRun)
+      assertNoOpenApiCalls(outlineRun.run)
+      layerRuns.push({ layer: 'Step 0 大纲风格分析', run: outlineRun.run })
+      evidence.push(await archiveLiveExport({
+        directory: outlineRun.directory,
+        run: outlineRun.run,
+        targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'outline-analysis'),
+      }))
+
+      const settingsExport = await exportLatestRun(page, 1)
+      const settingsRun = readExportedRun(settingsExport)
+      assertSettingsRun(settingsRun)
+      assertNoOpenApiCalls(settingsRun.run)
+      layerRuns.push({ layer: 'Step 1 设定层', run: settingsRun.run })
+      evidence.push(await archiveLiveExport({
+        directory: settingsRun.directory,
+        run: settingsRun.run,
+        targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'settings'),
+      }))
+
+      const volumeExport = await exportLatestRun(page, 2)
+      const volumeRun = readExportedRun(volumeExport)
+      assertVolumeRun(volumeRun)
+      assertNoOpenApiCalls(volumeRun.run)
+      layerRuns.push({ layer: 'Step 2 卷纲层', run: volumeRun.run })
       evidence.push(await archiveLiveExport({
         directory: volumeRun.directory,
         run: volumeRun.run,
@@ -854,7 +1208,22 @@ async function main() {
     }
     await confirmVolumesThroughUi(page)
 
-    await generateChapterThroughUi(page)
+    const chapterResume = await inspectChapterResumeState(page)
+    if (chapterResume.generated && chapterResume.confirmed) {
+      console.log(`[RESUME] chapter layer already generated (${chapterResume.chapterCount} chapters); skipping regeneration`)
+    } else {
+      await generateChapterThroughUi(page)
+    }
+    const chapterExport = await exportLatestRun(page, 3)
+    const chapterRun = readExportedRun(chapterExport)
+    assertChapterRun(chapterRun)
+    assertNoOpenApiCalls(chapterRun.run)
+    layerRuns.push({ layer: 'Step 3 章节层', run: chapterRun.run })
+    evidence.push(await archiveLiveExport({
+      directory: chapterRun.directory,
+      run: chapterRun.run,
+      targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'chapter'),
+    }))
 
     await selectSkillsThroughUi(page, {
       stepIndex: 4,
@@ -864,19 +1233,77 @@ async function main() {
       modeSelectId: '#pl-s5-mode',
       skills: bodySkills.map(item => item.skill),
     })
-    const bodyCompletion = await generateBodyThroughUi(page)
-    assert.equal(bodyCompletion.runStatus, 'success', 'body layer run finishes successfully')
+    const bodyResume = await inspectBodyResumeState(page)
+    let bodyCompletion
+    if (bodyResume.generated) {
+      console.log(`[RESUME] body layer already generated (${bodyResume.bodyLength} chars); skipping regeneration`)
+      await page.locator('#pl-steps .pl-step').nth(4).click()
+      await page.waitForSelector('#pl-step-5-content', { state: 'visible' })
+      const volumeSelect = page.locator('#pl-context-summary select').first()
+      await volumeSelect.selectOption({ index: 0 })
+      await page.locator('#pl-context-summary select').nth(1).selectOption({ index: 0 })
+      await sleep(400)
+      bodyCompletion = await page.evaluate(() => {
+        const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+          .filter(item => item.source === 'pipeline'
+            && item.step === 4
+            && item.stepName === '正文层'
+            && item.status !== 'running'
+            && item.status !== 'blocked')
+          .sort((a, b) => b.startedAt - a.startedAt)[0]
+        return { runId: run?.id || null, runStatus: run?.status || null }
+      })
+      assert.equal(bodyCompletion.runStatus, 'success',
+        'persisted body run is a terminal success without regenerating an already generated body')
+    } else {
+      bodyCompletion = await generateBodyThroughUi(page)
+      assert.equal(bodyCompletion.runStatus, 'success', 'body layer run finishes successfully')
+    }
     const bodyExport = await exportLatestRun(page, 4)
     const bodyRun = readExportedRun(bodyExport)
     assertBodyRun(bodyRun)
     assertNoOpenApiCalls(bodyRun.run)
+    layerRuns.push({ layer: 'Step 4 正文层', run: bodyRun.run })
     evidence.push(await archiveLiveExport({
       directory: bodyRun.directory,
       run: bodyRun.run,
       targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'body'),
     }))
 
+    const memoryCompletion = await confirmBodyAndMemoryThroughUi(page)
+    assert(!memoryCompletion.error, 'memory extraction completes without preview error')
+    const memoryExport = await exportRunByPredicate(page, { step: 4, stepName: '记忆抽取' })
+    const memoryRun = readExportedRun(memoryExport)
+    assertMemoryRun(memoryRun)
+    assertNoOpenApiCalls(memoryRun.run)
+    layerRuns.push({ layer: '记忆抽取', run: memoryRun.run })
+
+    evidence.push(await archiveLiveExport({
+      directory: memoryRun.directory,
+      run: memoryRun.run,
+      targetDir: path.join(EVIDENCE_ROOT, 'live-export', 'memory-extraction'),
+    }))
+
+    assert.equal(layerRuns.length, 6,
+      'Phase 5B must sample all six pipeline layers; partial sampling is not a pass')
+    assert.equal(new Set(layerRuns.map(item => item.layer)).size, 6,
+      'Phase 5B samples six distinct layers; duplicate layers are not a pass')
+
+    const timing = buildTimingAnalysis(layerRuns)
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'timing-analysis.md'), timing.text, 'utf8')
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'timing-analysis.json'), JSON.stringify(timing.layers, null, 2), 'utf8')
+
     await captureEvidence(page, evidence)
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'phase5b-summary.json'), JSON.stringify({
+      schema: 'shenyi.pipeline-artifact-contract.phase5b',
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      script: SCRIPT_NAME,
+      model: MODEL,
+      baseUrl: BASE_URL,
+      layers: timing.layers,
+      memory: memoryCompletion,
+    }, null, 2), 'utf8')
     console.log('===== PIPELINE ARTIFACT CONTRACT ELECTRON LIVE PASSED =====')
   } finally {
     heartbeat?.stop()

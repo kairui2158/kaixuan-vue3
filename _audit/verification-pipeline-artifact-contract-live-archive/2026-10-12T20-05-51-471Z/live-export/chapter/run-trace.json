@@ -1,0 +1,2113 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1791826375440-1244",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 3,
+  "stepName": "章节层",
+  "mode": "chapters",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [],
+  "skillMode": "chain",
+  "status": "success",
+  "startedAt": 1791826375440,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "chapters_generation_complete",
+      "recordedAt": 1791827096601
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1791826375440-1245",
+      "ts": 1791826375440,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 章节层运行"
+    },
+    {
+      "id": "event-1791826375477-1246",
+      "ts": 1791826375477,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "章节层执行参数已构建",
+      "detail": "{\"volume\":\"风暴起点\",\"totalChapters\":9,\"wordsPerChapter\":1200,\"resumeCount\":0}"
+    },
+    {
+      "id": "event-1791826375489-1248",
+      "ts": 1791826375489,
+      "seq": 3,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1791826375492-1250",
+      "ts": 1791826375492,
+      "seq": 4,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826375492-1251",
+      "ts": 1791826375492,
+      "seq": 5,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1791826375491-1249",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1791826375492-1252",
+      "ts": 1791826375492,
+      "seq": 6,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826390498-1253",
+      "ts": 1791826390498,
+      "seq": 7,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826390498-1254",
+      "ts": 1791826390498,
+      "seq": 8,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826405499-1255",
+      "ts": 1791826405499,
+      "seq": 9,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826405499-1256",
+      "ts": 1791826405499,
+      "seq": 10,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826420494-1257",
+      "ts": 1791826420494,
+      "seq": 11,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826420494-1258",
+      "ts": 1791826420494,
+      "seq": 12,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826424433-1259",
+      "ts": 1791826424433,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1791826425435-1260",
+      "ts": 1791826425435,
+      "seq": 14,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1791826426482-1261",
+      "ts": 1791826426482,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1791826427510-1262",
+      "ts": 1791826427510,
+      "seq": 16,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1791826428517-1263",
+      "ts": 1791826428517,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1791826428919-1264",
+      "ts": 1791826428919,
+      "seq": 18,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1791826428921-1265",
+      "ts": 1791826428921,
+      "seq": 19,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1791826428922-1266",
+      "ts": 1791826428922,
+      "seq": 20,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1791826375489-1247 seq=1"
+    },
+    {
+      "id": "event-1791826428922-1267",
+      "ts": 1791826428922,
+      "seq": 21,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826428928-1268",
+      "ts": 1791826428928,
+      "seq": 22,
+      "type": "chapter-batch-attempt",
+      "level": "info",
+      "label": "章节批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":5,\"acceptedCount\":5,\"missingStart\":1,\"missingCount\":5,\"validationMs\":0,\"errors\":[]}"
+    },
+    {
+      "id": "event-1791826428971-1269",
+      "ts": 1791826428971,
+      "seq": 23,
+      "type": "chapter-batch-validated",
+      "level": "info",
+      "label": "章节批次验收通过",
+      "detail": "{\"batchIndex\":0,\"expectedStart\":1,\"expectedEnd\":5,\"requestedCount\":5,\"actualCount\":5,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1791826428976-1271",
+      "ts": 1791826428976,
+      "seq": 24,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 2 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1791826428977-1273",
+      "ts": 1791826428977,
+      "seq": 25,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826428977-1274",
+      "ts": 1791826428977,
+      "seq": 26,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1791826428976-1272",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1791826428977-1275",
+      "ts": 1791826428977,
+      "seq": 27,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826436127-1276",
+      "ts": 1791826436127,
+      "seq": 28,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791826443985-1277",
+      "ts": 1791826443985,
+      "seq": 29,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826443985-1278",
+      "ts": 1791826443985,
+      "seq": 30,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826458985-1279",
+      "ts": 1791826458985,
+      "seq": 31,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826458985-1280",
+      "ts": 1791826458985,
+      "seq": 32,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826473991-1281",
+      "ts": 1791826473991,
+      "seq": 33,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826473991-1282",
+      "ts": 1791826473991,
+      "seq": 34,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826488983-1283",
+      "ts": 1791826488983,
+      "seq": 35,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826488983-1284",
+      "ts": 1791826488983,
+      "seq": 36,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826503990-1285",
+      "ts": 1791826503990,
+      "seq": 37,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826503990-1286",
+      "ts": 1791826503990,
+      "seq": 38,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826518981-1287",
+      "ts": 1791826518981,
+      "seq": 39,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826518981-1288",
+      "ts": 1791826518981,
+      "seq": 40,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826533987-1289",
+      "ts": 1791826533987,
+      "seq": 41,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826533987-1290",
+      "ts": 1791826533987,
+      "seq": 42,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826548991-1291",
+      "ts": 1791826548991,
+      "seq": 43,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826548991-1292",
+      "ts": 1791826548991,
+      "seq": 44,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826563987-1293",
+      "ts": 1791826563987,
+      "seq": 45,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826563987-1294",
+      "ts": 1791826563987,
+      "seq": 46,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826578990-1295",
+      "ts": 1791826578990,
+      "seq": 47,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826578990-1296",
+      "ts": 1791826578990,
+      "seq": 48,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826593993-1297",
+      "ts": 1791826593993,
+      "seq": 49,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826593994-1298",
+      "ts": 1791826593994,
+      "seq": 50,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826608988-1299",
+      "ts": 1791826608988,
+      "seq": 51,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826608988-1300",
+      "ts": 1791826608988,
+      "seq": 52,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826623982-1301",
+      "ts": 1791826623982,
+      "seq": 53,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826623982-1302",
+      "ts": 1791826623982,
+      "seq": 54,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826638980-1303",
+      "ts": 1791826638980,
+      "seq": 55,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826638980-1304",
+      "ts": 1791826638980,
+      "seq": 56,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826653988-1305",
+      "ts": 1791826653988,
+      "seq": 57,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826653988-1306",
+      "ts": 1791826653988,
+      "seq": 58,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826668988-1307",
+      "ts": 1791826668988,
+      "seq": 59,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826668988-1308",
+      "ts": 1791826668988,
+      "seq": 60,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826683987-1309",
+      "ts": 1791826683987,
+      "seq": 61,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826683987-1310",
+      "ts": 1791826683987,
+      "seq": 62,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826698982-1311",
+      "ts": 1791826698982,
+      "seq": 63,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826698982-1312",
+      "ts": 1791826698982,
+      "seq": 64,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826713990-1313",
+      "ts": 1791826713990,
+      "seq": 65,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826713990-1314",
+      "ts": 1791826713990,
+      "seq": 66,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826728989-1315",
+      "ts": 1791826728989,
+      "seq": 67,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826728989-1316",
+      "ts": 1791826728989,
+      "seq": 68,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826743986-1317",
+      "ts": 1791826743986,
+      "seq": 69,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826743986-1318",
+      "ts": 1791826743986,
+      "seq": 70,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826758982-1319",
+      "ts": 1791826758982,
+      "seq": 71,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826758982-1320",
+      "ts": 1791826758982,
+      "seq": 72,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826773989-1321",
+      "ts": 1791826773989,
+      "seq": 73,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826773989-1322",
+      "ts": 1791826773989,
+      "seq": 74,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826788998-1323",
+      "ts": 1791826788998,
+      "seq": 75,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826788998-1324",
+      "ts": 1791826788998,
+      "seq": 76,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826803987-1325",
+      "ts": 1791826803987,
+      "seq": 77,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826803988-1326",
+      "ts": 1791826803988,
+      "seq": 78,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826818993-1327",
+      "ts": 1791826818993,
+      "seq": 79,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826818994-1328",
+      "ts": 1791826818994,
+      "seq": 80,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826833986-1329",
+      "ts": 1791826833986,
+      "seq": 81,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826833986-1330",
+      "ts": 1791826833986,
+      "seq": 82,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826848984-1331",
+      "ts": 1791826848984,
+      "seq": 83,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826848985-1332",
+      "ts": 1791826848985,
+      "seq": 84,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826863991-1333",
+      "ts": 1791826863992,
+      "seq": 85,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826863992-1334",
+      "ts": 1791826863992,
+      "seq": 86,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826878987-1335",
+      "ts": 1791826878987,
+      "seq": 87,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826878987-1336",
+      "ts": 1791826878987,
+      "seq": 88,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826893995-1337",
+      "ts": 1791826893995,
+      "seq": 89,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826893996-1338",
+      "ts": 1791826893996,
+      "seq": 90,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826908983-1339",
+      "ts": 1791826908983,
+      "seq": 91,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826908983-1340",
+      "ts": 1791826908983,
+      "seq": 92,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826923983-1341",
+      "ts": 1791826923983,
+      "seq": 93,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826923983-1342",
+      "ts": 1791826923983,
+      "seq": 94,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826938986-1343",
+      "ts": 1791826938987,
+      "seq": 95,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826938987-1344",
+      "ts": 1791826938987,
+      "seq": 96,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826953993-1345",
+      "ts": 1791826953993,
+      "seq": 97,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826953993-1346",
+      "ts": 1791826953993,
+      "seq": 98,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826968986-1347",
+      "ts": 1791826968986,
+      "seq": 99,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826968987-1348",
+      "ts": 1791826968987,
+      "seq": 100,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826983985-1349",
+      "ts": 1791826983985,
+      "seq": 101,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826983985-1350",
+      "ts": 1791826983985,
+      "seq": 102,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791826998984-1351",
+      "ts": 1791826998984,
+      "seq": 103,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791826998984-1352",
+      "ts": 1791826998984,
+      "seq": 104,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791827013984-1353",
+      "ts": 1791827013984,
+      "seq": 105,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827013984-1354",
+      "ts": 1791827013984,
+      "seq": 106,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791827028995-1355",
+      "ts": 1791827028995,
+      "seq": 107,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827028995-1356",
+      "ts": 1791827028995,
+      "seq": 108,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791827029001-1357",
+      "ts": 1791827029001,
+      "seq": 109,
+      "type": "physical-call",
+      "level": "error",
+      "label": "第 1 次物理请求失败",
+      "detail": "normal / compose / deepseek-v4-pro / 请求超时"
+    },
+    {
+      "id": "event-1791827030014-1359",
+      "ts": 1791827030014,
+      "seq": 110,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/compose"
+      }
+    },
+    {
+      "id": "event-1791827030014-1360",
+      "ts": 1791827030014,
+      "seq": 111,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=2 / heartbeat=true / retry",
+      "payload": {
+        "physicalCallId": "physical-1791827030014-1358",
+        "seq": 2,
+        "heartbeat": true
+      }
+    },
+    {
+      "id": "event-1791827030014-1361",
+      "ts": 1791827030014,
+      "seq": 112,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "retry / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827045014-1362",
+      "ts": 1791827045014,
+      "seq": 113,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "retry / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827045014-1363",
+      "ts": 1791827045014,
+      "seq": 114,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/compose"
+      }
+    },
+    {
+      "id": "event-1791827060014-1364",
+      "ts": 1791827060014,
+      "seq": 115,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "retry / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827060014-1365",
+      "ts": 1791827060014,
+      "seq": 116,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/compose"
+      }
+    },
+    {
+      "id": "event-1791827075026-1366",
+      "ts": 1791827075026,
+      "seq": 117,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "retry / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827075026-1367",
+      "ts": 1791827075026,
+      "seq": 118,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/compose"
+      }
+    },
+    {
+      "id": "event-1791827084695-1368",
+      "ts": 1791827084695,
+      "seq": 119,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827085697-1369",
+      "ts": 1791827085697,
+      "seq": 120,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827086741-1370",
+      "ts": 1791827086741,
+      "seq": 121,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827087747-1371",
+      "ts": 1791827087747,
+      "seq": 122,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827088799-1372",
+      "ts": 1791827088799,
+      "seq": 123,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827089854-1373",
+      "ts": 1791827089854,
+      "seq": 124,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827090028-1374",
+      "ts": 1791827090028,
+      "seq": 125,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "retry / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827090028-1375",
+      "ts": 1791827090028,
+      "seq": 126,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/compose"
+      }
+    },
+    {
+      "id": "event-1791827090854-1376",
+      "ts": 1791827090854,
+      "seq": 127,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827091876-1377",
+      "ts": 1791827091876,
+      "seq": 128,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827092963-1378",
+      "ts": 1791827092963,
+      "seq": 129,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827094678-1379",
+      "ts": 1791827094678,
+      "seq": 130,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827095699-1380",
+      "ts": 1791827095699,
+      "seq": 131,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1791827096570-1381",
+      "ts": 1791827096570,
+      "seq": 132,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求完成",
+      "detail": "retry / compose / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1791827096570-1382",
+      "ts": 1791827096570,
+      "seq": 133,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2/terminal"
+      }
+    },
+    {
+      "id": "event-1791827096570-1383",
+      "ts": 1791827096570,
+      "seq": 134,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1791826428976-1270 seq=2"
+    },
+    {
+      "id": "event-1791827096570-1384",
+      "ts": 1791827096570,
+      "seq": 135,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 2 次 API 调用完成",
+      "detail": "compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791827096575-1385",
+      "ts": 1791827096575,
+      "seq": 136,
+      "type": "chapter-batch-attempt",
+      "level": "info",
+      "label": "章节批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":4,\"acceptedCount\":4,\"missingStart\":6,\"missingCount\":4,\"validationMs\":0,\"errors\":[]}"
+    },
+    {
+      "id": "event-1791827096590-1386",
+      "ts": 1791827096590,
+      "seq": 137,
+      "type": "chapter-batch-validated",
+      "level": "info",
+      "label": "章节批次验收通过",
+      "detail": "{\"batchIndex\":1,\"expectedStart\":6,\"expectedEnd\":9,\"requestedCount\":4,\"actualCount\":4,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1791827096600-1387",
+      "ts": 1791827096600,
+      "seq": 138,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "chapters_generation_complete"
+    },
+    {
+      "id": "event-1791827096601-1388",
+      "ts": 1791827096601,
+      "seq": 139,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "chapters_generation_complete / run=run-1791826375440-1244"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1791826375489-1247",
+      "seq": 1,
+      "step": 3,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "temperature": 0.1,
+      "maxTokens": null,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "status": "success",
+      "startedAt": 1791826375489,
+      "physicalCalls": [
+        {
+          "id": "physical-1791826375491-1249",
+          "physicalCallId": "physical-1791826375489-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-005"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 6553,
+            "outputTokens": 3307,
+            "totalTokens": 9860,
+            "reasoningOutputTokens": 2817
+          },
+          "usageUnavailable": false,
+          "startedAt": 1791826375491,
+          "durationMs": 53429,
+          "endedAt": 1791826428919,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 5075,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 5075 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 5075,
+            "actualInputTokens": 6553,
+            "driftRatio": 0.2912315270935961,
+            "correctedRatio": 1.2912315270935961
+          },
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "[\n  {\n    \"title\": \"热源残页\",\n    \"plot\": \"风暴季把主角困在岸上，他保存着一封来路不明的旧信。油灯下，他抄录残页，受潮纸毛边在热源前变形，字迹短暂清晰。旧信被破译出灯塔与南方航线的关联；贴身家族信物忽然朝灯塔方向短暂发热。主角从静止的保存者被逼成求证人，决定以小艇试航，并把旧信作为航图依据。\"\n  },\n  {\n    \"title\": \"半卷航图\",\n    \"plot\": \"主角在岸上群体面前出示旧信中已破译的航段，隐瞒缺失页的不确定性。有人犹豫，有人公开质疑旧信真伪；风暴预警同时传来。主角以旧信换取航行决策权，许下寻找南方航线入口的承诺。最终小艇载着半信半疑的未具名群像离港，驶入旧航道边缘。共险关系开始形成。\"\n  },\n  {\n    \"title\": \"旧航道边缘\",\n    \"plot\": \"小艇进入旧航道，旧信坐标在入口处初步吻合，主角获得短暂可靠感。然而灯塔信号出现第一次异常，航道从可通行路径显出消耗迹象。主角继续按旧信修正航向，群像从犹豫转为不安。可靠感被削去，为下一章塔火错频埋线。\"\n  },\n  {\n    \"title\": \""
+        }
+      ],
+      "lastExecutionActivityAt": 1791826428899,
+      "lastStreamActivityAt": 1791826428899,
+      "finishReason": "stop",
+      "durationMs": 53427,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 53429,
+        "localOverheadMs": -2
+      },
+      "usage": {
+        "inputTokens": 6553,
+        "outputTokens": 3307,
+        "totalTokens": 9860,
+        "reasoningOutputTokens": 2817
+      },
+      "usageUnavailable": false,
+      "endedAt": 1791826428922,
+      "semantic": {
+        "conversationId": "run-1791826375440-1244",
+        "usage": {
+          "inputTokens": 6553,
+          "outputTokens": 3307,
+          "totalTokens": 9860,
+          "reasoningOutputTokens": 2817
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "[\n  {\n    \"title\": \"热源残页\",\n    \"plot\": \"风暴季把主角困在岸上，他保存着一封来路不明的旧信。油灯下，他抄录残页，受潮纸毛边在热源前变形，字迹短暂清晰。旧信被破译出灯塔与南方航线的关联；贴身家族信物忽然朝灯塔方向短暂发热。主角从静止的保存者被逼成求证人，决定以小艇试航，并把旧信作为航图依据。\"\n  },\n  {\n    \"title\": \"半卷航图\",\n    \"plot\": \"主角在岸上群体面前出示旧信中已破译的航段，隐瞒缺失页的不确定性。有人犹豫，有人公开质疑旧信真伪；风暴预警同时传来。主角以旧信换取航行决策权，许下寻找南方航线入口的承诺。最终小艇载着半信半疑的未具名群像离港，驶入旧航道边缘。共险关系开始形成。\"\n  },\n  {\n    \"title\": \"旧航道边缘\",\n    \"plot\": \"小艇进入旧航道，旧信坐标在入口处初步吻合，主角获得短暂可靠感。然而灯塔信号出现第一次异常，航道从可通行路径显出消耗迹象。主角继续按旧信修正航向，群像从犹豫转为不安。可靠感被削去，为下一章塔火错频埋线。\"\n  },\n  {\n    \"title\": \""
+    },
+    {
+      "id": "api-1791826428976-1270",
+      "seq": 2,
+      "step": 3,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "temperature": 0.1,
+      "maxTokens": null,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-006"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-008"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-009"
+        }
+      },
+      "status": "success",
+      "startedAt": 1791826428976,
+      "physicalCalls": [
+        {
+          "id": "physical-1791826428976-1272",
+          "physicalCallId": "physical-1791826428976-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-006"
+            }
+          },
+          "responseText": "",
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-010"
+            }
+          },
+          "startedAt": 1791826428977,
+          "durationMs": 600025,
+          "endedAt": 1791827029001,
+          "error": "请求超时",
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 5235,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 5235 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 5235
+          },
+          "heartbeat": true
+        },
+        {
+          "id": "physical-1791827030014-1358",
+          "physicalCallId": "physical-1791826428976-1",
+          "seq": 2,
+          "phase": "retry",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-006"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-011"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-012"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 6776,
+            "outputTokens": 3557,
+            "totalTokens": 10333,
+            "reasoningOutputTokens": 2768
+          },
+          "usageUnavailable": false,
+          "startedAt": 1791827030014,
+          "durationMs": 66557,
+          "endedAt": 1791827096570,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 5235,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 5235 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 5235,
+            "actualInputTokens": 6776,
+            "driftRatio": 0.2943648519579751,
+            "correctedRatio": 1.2943648519579751
+          },
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-007",
+          "responseTextPreview": "[\n  {\n    \"title\": \"无岸可退\",\n    \"plot\": \"风暴在回程方向合拢，旧航道后段被三面浪墙封死。主角按缺失页边缘的返航支路残痕查看，发现那条支路已被风暴前锋占据，原路折返的窗口彻底关闭。船体左舷再受重击，帆具撕裂，淡水桶又少一桶。群像意识到无法回岸，恐惧从公开抱怨转为更压人的沉默与敌意。主角仍尝试在旧信中寻找折返支点，但每个可供回程的缺口都与风暴重合。他内心承认自己误判了风暴速度，却不敢当众说出“后路已无”。小艇继续被推向旧航道深处，南方航线成为唯一未被风暴完全封死的方向。落点：返航从高风险选项变为不存在的选项；群像首次无人直接反对，沉默比争吵更沉重；补给损耗进一步加重；主角欠下的返航债转为必须向前的债。\"\n  },\n  {\n    \"title\": \"南方航向\",\n    \"plot\": \"群像中一名水手公开指出旧信只在入口附近被局部验证过，其余航段无人见过，质疑主角隐瞒缺失页。众人附和，对峙爆发。主角被逼到几乎说出自己对缺失页完全无知，这时家族信物朝南方剧热，像被外力牵引。主角压下解释，抓住这次异常当作方向依据，下令转向南方航线。有人在混乱中试图阻止，"
+        }
+      ],
+      "lastExecutionActivityAt": 1791827096569,
+      "lastStreamActivityAt": 1791827096569,
+      "finishReason": "stop",
+      "durationMs": 667593,
+      "timingLedger": {
+        "physicalCallCount": 2,
+        "retryPhysicalCallCount": 1,
+        "physicalDurationSumMs": 666582,
+        "localOverheadMs": 1011
+      },
+      "usage": {
+        "inputTokens": 6776,
+        "outputTokens": 3557,
+        "totalTokens": 10333,
+        "reasoningOutputTokens": 2768
+      },
+      "usageUnavailable": false,
+      "endedAt": 1791827096570,
+      "semantic": {
+        "conversationId": "run-1791826375440-1244",
+        "usage": {
+          "inputTokens": 6776,
+          "outputTokens": 3557,
+          "totalTokens": 10333,
+          "reasoningOutputTokens": 2768
+        }
+      },
+      "responseTextPayloadRef": "payload-007",
+      "responseTextPreview": "[\n  {\n    \"title\": \"无岸可退\",\n    \"plot\": \"风暴在回程方向合拢，旧航道后段被三面浪墙封死。主角按缺失页边缘的返航支路残痕查看，发现那条支路已被风暴前锋占据，原路折返的窗口彻底关闭。船体左舷再受重击，帆具撕裂，淡水桶又少一桶。群像意识到无法回岸，恐惧从公开抱怨转为更压人的沉默与敌意。主角仍尝试在旧信中寻找折返支点，但每个可供回程的缺口都与风暴重合。他内心承认自己误判了风暴速度，却不敢当众说出“后路已无”。小艇继续被推向旧航道深处，南方航线成为唯一未被风暴完全封死的方向。落点：返航从高风险选项变为不存在的选项；群像首次无人直接反对，沉默比争吵更沉重；补给损耗进一步加重；主角欠下的返航债转为必须向前的债。\"\n  },\n  {\n    \"title\": \"南方航向\",\n    \"plot\": \"群像中一名水手公开指出旧信只在入口附近被局部验证过，其余航段无人见过，质疑主角隐瞒缺失页。众人附和，对峙爆发。主角被逼到几乎说出自己对缺失页完全无知，这时家族信物朝南方剧热，像被外力牵引。主角压下解释，抓住这次异常当作方向依据，下令转向南方航线。有人在混乱中试图阻止，"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 27342,
+      "chars": 10046,
+      "sha256": "a484a8d27abde40b9b5b2f7789c24333a8b3525b04a94e862e0b9b5e78105a44",
+      "duplicateCount": 2,
+      "createdAt": 1791835232074
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 1908,
+      "chars": 774,
+      "sha256": "f8d7e3e6eb097a63aac84b6a536a3657ea4ac03a92d1f9d3b9a14fa777151b97",
+      "duplicateCount": 2,
+      "createdAt": 1791835232074
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 1909,
+      "chars": 775,
+      "sha256": "e049f4edafd440f98aa72950ec1ca0216b4f0d9caafe0e4058d1501d5d669ca6",
+      "duplicateCount": 1,
+      "createdAt": 1791835232074
+    },
+    {
+      "id": "payload-004",
+      "kind": "reasoning",
+      "file": "004-reasoning.json",
+      "bytes": 11265,
+      "chars": 4121,
+      "sha256": "fcdd87f503d2afc04a8dc05e64df9cba4987008988cc7412fae4bb2ef1f78836",
+      "duplicateCount": 2,
+      "createdAt": 1791835232074
+    },
+    {
+      "id": "payload-005",
+      "kind": "stream",
+      "file": "005-stream.json",
+      "bytes": 1908,
+      "chars": 774,
+      "sha256": "f8d7e3e6eb097a63aac84b6a536a3657ea4ac03a92d1f9d3b9a14fa777151b97",
+      "duplicateCount": 1,
+      "createdAt": 1791835232074
+    },
+    {
+      "id": "payload-006",
+      "kind": "request",
+      "file": "006-request.json",
+      "bytes": 28231,
+      "chars": 10381,
+      "sha256": "11c274055c70ddbdaa63af3e33fb25b5fcbd1cee7016965e31c75d54c2d73e8a",
+      "duplicateCount": 3,
+      "createdAt": 1791835232075
+    },
+    {
+      "id": "payload-007",
+      "kind": "response",
+      "file": "007-response.json",
+      "bytes": 3265,
+      "chars": 1199,
+      "sha256": "a78a9b588cfbcff4aecf11029fe0cca48176ae2289f1139edec6e07f62e02680",
+      "duplicateCount": 2,
+      "createdAt": 1791835232075
+    },
+    {
+      "id": "payload-008",
+      "kind": "stream",
+      "file": "008-stream.json",
+      "bytes": 5174,
+      "chars": 1974,
+      "sha256": "9dce8bbc5bfc6515627732dfc74372713df1bd1f6f4c767a8ba750b617388bf6",
+      "duplicateCount": 1,
+      "createdAt": 1791835232075
+    },
+    {
+      "id": "payload-009",
+      "kind": "reasoning",
+      "file": "009-reasoning.json",
+      "bytes": 17544,
+      "chars": 6206,
+      "sha256": "b437c9a69e62a9b8c39d3176886861db30cad58d270a5dc69a6fc6f1846155af",
+      "duplicateCount": 1,
+      "createdAt": 1791835232075
+    },
+    {
+      "id": "payload-010",
+      "kind": "reasoning",
+      "file": "010-reasoning.json",
+      "bytes": 6099,
+      "chars": 2157,
+      "sha256": "5ae99d8e5441398364bce49522e431db31e1b725f723481b8bf3a8ae17406333",
+      "duplicateCount": 1,
+      "createdAt": 1791835232075
+    },
+    {
+      "id": "payload-011",
+      "kind": "stream",
+      "file": "011-stream.json",
+      "bytes": 3265,
+      "chars": 1199,
+      "sha256": "a78a9b588cfbcff4aecf11029fe0cca48176ae2289f1139edec6e07f62e02680",
+      "duplicateCount": 1,
+      "createdAt": 1791835232075
+    },
+    {
+      "id": "payload-012",
+      "kind": "reasoning",
+      "file": "012-reasoning.json",
+      "bytes": 11445,
+      "chars": 4049,
+      "sha256": "0ab4a9e3ee3eb12634b11c428b913d2cfbfc5634b29a144f6497f7f63ffceae0",
+      "duplicateCount": 1,
+      "createdAt": 1791835232075
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 0,
+    "persistence": 57
+  },
+  "timingLedger": {
+    "apiCallCount": 2,
+    "physicalCallCount": 3,
+    "retryPhysicalCallCount": 1,
+    "physicalDurationSumMs": 720011,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": 1009,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 2,
+    "physicalCallCount": 3,
+    "retryCallCount": 1,
+    "continuationCallCount": 0,
+    "validationSumMs": 0,
+    "persistenceSumMs": 57,
+    "repeatedPromptBlocks": {},
+    "contextChars": 19521,
+    "outputChars": 1973,
+    "physicalDurationSumMs": 720011
+  },
+  "endedAt": 1791827096600,
+  "durationMs": 721160,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1791826375489-1247",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "f8d7e3e6eb097a63aac84b6a536a3657ea4ac03a92d1f9d3b9a14fa777151b97",
+        "bytes": 1908,
+        "chars": 774,
+        "preview": "[\n  {\n    \"title\": \"热源残页\",\n    \"plot\": \"风暴季把主角困在岸上，他保存着一封来路不明的旧信。油灯下，他抄录残页，受潮纸毛边在热源前变形，字迹短暂清晰。旧信被破译出灯塔与南方航线的关联；贴身家族信物忽然朝灯塔方向短暂发热。主角从静止的保存者被逼成求证人，决定以小艇试航，并把旧信作为航图依据。\"\n  },\n  {\n    \"title\": \"半卷航图\",\n    \"plot\": \"主角在岸上群体面前出示旧信中已破译的航段，隐瞒缺失页的不确定性。有人犹豫，有人公开质疑旧信真伪；风暴预警同时传来。主角以旧信换取航行决策权，许下寻找南方航线入口的承诺。最终小艇载着半信半疑的未具名群像离港，驶入旧航道边缘。共险关系开始形成。\"\n  },\n  {\n    \"title\": \"旧航道边缘\",\n    \"plot\": \"小艇进入旧航道，旧信坐标在入口处初步吻合，主角获得短暂可靠感。然而灯塔信号出现第一次异常，航道从可通行路径显出消耗迹象。主角继续按旧信修正航向，群像从犹豫转为不安。可靠感被削去，为下一章塔火错频埋线。\"\n  },\n  {\n    \"title\": \""
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "e049f4edafd440f98aa72950ec1ca0216b4f0d9caafe0e4058d1501d5d669ca6",
+        "bytes": 1909,
+        "chars": 775
+      },
+      "reasoning": {
+        "ref": "payload-004",
+        "file": "004-reasoning.json",
+        "sha256": "fcdd87f503d2afc04a8dc05e64df9cba4987008988cc7412fae4bb2ef1f78836",
+        "bytes": 11265,
+        "chars": 4121
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791826375489-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "f8d7e3e6eb097a63aac84b6a536a3657ea4ac03a92d1f9d3b9a14fa777151b97",
+            "bytes": 1908,
+            "chars": 774,
+            "preview": "[\n  {\n    \"title\": \"热源残页\",\n    \"plot\": \"风暴季把主角困在岸上，他保存着一封来路不明的旧信。油灯下，他抄录残页，受潮纸毛边在热源前变形，字迹短暂清晰。旧信被破译出灯塔与南方航线的关联；贴身家族信物忽然朝灯塔方向短暂发热。主角从静止的保存者被逼成求证人，决定以小艇试航，并把旧信作为航图依据。\"\n  },\n  {\n    \"title\": \"半卷航图\",\n    \"plot\": \"主角在岸上群体面前出示旧信中已破译的航段，隐瞒缺失页的不确定性。有人犹豫，有人公开质疑旧信真伪；风暴预警同时传来。主角以旧信换取航行决策权，许下寻找南方航线入口的承诺。最终小艇载着半信半疑的未具名群像离港，驶入旧航道边缘。共险关系开始形成。\"\n  },\n  {\n    \"title\": \"旧航道边缘\",\n    \"plot\": \"小艇进入旧航道，旧信坐标在入口处初步吻合，主角获得短暂可靠感。然而灯塔信号出现第一次异常，航道从可通行路径显出消耗迹象。主角继续按旧信修正航向，群像从犹豫转为不安。可靠感被削去，为下一章塔火错频埋线。\"\n  },\n  {\n    \"title\": \""
+          },
+          "stream": {
+            "ref": "payload-005",
+            "file": "005-stream.json",
+            "sha256": "f8d7e3e6eb097a63aac84b6a536a3657ea4ac03a92d1f9d3b9a14fa777151b97",
+            "bytes": 1908,
+            "chars": 774
+          },
+          "reasoning": {
+            "ref": "payload-004",
+            "file": "004-reasoning.json",
+            "sha256": "fcdd87f503d2afc04a8dc05e64df9cba4987008988cc7412fae4bb2ef1f78836",
+            "bytes": 11265,
+            "chars": 4121
+          }
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1791826428976-1270",
+      "seq": 2,
+      "status": "success",
+      "response": {
+        "ref": "payload-007",
+        "file": "007-response.json",
+        "sha256": "a78a9b588cfbcff4aecf11029fe0cca48176ae2289f1139edec6e07f62e02680",
+        "bytes": 3265,
+        "chars": 1199,
+        "preview": "[\n  {\n    \"title\": \"无岸可退\",\n    \"plot\": \"风暴在回程方向合拢，旧航道后段被三面浪墙封死。主角按缺失页边缘的返航支路残痕查看，发现那条支路已被风暴前锋占据，原路折返的窗口彻底关闭。船体左舷再受重击，帆具撕裂，淡水桶又少一桶。群像意识到无法回岸，恐惧从公开抱怨转为更压人的沉默与敌意。主角仍尝试在旧信中寻找折返支点，但每个可供回程的缺口都与风暴重合。他内心承认自己误判了风暴速度，却不敢当众说出“后路已无”。小艇继续被推向旧航道深处，南方航线成为唯一未被风暴完全封死的方向。落点：返航从高风险选项变为不存在的选项；群像首次无人直接反对，沉默比争吵更沉重；补给损耗进一步加重；主角欠下的返航债转为必须向前的债。\"\n  },\n  {\n    \"title\": \"南方航向\",\n    \"plot\": \"群像中一名水手公开指出旧信只在入口附近被局部验证过，其余航段无人见过，质疑主角隐瞒缺失页。众人附和，对峙爆发。主角被逼到几乎说出自己对缺失页完全无知，这时家族信物朝南方剧热，像被外力牵引。主角压下解释，抓住这次异常当作方向依据，下令转向南方航线。有人在混乱中试图阻止，"
+      },
+      "stream": {
+        "ref": "payload-008",
+        "file": "008-stream.json",
+        "sha256": "9dce8bbc5bfc6515627732dfc74372713df1bd1f6f4c767a8ba750b617388bf6",
+        "bytes": 5174,
+        "chars": 1974
+      },
+      "reasoning": {
+        "ref": "payload-009",
+        "file": "009-reasoning.json",
+        "sha256": "b437c9a69e62a9b8c39d3176886861db30cad58d270a5dc69a6fc6f1846155af",
+        "bytes": 17544,
+        "chars": 6206
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791826428976-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed",
+          "reasoning": {
+            "ref": "payload-010",
+            "file": "010-reasoning.json",
+            "sha256": "5ae99d8e5441398364bce49522e431db31e1b725f723481b8bf3a8ae17406333",
+            "bytes": 6099,
+            "chars": 2157
+          }
+        },
+        {
+          "physicalCallId": "physical-1791826428976-1",
+          "seq": 2,
+          "phase": "retry",
+          "status": "success",
+          "response": {
+            "ref": "payload-007",
+            "file": "007-response.json",
+            "sha256": "a78a9b588cfbcff4aecf11029fe0cca48176ae2289f1139edec6e07f62e02680",
+            "bytes": 3265,
+            "chars": 1199,
+            "preview": "[\n  {\n    \"title\": \"无岸可退\",\n    \"plot\": \"风暴在回程方向合拢，旧航道后段被三面浪墙封死。主角按缺失页边缘的返航支路残痕查看，发现那条支路已被风暴前锋占据，原路折返的窗口彻底关闭。船体左舷再受重击，帆具撕裂，淡水桶又少一桶。群像意识到无法回岸，恐惧从公开抱怨转为更压人的沉默与敌意。主角仍尝试在旧信中寻找折返支点，但每个可供回程的缺口都与风暴重合。他内心承认自己误判了风暴速度，却不敢当众说出“后路已无”。小艇继续被推向旧航道深处，南方航线成为唯一未被风暴完全封死的方向。落点：返航从高风险选项变为不存在的选项；群像首次无人直接反对，沉默比争吵更沉重；补给损耗进一步加重；主角欠下的返航债转为必须向前的债。\"\n  },\n  {\n    \"title\": \"南方航向\",\n    \"plot\": \"群像中一名水手公开指出旧信只在入口附近被局部验证过，其余航段无人见过，质疑主角隐瞒缺失页。众人附和，对峙爆发。主角被逼到几乎说出自己对缺失页完全无知，这时家族信物朝南方剧热，像被外力牵引。主角压下解释，抓住这次异常当作方向依据，下令转向南方航线。有人在混乱中试图阻止，"
+          },
+          "stream": {
+            "ref": "payload-011",
+            "file": "011-stream.json",
+            "sha256": "a78a9b588cfbcff4aecf11029fe0cca48176ae2289f1139edec6e07f62e02680",
+            "bytes": 3265,
+            "chars": 1199
+          },
+          "reasoning": {
+            "ref": "payload-012",
+            "file": "012-reasoning.json",
+            "sha256": "0ab4a9e3ee3eb12634b11c428b913d2cfbfc5634b29a144f6497f7f63ffceae0",
+            "bytes": 11445,
+            "chars": 4049
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

@@ -60,11 +60,21 @@ export interface AiCallContext {
   begin(): void
   beginApiCall(options: AiApiCallOptions): string
   finishApiCall(callId: string, patch: AiApiCallFinish, startedAt?: number): void
+  recordPhaseTiming(phase: AiTracePhase, durationMs: number): void
+  recordStepObservation(phase: AiTracePhase, durationMs?: number): void
+  measurePhase<T>(phase: AiTracePhase, fn: () => Promise<T> | T): Promise<T> | T
   addEvent(event: Omit<RunTraceEvent, 'id' | 'ts'>): void
   finish(status: AiTraceStatus, error?: string, reason?: string): void
   fail(error: unknown): void
   isRunning(): boolean
 }
+
+export type AiTracePhase =
+  | 'promptBuild'
+  | 'contextLoad'
+  | 'postProcess'
+  | 'validation'
+  | 'persistence'
 
 /**
  * Shared runTrace lifecycle wrapper. The wrapper deliberately owns only
@@ -122,6 +132,41 @@ export function useAiCallTrace(options: UseAiCallTraceOptions): AiCallContext {
     store.addEvent(runId, event)
   }
 
+  function recordPhaseTiming(phase: AiTracePhase, durationMs: number) {
+    if (!runId) return
+    store.recordStepPhaseTiming(runId, phase, durationMs)
+  }
+
+  function recordStepObservation(phase: AiTracePhase, durationMs?: number) {
+    if (!runId) return
+    store.recordStepObservation(runId, phase, durationMs)
+  }
+
+  function measurePhase<T>(phase: AiTracePhase, fn: () => Promise<T> | T): Promise<T> | T {
+    const startedAt = Date.now()
+    const record = () => recordStepObservation(phase, Math.max(0, Date.now() - startedAt))
+    try {
+      const result = fn()
+      if (result instanceof Promise) {
+        return result.then(
+          value => {
+            record()
+            return value
+          },
+          error => {
+            record()
+            throw error
+          }
+        )
+      }
+      record()
+      return result
+    } catch (error) {
+      record()
+      throw error
+    }
+  }
+
   function finish(status: AiTraceStatus, error?: string, reason?: string) {
     if (!runId) return
     const run = store.getRun(runId)
@@ -157,6 +202,9 @@ export function useAiCallTrace(options: UseAiCallTraceOptions): AiCallContext {
     begin,
     beginApiCall,
     finishApiCall,
+    recordPhaseTiming,
+    recordStepObservation,
+    measurePhase,
     addEvent,
     finish,
     fail,

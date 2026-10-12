@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-const { buildRunWithPayloadRefs, deduplicatePayloads, uniqueExportFile, verifyApiResponseIndex } = await import('./runTrace')
+const { buildRunWithPayloadRefs, deduplicatePayloads, listRunDirectories, readRunDirectory, setDataDir, uniqueExportFile, verifyApiResponseIndex } = await import('./runTrace')
 
 describe('run trace payload deduplication', () => {
   it('deduplicates identical logical and physical payloads', () => {
@@ -319,6 +319,71 @@ describe('run trace diff export file naming', () => {
       expect(path.extname(second)).toBe('.json')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('run trace history restore', () => {
+  it('lists and reads persisted runs with external payloads rehydrated', async () => {
+    const dataRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'run-trace-history-'))
+    setDataDir(dataRoot)
+    try {
+      const run = {
+        id: 'run-restore-001',
+        source: 'pipeline',
+        status: 'success',
+        startedAt: 1770000000000,
+        apiCalls: [{
+          id: 'call-001',
+          seq: 1,
+          requestMessages: [{ role: 'user', content: '生成卷纲' }],
+          responseText: '完整响应',
+          streamText: '完整流式',
+          reasoningText: '思考'
+        }],
+        payloads: []
+      }
+      const built = buildRunWithPayloadRefs(run)
+      const dirName = 'run-trace-卷纲层-1770000000000'
+      const runDir = path.join(dataRoot, 'run-trace', 'pipeline', dirName)
+      fs.mkdirSync(path.join(runDir, 'payloads'), { recursive: true })
+      built.refs.forEach((ref, index) => {
+        const item = built.payloads[index]
+        const content = typeof item.value === 'string' ? item.value : JSON.stringify(item.value, null, 2)
+        fs.writeFileSync(path.join(runDir, 'payloads', ref.file), content, 'utf8')
+      })
+      fs.writeFileSync(path.join(runDir, 'run-trace.json'), JSON.stringify(built.run, null, 2), 'utf8')
+
+      const listed = await listRunDirectories('pipeline')
+      expect(listed.success).toBe(true)
+      expect(listed.runs).toHaveLength(1)
+      expect(listed.runs[0]).toMatchObject({ dirName, id: run.id, status: 'success', apiCallCount: 1 })
+
+      const read = await readRunDirectory('pipeline', dirName)
+      expect(read.success).toBe(true)
+      expect(read.run.id).toBe(run.id)
+      expect(read.run.apiCalls[0].requestMessages).toEqual([{ role: 'user', content: '生成卷纲' }])
+      expect(read.run.apiCalls[0].responseText).toBe('完整响应')
+      expect(read.run.apiCalls[0].streamText).toBe('完整流式')
+      expect(read.run.apiCalls[0].reasoningText).toBe('思考')
+    } finally {
+      setDataDir('')
+      fs.rmSync(dataRoot, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects invalid directories and reports missing traces without reading outside the source root', async () => {
+    const dataRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'run-trace-history-invalid-'))
+    setDataDir(dataRoot)
+    try {
+      await expect(readRunDirectory('pipeline', '../escape')).resolves.toMatchObject({ success: false, reason: '无效目录' })
+      await expect(readRunDirectory('pipeline', 'missing-run')).resolves.toMatchObject({ success: false, reason: '运行记录不存在' })
+      const empty = await listRunDirectories('pipeline')
+      expect(empty.success).toBe(true)
+      expect(empty.runs).toEqual([])
+    } finally {
+      setDataDir('')
+      fs.rmSync(dataRoot, { recursive: true, force: true })
     }
   })
 })

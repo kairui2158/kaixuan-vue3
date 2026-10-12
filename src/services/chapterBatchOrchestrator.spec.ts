@@ -93,6 +93,7 @@ describe('generateChapterBatch', () => {
     expect(result.attempts).toHaveLength(1)
     expect(result.attempts[0].status).toBe('complete')
     expect(result.attempts[0].repairAttempt).toBe(0)
+    expect(result.attempts[0].validationMs).toBeGreaterThanOrEqual(0)
     expect(calls).toHaveLength(1)
   })
 
@@ -118,6 +119,8 @@ describe('generateChapterBatch', () => {
     expect(result.attempts[1].repairAttempt).toBe(1)
     expect(result.attempts[1].missingStart).toBe(5)
     expect(result.attempts[1].missingCount).toBe(1)
+    expect(result.attempts[0].validationMs).toBeUndefined()
+    expect(result.attempts[1].validationMs).toBeGreaterThanOrEqual(0)
   })
 
   it('passes duplicate errors and forbidden titles into the chapter repair prompt', async () => {

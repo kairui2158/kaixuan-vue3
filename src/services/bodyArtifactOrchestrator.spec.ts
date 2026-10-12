@@ -15,6 +15,7 @@ describe('generateBodyArtifact', () => {
     expect(result.body).toBe('这是一段合格的正文。')
     expect(result.attempts).toHaveLength(1)
     expect(result.attempts[0].status).toBe('complete')
+    expect(result.attempts[0].validationMs).toBeGreaterThanOrEqual(0)
   })
 
   it('retries an empty body and uses the repaired output', async () => {
@@ -33,6 +34,8 @@ describe('generateBodyArtifact', () => {
     expect(calls).toHaveLength(2)
     expect(calls[1]).toContain('上一次正文未通过验收')
     expect(result.attempts[1].repairAttempt).toBe(1)
+    expect(result.attempts[0].validationMs).toBeGreaterThanOrEqual(0)
+    expect(result.attempts[1].validationMs).toBeGreaterThanOrEqual(0)
   })
 
   it('fails after the default three repair attempts', async () => {
@@ -50,6 +53,7 @@ describe('generateBodyArtifact', () => {
     expect(calls).toBe(4)
     expect(result.attempts).toHaveLength(4)
     expect(result.errors.some(error => error.includes('正文未通过验收'))).toBe(true)
+    expect(result.attempts.every(attempt => attempt.validationMs === 0)).toBe(true)
   })
 
   it('stops before a retry when cancelled', async () => {

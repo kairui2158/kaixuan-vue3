@@ -252,7 +252,8 @@ onMounted(async () => {
     deAiStore.loadConfig(),
     projectStore.loadProjectList(),
   ])
-  deAiStore.updateFlowPreview()
+ deAiStore.updateFlowPreview()
+ void runTraceStore.restorePersistedRuns().catch(() => undefined)
  const lastProjectId = await (window.electronAPI?.storageRead?.('wa_lastProjectId') ?? null)
  if (lastProjectId) await projectStore.loadProject(lastProjectId)
  // P0-1: 恢复上次编辑位置（卷/章节）

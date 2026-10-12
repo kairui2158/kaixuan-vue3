@@ -68,6 +68,26 @@ describe('chainHandoff', () => {
 })
 
 describe('resolveChainPreviousOutput', () => {
+  it('keeps full text execution and exposes declared reason observability', () => {
+    const output = 'S1'.repeat(4000)
+    const withReason = resolveChainPreviousOutput({
+      previousOutput: output,
+      templateMeta: {
+        chainHandoff: {
+          previousOutput: 'full',
+          reason: '本步骤必须对上一卷完整骨架逐段重构'
+        }
+      }
+    })
+    const withoutReason = resolveChainPreviousOutput({
+      previousOutput: output,
+      templateMeta: { chainHandoff: { previousOutput: 'full' } }
+    })
+
+    expect(withReason).toEqual({ delivery: 'full_text', output })
+    expect(withoutReason).toEqual({ delivery: 'full_text', output })
+  })
+
   it('defaults to full text and respects explicit full declarations', () => {
     const output = 'S1'.repeat(4000)
     expect(resolveChainPreviousOutput({ previousOutput: output }))

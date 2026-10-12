@@ -339,7 +339,40 @@ export interface RunTraceTimingLedger {
   schemaValidateMs?: number
   retryMs?: number
   postProcessMs?: number
+  /** Schema-validation retries consumed before the terminal attempt. */
+  schemaRetryCount?: number
+  /** Worst marker-block count per request across API calls. */
+  repeatedPromptBlocks?: Record<string, number>
 }
+
+export type RunTraceStepPhase =
+  | 'promptBuild'
+  | 'contextLoad'
+  | 'postProcess'
+  | 'validation'
+  | 'persistence'
+
+export interface RunTraceStepTimingLedger {
+  promptBuildMs?: number
+  contextLoadMs?: number
+  apiCallCount?: number
+  physicalCallCount?: number
+  retryCallCount?: number
+  schemaRetryCallCount?: number
+  continuationCallCount?: number
+  firstTokenSumMs?: number
+  outputSumMs?: number
+  postProcessSumMs?: number
+  validationSumMs?: number
+  persistenceSumMs?: number
+  stepBoundaryGapMs?: number
+  repeatedPromptBlocks?: Record<string, number>
+  contextChars?: number
+  outputChars?: number
+  physicalDurationSumMs?: number
+}
+
+export type RunTraceStepTimingPatch = Partial<Record<RunTraceStepPhase, number>>
 
 export interface RunTraceTurn {
   id: string
@@ -391,6 +424,12 @@ export interface RunTrace {
   durationMs?: number
   /** Aggregated timing observability for API/local phases. */
   timingLedger?: RunTraceTimingLedger
+  /** Step-level timing ledger; computed at finishRun and never backfilled. */
+  stepTimingLedger?: RunTraceStepTimingLedger
+  /** Transient explicit phase timing before finishRun projects the step ledger. */
+  stepPhaseTiming?: RunTraceStepTimingPatch
+  /** Gap from the previous finished run in the same source/project/step scope. */
+  stepBoundaryGapMs?: number
   events: RunTraceEvent[]
   apiCalls: RunTraceApiCall[]
   turns?: RunTraceTurn[]
@@ -576,6 +615,12 @@ export interface StartRunInput {
   context?: RunTrace['context']
   sessionKind?: 'task' | 'chat'
   timeoutHint?: RunTrace['timeoutHint']
+}
+
+export interface RecordStepPhaseTimingInput {
+  runId: string
+  phase: RunTraceStepPhase
+  durationMs: number
 }
 
 export function folderDiagnosticsStatus(diagnostics: RunTraceFolderDiagnostic[]): RunTraceStatus | null {
@@ -781,9 +826,29 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 18
+const RUN_TRACE_SCHEMA_VERSION = 19
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
+const lastFinishedRunEndedAtByStep = new Map<string, number>()
+
+function stepTimingKey(run: Pick<RunTrace, 'source' | 'projectId' | 'step'>): string {
+  return `${run.source}:${run.projectId || '-'}:${run.step ?? '-'}`
+}
+
+function sumNumber(values: Array<number | undefined>): number | undefined {
+  let present = false
+  let total = 0
+  for (const value of values) {
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue
+    present = true
+    total += Math.max(0, value)
+  }
+  return present ? total : undefined
+}
+
+function responseCharacterCount(text: unknown): number {
+  return typeof text === 'string' ? text.length : 0
+}
 
 let idSeed = 0
 function nextId(prefix: string) {
@@ -1006,6 +1071,10 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       processingReports: [],
       payloads: []
     }
+    const previousRunEndedAt = lastFinishedRunEndedAtByStep.get(stepTimingKey(run))
+    if (typeof previousRunEndedAt === 'number' && previousRunEndedAt <= run.startedAt) {
+      run.stepBoundaryGapMs = Math.max(0, run.startedAt - previousRunEndedAt)
+    }
     runs.value.unshift(run)
     resetRunActivityDeduplication(run.id)
     currentRunIdBySource.value[source] = run.id
@@ -1028,6 +1097,29 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     trimRuns()
     startStateWatchdogForRun(run.id, 'active')
     return run.id
+  }
+
+  function recordStepPhaseTiming(runId: string, phase: RunTraceStepPhase, durationMs: number): void {
+    const run = getRun(runId)
+    if (!run || run.status !== 'running') return
+    if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs <= 0) return
+    const bucket = run.stepPhaseTiming || {}
+    bucket[phase] = Math.max(0, (bucket[phase] || 0) + durationMs)
+    run.stepPhaseTiming = bucket
+  }
+
+  function recordStepObservation(runId: string, phase: RunTraceStepPhase, durationMs?: number): void {
+    const run = getRun(runId)
+    if (!run || run.status !== 'running') return
+    if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return
+
+    const bucket = run.stepPhaseTiming || {}
+    if (durationMs === 0) {
+      bucket[phase] = bucket[phase] || 0
+    } else {
+      bucket[phase] = (bucket[phase] || 0) + durationMs
+    }
+    run.stepPhaseTiming = bucket
   }
 
   function startStateWatchdogForRun(runId: string, status: LifecycleStatus) {
@@ -1879,6 +1971,12 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const ledgers = run.apiCalls.map(call => call.timingLedger).filter(Boolean) as RunTraceTimingLedger[]
     const sum = (pick: (ledger: RunTraceTimingLedger) => number | undefined) =>
       ledgers.reduce((total, ledger) => total + (pick(ledger) || 0), 0)
+    const repeatedPromptBlocks: Record<string, number> = {}
+    for (const ledger of ledgers) {
+      for (const [marker, count] of Object.entries(ledger.repeatedPromptBlocks || {})) {
+        repeatedPromptBlocks[marker] = Math.max(repeatedPromptBlocks[marker] || 0, count)
+      }
+    }
     return {
       apiCallCount: run.apiCalls.length,
       physicalCallCount: sum(ledger => ledger.physicalCallCount),
@@ -1894,7 +1992,47 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       requestBuildSumMs: sum(ledger => ledger.requestBuildMs),
       schemaValidateSumMs: sum(ledger => ledger.schemaValidateMs),
       retrySumMs: sum(ledger => ledger.retryMs),
-      postProcessSumMs: sum(ledger => ledger.postProcessMs)
+      postProcessSumMs: sum(ledger => ledger.postProcessMs),
+      repeatedPromptBlocks
+    }
+  }
+
+  function computeRunStepTimingLedger(run: RunTrace): RunTraceStepTimingLedger {
+    const physicalCalls = run.apiCalls.flatMap(call => call.physicalCalls || [])
+    const localPhases = run.stepPhaseTiming || {}
+    const schemaRetries = run.apiCalls.reduce((total, call) => {
+      const schemaRetryCount = (call.timingLedger as { schemaRetryCount?: number } | undefined)?.schemaRetryCount
+      return total + (typeof schemaRetryCount === 'number' && schemaRetryCount > 0 ? schemaRetryCount : 0)
+    }, 0)
+    const repeatedPromptBlocks: Record<string, number> = {}
+    for (const call of run.apiCalls) {
+      for (const [marker, count] of Object.entries(call.timingLedger?.repeatedPromptBlocks || {})) {
+        repeatedPromptBlocks[marker] = Math.max(repeatedPromptBlocks[marker] || 0, count)
+      }
+    }
+    return {
+      promptBuildMs: sumNumber([localPhases.promptBuild]) || run.apiCalls.reduce((total, call) => total + (call.timingLedger?.requestBuildMs || 0), 0),
+      contextLoadMs: sumNumber([localPhases.contextLoad]),
+      apiCallCount: run.apiCalls.length,
+      physicalCallCount: physicalCalls.length,
+      retryCallCount: physicalCalls.filter(call => call.phase === 'retry' || call.phase === 'heartbeat_retry').length,
+      schemaRetryCallCount: schemaRetries || undefined,
+      continuationCallCount: physicalCalls.filter(call => call.phase === 'continuation').length,
+      firstTokenSumMs: sumNumber(physicalCalls.map(call => call.firstTokenMs)),
+      outputSumMs: sumNumber(physicalCalls.map(call => call.outputMs)),
+      postProcessSumMs: sumNumber([
+        localPhases.postProcess,
+        ...(run.processingReports || []).map(report => report.durationMs)
+      ]),
+      validationSumMs: sumNumber([localPhases.validation]),
+      persistenceSumMs: sumNumber([localPhases.persistence]),
+      stepBoundaryGapMs: run.stepBoundaryGapMs,
+      repeatedPromptBlocks,
+      contextChars: run.apiCalls.reduce((total, call) => (
+        total + call.requestMessages.reduce((chars, message) => chars + responseCharacterCount(message.content), 0)
+      ), 0) || undefined,
+      outputChars: run.apiCalls.reduce((total, call) => total + responseCharacterCount(call.responseText || call.streamText), 0) || undefined,
+      physicalDurationSumMs: sumNumber(physicalCalls.map(call => call.durationMs))
     }
   }
 
@@ -2023,6 +2161,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const fromStatus = 'running'
     run.status = status
     run.timingLedger = computeRunTimingLedger(run)
+    run.stepTimingLedger = computeRunStepTimingLedger(run)
     run.endedAt = Date.now()
     run.durationMs = run.endedAt - run.startedAt
     run.error = error
@@ -2048,6 +2187,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       currentRunIdBySource.value[run.source] = null
       currentApiCallIdBySource.value[run.source] = null
     }
+    lastFinishedRunEndedAtByStep.set(stepTimingKey(run), run.endedAt)
     if (run.sessionKind === 'chat') {
       addEvent(runId, {
         type: 'session-closed',
@@ -2139,6 +2279,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     currentRunIdBySource.value = { pipeline: null, outline: null, home: null, eval: null, infra: null }
     currentApiCallIdBySource.value = { pipeline: null, outline: null, home: null, eval: null, infra: null }
     lastRunIdBySource.value = { pipeline: null, outline: null, home: null, eval: null, infra: null }
+    lastFinishedRunEndedAtByStep.clear()
   }
 
   function addSourceEvent(source: RunTraceSource, event: Omit<RunTraceEvent, 'id' | 'ts'>) {
@@ -2365,6 +2506,79 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
   }
 
+  const RESTORED_RUN_STATUSES: ReadonlySet<RunTraceStatus> = new Set([
+    'success',
+    'degraded',
+    'failed',
+    'canceled',
+    'partially_applied',
+    'failed_after_write',
+    'success_with_warnings'
+  ])
+
+  function isValidRestoredRun(run: unknown): run is RunTrace {
+    const candidate = run as Partial<RunTrace> | null
+    if (!candidate) return false
+    return typeof candidate.id === 'string'
+      && candidate.id.length > 0
+      && typeof candidate.source === 'string'
+      && typeof candidate.startedAt === 'number'
+      && Array.isArray(candidate.events)
+      && Array.isArray(candidate.apiCalls)
+      && RESTORED_RUN_STATUSES.has(candidate.status as RunTraceStatus)
+  }
+
+  function insertRestoredRun(run: RunTrace) {
+    if (runs.value.some(item => item.id === run.id)) return false
+    const restoredRun: RunTrace = {
+      ...run,
+      currentTurnId: undefined,
+      source: normalizeSource(run.source),
+      sourceName: RUN_TRACE_SOURCE_NAMES[normalizeSource(run.source)]
+    }
+    runs.value.push(restoredRun)
+    return true
+  }
+
+  async function restorePersistedRuns(): Promise<{ restored: number; skipped: number }> {
+    if (typeof window === 'undefined'
+      || typeof window.electronAPI?.runTraceList !== 'function'
+      || typeof window.electronAPI?.runTraceRead !== 'function') {
+      return { restored: 0, skipped: 0 }
+    }
+    const restoredBySource: Record<RunTraceSource, number> = {
+      pipeline: 0, outline: 0, home: 0, eval: 0, infra: 0
+    }
+    let skipped = 0
+    for (const source of ['pipeline', 'outline', 'home', 'eval', 'infra'] as RunTraceSource[]) {
+      try {
+        const listed = await window.electronAPI!.runTraceList(source)
+        if (!listed?.success || !Array.isArray(listed.runs)) continue
+        for (const item of listed.runs) {
+          if (restoredBySource[source] >= maxRuns) break
+          if (!item?.dirName || item.status === 'running' || item.status === 'blocked') {
+            skipped += 1
+            continue
+          }
+          const read = await window.electronAPI!.runTraceRead({ source, dirName: item.dirName })
+          if (!read?.success || !isValidRestoredRun(read.run)) {
+            skipped += 1
+            continue
+          }
+          const run = read.run as RunTrace
+          run.dirName = item.dirName
+          runDirNameById.set(run.id, item.dirName)
+          if (insertRestoredRun(run)) restoredBySource[source] += 1
+        }
+      } catch {
+        // Trace history is observability. Startup must continue if one source is corrupt.
+      }
+    }
+    runs.value.sort((a, b) => b.startedAt - a.startedAt)
+    trimRuns()
+    return { restored: Object.values(restoredBySource).reduce((total, count) => total + count, 0), skipped }
+  }
+
   function maskSensitive(text: string) {
     return String(text || '')
       .replace(/(Authorization\s*[:=]\s*Bearer\s+)[^\s"'，。]+/gi, '$1***MASKED***')
@@ -2586,6 +2800,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     startTurn,
     finishTurn,
     updateTurnIntent,
+    recordStepPhaseTiming,
+    recordStepObservation,
     addEvent,
     startApiCall,
     appendPhysicalCall,
@@ -2618,6 +2834,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     maskSensitive,
     exportRunToText,
     exportRunToJson,
+    restorePersistedRuns,
     checkStateIntegrityBeforeClose,
     checkStateIntegrity
   }

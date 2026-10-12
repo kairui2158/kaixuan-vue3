@@ -433,7 +433,7 @@ function formatMs(value) {
 }
 
 function assertTimingRun(run) {
-  assert.equal(run.schemaVersion, 18, `run trace uses schema v18, got ${run.schemaVersion}`)
+  assert.equal(run.schemaVersion, 19, `run trace uses schema v19, got ${run.schemaVersion}`)
   assert.equal(run.step, 2, `run is the volume layer, got step ${run.step}`)
   assert.equal(run.status, 'success', `run succeeds, got ${run.status}`)
   assert((run.apiCalls || []).length >= 12,
@@ -458,6 +458,71 @@ function assertTimingRun(run) {
       assert(Number.isFinite(Number(physical.outputMs)),
         `physical call ${physical.physicalCallId} records outputMs`)
     }
+  }
+}
+
+function assertPhase4Deduplication(run) {
+  const historyMarker = '[已生成卷事实清单]'
+  const perCallHistoryCounts = []
+  for (const call of run.apiCalls || []) {
+    const blocks = call.timingLedger?.repeatedPromptBlocks
+    assert(blocks, `api call ${call.id} records repeatedPromptBlocks`)
+    const historyCount = Number(blocks[historyMarker] || 0)
+    perCallHistoryCounts.push(historyCount)
+    assert(historyCount <= 1,
+      `api call ${call.id} injects the volume history block at most once, got ${historyCount}`)
+    for (const [marker, count] of Object.entries(blocks)) {
+      assert(Number.isInteger(count) && count >= 0,
+        `api call ${call.id} repeatedPromptBlocks[${marker}] is a non-negative integer, got ${JSON.stringify(count)}`)
+    }
+  }
+  assert(perCallHistoryCounts.length > 0, 'volume run records at least one API call')
+
+  const suppressedEvents = (run.events || [])
+    .filter(event => event.type === 'duplicate-history-context-suppressed')
+  for (const event of suppressedEvents) {
+    const detail = parseEventDetail(event.detail)
+    assert.equal(detail.duplicateHistoryContextSuppressed, true,
+      'duplicate-history-context-suppressed event carries a true audit flag')
+    assert(Number.isFinite(Number(detail.promptLength)) && detail.promptLength > 0,
+      `suppressed event records promptLength, got ${JSON.stringify(detail.promptLength)}`)
+  }
+  assert((run.timingLedger?.repeatedPromptBlocks?.[historyMarker] || 0) <= 1,
+    'run-level history block count is at most 1')
+
+  const localOverhead = Number(run.timingLedger?.localOverheadSumMs)
+  assert(Number.isFinite(localOverhead) && localOverhead >= 0,
+    `run localOverheadSumMs is finite and non-negative, got ${JSON.stringify(localOverhead)}`)
+}
+
+function assertNoActiveStreamTimeoutRestart(run) {
+  const physicalCalls = (run.apiCalls || []).flatMap(call => call.physicalCalls || [])
+  assert(physicalCalls.length > 0, 'volume run records physical requests')
+  for (const physical of physicalCalls) {
+    assert.equal(physical.heartbeat, true,
+      `physical call ${physical.physicalCallId} reports heartbeat`)
+    if (physical.phase !== 'heartbeat_retry') continue
+    assert.equal(physical.status, 'success',
+      `heartbeat retry ${physical.physicalCallId} succeeds instead of timing out an active stream, got ${physical.status}`)
+    assert(Number.isFinite(Number(physical.firstTokenMs)),
+      `heartbeat retry ${physical.physicalCallId} records firstTokenMs`)
+  }
+
+  // The pre-fix signature was a failed ~600s physical call with streaming output,
+  // followed by a full retry. Neither shape may pass this verifier anymore.
+  const timeoutFailures = physicalCalls.filter(physical =>
+    physical.status === 'failed' && Number(physical.durationMs || 0) >= 590_000)
+  assert.equal(timeoutFailures.length, 0,
+    `no active stream is cut by the 600s total timeout, got ${JSON.stringify(timeoutFailures)}`)
+}
+
+function parseEventDetail(detail) {
+  if (!detail) return {}
+  if (typeof detail === 'object') return detail
+  try {
+    return JSON.parse(String(detail))
+  } catch {
+    return {}
   }
 }
 
@@ -563,6 +628,8 @@ async function main() {
     const exported = await exportLatestRun(page)
     const { directory, run } = readExportedRun(exported)
     assertTimingRun(run)
+    assertPhase4Deduplication(run)
+    assertNoActiveStreamTimeoutRestart(run)
     const analysis = analyzeTiming(run)
 
     const targetDir = path.join(EVIDENCE_ROOT, 'live-export', 'volume')

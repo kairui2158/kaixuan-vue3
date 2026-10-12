@@ -80,6 +80,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runTraceExport: function(payload) { return ipcRenderer.invoke('runTrace:export', payload || {}) },
   runTraceReportStateIntegrity: function(report) { ipcRenderer.send('runTrace:stateIntegrity', report || {}) },
   runTraceSave: function(payload) { return ipcRenderer.invoke('runTrace:save', payload || {}) },
+  runTraceList: function(source) { return ipcRenderer.invoke('runTrace:list', source || 'pipeline') },
+  runTraceRead: function(payload) { return ipcRenderer.invoke('runTrace:read', payload || {}) },
   runTraceRemove: function(payload) { return ipcRenderer.invoke('runTrace:remove', payload || {}) },
   runTraceOpenFolder: function(source) { return ipcRenderer.invoke('runTrace:openFolder', source || 'pipeline') },
   intentCorpusAppend: function(payload) { return ipcRenderer.invoke('intentCorpus:append', payload || {}) },

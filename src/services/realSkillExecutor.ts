@@ -33,7 +33,28 @@ const DIRECT_OUTPUT_SUFFIX = [
   '从回复第一个字符开始直接输出最终正文内容。'
 ].join('\n')
 
+const REPEATED_PROMPT_BLOCK_MARKERS = [
+  '[已生成卷事实清单]',
+  '[大纲]',
+  '[style reference]',
+  '[上一步 SKILL 完整输出]'
+] as const
+
 export type RealSkillPassInputMode = 'original' | 'previous'
+
+export function countRepeatedPromptBlocks(userPrompt: string): Record<string, number> {
+  const result: Record<string, number> = {}
+  for (const marker of REPEATED_PROMPT_BLOCK_MARKERS) {
+    let count = 0
+    let index = userPrompt.indexOf(marker)
+    while (index !== -1) {
+      count += 1
+      index = userPrompt.indexOf(marker, index + marker.length)
+    }
+    result[marker] = count
+  }
+  return result
+}
 
 export function buildFolderPassInputMeasurement(input: {
   passIndex: number
@@ -726,7 +747,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     requestBuildMs: 0,
     schemaValidateMs: 0,
     retryMs: 0,
-    postProcessMs: 0
+    postProcessMs: 0,
+    schemaRetryCount: 0,
+    repeatedPromptBlocks: {} as Record<string, number>
   }
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
   const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
@@ -819,6 +842,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           requiresFullUpstreamContext: declaredFullUpstream,
           isPreviousInput
         })
+        timingLedger.repeatedPromptBlocks = countRepeatedPromptBlocks(userPrompt)
         const messages = options.messageBuilder
           ? options.messageBuilder(effectiveSystemPrompt, userPrompt)
           : [
@@ -1095,6 +1119,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
 
         const report = buildValidationErrorReport(validation.errors)
         schemaRetryFeedback = buildSchemaRetryFeedback(validation.errors)
+        timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
         errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过校验：${report}`)
         diagnostics.push(diagnostic('warning', 'schema-validation-failed', `尝试 ${attempt}/${RETRY_LIMIT}：${report}`))
         dispatchStepEvent({
