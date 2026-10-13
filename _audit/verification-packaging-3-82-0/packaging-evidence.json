@@ -1,25 +1,25 @@
 {
-  "schemaVersion": "packaging-3-81-0-v1",
-  "generatedAt": "2026-10-11T21:17:07.715Z",
-  "version": "3.81.0",
+  "schemaVersion": "packaging-3-82-0-v1",
+  "generatedAt": "2026-10-13T11:22:48.289Z",
+  "version": "3.82.0",
   "main": "electron/main.js",
-  "installer": "dist\\神意助手-Setup-3.81.0.exe",
-  "installerBytes": 231516909,
-  "installerSha256": "72e6116228ea4783ea69a434cbaed2e307e5487004cec30e7261be669dfc3186",
+  "installer": "dist\\神意助手-Setup-3.82.0.exe",
+  "installerBytes": 231520779,
+  "installerSha256": "25dbe73b457394eb2caf21667963ebb0a0b5a38d2bed4f7be12005e6cd7ec824",
   "nsis": {
     "source": "package.json",
     "oneClick": false,
     "allowToChangeInstallationDirectory": true
   },
   "asarFile": "dist\\win-unpacked\\resources\\app.asar",
-  "asarMtime": "2026-10-11T21:14:39.165Z",
+  "asarMtime": "2026-10-13T11:20:16.168Z",
   "latestSourceFile": {
     "file": "package-lock.json",
-    "mtime": 1791753115080.051
+    "mtime": 1791890157337.3489
   },
-  "latestSourceMtime": "2026-10-11T21:11:55.080Z",
+  "latestSourceMtime": "2026-10-13T11:15:57.337Z",
   "rendererFileCount": 74,
-  "electronApiKeyCount": 75,
+  "electronApiKeyCount": 77,
   "electronApiKeys": [
     "agentCancel",
     "agentCancelToken",
@@ -69,7 +69,9 @@
     "providerTestConnection",
     "respondCloseChoice",
     "runTraceExport",
+    "runTraceList",
     "runTraceOpenFolder",
+    "runTraceRead",
     "runTraceRemove",
     "runTraceReportStateIntegrity",
     "runTraceSave",
@@ -97,6 +99,6 @@
     "windowOpenProject",
     "windowSetCurrentProject"
   ],
-  "bodyTextLength": 2306,
+  "bodyTextLength": 606,
   "verdict": "pass"
 }

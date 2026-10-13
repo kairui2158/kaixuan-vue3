@@ -838,3 +838,11 @@
 - 范围：卷纲层 `fullReasonMissing` 收口、正文层 schema 重试反馈、验证器 WALL_BUDGET 预算修复、证据导出健壮复制、经验文件 v8.9。
 - 验证：真实 Electron + 真实供应商 API 复验通过：run `run-1791884865708-1`，3 卷、12 API calls / 12 物理请求 / 0 retry / 0 timeout failure；`npm run test:services` 149 files / 1803 tests、type-check、build:vue 通过。
 - 诚实边界：脚本退出码曾为 1，原因是 Windows CopyFile `UNKNOWN` 瞬态，目标 run trace 已完整落盘并经离线断言复核；验证器已改为字节级回退复制 + 尺寸校验。
+
+# 2026-10-13 3.82.0 流水线耗时修复收尾封装
+
+- 文件：[_audit/DEV_LOG_2026-10-13-packaging-3-82-0.md](_audit/DEV_LOG_2026-10-13-packaging-3-82-0.md)
+- 范围：将 Phase 5C/5D/5E/5F/5G 成果交付为 3.82.0 安装包；升级版本号、新增 3.82.0 封装验证器、清理 3.81.0 旧验证器与旧产物。
+- 验证：`npm run test:services` 149 files / 1803 tests、type-check、`npm run build` 通过；真实启动打包应用通过，asar `version=3.82.0`，renderer 74 个文件，`electronAPI` 77 个方法。
+- 产物：`dist/神意助手-Setup-3.82.0.exe`，231,520,779 bytes，SHA256 `25dbe73b457394eb2caf21667963ebb0a0b5a38d2bed4f7be12005e6cd7ec824`。
+- 证据：`_audit/verification-packaging-3-82-0/packaging-evidence.json`。
