@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  extractVolumeContractSemantics,
+  placeholderVolumeContractSemantics,
   buildVolumeHistoryFacts,
   renderVolumeHistoryContext,
   validateVolumeBatch,
@@ -13,6 +15,7 @@ function contract(overrides: Partial<VolumeGenerationContract> = {}): VolumeGene
     expectedCount: 3,
     existingCount: 0,
     totalPlannedVolumes: 3,
+    semantics: placeholderVolumeContractSemantics(),
     ...overrides
   }
 }
@@ -23,6 +26,11 @@ function volume(name: string, overrides: Record<string, unknown> = {}) {
     outline: `${name}卷纲`,
     summary: `${name}摘要`,
     allocatedWords: 100000,
+    readerExpectations: '每卷兑现一次公开成长',
+    mainPlotLine: '事业线',
+    unlockMilestone: '第一卷只解锁城市级舞台',
+    forbiddenFinalCards: ['全书头号宿敌', '母亲身世'],
+    contractRisk: 'contract_safe',
     ...overrides
   }
 }
@@ -131,6 +139,93 @@ describe('validateVolumeBatch', () => {
     expect(result.valid).toBe(false)
     expect(result.errors).toContain('卷名重复：「第一卷」')
     expect(result.errors).toContain('卷名与历史重复：「已存在卷」')
+  })
+
+  it('accepts semantic fields that are explicitly marked as pending', () => {
+    const result = validateVolumeBatch([
+      volume('第一卷', {
+        readerExpectations: '[待补充]',
+        mainPlotLine: '[待补充]',
+        unlockMilestone: '[待补充]',
+        forbiddenFinalCards: [],
+        contractRisk: '[待补充]'
+      }),
+      volume('第二卷'),
+      volume('第三卷')
+    ], contract())
+
+    expect(result).toEqual({ valid: true, errors: [], missingCount: 0 })
+  })
+
+  it('rejects a volume when any semantic contract field is missing', () => {
+    const result = validateVolumeBatch([
+      volume('第一卷', {
+        readerExpectations: '',
+        mainPlotLine: undefined,
+        unlockMilestone: ' ',
+        forbiddenFinalCards: undefined,
+        contractRisk: ''
+      }),
+      volume('第二卷'),
+      volume('第三卷')
+    ], contract())
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContain('卷「第一卷」缺少读者期待契约')
+    expect(result.errors).toContain('卷「第一卷」缺少主推线契约')
+    expect(result.errors).toContain('卷「第一卷」缺少解锁里程碑契约')
+    expect(result.errors).toContain('卷「第一卷」禁碰终局底牌必须是字符串数组')
+    expect(result.errors).toContain('卷「第一卷」缺少契约风险')
+  })
+
+  it('rejects unknown contract risk values', () => {
+    const result = validateVolumeBatch([
+      volume('第一卷', { contractRisk: '低风险' }),
+      volume('第二卷', { contractRisk: 'contract_broken' }),
+      volume('第三卷', { contractRisk: 'contract_needs_reinforcement' })
+    ], contract())
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContain('卷「第一卷」契约风险必须是 contract_safe / contract_needs_reinforcement / contract_broken 或 [待补充]')
+  })
+
+  it('rejects non-string forbidden final cards', () => {
+    const result = validateVolumeBatch([
+      volume('第一卷', { forbiddenFinalCards: ['母亲身世', 42] }),
+      volume('第二卷'),
+      volume('第三卷')
+    ], contract())
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContain('卷「第一卷」禁碰终局底牌必须是字符串数组')
+  })
+})
+
+describe('extractVolumeContractSemantics', () => {
+  it('normalizes model output into the persisted semantic contract', () => {
+    expect(extractVolumeContractSemantics(volume('第一卷'))).toEqual({
+      readerExpectations: '每卷兑现一次公开成长',
+      mainPlotLine: '事业线',
+      unlockMilestone: '第一卷只解锁城市级舞台',
+      forbiddenFinalCards: ['全书头号宿敌', '母亲身世'],
+      contractRisk: 'contract_safe'
+    })
+  })
+
+  it('uses explicit placeholders when the model has no answer yet', () => {
+    expect(extractVolumeContractSemantics({
+      readerExpectations: ' [待补充] ',
+      mainPlotLine: '',
+      unlockMilestone: undefined,
+      forbiddenFinalCards: [' ', 3],
+      contractRisk: ' contract_safe '
+    })).toEqual({
+      readerExpectations: '[待补充]',
+      mainPlotLine: '[待补充]',
+      unlockMilestone: '[待补充]',
+      forbiddenFinalCards: [],
+      contractRisk: 'contract_safe'
+    })
   })
 })
 

@@ -18,7 +18,12 @@ function volume(name: string) {
     name,
     outline: `${name}卷纲`,
     summary: `${name}摘要`,
-    allocatedWords: 100000
+    allocatedWords: 100000,
+    readerExpectations: '每卷兑现一次公开成长',
+    mainPlotLine: '事业线',
+    unlockMilestone: `${name}只解锁城市级舞台`,
+    forbiddenFinalCards: ['全书头号宿敌'],
+    contractRisk: 'contract_safe'
   }
 }
 
@@ -27,6 +32,40 @@ function json(names: string[]) {
 }
 
 describe('buildVolumeBatchPrompt', () => {
+  it('requires volume contract semantics in every output protocol', () => {
+    const base = {
+      contract,
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷'
+    }
+    const prompts = [
+      buildVolumeBatchPrompt({ ...base, repair: false }),
+      buildVolumeBatchPrompt({
+        ...base,
+        contract: { ...contract, mode: 'single', expectedCount: 1, existingCount: 1 },
+        repair: true,
+        missingStart: 2,
+        missingCount: 1
+      }),
+      buildVolumeBatchPrompt({
+        ...base,
+        repair: false,
+        requestPolicy: 'single-volume',
+        missingStart: 2,
+        missingCount: 1
+      })
+    ]
+
+    for (const prompt of prompts) {
+      expect(prompt).toContain('readerExpectations')
+      expect(prompt).toContain('mainPlotLine')
+      expect(prompt).toContain('unlockMilestone')
+      expect(prompt).toContain('forbiddenFinalCards')
+      expect(prompt).toContain('contractRisk')
+      expect(prompt).toContain('contract_safe / contract_needs_reinforcement / contract_broken / [待补充]')
+    }
+  })
+
   it('renders a one-volume request for chain folder skills', () => {
     const prompt = buildVolumeBatchPrompt({
       contract,

@@ -27,6 +27,30 @@ const outline = [
 ].join('\n')
 
 describe('outlineContextScope', () => {
+  it('carries contract and unit forbidden-release rules out of the closure', () => {
+    const result = buildOutlineUnitClosure({
+      outline,
+      unitId: 'D1-03',
+      contractForbiddenFinalCards: ['全书头号宿敌', '母亲身世']
+    })
+
+    expect(result.ok).toBe(true)
+    expect(result.contractForbiddenFinalCards).toEqual(['全书头号宿敌', '母亲身世', '身世'])
+  })
+
+  it('keeps contract forbidden cards in legacy explicit fallback', () => {
+    const result = buildOutlineUnitClosure({
+      outline: '旧项目卷纲\n没有段位声明。',
+      unitId: 'D1-03',
+      volumeSummary: '旧项目第一卷概要',
+      chapterDetail: '第12章 纸条',
+      contractForbiddenFinalCards: ['终极真相']
+    })
+
+    expect(result.ok).toBe(true)
+    expect(result.contractForbiddenFinalCards).toEqual(['终极真相'])
+  })
+
   it('builds the permanent plus current unit closure', () => {
     const result = buildOutlineUnitClosure({ outline, unitId: 'D1-03' })
     expect(result.ok).toBe(true)

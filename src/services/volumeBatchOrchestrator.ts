@@ -47,6 +47,14 @@ export interface VolumeBatchResult {
   errors: string[]
 }
 
+const VOLUME_OUTPUT_PROTOCOL = [
+  '输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。',
+  'readerExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。',
+  'forbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。',
+  'contractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。',
+  '语义字段允许输出[待补充]，但字段必须在场。'
+].join('\n')
+
 export function buildVolumeBatchPromptWithAudit(input: {
   contract: VolumeGenerationContract
   repair: boolean
@@ -72,7 +80,8 @@ export function buildVolumeBatchPromptWithAudit(input: {
         input.basePrompt,
         ...historyLines,
         `本次只生成第${missingStart}卷，不生成其他卷。全书计划到第${missingEnd}卷。`,
-        '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为1。'
+        VOLUME_OUTPUT_PROTOCOL,
+        '数组长度必须为1。'
       ].join('\n')
     }
   }
@@ -86,7 +95,8 @@ export function buildVolumeBatchPromptWithAudit(input: {
         input.basePrompt,
         ...historyLines,
         `补充生成第${missingStart}卷到第${missingEnd}卷，共${missingCount}卷。只输出缺失卷，不要重复任何已有卷名。`,
-        '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + missingCount + '。'
+        VOLUME_OUTPUT_PROTOCOL,
+        '数组长度必须为' + missingCount + '。'
       ].concat(input.repairErrors?.length ? [
         '',
         '【上一次验收失败原因】',
@@ -104,7 +114,8 @@ export function buildVolumeBatchPromptWithAudit(input: {
       input.basePrompt,
       ...historyLines,
       `生成${contract.expectedCount}卷的卷纲。不要重复任何已有卷名。`,
-      '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + contract.expectedCount + '。'
+      VOLUME_OUTPUT_PROTOCOL,
+      '数组长度必须为' + contract.expectedCount + '。'
     ].join('\n')
   }
 }

@@ -81,6 +81,32 @@ describe("chapter execution package", () => {
     expect(prompt).toContain("约3000字")
   })
 
+  it("renders forbidden final cards as a no-early-release block", () => {
+    const pkg = createChapterExecutionPackage({
+      volume: { name: "第一卷", outline: "卷纲" },
+      chapter: { title: "雨夜", plot: "发现纸条" },
+      contextScope: {
+        unitId: "D1-03",
+        closure: "卷级常任 + 当前单元闭包",
+        contractForbiddenFinalCards: ["全书头号宿敌", "母亲身世"],
+        permanentCount: 1,
+        unitCount: 1,
+        undeclaredCount: 0,
+        closureBytes: 32,
+        targetBytes: 12000,
+        maxBytes: 24000,
+        trimmed: [],
+        warnings: [],
+        degradedReason: null
+      }
+    })
+
+    const prompt = buildChapterExecutionPrompt(pkg, 3000)
+    expect(prompt).toContain("[禁止提前释放]")
+    expect(prompt).toContain("全书头号宿敌、母亲身世")
+    expect(prompt).toContain("不得提前揭示")
+  })
+
   it("renders the unit closure instead of the full outline in v2 packages", () => {
     const pkg = createChapterExecutionPackage({
       volume: { name: "第一卷", outline: "卷纲" },

@@ -2,11 +2,26 @@ import type { ExistingVolumeRef } from './volumeGeneration'
 
 export type VolumeContractMode = 'auto' | 'single' | 'continue'
 
+export type VolumeContractRisk =
+  | 'contract_safe'
+  | 'contract_needs_reinforcement'
+  | 'contract_broken'
+  | '[待补充]'
+
+export interface VolumeContractSemantics {
+  readerExpectations: string
+  mainPlotLine: string
+  unlockMilestone: string
+  forbiddenFinalCards: string[]
+  contractRisk: VolumeContractRisk
+}
+
 export interface VolumeGenerationContract {
   mode: VolumeContractMode
   expectedCount: number
   existingCount: number
   totalPlannedVolumes: number
+  semantics?: VolumeContractSemantics
 }
 
 export interface VolumeHistoryFacts {
@@ -27,6 +42,71 @@ export interface VolumeLedgerValidation {
 
 function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : String(value || '').trim()
+}
+
+const PENDING = '[待补充]'
+const VOLUME_CONTRACT_RISKS: VolumeContractRisk[] = [
+  'contract_safe',
+  'contract_needs_reinforcement',
+  'contract_broken',
+  PENDING
+]
+
+export function placeholderVolumeContractSemantics(): VolumeContractSemantics {
+  return {
+    readerExpectations: PENDING,
+    mainPlotLine: PENDING,
+    unlockMilestone: PENDING,
+    forbiddenFinalCards: [],
+    contractRisk: PENDING
+  }
+}
+
+function requiredText(value: unknown): string {
+  const normalized = text(value)
+  return normalized || PENDING
+}
+
+function normalizeForbiddenFinalCards(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === 'string').map(item => text(item)).filter(Boolean)
+}
+
+function normalizeContractRisk(value: unknown): VolumeContractRisk {
+  const normalized = text(value)
+  return VOLUME_CONTRACT_RISKS.find(risk => risk === normalized) ?? PENDING
+}
+
+export function extractVolumeContractSemantics(volume: unknown): VolumeContractSemantics {
+  const source = (volume ?? {}) as Record<string, unknown>
+  return {
+    readerExpectations: requiredText(source.readerExpectations),
+    mainPlotLine: requiredText(source.mainPlotLine),
+    unlockMilestone: requiredText(source.unlockMilestone),
+    forbiddenFinalCards: normalizeForbiddenFinalCards(source.forbiddenFinalCards),
+    contractRisk: normalizeContractRisk(source.contractRisk)
+  }
+}
+
+function validateContractSemantics(volume: unknown, volumeName: string, errors: string[]): void {
+  const source = (volume ?? {}) as Record<string, unknown>
+  if (!text(source.readerExpectations)) errors.push(`卷「${volumeName}」缺少读者期待契约`)
+  if (!text(source.mainPlotLine)) errors.push(`卷「${volumeName}」缺少主推线契约`)
+  if (!text(source.unlockMilestone)) errors.push(`卷「${volumeName}」缺少解锁里程碑契约`)
+  if (
+    !Array.isArray(source.forbiddenFinalCards) ||
+    source.forbiddenFinalCards.some(card => typeof card !== 'string' || !text(card))
+  ) {
+    errors.push(`卷「${volumeName}」禁碰终局底牌必须是字符串数组`)
+  }
+  const contractRisk = text(source.contractRisk)
+  if (!contractRisk) {
+    errors.push(`卷「${volumeName}」缺少契约风险`)
+  } else if (!VOLUME_CONTRACT_RISKS.includes(contractRisk as VolumeContractRisk)) {
+    errors.push(
+      `卷「${volumeName}」契约风险必须是 contract_safe / contract_needs_reinforcement / contract_broken 或 [待补充]`
+    )
+  }
 }
 
 function normalizeWords(value: unknown): number | null {
@@ -83,6 +163,7 @@ export function validateVolumeBatch(
     if (normalizeWords((volume as any)?.allocatedWords ?? (volume as any)?.suggestedWords) === null) {
       errors.push(`卷「${name || '?'}」分配字数必须是非负整数`)
     }
+    validateContractSemantics(volume, name || '?', errors)
     if (name) {
       if (existingNames.has(name)) errors.push(`卷名与历史重复：「${name}」`)
       if (batchNames.has(name)) errors.push(`卷名重复：「${name}」`)

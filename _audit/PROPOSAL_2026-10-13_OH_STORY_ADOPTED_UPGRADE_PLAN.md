@@ -25,7 +25,7 @@
 | P0-B | Memory 状态事务系统（2026-10-14 已完成，见 DEV_LOG_2026-10-14_p0b-memory-transaction-closure.md） | P0 | 无 | 生成多批次、多请求时不再互相覆盖事实 |
 | P0-A | 作用域上下文闭包（2026-10-14 已完成，见 DEV_LOG_2026-10-14_p0a-context-scope-closure.md） | P0 | P0-B | 长文生成不再反复带全书/全卷全文，读取效率和聚焦度提升 |
 | P1-D | 写后硬信号 Stop 网（2026-10-14 已完成，见 DEV_LOG_2026-10-14_p1d-hard-signal-stop-net.md） | P1 | 无硬依赖 | 截断/拒绝语/工程词/复读不会静默进入产物 |
-| P1-E | 契约语义扩充 | P1 | P0-A | 主推线、终局底牌、禁区进入生成与审查双侧 |
+| P1-E | 契约语义扩充（2026-10-14 已完成，见 DEV_LOG_2026-10-14_p1e-contract-semantics.md） | P1 | P0-A | 主推线、终局底牌、禁区进入生成与审查双侧 |
 
 顺序说明：P0-B 先行，因为上下文闭包与派生视图都消费权威状态。若先做 P0-A，闭包会依赖一个会被并发覆盖的 memory，收益会在多批次场景失真。P1-D 技术上可并行，但为避免同一轮 Electron 验证混杂多个变量，仍按阶段执行。
 
@@ -148,6 +148,20 @@
 ### 7.3 验收
 
 构造“提前揭示禁碰真相”的样本章节，审查必须报 `contract_broken`；正常推进样本不得误报。
+
+### 7.4 落地结果与对账（2026-10-14 完成）
+
+| 对象 | Before | After | 验证 |
+|---|---|---|---|
+| 卷契约字段 | 数量、字段、重复卷名校验 | 五类语义字段必在场，缺省 `[待补充]`，非法 `contractRisk` 报契约错误 | `volumeGenerationContract` 19/19 tests |
+| 生成协议 | 卷 JSON 只要求基础字段 | 三处 prompt 统一 9 字段输出协议 + 风险枚举 | `volumeBatchOrchestrator` 19/19 tests |
+| 上下文闭包 | 不携带契约禁区 | 契约禁区与闭包禁止行合并去重输出 | `outlineContextScope` 12/12 tests |
+| 正文执行 | 禁区语义无固定载体 | `[禁止提前释放]` 块进入章节执行 prompt | `chapterExecutionPackage` 8/8 tests |
+| 写后审查 | 无契约审查 | 本地确定性三态审查，`contract_review` 进 runTrace，只报告不阻塞 | `contractReview` 4/4 + wiring 3/3 tests；Electron normal=`contract_safe`、early reveal=`contract_broken` |
+| 请求负担 | 无审查 | 审查不触发额外物理请求 | Electron 两 Case requestCount 均为 1 |
+| 生成质量 | 无契约语义约束 | 语义进入生成与审查双侧 | 未做人工评分对账，标注“未验证” |
+
+落地边界：揭示词表与 80 字窗口为首版采样，暗示式剧透需持续采样；Electron 验证使用本地 provider；完整验证与封装证据见 `DEV_LOG_2026-10-14_p1e-contract-semantics.md` 与 `_audit/TASK_LEDGERS/2026-10-14_p1e-contract-semantics.md`。
 
 ## 7. 全局门禁
 

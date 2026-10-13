@@ -828,7 +828,8 @@ import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 import { buildChapterHistoryFacts, renderChapterHistoryContext, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
 import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
-import { buildVolumeHistoryFacts, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
+import { buildVolumeHistoryFacts, extractVolumeContractSemantics, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
+import { reviewVolumeContractSemantics } from "../../services/contractReview"
 import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
@@ -3816,6 +3817,7 @@ async function genVolumes(mode: string) {
           }
           return {
             ...v,
+            ...extractVolumeContractSemantics(v),
             id: v.id || ('vol_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
             allocatedWords: clamped.words,
             confirmed: false,
@@ -3844,6 +3846,7 @@ async function genVolumes(mode: string) {
           }
           return {
             ...v,
+            ...extractVolumeContractSemantics(v),
             id: v.id || ('vol_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
             allocatedWords: clamped.words,
             confirmed: false,
@@ -4169,6 +4172,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         unitId: resolvedUnitId,
         volumeSummary: vol.summary || vol.outline || "",
         chapterDetail: `${ch.title || ""}\n${ch.plot || ""}`,
+        contractForbiddenFinalCards: extractVolumeContractSemantics(vol).forbiddenFinalCards,
         includeUnitDraft: false
       })
       : null
@@ -4189,7 +4193,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       maxBytes: outlineClosure.maxBytes,
       trimmed: outlineClosure.trimmed,
       warnings: outlineClosure.warnings,
-      degradedReason: outlineClosure.degradedReason
+      degradedReason: outlineClosure.degradedReason,
+      contractForbiddenFinalCards: outlineClosure.contractForbiddenFinalCards
     }
     trace.addEvent({
       type: 'context_scope',
@@ -4291,6 +4296,16 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     let finalBody = generationResult.body || ""
     finalBody = await runProseHardSignalNet(finalBody, trace.runId!, {
       finishReason: latestBodyFinishReason(trace.runId!)
+    })
+    const contractReview = reviewVolumeContractSemantics({
+      prose: finalBody,
+      forbiddenFinalCards: outlineClosure.contractForbiddenFinalCards
+    })
+    trace.addEvent({
+      type: 'contract_review',
+      level: contractReview.status === 'contract_broken' ? 'error' : contractReview.detected ? 'warn' : 'info',
+      label: '卷契约语义审查',
+      detail: JSON.stringify(contractReview)
     })
     // P2: 后处理层 — 自动降AI清洗
     if (finalBody.length > 0 && deAiStore.hardruleEnabled) {

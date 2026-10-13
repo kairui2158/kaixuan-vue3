@@ -18,6 +18,7 @@ export interface OutlineContextScopeInput {
   unitId?: string
   volumeSummary?: string
   chapterDetail?: string
+  contractForbiddenFinalCards?: string[]
   includeUnitDraft?: boolean
   targetBytes?: number
   maxBytes?: number
@@ -46,6 +47,7 @@ export interface OutlineContextScopeResult {
   trimmed: string[]
   warnings: string[]
   degradedReason: string | null
+  contractForbiddenFinalCards: string[]
   errors: OutlineContextScopeError[]
 }
 
@@ -57,6 +59,31 @@ const UNIT_IN_TITLE_RE = /(?:^|[^A-Za-z0-9_-])([A-Za-z][A-Za-z0-9_-]*\d+(?:-\d+)
 const STORY_UNIT_IN_TITLE_RE = /剧情单元\s+([A-Za-z][\w-]*)/
 const CH_RANGE_RE = /章节范围[：:]\s*第\s*(\d+)\s*[-–—~至]\s*(\d+)\s*章/
 const ARC_ROW_RE = /^\|\s*第?\s*(\d+)\s*章?\s*\|/
+const FORBIDDEN_RELEASE_RE = /(?:禁止提前释放|不得提前揭示)[^\n]*/
+
+function normalizeForbiddenCards(cards: unknown): string[] {
+  if (!Array.isArray(cards)) return []
+  return cards.map(card => String(card ?? '').trim()).filter(Boolean)
+}
+
+function mergeForbiddenCards(contractCards: string[], sections: OutlineScopeSection[]): string[] {
+  const merged = [...contractCards]
+  const seen = new Set(merged)
+  for (const section of sections) {
+    for (const line of section.text.split('\n')) {
+      const match = line.match(FORBIDDEN_RELEASE_RE)
+      if (!match) continue
+      const card = match[0]
+        .replace(/^(?:禁止提前释放|不得提前揭示)[^\S\n]*[:：]?[^\S\n]*/, '')
+        .replace(/[。；;，,]\s*$/, '')
+        .trim()
+      if (!card || seen.has(card)) continue
+      merged.push(card)
+      seen.add(card)
+    }
+  }
+  return merged
+}
 
 const TARGET_BYTES = 12_000
 const MAX_BYTES = 24_000
@@ -207,6 +234,7 @@ export function validateOutlineContextScope(outline: string): OutlineContextScop
       .filter(section => !section.scope)
       .map(section => `第 ${section.startIndex + 1} 行「${section.title}」未声明作用域`),
     degradedReason: legacyOutline ? 'legacy_outline_no_scope' : null,
+    contractForbiddenFinalCards: [],
     errors
   }
 }
@@ -218,6 +246,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
   const errors: OutlineContextScopeError[] = []
   const warnings: string[] = []
   const legacyOutline = Boolean(input.outline?.trim()) && !sections.some(section => section.scope)
+  const contractForbiddenFinalCards = normalizeForbiddenCards(input.contractForbiddenFinalCards)
   if (!input.outline || !input.outline.trim()) {
     errors.push({ code: 'outline_empty', message: '卷纲为空，无法构建上下文闭包' })
   } else if (sections.length === 0 && !legacyOutline) {
@@ -251,6 +280,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
       maxBytes,
       trimmed: [],
       degradedReason: legacyWithoutScope ? 'legacy_outline_no_scope' : null,
+      contractForbiddenFinalCards,
       warnings,
       errors
     }
@@ -274,6 +304,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
       maxBytes,
       trimmed: [],
       degradedReason: null,
+      contractForbiddenFinalCards,
       warnings,
       errors
     }
@@ -301,6 +332,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
         trimmed: [],
         warnings,
         degradedReason: 'legacy_outline_no_scope',
+        contractForbiddenFinalCards,
         errors
       }
     } else {
@@ -327,6 +359,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
           trimmed: [],
           warnings,
           degradedReason: 'legacy_outline_no_scope',
+          contractForbiddenFinalCards,
           errors
         }
       }
@@ -343,6 +376,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
         trimmed: [],
         warnings,
         degradedReason: 'legacy_outline_no_scope',
+        contractForbiddenFinalCards,
         errors
       }
     }
@@ -392,6 +426,7 @@ export function buildOutlineUnitClosure(input: OutlineContextScopeInput): Outlin
     trimmed,
     warnings,
     degradedReason: null,
+    contractForbiddenFinalCards: mergeForbiddenCards(contractForbiddenFinalCards, chosen),
     errors
   }
 }

@@ -4,6 +4,7 @@ export interface ChapterExecutionPackage {
   contextScope?: {
     unitId: string | null
     closure: string
+    contractForbiddenFinalCards?: string[]
     permanentCount: number
     unitCount: number
     undeclaredCount: number
@@ -67,9 +68,13 @@ function contextScope(value: unknown): ChapterExecutionPackage['contextScope'] {
   const strings = (key: string): string[] =>
     Array.isArray(scope[key]) ? scope[key].map(text).filter(Boolean) : []
   const unitId = scope.unitId
+  const contractForbiddenFinalCards = scope.contractForbiddenFinalCards
   return {
     unitId: unitId == null || unitId === '' ? null : text(unitId),
     closure: text(scope.closure),
+    contractForbiddenFinalCards: Array.isArray(contractForbiddenFinalCards)
+      ? contractForbiddenFinalCards.map(text).filter(Boolean)
+      : [],
     permanentCount: numbers('permanentCount'),
     unitCount: numbers('unitCount'),
     undeclaredCount: numbers('undeclaredCount'),
@@ -149,7 +154,11 @@ export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage, target
   const outlineBlock = pkg.contextScope?.closure
     ? "[单元闭包卷纲]\n" + pkg.contextScope.closure
     : "[全书大纲（降级）]\n" + pkg.outlineContent
+  const forbidden = pkg.contextScope?.contractForbiddenFinalCards?.length
+    ? "\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：" + pkg.contextScope.contractForbiddenFinalCards.join("、")
+    : ""
   return outlineBlock
+    + forbidden
     + "\n\n[设定摘要]\n" + settings + bound + style
     + "\n\n[当前卷概要]\n" + pkg.volume.name + " - " + pkg.volume.outline
     + prevChapter

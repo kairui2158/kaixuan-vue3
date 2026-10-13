@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-13
+更新日期：2026-10-14
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -888,3 +888,13 @@
 - 关键修复：扫描器无 `g` 标志正则死循环改为单次匹配 + 同类型重叠去重；复扫事件补齐 `detected/status/counts/findings`；`latestBodyFinishReason` 修复为同时读取 success/degraded，截断证据不再被丢弃。
 - 验证：专项 4 files / 33 tests、build:vue、真实可见 Electron 三 Case 全过；clean 为 1 scan / 1 request，repair 为 2 scans / 2 requests，provider truncation 为 degraded / 2 scans / 1 request，证据 `report.json`。
 - 诚实边界：`persisted-bodies.json` 快照键位不匹配导致 body 空字符串，业务正文断言已通过，登记为验证器后续修正项；真实项目误报分布需持续采样。
+
+# 2026-10-14 P1-E 卷契约语义扩充收口
+
+- 文件：[_audit/DEV_LOG_2026-10-14_p1e-contract-semantics.md](_audit/DEV_LOG_2026-10-14_p1e-contract-semantics.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-14_p1e-contract-semantics.md](_audit/TASK_LEDGERS/2026-10-14_p1e-contract-semantics.md)
+- 范围：卷契约五类语义字段（读者期待/主推线/解锁里程碑/禁区/风险）、卷生成 9 字段协议、闭包禁区合并、正文执行 `[禁止提前释放]` 块、确定性三态契约审查与 `contract_review` trace 事件；只报告不阻塞。
+- 关键修复：wiring 断言从 `indexOf` 单匹配改为全局计数，防止第二处卷写入缺接线假绿；契约审查不信任模型自评，落盘后本地判定。
+- 验证：专项 6 files / 65 tests、全量 159 files / 1882 tests、type-check、完整 NSIS build、3.86.0 打包真实启动核验、Electron 双 Case 全过；normal 为 `contract_safe` / 1 request，early reveal 为 `contract_broken` / 1 request，证据 `report.json`。
+- 诚实边界：揭示词表与 80 字窗口为首版采样，暗示式剧透需持续采样；本地 provider 非 live；生成质量收益未人工评分，标注“未验证”。
+- 封装：升级 3.86.0；安装包 `dist/神意助手-Setup-3.86.0.exe`，231,529,296 bytes，SHA256 `aa4427b9c78ebbebea0afc2ebc662565ac5140efdc3f4844470604ed4acf7519`；已清理 3.85.0 旧安装包与 blockmap。
