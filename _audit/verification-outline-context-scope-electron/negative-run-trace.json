@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1791922103902-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "正文层",
+  "mode": "body",
+  "projectId": "context-scope-missing-unit-negative",
+  "projectName": "作用域上下文闭包实测",
+  "skillNames": [],
+  "skillMode": "chain",
+  "status": "failed",
+  "startedAt": 1791922103902,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "failed",
+      "reason": "generation_failed",
+      "recordedAt": 1791922103908
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1791922103902-2",
+      "ts": 1791922103902,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 正文层运行"
+    },
+    {
+      "id": "event-1791922103906-3",
+      "ts": 1791922103906,
+      "seq": 2,
+      "type": "failed",
+      "level": "error",
+      "label": "正文运行失败",
+      "detail": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲"
+    },
+    {
+      "id": "event-1791922103907-4",
+      "ts": 1791922103907,
+      "seq": 3,
+      "type": "finished",
+      "level": "error",
+      "label": "运行失败",
+      "detail": "generation_failed"
+    },
+    {
+      "id": "event-1791922103908-5",
+      "ts": 1791922103908,
+      "seq": 4,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "generation_failed / run=run-1791922103902-1"
+    }
+  ],
+  "apiCalls": [],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "timingLedger": {
+    "apiCallCount": 0,
+    "physicalCallCount": 0,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 0,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": 0,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 0,
+    "physicalCallCount": 0,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "endedAt": 1791922103907,
+  "durationMs": 5,
+  "apiResponseIndex": [],
+  "payloadIntegrityWarnings": []
+}

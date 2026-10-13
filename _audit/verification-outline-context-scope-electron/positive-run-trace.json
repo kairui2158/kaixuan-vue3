@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1791922088296-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "正文层",
+  "mode": "body",
+  "projectId": "context-scope-positive",
+  "projectName": "作用域上下文闭包实测",
+  "providerId": "context-scope-provider",
+  "providerName": "Context Scope Provider",
+  "model": "context-scope-model",
+  "skillNames": [],
+  "skillMode": "chain",
+  "status": "success",
+  "startedAt": 1791922088296,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "body_generation_complete",
+      "recordedAt": 1791922088393
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1791922088297-2",
+      "ts": 1791922088297,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 正文层运行"
+    },
+    {
+      "id": "event-1791922088299-3",
+      "ts": 1791922088299,
+      "seq": 2,
+      "type": "context_scope",
+      "level": "info",
+      "label": "正文层上下文闭包",
+      "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第12章 纸条\",\"unitId\":\"D1-03\",\"mode\":\"unit_closure\",\"permanentCount\":2,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":319,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
+    },
+    {
+      "id": "event-1791922088299-4",
+      "ts": 1791922088299,
+      "seq": 3,
+      "type": "memory_context",
+      "level": "info",
+      "label": "正文层记忆上下文",
+      "detail": "{\"chapterId\":\"chapter-context-12\",\"unitId\":\"D1-03\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
+    },
+    {
+      "id": "event-1791922088300-5",
+      "ts": 1791922088300,
+      "seq": 4,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "正文层执行包已构建",
+      "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第12章 纸条\",\"targetWords\":3000}"
+    },
+    {
+      "id": "event-1791922088327-7",
+      "ts": 1791922088327,
+      "seq": 5,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"context-scope-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1791922088330-9",
+      "ts": 1791922088330,
+      "seq": 6,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1791922088330-10",
+      "ts": 1791922088330,
+      "seq": 7,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1791922088329-8",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1791922088330-11",
+      "ts": 1791922088330,
+      "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / context-scope-model"
+    },
+    {
+      "id": "event-1791922088356-12",
+      "ts": 1791922088356,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1791922088361-13",
+      "ts": 1791922088361,
+      "seq": 10,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / context-scope-model / stop"
+    },
+    {
+      "id": "event-1791922088362-14",
+      "ts": 1791922088362,
+      "seq": 11,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1791922088362-15",
+      "ts": 1791922088362,
+      "seq": 12,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1791922088327-6 seq=1"
+    },
+    {
+      "id": "event-1791922088362-16",
+      "ts": 1791922088362,
+      "seq": 13,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / context-scope-model"
+    },
+    {
+      "id": "event-1791922088365-17",
+      "ts": 1791922088365,
+      "seq": 14,
+      "type": "body-artifact-attempt",
+      "level": "info",
+      "label": "正文批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"wordCount\":2000,\"targetWords\":3000,\"ratio\":0.6666666666666666,\"validationMs\":0,\"errors\":[]}"
+    },
+    {
+      "id": "event-1791922088365-18",
+      "ts": 1791922088365,
+      "seq": 15,
+      "type": "body-artifact-validated",
+      "level": "info",
+      "label": "正文批次验收通过",
+      "detail": "{\"chapterId\":\"chapter-context-12\",\"targetWords\":3000,\"wordCount\":2000,\"ratio\":0.6666666666666666,\"status\":\"complete\",\"repairAttempts\":0}"
+    },
+    {
+      "id": "event-1791922088391-19",
+      "ts": 1791922088391,
+      "seq": 16,
+      "type": "write",
+      "level": "info",
+      "label": "正文已写入项目",
+      "detail": "字数 2240"
+    },
+    {
+      "id": "event-1791922088393-20",
+      "ts": 1791922088393,
+      "seq": 17,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "body_generation_complete"
+    },
+    {
+      "id": "event-1791922088393-21",
+      "ts": 1791922088393,
+      "seq": 18,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "body_generation_complete / run=run-1791922088296-1"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1791922088327-6",
+      "seq": 1,
+      "step": 4,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "context-scope-provider",
+      "providerName": "Context Scope Provider",
+      "model": "context-scope-model",
+      "temperature": 0.1,
+      "maxTokens": 4096,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "status": "success",
+      "startedAt": 1791922088327,
+      "physicalCalls": [
+        {
+          "id": "physical-1791922088329-8",
+          "physicalCallId": "physical-1791922088328-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          },
+          "usageUnavailable": false,
+          "startedAt": 1791922088329,
+          "durationMs": 31,
+          "endedAt": 1791922088361,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": 4096,
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 1210,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 1210 / 可用 123904",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 1210,
+            "actualInputTokens": 10,
+            "driftRatio": -0.9917355371900827,
+            "correctedRatio": 0.008264462809917356
+          },
+          "heartbeat": false,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
+        }
+      ],
+      "lastExecutionActivityAt": 1791922088356,
+      "lastStreamActivityAt": 1791922088356,
+      "finishReason": "stop",
+      "durationMs": 30,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 31,
+        "localOverheadMs": -1
+      },
+      "usage": {
+        "inputTokens": 10,
+        "outputTokens": 20,
+        "totalTokens": 30
+      },
+      "usageUnavailable": false,
+      "endedAt": 1791922088362,
+      "semantic": {
+        "conversationId": "run-1791922088296-1",
+        "usage": {
+          "inputTokens": 10,
+          "outputTokens": 20,
+          "totalTokens": 30
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 6681,
+      "chars": 2681,
+      "sha256": "b24e1f9d1b7ac3da75db268f93be31b097aedfb3fcdfd19542adf11254bf44c5",
+      "duplicateCount": 2,
+      "createdAt": 1791922088858
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 6731,
+      "chars": 2251,
+      "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+      "duplicateCount": 2,
+      "createdAt": 1791922088858
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 13462,
+      "chars": 4502,
+      "sha256": "e6de84eba639e96a61d98cf4cfba62a9b8e67746967a4cfd0ae6886f19012cc2",
+      "duplicateCount": 1,
+      "createdAt": 1791922088858
+    },
+    {
+      "id": "payload-004",
+      "kind": "stream",
+      "file": "004-stream.json",
+      "bytes": 6731,
+      "chars": 2251,
+      "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+      "duplicateCount": 1,
+      "createdAt": 1791922088858
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 0,
+    "persistence": 25
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 31,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": -1,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "validationSumMs": 0,
+    "persistenceSumMs": 25,
+    "repeatedPromptBlocks": {},
+    "contextChars": 2502,
+    "outputChars": 2251,
+    "physicalDurationSumMs": 31
+  },
+  "endedAt": 1791922088392,
+  "durationMs": 96,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1791922088327-6",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+        "bytes": 6731,
+        "chars": 2251,
+        "preview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "e6de84eba639e96a61d98cf4cfba62a9b8e67746967a4cfd0ae6886f19012cc2",
+        "bytes": 13462,
+        "chars": 4502
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791922088328-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+            "bytes": 6731,
+            "chars": 2251,
+            "preview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
+          },
+          "stream": {
+            "ref": "payload-004",
+            "file": "004-stream.json",
+            "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+            "bytes": 6731,
+            "chars": 2251
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

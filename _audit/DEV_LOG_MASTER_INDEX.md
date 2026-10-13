@@ -870,3 +870,12 @@
 - 验证：`npm run test:services` 151 files / 1817 tests、type-check、build:vue、`verify:production-wiring` 0 violations；真实可见 Electron + 真实 DOM 点击 + 真实本地 provider 5 Case 全过，证据 `report.json`。
 - 诚实边界：尺寸阈值为首版采样值；runTrace 未保存完整 before/after 快照；P0-A 作用域闭包尚未实现。
 - 封装：升级 3.83.0；`npm run build` 通过；安装包 `dist/神意助手-Setup-3.83.0.exe`，231,523,277 bytes，SHA256 `FDD63FE66224A0561B6F54B83554F96000D2D0D5745A8BE8DA19DFC6586D1FF0`；已清理 3.82.0 旧安装包与 blockmap。
+
+# 2026-10-14 P0-A 作用域上下文闭包收口
+
+- 文件：[_audit/DEV_LOG_2026-10-14_p0a-context-scope-closure.md](_audit/DEV_LOG_2026-10-14_p0a-context-scope-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-14_p0a-context-scope-closure.md](_audit/TASK_LEDGERS/2026-10-14_p0a-context-scope-closure.md)
+- 范围：卷纲段位契约解析与单元闭包构建、执行包 v2 禁止全书回退、记忆三档优先检索、`context_scope` 与 `memory_context` trace 事件、Electron 三 Case 验证器。
+- 验证：专项 25 tests、全量 154 files / 1837 tests、type-check、build:vue、Electron 正例 / legacy 显式降级 / 缺失单元结构化失败全部通过；真实 SSE provider 请求体确认 `stream:true` 且无关单元未进入 prompt。
+- 诚实边界：本轮为本地 SSE mock provider，非外部 live；`unitId` 仍有正则推断路径；闭包预算为首版采样值。
+- 封装：升级 3.84.0；`npm run build` 通过；安装包 `dist/神意助手-Setup-3.84.0.exe`，231,526,544 bytes，SHA256 `9F1353A9EB0697B5223FA8F9E75F1F8E2DC0BD2A8FDABBCC44AECDE629DB2AE9`；已清理 3.83.0 旧安装包与 blockmap。

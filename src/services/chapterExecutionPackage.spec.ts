@@ -20,7 +20,7 @@ describe("chapter execution package", () => {
     })
 
     expect(pkg).toEqual({
-      version: 1,
+      version: 2,
       projectId: "p1",
       volume: { id: "v1", index: 1, name: "第一卷", outline: "卷纲", summary: "卷纲", suggestedWords: 10000 },
       chapter: { id: "c1", index: 2, title: "雨夜", plot: "发现纸条", summary: "发现纸条", wordCount: 3000 },
@@ -59,20 +59,94 @@ describe("chapter execution package", () => {
       settings: ["角色 - 林舟"],
       boundSettings: "旧宅",
       styleContext: "克制",
-      memoryContext: "纸条伏笔"
+      memoryContext: "纸条伏笔",
+      contextScope: {
+        unitId: "D1-03",
+        closure: "卷级常任 + 当前单元闭包",
+        permanentCount: 1,
+        unitCount: 1,
+        undeclaredCount: 0,
+        closureBytes: 32,
+        targetBytes: 12000,
+        maxBytes: 24000,
+        trimmed: [],
+        warnings: [],
+        degradedReason: null
+      }
     })
     const prompt = buildChapterExecutionPrompt(pkg, 3000)
-    expect(prompt).toContain("[全书大纲]\n全书大纲")
+    expect(prompt).toContain("[单元闭包卷纲]\n卷级常任 + 当前单元闭包")
     expect(prompt).toContain("[当前章节剧情点]\n雨夜 - 发现纸条")
     expect(prompt).toContain("[相关记忆]\n纸条伏笔")
     expect(prompt).toContain("约3000字")
+  })
+
+  it("renders the unit closure instead of the full outline in v2 packages", () => {
+    const pkg = createChapterExecutionPackage({
+      volume: { name: "第一卷", outline: "卷纲" },
+      chapter: { title: "雨夜", plot: "发现纸条" },
+      outlineContent: "全书大纲",
+      contextScope: {
+        unitId: "D1-03",
+        closure: "卷级常任 + 当前单元闭包",
+        permanentCount: 2,
+        unitCount: 1,
+        undeclaredCount: 0,
+        closureBytes: 32,
+        targetBytes: 12000,
+        maxBytes: 24000,
+        trimmed: [],
+        warnings: [],
+        degradedReason: null
+      }
+    })
+    const prompt = buildChapterExecutionPrompt(pkg, 3000)
+    expect(prompt).toContain("[单元闭包卷纲]\n卷级常任 + 当前单元闭包")
+    expect(prompt).not.toContain("全书大纲")
+  })
+
+  it("refuses to render a v2 prompt when the scoped closure is empty", () => {
+    const pkg = createChapterExecutionPackage({
+      volume: { name: "第一卷", outline: "卷纲" },
+      chapter: { title: "雨夜", plot: "发现纸条" },
+      outlineContent: "全书大纲",
+      contextScope: {
+        unitId: null,
+        closure: "",
+        permanentCount: 0,
+        unitCount: 0,
+        undeclaredCount: 0,
+        closureBytes: 0,
+        targetBytes: 12000,
+        maxBytes: 24000,
+        trimmed: [],
+        warnings: [],
+        degradedReason: "unit_not_found:找不到单元 D9-99"
+      }
+    })
+    expect(() => buildChapterExecutionPrompt(pkg, 3000)).toThrow(
+      "正文上下文闭包为空，禁止回退全书大纲"
+    )
   })
 
   it("renders the previous chapter summary only when it exists", () => {
     const base = {
       volume: { name: "第一卷", outline: "卷纲" },
       chapter: { title: "雨夜", plot: "发现纸条" },
-      outlineContent: "全书大纲"
+      outlineContent: "全书大纲",
+      contextScope: {
+        unitId: "D1-03",
+        closure: "卷级常任 + 当前单元闭包",
+        permanentCount: 1,
+        unitCount: 1,
+        undeclaredCount: 0,
+        closureBytes: 32,
+        targetBytes: 12000,
+        maxBytes: 24000,
+        trimmed: [],
+        warnings: [],
+        degradedReason: null
+      }
     }
     const withPrev = buildChapterExecutionPrompt(
       createChapterExecutionPackage({ ...base, prevChapterSummary: "主角逃离旧宅" }),

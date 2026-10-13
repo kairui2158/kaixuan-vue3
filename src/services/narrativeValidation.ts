@@ -103,7 +103,7 @@ export function validateChapterExecutionPackage(
       missingCount++
     }
   }
-  if (pkg.version !== 1) errors.push(`章节执行包版本不支持：${String(pkg.version ?? '?')}`)
+  if (pkg.version !== 2) errors.push(`章节执行包版本不支持：${String(pkg.version ?? '?')}`)
   const volume = pkg.volume && typeof pkg.volume === 'object' ? pkg.volume : {}
   const chapter = pkg.chapter && typeof pkg.chapter === 'object' ? pkg.chapter : {}
   require(text(volume.id), '执行包缺少卷 ID')

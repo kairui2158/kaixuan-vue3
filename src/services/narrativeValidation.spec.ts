@@ -42,7 +42,7 @@ describe('narrative completeness validation', () => {
 
   it('reports missing fields in a chapter execution package', () => {
     const result = validateChapterExecutionPackage({
-      version: 1,
+      version: 2,
       volume: { id: '', name: '', outline: '' },
       chapter: { id: '', title: '', plot: '' },
       outlineContent: '',
@@ -83,7 +83,7 @@ describe('narrative completeness validation', () => {
 
 function validPackage(overrides: Record<string, unknown>) {
   return {
-    version: 1,
+    version: 2,
     projectId: 'p-1',
     volume: { id: 'vol-1', index: 0, name: '第一卷', outline: '主线起步', summary: '主线起步', suggestedWords: 100000 },
     chapter: { id: 'ch-1', index: 0, title: '雨夜', plot: '发现纸条', summary: '发现纸条', wordCount: 3000 },

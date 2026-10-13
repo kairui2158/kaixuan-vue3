@@ -816,6 +816,7 @@ import { classifyRunOutcome, type RunOutcomeStatus } from "../../services/genera
 import { extractJsonArray, extractJsonObject } from "../../services/jsonExtraction"
 import type { RunTraceStatus } from "../../stores/runTrace"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
+import { buildOutlineUnitClosure, validateOutlineContextScope } from "../../services/outlineContextScope"
 import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
@@ -4134,6 +4135,77 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const currentBodyChapterIndex = bodyChs.indexOf(ch)
     const prevChapter = currentBodyChapterIndex > 0 ? bodyChs[currentBodyChapterIndex - 1] : null
     const prevChapterSummary = prevChapter ? (prevChapter.summary || prevChapter.plot || "") : ""
+    const volumeOutlineText = vol.outline || vol.summary || ""
+    const resolvedUnitId = ch.unitId || ch.plot?.match(/(?:^|[^A-Za-z0-9_-])([A-Za-z][A-Za-z0-9_-]*\d+(?:-\d+)?|U\d+)(?![A-Za-z0-9_-])/)?.[1]
+    const volumeScopeValidation = validateOutlineContextScope(volumeOutlineText)
+    const contextFailureDetail = volumeScopeValidation.errors.map(error => `${error.code}:${error.message}`).join(';')
+    const outlineClosure = volumeScopeValidation.ok
+      ? buildOutlineUnitClosure({
+        outline: volumeOutlineText,
+        unitId: resolvedUnitId,
+        volumeSummary: vol.summary || vol.outline || "",
+        chapterDetail: `${ch.title || ""}\n${ch.plot || ""}`,
+        includeUnitDraft: false
+      })
+      : null
+    if (!outlineClosure || !outlineClosure.ok) {
+      const closureErrors = outlineClosure?.errors?.length
+        ? outlineClosure.errors
+        : volumeScopeValidation.errors
+      throw new Error(`正文上下文闭包构建失败：${contextFailureDetail || closureErrors.map(error => `${error.code}:${error.message}`).join(';')}`)
+    }
+    const contextScope = {
+      unitId: ch.unitId || null,
+      closure: outlineClosure.closure,
+      permanentCount: outlineClosure.permanentCount,
+      unitCount: outlineClosure.unitCount,
+      undeclaredCount: outlineClosure.undeclaredCount,
+      closureBytes: outlineClosure.closureBytes,
+      targetBytes: outlineClosure.targetBytes,
+      maxBytes: outlineClosure.maxBytes,
+      trimmed: outlineClosure.trimmed,
+      warnings: outlineClosure.warnings,
+      degradedReason: outlineClosure.degradedReason
+    }
+    trace.addEvent({
+      type: 'context_scope',
+      level: contextScope.degradedReason ? 'warn' : 'info',
+      label: '正文层上下文闭包',
+      detail: JSON.stringify({
+        volume: vol.name,
+        chapter: ch.title,
+        unitId: contextScope.unitId,
+        mode: contextScope.degradedReason ? 'legacy_outline_no_scope' : 'unit_closure',
+        permanentCount: contextScope.permanentCount,
+        unitCount: contextScope.unitCount,
+        undeclaredCount: contextScope.undeclaredCount,
+        closureBytes: contextScope.closureBytes,
+        targetBytes: contextScope.targetBytes,
+        maxBytes: contextScope.maxBytes,
+        trimmed: contextScope.trimmed,
+        warnings: contextScope.warnings,
+        degradedReason: contextScope.degradedReason
+      })
+    })
+    const memoryRetrieval = memoryRetrievalForPipeline({
+      chapterId: String(ch.id || ""),
+      chapterIndex,
+      unitId: resolvedUnitId || undefined,
+      query: `${ch.title || ""} ${ch.plot || ""}`,
+      maxChars: 2000
+    })
+    trace.addEvent({
+      type: 'memory_context',
+      level: memoryRetrieval.trimmed.length > 0 ? 'warn' : 'info',
+      label: '正文层记忆上下文',
+      detail: JSON.stringify({
+        chapterId: ch.id || "",
+        unitId: resolvedUnitId || null,
+        charCount: memoryRetrieval.charCount,
+        priority: memoryRetrieval.priority,
+        trimmed: memoryRetrieval.trimmed
+      })
+    })
     const executionPackage = createChapterExecutionPackage({
       projectId: projectStore.currentProjectId,
       volume: vol,
@@ -4141,16 +4213,12 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       chapter: ch,
       chapterIndex,
       outlineContent: projectStore.pipelineOutlineText,
+      contextScope,
       settings: allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)),
       boundSettings: boundText,
       styleContext: styleCtx,
       pacingContext: pacingParams.value,
-      memoryContext: memoryTextForPipeline({
-        chapterId: String(ch.id || ""),
-        chapterIndex,
-        query: `${ch.title || ""} ${ch.plot || ""}`,
-        maxChars: 2000
-      }),
+      memoryContext: memoryTextFromRetrieval(memoryRetrieval, 2000),
       prevChapterSummary,
       sourceRefs: [
         projectStore.outlineLocked ? "outline:locked" : "outline:working",
@@ -5054,14 +5122,30 @@ function openNaming() {
 function memoryTextForPipeline(options: {
   chapterId?: string
   chapterIndex?: number
+  unitId?: string
   query: string
   previousChapterSummary?: string
   maxChars?: number
 }): string {
-  const memory = retrieveContext(projectStore.memories, options).text
+  return memoryTextFromRetrieval(memoryRetrievalForPipeline(options), options.maxChars || 2000)
+}
+
+function memoryRetrievalForPipeline(options: {
+  chapterId?: string
+  chapterIndex?: number
+  unitId?: string
+  query: string
+  previousChapterSummary?: string
+  maxChars?: number
+}) {
+  return retrieveContext(projectStore.memories, options)
+}
+
+function memoryTextFromRetrieval(retrieval: ReturnType<typeof retrieveContext>, maxChars: number): string {
+  const memory = retrieval.text
   const messages = conversationContextService.assembleMessages(
     {
-      session: { id: `pipeline-${options.chapterId || "default"}`, projectId: String(projectStore.currentProjectId || ""), recentMessages: [] },
+      session: { id: 'pipeline-memory-context', projectId: String(projectStore.currentProjectId || ""), recentMessages: [] },
       workspace: { memories: memory },
       execution: { purpose: "generate" }
     },
@@ -5069,7 +5153,7 @@ function memoryTextForPipeline(options: {
     []
   )
   return messages.length > 0
-    ? messages[messages.length - 1].content.replace(/^\[工作区上下文\]\n相关记忆：\n/, "").slice(0, options.maxChars || 2000)
+    ? messages[messages.length - 1].content.replace(/^\[工作区上下文\]\n相关记忆：\n/, "").slice(0, maxChars)
     : ""
 }
 

@@ -1,0 +1,2 @@
+{"at":"2026-10-13T20:08:08.371Z","runId":"run-1791922088296-1","runStatus":"running","eventCount":15,"lastEventType":"body-artifact-validated","progress":80,"status":"API 返回完成，正在执行正文契约验收","isGenerating":true,"lastBodyLog":null,"electronPid":38888}
+{"at":"2026-10-13T20:08:15.919Z","runId":"run-1791922088296-1","runStatus":"success","eventCount":18,"lastEventType":"state-transition","progress":0,"status":null,"isGenerating":false,"lastBodyLog":null,"electronPid":75568}
