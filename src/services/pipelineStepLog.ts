@@ -2,6 +2,7 @@ export type PipelineChainWarningCode =
   | 'chain-handoff-contract-miss'
   | 'chain-dedupe'
   | 'chain-handoff-escalation'
+  | 'chain-full-reason-missing'
   | 'chain-output-echo'
 
 export interface PipelineStepWarningCoalescingState {

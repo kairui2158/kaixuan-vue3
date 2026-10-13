@@ -831,3 +831,10 @@
 - 验证：`aiService.spec.ts` 168 条通过；服务总套件 1798 条、type-check、build:vue 通过。Phase 5E 六层全部 `success`；卷纲层从 54.58m / 14 物理请求 / 2 retry 降至 36.66m / 12 物理请求 / 0 retry，`firstTokenSumMs` 从约 20.81m（口径污染）降至 26.97s。
 - 证据：`_audit/verification-pipeline-artifact-contract-live/summary.json`、`timing-analysis.json`；before 事故保留 `_audit/verification-pipeline-artifact-contract-live-archive/2026-10-12T20-05-51-471Z/`。
 - 诚实边界：`PASSED` stdout 标记未落盘，完成判据只使用 summary 与 trace；正文层 schema retry 与卷纲层 `fullReasonMissing` 另行立项。
+
+# 2026-10-13 流水线耗时修复 Phase 5F/5G 收尾
+
+- 文件：[_audit/DEV_LOG_2026-10-13_pipeline_timing_remediation_phase5c5d.md](_audit/DEV_LOG_2026-10-13_pipeline_timing_remediation_phase5c5d.md)
+- 范围：卷纲层 `fullReasonMissing` 收口、正文层 schema 重试反馈、验证器 WALL_BUDGET 预算修复、证据导出健壮复制、经验文件 v8.9。
+- 验证：真实 Electron + 真实供应商 API 复验通过：run `run-1791884865708-1`，3 卷、12 API calls / 12 物理请求 / 0 retry / 0 timeout failure；`npm run test:services` 149 files / 1803 tests、type-check、build:vue 通过。
+- 诚实边界：脚本退出码曾为 1，原因是 Windows CopyFile `UNKNOWN` 瞬态，目标 run trace 已完整落盘并经离线断言复核；验证器已改为字节级回退复制 + 尺寸校验。

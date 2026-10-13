@@ -153,7 +153,8 @@ const OUTPUT_DEGRADING_WARNING_CODES = new Set([
 // A failed schema attempt that is later recovered by a valid retry is normal
 // repair behavior. Only exhausting all retries downgrades the delivered output.
 const NON_DEGRADING_RECOVERY_WARNING_CODES = new Set([
-  'schema-validation-failed'
+  'schema-validation-failed',
+  'post-process-validation-failed'
 ])
 
 const OUTPUT_DEGRADING_POST_PROCESS_CODES = new Set([
@@ -495,12 +496,26 @@ function buildValidationErrorReport(errors: string[]): string {
   return errors.slice(0, 10).join('\n')
 }
 
-function buildSchemaRetryFeedback(errors: string[]): string {
-  return [
+function buildSchemaRetryFeedback(errors: string[], previousOutput?: string): string {
+  const previousCandidate = previousOutput?.trim()
+  const lines = [
     '上一次输出未通过校验。具体错误如下：',
     buildValidationErrorReport(errors),
-    '请修复上述错误，只输出符合 schema 的完整结果，不要输出解释。'
-  ].join('\n')
+  ]
+  if (previousCandidate) {
+    lines.push(
+      '上一版候选输出如下（必须以它为基底，只修正上述错误，保留其余内容）：',
+      '<<<上一版候选输出开始>>>',
+      previousCandidate,
+      '<<<上一版候选输出结束>>>'
+    )
+  }
+  lines.push(
+    previousCandidate
+      ? '请基于上一版候选输出修正上述错误，输出修正后的完整结果，不要重写无关内容，不要输出解释。'
+      : '请修复上述错误，只输出符合 schema 的完整结果，不要输出解释。'
+  )
+  return lines.join('\n')
 }
 
 /**
@@ -775,6 +790,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
 
   for (let passIndex = 0; passIndex < passList.length; passIndex += 1) {
     const pass = passList[passIndex]
+    postProcessReport = undefined
+    capturedRequestMessages.length = 0
     const passName = pass.name || `第 ${passIndex + 1} 步`
     if (isMultiPass) {
       dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'running' })
@@ -1073,10 +1090,28 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         const hasBlockingPostIssue = postIssues.some(issue => issue.severity === 'blocking')
         timingLedger.schemaValidateMs += Date.now() - schemaValidateStartedAt
         if (!validation.valid && hasBlockingPostIssue) {
-          throw new Error(postIssues
+          const blockingErrors = postIssues
             .filter(issue => issue.severity === 'blocking')
             .map(issue => issue.message)
-            .join('\n') || 'postProcess 返回阻断性问题')
+          const retryErrors = blockingErrors.length > 0 ? blockingErrors : ['postProcess 返回阻断性问题']
+          const report = buildValidationErrorReport(retryErrors)
+          lastAttempt = { output: candidateOutput, validation: { valid: false, errors: retryErrors } }
+          schemaRetryFeedback = buildSchemaRetryFeedback(retryErrors, candidateOutput)
+          timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
+          errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过 postProcess 校验：${report}`)
+          diagnostics.push(diagnostic(
+            'warning',
+            'post-process-validation-failed',
+            `尝试 ${attempt}/${RETRY_LIMIT}：${report}`
+          ))
+          dispatchStepEvent({
+            skillId: pkg.id,
+            index: passIndex,
+            total: passList.length,
+            status: attempt < RETRY_LIMIT ? 'running' : 'failed',
+            attempts: attempt
+          })
+          continue
         }
         if (!validation.valid && options.validateOutputSchema) {
           lastAttempt = { output: candidateOutput, validation: { valid: true, errors: [] } }
@@ -1118,7 +1153,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
 
         const report = buildValidationErrorReport(validation.errors)
-        schemaRetryFeedback = buildSchemaRetryFeedback(validation.errors)
+        schemaRetryFeedback = buildSchemaRetryFeedback(validation.errors, candidateOutput)
         timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
         errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过校验：${report}`)
         diagnostics.push(diagnostic('warning', 'schema-validation-failed', `尝试 ${attempt}/${RETRY_LIMIT}：${report}`))

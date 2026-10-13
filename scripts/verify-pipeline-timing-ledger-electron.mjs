@@ -23,11 +23,15 @@ const PROJECT_ID = 'pipeline-timing-ledger-live'
 const MODEL = process.env.SHENYI_LIVE_MODEL || 'deepseek-v4-pro'
 const BASE_URL = process.env.SHENYI_LIVE_BASE_URL || 'https://openapi.cloud-ai.cn/v1'
 const CREDENTIAL_PROFILE = path.join(ROOT, '_data', 'outline-lock-override-live-replay-profile')
-const STEP_TIMEOUT_MS = Number(process.env.SHENYI_TIMING_LEDGER_STEP_TIMEOUT_MS || 30 * 60_000)
 const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_TIMING_LEDGER_GLOBAL_TIMEOUT_MS || 3 * 60 * 60_000)
 const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_TIMING_LEDGER_HEARTBEAT_INTERVAL_MS || 10_000)
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_TIMING_LEDGER_STALLED_TIMEOUT_MS || 3 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_TIMING_LEDGER_DEAD_TIMEOUT_MS || 10 * 60_000)
+const WALL_BUDGET_MS = Number(
+  process.env.SHENYI_TIMING_LEDGER_WALL_BUDGET_MS
+    || process.env.SHENYI_TIMING_LEDGER_STEP_TIMEOUT_MS
+    || 2 * 60 * 60_000,
+)
 const KEEP_PROFILE = process.env.SHENYI_TIMING_LEDGER_KEEP_PROFILE === '1'
 const { safeStorage } = require('electron')
 
@@ -363,7 +367,7 @@ async function waitForVolumeCompletion(page) {
   let lastSignature = null
   let lastProgressAt = Date.now()
   let lastSnapshot = null
-  const deadline = Date.now() + STEP_TIMEOUT_MS
+  const deadline = Date.now() + WALL_BUDGET_MS
   while (Date.now() < deadline) {
     const snapshot = await currentRunSnapshot(page)
     const signature = JSON.stringify(snapshot)
@@ -395,7 +399,7 @@ async function waitForVolumeCompletion(page) {
     assert.equal(snapshot.runningApiCalls, 0, 'no API call is left running')
     return snapshot
   }
-  throw new Error(`volume generation did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+  throw new Error(`volume generation did not finish within ${WALL_BUDGET_MS}ms: ${JSON.stringify(lastSnapshot)}`)
 }
 
 async function exportLatestRun(page) {
@@ -426,6 +430,33 @@ function readExportedRun(exported) {
   const directory = exported.result.path
   const run = JSON.parse(fs.readFileSync(path.join(directory, 'run-trace.json'), 'utf8'))
   return { directory, run }
+}
+
+function copyFileRobust(source, destination) {
+  fs.mkdirSync(path.dirname(destination), { recursive: true })
+  try {
+    fs.copyFileSync(source, destination)
+  } catch {
+    // Windows CopyFile can reject a metadata/ACL transient even when bytes are
+    // copyable. Evidence capture must never depend on that platform edge case.
+    fs.writeFileSync(destination, fs.readFileSync(source))
+  }
+  assert.equal(
+    fs.statSync(destination).size,
+    fs.statSync(source).size,
+    `evidence copy preserves file size: ${source}`,
+  )
+}
+
+function copyExportEvidence(directory, targetDir) {
+  fs.mkdirSync(targetDir, { recursive: true })
+  copyFileRobust(path.join(directory, 'run-trace.json'), path.join(targetDir, 'run-trace.json'))
+  const payloadRoot = path.join(directory, 'payloads')
+  if (!fs.existsSync(payloadRoot)) return
+  for (const entry of fs.readdirSync(payloadRoot, { withFileTypes: true })) {
+    if (!entry.isFile()) throw new Error(`unexpected payload entry: ${path.join(payloadRoot, entry.name)}`)
+    copyFileRobust(path.join(payloadRoot, entry.name), path.join(targetDir, 'payloads', entry.name))
+  }
 }
 
 function formatMs(value) {
@@ -622,7 +653,34 @@ async function main() {
 
     await selectVolumeSkillsThroughUi(page, volumeSkills.map(item => item.skill))
     await page.click('#btn-pl-gen-volumes')
-    const completion = await waitForVolumeCompletion(page)
+    let completion = null
+    try {
+      completion = await waitForVolumeCompletion(page)
+    } finally {
+      // Preserve evidence before assertions can terminate and clean the profile.
+      const failureExport = await exportLatestRun(page)
+      const { directory, run } = readExportedRun(failureExport)
+      const failureDir = path.join(EVIDENCE_ROOT, 'live-export', 'volume')
+      copyExportEvidence(directory, failureDir)
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'terminal-status.json'), JSON.stringify({
+        schema: 'shenyi.pipeline-timing-ledger.terminal-status',
+        version: 1,
+        generatedAt: new Date().toISOString(),
+        runId: run.id,
+        runStatus: run.status,
+        completionSnapshot: completion,
+        apiCalls: (run.apiCalls || []).map(call => ({
+          id: call.id,
+          skillName: call.skillName,
+          status: call.status,
+          finishReason: call.finishReason,
+          degradedReason: call.degradedReason || null,
+          physicalCallCount: (call.physicalCalls || []).length
+        })),
+        folderDiagnostics: run.folderDiagnostics || []
+      }, null, 2), 'utf8')
+      await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'terminal-state.png'), fullPage: false })
+    }
     assert.equal(completion.runStatus, 'success', 'volume run finishes successfully')
 
     const exported = await exportLatestRun(page)
@@ -633,10 +691,7 @@ async function main() {
     const analysis = analyzeTiming(run)
 
     const targetDir = path.join(EVIDENCE_ROOT, 'live-export', 'volume')
-    fs.mkdirSync(targetDir, { recursive: true })
-    fs.copyFileSync(path.join(directory, 'run-trace.json'), path.join(targetDir, 'run-trace.json'))
-    const payloadRoot = path.join(directory, 'payloads')
-    if (fs.existsSync(payloadRoot)) fs.cpSync(payloadRoot, targetDir, { recursive: true })
+    copyExportEvidence(directory, targetDir)
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'timing-analysis.md'), analysis.text, 'utf8')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'final-state.png'), fullPage: false })
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'summary.json'), JSON.stringify({

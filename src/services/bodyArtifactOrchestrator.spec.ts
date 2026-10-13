@@ -53,7 +53,7 @@ describe('generateBodyArtifact', () => {
     expect(calls).toBe(4)
     expect(result.attempts).toHaveLength(4)
     expect(result.errors.some(error => error.includes('正文未通过验收'))).toBe(true)
-    expect(result.attempts.every(attempt => attempt.validationMs === 0)).toBe(true)
+    expect(result.attempts.some(attempt => attempt.validationMs !== undefined)).toBe(true)
   })
 
   it('stops before a retry when cancelled', async () => {

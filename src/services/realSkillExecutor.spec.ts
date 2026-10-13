@@ -614,12 +614,14 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(result.diagnostics.some(item => item.code === 'schema-validation-exhausted')).toBe(false)
   })
 
-  it('records loader warnings and blocking postProcess issues with explicit semantics', async () => {
-    const callAi = vi.fn(async () => ({ text: '输出' }))
+  it('retries blocking postProcess issues with the previous candidate and recovers', async () => {
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: callAi.mock.calls.length === 1 ? '输出' : '修复后的输出'
+    }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: true, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }, { code: 'minor-warning', severity: 'non-blocking', message: '存在轻微问题' }] } } }`,
+        script: `module.exports = { postProcess(output) { if (output === '输出') return { output, valid: false, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }, { code: 'minor-warning', severity: 'non-blocking', message: '存在轻微问题' }] }; return { output, valid: true } } }`,
         resources: []
       }),
       error: null,
@@ -629,8 +631,9 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
-    expect(result.status).toBe('failed')
-    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(result.status).toBe('success')
+    expect(result.output).toBe('修复后的输出')
+    expect(callAi).toHaveBeenCalledTimes(2)
     expect(result.diagnostics.some(item => item.code === 'folder-package:template-fallback-skill-md')).toBe(true)
     expect(result.diagnostics.filter(item => item.code === 'post-process-issue:lost-section')[0]?.type).toBe('error')
     expect(result.diagnostics.filter(item => item.code === 'post-process-issue:minor-warning')[0]?.type).toBe('warning')
@@ -639,16 +642,47 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(result.postProcessReport).toMatchObject({
       applied: true,
       changedOutput: false,
-      output: '输出',
-      issues: [
-        { severity: 'blocking', code: 'lost-section', message: '缺少核心章节' },
-        { severity: 'warning', code: 'minor-warning', message: '存在轻微问题' }
-      ]
+      output: '修复后的输出',
+      issues: []
     })
     expect(result.apiMeta?.requestMessages).toEqual([
       { role: 'system', content: expect.stringContaining('请处理输入文本') },
       { role: 'user', content: expect.stringMatching(/^\[style reference\][\s\S]*\n--- text ---\n原文$/) }
     ])
+    const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('缺少核心章节')
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('输出')
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出结束>>>')
+    expect(retrySystemPrompt).toContain('请基于上一版候选输出修正上述错误')
+  })
+
+  it('keeps blocking postProcess exhaustion terminal after candidate-preserving retries', async () => {
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }] } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('degraded')
+    expect(result.output).toBe('输出')
+    expect(callAi).toHaveBeenCalledTimes(3)
+    expect(result.errors.join('\n')).toContain('第 3/3 次输出未通过 postProcess 校验')
+    expect(result.diagnostics.some(item => item.code === 'post-process-validation-failed')).toBe(true)
+    expect(result.diagnostics.some(item => item.code === 'schema-validation-exhausted')).toBe(true)
+    expect(result.diagnostics.filter(item => item.code === 'post-process-issue:lost-section').every(item => item.type === 'error')).toBe(true)
+    for (let index = 1; index < callAi.mock.calls.length; index += 1) {
+      const systemPrompt = callAi.mock.calls[index]![0].messages[0]?.content || ''
+      expect(systemPrompt).toContain('缺少核心章节')
+      expect(systemPrompt).toContain('<<<上一版候选输出开始>>>')
+    }
   })
 
   it('downgrades structural postProcess warnings but keeps prose taste warnings successful', async () => {
@@ -1169,7 +1203,10 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
     expect(retrySystemPrompt).toContain('上一次输出未通过校验')
     expect(retrySystemPrompt).toContain('$.output 缺少必填字段')
-    expect(retrySystemPrompt).toContain('请修复上述错误')
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('{"wrong": true}')
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出结束>>>')
+    expect(retrySystemPrompt).toContain('请基于上一版候选输出修正上述错误')
   })
 
   it('keeps validation feedback on every schema retry attempt', async () => {
@@ -1195,7 +1232,36 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       const systemPrompt = callAi.mock.calls[index]![0].messages[0]?.content || ''
       expect(systemPrompt).toContain('上一次输出未通过校验')
       expect(systemPrompt).toContain('$.output 缺少必填字段')
+      expect(systemPrompt).toContain('<<<上一版候选输出开始>>>')
+      expect(systemPrompt).toContain('{"wrong": true}')
+      expect(systemPrompt).toContain('<<<上一版候选输出结束>>>')
     }
+  })
+
+  it('injects the previous candidate into postProcess validation retries', async () => {
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: callAi.mock.calls.length === 1 ? '{"wrong": true}' : '{"output": "修复后的输出"}'
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { if (output.includes('wrong')) return { output, valid: false, errors: ['缺少 output 字段'] }; return { output, valid: true } } }`
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.output).toBe('{"output": "修复后的输出"}')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('缺少 output 字段')
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('{"wrong": true}')
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出结束>>>')
+    expect(retrySystemPrompt).toContain('请基于上一版候选输出修正上述错误')
   })
 
   it('emits retry attempts through the real-skill step event', async () => {

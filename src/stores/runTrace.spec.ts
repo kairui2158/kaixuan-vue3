@@ -1940,6 +1940,37 @@ describe('runTrace store', () => {
     expect(stateHistory.at(-1)?.reason).toContain('body_generation_complete')
   })
 
+  it('keeps a contract-validated volume artifact successful while preserving degraded call evidence', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ source: 'pipeline', step: 2, stepName: '卷纲层', mode: 'all' })
+    store.addEvent(runId, {
+      type: 'api-degraded',
+      level: 'warn',
+      label: '第 4 次 API 调用完成（降级）',
+      detail: 'folder schema validation exhausted'
+    })
+    store.addEvent(runId, {
+      type: 'volume-batch-validated',
+      level: 'info',
+      label: '卷纲批次验收通过',
+      detail: JSON.stringify({ mode: 'all', expectedCount: 3, actualCount: 3 })
+    })
+    store.addEvent(runId, {
+      type: 'volume-artifact-recovered',
+      level: 'warn',
+      label: '卷纲中间尝试曾降级，最终产物已通过契约验收',
+      detail: JSON.stringify({ degradedApiCalls: 1, finalStatus: 'complete' })
+    })
+    store.finishRun(runId, 'success', undefined, 'all_volumes_generation_complete')
+
+    const run = store.getRun(runId)!
+    const exported = store.exportRunToJson(run) as Record<string, unknown>
+    expect(run.status).toBe('success')
+    expect(run.events.some(event => event.type === 'volume-artifact-recovered')).toBe(true)
+    const stateHistory = exported.stateHistory as Array<{ reason?: string }>
+    expect(stateHistory.at(-1)?.reason).toContain('all_volumes_generation_complete')
+  })
+
   it('preserves raw provider arguments through the tool-call trace export', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({

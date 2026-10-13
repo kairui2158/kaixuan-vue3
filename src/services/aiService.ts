@@ -1473,6 +1473,42 @@ function combineSignals(...signals: (AbortSignal | undefined)[]): AbortSignal {
   return AbortSignal.any(valid)
 }
 
+function createFirstOutputStreamSignal(
+  timeoutMs: number,
+  externalSignal?: AbortSignal,
+): { signal: AbortSignal; markOutput: () => void; dispose: () => void } {
+  const controller = new AbortController()
+  let sawOutput = false
+  let disposed = false
+  const timer = setTimeout(() => {
+    if (sawOutput) return
+    controller.abort(new DOMException('The operation was aborted', 'AbortError'))
+  }, timeoutMs)
+  const markOutput = () => {
+    if (sawOutput) return
+    sawOutput = true
+    clearTimeout(timer)
+  }
+  const onExternalAbort = () => {
+    markOutput()
+    controller.abort(externalSignal?.reason)
+  }
+  if (externalSignal) {
+    if (externalSignal.aborted) onExternalAbort()
+    else externalSignal.addEventListener('abort', onExternalAbort, { once: true })
+  }
+  return {
+    signal: controller.signal,
+    markOutput,
+    dispose: () => {
+      if (disposed) return
+      disposed = true
+      clearTimeout(timer)
+      externalSignal?.removeEventListener('abort', onExternalAbort)
+    },
+  }
+}
+
 export function resolveRequestTimeout(
   timeoutMs: number | null | undefined,
   provider: { timeoutMs?: number },
@@ -2171,18 +2207,23 @@ export function createAiService(
     const temperature = resolveTemperature(provider, params.temperature)
     const maxTokens = resolveMaxTokens(provider, params.maxTokens)
     const modelCapability = resolveModelCapabilityForProvider(provider, params.maxTokens)
-    const signal = timeoutMs == null
-      ? params.signal
-      : combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
+    const requestParams = params
+    const wantStream = requestParams.stream ?? (
+      params.purpose === 'generate' || params.purpose === 'rewrite'
+    )
+    let signal: AbortSignal | undefined = params.signal
+    let firstOutputStreamSignal: ReturnType<typeof createFirstOutputStreamSignal> | null = null
+    if (timeoutMs != null && wantStream) {
+      firstOutputStreamSignal = createFirstOutputStreamSignal(timeoutMs, params.signal)
+      signal = firstOutputStreamSignal.signal
+    } else if (timeoutMs != null) {
+      signal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
+    }
     const protocol = getProviderProtocol(providerType)
     const nativeToolExchange = Boolean(params.tools?.length) && supportsNativeTools(providerType)
     const nativeTools = nativeToolExchange
       ? buildProviderTools(providerType, params.tools as AgentToolDefinition[])
       : undefined
-    const requestParams = params
-    const wantStream = requestParams.stream ?? (
-      params.purpose === 'generate' || params.purpose === 'rewrite'
-    )
     const url = buildProviderChatUrl({
       baseUrl: provider.baseUrl,
       providerType,
@@ -2220,53 +2261,69 @@ export function createAiService(
     if (resp && !resp.ok) throw resp
     if (!wantStream && !resp) throw new Error('网络传输初始化失败')
     if (wantStream) {
-      let result: MainNetStreamResult
-      let streamUsage: any
-      if (useMainNet) {
-        result = await mainNetStream(
-          { url, headers, body },
-          {
-            onChunk: requestParams.onChunk,
-            onReasoning: requestParams.onReasoning,
-            onToolProgress: requestParams.onStreamToolProgress,
-            onUsage: (u: any) => {
-              streamUsage = u
-              if (requestParams.onUsage) requestParams.onUsage(u)
+      try {
+        let result: MainNetStreamResult
+        let streamUsage: any
+        if (useMainNet) {
+          result = await mainNetStream(
+            { url, headers, body },
+            {
+              onChunk: (text: string) => {
+                firstOutputStreamSignal?.markOutput()
+                requestParams.onChunk?.(text)
+              },
+              onReasoning: (text: string) => {
+                firstOutputStreamSignal?.markOutput()
+                requestParams.onReasoning?.(text)
+              },
+              onToolProgress: requestParams.onStreamToolProgress,
+              onUsage: (u: any) => {
+                streamUsage = u
+                if (requestParams.onUsage) requestParams.onUsage(u)
+              },
             },
-          },
-          providerType,
-          signal,
-          timeoutMs,
-          params.slowStreamTolerant === true,
-          nativeToolExchange
-        )
-      } else {
-        const reader = resp!.body!.getReader()
-        result = await parseSSEStream(
-          reader,
-          {
-            onChunk: requestParams.onChunk,
-            onReasoning: requestParams.onReasoning,
-            onToolProgress: requestParams.onStreamToolProgress,
-            onUsage: (u: any) => {
-              streamUsage = u
-              if (requestParams.onUsage) requestParams.onUsage(u)
+            providerType,
+            signal,
+            timeoutMs,
+            params.slowStreamTolerant === true,
+            nativeToolExchange
+          )
+        } else {
+          const reader = resp!.body!.getReader()
+          result = await parseSSEStream(
+            reader,
+            {
+              onChunk: (text: string) => {
+                firstOutputStreamSignal?.markOutput()
+                requestParams.onChunk?.(text)
+              },
+              onReasoning: (text: string) => {
+                firstOutputStreamSignal?.markOutput()
+                requestParams.onReasoning?.(text)
+              },
+              onToolProgress: requestParams.onStreamToolProgress,
+              onUsage: (u: any) => {
+                streamUsage = u
+                if (requestParams.onUsage) requestParams.onUsage(u)
+              },
             },
-          },
-          providerType,
-          nativeToolExchange
-        )
+            providerType,
+            nativeToolExchange
+          )
+        }
+        const usage = normalizeTraceUsage(providerType, streamUsage ?? result.usage)
+        if (
+          (!result.text && !result.reasoning && extractSoftProviderErrorBody(result.raw))
+          || hasProviderSoftQuotaError(extractProviderErrorSummary(result.raw))
+          || (!result.text && !result.reasoning && hasAbnormalZeroUsage(usage, false))
+        ) {
+          throwProviderSoftError(result.raw, provider, params.purpose, usage, Boolean(result.text))
+        }
+        const finishReason = resolveFinishReason(result.finishReason, usage, maxTokens, Boolean(result.text))
+        return { ...result, usage, finishReason, raw: result.raw, maxTokens, modelCapability }
+      } finally {
+        firstOutputStreamSignal?.dispose()
       }
-      const usage = normalizeTraceUsage(providerType, streamUsage ?? result.usage)
-      if (
-        (!result.text && !result.reasoning && extractSoftProviderErrorBody(result.raw))
-        || hasProviderSoftQuotaError(extractProviderErrorSummary(result.raw))
-        || (!result.text && !result.reasoning && hasAbnormalZeroUsage(usage, false))
-      ) {
-        throwProviderSoftError(result.raw, provider, params.purpose, usage, Boolean(result.text))
-      }
-      const finishReason = resolveFinishReason(result.finishReason, usage, maxTokens, Boolean(result.text))
-      return { ...result, usage, finishReason, raw: result.raw, maxTokens, modelCapability }
     } else {
       const data = await resp!.json()
       if (
@@ -3991,10 +4048,7 @@ export function createAiService(
           throw e
         }
         try {
-          const hbSignal = timeoutMs == null
-            ? params.signal
-            : combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
-          const hbParams = { ...params, signal: hbSignal }
+          const hbParams = { ...params }
           streamBuffer = ''
           reasoningBuffer = ''
           currentPhysicalAttempt = hbAttempt

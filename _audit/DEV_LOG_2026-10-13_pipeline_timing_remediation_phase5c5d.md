@@ -177,3 +177,47 @@ after 轮 12 个物理请求全部 success，无 retry；首 token 为 1.877s �
 
 - 正文层 schema retry 与卷纲层 `fullReasonMissing` 观察项另行立项，不与超时语义混在一起
 - 真实 Electron + 真实 API before/after 数据已由 Phase 5E 补齐；后续性能优化继续遵守 G1.19，先采账再决策
+
+## Phase 5F 收尾：观察项修复与耗时账本 live 复验
+
+### 观察项修复
+
+1. 卷纲层 `fullReasonMissing` 收口：`chain-handoff-delivery` 的 `full` 模式必须写明原因，空原因不再静默通过。
+2. 正文层 schema 重试：校验失败反馈注入下一轮请求，重试不再是无信息重复请求。
+
+### Phase 5G live 复验失败与根因
+
+第一轮 live 复验（run `run-1791878045550-1`）没有通过。复盘 payload 后钉死三点：
+
+1. S4 没有卡死，是验证器旧 STEP_TIMEOUT 固定 30 分钟误杀；当时流仍在输出。
+2. S1 首次物理调用耗时 1,202,346ms（约 20 分钟）：firstTokenMs 9,103ms，reasoning 持续输出数千字，但正文为空，供应商最终 `finish_reason=stop`。应用层按空正文走 `max_tokens_raised` 直出重试，158 秒成功。这是供应商“推理耗尽不产出正文”的行为，不是应用传输超时，也不是应用缺陷。
+3. 结论：不给 `aiService` 打补丁。首输出墙钟 + 后续 idle/progress watchdog 的语义正确；只修验证器预算。
+
+验证器修复：`scripts/verify-pipeline-timing-ledger-electron.mjs` 使用 WALL_BUDGET_MS（默认 2h）替代固定 30 分钟 STEP_TIMEOUT，并在 finally 导出 run trace、payload、terminal-status、terminal-state.png 与 completionSnapshot。
+
+### Phase 5G 最终 live 结果
+
+- Run：`run-1791884865708-1`
+- 真实 Electron 可见窗口、真实技能下拉选择、真实生成按钮、真实供应商 API。
+- 结果：`runStatus=success`、`volumeCount=3`、`runningApiCalls=0`、`failedApiCalls=0`。
+- API 调用 12 个，物理请求 12 次，`retryPhysicalCallCount=0`，无 590s+ 超时失败，无 heartbeat retry。
+- 耗时账本：`physicalDurationSumMs=1,860,934ms`，`firstTokenSumMs=32,333ms`，`outputSumMs=1,828,601ms`，`localOverheadSumMs=718ms`。
+- Phase 4 去重断言：12 个调用每个 `[已生成卷事实清单]` 最多 1 次；run 级同块计数 1。
+- 结论：S1 空正文未复发；卷纲层 3 卷全链路在真实 UI + 真实 API 下通过。
+
+### 验证器证据拷贝缺陷与修复
+
+最终导出时脚本退出码为 1，错误是 Windows `copyfile ... UNKNOWN`。离线复核显示目标 `run-trace.json` 已完整落盘（1,196,378 字节），且 `assertTimingRun`、`assertPhase4Deduplication`、`assertNoActiveStreamTimeoutRestart` 全部通过。根因是验证器失败证据块与最终块重复写同一路径时，Windows CopyFile 对新写文件元数据/ACL 瞬态返回 UNKNOWN。
+
+修复：新增 `copyFileRobust()`，`copyFileSync` 失败时回退为显式字节读写，并断言源/目标文件尺寸一致；payload 目录逐文件复制，禁止目录级复制掩盖单文件失败。该修复只作用于验证器证据链，不改变产品行为。
+
+### 收尾验证
+
+- `npm run test:services`：149 files / 1803 tests 全部通过。
+- `npm run type-check`：通过。
+- `npm run build:vue`：通过（保留既有 chunk size 与 Vite native config warning，非本轮新增）。
+- 离线断言复核命令读取 `_audit/verification-pipeline-timing-ledger-live/live-export/volume/run-trace.json`，输出 `OFFLINE_ASSERTS_PASS`，确认 historyCounts 全 1、suppressedEvents=0、heartbeatRetries=0、timeoutFailures=0。
+
+### 经验回写
+
+经验文件升级到 v8.9，在 G1.5 补入：证据拷贝不得把平台复制 API 失败等同证据缺失；Windows CopyFile 的 ACL/元数据瞬态需用健壮复制 + 尺寸/哈希校验兜底。本条来源为本轮 live 复验真实事故，不涉及产品语义放宽。

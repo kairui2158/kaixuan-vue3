@@ -3078,6 +3078,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           deliveredLength: previousResolution.output.length,
           declaredMode: templateMeta?.chainHandoff?.previousOutput || "default",
           requires: templateMeta?.chainHandoff?.requires || [],
+          skillId: t.id,
+          skillName: t.name || "",
           fullReason,
           fullReasonMissing
         })
@@ -3092,6 +3094,14 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           `Chain handoff delivery: step=${si + 1}/${templates.length} delivery=${handoffDelivery}`,
           deliveryDetail
         )
+        if (fullReasonMissing) {
+          appendPipelineChainWarning({
+            step,
+            skillIndex: si,
+            code: 'chain-full-reason-missing',
+            summary: `full 交付缺少 reason（skill: ${t.name || t.id}），已按兼容策略继续 full 交付`
+          })
+        }
         const contractMiss = previousResolution.contractMiss
         if (contractMiss) {
           const contractMissDetail = JSON.stringify(contractMiss)
@@ -3667,6 +3677,7 @@ async function genVolumes(mode: string) {
   ]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成卷纲中")
+  let volumeArtifactDelivered = false
   try {
     const sc = projectStore.getSettingsCollection()
     const allItems: any[] = []
@@ -3836,6 +3847,7 @@ async function genVolumes(mode: string) {
       })
       trace.addEvent({ type: "write", level: "info", label: "卷纲已写入项目", detail: "写入 " + volumes.length + " 卷" })
       pipelineStore.updateProgress(100, "卷纲生成完成")
+      volumeArtifactDelivered = true
     } else {
       volumeGenerationLogs.value.push("API 返回内容不是可用的卷纲数组")
       pipelineStore.failGeneration("未能解析卷纲JSON")
@@ -3853,9 +3865,20 @@ async function genVolumes(mode: string) {
     pipelineStore.failGeneration(e.message)
     trace.addEvent({ type: "failed", level: "error", label: "卷纲运行失败", detail: e.message || "未知错误" })
   } finally {
-    const traceStatus = traceStatusFromRun(trace.runId!)
+    const outcome = traceOutcomeFromRun(trace.runId!, volumeArtifactDelivered)
+    if (volumeArtifactDelivered && outcome.recoveredFromDegraded) {
+      trace.addEvent({
+        type: "volume-artifact-recovered",
+        level: "warn",
+        label: "卷纲中间尝试曾降级，最终产物已通过契约验收",
+        detail: JSON.stringify({
+          degradedApiCalls: outcome.degradedApiCalls,
+          finalStatus: 'complete'
+        })
+      })
+    }
     const successReason = mode === 'single' ? 'single_volume_generation_complete' : mode === 'continue' ? 'next_volume_generation_complete' : 'all_volumes_generation_complete'
-    trace.finish(traceStatus, undefined, traceStatus === 'success' ? successReason : 'generation_failed')
+    trace.finish(outcome.status, undefined, outcome.status === 'success' ? successReason : 'generation_failed')
   }
 }
 

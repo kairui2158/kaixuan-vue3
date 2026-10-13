@@ -39,6 +39,7 @@ describe('pipeline step warning visibility', () => {
       'chain-handoff-contract-miss',
       'chain-dedupe',
       'chain-handoff-escalation',
+      'chain-full-reason-missing',
       'chain-output-echo'
     ]
     for (const code of codes) {
@@ -51,5 +52,14 @@ describe('pipeline step warning visibility', () => {
       expect(line).toContain(`${code} 摘要`)
     }
   })
-})
 
+  it('renders the full reason missing warning with skill attribution', () => {
+    const line = buildPipelineChainWarningLine({
+      step: 2,
+      skillIndex: 2,
+      code: 'chain-full-reason-missing',
+      summary: 'full 交付缺少 reason（skill: l3-s3），已按兼容策略继续 full 交付'
+    })
+    expect(line).toBe('链式警告 2/3：full 交付缺少 reason（skill: l3-s3），已按兼容策略继续 full 交付')
+  })
+})

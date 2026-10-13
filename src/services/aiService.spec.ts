@@ -1085,6 +1085,60 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   }, 30_000);
 
+  it('does not pass a wall-clock timeout signal to an active main-process stream', async () => {
+    const abortCalls: string[] = [];
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn((signalId: string) => {
+          abortCalls.push(signalId);
+          return Promise.resolve();
+        }),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: 600_000,
+      onChunk: () => {},
+      onPhysicalCall: () => {},
+    });
+    await vi.advanceTimersByTimeAsync(600_000);
+    expect(abortCalls).toEqual([]);
+    emitCurrentStream([
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-tail"}}]}\n\n' },
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+      { event: 'chunk', text: 'data: [DONE]\n\n' },
+      { event: 'end' },
+    ]);
+    await expect(request).resolves.toMatchObject({ text: 'first-tail' });
+    expect(streamMock).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('still enforces the total timeout before a stream produces output', async () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
