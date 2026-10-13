@@ -15,6 +15,13 @@ import type {
   MemoryChangeRecord
 } from '../types/memory'
 import { getChangeHistory, rollbackByChapter, rollbackTo, saveChangeRecord } from '../services/memoryVersion'
+import {
+  createTrackingTransaction,
+  commitImport,
+  commitTransaction,
+  type TrackingTransaction
+} from '../services/trackingStateService'
+import type { ExtractedMemoryData } from '../services/memoryExtractor'
 import type { EditorBookmark } from '../services/editorBookmarks'
 import { useEditorStore } from './editor'
 
@@ -87,6 +94,7 @@ function createDefaultMemoryMeta(): MemoryMeta {
     lastExtractedAt: null,
     lastFullRebuildAt: null,
     pendingCount: 0,
+    stateRevision: 1,
     totals: { entities: 0, relations: 0, events: 0, world: 0, foreshadowing: 0 }
   }
 }
@@ -107,17 +115,175 @@ function createDefaultMemories(): MemoryData {
   }
 }
 
+function normalizeString(value: unknown): string {
+  return typeof value === 'string' ? value : ''
+}
+
+function normalizeNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
+}
+
+function normalizeBoolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback
+}
+
+function normalizeStrings(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : []
+}
+
+function normalizeEvidence(value: unknown): MemoryEntity['evidence'] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is MemoryEntity['evidence'][number] =>
+    Boolean(item) && typeof item === 'object'
+    && typeof (item as { chapterId?: unknown }).chapterId === 'string'
+    && typeof (item as { snippet?: unknown }).snippet === 'string'
+  )
+}
+
+function normalizeEntityId(value: unknown, fallbackPrefix: string): string {
+  const text = normalizeString(value)
+  return text || `${fallbackPrefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+}
+
+function normalizeEntity(entry: any): MemoryEntity {
+  return {
+    id: normalizeEntityId(entry?.id, 'ent'),
+    name: normalizeString(entry?.name),
+    type: entry?.type === 'character' || entry?.type === 'organization' || entry?.type === 'location'
+      || entry?.type === 'item' || entry?.type === 'concept' || entry?.type === 'other'
+      ? entry.type
+      : 'other',
+    aliases: normalizeStrings(entry?.aliases),
+    firstAppearance: normalizeString(entry?.firstAppearance),
+    lastAppearance: normalizeString(entry?.lastAppearance),
+    appearances: normalizeStrings(entry?.appearances),
+    description: normalizeString(entry?.description),
+    personality: normalizeString(entry?.personality),
+    appearance: normalizeString(entry?.appearance),
+    background: normalizeString(entry?.background),
+    status: normalizeString(entry?.status),
+    statusHistory: Array.isArray(entry?.statusHistory)
+      ? entry.statusHistory.filter((item: any) => item && typeof item === 'object'
+        && typeof item.chapterId === 'string' && typeof item.value === 'string' && typeof item.recordedAt === 'string')
+      : undefined,
+    possessions: normalizeStrings(entry?.possessions),
+    skills: normalizeStrings(entry?.skills),
+    relationships: normalizeStrings(entry?.relationships),
+    notes: normalizeString(entry?.notes),
+    lockedFields: normalizeStrings(entry?.lockedFields),
+    evidence: normalizeEvidence(entry?.evidence),
+    createdAt: normalizeString(entry?.createdAt),
+    factStatus: entry?.factStatus,
+    supersedesId: normalizeString(entry?.supersedesId) || undefined,
+    conflictsWithIds: normalizeStrings(entry?.conflictsWithIds),
+    conflictsData: entry?.conflictsData && typeof entry.conflictsData === 'object' ? entry.conflictsData : undefined,
+    factSource: entry?.factSource && typeof entry.factSource === 'object' ? entry.factSource : undefined,
+    updatedAt: normalizeString(entry?.updatedAt)
+  }
+}
+
+function normalizeRelation(entry: any): MemoryRelation {
+  return {
+    id: normalizeEntityId(entry?.id, 'rel'),
+    sourceId: normalizeString(entry?.sourceId),
+    targetId: normalizeString(entry?.targetId),
+    type: normalizeString(entry?.type),
+    strength: normalizeNumber(entry?.strength, 0.5),
+    detail: normalizeString(entry?.detail),
+    evidence: normalizeEvidence(entry?.evidence),
+    locked: normalizeBoolean(entry?.locked, false),
+    createdAt: normalizeString(entry?.createdAt),
+    factStatus: entry?.factStatus,
+    supersedesId: normalizeString(entry?.supersedesId) || undefined,
+    conflictsWithIds: normalizeStrings(entry?.conflictsWithIds),
+    conflictsData: entry?.conflictsData && typeof entry.conflictsData === 'object' ? entry.conflictsData : undefined,
+    factSource: entry?.factSource && typeof entry.factSource === 'object' ? entry.factSource : undefined,
+    updatedAt: normalizeString(entry?.updatedAt)
+  }
+}
+
+function normalizeEvent(entry: any): MemoryEvent {
+  return {
+    id: normalizeEntityId(entry?.id, 'evt'),
+    title: normalizeString(entry?.title),
+    type: normalizeString(entry?.type),
+    chapterId: normalizeString(entry?.chapterId),
+    chapterIndex: normalizeNumber(entry?.chapterIndex, 0),
+    characters: normalizeStrings(entry?.characters),
+    location: normalizeString(entry?.location),
+    summary: normalizeString(entry?.summary),
+    consequences: normalizeStrings(entry?.consequences),
+    locked: normalizeBoolean(entry?.locked, false),
+    evidence: normalizeEvidence(entry?.evidence),
+    createdAt: normalizeString(entry?.createdAt),
+    factStatus: entry?.factStatus,
+    supersedesId: normalizeString(entry?.supersedesId) || undefined,
+    conflictsWithIds: normalizeStrings(entry?.conflictsWithIds),
+    conflictsData: entry?.conflictsData && typeof entry.conflictsData === 'object' ? entry.conflictsData : undefined,
+    factSource: entry?.factSource && typeof entry.factSource === 'object' ? entry.factSource : undefined
+  }
+}
+
+function normalizeWorld(entry: any): WorldEntry {
+  const categories = ['地理', '政治', '经济', '文化', '魔法', '科技', '历史', '其他'] as const
+  const category = categories.find(item => item === entry?.category) ?? '其他'
+  return {
+    id: normalizeEntityId(entry?.id, 'wld'),
+    name: normalizeString(entry?.name),
+    category,
+    description: normalizeString(entry?.description),
+    location: normalizeString(entry?.location) || undefined,
+    established: normalizeBoolean(entry?.established, false),
+    locked: normalizeBoolean(entry?.locked, false),
+    evidence: normalizeEvidence(entry?.evidence),
+    createdAt: normalizeString(entry?.createdAt),
+    factStatus: entry?.factStatus,
+    supersedesId: normalizeString(entry?.supersedesId) || undefined,
+    conflictsWithIds: normalizeStrings(entry?.conflictsWithIds),
+    conflictsData: entry?.conflictsData && typeof entry.conflictsData === 'object' ? entry.conflictsData : undefined,
+    factSource: entry?.factSource && typeof entry.factSource === 'object' ? entry.factSource : undefined
+  }
+}
+
+function normalizeForeshadowing(entry: any): Foreshadowing {
+  const statuses = ['planted', 'active', 'resolved', 'abandoned'] as const
+  const status = statuses.find(item => item === entry?.status) ?? 'planted'
+  return {
+    id: normalizeEntityId(entry?.id, 'fsh'),
+    title: normalizeString(entry?.title),
+    description: normalizeString(entry?.description),
+    plantedChapterId: normalizeString(entry?.plantedChapterId),
+    plantedChapterIndex: normalizeNumber(entry?.plantedChapterIndex, 0),
+    revealChapterId: normalizeString(entry?.revealChapterId) || undefined,
+    revealChapterIndex: typeof entry?.revealChapterIndex === 'number' && Number.isFinite(entry.revealChapterIndex)
+      ? entry.revealChapterIndex
+      : undefined,
+    status,
+    resolved: normalizeBoolean(entry?.resolved, false),
+    locked: normalizeBoolean(entry?.locked, false),
+    evidence: normalizeEvidence(entry?.evidence),
+    createdAt: normalizeString(entry?.createdAt),
+    factStatus: entry?.factStatus,
+    supersedesId: normalizeString(entry?.supersedesId) || undefined,
+    conflictsWithIds: normalizeStrings(entry?.conflictsWithIds),
+    conflictsData: entry?.conflictsData && typeof entry.conflictsData === 'object' ? entry.conflictsData : undefined,
+    factSource: entry?.factSource && typeof entry.factSource === 'object' ? entry.factSource : undefined
+  }
+}
+
 /** 兼容旧数据：将旧 { categories, items } 结构补齐为完整 MemoryData */
-function normalizeMemories(raw: any): MemoryData {
+export function normalizeMemories(raw: any): MemoryData {
   const base = createDefaultMemories()
   if (!raw || typeof raw !== 'object') return base
   const out: MemoryData = {
     version: 1,
-    entities: Array.isArray(raw.entities) ? raw.entities : [],
-    relations: Array.isArray(raw.relations) ? raw.relations : [],
-    events: Array.isArray(raw.events) ? raw.events : [],
-    world: Array.isArray(raw.world) ? raw.world : [],
-    foreshadowing: Array.isArray(raw.foreshadowing) ? raw.foreshadowing : [],
+    entities: (Array.isArray(raw.entities) ? raw.entities : []).map(normalizeEntity),
+    relations: (Array.isArray(raw.relations) ? raw.relations : []).map(normalizeRelation),
+    events: (Array.isArray(raw.events) ? raw.events : []).map(normalizeEvent),
+    world: (Array.isArray(raw.world) ? raw.world : []).map(normalizeWorld),
+    foreshadowing: (Array.isArray(raw.foreshadowing) ? raw.foreshadowing : []).map(normalizeForeshadowing),
     meta: { ...base.meta, ...(raw.meta || {}) },
     history: Array.isArray(raw.history) ? raw.history : [],
     categories: Array.isArray(raw.categories) && raw.categories.length > 0
@@ -779,23 +945,111 @@ export const useProjectStore = defineStore('project', () => {
     return record.id
   }
 
+  /**
+   * Single transactional write entry for memory extraction/import paths.
+   * The service serializes commits per project and rejects stale revisions.
+   */
+  async function recordMemoryTransaction(input: {
+    transaction?: TrackingTransaction
+    projectId?: string | null
+    extracted?: ExtractedMemoryData
+    chapterId: string
+    chapterIndex?: number
+    reason?: string
+    timestamp?: string
+  }): Promise<
+    | { ok: true; recordId: string; revision: number }
+    | { ok: false; code: 'stale_state' | 'delta_limit_exceeded' | 'snapshot_limit_exceeded'; message: string }
+  > {
+    const transaction = input.transaction || (input.extracted ? createTrackingTransaction({
+      projectId: input.projectId || currentProjectId.value || 'default',
+      currentMemory: memories.value,
+      extracted: input.extracted,
+      chapterId: input.chapterId,
+      chapterIndex: input.chapterIndex,
+      now: input.timestamp
+    }) : null)
+    if (!transaction) {
+      return { ok: false, code: 'stale_state', message: '记忆事务缺少 transaction 或 extracted 数据。' }
+    }
+    const result = await commitTransaction(transaction)
+    if (!result.ok) {
+      if (result.error.code === 'stale_state') {
+        return {
+          ok: false,
+          code: 'stale_state',
+          message: `期待修订号 ${result.error.expectedRevision}，当前修订号 ${result.error.currentRevision}；请基于当前记忆重建事务。`
+        }
+      }
+      return {
+        ok: false,
+        code: result.error.code,
+        message: result.error.message
+      }
+    }
+    const before = memories.value
+    const next = normalizeMemories(result.data)
+    const record = saveChangeRecord(before.history, before, next, {
+      chapterId: input.chapterId,
+      chapterIndex: input.chapterIndex,
+      reason: input.reason,
+      timestamp: input.timestamp
+    })
+    next.history = [...(before.history || []), record]
+    memories.value = next
+    await saveProject()
+    return { ok: true, recordId: record.id, revision: result.revision }
+  }
+
+  /** User-initiated full memory imports are audited, not model extraction deltas. */
+  async function recordMemoryImport(nextData: MemoryData, options: { chapterId: string; reason?: string; timestamp?: string }): Promise<
+    | { ok: true; recordId: string; revision: number }
+    | { ok: false; code: 'snapshot_limit_exceeded'; message: string }
+  > {
+    const projectId = currentProjectId.value || 'default'
+    const result = await commitImport(projectId, normalizeMemories(nextData), {
+      chapterId: options.chapterId,
+      now: options.timestamp
+    })
+    if (!result.ok) {
+      return { ok: false, code: result.error.code, message: result.error.message }
+    }
+    const before = memories.value
+    const next = result.data
+    const record = saveChangeRecord(before.history, before, next, options)
+    next.history = [...(before.history || []), record]
+    memories.value = next
+    await saveProject()
+    return { ok: true, recordId: record.id, revision: result.revision }
+  }
+
   function getMemoryChangeHistory(): MemoryChangeRecord[] {
     return getChangeHistory(memories.value.history)
   }
 
-  function rollbackMemoryTo(versionId: string, reason?: string) {
+  async function rollbackMemoryTo(versionId: string, reason?: string): Promise<boolean> {
     const result = rollbackTo(memories.value, memories.value.history, versionId, { chapterId: 'rollback', reason })
     if (!result) return false
-    memories.value = result.data
-    saveProject()
+    const committed = await commitImport(currentProjectId.value || 'default', result.data, {
+      chapterId: 'rollback',
+      now: result.record.timestamp
+    })
+    if (!committed.ok) return false
+    memories.value = committed.data
+    await saveProject()
     return true
   }
 
-  function rollbackMemoryByChapter(chapterId: string, chapterIndex?: number, reason?: string) {
+  async function rollbackMemoryByChapter(chapterId: string, chapterIndex?: number, reason?: string): Promise<boolean> {
     const result = rollbackByChapter(memories.value, memories.value.history, chapterId, chapterIndex, { chapterId: 'rollback', reason })
     if (!result) return false
-    memories.value = result.data
-    saveProject()
+    const committed = await commitImport(currentProjectId.value || 'default', result.data, {
+      chapterId: 'rollback',
+      now: result.record.timestamp
+    })
+    if (!committed.ok) return false
+    memories.value = committed.data
+    await saveProject()
     return true
   }
   function syncTreeToPipeline() {
@@ -1013,7 +1267,7 @@ export const useProjectStore = defineStore('project', () => {
     addWorldEntry, updateWorldEntry, deleteWorldEntry,
     addForeshadowing, updateForeshadowing, deleteForeshadowing,
     memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
-    updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordSourceVersion, getMemoryChangeHistory,
+    updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordMemoryTransaction, recordMemoryImport, recordSourceVersion, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
     editorBookmarks, setEditorBookmarks,

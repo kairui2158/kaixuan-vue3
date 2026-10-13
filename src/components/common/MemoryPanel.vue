@@ -268,10 +268,13 @@ import { storageKey } from '../../utils/storage-key'
 import { exportFullJSON, importFullJSON, mergeImportedMemory, createMemoryBackup, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
 import { exportCharacterProfile, exportStoryline, exportTimeline, exportScene, type MemoryExportContext } from '../../services/memoryExport'
 import { useModalQueue } from '../../composables/useModalQueue'
+import { useAiCallTrace } from '../../composables/useAiCallTrace'
+import { useRunTraceStore } from '../../stores/runTrace'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 const appConfirm = useAppConfirm()
+const runTraceStore = useRunTraceStore()
 const modalQueue = useModalQueue()
 const emit = defineEmits<{ close: [] }>()
 
@@ -810,13 +813,94 @@ async function exportMemory() {
   void appConfirm.alert(ok ? '记忆导出成功：' + filePath : '记忆导出失败')
 }
 
+type MemoryInfraTrace = ReturnType<typeof useAiCallTrace>
+
+function startMemoryInfraTrace(stepName: string): MemoryInfraTrace {
+  return useAiCallTrace({
+    source: 'infra',
+    stepName,
+    mode: 'memory-transaction',
+    projectId: projectStore.currentProjectId || 'default',
+    projectName: projectStore.projectName
+  })
+}
+
+function recordMemoryImportTrace(
+  trace: MemoryInfraTrace,
+  mode: 'merge' | 'replace',
+  committed: { ok: true; recordId: string; revision: number } | { ok: false; code: string; message: string },
+  counts?: { added: number; skipped: number }
+) {
+  trace.addEvent({
+    type: 'tracking_commit',
+    level: committed.ok ? 'info' : 'error',
+    label: committed.ok ? `记忆${mode === 'merge' ? '合并' : '覆盖'}导入已提交` : `记忆${mode === 'merge' ? '合并' : '覆盖'}导入被拒绝`,
+    detail: JSON.stringify({
+      mode,
+      ...counts,
+      ok: committed.ok,
+      code: committed.ok ? 'ok' : committed.code,
+      revision: committed.ok ? committed.revision : null,
+      recordId: committed.ok ? committed.recordId : null,
+      message: committed.ok ? null : committed.message
+    })
+  })
+}
+
+function recordMemoryImportFailure(
+  trace: MemoryInfraTrace,
+  mode: 'merge' | 'replace',
+  phase: 'read' | 'parse',
+  message: string
+) {
+  trace.addEvent({
+    type: 'tracking_commit',
+    level: 'error',
+    label: `记忆${mode === 'merge' ? '合并' : '覆盖'}导入被拒绝`,
+    detail: JSON.stringify({
+      mode,
+      ok: false,
+      code: phase === 'read' ? 'import_read_failed' : 'import_parse_failed',
+      revision: null,
+      recordId: null,
+      message
+    })
+  })
+}
+
+function recordMemoryRollbackTrace(
+  trace: MemoryInfraTrace,
+  mode: 'version' | 'chapter',
+  ok: boolean,
+  target: string,
+  revision: number | null
+) {
+  trace.addEvent({
+    type: 'tracking_commit',
+    level: ok ? 'info' : 'error',
+    label: ok ? `记忆按${mode === 'version' ? '版本' : '章节'}回滚已提交` : `记忆按${mode === 'version' ? '版本' : '章节'}回滚被拒绝`,
+    detail: JSON.stringify({
+      mode,
+      ok,
+      code: ok ? 'ok' : 'rollback_failed',
+      revision,
+      target,
+      message: ok ? null : '未找到可回滚的目标版本'
+    })
+  })
+}
+
 function openHistory() {
   historyVisible.value = true
 }
 
 async function rollbackHistory(record: MemoryChangeRecord) {
   if (!await appConfirm.confirm({ title: '回滚记忆', message: `确定回滚到 ${record.timestamp} 的版本？当前记忆将被该版本覆盖。`, confirmText: '回滚', danger: true })) return
-  const ok = projectStore.rollbackMemoryTo(record.id, `用户回滚到版本 ${record.id}`)
+  const trace = startMemoryInfraTrace('记忆版本回滚')
+  trace.begin()
+  const ok = await projectStore.rollbackMemoryTo(record.id, `用户回滚到版本 ${record.id}`)
+  recordMemoryRollbackTrace(trace, 'version', ok, record.id, ok ? projectStore.memories?.meta?.stateRevision ?? null : null)
+  trace.finish(ok ? 'success' : 'failed', ok ? undefined : '未找到可回滚版本')
   historyVisible.value = false
   void appConfirm.alert(ok ? '记忆已回滚' : '未找到可回滚版本')
 }
@@ -824,7 +908,11 @@ async function rollbackHistory(record: MemoryChangeRecord) {
 async function rollbackHistoryByChapter(chapterId: string, chapterIndex?: number) {
   const chapterLabel = chapterIndex !== undefined ? `第${chapterIndex}章` : chapterId
   if (!await appConfirm.confirm({ title: '按章节回滚记忆', message: `确定回滚到 ${chapterLabel} 完成后的最新版本？当前记忆将被该版本覆盖。`, confirmText: '回滚', danger: true })) return
-  const ok = projectStore.rollbackMemoryByChapter(chapterId, chapterIndex, `用户按章节回滚 ${chapterId}`)
+  const trace = startMemoryInfraTrace('记忆章节回滚')
+  trace.begin()
+  const ok = await projectStore.rollbackMemoryByChapter(chapterId, chapterIndex, `用户按章节回滚 ${chapterId}`)
+  recordMemoryRollbackTrace(trace, 'chapter', ok, chapterId, ok ? projectStore.memories?.meta?.stateRevision ?? null : null)
+  trace.finish(ok ? 'success' : 'failed', ok ? undefined : '未找到该章节的回滚版本')
   historyVisible.value = false
   void appConfirm.alert(ok ? '记忆已按章节回滚' : '未找到该章节的回滚版本')
 }
@@ -889,36 +977,57 @@ async function exportSceneUI() {
 }
 
 async function importMemory(mode: 'merge' | 'replace' = 'merge') {
+  const trace = startMemoryInfraTrace(mode === 'replace' ? '记忆覆盖导入' : '记忆合并导入')
+  trace.begin()
   const path = await (window.electronAPI.dialogOpenFileAsync?.() ?? window.electronAPI.dialogOpenFile())
-  if (!path) return
+  if (!path) {
+    trace.finish('canceled', undefined, '用户取消选择记忆导入文件')
+    return
+  }
   const read = await (window.electronAPI.dialogReadFileAsync?.(path) ?? window.electronAPI.dialogReadFile(path))
   if (!read || !read.content) {
+    recordMemoryImportFailure(trace, mode, 'read', '读取文件失败')
+    trace.finish('failed', '读取文件失败')
     void appConfirm.alert('读取文件失败')
     return
   }
   const result = importFullJSON(read.content)
   if (!result.success || !result.memory) {
+    recordMemoryImportFailure(trace, mode, 'parse', result.error || '未知错误')
+    trace.finish('failed', result.error || '记忆导入解析失败')
     void appConfirm.alert('导入失败：' + (result.error || '未知错误'))
     return
   }
   if (mode === 'replace') {
     const backupKey = storageKey('memoryBackup_' + projectStore.currentProjectId)
     await window.electronAPI.storageWrite(backupKey, createMemoryBackup(projectStore.memories))
-    if (!await appConfirm.confirm({ title: '覆盖导入记忆', message: '覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？', confirmText: '覆盖', danger: true })) return
-    await projectStore.recordMemoryChange(result.memory, {
+  if (!await appConfirm.confirm({ title: '覆盖导入记忆', message: '覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？', confirmText: '覆盖', danger: true })) {
+    trace.finish('canceled', undefined, '用户取消覆盖导入')
+    return
+  }
+  const committed = await projectStore.recordMemoryImport(result.memory, {
       chapterId: 'memory-import-replace',
       reason: '用户主动选择覆盖导入记忆'
     })
-    void appConfirm.alert('记忆覆盖导入成功')
+    recordMemoryImportTrace(trace, 'replace', committed)
+    trace.finish(committed.ok ? 'success' : 'failed', committed.ok ? undefined : committed.message)
+    void appConfirm.alert(committed.ok ? '记忆覆盖导入成功' : `记忆覆盖导入失败：${committed.message}`)
     return
   }
-  if (!await appConfirm.confirm('导入将合并到当前记忆，已有条目不会被覆盖。确认继续？')) return
+  if (!await appConfirm.confirm('导入将合并到当前记忆，已有条目不会被覆盖。确认继续？')) {
+    trace.finish('canceled', undefined, '用户取消合并导入')
+    return
+  }
   const merged = mergeImportedMemory(projectStore.memories, result.memory)
-  await projectStore.recordMemoryChange(merged.memory, {
+  const committed = await projectStore.recordMemoryImport(merged.memory, {
     chapterId: 'memory-import-merge',
     reason: `合并导入记忆：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`
   })
-  void appConfirm.alert(`记忆合并导入成功：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`)
+  recordMemoryImportTrace(trace, 'merge', committed, { added: merged.added, skipped: merged.skipped })
+  trace.finish(committed.ok ? 'success' : 'failed', committed.ok ? undefined : committed.message)
+  void appConfirm.alert(committed.ok
+    ? `记忆合并导入成功：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`
+    : `记忆合并导入失败：${committed.message}`)
 }
 
 async function importCharacterCard() {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { MemoryData, MemoryEntity } from '../types/memory'
+import { normalizeMemories } from '../stores/project'
 import { exportFullJSON, importFullJSON, mergeImportedMemory } from './memoryIO'
 
 function entity(id: string, name: string, description = ''): MemoryEntity {
@@ -71,5 +72,38 @@ describe('memoryIO boundaries', () => {
     expect(result.memory.entities.map(item => item.name)).toEqual(['林舟', '苏晚'])
     expect(result.memory.entities[0].description).toBe('当前版本')
     expect(result.memory.meta.totals.entities).toBe(2)
+  })
+
+  it('survives imported entities with missing schema fields', () => {
+    const current = memory([entity('e1', '林舟')])
+    const incoming = {
+      version: 1,
+      entities: [{ id: 'imported-incomplete', name: '缺失字段实体', type: 'character' }],
+      relations: [{ id: 'imported-relation', sourceId: 'e1', targetId: 'imported-incomplete', type: '同盟' }],
+      events: [{ id: 'imported-event', title: '缺失字段事件', chapterId: 'chapter-1' }],
+      world: [{ id: 'imported-world', name: '缺失字段地点' }],
+      foreshadowing: [{ id: 'imported-foreshadowing', title: '缺失字段伏笔', plantedChapterId: 'chapter-1' }],
+      meta: {},
+      history: [],
+      categories: [],
+      items: []
+    }
+
+    const parsed = importFullJSON(JSON.stringify(incoming))
+    const merged = mergeImportedMemory(current, parsed.memory as MemoryData)
+    const result = { ...merged, memory: normalizeMemories(merged.memory) }
+
+    expect(result.added).toBe(5)
+    const importedEntity = result.memory.entities.find(item => item.id === 'imported-incomplete')
+    expect(importedEntity?.aliases).toEqual([])
+    expect(importedEntity?.appearances).toEqual([])
+    expect(importedEntity?.possessions).toEqual([])
+    expect(importedEntity?.skills).toEqual([])
+    expect(importedEntity?.evidence).toEqual([])
+    expect(() => importedEntity?.appearances.join('、')).not.toThrow()
+    expect(result.memory.relations.find(item => item.id === 'imported-relation')?.strength).toBe(0.5)
+    expect(result.memory.events.find(item => item.id === 'imported-event')?.chapterIndex).toBe(0)
+    expect(result.memory.world.find(item => item.id === 'imported-world')?.category).toBe('其他')
+    expect(result.memory.foreshadowing.find(item => item.id === 'imported-foreshadowing')?.status).toBe('planted')
   })
 })

@@ -297,3 +297,15 @@ export function mergeMemory(current: MemoryData, extracted: ExtractedMemoryData,
   data.meta.totals = { entities: data.entities.length, relations: data.relations.length, events: data.events.length, world: data.world.length, foreshadowing: data.foreshadowing.length }
   return { data, changes }
 }
+
+/**
+ * UI preview helper: computes the same field-level changes as a transaction,
+ * but never returns a committable MemoryData object.
+ */
+export function mergeMemoryChanges(
+  current: MemoryData,
+  extracted: ExtractedMemoryData,
+  options: MemoryMergeOptions
+): MemoryChange[] {
+  return mergeMemory(current, extracted, options).changes
+}

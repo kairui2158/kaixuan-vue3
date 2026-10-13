@@ -148,7 +148,7 @@
             </li>
           </ul>
         </div>
-        <footer class="editor-memory-footer"><button class="btn-sm btn-secondary" type="button" @click="closeMemoryPreview">取消</button><button class="btn-sm btn-primary" type="button" :disabled="memoryExtraction.loading || memoryExtraction.saving || !!memoryExtraction.error" @click="memoryExtraction.confirm">确认写入记忆</button></footer>
+        <footer class="editor-memory-footer"><button class="btn-sm btn-secondary" type="button" @click="closeMemoryPreview">取消</button><button class="btn-sm btn-primary" type="button" :disabled="memoryExtraction.loading || memoryExtraction.saving || !!memoryExtraction.error" @click="confirmMemoryPreview">确认写入记忆</button></footer>
       </section>
     </div>
  </section>
@@ -804,6 +804,26 @@ async function extractCurrentMemory() {
 
 function closeMemoryPreview() {
   memoryExtraction.close()
+}
+
+async function confirmMemoryPreview() {
+  const tab = activeTab.value
+  await runTracedHomeTool('记忆事务', async (trace) => {
+    const committed = await memoryExtraction.confirm()
+    if (committed) return
+    trace.addEvent({
+      type: 'tracking_commit',
+      level: 'error',
+      label: '记忆事务提交被拒绝',
+      detail: JSON.stringify({
+        chapterId: memoryExtraction.chapter?.id || tab?.chapterId || null,
+        code: memoryExtraction.lastCommitCode || 'unknown',
+        message: memoryExtraction.lastCommitError || memoryExtraction.error || '未知事务错误',
+        rebuilt: memoryExtraction.lastCommitCode === 'stale_state'
+      })
+    })
+    throw new Error(memoryExtraction.lastCommitError || '记忆事务提交被拒绝')
+  }, '记忆事务已提交')
 }
 
 function undo() {

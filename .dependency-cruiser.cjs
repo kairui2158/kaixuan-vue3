@@ -9,6 +9,13 @@ module.exports = {
       to: { path: '^src/services/editorTools\\.ts$' },
     },
     {
+      name: 'ui-no-direct-memory-merger',
+      comment: '组件层必须通过 trackingStateService 事务提交记忆，禁止把 mergeMemory 当写入口。',
+      severity: 'error',
+      from: { path: '^src/components/' },
+      to: { path: '^src/services/memoryMerger\\.ts$' },
+    },
+    {
       name: 'ui-no-direct-surface',
       comment: '组件层禁止直接调用 dialogueFoundation 工具面解析函数。',
       severity: 'error',

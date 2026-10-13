@@ -1,0 +1,28 @@
+{
+  "schema": "shenyi.memory-transaction.electron",
+  "version": 1,
+  "generatedAt": "2026-10-13T17:45:19.972Z",
+  "electronPid": 59232,
+  "cases": [
+    {
+      "case": "two_extraction_transactions",
+      "revision": 3
+    },
+    {
+      "case": "ui_merge_import",
+      "revision": 4
+    },
+    {
+      "case": "sequential_rebuild_after_import",
+      "revision": 7
+    },
+    {
+      "case": "ui_version_rollback",
+      "revision": 8
+    },
+    {
+      "case": "oversized_import_rejected",
+      "revision": 1
+    }
+  ]
+}

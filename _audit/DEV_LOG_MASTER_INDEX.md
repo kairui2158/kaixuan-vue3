@@ -846,3 +846,27 @@
 - 验证：`npm run test:services` 149 files / 1803 tests、type-check、`npm run build` 通过；真实启动打包应用通过，asar `version=3.82.0`，renderer 74 个文件，`electronAPI` 77 个方法。
 - 产物：`dist/神意助手-Setup-3.82.0.exe`，231,520,779 bytes，SHA256 `25dbe73b457394eb2caf21667963ebb0a0b5a38d2bed4f7be12005e6cd7ec824`。
 - 证据：`_audit/verification-packaging-3-82-0/packaging-evidence.json`。
+
+# 2026-10-13 oh-story-claudecode 开源仓库调研
+
+- 文件：[_audit/DEV_LOG_2026-10-13_oh-story-claudecode-research.md](_audit/DEV_LOG_2026-10-13_oh-story-claudecode-research.md)
+- 范围：本地克隆 `zenstory-ai/oh-story-claudecode`（main `2cf7be6`，v0.8.5），逐机制对账 story-long-write / story-setup / story-deslop 与我们的契约、memory、Agent、DEAI、直写体系；产出 P0-P2 采纳方案与不采纳清单。
+- 价值：确认作用域化大纲读取、追踪状态事务、新增物三级授权、写后硬信号网四类机制可移植；文件型书库与多端 hooks 载体明确不采纳。
+- 边界：调研报告与方案均已落盘，生产代码未改；上游完整写作流程未运行，性能收益待立项后用 before/after 账本验证。
+
+# 2026-10-13 oh-story-claudecode 采纳项升级方案
+
+- 文件：[_audit/PROPOSAL_2026-10-13_OH_STORY_ADOPTED_UPGRADE_PLAN.md](_audit/PROPOSAL_2026-10-13_OH_STORY_ADOPTED_UPGRADE_PLAN.md)
+- 范围：把调研确认的五组采纳机制转成可审核落地方案，逐项给出 Before/After、具体升级项、验收门禁、失败禁止路径与风险对策。
+- 顺序：P0-B Memory 状态事务先行，P0-A 作用域上下文闭包随后，P1-C/D/E 依次落地。
+- 边界：仅方案落盘，生产代码未改；性能收益不承诺百分比，待实测对账表。
+- 裁决更新：新增物三级申报（原 P1-C）整体取消，不引入阻塞确认状态机，也不做非阻塞清单分流；执行顺序调整为 P0-B → P0-A → P1-D/E。
+
+# 2026-10-14 P0-B Memory 状态事务系统收口
+
+- 文件：[_audit/DEV_LOG_2026-10-14_p0b-memory-transaction-closure.md](_audit/DEV_LOG_2026-10-14_p0b-memory-transaction-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-14_p0b-memory-transaction-closure.md](_audit/TASK_LEDGERS/2026-10-14_p0b-memory-transaction-closure.md)
+- 范围：新增 trackingStateService 事务队列与修订号乐观锁；抽取、导入、覆盖导入、版本回滚、章节回滚全部迁移到单写入口；MemoryPanel infra runTrace 与 `tracking_commit` 事件；组件直调 mergeMemory 禁令；导入缺字段归一化防崩溃。
+- 验证：`npm run test:services` 151 files / 1817 tests、type-check、build:vue、`verify:production-wiring` 0 violations；真实可见 Electron + 真实 DOM 点击 + 真实本地 provider 5 Case 全过，证据 `report.json`。
+- 诚实边界：尺寸阈值为首版采样值；runTrace 未保存完整 before/after 快照；P0-A 作用域闭包尚未实现。
+- 封装：升级 3.83.0；`npm run build` 通过；安装包 `dist/神意助手-Setup-3.83.0.exe`，231,523,277 bytes，SHA256 `FDD63FE66224A0561B6F54B83554F96000D2D0D5745A8BE8DA19DFC6586D1FF0`；已清理 3.82.0 旧安装包与 blockmap。

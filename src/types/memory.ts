@@ -163,6 +163,13 @@ export interface MemoryMeta {
   lastExtractedAt: string | null
   lastFullRebuildAt: string | null
   pendingCount: number
+  /** Memory transaction revision. Legacy data is initialized to 1 on load. */
+  stateRevision?: number
+  /** Last successful transaction owner. Undefined for legacy data. */
+  lastCommittedChapter?: string
+  lastCommittedAt?: string
+  /** Stable hash of the derived tracking view, not of the full JSON payload. */
+  derivedViewHash?: string
   totals: {
     entities: number
     relations: number

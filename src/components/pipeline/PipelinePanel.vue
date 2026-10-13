@@ -807,7 +807,8 @@ import EmptyState from "../common/EmptyState.vue"
 import AppIcon from "../common/AppIcon.vue"
 import { useDragSort } from "../../composables/useDragSort"
 import { extractMemory, unifiedMemoryAiCall, type UnifiedMemoryAiCallTrace } from "../../services/memoryExtractor"
-import { mergeMemory } from "../../services/memoryMerger"
+import { previewTransactionChanges } from "../../services/trackingStateService"
+import { createTrackingTransaction, type TrackingTransaction } from "../../services/trackingStateService"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { conversationContextService } from "../../services/conversationContextService"
 import { retrieveContext } from "../../services/memoryRetriever"
@@ -1420,6 +1421,8 @@ const memoryPreviewChanges = ref<any[]>([])
 const memoryPreviewItems = ref<MemoryPreviewItem[]>([])
 const memoryPreviewExtracted = ref<ExtractedMemoryData | null>(null)
 const memoryPreviewChapter = ref<{ id: string; index: number; title: string; content: string } | null>(null)
+const memoryPreviewDraft = ref<TrackingTransaction | null>(null)
+const memoryPreviewCommitError = ref("")
 
 const settingCategories = computed(() => {
   const sc = projectStore.getSettingsCollection()
@@ -4725,12 +4728,20 @@ async function confirmBodyWithMemory() {
     }
     log("complete", "success")
     memoryPreviewExtracted.value = result.data
-    const merged = mergeMemory(projectStore.memories, result.data, {
+    memoryPreviewDraft.value = createTrackingTransaction({
+      projectId: projectStore.currentProjectId || "",
+      currentMemory: projectStore.memories,
+      extracted: result.data,
       chapterId: chapter.id,
       chapterIndex: chapter.index,
       blacklist: projectStore.memoryBlacklist
     })
-    memoryPreviewChanges.value = merged.changes.map((change: any) => ({ ...change, review: "pending" }))
+    const changes = previewTransactionChanges(projectStore.memories, result.data, {
+      chapterId: chapter.id,
+      chapterIndex: chapter.index,
+      blacklist: projectStore.memoryBlacklist
+    })
+    memoryPreviewChanges.value = changes.map((change: any) => ({ ...change, review: "pending" }))
   } catch (error: any) {
     log("failed", "failed", "unknown")
     memoryPreviewError.value = `记忆抽取失败：${error?.message || "未知错误"}。正文已保存。`
@@ -4750,6 +4761,8 @@ function closeMemoryPreview() {
   memoryPreviewChanges.value = []
   memoryPreviewExtracted.value = null
   memoryPreviewChapter.value = null
+  memoryPreviewDraft.value = null
+  memoryPreviewCommitError.value = ""
 }
 
 async function confirmMemoryPreview() {
@@ -4761,25 +4774,68 @@ async function confirmMemoryPreview() {
   }
   memoryPreviewSaving.value = true
   let written = false
+  const memoryTrace = startStepTrace(4, "记忆事务", "memory-transaction")
+  memoryTrace.begin()
   try {
     const reviewed = filterReviewedMemory(extracted)
     const confirmed = Object.fromEntries(Object.entries(reviewed).map(([kind, values]) => [kind, (values as any[]).map(item => ({ ...item, factStatus: 'confirmed' }))])) as any
-      const merged = mergeMemory(projectStore.memories, confirmed, {
-      chapterId: chapter.id,
-      chapterIndex: chapter.index,
-      blacklist: projectStore.memoryBlacklist
-    })
-    await projectStore.recordMemoryChange(merged.data, {
+    const currentDraft = memoryPreviewDraft.value
+      ? { ...memoryPreviewDraft.value, extracted: confirmed }
+      : createTrackingTransaction({
+        projectId: projectStore.currentProjectId || "",
+        currentMemory: projectStore.memories,
+        extracted: confirmed,
+        chapterId: chapter.id,
+        chapterIndex: chapter.index,
+        blacklist: projectStore.memoryBlacklist
+      })
+    const committed = await projectStore.recordMemoryTransaction({
+      transaction: currentDraft,
       chapterId: chapter.id,
       chapterIndex: chapter.index,
       reason: `确认正文后写入记忆：${chapter.title}`
+    })
+    if (!committed.ok) {
+      memoryPreviewCommitError.value = committed.message
+      memoryPreviewError.value = `记忆写入失败：${committed.message}`
+      memoryTrace.addEvent({
+        type: "tracking_commit",
+        level: "error",
+        label: "记忆事务提交被拒绝",
+        detail: JSON.stringify({ chapterId: chapter.id, code: committed.code, message: committed.message })
+      })
+      if (committed.code === "stale_state") {
+        memoryPreviewDraft.value = createTrackingTransaction({
+          projectId: projectStore.currentProjectId || "",
+          currentMemory: projectStore.memories,
+          extracted: confirmed,
+          chapterId: chapter.id,
+          chapterIndex: chapter.index,
+          blacklist: projectStore.memoryBlacklist
+        })
+      }
+      return
+    }
+    memoryTrace.addEvent({
+      type: "tracking_commit",
+      level: "info",
+      label: "记忆事务已提交",
+      detail: JSON.stringify({
+        chapterId: chapter.id,
+        revision: committed.revision,
+        recordId: committed.recordId
+      })
     })
     confirmStep(4)
     written = true
   } catch (error: any) {
     memoryPreviewError.value = `记忆写入失败：${error?.message || "未知错误"}`
+    memoryTrace.fail(error)
   } finally {
     memoryPreviewSaving.value = false
+    if (memoryTrace.isRunning()) {
+      memoryTrace.finish(written ? 'success' : 'failed')
+    }
   }
   if (written) closeMemoryPreview()
 }

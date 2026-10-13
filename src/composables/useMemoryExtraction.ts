@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useProjectStore } from '../stores/project'
 import { extractMemory, type ExtractedMemoryData, type MemoryAiCall } from '../services/memoryExtractor'
 import { mergeMemory, type MemoryChange } from '../services/memoryMerger'
+import { createTrackingTransaction, type TrackingTransaction } from '../services/trackingStateService'
 
 export interface ExtractionLog {
   timestamp: string
@@ -31,6 +32,9 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
   const extracted = ref<ExtractedMemoryData | null>(null)
   const chapter = ref<MemoryExtractionChapter | null>(null)
   const logs = ref<ExtractionLog[]>([])
+  const draft = ref<TrackingTransaction | null>(null)
+  const lastCommitError = ref('')
+  const lastCommitCode = ref<'stale_state' | 'delta_limit_exceeded' | 'snapshot_limit_exceeded' | ''>('')
 
   function changeKey(change: MemoryChange): string {
     return `${change.kind}:${change.id || change.name || change.reason || ''}`
@@ -111,6 +115,14 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
       result.data = { entities: injectSource(result.data.entities), relations: injectSource(result.data.relations), events: injectSource(result.data.events), world: injectSource(result.data.world), foreshadowing: injectSource(result.data.foreshadowing) }
       log('complete', 'success')
       extracted.value = result.data
+      draft.value = createTrackingTransaction({
+        projectId: projectStore.currentProjectId || '',
+        currentMemory: projectStore.memories,
+        extracted: result.data,
+        chapterId: target.id,
+        chapterIndex: target.index,
+        blacklist: projectStore.memoryBlacklist
+      })
       const merged = mergeMemory(projectStore.memories, result.data, {
         chapterId: target.id,
         chapterIndex: target.index,
@@ -133,6 +145,9 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
     changes.value = []
     extracted.value = null
     chapter.value = null
+    draft.value = null
+    lastCommitError.value = ''
+    lastCommitCode.value = ''
   }
 
   async function confirm() {
@@ -143,21 +158,46 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
       if ((projectStore.currentProjectId || '') !== projectIdAtCall) return false
       const reviewed = filterReviewed(extracted.value)
       const confirmed = Object.fromEntries(Object.entries(reviewed).map(([kind, values]) => [kind, (values as any[]).map(item => ({ ...item, factStatus: 'confirmed' }))])) as any
-      const merged = mergeMemory(projectStore.memories, confirmed, {
-        chapterId: chapter.value.id,
-        chapterIndex: chapter.value.index,
-        blacklist: projectStore.memoryBlacklist
-      })
-      await projectStore.recordMemoryChange(merged.data, {
+      const currentDraft = draft.value
+        ? { ...draft.value, extracted: confirmed }
+        : createTrackingTransaction({
+          projectId: projectStore.currentProjectId || '',
+          currentMemory: projectStore.memories,
+          extracted: confirmed,
+          chapterId: chapter.value.id,
+          chapterIndex: chapter.value.index,
+          blacklist: projectStore.memoryBlacklist
+        })
+      const committed = await projectStore.recordMemoryTransaction({
+        transaction: currentDraft,
         chapterId: chapter.value.id,
         chapterIndex: chapter.value.index,
         reason: `确认正文后写入记忆：${chapter.value.title}`
       })
+      if (!committed.ok) {
+        if (committed.code === 'stale_state') {
+          draft.value = createTrackingTransaction({
+            projectId: projectStore.currentProjectId || '',
+            currentMemory: projectStore.memories,
+            extracted: confirmed,
+            chapterId: chapter.value.id,
+            chapterIndex: chapter.value.index,
+            blacklist: projectStore.memoryBlacklist
+          })
+        }
+        lastCommitError.value = committed.message
+        lastCommitCode.value = committed.code
+        error.value = `记忆写入失败：${committed.message}`
+        return false
+      }
       previewVisible.value = false
       error.value = ''
       changes.value = []
       extracted.value = null
       chapter.value = null
+      draft.value = null
+      lastCommitError.value = ''
+      lastCommitCode.value = ''
       return true
     } catch (cause: any) {
       error.value = `记忆写入失败：${cause?.message || '未知错误'}`
@@ -171,5 +211,5 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
     return start(target, callAiOverride)
   }
 
-  return { loading, saving, previewVisible, error, changes, chapter, extracted, logs, start, startWithTrace, close, confirm, toggleReview, toggleLock }
+  return { loading, saving, previewVisible, error, changes, chapter, extracted, logs, draft, lastCommitError, lastCommitCode, start, startWithTrace, close, confirm, toggleReview, toggleLock }
 }
