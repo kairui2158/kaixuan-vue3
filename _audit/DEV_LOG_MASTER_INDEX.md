@@ -879,3 +879,12 @@
 - 验证：专项 25 tests、全量 154 files / 1837 tests、type-check、build:vue、Electron 正例 / legacy 显式降级 / 缺失单元结构化失败全部通过；真实 SSE provider 请求体确认 `stream:true` 且无关单元未进入 prompt。
 - 诚实边界：本轮为本地 SSE mock provider，非外部 live；`unitId` 仍有正则推断路径；闭包预算为首版采样值。
 - 封装：升级 3.84.0；`npm run build` 通过；安装包 `dist/神意助手-Setup-3.84.0.exe`，231,526,544 bytes，SHA256 `9F1353A9EB0697B5223FA8F9E75F1F8E2DC0BD2A8FDABBCC44AECDE629DB2AE9`；已清理 3.83.0 旧安装包与 blockmap。
+
+# 2026-10-14 P1-D 写后硬信号 Stop 网收口
+
+- 文件：[_audit/DEV_LOG_2026-10-14_p1d-hard-signal-stop-net.md](_audit/DEV_LOG_2026-10-14_p1d-hard-signal-stop-net.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-14_p1d-hard-signal-stop-net.md](_audit/TASK_LEDGERS/2026-10-14_p1d-hard-signal-stop-net.md)
+- 范围：新增四类硬信号扫描器（截断/拒绝语/工程词/紧邻复读）、定点修复器与完整性门禁、PipelinePanel 回合末必扫接线、provider 截断短路本地修复、两次不净进入 `hard_signal_unresolved` 降级终态。
+- 关键修复：扫描器无 `g` 标志正则死循环改为单次匹配 + 同类型重叠去重；复扫事件补齐 `detected/status/counts/findings`；`latestBodyFinishReason` 修复为同时读取 success/degraded，截断证据不再被丢弃。
+- 验证：专项 4 files / 33 tests、build:vue、真实可见 Electron 三 Case 全过；clean 为 1 scan / 1 request，repair 为 2 scans / 2 requests，provider truncation 为 degraded / 2 scans / 1 request，证据 `report.json`。
+- 诚实边界：`persisted-bodies.json` 快照键位不匹配导致 body 空字符串，业务正文断言已通过，登记为验证器后续修正项；真实项目误报分布需持续采样。

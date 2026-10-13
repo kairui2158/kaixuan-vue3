@@ -834,6 +834,13 @@ import { generateSettingsArtifact } from "../../services/settingsArtifactOrchest
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
 import { generateBodyArtifact } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords } from "../../services/bodyArtifactContract"
+import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
+import {
+  applyHardSignalRepairWindow,
+  buildHardSignalRepairPrompt,
+  buildHardSignalRepairWindow,
+  passesHardSignalRepairIntegrity
+} from "../../services/proseHardSignalRepair"
 import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
 import { buildPipelineChainWarningLine, coalescePipelineStepWarning } from "../../services/pipelineStepLog"
 import { DeAiProcessor, resolveDeaiPromptForChainStep } from "../../services/de-ai"
@@ -1234,7 +1241,8 @@ function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
     generationStatus: pipelineStore.generationStatus,
     apiCalls: run.apiCalls,
     folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
-    finalArtifactAccepted
+    finalArtifactAccepted,
+    hardSignalUnresolved: hardSignalUnresolvedRuns.has(runId)
   })
 }
 
@@ -1251,6 +1259,22 @@ function appendStepLog(step: number, line: string) {
 }
 
 const pipelineStepWarningCounts = new Map<string, { count: number; lastLine: string }>()
+const hardSignalUnresolvedRuns = new Set<string>()
+
+function latestBodyFinishReason(traceRunId: string): string | undefined {
+  const calls = runTraceStore.getRun(traceRunId)?.apiCalls || []
+  for (let index = calls.length - 1; index >= 0; index -= 1) {
+    const call = calls[index]
+    if (
+      call.step === 4 &&
+      (call.status === 'success' || call.status === 'degraded') &&
+      call.finishReason
+    ) {
+      return call.finishReason
+    }
+  }
+  return undefined
+}
 
 function resetPipelineStepWarningCounts() {
   pipelineStepWarningCounts.clear()
@@ -4264,8 +4288,11 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       body: bodyArtifact.body,
       metadata: bodyArtifact.metadata
     }
-    // P2: 后处理层 — 自动降AI清洗
     let finalBody = generationResult.body || ""
+    finalBody = await runProseHardSignalNet(finalBody, trace.runId!, {
+      finishReason: latestBodyFinishReason(trace.runId!)
+    })
+    // P2: 后处理层 — 自动降AI清洗
     if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
       bodyGenerationLogs.value.push(
         deAiStore.hardRuleMode === 'legacy-auto'
@@ -4541,6 +4568,145 @@ async function runBodyMinimalEdit(
     })
     throw error
   }
+}
+
+async function runHardSignalRepair(
+  text: string,
+  scan: ProseHardSignalScan,
+  traceRunId: string,
+  attempt: number
+): Promise<{ text: string; scan: ProseHardSignalScan; repaired: boolean }> {
+  const finding = scan.findings[0]
+  if (!finding) return { text, scan, repaired: false }
+  if (finding.origin === 'provider') return { text, scan, repaired: false }
+
+  const repairWindow = buildHardSignalRepairWindow(text, finding)
+  const repairPrompt = buildHardSignalRepairPrompt(repairWindow.text, finding)
+  const systemPrompt = [
+    '你是小说正文的定点修复器。',
+    '你的唯一任务是返回清除硬信号后的局部窗口。',
+    '禁止输出元数据、协议说明、拒绝语或任何工程语言。'
+  ].join('\n')
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: repairPrompt }
+  ]
+  const provider = providerStore.getProvider(activeProviderId()) || providerStore.preferredGenerateProvider
+  const model = provider?.selectedModel || provider?.models?.[0] || ''
+  const aiService = await getAiService()
+  const callId = runTraceStore.startApiCall(traceRunId, {
+    step: 4,
+    skillName: '正文硬信号修复',
+    providerId: provider?.id,
+    providerName: provider?.name,
+    model,
+    requestMessages: messages
+  })
+  try {
+    const result = await aiService.callAi({
+      purpose: 'generate',
+      messages,
+      model: model || undefined,
+      stream: false,
+      retry: true,
+      signal: pipelineStore.getGenerationSignal(),
+      meta: { source: `PipelinePanel.runHardSignalRepair.attempt-${attempt}` }
+    })
+    const repairedWindow = (result.text || '').trim()
+    const traceStatus = traceStatusFromAiResult(result)
+    runTraceStore.finishApiCall(traceRunId, callId, {
+      status: traceStatus.status,
+      responseText: repairedWindow,
+      reasoningText: result.reasoning || '',
+      finishReason: result.finishReason,
+      usage: result.usage,
+      durationMs: result.durationMs,
+      error: traceStatus.error
+    })
+    if (traceStatus.status !== 'success' || !repairedWindow) {
+      runTraceStore.addEvent(traceRunId, {
+        type: 'hard_signal_scan',
+        level: 'warn',
+        label: `正文硬信号修复第 ${attempt} 次未产出可用文本`,
+        detail: JSON.stringify({ type: finding.type, traceStatus: traceStatus.status })
+      })
+      return { text, scan, repaired: false }
+    }
+
+    const integrityOk = passesHardSignalRepairIntegrity(repairWindow.text, repairedWindow)
+    if (!integrityOk) {
+      runTraceStore.addEvent(traceRunId, {
+        type: 'hard_signal_scan',
+        level: 'warn',
+        label: `正文硬信号修复第 ${attempt} 次未通过完整性门禁`,
+        detail: JSON.stringify({ type: finding.type })
+      })
+      return { text, scan, repaired: false }
+    }
+
+    const nextText = applyHardSignalRepairWindow(text, repairWindow, repairedWindow)
+    const nextScan = scanProseHardSignals(nextText)
+    runTraceStore.addEvent(traceRunId, {
+      type: 'hard_signal_scan',
+      level: nextScan.detected ? 'warn' : 'info',
+      label: `正文硬信号修复第 ${attempt} 次复扫完成`,
+      detail: JSON.stringify({
+        detected: nextScan.detected,
+        status: nextScan.status,
+        counts: nextScan.counts,
+        findings: nextScan.findings,
+        before: scan.counts,
+        after: nextScan.counts,
+        repairedType: finding.type
+      })
+    })
+    return { text: nextText, scan: nextScan, repaired: true }
+  } catch (error) {
+    const canceled = pipelineStore.isGenerationCanceled()
+    runTraceStore.finishApiCall(traceRunId, callId, {
+      status: canceled ? 'canceled' : 'failed',
+      error: error instanceof Error ? error.message : String(error)
+    })
+    throw error
+  }
+}
+
+async function runProseHardSignalNet(
+  text: string,
+  traceRunId: string,
+  input: { finishReason?: string } = {}
+): Promise<string> {
+  let current = String(text || '')
+  let scan = scanProseHardSignals(current, input)
+  runTraceStore.addEvent(traceRunId, {
+    type: 'hard_signal_scan',
+    level: scan.detected ? 'error' : 'info',
+    label: scan.detected ? '正文硬信号扫描命中' : '正文硬信号扫描通过',
+    detail: JSON.stringify(scan)
+  })
+  if (!scan.detected) return current
+
+  bodyGenerationLogs.value.push(`正文硬信号扫描命中：${Object.entries(scan.counts).filter(([, count]) => count > 0).map(([type, count]) => `${type}=${count}`).join(', ')}`)
+  pipelineStore.updateProgress(88, '正文硬信号定点修复中')
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const repaired = await runHardSignalRepair(current, scan, traceRunId, attempt)
+    current = repaired.text
+    scan = repaired.scan
+    if (!scan.detected) {
+      bodyGenerationLogs.value.push(`正文硬信号修复完成，复扫通过（第 ${attempt} 次）`)
+      return current
+    }
+  }
+
+  runTraceStore.addEvent(traceRunId, {
+    type: 'hard_signal_scan',
+    level: 'error',
+    label: '正文硬信号连续两次修复后仍未清空',
+    detail: JSON.stringify({ status: 'hard_signal_unresolved', counts: scan.counts })
+  })
+  bodyGenerationLogs.value.push('正文硬信号终态：hard_signal_unresolved，已停止继续润色')
+  hardSignalUnresolvedRuns.add(traceRunId)
+  return current
 }
 
 async function genBodyForSelected() {

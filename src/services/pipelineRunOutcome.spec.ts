@@ -44,6 +44,31 @@ describe('resolvePipelineRunOutcome', () => {
     expect(outcome.recoveredFromDegraded).toBe(false)
   })
 
+  it('keeps a hard_signal_unresolved body degraded even after artifact acceptance', () => {
+    const outcome = resolvePipelineRunOutcome({
+      generationStatus: '',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      finalArtifactAccepted: true,
+      hardSignalUnresolved: true
+    })
+
+    expect(outcome.status).toBe('degraded')
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
+  it('does not let hard_signal_unresolved mask a real failure', () => {
+    const outcome = resolvePipelineRunOutcome({
+      generationStatus: 'failed: 写入失败',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      finalArtifactAccepted: true,
+      hardSignalUnresolved: true
+    })
+
+    expect(outcome.status).toBe('failed')
+  })
+
   it('preserves canceled and blocked semantics', () => {
     expect(resolvePipelineRunOutcome({
       generationStatus: 'canceled',

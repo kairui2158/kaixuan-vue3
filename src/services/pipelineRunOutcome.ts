@@ -9,6 +9,7 @@ export interface ResolvePipelineRunOutcomeInput {
   apiCalls?: PipelineApiCallLike[] | null
   folderStatus?: RunTraceStatus | null
   finalArtifactAccepted?: boolean
+  hardSignalUnresolved?: boolean
 }
 
 export interface PipelineRunOutcome {
@@ -34,6 +35,9 @@ export function resolvePipelineRunOutcome(
   }
   if (generationStatus.startsWith('blocked') || hasCallStatus('blocked')) {
     return { status: 'blocked', recoveredFromDegraded: false, degradedApiCalls }
+  }
+  if (input.hardSignalUnresolved) {
+    return { status: 'degraded', recoveredFromDegraded: false, degradedApiCalls }
   }
 
   if (input.finalArtifactAccepted) {
