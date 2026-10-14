@@ -181,7 +181,7 @@ graph LR
     end
 
     subgraph 操作["操作"]
-        A1["AI生成章节<br/>_plGenChaptersForVolume volIdx"]
+        A1["生成本批章节<br/>_plGenChaptersForVolume volIdx"]
         A2["手动添加空章节"]
         A3["编辑标题/剧情点/字数"]
         A4["确认单个章节<br/>_plConfirmChapter"]
@@ -315,7 +315,7 @@ graph TB
         T1["章节树渲染<br/>renderChapterTree()"]
         T2["data-a=gen-body 按钮"]
         T3["data-a=open-ch 按钮"]
-        T4["tree-gen-btn<br/>AI生成章节"]
+        T4["tree-gen-btn<br/>生成章节"]
     end
 
     subgraph 同步机制["同步机制"]
@@ -461,7 +461,7 @@ sequenceDiagram
 | Step 3 卷纲 | 手动添加空卷 | _plRenderVolumeCards() | 无 |
 | Step 3 卷纲 | 确认单个卷 | _plConfirmVolume(i) | 无 |
 | Step 4 章节 | 流水线面板AI生成按钮 | _plGenChaptersForVolume(vi) | pl.s4Skills |
-| Step 4 章节 | 左侧树AI生成章节 | _treeGenChapters -> _plGenChaptersDirect(vi) | pl.s4Skills |
+| Step 4 章节 | 左侧树生成章节 | _treeGenChapters -> _plGenChaptersDirect(vi) | pl.s4Skills |
 | Step 4 章节 | 手动添加空章节 | _plRenderChapterCards() | 无 |
 | Step 4 章节 | 确认单个章节 | _plConfirmChapter(vi, ci) | 无 |
 | Step 4 章节 | 全部确认进入正文 | _plConfirmAllChapters() | 无 |

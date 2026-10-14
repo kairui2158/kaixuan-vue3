@@ -586,7 +586,7 @@ async function main() {
     const skills = await seedApplication(page, apiKey)
     await selectChapterSkillsThroughUi(page, skills)
     heartbeat = startHeartbeat(page, electronProcess.pid)
-    await page.click('#btn-pl-gen-chapters')
+    await page.click('#btn-pl-autogen-chapters')
     const completion = await waitForChapterCompletion(page)
     assert.equal(completion.chapterCount, TOTAL_CHAPTERS, 'project contains 12 generated chapters')
     assert.equal(completion.validatedBatches, 3, 'three chapter batches are validated in the live UI trace')

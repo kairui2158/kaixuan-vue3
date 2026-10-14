@@ -469,6 +469,8 @@
               </select>
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
+              <label>每次生成</label>
+              <input id="pl-chapter-batch-size" type="number" class="input-w-80" v-model.number="chapterBatchSize" min="1" max="20" step="1" />
             </div>
             <EmptyState
               v-if="boundVolumes.length === 0"
@@ -519,8 +521,9 @@
               </div>
            </div>
            <div class="pl-actions">
-              <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">AI生成章节</button>
-              <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">自动生成章节</button>
+              <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters('batch')" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">生成本批章节</button>
+              <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters('auto')" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">全量生成章节</button>
+              <button id="btn-pl-continue-chapters" class="btn-secondary" @click="genChapters('continue')" :disabled="!canContinueChapters">续生成</button>
              <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
            </div>
             <div v-if="chapterDetailVisible" id="pl-chapter-detail-overlay" data-modal-id="pl-chapter-detail" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pl-chapter-detail') }" @click.self="closeChapterDetail">
@@ -828,6 +831,7 @@ import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 import { buildChapterHistoryFacts, renderChapterHistoryContext, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
 import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
+import { planChapterGeneration, type ChapterGenerationMode } from "../../services/chapterBatchPlanning"
 import { buildVolumeHistoryFacts, extractVolumeContractSemantics, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
 import { reviewVolumeContractSemantics } from "../../services/contractReview"
 import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
@@ -1697,6 +1701,16 @@ const currentVolumeChapters = computed(() => {
   if (!vol || !vol.isBound) return []
   const volId = vol.id || vol.name
   return (projectStore.chapters[volId] || []).filter((chapter: any) => chapter.pipelineGenerated === true)
+})
+
+const canContinueChapters = computed(() => {
+  if (pipelineStore.isGenerating || !selectedVolumeChapterLocked.value) return false
+  const vol = selectedVolume.value
+  if (!vol) return false
+  const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
+  const totalChapters = Number(vol.chapterCount)
+    || Math.ceil((Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0) / wordsPerChapter)
+  return currentVolumeChapters.value.length < totalChapters
 })
 
 function syncVolumeCount(e: any) {
@@ -3923,10 +3937,12 @@ async function callChapterApi(prompt: string): Promise<string> {
   return result
 }
 
-async function genChapters() {
+async function genChapters(mode: ChapterGenerationMode) {
   const vol = selectedVolume.value
   if (!vol) return
   currentGenerationVolume.value = vol
+  let batchStopReason: 'batch_complete' | 'all_chapters_complete' = 'all_chapters_complete'
+  let plan: ReturnType<typeof planChapterGeneration> | null = null
   const trace = startStepTrace(3, "章节层", "chapters")
   trace.begin()
   activeGenerationFeedbackStep.value = 3
@@ -4003,8 +4019,17 @@ async function genChapters() {
     }
     const settingsTextForChapters = allSettings.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundSettingsTextForChapters = getBoundSettingsText()
-    const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
-    const batchContracts: ChapterBatchContract[] = collected.length > 0
+  const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
+  try {
+    const planned = planChapterGeneration({ mode, generatedCount: collected.length, totalChapters, batchSize: batch })
+    plan = planned
+    batchStopReason = planned.stopReason
+  } catch (error: any) {
+    chapterGenerationLogs.value.push("无法开始生成：" + (error?.message || '未知错误'))
+    pipelineStore.failGeneration(error?.message || '未知章节生成模式')
+    return
+  }
+  const batchContracts: ChapterBatchContract[] = collected.length > 0
       ? [{
           volumeId: String(volId),
           batchIndex: 0,
@@ -4014,7 +4039,7 @@ async function genChapters() {
           totalChapters
         }]
       : []
-    while (collected.length < totalChapters) {
+    while (collected.length < plan!.targetEnd) {
       const start = collected.length
       const requested = Math.min(batch, totalChapters - start)
       const end = start + requested
@@ -4091,27 +4116,50 @@ async function genChapters() {
       })
     }
     if (collected.length > 0) {
-      const vr = validateChapters(collected, totalChapters)
+      const vr = validateChapters(collected, plan!.requiresFullLedger ? totalChapters : collected.length)
       if (!vr.valid) {
         await saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(vr.errors.join("; "))
         chapterGenerationLogs.value.push("章节校验失败：" + vr.errors.join("; "))
         return
       }
-      const ledger = validateChapterGenerationLedger(batchContracts, totalChapters)
+      const ledger = validateChapterGenerationLedger(batchContracts, totalChapters, {
+        requiredEnd: plan!.requiresFullLedger ? totalChapters : plan!.targetEnd
+      })
       if (!ledger.valid) {
         await saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(ledger.errors.join("; "))
         chapterGenerationLogs.value.push("章节台账校验失败：" + ledger.errors.join("; "))
         return
       }
-      pipelineStore.updateProgress(100, "章节生成完成")
-      chapterGenerationLogs.value.push("章节生成完成，共 " + collected.length + " 章")
+      if (plan!.requiresFullLedger) {
+        pipelineStore.updateProgress(100, "章节生成完成")
+        chapterGenerationLogs.value.push("章节生成完成，共 " + collected.length + " 章")
+      } else {
+        pipelineStore.updateProgress(Math.round((collected.length / totalChapters) * 100), "本批生成完成")
+        chapterGenerationLogs.value.push("本批生成完成：第 1-" + collected.length + " 章，共 " + totalChapters + " 章。续生成将从第 " + (collected.length + 1) + " 章继续")
+      }
     } else {
       pipelineStore.failGeneration("未能解析章节JSON")
       chapterGenerationLogs.value.push("AI 返回内容不是可用的章节 JSON")
     }
-    await pipelineStore.clearBreakpoint()
+    if (plan!.requiresFullLedger) {
+      await pipelineStore.clearBreakpoint()
+    } else {
+      await saveChapterBreakpoint('paused')
+      trace.addEvent({
+        type: "chapter-batch-complete",
+        level: "info",
+        label: "章节批次边界完成",
+        detail: JSON.stringify({
+          mode: plan!.mode,
+          generatedCount: collected.length,
+          totalChapters,
+          nextChapterIndex: collected.length,
+          stopReason: plan!.stopReason
+        })
+      })
+    }
     pipelineStore.finishGeneration()
   } catch (e: any) {
     await saveChapterBreakpoint('failed')
@@ -4121,7 +4169,13 @@ async function genChapters() {
   } finally {
     currentGenerationVolume.value = null
     const traceStatus = traceStatusFromRun(trace.runId!)
-    trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'chapters_generation_complete' : 'generation_failed')
+    const effectiveStopReason = plan?.stopReason || batchStopReason
+    const successReason = effectiveStopReason === 'batch_complete'
+      ? 'chapters_batch_complete'
+      : 'chapters_generation_complete'
+    trace.finish(traceStatus, undefined, traceStatus === 'success'
+      ? successReason
+      : 'generation_failed')
   }
 }
 

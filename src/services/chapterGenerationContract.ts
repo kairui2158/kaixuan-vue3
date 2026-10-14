@@ -106,7 +106,8 @@ export function validateChapterBatch(
 
 export function validateChapterGenerationLedger(
   contracts: ChapterBatchContract[],
-  totalChapters: number
+  totalChapters: number,
+  options?: { requiredEnd?: number }
 ): ChapterLedgerValidation {
   const list = Array.isArray(contracts) ? contracts : []
   const errors: string[] = []
@@ -127,8 +128,15 @@ export function validateChapterGenerationLedger(
     coveredEnd = Math.max(coveredEnd, item.expectedEnd)
   })
 
-  if (coveredEnd < totalChapters) {
-    errors.push(`批次台账未覆盖目标章数：只覆盖到第 ${coveredEnd} 章，目标 ${totalChapters} 章`)
+  const requiredEnd = Math.min(
+    totalChapters,
+    Math.max(1, Math.floor(Number(options?.requiredEnd ?? totalChapters) || 0))
+  )
+  if (coveredEnd < requiredEnd) {
+    const target = requiredEnd === totalChapters
+      ? `${totalChapters} 章`
+      : `第 ${requiredEnd} 章`
+    errors.push(`批次台账未覆盖${requiredEnd === totalChapters ? '目标章数' : '本次目标章数'}：只覆盖到第 ${coveredEnd} 章，目标 ${target}`)
   }
 
   return { valid: errors.length === 0, errors }

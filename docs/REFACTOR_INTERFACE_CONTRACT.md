@@ -32,7 +32,7 @@
 |--------|------|------|------|
 | pl-book-word-count | input[type=number] | Step 1 大纲区域 | 全书字数输入框，单位万字 |
 | btn-pl-autogen-volumes | button | Step 3 卷纲区域 | 自动生成卷纲按钮 |
-| btn-pl-autogen-chapters | button | Step 4 章节区域 | 自动生成章节按钮 |
+| btn-pl-autogen-chapters | button | Step 4 章节区域 | 全量生成章节按钮 |
 
 ### 2. 数据结构变更
 

@@ -1,0 +1,44 @@
+{
+  "schema": "shenyi.chapter-batch-modes.electron",
+  "version": 1,
+  "generatedAt": "2026-10-14T05:57:31.155Z",
+  "script": "verify-chapter-batch-modes-electron.mjs",
+  "totalChapters": 6,
+  "batchSize": 2,
+  "rounds": [
+    {
+      "round": 1,
+      "buttonId": "#btn-pl-gen-chapters",
+      "chapterCount": 2,
+      "status": "done",
+      "runStatus": "success",
+      "finishReason": "chapters_batch_complete",
+      "breakpointPhase": "paused"
+    },
+    {
+      "round": 2,
+      "buttonId": "#btn-pl-continue-chapters",
+      "chapterCount": 4,
+      "status": "done",
+      "runStatus": "success",
+      "finishReason": "chapters_batch_complete",
+      "breakpointPhase": "paused"
+    },
+    {
+      "round": 3,
+      "buttonId": "#btn-pl-continue-chapters",
+      "chapterCount": 6,
+      "status": "done",
+      "runStatus": "success",
+      "finishReason": "chapters_generation_complete",
+      "breakpointPhase": null
+    }
+  ],
+  "cancelCase": {
+    "chapterCount": 4,
+    "status": "canceled",
+    "breakpointPhase": "failed",
+    "runStatus": "canceled",
+    "finishReason": "generation_failed"
+  }
+}

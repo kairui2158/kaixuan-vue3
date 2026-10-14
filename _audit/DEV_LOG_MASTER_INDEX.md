@@ -898,3 +898,13 @@
 - 验证：专项 6 files / 65 tests、全量 159 files / 1882 tests、type-check、完整 NSIS build、3.86.0 打包真实启动核验、Electron 双 Case 全过；normal 为 `contract_safe` / 1 request，early reveal 为 `contract_broken` / 1 request，证据 `report.json`。
 - 诚实边界：揭示词表与 80 字窗口为首版采样，暗示式剧透需持续采样；本地 provider 非 live；生成质量收益未人工评分，标注“未验证”。
 - 封装：升级 3.86.0；安装包 `dist/神意助手-Setup-3.86.0.exe`，231,529,296 bytes，SHA256 `aa4427b9c78ebbebea0afc2ebc662565ac5140efdc3f4844470604ed4acf7519`；已清理 3.85.0 旧安装包与 blockmap。
+
+# 2026-10-14 P1-F 章节分批生成模式收口
+
+- 文件：[_audit/DEV_LOG_2026-10-14_p1f-chapter-batch-modes.md](_audit/DEV_LOG_2026-10-14_p1f-chapter-batch-modes.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-14_p1f-chapter-batch-modes.md](_audit/TASK_LEDGERS/2026-10-14_p1f-chapter-batch-modes.md)
+- 范围：章节层三入口（生成本批章节 / 全量生成章节 / 续生成）共用 `genChapters(mode)` 单引擎；模式规划器、部分账本校验、批次成功暂停、最终章清断点、取消不入库、旧文案与旧验证入口清零。
+- 关键修复：Electron 验证器取 run 从 `.at(-1)` 修正为 `.at(0)`，并强制新 run id 防回归；取消用例升级为 4/6 未完成时取消，证明半批不入库且不得伪装 `paused`。
+- 验证：专项 3 files / 28 tests、全量 161 files / 1897 tests、type-check、完整 NSIS build、Electron 三批次 + 取消真实 UI 全过；2/4/6 章递进，前两批 `chapters_batch_complete` + `paused`，第三批 `chapters_generation_complete` + 断点清空，取消保持 4 章且 run `canceled`，证据 `report.json`。
+- 诚实边界：本地 provider 非 live；分批解决可操作性与恢复，不做耗时优化声明；`_data` 历史 profile / 凭据 / run-trace 分属多个已收口任务，列为独立清理专项。
+- 封装：升级 3.87.0；安装包 `dist/神意助手-Setup-3.87.0.exe`，231,528,921 bytes，SHA256 `b0540ee8e6e3df1372440fd13a6a76f1625152f06de2c83ed27818a9df67d503`；已清理 3.86.0 旧安装包与 blockmap。

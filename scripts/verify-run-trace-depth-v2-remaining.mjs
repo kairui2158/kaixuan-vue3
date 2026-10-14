@@ -371,7 +371,7 @@ async function main() {
   await page.waitForFunction(() => window.__pinia.state.value.pipeline.currentStep === 3, null, { timeout: 5000, polling: 100 })
 
   const chaptersStart = Date.now()
-  await page.click('#btn-pl-gen-chapters')
+  await page.click('#btn-pl-autogen-chapters')
   await page.waitForFunction(() => {
     const p = window.__pinia._s.get('project')
     const volId = p.volumes[0]?.id || p.volumes[0]?.name

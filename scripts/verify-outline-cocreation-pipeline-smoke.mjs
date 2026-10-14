@@ -270,9 +270,9 @@ try {
   await page.waitForSelector('#pl-step-4-content', { state: 'visible' })
   await page.locator('#pl-chapter-wordcount').fill('2000')
   await page.locator('#pl-chapter-wordcount').dispatchEvent('change')
-  await page.locator('#btn-pl-gen-chapters').click()
+  await page.locator('#btn-pl-autogen-chapters').click()
   await waitForCondition(page, () => {
-    const button = document.querySelector('#btn-pl-gen-chapters')
+    const button = document.querySelector('#btn-pl-autogen-chapters')
     const confirm = document.querySelector('#btn-pl-confirm-chapters')
     const tenthRow = document.querySelector('#pl-ch-row-9')
     return Boolean(button && !button.disabled && confirm && !confirm.disabled && tenthRow)

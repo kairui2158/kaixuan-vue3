@@ -588,7 +588,7 @@ async function generateChapterThroughUi(page) {
   await page.locator('#pl-chapter-wordcount').fill('1200')
   await page.locator('#pl-chapter-wordcount').dispatchEvent('change')
   await sleep(400)
-  await page.click('#btn-pl-gen-chapters')
+  await page.click('#btn-pl-autogen-chapters')
   const snapshot = await waitForLayerCompletion(page, {
     step: 3,
     isFinished: state => state.runStatus === 'success' && state.chapterCount > 0,
