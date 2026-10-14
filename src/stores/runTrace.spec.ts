@@ -269,6 +269,37 @@ describe('runTrace store', () => {
     expect(physical?.responseText).toBe('第一次物理响应')
   })
 
+  it('persists reasoning-only stall diagnostics on physical calls', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'reasoning-only-1',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      reasoningText: '仍在推理',
+      status: 'failed',
+      interruptionCode: 'reasoning_only_stalled',
+      firstContentAt: undefined,
+      lastContentAt: undefined,
+      lastReasoningAt: 720_000,
+      bodyAbsentMs: 720_000
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'reasoning-only-1',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: ''
+    })
+
+    const physical = store.getRun(runId)?.apiCalls[0]?.physicalCalls?.[0]
+    expect(physical?.interruptionCode).toBe('reasoning_only_stalled')
+    expect(physical?.lastReasoningAt).toBe(720_000)
+    expect(physical?.bodyAbsentMs).toBe(720_000)
+    expect(physical?.firstContentAt).toBeUndefined()
+    expect(physical?.lastContentAt).toBeUndefined()
+  })
+
   it('stores physical timing segments and computes api call timing ledger', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })

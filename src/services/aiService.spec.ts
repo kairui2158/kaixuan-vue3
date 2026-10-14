@@ -1183,6 +1183,141 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   }, 30_000);
 
+  it('stops a reasoning-only stream after the body-absent deadline and retries without the retry delay', async () => {
+    const abortCalls: string[] = [];
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":"start"}}]}\n\n' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      })
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"body"}}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn((signalId: string) => {
+          abortCalls.push(signalId);
+          return Promise.resolve();
+        }),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      timeoutMs: null,
+      retry: true,
+      onChunk: () => {},
+      onPhysicalCall: event => physicalEvents.push(event),
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'body' });
+    await vi.advanceTimersByTimeAsync(6 * 60_000);
+    emitCurrentStream([
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":" still thinking"}}]}\n\n' },
+    ]);
+    await vi.advanceTimersByTimeAsync(6 * 60_000);
+    await vi.advanceTimersByTimeAsync(2_000);
+    await assertion;
+    expect(streamMock).toHaveBeenCalledTimes(2);
+    expect((streamMock.mock.calls[1]![0] as any).body.reasoning_effort).toBe('none');
+    expect(abortCalls).toHaveLength(1);
+    const failed = physicalEvents.find(event => event.status === 'failed');
+    expect(failed?.interruptionCode).toBe('reasoning_only_stalled');
+    expect(failed?.bodyAbsentMs).toBeGreaterThanOrEqual(12 * 60_000);
+    expect(failed?.firstContentAt).toBeUndefined();
+    expect(failed?.lastReasoningAt).toBeGreaterThan(0);
+    expect(physicalEvents.find(event => event.status === 'success')?.retryStrategy).toBe('thinking_disabled');
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('uses a raised output budget when a reasoning-only stall happens on a protocol without thinking control', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        // Gemini has no protocol reasoning field. A finishReason-only frame
+        // keeps the transport alive without counting as body progress.
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"candidates":[{"finishReason":"STOP"}]}\n\n' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      })
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"candidates":[{"content":{"parts":[{"text":"body"}]}}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore({
+      ...runtimeProvider,
+      providerType: 'gemini',
+      maxTokens: 1024,
+    }));
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      timeoutMs: null,
+      retry: true,
+      onChunk: () => {},
+      onPhysicalCall: event => physicalEvents.push(event),
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'body' });
+    await vi.advanceTimersByTimeAsync(12 * 60_000);
+    await vi.advanceTimersByTimeAsync(2_000);
+    await assertion;
+    expect(streamMock).toHaveBeenCalledTimes(2);
+    expect((streamMock.mock.calls[1]![0] as any).body.generationConfig.maxOutputTokens).toBe(1536);
+    expect(physicalEvents.find(event => event.status === 'success')?.retryStrategy).toBe('max_tokens_raised');
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('keeps filtered reasoning deltas and the flushed tail in the final result', async () => {
     const sse = [
       'data: {"choices":[{"delta":{"reasoning_content":"<reasoning>open"}}]}\n\n',

@@ -35,6 +35,7 @@ import {
   buildProviderModelsUrl,
   buildProviderModelsHeaders,
   getProviderProtocol,
+  getProviderReasoningControl,
   httpErrorMessage,
   extractProviderErrorSummary,
   readErrorBody,
@@ -265,7 +266,7 @@ export interface PhysicalCallEvent {
   /** True when a running request is alive but has produced no stream bytes yet. */
   heartbeat?: boolean
   /** Stable classification for transport interruptions delegated to a task layer. */
-  interruptionCode?: 'slow_stream_interrupted'
+  interruptionCode?: 'slow_stream_interrupted' | 'reasoning_only_stalled'
   /** Number of older successful read tool results compacted for this physical request. */
   contextCompactedMessageCount?: number
   /** Number of provider tool calls extracted from this physical response. */
@@ -276,12 +277,21 @@ export interface PhysicalCallEvent {
   firstTokenMs?: number
   /** Streaming time after the first delta. */
   outputMs?: number
+  /** Request start to the first body/tool-progress delta. */
+  firstContentAt?: number
+  /** Last time a body/tool-progress delta arrived. */
+  lastContentAt?: number
+  /** Request start to the most recent reasoning delta. */
+  lastReasoningAt?: number
+  /** How long the stream ran while producing reasoning but no body. */
+  bodyAbsentMs?: number
 }
 
 export interface CallAiResult {
   text: string
   reasoning: string
   providerId?: string
+  providerType?: string
   model?: string
   durationMs?: number
   usage?: any
@@ -351,6 +361,25 @@ const MAIN_NET_STREAM_FIRST_OUTPUT_TIMEOUT_MS = 3 * 60_000
 // resets on content or reasoning progress, so those live-but-silent streams
 // still terminate and enter the normal retry path.
 const MAIN_NET_STREAM_PROGRESS_TIMEOUT_MS = 20 * 60_000
+// Reasoning deltas prove the connection is alive, not that the task is
+// healthy. Generation requests must produce body text or executable tool
+// progress; a stream that only reasons is stopped so a semantic retry can
+// disable reasoning instead of waiting for a provider-side stop.
+const getBodyAbsentTimeoutMs = () => {
+  const testOverrides = (globalThis as unknown as {
+    __SHENYI_AI_SERVICE_TEST_OVERRIDES__?: { bodyAbsentTimeoutMs?: unknown }
+  }).__SHENYI_AI_SERVICE_TEST_OVERRIDES__
+  const buildConfiguredTimeout = typeof __SHENYI_BODY_ABSENT_TIMEOUT_MS__ === 'string'
+    ? __SHENYI_BODY_ABSENT_TIMEOUT_MS__
+    : undefined
+  const configured = Number(
+    testOverrides?.bodyAbsentTimeoutMs
+    || buildConfiguredTimeout
+    || globalThis.process?.env?.SHENYI_BODY_ABSENT_TIMEOUT_MS
+    || 12 * 60_000
+  )
+  return Number.isFinite(configured) && configured > 0 ? configured : 12 * 60_000
+}
 const HEARTBEAT_INTERVAL = 60_000
 const MAX_HEARTBEAT_ATTEMPTS = 3
 const PHYSICAL_HEARTBEAT_INTERVAL_MS = 15_000
@@ -1928,11 +1957,35 @@ async function mainNetStream(
   let idleTimedOut = false
   let progressTimedOut = false
   let firstOutputTimedOut = false
+  let bodyAbsentTimedOut = false
   let streamSettled = false
   let sawStreamOutput = false
+  let firstContentAt: number | null = null
+  let lastContentAt: number | null = null
+  let lastReasoningAt: number | null = null
   let streamProgressTimer: ReturnType<typeof setTimeout> | null = null
   let idleTimer: ReturnType<typeof setTimeout> | null = null
   let firstOutputTimer: ReturnType<typeof setTimeout> | null = null
+  let bodyAbsentTimer: ReturnType<typeof setTimeout> | null = null
+  const clearBodyAbsentWatchdog = () => {
+    if (!bodyAbsentTimer) return
+    clearTimeout(bodyAbsentTimer)
+    bodyAbsentTimer = null
+  }
+  const armBodyAbsentWatchdog = () => {
+    if (slowStreamTolerant) return
+    clearBodyAbsentWatchdog()
+    bodyAbsentTimer = setTimeout(() => {
+      bodyAbsentTimedOut = true
+      streamError = '流式响应长时间未产生正文，已按 reasoning-only 断流处理'
+      ended = true
+      if (resolveChunk) {
+        const resolve = resolveChunk
+        resolveChunk = null
+        resolve()
+      }
+    }, getBodyAbsentTimeoutMs())
+  }
   const clearIdleWatchdog = () => {
     if (!idleTimer) return
     clearTimeout(idleTimer)
@@ -2006,6 +2059,7 @@ async function mainNetStream(
   if (!slowStreamTolerant) {
     armIdleWatchdog()
     armProgressWatchdog()
+    armBodyAbsentWatchdog()
   } else {
     armFirstOutputWatchdog()
   }
@@ -2059,6 +2113,19 @@ async function mainNetStream(
         if (isSSEDone(payload)) continue
         try {
           const json = JSON.parse(payload)
+          const hasStreamToolProgress = collectStreamToolCalls(json, protocolName, toolCallState)
+          if (hasStreamToolProgress) {
+            if (firstContentAt === null) firstContentAt = Date.now()
+            lastContentAt = Date.now()
+            clearBodyAbsentWatchdog()
+          }
+          const bodyDelta = extractProtocolStreamDelta(json, protocol)
+          if (bodyDelta.content) {
+            if (firstContentAt === null) firstContentAt = Date.now()
+            lastContentAt = Date.now()
+            clearBodyAbsentWatchdog()
+          }
+          if (bodyDelta.reasoning) lastReasoningAt = Date.now()
           if (!progressTimedOut) {
             const delta = extractProtocolStreamDelta(json, protocol)
             if (delta.content || delta.reasoning) {
@@ -2066,11 +2133,11 @@ async function mainNetStream(
               if (!slowStreamTolerant) armProgressWatchdog()
             }
           }
-          if (collectStreamToolCalls(json, protocolName, toolCallState)) {
+          if (hasStreamToolProgress) {
             callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
             if (!slowStreamTolerant) armProgressWatchdog()
           }
-          const delta = extractProtocolStreamDelta(json, protocol)
+          const delta = bodyDelta
           finishReason = delta.finishReason || finishReason
           if (delta.reasoning) {
             markStreamOutput()
@@ -2109,6 +2176,18 @@ async function mainNetStream(
     }
     if (firstOutputTimedOut) {
       throw new AiServiceErrorImpl({ kind: 'network', message: streamError || '慢流请求首字超时' })
+    }
+    if (bodyAbsentTimedOut) {
+      const error = new AiServiceErrorImpl({
+        kind: 'network',
+        message: streamError || '流式响应长时间未产生正文',
+        providerId: undefined,
+      }) as AiServiceErrorImpl & { code?: string; bodyAbsentMs?: number; firstContentAt?: number; lastReasoningAt?: number }
+      error.code = 'reasoning_only_stalled'
+      error.bodyAbsentMs = Date.now() - startedAt
+      error.firstContentAt = firstContentAt === null ? undefined : firstContentAt
+      error.lastReasoningAt = lastReasoningAt === null ? undefined : lastReasoningAt
+      throw error
     }
     const invokeResult = await invoke
     if (!invokeResult.ok) {
@@ -2163,6 +2242,7 @@ async function mainNetStream(
     clearProgressWatchdog()
     clearIdleWatchdog()
     clearFirstOutputWatchdog()
+    clearBodyAbsentWatchdog()
     externalSignal?.removeEventListener('abort', abortHandler)
     if (typeof offChunk === 'function') offChunk()
     if (!streamSettled) {
@@ -3652,6 +3732,8 @@ export function createAiService(
     let reasoningBuffer = ''
     const basePhase = params.physicalPhase || 'normal'
     const effectiveMaxTokens = () => resolveMaxTokens(provider, params.maxTokens ?? provider.maxTokens)
+    const reasoningControl = getProviderReasoningControl(providerType)
+    let reasoningOnlyDirectRetryApplied = false
     const physicalCallIds = new Map<number, string>()
     let physicalFirstTokenAt: number | null = null
     let physicalStartedAt: number | null = null
@@ -3668,7 +3750,9 @@ export function createAiService(
       error?: string,
       overridePhase?: PhysicalCallEvent['phase'],
       heartbeat?: boolean,
-      interruption?: Pick<PhysicalCallEvent, 'interruptionCode'>,
+      interruption?: Pick<PhysicalCallEvent,
+        'interruptionCode' | 'bodyAbsentMs' | 'firstContentAt' | 'lastContentAt' | 'lastReasoningAt'
+      >,
     ) => {
       try {
         let physicalCallId = physicalCallIds.get(attempt)
@@ -3754,10 +3838,19 @@ export function createAiService(
     // emitted body text. Accumulate that stream even when the caller has no
     // onChunk listener; otherwise a silent-callback slow stream looks like a
     // no-output stream and falls back into physical retry.
+    let streamFirstContentAt: number | null = null
+    let streamLastContentAt: number | null = null
+    let streamLastReasoningAt: number | null = null
+    const markStreamContent = () => {
+      const now = Date.now()
+      if (streamFirstContentAt === null) streamFirstContentAt = now
+      streamLastContentAt = now
+    }
     const traceParams = (originalOnChunk || toolStreamGuard || params.slowStreamTolerant === true)
       ? { ...params, onChunk: (text: string) => {
           if (!text) return
           if (physicalFirstTokenAt === null) physicalFirstTokenAt = Date.now()
+          markStreamContent()
           streamBuffer += text
           const visibleText = toolStreamGuard ? toolStreamGuard.push(text) : text
           if (visibleText && originalOnChunk) originalOnChunk(visibleText)
@@ -3769,6 +3862,7 @@ export function createAiService(
     params = { ...traceParams, onReasoning: (text: string) => {
       if (!text) return
       if (physicalFirstTokenAt === null) physicalFirstTokenAt = Date.now()
+      streamLastReasoningAt = Date.now()
       reasoningBuffer += text
       originalOnReasoning?.(text)
     } }
@@ -3803,11 +3897,16 @@ export function createAiService(
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
         logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerType, transport, finalUrl })
-        reportPhysical(attempt, 'success', result)
+        reportPhysical(attempt, 'success', result, undefined, undefined, undefined, {
+          firstContentAt: streamFirstContentAt === null ? undefined : streamFirstContentAt,
+          lastContentAt: streamLastContentAt === null ? undefined : streamLastContentAt,
+          lastReasoningAt: streamLastReasoningAt === null ? undefined : streamLastReasoningAt,
+        })
         return {
           text: finalText,
           reasoning: result.reasoning,
           providerId,
+          providerType,
           model: _model,
           durationMs,
           usage: result.usage,
@@ -3828,6 +3927,71 @@ export function createAiService(
         // Canceled by user?
         if (params.signal?.aborted) {
           return throwCanceled()
+        }
+        // A reasoning-only stream is a semantic stall, not a transport fault.
+        // The first occurrence switches to a protocol-aware direct-output
+        // retry immediately; a second occurrence is terminal.
+        if ((e as { code?: string })?.code === 'reasoning_only_stalled') {
+          const reasoningOnlyError = new AiServiceErrorImpl({
+            kind: 'network',
+            message: e.message || '流式响应长时间未产生正文',
+            providerId,
+            purpose: params.purpose,
+          }) as AiServiceErrorImpl & {
+            code?: string
+            bodyAbsentMs?: number
+            firstContentAt?: number
+            lastReasoningAt?: number
+          }
+          reasoningOnlyError.code = 'reasoning_only_stalled'
+          reasoningOnlyError.bodyAbsentMs = (e as { bodyAbsentMs?: number }).bodyAbsentMs
+          reasoningOnlyError.firstContentAt = (e as { firstContentAt?: number }).firstContentAt
+          reasoningOnlyError.lastReasoningAt = (e as { lastReasoningAt?: number }).lastReasoningAt
+          lastErr = reasoningOnlyError
+          stopPhysicalHeartbeat()
+          reportPhysical(
+            attempt,
+            'failed',
+            undefined,
+            reasoningOnlyError.message,
+            undefined,
+            undefined,
+            {
+              interruptionCode: 'reasoning_only_stalled',
+              bodyAbsentMs: reasoningOnlyError.bodyAbsentMs,
+              firstContentAt: reasoningOnlyError.firstContentAt,
+              lastContentAt: undefined,
+              lastReasoningAt: reasoningOnlyError.lastReasoningAt,
+            },
+          )
+          if (
+            attempt < physicalRetryCeiling
+            && !reasoningOnlyDirectRetryApplied
+            && params.reasoning?.mode !== 'off'
+          ) {
+            reasoningOnlyDirectRetryApplied = true
+            if (reasoningControl.supported) {
+              params = {
+                ...params,
+                reasoning: { mode: 'off' },
+                retryStrategy: 'thinking_disabled',
+              }
+            } else {
+              const declaredMaxTokens = Number(
+                params.maxTokens ?? provider.maxTokens
+              )
+              const baseMaxTokens = declaredMaxTokens > 0 ? declaredMaxTokens : 32_768
+              params = {
+                ...params,
+                maxTokens: Math.max(baseMaxTokens, Math.round(baseMaxTokens * 1.5)),
+                retryStrategy: 'max_tokens_raised',
+              }
+            }
+            continue
+          }
+          if (reasoningOnlyDirectRetryApplied || params.reasoning?.mode === 'off') break
+          if (attempt < physicalRetryCeiling) continue
+          break
         }
         // A slow-stream-tolerant request owns stall decisions at its task
         // layer. Once that stream has produced content, reconnecting here

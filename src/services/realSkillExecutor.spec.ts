@@ -240,7 +240,8 @@ describe('realSkillExecutor single pass', () => {
       reasoning: '模型思考',
       finishReason: 'length',
       usage: { completion_tokens: 1000 },
-      providerId: 'provider-1'
+      providerId: 'provider-1',
+      providerType: 'unsupported-provider'
     }))
     getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
 
@@ -262,11 +263,52 @@ describe('realSkillExecutor single pass', () => {
     expect(result.status).toBe('failed')
     expect(callAi).toHaveBeenCalledTimes(2)
     expect(callAi.mock.calls[1]![0].messages[0]?.content).toContain('【直出模式】')
-    expect(callAi.mock.calls[1]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised', maxTokens: 1500 })
-    expect(eventSpy.mock.calls[1]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised', maxTokens: 1500 })
-    expect(eventSpy.mock.calls[2]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised', maxTokens: 1500 })
+    expect(callAi.mock.calls[1]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised' })
+    expect(callAi.mock.calls[1]![0].maxTokens).toBeGreaterThan(1000)
+    expect(eventSpy.mock.calls[1]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised' })
+    expect(eventSpy.mock.calls[1]![0].maxTokens).toBeGreaterThan(1000)
+    expect(eventSpy.mock.calls[2]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised' })
+    expect(eventSpy.mock.calls[2]![0].maxTokens).toBeGreaterThan(1000)
     expect(result.errors[0]).toContain('模型思考耗尽输出预算')
     expect(result.diagnostics.some(item => item.code === 'generation-invalid:reasoning_exhausted')).toBe(true)
+  })
+
+  it('uses provider reasoning control for the direct-output retry when the provider type is known', async () => {
+    const eventSpy = vi.fn()
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: '',
+      reasoning: '模型思考',
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      providerId: 'provider-1',
+      providerType: 'openai-compatible'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      agent: { id: 'agent-1', maxTokens: 1000 },
+      onGenerationEvent: eventSpy
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(callAi.mock.calls[1]![0]).toMatchObject({
+      retryStrategy: 'thinking_disabled',
+      maxTokens: 1000,
+      reasoning: { mode: 'off' }
+    })
+    expect(eventSpy.mock.calls[1]![0]).toMatchObject({
+      retryStrategy: 'thinking_disabled',
+      maxTokens: 1000
+    })
+    expect(result.status).toBe('failed')
   })
 
   it('recovers when the direct-output retry produces a body', async () => {

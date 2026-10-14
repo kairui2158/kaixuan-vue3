@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url'
 export default defineConfig({
   plugins: [vue()],
   base: './',
+  define: {
+    __SHENYI_BODY_ABSENT_TIMEOUT_MS__: JSON.stringify(process.env.SHENYI_BODY_ABSENT_TIMEOUT_MS ?? ''),
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

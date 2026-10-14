@@ -908,3 +908,13 @@
 - 验证：专项 3 files / 28 tests、全量 161 files / 1897 tests、type-check、完整 NSIS build、Electron 三批次 + 取消真实 UI 全过；2/4/6 章递进，前两批 `chapters_batch_complete` + `paused`，第三批 `chapters_generation_complete` + 断点清空，取消保持 4 章且 run `canceled`，证据 `report.json`。
 - 诚实边界：本地 provider 非 live；分批解决可操作性与恢复，不做耗时优化声明；`_data` 历史 profile / 凭据 / run-trace 分属多个已收口任务，列为独立清理专项。
 - 封装：升级 3.87.0；安装包 `dist/神意助手-Setup-3.87.0.exe`，231,528,921 bytes，SHA256 `b0540ee8e6e3df1372440fd13a6a76f1625152f06de2c83ed27818a9df67d503`；已清理 3.86.0 旧安装包与 blockmap。
+
+# 2026-10-15 reasoning-only 卡流语义重试收口
+
+- 文件：[_audit/DEV_LOG_2026-10-15_reasoning-only-stall-retry.md](_audit/DEV_LOG_2026-10-15_reasoning-only-stall-retry.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-15_reasoning-only-stall-retry.md](_audit/TASK_LEDGERS/2026-10-15_reasoning-only-stall-retry.md)
+- 范围：reasoning-only 流 12 分钟 body-absent watchdog、`reasoning_only_stalled` 终态分类、一次性协议感知语义重试（`thinking_disabled` / `max_tokens_raised`）、physical call 诊断字段、deep run trace payload 解引用验证。
+- 关键修复：deep 导出正文按契约外置到 payloads，验证器改为解引用真实落盘文件，不再把 payload 引用对象当字符串；renderer override 改为 build define + 提前注入，解决测试 12 分钟等待假失败。
+- 验证：专项 1 file / 171 tests、type-check、15 秒 override build、可见 Electron 真实 UI 全过；2 次物理请求，第一轮 `reasoning_only_stalled`，第二轮 `thinking_disabled`，成功持久化 1 卷，证据 `report.json`。
+- 诚实边界：本地 OpenAI-compatible provider 非 live；`max_tokens_raised` 为单测覆盖，未做双协议 Electron 实测。
+- 封装：升级 3.88.0；升版后专项 171/171、type-check、build、打包核验全部通过；安装包 `dist/神意助手-Setup-3.88.0.exe`，231,529,621 bytes，SHA256 `bb07565088ac8b9ce432fb6f1ae9ff7025ef594ef7952c1a76bb7f729f4ab47f`；已清理 3.87.0 旧安装包与 blockmap。

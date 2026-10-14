@@ -315,7 +315,15 @@ export interface RunTracePhysicalCall {
   usageReconciliation?: unknown
   heartbeat?: boolean
   /** Non-empty only for transport interruptions that must surface in exported traces. */
-  interruptionCode?: 'slow_stream_interrupted'
+  interruptionCode?: 'slow_stream_interrupted' | 'reasoning_only_stalled'
+  /** Request start to the first body/tool-progress delta. */
+  firstContentAt?: number
+  /** Last time a body/tool-progress delta arrived. */
+  lastContentAt?: number
+  /** Request start to the most recent reasoning delta. */
+  lastReasoningAt?: number
+  /** How long the stream ran while producing reasoning but no body. */
+  bodyAbsentMs?: number
   /** Number of older successful read tool results compacted for this physical request. */
   contextCompactedMessageCount?: number
 }
@@ -717,7 +725,7 @@ export interface FinishApiCallInput {
   usageReconciliation?: unknown
   textOrigin?: 'application' | 'model'
   /** Stable transport-interruption classification delegated to a task layer. */
-  interruptionCode?: 'slow_stream_interrupted'
+  interruptionCode?: 'slow_stream_interrupted' | 'reasoning_only_stalled'
   toolAudit?: unknown
   executionSettlement?: RunTraceExecutionSettlement
   readLedger?: RunTraceReadLedgerSnapshot
@@ -763,6 +771,10 @@ export interface PhysicalCallInput {
   contextBudgetReason?: string
   usageReconciliation?: unknown
   interruptionCode?: RunTracePhysicalCall['interruptionCode']
+  firstContentAt?: number
+  lastContentAt?: number
+  lastReasoningAt?: number
+  bodyAbsentMs?: number
   heartbeat?: boolean
   contextCompactedMessageCount?: number
 }
@@ -1527,6 +1539,10 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       existing.contextBudgetReason = input.contextBudgetReason ?? existing.contextBudgetReason
       existing.usageReconciliation = input.usageReconciliation ?? existing.usageReconciliation
       existing.interruptionCode = input.interruptionCode ?? existing.interruptionCode
+      existing.firstContentAt = input.firstContentAt ?? existing.firstContentAt
+      existing.lastContentAt = input.lastContentAt ?? existing.lastContentAt
+      existing.lastReasoningAt = input.lastReasoningAt ?? existing.lastReasoningAt
+      existing.bodyAbsentMs = input.bodyAbsentMs ?? existing.bodyAbsentMs
       existing.contextCompactedMessageCount = input.contextCompactedMessageCount ?? existing.contextCompactedMessageCount
       if (input.heartbeat) existing.heartbeat = true
       addEvent(runId, {
@@ -1574,6 +1590,10 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       contextBudgetReason: input.contextBudgetReason,
       usageReconciliation: input.usageReconciliation,
       interruptionCode: input.interruptionCode,
+      firstContentAt: input.firstContentAt,
+      lastContentAt: input.lastContentAt,
+      lastReasoningAt: input.lastReasoningAt,
+      bodyAbsentMs: input.bodyAbsentMs,
       contextCompactedMessageCount: input.contextCompactedMessageCount,
       heartbeat: input.heartbeat,
     }

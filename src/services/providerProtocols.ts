@@ -366,6 +366,7 @@ export function getProviderProtocol(providerType?: string): ProviderProtocol {
 }
 
 export function getProviderReasoningControl(providerType?: string): ProviderReasoningControl {
+  if (providerType && !(providerType in protocols)) return { supported: false }
   const type = normalizeProviderType(providerType)
   return { supported: type === 'openai-compatible' || type === 'deepseek' || type === 'anthropic' }
 }

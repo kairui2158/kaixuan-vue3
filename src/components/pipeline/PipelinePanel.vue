@@ -2154,6 +2154,10 @@ async function callValidatedSkill(
             usageReconciliation: event.usageReconciliation,
             interruptionCode: event.interruptionCode,
             heartbeat: event.heartbeat,
+            firstContentAt: event.firstContentAt,
+            lastContentAt: event.lastContentAt,
+            lastReasoningAt: event.lastReasoningAt,
+            bodyAbsentMs: event.bodyAbsentMs,
             firstTokenMs: event.firstTokenMs,
             outputMs: event.outputMs
           })
@@ -2419,6 +2423,10 @@ async function analyzeOutline() {
           usageReconciliation: event.usageReconciliation,
           interruptionCode: event.interruptionCode,
           heartbeat: event.heartbeat,
+          firstContentAt: event.firstContentAt,
+          lastContentAt: event.lastContentAt,
+          lastReasoningAt: event.lastReasoningAt,
+          bodyAbsentMs: event.bodyAbsentMs,
           firstTokenMs: event.firstTokenMs,
           outputMs: event.outputMs
         })
@@ -2806,7 +2814,13 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
             contextBudgetReason: event.contextBudget?.reason,
             usageReconciliation: event.usageReconciliation,
             interruptionCode: event.interruptionCode,
-            heartbeat: event.heartbeat
+            heartbeat: event.heartbeat,
+            firstContentAt: event.firstContentAt,
+            lastContentAt: event.lastContentAt,
+            lastReasoningAt: event.lastReasoningAt,
+            bodyAbsentMs: event.bodyAbsentMs,
+            firstTokenMs: event.firstTokenMs,
+            outputMs: event.outputMs
       })
     },
     signal: signal || pipelineStore.getGenerationSignal(),
@@ -2946,7 +2960,13 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               contextBudgetReason: event.contextBudget?.reason,
               usageReconciliation: event.usageReconciliation,
               interruptionCode: event.interruptionCode,
-              heartbeat: event.heartbeat
+              heartbeat: event.heartbeat,
+              firstContentAt: event.firstContentAt,
+              lastContentAt: event.lastContentAt,
+              lastReasoningAt: event.lastReasoningAt,
+              bodyAbsentMs: event.bodyAbsentMs,
+              firstTokenMs: event.firstTokenMs,
+              outputMs: event.outputMs
             })
           }
           })
@@ -4942,6 +4962,10 @@ async function callMemoryApi(
           usageReconciliation: event.usageReconciliation,
           interruptionCode: event.interruptionCode,
           heartbeat: event.heartbeat,
+          firstContentAt: event.firstContentAt,
+          lastContentAt: event.lastContentAt,
+          lastReasoningAt: event.lastReasoningAt,
+          bodyAbsentMs: event.bodyAbsentMs,
           firstTokenMs: event.firstTokenMs,
           outputMs: event.outputMs
         })

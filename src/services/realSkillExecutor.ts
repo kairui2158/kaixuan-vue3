@@ -6,6 +6,7 @@ import {
 import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
+import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
 import { validateSkillOutput } from './skillValidation'
 import type {
@@ -940,7 +941,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             ...(options.tools?.length
             ? { tools: options.tools, toolPolicy: options.toolPolicy }
             : {})
-          })) as { text: string; reasoning?: string; providerId?: string; finishReason?: string; usage?: Record<string, unknown>; maxTokens?: number | null } & CallAiToolResultLike
+          })) as { text: string; reasoning?: string; providerId?: string; providerType?: string; finishReason?: string; usage?: Record<string, unknown>; maxTokens?: number | null } & CallAiToolResultLike
         }
 
         let result = await callAiOnce(requestMessages)
@@ -963,10 +964,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           })
           const retryMessages = buildRequest(DIRECT_OUTPUT_SUFFIX)
           const retryStartedAt = Date.now()
-          // The provider protocol is not exposed by AiService; until it is,
-          // only the confirmed OpenAI-compatible reasoning_effort control is
-          // safe to enable. Other protocols raise the token budget instead.
-          const reasoningControl = { supported: false }
+          const reasoningControl = getProviderReasoningControl(result.providerType)
           const retryStrategy: NonNullable<Required<RealSkillExecuteOptions>['reasoningRetry']> = reasoningControl.supported
             ? 'thinking_disabled'
             : 'max_tokens_raised'

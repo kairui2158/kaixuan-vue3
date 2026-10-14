@@ -1,0 +1,42 @@
+{
+  "schema": "shenyi.reasoning-only-stall.electron",
+  "version": 1,
+  "generatedAt": "2026-10-14T17:40:17.833Z",
+  "script": "verify-reasoning-only-stall-electron.mjs",
+  "projectId": "reasoning-only-stall-volume",
+  "runId": "run-1791999602219-1",
+  "runStatus": "success",
+  "physicalCallCount": 2,
+  "interruptionCode": "reasoning_only_stalled",
+  "retryStrategy": "thinking_disabled",
+  "persistedVolumeCount": 1,
+  "bodyAbsentTimeoutMs": 15000,
+  "completionSnapshot": {
+    "at": "2026-10-14T17:40:17.683Z",
+    "runId": "run-1791999602219-1",
+    "runStatus": "success",
+    "apiCalls": 1,
+    "physicalCalls": 2,
+    "lastPhysicalStatus": "success",
+    "interruptionCodes": [
+      "reasoning_only_stalled",
+      null
+    ],
+    "retryStrategies": [
+      null,
+      "thinking_disabled"
+    ],
+    "lastEventType": "state-transition",
+    "progress": 100,
+    "status": "done",
+    "isGenerating": false,
+    "volumeCount": 1,
+    "lastLog": null
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realUiOperation": "#btn-pipeline / #pl-steps .pl-step:nth(2) / #pl-volume-count / #btn-pl-gen-volumes",
+    "noSkillInjection": true,
+    "localMockProvider": true
+  }
+}
