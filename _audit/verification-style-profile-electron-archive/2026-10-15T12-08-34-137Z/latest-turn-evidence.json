@@ -1,0 +1,964 @@
+{
+  "diagnostic": null,
+  "runId": "run-1792065625269-1",
+  "turnId": "turn-1792065627133-97",
+  "turnStatus": "success",
+  "turnReason": "plain_dialogue_complete",
+  "intent": "discuss",
+  "styleEvents": [
+    {
+      "locked": false,
+      "injected": false,
+      "reason": "style_unlocked",
+      "styleTags": "",
+      "pacingParams": ""
+    },
+    {
+      "locked": true,
+      "injected": true,
+      "reason": null,
+      "styleTags": "冷硬推理, 近未来都市",
+      "pacingParams": "速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血"
+    },
+    {
+      "locked": true,
+      "injected": true,
+      "reason": null,
+      "styleTags": "冷硬推理, 近未来都市",
+      "pacingParams": "速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血"
+    }
+  ],
+  "runEvents": [
+    {
+      "id": "event-1792065625269-2",
+      "type": "started",
+      "turnId": null,
+      "label": "开始大纲工作台 大纲共创运行",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625269-4",
+      "type": "user-request",
+      "turnId": "turn-1792065625269-3",
+      "label": "用户请求",
+      "detail": "先讨论第一章的钩子设计。"
+    },
+    {
+      "id": "event-1792065625270-5",
+      "type": "style-profile",
+      "turnId": "turn-1792065625269-3",
+      "label": "大纲工作台风格注入决策",
+      "detail": "{\"locked\":false,\"injected\":false,\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+    },
+    {
+      "id": "event-1792065625270-6",
+      "type": "dialogue-tool-surface-declaration",
+      "turnId": "turn-1792065625269-3",
+      "label": "应用注入工具面事实声明",
+      "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor"
+    },
+    {
+      "id": "event-1792065625270-7",
+      "type": "routing-diagnostics",
+      "turnId": "turn-1792065625269-3",
+      "label": "意图路由诊断：keyword",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"keyword\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"cold-start\"}}"
+    },
+    {
+      "id": "event-1792065625271-8",
+      "type": "long-document-policy",
+      "turnId": "turn-1792065625269-3",
+      "label": "使用短文档工具任务策略",
+      "detail": "{\"planId\":\"long-document-mv9hlq5r\",\"operation\":\"discussion\",\"operationResolution\":{\"source\":\"intent\",\"intent\":\"discuss\",\"matched\":\"discussion\"},\"legacyOperationType\":\"discussion\",\"mode\":\"direct\",\"decision\":\"fits\",\"reason\":\"execution-plan-direct\",\"segments\":0,\"invariants\":[],\"estimatedPhysicalRequests\":12,\"contextWindow\":{\"status\":\"provider-declared\",\"contextWindowTokens\":128000,\"maxOutputTokens\":4"
+    },
+    {
+      "id": "event-1792065625312-9",
+      "type": "editor-context-policy",
+      "turnId": "turn-1792065625269-3",
+      "label": "编辑目标上下文策略",
+      "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":36,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":36,\"selectionEnd\":36,\"contextInjectionMode\":\"full\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":22,\"availableContextTokens\":111104,\"windowDeclared\":true,\"validationReason\":\"full-mode-no-window"
+    },
+    {
+      "id": "event-1792065625317-11",
+      "type": "api-start",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"直接对话\",\"model\":\"style-profile-model\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.glob"
+    },
+    {
+      "id": "event-1792065625318-12",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用执行状态更新",
+      "detail": "planning / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065625318-13",
+      "type": "agent-plan",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务计划已建立",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625318-14",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务快照：planning",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625319-15",
+      "type": "agent-plan",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务计划已建立",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625321-16",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625322-17",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务快照：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625322-18",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625326-19",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用执行状态更新",
+      "detail": "locating / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065625326-20",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065625326-21",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065625327-22",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065625337-24",
+      "type": "run-activity",
+      "turnId": "turn-1792065625269-3",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/直接对话"
+    },
+    {
+      "id": "event-1792065625337-25",
+      "type": "long-request-in-progress",
+      "turnId": "turn-1792065625269-3",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal"
+    },
+    {
+      "id": "event-1792065625337-26",
+      "type": "physical-call",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 直接对话 / style-profile-model"
+    },
+    {
+      "id": "event-1792065625395-27",
+      "type": "run-activity",
+      "turnId": "turn-1792065625269-3",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1"
+    },
+    {
+      "id": "event-1792065625412-28",
+      "type": "physical-call",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 直接对话 / style-profile-model / stop"
+    },
+    {
+      "id": "event-1792065625416-29",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用执行状态更新",
+      "detail": "locating / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065625416-30",
+      "type": "agent-interactive_response",
+      "turnId": "turn-1792065625269-3",
+      "label": "模型已给出可回复内容",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625416-31",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065625416-32",
+      "type": "input-unlocked-interactive-response",
+      "turnId": "turn-1792065625269-3",
+      "label": "模型已给出正文，输入已解锁",
+      "detail": "agent_interactive_response"
+    },
+    {
+      "id": "event-1792065625416-33",
+      "type": "agent-interactive_response",
+      "turnId": "turn-1792065625269-3",
+      "label": "模型已给出可回复内容",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065625417-34",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065625417-35",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务快照：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065625417-36",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065625418-37",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用执行状态更新",
+      "detail": "settling / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065625418-38",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065625418-39",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务快照：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065625418-40",
+      "type": "agent-state",
+      "turnId": "turn-1792065625269-3",
+      "label": "任务状态：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065625422-41",
+      "type": "api-tool-surface-updated",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用工具面已回填",
+      "detail": "editor.get_state,editor.document_map,editor.read_range,editor.search,editor.locate,editor.reveal,editor.multi_get_state,editor.global_search,editor.workspace_summary,outline.get_structure,outline.read_range,outline.search,outline.get_summary,context.remaining,agent.plan / read-only/dialogue-intent"
+    },
+    {
+      "id": "event-1792065625424-42",
+      "type": "run-activity",
+      "turnId": "turn-1792065625269-3",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal"
+    },
+    {
+      "id": "event-1792065625424-43",
+      "type": "state-transition",
+      "turnId": "turn-1792065625269-3",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792065625316-10 seq=1"
+    },
+    {
+      "id": "event-1792065625425-44",
+      "type": "api-success",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 次 API 调用完成",
+      "detail": "直接对话 / style-profile-model"
+    },
+    {
+      "id": "event-1792065625444-45",
+      "type": "turn-finished",
+      "turnId": "turn-1792065625269-3",
+      "label": "第 1 轮完成",
+      "detail": "plain_dialogue_complete"
+    },
+    {
+      "id": "event-1792065625444-46",
+      "type": "session-active",
+      "turnId": null,
+      "label": "会话仍在进行",
+      "detail": "第 1 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+    },
+    {
+      "id": "event-1792065626447-47",
+      "type": "routing-diagnostics",
+      "turnId": null,
+      "label": "意图路由诊断：keyword",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"keyword\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"cold-start\"}}"
+    },
+    {
+      "id": "event-1792065626452-49",
+      "type": "user-request",
+      "turnId": "turn-1792065626452-48",
+      "label": "用户请求",
+      "detail": "继续讨论第二章的信息密度安排。"
+    },
+    {
+      "id": "event-1792065626453-50",
+      "type": "style-profile",
+      "turnId": "turn-1792065626452-48",
+      "label": "大纲工作台风格注入决策",
+      "detail": "{\"locked\":true,\"injected\":true,\"reason\":null,\"styleTags\":\"冷硬推理, 近未来都市\",\"pacingParams\":\"速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血\"}"
+    },
+    {
+      "id": "event-1792065626453-51",
+      "type": "dialogue-tool-surface-declaration",
+      "turnId": "turn-1792065626452-48",
+      "label": "应用注入工具面事实声明",
+      "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor"
+    },
+    {
+      "id": "event-1792065626453-52",
+      "type": "routing-diagnostics",
+      "turnId": "turn-1792065626452-48",
+      "label": "意图路由诊断：keyword",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"keyword\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"cold-start\"}}"
+    },
+    {
+      "id": "event-1792065626453-53",
+      "type": "long-document-policy",
+      "turnId": "turn-1792065626452-48",
+      "label": "使用短文档工具任务策略",
+      "detail": "{\"planId\":\"long-document-mv9hlr2r\",\"operation\":\"discussion\",\"operationResolution\":{\"source\":\"intent\",\"intent\":\"discuss\",\"matched\":\"discussion\"},\"legacyOperationType\":\"discussion\",\"mode\":\"direct\",\"decision\":\"fits\",\"reason\":\"execution-plan-direct\",\"segments\":0,\"invariants\":[],\"estimatedPhysicalRequests\":12,\"contextWindow\":{\"status\":\"provider-declared\",\"contextWindowTokens\":128000,\"maxOutputTokens\":4"
+    },
+    {
+      "id": "event-1792065626475-54",
+      "type": "editor-context-policy",
+      "turnId": "turn-1792065626452-48",
+      "label": "编辑目标上下文策略",
+      "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":36,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":36,\"selectionEnd\":36,\"contextInjectionMode\":\"full\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":22,\"availableContextTokens\":111104,\"windowDeclared\":true,\"validationReason\":\"full-mode-no-window"
+    },
+    {
+      "id": "event-1792065626476-56",
+      "type": "api-start",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用开始",
+      "detail": "{\"skillName\":\"直接对话\",\"model\":\"style-profile-model\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.glob"
+    },
+    {
+      "id": "event-1792065626476-57",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用执行状态更新",
+      "detail": "planning / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065626477-58",
+      "type": "agent-plan",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务计划已建立",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626477-59",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务快照：planning",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626477-60",
+      "type": "agent-plan",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务计划已建立",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626477-61",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626477-62",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务快照：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626477-63",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626478-64",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用执行状态更新",
+      "detail": "locating / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065626478-65",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065626478-66",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065626478-67",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065626484-69",
+      "type": "run-activity",
+      "turnId": "turn-1792065626452-48",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/直接对话"
+    },
+    {
+      "id": "event-1792065626484-70",
+      "type": "long-request-in-progress",
+      "turnId": "turn-1792065626452-48",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal"
+    },
+    {
+      "id": "event-1792065626485-71",
+      "type": "physical-call",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 直接对话 / style-profile-model"
+    },
+    {
+      "id": "event-1792065626508-72",
+      "type": "run-activity",
+      "turnId": "turn-1792065626452-48",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2"
+    },
+    {
+      "id": "event-1792065626528-73",
+      "type": "physical-call",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 直接对话 / style-profile-model / stop"
+    },
+    {
+      "id": "event-1792065626530-74",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用执行状态更新",
+      "detail": "locating / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065626531-75",
+      "type": "agent-interactive_response",
+      "turnId": "turn-1792065626452-48",
+      "label": "模型已给出可回复内容",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626531-76",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065626531-77",
+      "type": "input-unlocked-interactive-response",
+      "turnId": "turn-1792065626452-48",
+      "label": "模型已给出正文，输入已解锁",
+      "detail": "agent_interactive_response"
+    },
+    {
+      "id": "event-1792065626531-78",
+      "type": "agent-interactive_response",
+      "turnId": "turn-1792065626452-48",
+      "label": "模型已给出可回复内容",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065626532-79",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065626532-80",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务快照：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065626532-81",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065626534-82",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用执行状态更新",
+      "detail": "settling / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065626534-83",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065626534-84",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务快照：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065626534-85",
+      "type": "agent-state",
+      "turnId": "turn-1792065626452-48",
+      "label": "任务状态：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065626543-86",
+      "type": "api-tool-surface-updated",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用工具面已回填",
+      "detail": "editor.get_state,editor.document_map,editor.read_range,editor.search,editor.locate,editor.reveal,editor.multi_get_state,editor.global_search,editor.workspace_summary,outline.get_structure,outline.read_range,outline.search,outline.get_summary,context.remaining,agent.plan / read-only/dialogue-intent"
+    },
+    {
+      "id": "event-1792065626543-87",
+      "type": "run-activity",
+      "turnId": "turn-1792065626452-48",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2/terminal"
+    },
+    {
+      "id": "event-1792065626543-88",
+      "type": "state-transition",
+      "turnId": "turn-1792065626452-48",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792065626476-55 seq=2"
+    },
+    {
+      "id": "event-1792065626544-89",
+      "type": "api-success",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 次 API 调用完成",
+      "detail": "直接对话 / style-profile-model"
+    },
+    {
+      "id": "event-1792065626594-90",
+      "type": "turn-finished",
+      "turnId": "turn-1792065626452-48",
+      "label": "第 2 轮完成",
+      "detail": "plain_dialogue_complete"
+    },
+    {
+      "id": "event-1792065626594-91",
+      "type": "session-active",
+      "turnId": null,
+      "label": "会话仍在进行",
+      "detail": "第 2 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+    },
+    {
+      "id": "event-1792065627108-92",
+      "type": "intent-llm-fallback-start",
+      "turnId": null,
+      "label": "意图 LLM 兜底开始",
+      "detail": "{\"type\":\"intent-llm-fallback-start\"}"
+    },
+    {
+      "id": "event-1792065627115-93",
+      "type": "intent-llm-fallback-finish",
+      "turnId": null,
+      "label": "意图 LLM 兜底成功",
+      "detail": "{\"type\":\"intent-llm-fallback-finish\",\"status\":\"success\",\"durationMs\":7}"
+    },
+    {
+      "id": "event-1792065627116-94",
+      "type": "routing-diagnostics",
+      "turnId": null,
+      "label": "意图路由诊断：llm-fallback",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"llm-fallback\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:"
+    },
+    {
+      "id": "event-1792065627126-95",
+      "type": "intent-llm-fallback-start",
+      "turnId": null,
+      "label": "意图 LLM 兜底开始",
+      "detail": "{\"type\":\"intent-llm-fallback-start\"}"
+    },
+    {
+      "id": "event-1792065627131-96",
+      "type": "intent-llm-fallback-finish",
+      "turnId": null,
+      "label": "意图 LLM 兜底成功",
+      "detail": "{\"type\":\"intent-llm-fallback-finish\",\"status\":\"success\",\"durationMs\":5}"
+    },
+    {
+      "id": "event-1792065627133-98",
+      "type": "user-request",
+      "turnId": "turn-1792065627133-97",
+      "label": "用户请求",
+      "detail": "请把全文空行规范整理。"
+    },
+    {
+      "id": "event-1792065627133-99",
+      "type": "style-profile",
+      "turnId": "turn-1792065627133-97",
+      "label": "大纲工作台风格注入决策",
+      "detail": "{\"locked\":true,\"injected\":true,\"reason\":null,\"styleTags\":\"冷硬推理, 近未来都市\",\"pacingParams\":\"速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血\"}"
+    },
+    {
+      "id": "event-1792065627133-100",
+      "type": "dialogue-tool-surface-declaration",
+      "turnId": "turn-1792065627133-97",
+      "label": "应用注入工具面事实声明",
+      "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor"
+    },
+    {
+      "id": "event-1792065627133-101",
+      "type": "routing-diagnostics",
+      "turnId": "turn-1792065627133-97",
+      "label": "意图路由诊断：llm-fallback",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"llm-fallback\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:"
+    },
+    {
+      "id": "event-1792065627134-102",
+      "type": "long-document-policy",
+      "turnId": "turn-1792065627133-97",
+      "label": "使用短文档工具任务策略",
+      "detail": "{\"planId\":\"long-document-mv9hlrlo\",\"operation\":\"discussion\",\"operationResolution\":{\"source\":\"intent\",\"intent\":\"discuss\",\"matched\":\"discussion\"},\"legacyOperationType\":\"discussion\",\"mode\":\"direct\",\"decision\":\"fits\",\"reason\":\"execution-plan-direct\",\"segments\":0,\"invariants\":[],\"estimatedPhysicalRequests\":12,\"contextWindow\":{\"status\":\"provider-declared\",\"contextWindowTokens\":128000,\"maxOutputTokens\":4"
+    },
+    {
+      "id": "event-1792065627142-103",
+      "type": "editor-context-policy",
+      "turnId": "turn-1792065627133-97",
+      "label": "编辑目标上下文策略",
+      "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":36,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":36,\"selectionEnd\":36,\"contextInjectionMode\":\"full\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":22,\"availableContextTokens\":111104,\"windowDeclared\":true,\"validationReason\":\"full-mode-no-window"
+    },
+    {
+      "id": "event-1792065627143-105",
+      "type": "api-start",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用开始",
+      "detail": "{\"skillName\":\"直接对话\",\"model\":\"style-profile-model\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.glob"
+    },
+    {
+      "id": "event-1792065627143-106",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用执行状态更新",
+      "detail": "planning / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065627144-107",
+      "type": "agent-plan",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务计划已建立",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627144-108",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务快照：planning",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627144-109",
+      "type": "agent-plan",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务计划已建立",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627144-110",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627144-111",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务快照：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627144-112",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：running",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627149-113",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用执行状态更新",
+      "detail": "locating / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065627149-114",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065627149-115",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065627149-116",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065627150-118",
+      "type": "run-activity",
+      "turnId": "turn-1792065627133-97",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/直接对话"
+    },
+    {
+      "id": "event-1792065627150-119",
+      "type": "long-request-in-progress",
+      "turnId": "turn-1792065627133-97",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal"
+    },
+    {
+      "id": "event-1792065627150-120",
+      "type": "physical-call",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 直接对话 / style-profile-model"
+    },
+    {
+      "id": "event-1792065627171-121",
+      "type": "run-activity",
+      "turnId": "turn-1792065627133-97",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=3"
+    },
+    {
+      "id": "event-1792065627191-122",
+      "type": "physical-call",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 直接对话 / style-profile-model / stop"
+    },
+    {
+      "id": "event-1792065627192-123",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用执行状态更新",
+      "detail": "locating / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065627192-124",
+      "type": "agent-interactive_response",
+      "turnId": "turn-1792065627133-97",
+      "label": "模型已给出可回复内容",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627192-125",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1792065627193-126",
+      "type": "input-unlocked-interactive-response",
+      "turnId": "turn-1792065627133-97",
+      "label": "模型已给出正文，输入已解锁",
+      "detail": "agent_interactive_response"
+    },
+    {
+      "id": "event-1792065627193-127",
+      "type": "agent-interactive_response",
+      "turnId": "turn-1792065627133-97",
+      "label": "模型已给出可回复内容",
+      "detail": ""
+    },
+    {
+      "id": "event-1792065627193-128",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065627193-129",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务快照：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065627193-130",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1792065627194-131",
+      "type": "api-execution-settlement-updated",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用执行状态更新",
+      "detail": "settling / 读取 0/12 / 写入 0/0 / 覆盖 0"
+    },
+    {
+      "id": "event-1792065627194-132",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065627194-133",
+      "type": "agent-snapshot",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务快照：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065627195-134",
+      "type": "agent-state",
+      "turnId": "turn-1792065627133-97",
+      "label": "任务状态：completed",
+      "detail": "completion criteria satisfied"
+    },
+    {
+      "id": "event-1792065627199-135",
+      "type": "api-tool-surface-updated",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用工具面已回填",
+      "detail": "editor.get_state,editor.document_map,editor.read_range,editor.search,editor.locate,editor.reveal,editor.multi_get_state,editor.global_search,editor.workspace_summary,outline.get_structure,outline.read_range,outline.search,outline.get_summary,context.remaining,agent.plan / read-only/dialogue-intent"
+    },
+    {
+      "id": "event-1792065627199-136",
+      "type": "run-activity",
+      "turnId": "turn-1792065627133-97",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=3/terminal"
+    },
+    {
+      "id": "event-1792065627199-137",
+      "type": "state-transition",
+      "turnId": "turn-1792065627133-97",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792065627143-104 seq=3"
+    },
+    {
+      "id": "event-1792065627199-138",
+      "type": "api-success",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 次 API 调用完成",
+      "detail": "直接对话 / style-profile-model"
+    },
+    {
+      "id": "event-1792065627241-139",
+      "type": "turn-finished",
+      "turnId": "turn-1792065627133-97",
+      "label": "第 3 轮完成",
+      "detail": "plain_dialogue_complete"
+    },
+    {
+      "id": "event-1792065627242-140",
+      "type": "session-active",
+      "turnId": null,
+      "label": "会话仍在进行",
+      "detail": "第 3 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+    }
+  ],
+  "styleProfile": {
+    "styleTags": "冷硬推理, 近未来都市",
+    "pacingParams": "速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血",
+    "pacingParamsObj": {
+      "speed": "快节奏",
+      "tension": 4,
+      "density": "密集",
+      "perspective": "第三人称限知",
+      "tone": "热血"
+    },
+    "customStyleTags": [
+      "冷硬推理, 近未来都市"
+    ],
+    "aiPacingSnapshot": null,
+    "locked": true,
+    "lockedAt": 1792065626296,
+    "source": null
+  },
+  "outlineText": "# 风格锁定实测大纲\n\n第一章 灯塔与旧信。\n\n\n\n第二章 菌膜外套。\n",
+  "expectedTags": "冷硬推理, 近未来都市",
+  "expectedPacing": "速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血"
+}

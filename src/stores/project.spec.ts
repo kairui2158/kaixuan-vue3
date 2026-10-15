@@ -166,3 +166,94 @@ describe('project store editor bookmarks persistence', () => {
     expect(store.editorBookmarks).toEqual([])
   })
 })
+
+describe('project store style profile', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    storageWrite.mockClear()
+    storageRead.mockClear()
+    vi.stubGlobal('window', {
+      electronAPI: { storageWrite, storageRead, storageRemove, storageList },
+    })
+  })
+
+  it('keeps unlocked drafts editable and rejects edits after locking', () => {
+    const store = useProjectStore()
+
+    const updateDraft = store.updateStyleProfileDraft({ styleTags: '快节奏, 冷峻' })
+    expect(updateDraft.ok).toBe(true)
+    expect(store.styleProfile.styleTags).toBe('快节奏, 冷峻')
+    expect(store.styleProfileEffective.injected).toBe(false)
+
+    const lockResult = store.lockStyleProfile()
+    expect(lockResult.ok).toBe(true)
+    expect(store.styleProfile.locked).toBe(true)
+
+    const rejected = store.updateStyleProfileDraft({ styleTags: '新风格' })
+    expect(rejected.ok).toBe(false)
+    expect(rejected.reason).toBe('style_locked')
+    expect(store.styleProfile.styleTags).toBe('快节奏, 冷峻')
+  })
+
+  it('stores AI analysis as draft only and never overwrites a locked profile', () => {
+    const store = useProjectStore()
+    store.updateStyleProfileDraft({ styleTags: '手工风格' })
+    store.lockStyleProfile()
+
+    const rejected = store.applyAiStyleAnalysis({ styleTags: 'AI风格', pacingParams: '速度:快节奏' })
+    expect(rejected.ok).toBe(false)
+    expect(rejected.reason).toBe('style_locked')
+    expect(store.styleProfile.styleTags).toBe('手工风格')
+
+    store.unlockStyleProfile()
+    const accepted = store.applyAiStyleAnalysis({ styleTags: 'AI风格', pacingParams: '速度:快节奏' })
+    expect(accepted.ok).toBe(true)
+    expect(store.styleProfile.source).toBe('ai-analysis')
+    expect(store.styleProfile.aiPacingSnapshot?.pacingParams).toBe('速度:快节奏')
+  })
+
+  it('persists the locked style profile and reloads it through loadProject', async () => {
+    const store = useProjectStore()
+    store.currentProjectId = 'test-style'
+    store.updateStyleProfileDraft({
+      styleTags: '冷峻',
+      pacingParams: '速度:快节奏',
+      customStyleTags: ['冷峻'],
+    })
+    store.lockStyleProfile()
+    await store.saveProject()
+    await new Promise(resolve => setTimeout(resolve, 50))
+
+    const persistedCall = storageWrite.mock.calls.find(call => call[0].includes('project_test-style'))
+    expect(persistedCall?.[1]?.styleProfile).toMatchObject({
+      styleTags: '冷峻',
+      pacingParams: '速度:快节奏',
+      locked: true,
+    })
+
+    storageRead.mockResolvedValueOnce(persistedCall?.[1])
+    await store.loadProject('test-style')
+
+    expect(store.styleProfile.styleTags).toBe('冷峻')
+    expect(store.styleProfile.locked).toBe(true)
+    expect(store.styleProfileEffective.injected).toBe(true)
+  })
+
+  it('gives legacy projects a default unlocked profile and clears it between projects', async () => {
+    const store = useProjectStore()
+    store.currentProjectId = 'style-project-a'
+    store.updateStyleProfileDraft({ styleTags: 'A项目风格' })
+    store.lockStyleProfile()
+
+    storageRead.mockResolvedValue({
+      schemaVersion: 3,
+      projectName: '旧项目',
+      outlineText: '# 旧大纲',
+    })
+    await store.loadProject('style-project-b')
+
+    expect(store.styleProfile.styleTags).toBe('')
+    expect(store.styleProfile.locked).toBe(false)
+    expect(store.styleProfileEffective.injected).toBe(false)
+  })
+})

@@ -69,6 +69,22 @@ describe('buildVolumePrompt', () => {
     expect(prompt).toContain('已生成1卷，上一卷为')
     expect(prompt).not.toContain('[卷纲计划冲突]')
   })
+
+  it('renders locked style context as a dedicated block', () => {
+    const prompt = buildVolumePrompt({
+      ...base,
+      mode: 'single',
+      styleContext: '快节奏, 冷峻\n速度:快节奏, 紧张度:4'
+    })
+    expect(prompt).toContain('[风格与节奏]')
+    expect(prompt).toContain('快节奏, 冷峻')
+    expect(prompt).toContain('速度:快节奏, 紧张度:4')
+  })
+
+  it('does not render an empty style block', () => {
+    const prompt = buildVolumePrompt({ ...base, mode: 'single', styleContext: '' })
+    expect(prompt).not.toContain('[风格与节奏]')
+  })
 })
 
 describe('buildVolumeOutlineScaffold', () => {

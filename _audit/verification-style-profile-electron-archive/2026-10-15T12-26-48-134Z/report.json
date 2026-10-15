@@ -1,0 +1,32 @@
+{
+  "schema": "shenyi.style-profile-lock-sync.electron",
+  "version": 1,
+  "generatedAt": "2026-10-15T12:16:44.249Z",
+  "script": "verify-style-profile-electron.mjs",
+  "cases": {
+    "unlockedDraft": {
+      "status": "success",
+      "injected": false,
+      "reason": "style_unlocked"
+    },
+    "lockedDraft": {
+      "status": "success",
+      "injected": true,
+      "reason": null
+    },
+    "localTransform": {
+      "status": "success",
+      "exemption": true
+    },
+    "pipelineSync": {
+      "tags": true,
+      "pacing": true,
+      "locked": true
+    },
+    "persistence": {
+      "styleTags": "冷硬推理, 近未来都市",
+      "pacingParams": "速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血",
+      "locked": false
+    }
+  }
+}

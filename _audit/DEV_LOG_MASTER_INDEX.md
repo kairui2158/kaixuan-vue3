@@ -918,3 +918,13 @@
 - 验证：专项 1 file / 171 tests、type-check、15 秒 override build、可见 Electron 真实 UI 全过；2 次物理请求，第一轮 `reasoning_only_stalled`，第二轮 `thinking_disabled`，成功持久化 1 卷，证据 `report.json`。
 - 诚实边界：本地 OpenAI-compatible provider 非 live；`max_tokens_raised` 为单测覆盖，未做双协议 Electron 实测。
 - 封装：升级 3.88.0；升版后专项 171/171、type-check、build、打包核验全部通过；安装包 `dist/神意助手-Setup-3.88.0.exe`，231,529,621 bytes，SHA256 `bb07565088ac8b9ce432fb6f1ae9ff7025ef594ef7952c1a76bb7f729f4ab47f`；已清理 3.87.0 旧安装包与 blockmap。
+
+# 2026-10-15 大纲工作台创作风格锁定与全流水线同步收口
+
+- 文件：[_audit/DEV_LOG_2026-10-15_outline-style-profile-lock-sync.md](_audit/DEV_LOG_2026-10-15_outline-style-profile-lock-sync.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-15_outline-style-profile-lock-sync.md](_audit/TASK_LEDGERS/2026-10-15_outline-style-profile-lock-sync.md)
+- 范围：项目级 `styleProfile` 单源持久化、StyleProfileCard 单源双视图、大纲 chain/plain 系统提示词注入、终稿 constraints 任务快照、本地变换与自动拆解豁免、设定/卷纲/章节/正文四层接线、SKILL 模板变量仅锁定注入、`style-profile` trace 事件。
+- 关键补口：收尾自审清掉未锁定草稿经模板变量与正文执行包漏入模型的三条通道；终稿 create/continue/retry/resume 补 `constraintsSource:'task_snapshot'` 观测；修复先建 prompt 后建 run 导致第一轮风格 trace 丢失的顺序问题。
+- 验证：`npm run test:services` 162 files / 1912 tests、type-check、build:vue、真实 Electron UI 全过；unlocked 不注入、locked 注入、本地变换豁免、流水线同步、持久化均有 report 证据。
+- 诚实边界：Electron 为本地 mock provider，非外部 live；风格锁为项目级，不做跨项目复制。
+- 封装：升级 3.89.0；安装包 `dist/神意助手-Setup-3.89.0.exe`，231,530,562 bytes，SHA256 `db3e9e10a772977314128d3fefde83a3106ce464436b5dbac476421cdfba34c7`；已清理 3.88.0 旧安装包与 blockmap。

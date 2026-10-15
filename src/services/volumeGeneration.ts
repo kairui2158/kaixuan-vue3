@@ -19,6 +19,7 @@ export interface VolumePromptInput {
   totalWords: number
   allocatedSum: number
   existingVolumes: ExistingVolumeRef[]
+  styleContext?: string
 }
 
 export function hasVolumeContent(volume: ExistingVolumeRef): boolean {
@@ -60,6 +61,7 @@ function promptHeader(input: VolumePromptInput): string {
     '[大纲]\n' + input.outlineText +
     '\n\n[设定]\n' + input.settingsText +
     (input.boundText ? '\n\n[绑定设定]\n' + input.boundText : '') +
+    (input.styleContext ? '\n\n[风格与节奏]\n' + input.styleContext : '') +
     '\n\n[卷数]\n' + input.effectiveVolumes +
     '\n\n[已生成卷数]\n' + plan.generatedVolumeCount +
     '\n\n[全书总字数]\n' + input.totalWords + '字' +

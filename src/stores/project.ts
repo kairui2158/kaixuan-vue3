@@ -115,6 +115,65 @@ function createDefaultMemories(): MemoryData {
   }
 }
 
+export interface StyleProfile {
+  styleTags: string
+  pacingParams: string
+  pacingParamsObj: {
+    speed: string
+    tension: number
+    density: string
+    perspective: string
+    tone: string
+  }
+  customStyleTags: string[]
+  aiPacingSnapshot: { pacingParams: string } | null
+  locked: boolean
+  lockedAt: number | null
+  source: 'manual' | 'ai-analysis' | null
+}
+
+function createDefaultStyleProfile(): StyleProfile {
+  return {
+    styleTags: '',
+    pacingParams: '',
+    pacingParamsObj: {
+      speed: '均衡',
+      tension: 3,
+      density: '均衡',
+      perspective: '第一人称',
+      tone: '暗黑',
+    },
+    customStyleTags: [],
+    aiPacingSnapshot: null,
+    locked: false,
+    lockedAt: null,
+    source: null,
+  }
+}
+
+function normalizeStyleProfile(value: any): StyleProfile {
+  const profile = createDefaultStyleProfile()
+  if (!value || typeof value !== 'object') return profile
+  return {
+    styleTags: normalizeString(value.styleTags),
+    pacingParams: normalizeString(value.pacingParams),
+    pacingParamsObj: {
+      speed: normalizeString(value.pacingParamsObj?.speed) || profile.pacingParamsObj.speed,
+      tension: normalizeNumber(value.pacingParamsObj?.tension, profile.pacingParamsObj.tension),
+      density: normalizeString(value.pacingParamsObj?.density) || profile.pacingParamsObj.density,
+      perspective: normalizeString(value.pacingParamsObj?.perspective) || profile.pacingParamsObj.perspective,
+      tone: normalizeString(value.pacingParamsObj?.tone) || profile.pacingParamsObj.tone,
+    },
+    customStyleTags: normalizeStrings(value.customStyleTags),
+    aiPacingSnapshot: typeof value.aiPacingSnapshot?.pacingParams === 'string'
+      ? { pacingParams: value.aiPacingSnapshot.pacingParams }
+      : null,
+    locked: normalizeBoolean(value.locked, false),
+    lockedAt: value.locked && typeof value.lockedAt === 'number' ? value.lockedAt : null,
+    source: value.source === 'manual' || value.source === 'ai-analysis' ? value.source : null,
+  }
+}
+
 function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value : ''
 }
@@ -331,6 +390,55 @@ export const useProjectStore = defineStore('project', () => {
   const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
  const outlineChat = ref<any[]>([])
  const editorBookmarks = ref<EditorBookmark[]>([])
+ const styleProfile = ref<StyleProfile>(createDefaultStyleProfile())
+
+ const styleProfileEffective = computed(() => {
+   const profile = styleProfile.value
+   const hasContent = Boolean(profile.styleTags.trim() || profile.pacingParams.trim())
+   return {
+     locked: profile.locked,
+     injected: profile.locked && hasContent,
+     styleTags: profile.styleTags,
+     pacingParams: profile.pacingParams,
+     pacingParamsObj: { ...profile.pacingParamsObj },
+   }
+ })
+
+ function updateStyleProfileDraft(patch: Partial<Omit<StyleProfile, 'locked' | 'lockedAt' | 'source'>>) {
+   if (styleProfile.value.locked) {
+     return { ok: false as const, reason: 'style_locked' as const }
+   }
+   styleProfile.value = { ...styleProfile.value, ...patch }
+   return { ok: true as const }
+ }
+
+ function lockStyleProfile() {
+   styleProfile.value = { ...styleProfile.value, locked: true, lockedAt: Date.now() }
+   saveProject()
+   return { ok: true as const }
+ }
+
+ function unlockStyleProfile() {
+   styleProfile.value = { ...styleProfile.value, locked: false, lockedAt: null }
+   saveProject()
+   return { ok: true as const }
+ }
+
+ function applyAiStyleAnalysis(analysis: { styleTags?: unknown; pacingParams?: unknown }) {
+   if (styleProfile.value.locked) {
+     return { ok: false as const, reason: 'style_locked' as const }
+   }
+   const pacingParams = typeof analysis.pacingParams === 'string' ? analysis.pacingParams : ''
+   styleProfile.value = {
+     ...styleProfile.value,
+     styleTags: typeof analysis.styleTags === 'string' ? analysis.styleTags : styleProfile.value.styleTags,
+     pacingParams,
+     aiPacingSnapshot: pacingParams ? { pacingParams } : null,
+     source: 'ai-analysis',
+   }
+   saveProject()
+   return { ok: true as const }
+ }
 
   function nameFromOutline(text: string): string {
     const raw = text || ''
@@ -406,6 +514,7 @@ export const useProjectStore = defineStore('project', () => {
     memories.value = normalizeMemories(data.memories)
     memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
     aiNaming.value = normalizeAiNaming(data.aiNaming)
+    styleProfile.value = normalizeStyleProfile(data.styleProfile)
      outlineChat.value = data.outlineChat || []
      editorBookmarks.value = Array.isArray(data.editorBookmarks)
        ? data.editorBookmarks.filter((item: any) => item && typeof item.id === 'string' && typeof item.documentId === 'string')
@@ -454,6 +563,7 @@ export const useProjectStore = defineStore('project', () => {
       memories: toPlain(memories.value),
       memoryBlacklist: toPlain(memoryBlacklist.value),
      aiNaming: toPlain(aiNaming.value),
+     styleProfile: toPlain(styleProfile.value),
      outlineChat: (toPlain(outlineChat.value) as Array<Record<string, unknown>>).map(message => {
        if (!message || typeof message !== 'object' || !('outlineDeletionConfirmation' in message)) return message
        const next = { ...message } as Record<string, unknown>
@@ -1171,6 +1281,7 @@ export const useProjectStore = defineStore('project', () => {
     memories.value = createDefaultMemories()
     memoryBlacklist.value = []
     aiNaming.value = createDefaultAiNamingData()
+    styleProfile.value = createDefaultStyleProfile()
     outlineChat.value = []
     editorBookmarks.value = []
   }
@@ -1271,6 +1382,7 @@ export const useProjectStore = defineStore('project', () => {
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
     editorBookmarks, setEditorBookmarks,
+    styleProfile, styleProfileEffective, updateStyleProfileDraft, lockStyleProfile, unlockStyleProfile, applyAiStyleAnalysis,
    aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
    ,startProjectAutoSave, stopProjectAutoSave
  }

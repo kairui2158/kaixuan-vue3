@@ -280,6 +280,7 @@
       </div>
       <div class="ow-footer">
         <div class="ow-footer-config">
+          <StyleProfileCard />
           <div v-if="selectedWorkspaceSkills.length" id="ow-selected-skills" class="ow-selected-skills">
             <span
               v-for="(skill, index) in selectedWorkspaceSkills"
@@ -499,6 +500,7 @@ import type { EditTaskCompletionReport } from '../../services/editTaskCompletion
 import type { EditTask } from '../../services/editTaskService'
 import { detectSourceContamination } from '../../services/sourceContaminationDetector'
 import { describeRoutingDiagEvent } from '../../services/routingDiagBridge'
+import StyleProfileCard from './StyleProfileCard.vue'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
@@ -516,6 +518,7 @@ onMounted(() => modalQueue.open('outline-workspace'))
 onUnmounted(() => modalQueue.close('outline-workspace'))
 
 const messages = computed(() => projectStore.outlineChat)
+const outlineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
 const inputText = ref('')
 const outlineStalledRetryProviderId = ref('')
 const outlineDeletionContract = createOutlineDeletionContract()
@@ -1095,6 +1098,13 @@ async function runOutlineFinalDraftTurn(options: {
       }),
     })
     const aiService = await getAiService()
+    const styleProfile = outlineStyleProfileEffective.value
+    const styleConstraints = styleProfile.injected
+      ? [
+        '创作风格约束：风格标签=' + styleProfile.styleTags + '；节奏参数=' + styleProfile.pacingParams
+          + '。终稿生成必须符合该风格；如与用户当前指令冲突，以用户当前指令为准并在输出中说明冲突。',
+      ]
+      : []
     const task = await runFinalDraft({
       aiService,
       adapter: outlineFinalDraftAdapter(),
@@ -1138,6 +1148,7 @@ async function runOutlineFinalDraftTurn(options: {
     }, outlineFinalDraftTraceHooks())
     const finalTask = task || latestTask
     if (!finalTask) throw new Error('final_draft_task_missing')
+    recordOutlineFinalDraftStyleConstraints(finalTask, 'create')
     projectStore.updateOutlineChatAt(placeholderIndex, {
       finalDraftTask: toFinalDraftTaskView(finalTask),
       content: createFinalDraftStatusMessage(finalTask),
@@ -1229,6 +1240,7 @@ async function continueOutlineFinalDraft(index: number) {
       onTaskEvent: recordOutlineFinalDraftTaskEvent,
     }, outlineFinalDraftTraceHooks())
     if (latestTask) {
+      recordOutlineFinalDraftStyleConstraints(latestTask, 'continue')
       projectStore.updateOutlineChatAt(index, {
         finalDraftTask: toFinalDraftTaskView(latestTask),
         content: createFinalDraftStatusMessage(latestTask),
@@ -1375,6 +1387,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
       },
       onTaskEvent: recordOutlineFinalDraftTaskEvent,
     }, outlineFinalDraftTraceHooks())
+    recordOutlineFinalDraftStyleConstraints(latestTask, 'retry_segment')
     projectStore.updateOutlineChatAt(index, {
       finalDraftTask: toFinalDraftTaskView(latestTask),
       content: createFinalDraftStatusMessage(latestTask),
@@ -1471,6 +1484,7 @@ async function resumeOutlineFinalDraft(index: number) {
       },
       onTaskEvent: recordOutlineFinalDraftTaskEvent,
     }, outlineFinalDraftTraceHooks())
+    recordOutlineFinalDraftStyleConstraints(latestTask, 'resume')
     projectStore.updateOutlineChatAt(index, {
       finalDraftTask: toFinalDraftTaskView(latestTask),
       content: createFinalDraftStatusMessage(latestTask),
@@ -1942,8 +1956,30 @@ function buildOutlineSystemPrompt(
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>,
   activeTask?: EditTask | null,
 ) {
+  const style = outlineStyleProfileEffective.value
+  const styleBlock = style.injected
+    ? '\n\n[创作风格约束（应用级，优先级高于普通建议）]\n'
+      + '风格标签：' + style.styleTags + '\n'
+      + '节奏参数：' + style.pacingParams + '\n'
+      + '要求：所有大纲创作、扩写、修改建议必须符合上述风格；如与用户当轮明确要求冲突，以用户当轮要求为准并在回复中说明冲突。'
+    : ''
+  addOutlineTraceEvent({
+    type: 'style-profile',
+    label: '大纲工作台风格注入决策',
+    detail: JSON.stringify({
+      locked: style.locked,
+      injected: style.injected,
+      reason: style.injected
+        ? null
+        : !style.locked
+          ? 'style_unlocked'
+          : 'style_empty',
+      styleTags: style.styleTags,
+      pacingParams: style.pacingParams,
+    }),
+  })
   const prompt = appendDialogueToolSurfaceDeclaration(
-    '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。',
+    '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。' + styleBlock,
     toolSurface,
     {
       activeEditTask: activeTask ?? outlineEditTask.value,
@@ -2455,6 +2491,35 @@ function recordOutlineLocalTransform(input: {
   )
 }
 
+function recordOutlineStyleProfileExemption(reason: 'local_transform' | 'extraction_task') {
+  const style = outlineStyleProfileEffective.value
+  addOutlineTraceEvent({
+    type: 'style-profile',
+    label: reason === 'local_transform' ? '本地变换不注入风格' : '自动拆解为抽取任务不注入风格',
+    detail: JSON.stringify({
+      locked: style.locked,
+      injected: false,
+      reason,
+      styleTags: style.styleTags,
+      pacingParams: style.pacingParams,
+    }),
+  })
+}
+
+function recordOutlineFinalDraftStyleConstraints(task: FinalDraftTask | undefined, action: string) {
+  if (!task) return
+  addOutlineTraceEvent({
+    type: 'style-profile',
+    label: '终稿风格约束使用任务快照',
+    detail: JSON.stringify({
+      constraintsSource: 'task_snapshot',
+      action,
+      hasStyleConstraint: task.constraints.some(constraint => constraint.startsWith('创作风格约束：')),
+      constraintsCount: task.constraints.length,
+    }),
+  })
+}
+
 async function runOutlineLocalTransformIfReady(input: {
   plan: LongDocumentExecutionPlan
   snapshot: ReturnType<typeof createOutlineRequestTarget>
@@ -2462,6 +2527,7 @@ async function runOutlineLocalTransformIfReady(input: {
   mode: 'direct' | string
 }): Promise<boolean> {
   if (input.plan.mode !== 'local-transform' || !input.plan.localTransformOperations) return false
+  recordOutlineStyleProfileExemption('local_transform')
   const traceIntent: PlainDialogueIntent = input.intent === 'auto' ? 'discuss' : input.intent
   const result = transformDocument({
     content: input.snapshot.content,
@@ -2905,6 +2971,8 @@ function createWorkspaceSkillAdapter(
       selectedText: requestText,
       outlineContent: projectStore.outlineText || '',
       novelTitle: projectStore.projectName || '',
+      styleTags: outlineStyleProfileEffective.value.injected ? outlineStyleProfileEffective.value.styleTags : '',
+      pacingParams: outlineStyleProfileEffective.value.injected ? outlineStyleProfileEffective.value.pacingParams : '',
       prevResponse: previousOutput || ''
     }),
     getWorkspaceState: () => ({
@@ -4045,6 +4113,7 @@ async function autoDecompose(outline: string) {
   if (!outline || outline.trim().length < 50) return
   const provider = providerStore.activeGenerateProvider
   if (!provider || !provider.apiKey) return
+  recordOutlineStyleProfileExemption('extraction_task')
   const timeoutHint: RunTrace['timeoutHint'] = outline.length >= LONG_DOCUMENT_CHAR_THRESHOLD
     ? { active: LONG_DOCUMENT_ACTIVE_TIMEOUT_MS }
     : undefined
@@ -4581,14 +4650,14 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     })
     return
   }
-  let systemPrompt = buildOutlineSystemPrompt()
-  const fallbackMessages = buildOutlineFallbackMessages(requestText)
   startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
     intent: routingDecision.forcedIntent,
     longDocument: usesLongDocumentToolRuntime(outlinePlan.plan),
     toolSurface: [],
     actualToolSurface: [],
   })
+  let systemPrompt = buildOutlineSystemPrompt()
+  const fallbackMessages = buildOutlineFallbackMessages(requestText)
   consumeIntentCorpusInference({
     projectId: outlineProjectId(),
     projectName: projectStore.projectName,
@@ -5219,7 +5288,6 @@ async function askPlainAi(
       { detail: conflict.detail, payload: conflict.payload },
     )
   }
-  const systemPrompt = buildOutlineSystemPrompt(plainToolSurface)
   startOutlineRun('direct', requestText, [], {
     intent: plainIntent,
     longDocument: isLongDocumentRequest,
@@ -5227,6 +5295,7 @@ async function askPlainAi(
     toolSurface: plainToolSurface,
     actualToolSurface: plainToolSurface,
   })
+  const systemPrompt = buildOutlineSystemPrompt(plainToolSurface)
   consumeIntentCorpusInference({
     projectId: outlineProjectId(),
     projectName: projectStore.projectName,
