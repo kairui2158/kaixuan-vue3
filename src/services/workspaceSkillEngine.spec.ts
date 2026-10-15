@@ -109,6 +109,7 @@ function makeAdapter(
     workspace: 'outline',
     source: 'TestWorkspace.skill',
     projectId: 'project-1',
+    breakpointOwnerKey: 'outline:project-1',
     toolContext: {
       targetId: 'outline',
       readableTargets: ['outline'],

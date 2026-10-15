@@ -5,6 +5,7 @@ describe('chain breakpoint state machine', () => {
   const base = {
     step: 2,
     projectId: 'project-1',
+    ownerKey: 'volume:vol-1',
     skillIndex: 0,
     skillId: 'parse',
     skillSequence: ['parse', 'fill', 'check'],
@@ -15,15 +16,24 @@ describe('chain breakpoint state machine', () => {
     retryCount: 0
   }
 
+  const resume = (breakpoint: ReturnType<typeof createChainSuccessBreakpoint>, skillSequence = base.skillSequence) =>
+    getChainResumePoint({
+      breakpoint,
+      step: 2,
+      projectId: 'project-1',
+      skillSequence,
+      ownerKey: base.ownerKey
+    })
+
   it('resumes after the last successful skill', () => {
     const bp = createChainSuccessBreakpoint(base)
-    expect(getChainResumePoint({ breakpoint: bp, step: 2, projectId: 'project-1', skillSequence: base.skillSequence }))
+    expect(resume(bp))
       .toEqual({ startIndex: 1, previousOutput: 'parse output', handoffHashes: [], resumed: true })
   })
 
   it('retries the failed skill instead of skipping to the next skill', () => {
     const bp = createChainFailureBreakpoint({ ...base, skillIndex: 1, skillId: 'fill', lastSuccessChainIndex: 0, lastOutput: 'parse output', retryCount: 2, error: 'network' })
-    expect(getChainResumePoint({ breakpoint: bp, step: 2, projectId: 'project-1', skillSequence: base.skillSequence }))
+    expect(resume(bp))
       .toEqual({ startIndex: 1, previousOutput: 'parse output', handoffHashes: [], resumed: true })
   })
 
@@ -38,23 +48,39 @@ describe('chain breakpoint state machine', () => {
       canonicalExcerpt: 'parse output'
     }
     const bp = createChainSuccessBreakpoint({ ...base, lastHandoff })
-    expect(getChainResumePoint({ breakpoint: bp, step: 2, projectId: 'project-1', skillSequence: base.skillSequence }))
+    expect(resume(bp))
       .toEqual({ startIndex: 1, previousOutput: 'parse output', lastHandoff, handoffHashes: [], resumed: true })
   })
 
   it('starts fresh when the saved skill sequence changed', () => {
     const bp = createChainSuccessBreakpoint(base)
-    expect(getChainResumePoint({ breakpoint: bp, step: 2, projectId: 'project-1', skillSequence: ['fill', 'parse', 'check'] }))
+    expect(resume(bp, ['fill', 'parse', 'check']))
       .toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false })
+  })
+
+  it('rejects a resume when the breakpoint owner key differs', () => {
+    const bp = createChainSuccessBreakpoint({ ...base, ownerKey: 'chapter:ch-1' })
+    expect(getChainResumePoint({
+      breakpoint: bp,
+      step: 2,
+      projectId: 'project-1',
+      skillSequence: base.skillSequence,
+      ownerKey: 'chapter:ch-2'
+    })).toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false })
+  })
+
+  it('allows a legacy breakpoint without an owner only as a non-resumed fresh run', () => {
+    const bp = createChainSuccessBreakpoint({ ...base, ownerKey: undefined })
+    expect(resume(bp)).toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false })
   })
 
   it('persists and restores seen handoff hashes across process restarts', () => {
     const bp = createChainSuccessBreakpoint({ ...base, handoffHashes: ['aaaa1111', 'bbbb2222'] })
-    const resume = getChainResumePoint({ breakpoint: bp, step: 2, projectId: 'project-1', skillSequence: base.skillSequence })
+    const resume = getChainResumePoint({ breakpoint: bp, step: 2, projectId: 'project-1', skillSequence: base.skillSequence, ownerKey: base.ownerKey })
     expect(resume.handoffHashes).toEqual(['aaaa1111', 'bbbb2222'])
 
     const legacy = createChainSuccessBreakpoint(base)
-    const legacyResume = getChainResumePoint({ breakpoint: legacy, step: 2, projectId: 'project-1', skillSequence: base.skillSequence })
+    const legacyResume = getChainResumePoint({ breakpoint: legacy, step: 2, projectId: 'project-1', skillSequence: base.skillSequence, ownerKey: base.ownerKey })
     expect(legacyResume.handoffHashes).toEqual([])
   })
 })

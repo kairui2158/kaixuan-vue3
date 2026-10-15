@@ -314,15 +314,16 @@
                       >
                         续生成
                       </button>
-                      <button :id="'btn-pl-delete-volume-' + i" class="btn-sm btn-danger" @click="deleteVolume(i)">删除</button>
+                      <button :id="'btn-pl-delete-volume-' + i" class="btn-sm btn-danger" :disabled="pipelineStore.isGenerating" @click="deleteVolume(i)">删除</button>
+                      <span v-if="pipelineStore.isGenerating" class="pl-gen-hint">生成中已锁定目标</span>
                     </span>
                   </div>
                   <section v-if="expandedVolumeIndex === i" :id="'pl-volume-editor-' + i" class="pl-volume-row-editor" :aria-label="(vol.name || '未命名卷') + ' 编辑区'">
                     <div class="pl-volume-editor-grid">
-                      <input v-model="vol.name" class="pl-input" placeholder="卷名" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
-                      <input v-model="vol.summary" class="pl-input" placeholder="摘要" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
+                      <input v-model="vol.name" class="pl-input" placeholder="卷名" :readonly="vol.confirmed || pipelineStore.isGenerating" @change="projectStore.saveProject()" />
+                      <input v-model="vol.summary" class="pl-input" placeholder="摘要" :readonly="vol.confirmed || pipelineStore.isGenerating" @change="projectStore.saveProject()" />
                     </div>
-                    <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="vol.confirmed" @change="projectStore.saveProject()"></textarea>
+                    <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="vol.confirmed || pipelineStore.isGenerating" @change="projectStore.saveProject()"></textarea>
                     <div class="pl-volume-card-actions">
                       <button
                         :id="'btn-pl-save-volume-' + i"
@@ -403,7 +404,7 @@
               <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="saveChapterConfig" />
               <span id="pl-chapter-config-status" class="pl-gen-hint">每章字数</span>
               <label>选择卷</label>
-              <select id="pl-ch-volume-select" v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="boundVolumes.length === 0">
+                <select id="pl-ch-volume-select" v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="boundVolumes.length === 0 || pipelineStore.isGenerating">
                 <template v-for="(vol, i) in projectStore.volumes" :key="vol.id || i">
                   <option v-if="vol.isBound" :value="i">{{ vol.name }}</option>
                 </template>
@@ -453,9 +454,10 @@
                       </span>
                     </span>
                     <span class="pl-ch-col-ops pl-ch-cell-ops">
-                      <button class="btn-sm btn-secondary" :id="'pl-ch-edit-' + i" data-tooltip="编辑" @click.stop="openChapterDetail(i)">编辑</button>
+                      <button class="btn-sm btn-secondary" :id="'pl-ch-edit-' + i" data-tooltip="编辑" :disabled="pipelineStore.isGenerating" @click.stop="openChapterDetail(i)">编辑</button>
                       <button class="btn-sm btn-secondary" :id="'pl-ch-body-' + i" data-tooltip="生成正文" :disabled="pipelineStore.isGenerating" @click.stop="genBody(selectedVolumeIndex, i)">正文</button>
-                      <button class="btn-sm btn-danger" :id="'pl-ch-del-' + i" type="button" aria-label="删除此章" @click.stop="deleteChapterCard(selectedVolumeIndex, i)">删除</button>
+                      <button class="btn-sm btn-danger" :id="'pl-ch-del-' + i" type="button" aria-label="删除此章" :disabled="pipelineStore.isGenerating" @click.stop="deleteChapterCard(selectedVolumeIndex, i)">删除</button>
+                      <span v-if="pipelineStore.isGenerating" class="pl-gen-hint">生成中已锁定</span>
                     </span>
                   </div>
                 </div>
@@ -479,9 +481,9 @@
                     <span>所属卷：{{ selectedVolume?.name || '—' }}</span>
                   </div>
                   <label class="pl-ch-detail-label">章节标题</label>
-                  <input v-model="chapterDetailEditTitle" class="pl-input pl-ch-detail-input" placeholder="章节标题" />
+                  <input v-model="chapterDetailEditTitle" class="pl-input pl-ch-detail-input" placeholder="章节标题" :readonly="pipelineStore.isGenerating" />
                   <label class="pl-ch-detail-label">剧情点概要</label>
-                  <textarea v-model="chapterDetailEditPlot" class="pl-ch-detail-plot" placeholder="本章剧情点概要"></textarea>
+                  <textarea v-model="chapterDetailEditPlot" class="pl-ch-detail-plot" placeholder="本章剧情点概要" :readonly="pipelineStore.isGenerating"></textarea>
                 </div>
                 <div class="pl-ch-detail-footer">
                   <span class="pl-ch-detail-hint">编辑只修改当前章节；保存后写入项目 JSON</span>
@@ -545,11 +547,11 @@
           </div>
             <div id="pl-context-summary" class="pl-body-config">
               <label>选择卷</label>
-                <select v-model.number="bodyVolumeIndex" class="pl-input-sm" @change="bodyChapterIndex = 0">
+                <select v-model.number="bodyVolumeIndex" class="pl-input-sm" :disabled="pipelineStore.isGenerating" @change="bodyChapterIndex = 0">
                 <option v-for="(vol, i) in projectStore.volumes" :key="i" :value="i">{{ vol.name }}</option>
               </select>
               <label>选择章节</label>
-              <select v-model.number="bodyChapterIndex" class="pl-input-sm">
+              <select v-model.number="bodyChapterIndex" class="pl-input-sm" :disabled="pipelineStore.isGenerating">
                 <option v-for="(ch, i) in bodyVolumeChapters" :key="i" :value="i">{{ ch.title }}</option>
               </select>
             </div>
@@ -780,7 +782,7 @@ import { reviewVolumeContractSemantics } from "../../services/contractReview"
 import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
-import { generateBodyArtifact } from "../../services/bodyArtifactOrchestrator"
+import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords } from "../../services/bodyArtifactContract"
 import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
 import {
@@ -2560,6 +2562,7 @@ function toggleVolumeBinding(index: number) {
 }
 
 function deleteVolume(index: number) {
+  if (pipelineStore.isGenerating) return
   const vol = projectStore.volumes[index]
   if (!vol) return
   const volId = vol.id || vol.name
@@ -2598,9 +2601,10 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
  const agentPart = agentConfig?.systemPrompt || ""
  // P1: 正文层注入降AI方法论（17条生成阶段约束）
  const deaiPrompt = resolveDeaiPromptForChainStep(step)
- const systemPrompt = [skillPart, agentPart, deaiPrompt].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
+    const systemPrompt = [skillPart, agentPart, deaiPrompt].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
+  const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
   const aiService = await getAiService()
   const runId = runTraceStore.currentRunId
   const apiCallId = runId ? runTraceStore.startApiCall(runId, {
@@ -2614,7 +2618,7 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
     model,
     temperature,
     maxTokens,
-    requestMessages: messages
+    requestMessages
   }) : ""
   try {
       const result = await aiService.callAi({
@@ -2861,15 +2865,17 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   if (mode === "chain" && templates.length > 1) {
     const chainCtx = { ...baseCtx, prevResponse: "" }
     const checkpointProjectId = String(projectStore.currentProjectId || "")
+    const checkpointOwnerKey = `pipeline:${checkpointProjectId}:step-${step}`
     const fallbackAgentId = (skillAgentId: string) => skillAgentId || getStepAgentId(step) || ""
     // Need 2: chain breakpoint resume
-    const bp = await pipelineStore.refreshBreakpoint()
+    const bp = await pipelineStore.refreshBreakpoint(checkpointOwnerKey)
     const skillSequence = templates.map((t) => t.id)
     const resumePoint = getChainResumePoint({
       breakpoint: bp,
       step,
       projectId: checkpointProjectId,
-      skillSequence
+      skillSequence,
+      ownerKey: checkpointOwnerKey
     })
     let startSi = resumePoint.startIndex
     let current = resumePoint.previousOutput || prompt
@@ -3179,6 +3185,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
           step,
           projectId: checkpointProjectId,
+          ownerKey: checkpointOwnerKey,
           skillIndex: si,
           skillId: t.id,
           skillSequence,
@@ -3335,6 +3342,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
               step,
               projectId: checkpointProjectId,
+              ownerKey: checkpointOwnerKey,
               skillIndex: si,
               skillId: t.id,
               skillSequence,
@@ -3364,6 +3372,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         await pipelineStore.saveBreakpoint(createChainFailureBreakpoint({
           step,
           projectId: checkpointProjectId,
+          ownerKey: checkpointOwnerKey,
           skillIndex: si,
           skillId: t.id,
           skillSequence,
@@ -4043,12 +4052,18 @@ async function genChapters(mode: ChapterGenerationMode) {
 }
 
 async function genBody(volumeIndex: number, chapterIndex: number) {
+  if (pipelineStore.isGenerating) return
   const { vol, volId, chapter: ch } = getBodyChapterByVisibleIndex(volumeIndex, chapterIndex)
   if (!ch) return
   const trace = startStepTrace(4, "正文层", "body")
   trace.begin()
 
   // Sync the body-stage selectors to the chapter we are generating from.
+  const generationTargetSnapshot = {
+    volumeId: String(vol.id || vol.name || ''),
+    chapterId: String(ch.id || ''),
+    targetWords: Number(vol.wordsPerChapter || chapterWords.value || 3500)
+  }
   bodyVolumeIndex.value = volumeIndex
   bodyChapterIndex.value = chapterIndex
 
@@ -4181,13 +4196,18 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       label: "正文层执行包已构建",
       detail: JSON.stringify({ volume: vol.name, chapter: ch.title, targetWords: _bodyWordsPerChapter })
     })
-    const bodyArtifact = await generateBodyArtifact({
+    let bodyArtifact = await generateBodyArtifact({
       contract: {
         chapterId: String(ch.id || `${volId}-chapter-${chapterIndex + 1}`),
         targetWords: _bodyWordsPerChapter
       },
       basePrompt: prompt,
-      callBodyApi: (requestPrompt) => runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。"),
+      callBodyApi: (requestPrompt, context) => {
+        if (context.chapterId !== generationTargetSnapshot.chapterId) {
+          return Promise.reject(new Error('正文目标已变化，本次生成终止'))
+        }
+        return runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
+      },
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
       onAttempt: (attempt) => {
         trace.recordStepObservation('validation', attempt.validationMs)
@@ -4195,7 +4215,18 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           type: "body-artifact-attempt",
           level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
           label: "正文批次验收",
-          detail: JSON.stringify(attempt)
+          detail: JSON.stringify({
+            attemptId: attempt.attemptId,
+            repairAttempt: attempt.repairAttempt,
+            repairScope: attempt.repairScope,
+            status: attempt.status,
+            wordCount: attempt.wordCount,
+            targetWords: attempt.targetWords,
+            ratio: attempt.ratio,
+            validationMs: attempt.validationMs,
+            errors: attempt.errors,
+            bodyPreview: (attempt.body || '').slice(0, 200)
+          })
         })
       }
     })
@@ -4212,9 +4243,20 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       metadata: bodyArtifact.metadata
     }
     let finalBody = generationResult.body || ""
+    const postProcessAttemptId = bodyArtifact.attempts[bodyArtifact.attempts.length - 1]?.attemptId || generationTargetSnapshot.chapterId
     finalBody = await runProseHardSignalNet(finalBody, trace.runId!, {
       finishReason: latestBodyFinishReason(trace.runId!)
     })
+    bodyArtifact = {
+      ...bodyArtifact,
+      attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+        attemptId: postProcessAttemptId,
+        stage: 'hard_signal',
+        processor: 'prose-hard-signal-net',
+        success: !hardSignalUnresolvedRuns.has(trace.runId!),
+        wordCount: countBodyWords(finalBody)
+      })
+    }
     const contractReview = reviewVolumeContractSemantics({
       prose: finalBody,
       forbiddenFinalCards: outlineClosure.contractForbiddenFinalCards
@@ -4248,6 +4290,16 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
               (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
             )
             finalBody = deaiResult.text
+            bodyArtifact = {
+              ...bodyArtifact,
+              attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+                attemptId: postProcessAttemptId,
+                stage: 'deai',
+                processor: 'deai-hard-rules',
+                success: true,
+                wordCount: countBodyWords(finalBody)
+              })
+            }
           }
           runTraceStore.attachProcessingReport(trace.runId!, {
             stage: 'post',
@@ -4278,6 +4330,17 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           deAiStore.setLastDetectReport(report)
           const blocking = report.findings.filter((item: any) => item.severity === 'blocking').length
           const advisory = report.findings.length - blocking
+          bodyArtifact = {
+            ...bodyArtifact,
+            attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+              attemptId: postProcessAttemptId,
+              stage: 'deai',
+              processor: 'deai-detect',
+              success: blocking === 0,
+              wordCount: countBodyWords(finalBody),
+              errors: blocking > 0 ? [`降AI检测存在 ${blocking} 项阻断问题`] : []
+            })
+          }
           bodyGenerationLogs.value.push(
             "降AI检测完成：需处理 " + blocking + " 项，建议 " + advisory + " 项；正文保持原始生成结果"
           )
@@ -4311,6 +4374,16 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             bodyGenerationLogs.value.push("降AI深度修复执行中（最小编辑 + 保护片段回对 + 完整性门禁）…")
             pipelineStore.updateProgress(94, "降AI深度修复中")
             finalBody = await runBodyMinimalEdit(finalBody, report, trace.runId!)
+            bodyArtifact = {
+              ...bodyArtifact,
+              attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+                attemptId: postProcessAttemptId,
+                stage: 'deai',
+                processor: 'deai-deep-fix',
+                success: finalBody.length > 0,
+                wordCount: countBodyWords(finalBody)
+              })
+            }
             bodyGenerationLogs.value.push(
               "降AI深度修复结束；未通过门禁或 API 失败时保留原始正文"
             )
@@ -4336,6 +4409,17 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           endedAt: Date.now(),
           durationMs: 0
         })
+        bodyArtifact = {
+          ...bodyArtifact,
+          attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+            attemptId: postProcessAttemptId,
+            stage: 'deai',
+            processor: 'deai-post-process',
+            success: false,
+            wordCount: countBodyWords(finalBody),
+            errors: [deaiErr?.message || String(deaiErr)]
+          })
+        }
       }
     }
     bodyResult.value = finalBody
@@ -4343,6 +4427,15 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     ch.generationMetadata = generationResult.metadata
     ch.bodyGenerated = true
     const validatedAttempt = bodyArtifact.attempts[bodyArtifact.attempts.length - 1]
+    if (validatedAttempt) {
+      bodyArtifact = {
+        ...bodyArtifact,
+        attempts: [
+          ...bodyArtifact.attempts.slice(0, -1),
+          { ...validatedAttempt, body: finalBody, wordCount: countBodyWords(finalBody) },
+        ],
+      }
+    }
     trace.addEvent({
       type: "body-artifact-validated",
       level: "info",
@@ -4419,6 +4512,7 @@ async function runBodyMinimalEdit(
     { role: 'system', content: systemPrompt },
     { role: 'user', content: text }
   ]
+  const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
   const provider = providerStore.getProvider(activeProviderId()) || providerStore.preferredGenerateProvider
   const model = provider?.selectedModel || provider?.models?.[0] || ''
   const aiService = await getAiService()
@@ -4428,7 +4522,7 @@ async function runBodyMinimalEdit(
     providerId: provider?.id,
     providerName: provider?.name,
     model,
-    requestMessages: messages
+    requestMessages
   })
   try {
     const result = await aiService.callAi({
@@ -4524,6 +4618,7 @@ async function runHardSignalRepair(
     { role: 'system', content: systemPrompt },
     { role: 'user', content: repairPrompt }
   ]
+  const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
   const provider = providerStore.getProvider(activeProviderId()) || providerStore.preferredGenerateProvider
   const model = provider?.selectedModel || provider?.models?.[0] || ''
   const aiService = await getAiService()
@@ -4533,7 +4628,7 @@ async function runHardSignalRepair(
     providerId: provider?.id,
     providerName: provider?.name,
     model,
-    requestMessages: messages
+    requestMessages
   })
   try {
     const result = await aiService.callAi({
@@ -4643,10 +4738,12 @@ async function runProseHardSignalNet(
 }
 
 async function genBodyForSelected() {
+  if (pipelineStore.isGenerating) return
   await genBody(bodyVolumeIndex.value, bodyChapterIndex.value)
 }
 
 function deleteChapterCard(volumeIndex: number, chapterIndex: number) {
+  if (pipelineStore.isGenerating) return
   const vol = projectStore.volumes[volumeIndex]
   const volId = vol?.id || vol?.name
   if (!volId) return
@@ -5107,6 +5204,7 @@ watch(chapterDetailVisible, visible => {
 }, { immediate: true })
 
 function openChapterDetail(index: number) {
+  if (pipelineStore.isGenerating) return
   const ch = currentVolumeChapters.value[index]
   if (!ch) return
   selectedChapterIndex.value = index
@@ -5120,6 +5218,7 @@ function closeChapterDetail() {
 }
 
 function saveChapterDetail() {
+  if (pipelineStore.isGenerating) return
   const ch = selectedChapter.value
   if (!ch) return
   ch.title = chapterDetailEditTitle.value

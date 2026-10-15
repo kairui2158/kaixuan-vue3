@@ -928,3 +928,12 @@
 - 验证：`npm run test:services` 162 files / 1912 tests、type-check、build:vue、真实 Electron UI 全过；unlocked 不注入、locked 注入、本地变换豁免、流水线同步、持久化均有 report 证据。
 - 诚实边界：Electron 为本地 mock provider，非外部 live；风格锁为项目级，不做跨项目复制。
 - 封装：升级 3.89.0；安装包 `dist/神意助手-Setup-3.89.0.exe`，231,530,562 bytes，SHA256 `db3e9e10a772977314128d3fefde83a3106ce464436b5dbac476421cdfba34c7`；已清理 3.88.0 旧安装包与 blockmap。
+
+# 2026-10-16 正文修复台账与断点 owner 隔离收口
+
+- 文件：[_audit/DEV_LOG_2026-10-16_body-repair-ledger-owner-isolation.md](_audit/DEV_LOG_2026-10-16_body-repair-ledger-owner-isolation.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-16_body-repair-ledger-owner-isolation.md](_audit/TASK_LEDGERS/2026-10-16_body-repair-ledger-owner-isolation.md)
+- 范围：正文修复升级为 `none / targeted / full_chain` 三态，targeted 失败后仅允许一次 full_chain 兜底；attempt 与 post-process 同账记录；chain 与共创断点按 owner 隔离；生成中锁定卷/章节选择与编辑删除入口；trace attempt 改为结构化摘要 + 200 字预览。
+- 验证：专项 5 files / 69 tests、全量 `npm run test:services` 164 files / 1929 tests、type-check、build:vue、真实 Electron UI 全过；短文 `too_short` 后 targeted 修复为 `complete/2460字`，物理请求 2 次，生成中 UI 锁定与恢复均有 `report.json` 证据。
+- 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live；本轮只断言正文层单章路径，批量子 Agent 与多 SKILL 组合未纳入。
+- 封装：升级 3.90.0；安装包 `dist/神意助手-Setup-3.90.0.exe`，231,531,641 bytes，SHA256 `9930d761905d97db2dfdbffd2e4345ff03336714627a829e383fd4f40493ed3d`；打包真实启动核验通过，证据 `_audit/verification-packaging-3-90-0/packaging-evidence.json`；已清理 3.89.0 旧安装包与 blockmap。

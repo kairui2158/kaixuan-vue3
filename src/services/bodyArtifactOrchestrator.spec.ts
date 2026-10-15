@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { generateBodyArtifact } from './bodyArtifactOrchestrator'
+import { generateBodyArtifact, recordBodyArtifactPostProcess } from './bodyArtifactOrchestrator'
+import type { BodyArtifactCallContext } from './bodyArtifactOrchestrator'
 
 const contract = { chapterId: 'ch-1', targetWords: 10 }
 
@@ -38,7 +39,7 @@ describe('generateBodyArtifact', () => {
     expect(result.attempts[1].validationMs).toBeGreaterThanOrEqual(0)
   })
 
-  it('fails after the default three repair attempts', async () => {
+  it('fails after targeted repair and one full-chain fallback', async () => {
     let calls = 0
     const result = await generateBodyArtifact({
       contract,
@@ -50,8 +51,8 @@ describe('generateBodyArtifact', () => {
     })
 
     expect(result.status).toBe('failed')
-    expect(calls).toBe(4)
-    expect(result.attempts).toHaveLength(4)
+    expect(calls).toBe(3)
+    expect(result.attempts).toHaveLength(3)
     expect(result.errors.some(error => error.includes('正文未通过验收'))).toBe(true)
     expect(result.attempts.some(attempt => attempt.validationMs !== undefined)).toBe(true)
   })
@@ -100,5 +101,155 @@ describe('generateBodyArtifact', () => {
     expect(result.status).toBe('failed')
     expect(calls).toBe(0)
     expect(result.errors).toEqual(['无效正文契约：chapterId和targetWords必须有效'])
+  })
+
+  it('repairs a non-empty draft with a targeted repair request', async () => {
+    const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (prompt, context) => {
+        calls.push({ prompt, context })
+        return calls.length === 1 ? '短' : '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls).toHaveLength(2)
+    expect(calls[0].context?.repairScope).toBe('none')
+    expect(calls[1].context?.repairScope).toBe('targeted')
+    expect(calls[1].context?.previousBody).toBe('短')
+    expect(calls[1].context?.errors).toContain('正文过短：1字，要求不低于6字')
+    expect(calls[1].context?.targetWords).toBe(10)
+    expect(calls[1].prompt).toContain('上一版正文')
+    expect(calls[1].prompt).toContain('只做定点扩写或压缩修复')
+    expect(calls[1].prompt).not.toContain('重新生成完整正文')
+    expect(result.attempts[0].repairScope).toBe('none')
+    expect(result.attempts[1].repairScope).toBe('targeted')
+  })
+
+  it('uses full chain repair for an empty draft', async () => {
+    const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (prompt, context) => {
+        calls.push({ prompt, context })
+        return calls.length === 1 ? '' : '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls[1].context?.repairScope).toBe('full_chain')
+    expect(calls[1].context?.previousBody).toBe('')
+    expect(calls[1].context?.errors).toContain('正文为空')
+  })
+
+  it('allows only one full-chain fallback after targeted repair fails', async () => {
+    const calls: Array<BodyArtifactCallContext | undefined> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (_prompt, context) => {
+        calls.push(context)
+        return '短'
+      }
+    })
+
+    expect(result.status).toBe('failed')
+    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+    expect(result.attempts.map(attempt => attempt.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+  })
+
+  it('gives every attempt a stable id and passes it to the API', async () => {
+    const ids: Array<string | undefined> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (_prompt, context) => {
+        ids.push(context?.attemptId)
+        return ids.length === 1 ? '短' : '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(ids[0]).toBe(result.attempts[0].attemptId)
+    expect(ids[1]).toBe(result.attempts[1].attemptId)
+    expect(ids[0]).toBeTruthy()
+    expect(ids[1]).toBeTruthy()
+    expect(ids[0]).not.toBe(ids[1])
+  })
+
+  it('does not regress to full-chain wording in targeted repair', async () => {
+    const prompts: string[] = []
+    await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async prompt => {
+        prompts.push(prompt)
+        return prompts.length === 1 ? '短' : '这是一段合格的正文。'
+      }
+    })
+
+    expect(prompts[1]).toContain('禁止整篇重写')
+    expect(prompts[1]).toContain('只输出修复后的完整正文')
+  })
+})
+
+describe('recordBodyArtifactPostProcess', () => {
+  const attempt = {
+    attemptId: 'ch-1-attempt-1-a',
+    repairAttempt: 0,
+    repairScope: 'none' as const,
+    status: 'complete' as const,
+    wordCount: 10,
+    targetWords: 10,
+    ratio: 1,
+    errors: ['初始错误'],
+    body: '正文',
+  }
+
+  it('appends post-process context to the last attempt', () => {
+    const result = recordBodyArtifactPostProcess([attempt], {
+      attemptId: attempt.attemptId,
+      stage: 'hard_signal',
+      processor: 'prose-hard-signal-net',
+      success: true,
+      wordCount: 12,
+    })
+
+    expect(result).toHaveLength(1)
+    expect(result[0].repairScope).toBe('post_process')
+    expect(result[0].metadata?.postProcesses).toEqual([{
+      attemptId: attempt.attemptId,
+      stage: 'hard_signal',
+      processor: 'prose-hard-signal-net',
+      success: true,
+      wordCount: 12,
+    }])
+    expect(result[0].errors).toEqual(['初始错误'])
+  })
+
+  it('deduplicates errors from generation and post-process', () => {
+    const result = recordBodyArtifactPostProcess([attempt], {
+      attemptId: attempt.attemptId,
+      stage: 'deai',
+      processor: 'deai-detect',
+      success: false,
+      wordCount: 10,
+      errors: ['降AI检测存在 1 项阻断问题', '初始错误'],
+    })
+
+    expect(result[0].errors).toEqual(['初始错误', '降AI检测存在 1 项阻断问题'])
+  })
+
+  it('keeps empty attempts unchanged instead of inventing a record', () => {
+    expect(recordBodyArtifactPostProcess([], {
+      attemptId: 'missing',
+      stage: 'deai',
+      processor: 'deai-detect',
+      success: false,
+      wordCount: 0,
+    })).toEqual([])
   })
 })

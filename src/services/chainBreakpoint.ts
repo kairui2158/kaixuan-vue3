@@ -15,6 +15,7 @@ export type ChainBreakpoint = {
   status: ChainBreakpointStatus
   step: number
   projectId: string
+  ownerKey?: string
   skillIndex: number
   skillId: string
   skillSequence: string[]
@@ -35,6 +36,7 @@ export type ChainResumeInput = {
   step: number
   projectId: string
   skillSequence: string[]
+  ownerKey?: string
 }
 
 export type ChainResumePoint = {
@@ -66,6 +68,11 @@ export function createChainFailureBreakpoint(input: Omit<ChainBreakpoint, 'kind'
 export function getChainResumePoint(input: ChainResumeInput): ChainResumePoint {
   const bp = input.breakpoint
   if (!bp || bp.step !== input.step || bp.projectId !== input.projectId) {
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
+  }
+  // ownerKey is mandatory for resumes once this field exists. Legacy breakpoints
+  // had no owner, so treating them as another run's state would be cross-owner reuse.
+  if (!bp.ownerKey || bp.ownerKey !== input.ownerKey) {
     return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
   }
   const sequenceMatches = Array.isArray(bp.skillSequence)

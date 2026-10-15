@@ -66,7 +66,10 @@ export const usePipelineStore = defineStore('pipeline', () => {
 
   async function saveBreakpoint(data: any) {
     breakpoint.value = data
-    await window.electronAPI.storageWrite(storageKey('pipeline_breakpoint'), data)
+    const key = data?.ownerKey && data?.kind !== 'chapters'
+      ? storageKey(`pipeline_breakpoint_owner_${data.ownerKey}`)
+      : storageKey('pipeline_breakpoint')
+    await window.electronAPI.storageWrite(key, data)
     if (data && data.volumeIndex !== undefined) {
       chapterProgress.value = {
         volumeIndex: data.volumeIndex,
@@ -76,8 +79,11 @@ export const usePipelineStore = defineStore('pipeline', () => {
     }
   }
 
-  async function refreshBreakpoint() {
-    const saved = await window.electronAPI.storageRead(storageKey('pipeline_breakpoint')) || null
+  async function refreshBreakpoint(ownerKey?: string) {
+    const key = ownerKey
+      ? storageKey(`pipeline_breakpoint_owner_${ownerKey}`)
+      : storageKey('pipeline_breakpoint')
+    const saved = await window.electronAPI.storageRead(key) || null
     breakpoint.value = saved
     if (saved && saved.volumeIndex !== undefined) {
       chapterProgress.value = {
@@ -99,10 +105,13 @@ export const usePipelineStore = defineStore('pipeline', () => {
     chapterProgress.value = null
   }
 
-  async function clearBreakpoint() {
+  async function clearBreakpoint(ownerKey?: string) {
+    const key = ownerKey
+      ? storageKey(`pipeline_breakpoint_owner_${ownerKey}`)
+      : storageKey('pipeline_breakpoint')
+    await window.electronAPI.storageRemove(key)
     breakpoint.value = null
-    chapterProgress.value = null
-    await window.electronAPI.storageRemove(storageKey('pipeline_breakpoint'))
+    if (!ownerKey) chapterProgress.value = null
   }
 
   async function setStepSkills(step: number, skillIds: string[]) {

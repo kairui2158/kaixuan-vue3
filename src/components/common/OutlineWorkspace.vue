@@ -2946,6 +2946,7 @@ function createWorkspaceSkillAdapter(
     workspace: 'outline',
     source: 'OutlineWorkspace.skill',
     projectId: outlineProjectId(),
+    breakpointOwnerKey: `outline:${outlineProjectId()}`,
     toolContext: {
       targetId: 'outline',
       readableTargets: ['outline', 'outline-settings'],
@@ -3062,9 +3063,9 @@ function createWorkspaceSkillAdapter(
         } : undefined
       }
     },
-    loadBreakpoint: () => pipelineStore.refreshBreakpoint(),
+    loadBreakpoint: ownerKey => pipelineStore.refreshBreakpoint(ownerKey),
     saveBreakpoint: breakpoint => pipelineStore.saveBreakpoint(breakpoint),
-    clearBreakpoint: () => pipelineStore.clearBreakpoint(),
+    clearBreakpoint: ownerKey => pipelineStore.clearBreakpoint(ownerKey),
     classifyIntentWithLlm: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
       activeGenerateProvider: providerStore.activeGenerateProvider,

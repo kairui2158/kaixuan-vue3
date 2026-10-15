@@ -447,6 +447,8 @@ export interface WorkspaceSkillEngineAdapter {
   workspace: 'main' | 'outline'
   source: string
   projectId: string
+  /** Stable owner identity for chain breakpoints; resumes require an exact match. */
+  breakpointOwnerKey: string
   /**
    * Identity of the editor target owned by this adapter. `callAi.meta` and the
    * tool execution context must share it, otherwise editor.write is rejected.
@@ -485,9 +487,10 @@ export interface WorkspaceSkillEngineAdapter {
     executionPlan?: LongDocumentExecutionPlan
     writeAuthorization?: DialogueWriteAuthorization | null
   }
-  loadBreakpoint(): Promise<ChainBreakpoint | null>
+  /** Load only the slot owned by this adapter; never another owner's state. */
+  loadBreakpoint(ownerKey?: string): Promise<ChainBreakpoint | null>
   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
-  clearBreakpoint(): Promise<void>
+  clearBreakpoint(ownerKey?: string): Promise<void>
   /**
    * Intent-scoped tool surface. Read tools are always safe; adapters must only
    * return write proposal tools when the engine explicitly requests them.
@@ -1493,12 +1496,13 @@ export async function runWorkspaceSkills(
       'chain',
       input.requestText,
     )
-    const breakpoint = await adapter.loadBreakpoint()
+    const breakpoint = await adapter.loadBreakpoint(adapter.breakpointOwnerKey)
     const resumePoint = getChainResumePoint({
       breakpoint,
       step: adapter.step,
       projectId: adapter.projectId,
       skillSequence,
+      ownerKey: adapter.breakpointOwnerKey,
     })
     let current = resumePoint.previousOutput || input.requestText
     const startIndex = resumePoint.startIndex
@@ -1670,6 +1674,7 @@ export async function runWorkspaceSkills(
           createChainSuccessBreakpoint({
             step: adapter.step,
             projectId: adapter.projectId,
+            ownerKey: adapter.breakpointOwnerKey,
             skillIndex: index,
             skillId: template.id,
             skillSequence,
@@ -1699,6 +1704,7 @@ export async function runWorkspaceSkills(
           createChainFailureBreakpoint({
             step: adapter.step,
             projectId: adapter.projectId,
+            ownerKey: adapter.breakpointOwnerKey,
             skillIndex: index,
             skillId: template.id,
             skillSequence,
@@ -1720,7 +1726,7 @@ export async function runWorkspaceSkills(
       }
       callbacks.onChunk?.(current)
     }
-    await adapter.clearBreakpoint()
+    await adapter.clearBreakpoint(adapter.breakpointOwnerKey)
     callbacks.onRoutingEvent?.({ type: 'run_completed', state: 'completed' })
   return {
     text: current,

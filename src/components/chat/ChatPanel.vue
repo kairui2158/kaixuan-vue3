@@ -2019,10 +2019,12 @@ function createHomeSkillAdapter(
   fallbackIntent: PlainDialogueIntent = 'discuss',
 ): WorkspaceSkillEngineAdapter {
   const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
+  const breakpointOwnerKey = `main:${requestTarget.targetId}:${projectId.value}`
   return {
     workspace: 'main',
     source: 'HomeCoCreation.skill',
     projectId: projectId.value,
+    breakpointOwnerKey,
     toolContext: {
       targetId: requestTarget.targetId,
       readableTargets: [requestTarget.targetId],
@@ -2206,9 +2208,9 @@ function createHomeSkillAdapter(
           }
       } : undefined
     }),
-    loadBreakpoint: () => coCreation.loadBreakpoint(),
+    loadBreakpoint: ownerKey => coCreation.loadBreakpoint(ownerKey),
     saveBreakpoint: breakpoint => coCreation.saveBreakpoint(breakpoint),
-    clearBreakpoint: () => coCreation.clearBreakpoint(),
+    clearBreakpoint: ownerKey => coCreation.clearBreakpoint(ownerKey),
     classifyIntentWithLlm: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
       activeGenerateProvider: providerStore.activeGenerateProvider,
@@ -4603,7 +4605,8 @@ const chainBreakpointInfo = ref<{ skillId: string; step: number; error: string; 
 
 async function loadChainBreakpointStatus() {
   try {
-    const bp = await coCreation.loadBreakpoint()
+    const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
+    const bp = await coCreation.loadBreakpoint(`main:${requestTarget.targetId}:${projectId.value}`)
     if (bp && bp.status === 'failed') {
       chainBreakpointInfo.value = {
         skillId: bp.skillId || '',
@@ -4624,14 +4627,16 @@ async function resumeFromChainBreakpoint() {
   const lastUserMsg = [...messages.value].reverse().find(m => m.role === 'user')
   if (lastUserMsg?.content) {
     chainBreakpointInfo.value = null
-    await coCreation.clearBreakpoint()
+    const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
+    await coCreation.clearBreakpoint(`main:${requestTarget.targetId}:${projectId.value}`)
     nextTick(() => sendMessage(lastUserMsg.content))
   }
 }
 
 async function discardChainBreakpoint() {
   chainBreakpointInfo.value = null
-  await coCreation.clearBreakpoint()
+  const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
+  await coCreation.clearBreakpoint(`main:${requestTarget.targetId}:${projectId.value}`)
 }
 
 function retryLastRequest() {

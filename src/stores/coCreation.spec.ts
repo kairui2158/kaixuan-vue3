@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createChainFailureBreakpoint } from '../services/chainBreakpoint'
 import { createPinia, setActivePinia } from 'pinia'
 import { normalizeCoCreationConfig, useCoCreationStore } from './coCreation'
 
@@ -78,5 +79,66 @@ describe('co creation config', () => {
       expect.stringContaining('co_creation_config'),
       expect.objectContaining({ skillIds: ['a'], mode: 'compose' }),
     )
+  })
+})
+
+describe('co creation chain breakpoint isolation', () => {
+  const storage = new Map<string, unknown>()
+  const failedBreakpoint = createChainFailureBreakpoint({
+    step: 0,
+    projectId: 'project-1',
+    ownerKey: 'main:tab-1:project-1',
+    skillIndex: 1,
+    skillId: 'fill',
+    skillSequence: ['parse', 'fill'],
+    lastSuccessChainIndex: 0,
+    lastOutput: 'parse output',
+    inputPrompt: '生成第一章',
+    agentId: '',
+    retryCount: 1,
+    error: 'network',
+  })
+
+  beforeEach(() => {
+    storage.clear()
+    setActivePinia(createPinia())
+    vi.stubGlobal('window', {
+      electronAPI: {
+        storageRead: vi.fn(async (key: string) => storage.get(key) ?? null),
+        storageWrite: vi.fn(async (key: string, value: unknown) => {
+          storage.set(key, value)
+          return true
+        }),
+        storageRemove: vi.fn(async (key: string) => {
+          storage.delete(key)
+          return true
+        }),
+      },
+    })
+  })
+
+  it('saves and loads a breakpoint by owner key without the shared legacy slot', async () => {
+    const store = useCoCreationStore()
+    await store.saveBreakpoint(failedBreakpoint)
+    await store.saveBreakpoint({ ...failedBreakpoint, ownerKey: 'main:tab-2:project-1' })
+
+    expect(storage.has('wa_co_creation_breakpoint')).toBe(false)
+    expect(await store.loadBreakpoint('main:tab-2:project-1')).toMatchObject({
+      ownerKey: 'main:tab-2:project-1',
+    })
+    expect(await store.loadBreakpoint('main:tab-1:project-1')).toMatchObject({
+      ownerKey: 'main:tab-1:project-1',
+    })
+  })
+
+  it('clears only the owner-scoped breakpoint slot', async () => {
+    const store = useCoCreationStore()
+    await store.saveBreakpoint(failedBreakpoint)
+    await store.clearBreakpoint('main:tab-2:project-1')
+
+    expect(await store.loadBreakpoint('main:tab-1:project-1')).toMatchObject({
+      skillId: 'fill',
+    })
+    expect(await store.loadBreakpoint('main:tab-2:project-1')).toBeNull()
   })
 })

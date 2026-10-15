@@ -144,9 +144,12 @@ export const useCoCreationStore = defineStore('coCreation', () => {
     config.value.mode = mode === 'chain' ? 'chain' : 'compose'
   }
 
-  async function loadBreakpoint(): Promise<ChainBreakpoint | null> {
+  async function loadBreakpoint(ownerKey?: string): Promise<ChainBreakpoint | null> {
     try {
-      return await window.electronAPI.storageRead(storageKey(BREAKPOINT_STORAGE_NAME)) || null
+      const key = ownerKey
+        ? storageKey(`co_creation_breakpoint_owner_${ownerKey}`)
+        : storageKey(BREAKPOINT_STORAGE_NAME)
+      return await window.electronAPI.storageRead(key) || null
     } catch (error) {
       console.warn('[coCreation] load breakpoint failed:', error)
       return null
@@ -155,8 +158,11 @@ export const useCoCreationStore = defineStore('coCreation', () => {
 
   async function saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void> {
     try {
+      const key = breakpoint.ownerKey
+        ? storageKey(`co_creation_breakpoint_owner_${breakpoint.ownerKey}`)
+        : storageKey(BREAKPOINT_STORAGE_NAME)
       await window.electronAPI.storageWrite(
-        storageKey(BREAKPOINT_STORAGE_NAME),
+        key,
         JSON.parse(JSON.stringify(breakpoint)),
       )
     } catch (error) {
@@ -164,9 +170,12 @@ export const useCoCreationStore = defineStore('coCreation', () => {
     }
   }
 
-  async function clearBreakpoint(): Promise<void> {
+  async function clearBreakpoint(ownerKey?: string): Promise<void> {
     try {
-      await window.electronAPI.storageRemove(storageKey(BREAKPOINT_STORAGE_NAME))
+      const key = ownerKey
+        ? storageKey(`co_creation_breakpoint_owner_${ownerKey}`)
+        : storageKey(BREAKPOINT_STORAGE_NAME)
+      await window.electronAPI.storageRemove(key)
     } catch (error) {
       console.warn('[coCreation] clear breakpoint failed:', error)
     }
