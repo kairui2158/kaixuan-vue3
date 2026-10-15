@@ -48,3 +48,11 @@
 ## 台账
 
 - [_audit/TASK_LEDGERS/2026-10-16_body-repair-ledger-owner-isolation.md](_audit/TASK_LEDGERS/2026-10-16_body-repair-ledger-owner-isolation.md)
+
+## 追记：经验回写补账（2026-10-16）
+
+用户追问“经验文件和开发日志为什么没有跟着更新”，复查确认 DEV_LOG、任务台账与主索引已写，但经验文件未升级，违反 G0.4 收尾回写语义。本追记补齐：
+
+- 经验文件升级 v8.10：G2.9 并入正文修复三态、attempt 单账、断点 owner 隔离、生成中目标锁；L3 追加归档映射。
+- 新增 [_audit/RETROSPECTIVE_2026-10-16_BODY_REPAIR_LEDGER.md](_audit/RETROSPECTIVE_2026-10-16_BODY_REPAIR_LEDGER.md)，按 G1.16 重建本轮因果。
+- 后续门禁：DEV_LOG 收尾必须显式登记“经验文件升级/不升级及原因”，未登记不得进入提交。

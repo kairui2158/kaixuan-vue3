@@ -937,3 +937,4 @@
 - 验证：专项 5 files / 69 tests、全量 `npm run test:services` 164 files / 1929 tests、type-check、build:vue、真实 Electron UI 全过；短文 `too_short` 后 targeted 修复为 `complete/2460字`，物理请求 2 次，生成中 UI 锁定与恢复均有 `report.json` 证据。
 - 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live；本轮只断言正文层单章路径，批量子 Agent 与多 SKILL 组合未纳入。
 - 封装：升级 3.90.0；安装包 `dist/神意助手-Setup-3.90.0.exe`，231,531,641 bytes，SHA256 `9930d761905d97db2dfdbffd2e4345ff03336714627a829e383fd4f40493ed3d`；打包真实启动核验通过，证据 `_audit/verification-packaging-3-90-0/packaging-evidence.json`；已清理 3.89.0 旧安装包与 blockmap。
+- 补账：用户追问经验文件未跟随更新后，经验文件升级 v8.10（G2.9 并入正文修复三态、attempt 单账、owner 隔离与生成中目标锁），新增 RETROSPECTIVE_2026-10-16_BODY_REPAIR_LEDGER.md，DEV_LOG 增补回写追记。
