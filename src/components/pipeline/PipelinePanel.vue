@@ -737,7 +737,8 @@ import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
 import { useDeAiStore } from "../../stores/deai"
 import { getAiService } from "../../services/aiService"
-import { routeSkill } from "../../services/skillRouter"
+import { formatSkillFallback, routeSkill } from "../../services/skillRouter"
+import { formatPreflightFailure, preflightFolderSkills } from "../../services/pipelineSkillPreflight"
 import { createApiCallBudget } from "../../services/apiCallBudget"
 import { formatFolderSkillBoundary } from "../../services/folderSkillBoundary"
 import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
@@ -1871,7 +1872,21 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
   return templates
 }
 
-async function hydrateFolderTemplates(templates: PipelineSkillTemplate[]) {
+async function hydrateFolderTemplates(templates: PipelineSkillTemplate[], step: number) {
+  const preflight = await preflightFolderSkills(templates.map(t => t.skill))
+  if (!preflight.ok) {
+    const detail = preflight.failures.map(formatPreflightFailure).join('\n\n')
+    if (runTraceStore.currentRunId) {
+      runTraceStore.addEvent(runTraceStore.currentRunId, {
+        type: 'skill-load-failed',
+        level: 'error',
+        label: `SKILL 路径预检失败（${preflight.failures.length} 项）`,
+        detail
+      })
+    }
+    appendStepLog(step, `SKILL 路径预检失败：${detail}`)
+    throw new Error(detail)
+  }
   for (const t of templates) {
     if (t.skill?.format !== 'folder' || !t.skill.folderPath) continue
     const loaded = await loadRealSkill(t.skill.folderPath)
@@ -1964,19 +1979,7 @@ async function callValidatedSkill(
     const traceRunId = runTraceStore.currentRunId
     const fallbackProviderId = activeProviderId()
     const systemPromptSuffix = resolveDeaiPromptForChainStep(step)
-    const traceCallId = traceRunId
-      ? runTraceStore.startApiCall(traceRunId, {
-        step,
-        skillId: template.id,
-        skillName: template.name,
-        agentId: agentId || undefined,
-        agentName: agentConfig?.name || agentId || undefined,
-        providerId: fallbackProviderId || undefined,
-        providerName: providerStore.getProvider(fallbackProviderId)?.name,
-        model: agentConfig?.model || activeProviderModel(),
-        requestMessages: [{ role: 'user', content: prompt }]
-      })
-      : ''
+    let traceCallId = ''
     const startedAt = Date.now()
     const finishFolderTrace = (status: 'success' | 'degraded' | 'failed' | 'canceled', error?: string, output = '') => {
       if (!traceRunId || !traceCallId) return
@@ -2020,6 +2023,46 @@ async function callValidatedSkill(
     }
     let route: Awaited<ReturnType<typeof routeSkill>>
     try {
+      const probe = await loadRealSkill(template.skill.folderPath)
+      if (!probe.package) {
+        const fallback = probe.failure
+          ? {
+              ...probe.failure,
+              skillId: template.id,
+              skillName: template.name
+            }
+          : {
+              code: probe.error || 'skill-load-failed',
+              message: 'SKILL 文件夹加载失败',
+              folderPath: template.skill.folderPath,
+              skillId: template.id,
+              skillName: template.name
+            }
+        const detail = formatSkillFallback(fallback)
+        if (traceRunId) {
+          runTraceStore.addEvent(traceRunId, {
+            type: 'skill-load-failed',
+            level: 'error',
+            label: `SKILL「${template.name || template.id}」加载失败`,
+            detail
+          })
+        }
+        appendStepLog(step, `SKILL 加载失败：${detail}`)
+        throw new Error(detail)
+      }
+      traceCallId = traceRunId
+        ? runTraceStore.startApiCall(traceRunId, {
+          step,
+          skillId: template.id,
+          skillName: template.name,
+          agentId: agentId || undefined,
+          agentName: agentConfig?.name || agentId || undefined,
+          providerId: fallbackProviderId || undefined,
+          providerName: providerStore.getProvider(fallbackProviderId)?.name,
+          model: agentConfig?.model || activeProviderModel(),
+          requestMessages: [{ role: 'user', content: prompt }]
+        })
+        : ''
       route = await routeSkill(template.skill, {
         input: prompt,
         agent: agentConfig ? {
@@ -2154,7 +2197,19 @@ async function callValidatedSkill(
       }
       return route.folderResult.output
     }
-    if (route.fallbackReason) throw new Error(route.fallbackReason)
+    if (route.fallbackReason) {
+      const detail = formatSkillFallback(route.fallback) || route.fallbackReason
+      if (traceRunId) {
+        runTraceStore.addEvent(traceRunId, {
+          type: 'skill-load-failed',
+          level: 'error',
+          label: `SKILL「${template.name || template.id}」加载失败`,
+          detail
+        })
+      }
+      appendStepLog(step, `SKILL 加载失败：${detail}`)
+      throw new Error(detail)
+    }
     throw new Error("folder SKILL 执行失败")
   }
   // Preserve the legacy outputFormat contract: malformed JSON gets one repair attempt.
@@ -2652,7 +2707,7 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
-  await hydrateFolderTemplates(templates)
+  await hydrateFolderTemplates(templates, step)
   const mode = getStepSkillMode(step)
   const skillNames = templates.map((t) => t.name).filter(Boolean);
   try {

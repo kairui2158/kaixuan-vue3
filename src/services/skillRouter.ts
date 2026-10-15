@@ -13,6 +13,7 @@ export interface RoutedSkill {
   format?: 'text' | 'folder'
   folderPath?: string
   description?: string
+  name?: string
 }
 
 export interface SkillRouteOptions {
@@ -54,6 +55,26 @@ export interface SkillRouteResult {
   folderResult?: RealSkillExecutionResult
   compositeResult?: import('./skillOrchestrator').CompositeExecutionResult
   fallbackReason?: string
+  /** Structured fallback context. Prefer this over the legacy fallbackReason string. */
+  fallback?: {
+    code: string
+    message: string
+    folderPath?: string
+    skillId?: string
+    skillName?: string
+    action?: string
+  }
+}
+
+export function formatSkillFallback(fallback: SkillRouteResult['fallback']): string {
+  if (!fallback) return ''
+  const skill = fallback.skillName || fallback.skillId || '未命名 SKILL'
+  const parts = [
+    `${skill} 加载失败（${fallback.code}）：${fallback.message}`,
+    fallback.folderPath ? `绑定路径：${fallback.folderPath}` : '',
+    fallback.action || ''
+  ]
+  return parts.filter(Boolean).join('\n')
 }
 
 function compositeToExecutionResult(
@@ -98,7 +119,16 @@ export async function routeSkill(
   options: SkillRouteOptions
 ): Promise<SkillRouteResult> {
   if (!skill) {
-    return { mode: 'text', fallbackReason: 'skill-missing' }
+    return {
+      mode: 'text',
+      fallbackReason: 'skill-missing',
+      fallback: {
+        code: 'skill-missing',
+        message: '未找到可执行的 SKILL',
+        skillId: options.skillId,
+        action: '请检查本层技能配置'
+      }
+    }
   }
   if (skill.format !== 'folder' || !skill.folderPath) {
     return { mode: 'text' }
@@ -106,9 +136,21 @@ export async function routeSkill(
 
   const probe = await loadRealSkill(skill.folderPath)
   if (!probe.package) {
+    const code = probe.error || 'skill-load-failed'
+    const failure = probe.failure || {
+      code,
+      message: 'SKILL 文件夹加载失败',
+      folderPath: skill.folderPath
+    }
     return {
       mode: 'text',
-      fallbackReason: probe.error || 'skill-load-failed'
+      fallbackReason: code,
+      fallback: {
+        ...failure,
+        folderPath: failure.folderPath || skill.folderPath,
+        skillId: options.skillId || skill.id,
+        skillName: skill.name || undefined
+      }
     }
   }
   options.onFolderLoaded?.(probe.package)

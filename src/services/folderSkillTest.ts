@@ -1,6 +1,6 @@
 import { getAiService } from './aiService'
 import { createApiCallBudget } from './apiCallBudget'
-import { routeSkill } from './skillRouter'
+import { formatSkillFallback, routeSkill } from './skillRouter'
 import type { RealSkillAgentContext } from './realSkillTypes'
 
 export interface FolderSkillTestInput {
@@ -96,7 +96,11 @@ export async function runFolderSkillTest(input: FolderSkillTestInput): Promise<F
     )
 
     if (route.mode !== 'folder' || !route.folderResult) {
-      return toLoadFailedResult(input.folderPath, route.fallbackReason || 'skill-load-failed', budget.snapshot())
+      return toLoadFailedResult(
+        input.folderPath,
+        formatSkillFallback(route.fallback) || route.fallbackReason || 'skill-load-failed',
+        budget.snapshot()
+      )
     }
 
     const folderResult = route.folderResult

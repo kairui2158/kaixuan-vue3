@@ -187,6 +187,7 @@ import {
 import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
   classifyPlainDialogueIntentDetailed,
@@ -2576,6 +2577,21 @@ async function runHomeCoCreationSkills(
           type: 'skill-skipped',
           label: `跳过技能：${skillId}`,
           detail: reason
+        })
+      },
+      onSkillFallback: (skillId, detail) => {
+        addHomeTraceEvent({
+          type: 'skill-load-failed',
+          level: 'warn',
+          label: `folder SKILL 加载失败：${detail.skillName || skillId}`,
+          detail: formatSkillFallback({
+            code: detail.code,
+            message: detail.message,
+            folderPath: detail.folderPath,
+            skillId,
+            skillName: detail.skillName,
+            action: detail.action
+          })
         })
       },
       onBeforeSkill: (skillIndex, skillId, skillName) => {

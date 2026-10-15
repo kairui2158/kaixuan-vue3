@@ -8,6 +8,7 @@ import { DeAiSamples } from './deai-samples.js'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
+import { formatSkillFallback } from './skillRouter'
 import { validateSkillOutput } from './skillValidation'
 import type {
   RealSkillAgentContext,
@@ -646,11 +647,18 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const errors: string[] = []
   const loaded = await loadRealSkill(options.folderPath)
   if (!loaded.package) {
+    const failure = loaded.failure || {
+      code: loaded.error || 'skill-load-failed',
+      message: 'SKILL 文件夹加载失败',
+      folderPath: options.folderPath
+    }
     return {
       status: 'failed',
       output: '',
-      errors: [`文件夹技能加载失败：${loaded.error || '未知错误'}`],
-      diagnostics: [diagnostic('error', 'skill-load-failed', `folderPath=${options.folderPath}`)],
+      errors: [formatSkillFallback({ ...failure, skillId: options.skillId })],
+      diagnostics: [
+        diagnostic('error', 'skill-load-failed', formatSkillFallback({ ...failure, skillId: options.skillId })),
+      ],
       folderPackageCache: false
     }
   }

@@ -124,15 +124,32 @@ describe('skillRouter composite mapping', () => {
   })
 
   it('falls back to text mode when folder loading fails', async () => {
-    loadRealSkillMock.mockResolvedValueOnce({ package: null, error: 'folder-not-found', folderPackageCache: false })
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: null,
+      error: 'folder-not-found',
+      failure: {
+        code: 'folder-not-found',
+        message: 'SKILL 文件夹不存在或不是目录',
+        folderPath: 'D:/missing',
+        action: '请到技能设置中重新选择该技能的文件夹'
+      },
+      folderPackageCache: false
+    })
 
     const result = await routeSkill(
-      { id: 'skill', format: 'folder', folderPath: 'D:/missing' },
+      { id: 'skill', name: '凯旋正文', format: 'folder', folderPath: 'D:/missing' },
       { input: '输入', budget: budget() }
     )
 
     expect(result.mode).toBe('text')
     expect(result.fallbackReason).toBe('folder-not-found')
+    expect(result.fallback).toMatchObject({
+      code: 'folder-not-found',
+      message: 'SKILL 文件夹不存在或不是目录',
+      folderPath: 'D:/missing',
+      skillId: 'skill',
+      skillName: '凯旋正文'
+    })
   })
 
   it('passes the pipeline injection fields through to the folder executor', async () => {

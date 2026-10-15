@@ -71,7 +71,16 @@ function bridge(): {
 export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadResult> {
   const api = bridge()
   if (!folderPath || !api?.skillLoadFolder) {
-    return { package: null, error: 'skill-bridge-unavailable' }
+    return {
+      package: null,
+      error: 'skill-bridge-unavailable',
+      failure: {
+        code: 'skill-bridge-unavailable',
+        message: !folderPath ? 'SKILL 未绑定文件夹路径' : 'Electron SKILL 桥不可用，无法读取技能目录',
+        folderPath: folderPath || '',
+        action: !folderPath ? '请重新选择技能文件夹' : '请重启应用后重试'
+      }
+    }
   }
 
   const cached = cache.get(folderPath)
@@ -87,7 +96,20 @@ export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadRe
   try {
     const response = await api.skillLoadFolder(folderPath)
     if (!response || response.ok !== true || !response.skill) {
-      return { package: null, error: response?.code || 'skill-load-failed' }
+      const code = String(response?.code || 'skill-load-failed')
+      const message = String(response?.message || 'SKILL 文件夹加载失败')
+      return {
+        package: null,
+        error: code,
+        failure: {
+          code,
+          message,
+          folderPath,
+          action: code === 'folder-not-found'
+            ? '请到技能设置中重新选择该技能的文件夹'
+            : '请检查技能目录内容后重试'
+        }
+      }
     }
 
     const skill = response.skill
@@ -111,7 +133,17 @@ export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadRe
     cache.set(folderPath, { package: pkg, expiresAt: Date.now() + CACHE_TTL_MS })
     return { package: pkg, error: null, folderPackageCache: false, warnings }
   } catch (error: any) {
-    return { package: null, error: error?.code || error?.message || 'skill-load-exception' }
+    const code = String(error?.code || 'skill-load-exception')
+    return {
+      package: null,
+      error: code,
+      failure: {
+        code,
+        message: String(error?.message || 'SKILL 文件夹加载异常'),
+        folderPath,
+        action: '请检查技能目录内容后重试'
+      }
+    }
   }
 }
 

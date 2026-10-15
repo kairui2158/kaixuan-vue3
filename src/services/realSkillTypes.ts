@@ -87,6 +87,13 @@ export interface RealSkillLoadWarning {
 export interface RealSkillLoadResult {
   package: RealSkillPackage | null
   error: string | null
+  /** Structured load failure with enough context for UI, trace, and repair guidance. */
+  failure?: {
+    code: string
+    message: string
+    folderPath: string
+    action?: string
+  }
   folderPackageCache?: boolean
   warnings?: RealSkillLoadWarning[]
 }

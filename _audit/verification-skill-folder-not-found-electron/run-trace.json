@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792078446143-14",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "skill-folder-not-found-project",
+  "projectName": "folder SKILL 路径失效实测",
+  "skillNames": [
+    "已迁移卷纲技能（文件夹）"
+  ],
+  "skillMode": "chain",
+  "status": "failed",
+  "startedAt": 1792078446143,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "failed",
+      "reason": "generation_failed",
+      "recordedAt": 1792078446176
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1792078446143-15",
+      "ts": 1792078446143,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1792078446144-16",
+      "ts": 1792078446144,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":1,\"generatedVolumeCount\":0,\"allocatedWords\":0,\"remainingWords\":20000,\"remainingVolumes\":1,\"currentVolumeBudget\":20000,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1792078446172-17",
+      "ts": 1792078446172,
+      "seq": 3,
+      "type": "skill-load-failed",
+      "level": "error",
+      "label": "SKILL 路径预检失败（1 项）",
+      "detail": "技能：已迁移卷纲技能\n错误：folder-not-found SKILL 文件夹不存在或不是目录\n路径：D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill\n请到技能设置中重新选择该技能的文件夹"
+    },
+    {
+      "id": "event-1792078446175-18",
+      "ts": 1792078446175,
+      "seq": 4,
+      "type": "volume-batch-attempt",
+      "level": "error",
+      "label": "卷纲批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"error\",\"requestedCount\":1,\"acceptedCount\":0,\"missingStart\":1,\"missingCount\":1,\"errors\":[\"技能：已迁移卷纲技能\\n错误：folder-not-found SKILL 文件夹不存在或不是目录\\n路径：D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\skill-folder-not-found-profile\\\\skills\\\\moved-volume-skill\\n请到技能设置中重新选择该技能的文件夹\"]}"
+    },
+    {
+      "id": "event-1792078446175-19",
+      "ts": 1792078446175,
+      "seq": 5,
+      "type": "failed",
+      "level": "error",
+      "label": "卷纲运行失败",
+      "detail": "技能：已迁移卷纲技能\n错误：folder-not-found SKILL 文件夹不存在或不是目录\n路径：D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill\n请到技能设置中重新选择该技能的文件夹"
+    },
+    {
+      "id": "event-1792078446176-20",
+      "ts": 1792078446176,
+      "seq": 6,
+      "type": "finished",
+      "level": "error",
+      "label": "运行失败",
+      "detail": "generation_failed"
+    },
+    {
+      "id": "event-1792078446176-21",
+      "ts": 1792078446176,
+      "seq": 7,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "generation_failed / run=run-1792078446143-14"
+    }
+  ],
+  "apiCalls": [],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "timingLedger": {
+    "apiCallCount": 0,
+    "physicalCallCount": 0,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 0,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": 0,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 0,
+    "physicalCallCount": 0,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "endedAt": 1792078446175,
+  "durationMs": 32,
+  "apiResponseIndex": [],
+  "payloadIntegrityWarnings": []
+}

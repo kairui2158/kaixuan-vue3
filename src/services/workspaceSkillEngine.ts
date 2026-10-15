@@ -51,7 +51,7 @@ import type {
   RealSkillPostProcessReport,
   RealSkillExecutionResult,
 } from './realSkillTypes'
-import { type RoutedSkill, routeSkill } from './skillRouter'
+import { formatSkillFallback, type RoutedSkill, routeSkill } from './skillRouter'
 import {
   authorizeDialogueTools,
   type DialogueToolSurfaceTaskContext,
@@ -356,6 +356,13 @@ export type WorkspaceSkillEngineCallbacks = {
     skillId: string,
     event: Parameters<NonNullable<RealSkillExecuteOptions['onGenerationEvent']>>[0],
   ) => void
+  onSkillFallback?: (skillId: string, detail: {
+    code: string
+    message: string
+    skillName?: string
+    folderPath?: string
+    action?: string
+  }) => void
 }
 
 export interface WorkspaceContextServiceLike {
@@ -863,7 +870,7 @@ async function callWorkspaceSkill(
     projectId: adapter.projectId,
     workspace: adapter.workspace,
   }
-  let folderFallbackReason: string | undefined
+  let folderFallback: Awaited<ReturnType<typeof routeSkill>>['fallback']
   if (isFolderTemplate(template)) {
     let folderFingerprint: Array<{
       file: string
@@ -1026,7 +1033,15 @@ async function callWorkspaceSkill(
     }
     // Only a load failure falls back to the text path; execution failures
     // already return folder mode with diagnostics above.
-    folderFallbackReason = route.fallbackReason
+    folderFallback = route.fallback
+    if (folderFallback) {
+      const fallbackDetail = {
+        ...folderFallback,
+        skillId: folderFallback.skillId || template.id,
+        skillName: folderFallback.skillName || template.name || template.id
+      }
+      input.callbacks?.onSkillFallback?.(template.id, fallbackDetail)
+    }
   }
   const maxAttempts = template.retryPolicy
     ? getSkillMaxAttempts(template.retryPolicy)
@@ -1189,7 +1204,7 @@ async function callWorkspaceSkill(
         toolResults: lastResult.toolResults,
         toolAudit: lastResult.toolAudit,
       })
-      if (folderFallbackReason) {
+      if (folderFallback) {
         const meta = lastRunMeta.get(input)
         if (meta) {
           meta.diagnostics = [
@@ -1197,7 +1212,7 @@ async function callWorkspaceSkill(
             {
               type: 'warning',
               code: 'folder-skill-fallback',
-              message: `folder SKILL 加载失败，已回退文本路径：${folderFallbackReason}`,
+              message: `folder SKILL 加载失败，已回退文本路径：${formatSkillFallback(folderFallback)}`,
             },
           ]
         }

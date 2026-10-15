@@ -1,0 +1,8 @@
+[
+  {
+    "at": "2026-10-15T15:34:05.235Z",
+    "url": "/v1/chat/completions",
+    "bodyText": "{\"model\":\"skill-folder-model\",\"messages\":[{\"role\":\"system\",\"content\":\"你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。\\n\\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\\n每个单元格使用半角 | 分隔，单元格内不换行。\\n如果没有表格内容，不要输出空表或伪造表格。\"},{\"role\":\"user\",\"content\":\"请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\\\"风格标签以逗号分隔\\\", pacingParams:\\\"节奏参数描述\\\"}\\n\\n大纲：\\n# folder SKILL 路径失效实测大纲\\n第一卷 风暴起点：旧信、灯塔与南方航线共同推动主角完成第一次远航。\"}],\"stream\":true,\"temperature\":0.1,\"max_tokens\":4096}",
+    "styleAnalysis": true
+  }
+]

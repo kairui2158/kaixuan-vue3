@@ -369,6 +369,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
   classifyPlainDialogueIntentDetailed,
@@ -4818,6 +4819,21 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
             type: 'skill-skipped',
             label: `跳过技能：${skillId}`,
             detail: reason
+          })
+        },
+        onSkillFallback: (skillId, detail) => {
+          addOutlineTraceEvent({
+            type: 'skill-load-failed',
+            level: 'warn',
+            label: `folder SKILL 加载失败：${detail.skillName || skillId}`,
+            detail: formatSkillFallback({
+              code: detail.code,
+              message: detail.message,
+              folderPath: detail.folderPath,
+              skillId,
+              skillName: detail.skillName,
+              action: detail.action
+            })
           })
         },
         onBeforeSkill: (skillIndex, skillId, skillName) => {

@@ -1,7 +1,7 @@
 import { getAiService } from './aiService'
 import { createApiCallBudget } from './apiCallBudget'
 import { loadRealSkill } from './realSkillLoader'
-import { routeSkill } from './skillRouter'
+import { formatSkillFallback, routeSkill } from './skillRouter'
 import { classifyGenerationValidity } from './generationValidity'
 import type { RealSkillAgentContext } from './realSkillTypes'
 
@@ -315,7 +315,16 @@ export async function runFolderSkillEval(input: FolderSkillEvalInput): Promise<F
 
   const loaded = await loadRealSkill(input.folderPath)
   if (!loaded.package) {
-    return emptyReport('load-failed', [`文件夹技能加载失败：${loaded.error || '未知错误'}`])
+    const failure = loaded.failure || {
+      code: loaded.error || 'skill-load-failed',
+      message: 'SKILL 文件夹加载失败',
+      folderPath: input.folderPath
+    }
+    return emptyReport('load-failed', [
+      `文件夹技能加载失败：${failure.code} ${failure.message}`,
+      `路径：${failure.folderPath}`,
+      failure.action || ''
+    ].filter(Boolean))
   }
   const pkg = loaded.package
   if (!pkg.evals) {
@@ -352,7 +361,7 @@ export async function runFolderSkillEval(input: FolderSkillEvalInput): Promise<F
       )
       if (route.mode !== 'folder' || !route.folderResult) {
         withStatus = 'failed'
-        withErrors = [`folder 技能路由失败：${route.fallbackReason || 'skill-load-failed'}`]
+        withErrors = [formatSkillFallback(route.fallback) || `folder 技能路由失败：${route.fallbackReason || 'skill-load-failed'}`]
       } else {
         withOutput = route.folderResult.output || ''
         withErrors = route.folderResult.errors.slice()

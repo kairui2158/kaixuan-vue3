@@ -1,0 +1,42 @@
+{
+  "schema": "shenyi.skill-folder-not-found.electron",
+  "version": 1,
+  "generatedAt": "2026-10-15T15:34:06.446Z",
+  "script": "verify-skill-folder-not-found-electron.mjs",
+  "projectId": "skill-folder-not-found-project",
+  "runId": "run-1792078446143-14",
+  "runStatus": "failed",
+  "apiCallCount": 0,
+  "physicalCallCount": 0,
+  "providerRequestCount": 1,
+  "styleAnalysisRequestCount": 1,
+  "generationRequestCount": 0,
+  "postRelocationRequestCount": 0,
+  "skillLoadFailedEvent": {
+    "id": "event-1792078446172-17",
+    "ts": 1792078446172,
+    "seq": 3,
+    "type": "skill-load-failed",
+    "level": "error",
+    "label": "SKILL 路径预检失败（1 项）",
+    "detail": "技能：已迁移卷纲技能\n错误：folder-not-found SKILL 文件夹不存在或不是目录\n路径：D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill\n请到技能设置中重新选择该技能的文件夹"
+  },
+  "visibleFailureText": "\n  /生成流水线 folder SKILL 路径失效实测生成项目>folder SKILL 路径失效实测大纲纲1章第1章概>风暴起点：旧信、灯塔与南方航线共同推动主角完成第一次远航。纲0章项目管理folder SKILL 路径失效实测加载新窗口删除+ 新建项目选择章节开始写作生成保存提取记忆查找折叠大纲导出去AI味AI命名运行记录0 字开始对话在下方输入框输入消息，与 AI 助手开始创作发送重置对话Enter 发送Enter 换行SKILL选择添加技能已迁移卷纲技能（文件夹）AGENT默认凯旋写作Agent白虎模式并行串行0 字 | API 已配置本次消耗: 0 个 Token生成流水线缩小运行记录导出绑定导入绑定流程视图1大纲2设定3卷纲4章节5正文AI工具:AI起名大纲智能体/技能配置已迁移到大纲工作台智能体：不使用Skill：0 个模式：并行大纲：已锁定前往工作台配置全书字数（万字）：确认字数并进入下一步全书已确认字数：2 万字本层智能体:不使用智能体凯旋写作Agent白虎技能:无已迁移卷纲技能（文件夹）+技能模式:并行串行创作风格实测风格 | 实测节奏未锁定展开高级设置叙事风格实测风格+剧情节奏叙事速度慢热均衡快节奏紧张度3/5信息密度稀疏均衡密集视角风格第一人称第三人称限知第三人称全知情感基调暗黑温暖苦涩热血悲壮恢复AI建议锁定风格设定分类设定类+ 新增分类当前分类设定类0 项设定该分类还没有设定内容点击生成设定，或直接新增该分类条目+ 该类新增一键绑定到全局确认该类AI设定生成 / 解析大纲确认/保存设定层本层智能体:不使用智能体凯旋写作Agent白虎技能:无已迁移卷纲技能（文件夹）+技能模式:并行串行1已迁移卷纲技能（文件夹）默认凯旋写作Agent白虎大纲已锁定全书字数2 万字卷数序号卷名纲要摘要AI分配字数状态操作1/1folder SKILL 路径失效实测大纲暂无纲要—编辑中绑定到章节层编辑删除1/2风暴起点：旧信、灯塔与南方航线共同推动主角完成第一次远航。暂无纲要—编辑中绑定到章节层编辑删除10%failed: 技能：已迁移卷纲技能\n错误：folder-not-found SKILL 文件夹不存在或不是目录\n路径：D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill\n请到技能设置中重新选择该技能的文件夹关闭▴展开 API 输出5 行AI生成全卷逐卷生成确认完成下一步章节本层智能体:不使用智能体凯旋写作Agent白虎技能:无已迁移卷纲技能（文件夹）+技能模式:并行串行每章字数每章字数选择卷预计章数29每次生成暂无已绑定卷纲请先在卷纲层保存并锁定本卷，再点击「绑定到章节层」生成本批章节全量生成章节续生成确认完成正文本层智能体:不使用智能体凯旋写作Agent白虎技能模式:并行串行技能:无已迁移卷纲技能（文件夹）+选择卷folder SKILL 路径失效实测大纲风暴起点：旧信、灯塔与南方航线共同推动主角完成第一次远航。选择章节AI生成正文已内嵌降AI插入到编辑器确认完成智能体进度>已连接skill-folder-model字数: 0\n  \n  \n\n\n",
+  "debugStepSkills": [
+    {
+      "id": "folder:moved-volume-skill",
+      "format": "folder",
+      "folderPath": "D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill"
+    }
+  ],
+  "debugLogText": "",
+  "boundFolderPath": "D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill",
+  "relocatedFolderPath": "D:\\codex\\novel-workshop-vue3\\_data\\skill-folder-not-found-profile\\skills\\moved-volume-skill-relocated",
+  "hardRules": {
+    "visibleElectron": true,
+    "realFolderRelocation": true,
+    "realUiOperation": "#btn-pipeline / #pl-outline / #btn-pl-confirm-outline / #pl-steps .pl-step:nth(2) / #pl-volume-count / #btn-pl-gen-volumes",
+    "noSkillInjection": true,
+    "localMockProvider": true
+  }
+}

@@ -5,7 +5,7 @@ import { useAgentStore } from '../stores/agent'
 import { DeAiProcessor } from '../services/de-ai.js'
 import { DeAiSamples } from '../services/deai-samples.js'
 import { getAiService } from '../services/aiService'
-import { routeSkill } from '../services/skillRouter'
+import { formatSkillFallback, routeSkill } from '../services/skillRouter'
 import { createApiCallBudget, type ApiCallBudget } from '../services/apiCallBudget'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../services/generationValidity'
 import type { RealSkillAgentContext } from '../services/realSkillTypes'
@@ -219,7 +219,10 @@ async function callAiApi(
         }
         return result.folderResult.output
       }
-      const folderError = result.folderResult?.errors?.[0] || result.fallbackReason || '文件夹技能执行失败'
+      const folderError = result.folderResult?.errors?.[0]
+        || formatSkillFallback(result.fallback)
+        || result.fallbackReason
+        || '文件夹技能执行失败'
       throw new Error(folderError)
     }
 

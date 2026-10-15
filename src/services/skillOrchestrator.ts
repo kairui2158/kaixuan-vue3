@@ -1,5 +1,6 @@
 import { executeRealSkill } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
+import { formatSkillFallback } from './skillRouter'
 import type {
   RealSkillAgentContext,
   RealSkillDiagnostic,
@@ -151,12 +152,18 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
 
     const loaded = await loadRealSkill(currentOptions.folderPath)
     if (!loaded.package) {
+      const failure = loaded.failure || {
+        code: loaded.error || 'skill-load-failed',
+        message: 'SKILL 文件夹加载失败',
+        folderPath: currentOptions.folderPath
+      }
+      const detail = formatSkillFallback(failure)
       return {
         status: 'BLOCKED',
         output: '',
         steps,
-        diagnostics: [...diagnostics, diagnostic('error', 'skill-load-failed', loaded.error || 'unknown')],
-        errors: [`子技能加载失败：${loaded.error || '未知错误'}`]
+        diagnostics: [...diagnostics, diagnostic('error', 'skill-load-failed', detail)],
+        errors: [`子技能加载失败：${detail}`]
       }
     }
     const parent = loaded.package
