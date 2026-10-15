@@ -48,7 +48,8 @@
 
 ## 收口缺口
 
-- V6/V7 为接线断言与源码行为路径，无独立 Electron 故障注入场景。
-- V10 依赖历史章节批次回归，无本轮 owner/共享槽双注入 Electron 场景。
+- V6/V7/V10 已由 `scripts/verify-owner-breakpoint-failure-injection-electron.mjs` 完成真实 Electron 故障注入；证据 `_audit/verification-owner-breakpoint-failure-injection-electron/`。
+- heartbeat 已升级为运行中连续采样并记录 `durationMs`；closure 与 body-repair 验证器重跑通过。
+- 根因修复：`isBodyContractStep()` 改为 `declaredRole` 优先，补回归测试；全量 165 files / 1939 tests 全绿。
 - 原始 015556 trace 未做逐 token 回放器，已用同语义 Electron 复刻覆盖核心事故路径。
-- Electron 验证器 heartbeat 只有初始帧，已登记为验证器增强项。
+- 本轮剩余边界：本地 mock 供应商 Electron 验证，未覆盖外部 live 供应商。

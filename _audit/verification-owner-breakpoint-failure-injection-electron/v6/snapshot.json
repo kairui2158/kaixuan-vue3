@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-15T22:03:14.548Z",
+  "runId": "run-1792101793929-1",
+  "runStatus": "failed",
+  "lastEventType": "state-transition",
+  "eventCount": 60,
+  "apiCallCount": 4,
+  "progress": 20,
+  "status": "failed: pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4",
+  "isGenerating": false,
+  "skillIds": [
+    "OWNER-BP-FAIL-S1",
+    "OWNER-BP-FAIL-S2",
+    "OWNER-BP-FAIL-S3"
+  ],
+  "pipelineSkills": [
+    "OWNER-BP-FAIL-S1",
+    "OWNER-BP-FAIL-S2",
+    "OWNER-BP-FAIL-S3"
+  ]
+}

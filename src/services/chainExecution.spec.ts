@@ -172,6 +172,12 @@ describe("body chain execution contract", () => {
       totalSteps: 4,
       declaredRole: 'polish'
     })).toBe(false)
+    expect(isBodyContractStep({
+      step: 4,
+      stepIndex: 0,
+      totalSteps: 2,
+      declaredRole: 'analysis'
+    })).toBe(false)
   })
 
   it("keeps S1 full upstream context and slims later steps deterministically", () => {

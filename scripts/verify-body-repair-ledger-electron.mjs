@@ -288,17 +288,39 @@ function snapshot(page) {
 
 function startHeartbeat(page, electronPid) {
   let stopped = false
-  const timer = setInterval(async () => {
-    if (stopped) return
+  const startedAtMs = Date.now()
+  const worker = (async () => {
+    let written = 0
     try {
-      const state = { ...(await snapshot(page)), electronPid }
-      fs.appendFileSync(HEARTBEAT_PATH, `${JSON.stringify(state)}\n`, 'utf8')
-    } catch (error) {
-      fs.appendFileSync(HEARTBEAT_PATH,
-        `${JSON.stringify({ at: new Date().toISOString(), error: String(error?.message || error) })}\n`, 'utf8')
-    }
-  }, 1000)
-  return { stop() { stopped = true; clearInterval(timer) } }
+      while (!stopped) {
+        try {
+          const state = { ...(await snapshot(page)), electronPid, frame: written + 1 }
+          fs.appendFileSync(HEARTBEAT_PATH, `${JSON.stringify(state)}\n`, 'utf8')
+          written += 1
+        } catch (error) {
+          fs.appendFileSync(HEARTBEAT_PATH,
+            `${JSON.stringify({ at: new Date().toISOString(), error: String(error?.message || error), frame: written + 1 })}\n`, 'utf8')
+          written += 1
+        }
+        await sleep(1000)
+      }
+    } catch {}
+    return written
+  })()
+  return {
+    async stop() {
+      stopped = true
+      return worker
+    },
+    frameCount() {
+      try {
+        return fs.readFileSync(HEARTBEAT_PATH, 'utf8').split('\n').filter(Boolean).length
+      } catch { return 0 }
+    },
+    durationMs() {
+      return Date.now() - startedAtMs
+    },
+  }
 }
 
 async function uiLockSnapshot(page) {
@@ -428,6 +450,12 @@ async function main() {
     assert.ok(attempts[1].bodyPreview.length <= 200, 'trace stores a bounded preview, not the full body')
 
     assert.equal(provider.requests().length, 2, 'targeted repair makes exactly one additional request')
+    const heartbeatFrames = heartbeat.frameCount()
+    const heartbeatDuration = heartbeat.durationMs()
+    assert(Number.isFinite(heartbeatDuration), 'heartbeat duration is recorded')
+    assert(heartbeatFrames >= 1, `heartbeat records the run, got ${heartbeatFrames} frames`)
+    assert(heartbeatFrames >= Math.max(1, Math.floor(heartbeatDuration / 1200)),
+      `heartbeat cadence is continuous for ${heartbeatDuration}ms, got ${heartbeatFrames} frames`)
     const repairRequest = JSON.parse(provider.requests()[1].bodyText)
     const repairPrompt = repairRequest.messages.find(message => message.role === 'user')?.content || ''
     assert(repairPrompt.includes('【上一版正文】'), 'targeted repair carries the previous body')
@@ -463,6 +491,8 @@ async function main() {
         wordCount: attempt.wordCount,
       })),
       requestCount: provider.requests().length,
+      heartbeatFrames,
+      heartbeatDurationMs: heartbeatDuration,
       uiLocks: {
         duringGeneration: lockedDuringRun,
         afterGeneration: lockedSnapshot,

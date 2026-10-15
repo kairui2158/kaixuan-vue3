@@ -1,25 +1,27 @@
 {
   "schema": "shenyi.body-repair-ledger.electron",
   "version": 1,
-  "generatedAt": "2026-10-15T19:21:44.567Z",
+  "generatedAt": "2026-10-15T22:05:56.016Z",
   "script": "verify-body-repair-ledger-electron.mjs",
-  "runId": "run-1792092103521-1",
+  "runId": "run-1792101955068-1",
   "status": "success",
   "attempts": [
     {
-      "attemptId": "chapter-body-repair-1-attempt-1-vzni6han",
+      "attemptId": "chapter-body-repair-1-attempt-1-4xnguvq1",
       "repairScope": "none",
       "status": "too_short",
       "wordCount": 328
     },
     {
-      "attemptId": "chapter-body-repair-1-attempt-2-t285irpo",
+      "attemptId": "chapter-body-repair-1-attempt-2-gbochtoe",
       "repairScope": "targeted",
       "status": "complete",
       "wordCount": 2460
     }
   ],
   "requestCount": 2,
+  "heartbeatFrames": 3,
+  "heartbeatDurationMs": 2141,
   "uiLocks": {
     "duringGeneration": {
       "volumeSelect": true,

@@ -367,17 +367,39 @@ function snapshot(page) {
 
 function startHeartbeat(page, electronPid) {
   let stopped = false
-  const timer = setInterval(async () => {
-    if (stopped) return
+  const startedAtMs = Date.now()
+  const worker = (async () => {
+    let written = 0
     try {
-      const state = { ...(await snapshot(page)), electronPid }
-      fs.appendFileSync(HEARTBEAT_PATH, `${JSON.stringify(state)}\n`, 'utf8')
-    } catch (error) {
-      fs.appendFileSync(HEARTBEAT_PATH,
-        `${JSON.stringify({ at: new Date().toISOString(), error: String(error?.message || error) })}\n`, 'utf8')
-    }
-  }, 1000)
-  return { stop() { stopped = true; clearInterval(timer) } }
+      while (!stopped) {
+        try {
+          const state = { ...(await snapshot(page)), electronPid, frame: written + 1 }
+          fs.appendFileSync(HEARTBEAT_PATH, `${JSON.stringify(state)}\n`, 'utf8')
+          written += 1
+        } catch (error) {
+          fs.appendFileSync(HEARTBEAT_PATH,
+            `${JSON.stringify({ at: new Date().toISOString(), error: String(error?.message || error), frame: written + 1 })}\n`, 'utf8')
+          written += 1
+        }
+        await sleep(1000)
+      }
+    } catch {}
+    return written
+  })()
+  return {
+    async stop() {
+      stopped = true
+      return worker
+    },
+    frameCount() {
+      try {
+        return fs.readFileSync(HEARTBEAT_PATH, 'utf8').split('\n').filter(Boolean).length
+      } catch { return 0 }
+    },
+    durationMs() {
+      return Date.now() - startedAtMs
+    },
+  }
 }
 
 async function runBodyThroughUi(page) {
@@ -500,6 +522,13 @@ async function main() {
     const requestCount = provider.requests().length
     assert.equal(requestCount, 2, `S1 and S2 each make one request, got ${requestCount}`)
 
+    const heartbeatFrames = heartbeat.frameCount()
+    const heartbeatDuration = heartbeat.durationMs()
+    assert(Number.isFinite(heartbeatDuration), 'heartbeat duration is recorded')
+    assert(heartbeatFrames >= 1, `heartbeat records the run, got ${heartbeatFrames} frames`)
+    assert(heartbeatFrames >= Math.max(1, Math.floor(heartbeatDuration / 1200)),
+      `heartbeat cadence is continuous for ${heartbeatDuration}ms, got ${heartbeatFrames} frames`)
+
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'failure.png'), fullPage: false })
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
       JSON.stringify(provider.requests(), null, 2), 'utf8')
@@ -518,6 +547,8 @@ async function main() {
       generationStepFingerprint: {
         physicalRequests: requestCount,
       },
+      heartbeatFrames,
+      heartbeatDurationMs: heartbeatDuration,
     }, null, 2), 'utf8')
     console.log('===== OWNER BREAKPOINT CLOSURE ELECTRON PASSED =====')
   } finally {

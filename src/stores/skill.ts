@@ -43,6 +43,8 @@ export interface Skill {
   inputSchema?: JsonSchema | string
   outputSchema?: JsonSchema | string
   retryPolicy?: SkillRetryPolicy | string
+  /** Package metadata such as chainHandoff.role; preserved across catalog loads. */
+  meta?: Record<string, unknown>
   intents?: string[]
 }
 
@@ -153,7 +155,8 @@ export const useSkillStore = defineStore('skill', () => {
             customVars: s.customVars || {},
             inputSchema: s.inputSchema,
             outputSchema: s.outputSchema,
-            retryPolicy: s.retryPolicy
+            retryPolicy: s.retryPolicy,
+            meta: s.meta && typeof s.meta === 'object' ? s.meta : undefined
             ,intents: s.intents
           }
         })

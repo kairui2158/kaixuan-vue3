@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-15T22:03:37.964Z",
+  "runId": "run-1792101817381-1",
+  "runStatus": "failed",
+  "lastEventType": "state-transition",
+  "eventCount": 47,
+  "apiCallCount": 2,
+  "progress": 20,
+  "status": "failed: 正文生成步骤契约失败：正文过短：6字，要求不低于1800字",
+  "isGenerating": false,
+  "skillIds": [
+    "OWNER-BP-FAIL-S1",
+    "folder:owner-bp-degraded"
+  ],
+  "pipelineSkills": [
+    "OWNER-BP-FAIL-S1",
+    "folder:owner-bp-degraded"
+  ]
+}

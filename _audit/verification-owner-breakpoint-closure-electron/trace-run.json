@@ -1,5 +1,5 @@
 {
-  "id": "run-1792092081952-1",
+  "id": "run-1792101892016-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -17,27 +17,27 @@
   ],
   "skillMode": "chain",
   "status": "failed",
-  "startedAt": 1792092081952,
+  "startedAt": 1792101892016,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
       "reason": "generation_failed",
-      "recordedAt": 1792092082096
+      "recordedAt": 1792101892221
     }
   ],
   "events": [
     {
-      "id": "event-1792092081952-2",
-      "ts": 1792092081952,
+      "id": "event-1792101892018-2",
+      "ts": 1792101892018,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792092081957-3",
-      "ts": 1792092081957,
+      "id": "event-1792101892026-3",
+      "ts": 1792101892026,
       "seq": 2,
       "type": "context_scope",
       "level": "info",
@@ -45,8 +45,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":1,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":227,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792092081958-4",
-      "ts": 1792092081958,
+      "id": "event-1792101892027-4",
+      "ts": 1792101892027,
       "seq": 3,
       "type": "memory_context",
       "level": "info",
@@ -54,8 +54,8 @@
       "detail": "{\"chapterId\":\"chapter-owner-breakpoint-1\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792092081960-5",
-      "ts": 1792092081960,
+      "id": "event-1792101892028-5",
+      "ts": 1792101892028,
       "seq": 4,
       "type": "prompt-built",
       "level": "info",
@@ -63,8 +63,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1792092081984-6",
-      "ts": 1792092081984,
+      "id": "event-1792101892055-6",
+      "ts": 1792101892055,
       "seq": 5,
       "type": "chain-completed-checkpoint-rejected",
       "level": "warn",
@@ -72,8 +72,8 @@
       "detail": "{\"ownerKey\":\"pipeline:owner-breakpoint-closure:step-4\",\"skillSequence\":[\"OWNER-BP-S1\",\"OWNER-BP-S2\",\"OWNER-BP-S3\"],\"reason\":\"completed_chain_checkpoint\"}"
     },
     {
-      "id": "event-1792092081984-7",
-      "ts": 1792092081984,
+      "id": "event-1792101892055-7",
+      "ts": 1792101892055,
       "seq": 6,
       "type": "chain-context-slim",
       "level": "info",
@@ -81,8 +81,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":330,\"finalPromptLength\":330,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792092081986-8",
-      "ts": 1792092081986,
+      "id": "event-1792101892059-8",
+      "ts": 1792101892059,
       "seq": 7,
       "type": "chain-step",
       "level": "info",
@@ -90,8 +90,8 @@
       "detail": "S1 分析（文本）"
     },
     {
-      "id": "event-1792092081997-10",
-      "ts": 1792092081997,
+      "id": "event-1792101892073-10",
+      "ts": 1792101892073,
       "seq": 8,
       "type": "api-start",
       "level": "info",
@@ -99,8 +99,8 @@
       "detail": "{\"skillName\":\"S1 分析\",\"model\":\"owner-breakpoint-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792092082003-12",
-      "ts": 1792092082003,
+      "id": "event-1792101892081-12",
+      "ts": 1792101892081,
       "seq": 9,
       "type": "run-activity",
       "level": "info",
@@ -112,22 +112,22 @@
       }
     },
     {
-      "id": "event-1792092082004-13",
-      "ts": 1792092082004,
+      "id": "event-1792101892081-13",
+      "ts": 1792101892081,
       "seq": 10,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792092082002-11",
+        "physicalCallId": "physical-1792101892081-11",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792092082004-14",
-      "ts": 1792092082004,
+      "id": "event-1792101892081-14",
+      "ts": 1792101892081,
       "seq": 11,
       "type": "physical-call",
       "level": "info",
@@ -135,9 +135,18 @@
       "detail": "normal / S1 分析 / owner-breakpoint-model"
     },
     {
-      "id": "event-1792092082047-15",
-      "ts": 1792092082047,
+      "id": "event-1792101892147-15",
+      "ts": 1792101892147,
       "seq": 12,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S1 分析 / owner-breakpoint-model / stop"
+    },
+    {
+      "id": "event-1792101892148-16",
+      "ts": 1792101892148,
+      "seq": 13,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -148,17 +157,8 @@
       }
     },
     {
-      "id": "event-1792092082056-16",
-      "ts": 1792092082056,
-      "seq": 13,
-      "type": "physical-call",
-      "level": "info",
-      "label": "第 1 次物理请求完成",
-      "detail": "normal / S1 分析 / owner-breakpoint-model / stop"
-    },
-    {
-      "id": "event-1792092082057-17",
-      "ts": 1792092082057,
+      "id": "event-1792101892150-17",
+      "ts": 1792101892150,
       "seq": 14,
       "type": "run-activity",
       "level": "info",
@@ -170,17 +170,17 @@
       }
     },
     {
-      "id": "event-1792092082058-18",
-      "ts": 1792092082058,
+      "id": "event-1792101892152-18",
+      "ts": 1792101892152,
       "seq": 15,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792092081997-9 seq=1"
+      "detail": "apiCall=api-1792101892073-9 seq=1"
     },
     {
-      "id": "event-1792092082059-19",
-      "ts": 1792092082059,
+      "id": "event-1792101892152-19",
+      "ts": 1792101892152,
       "seq": 16,
       "type": "api-success",
       "level": "info",
@@ -188,8 +188,8 @@
       "detail": "S1 分析 / owner-breakpoint-model"
     },
     {
-      "id": "event-1792092082062-21",
-      "ts": 1792092082062,
+      "id": "event-1792101892158-21",
+      "ts": 1792101892158,
       "seq": 17,
       "type": "processing-report",
       "level": "info",
@@ -197,8 +197,8 @@
       "detail": "post"
     },
     {
-      "id": "event-1792092082063-22",
-      "ts": 1792092082063,
+      "id": "event-1792101892159-22",
+      "ts": 1792101892159,
       "seq": 18,
       "type": "chain-handoff",
       "level": "info",
@@ -206,8 +206,8 @@
       "detail": "{\"artifactId\":\"handoff-0-934457b5\",\"sourceStep\":0,\"sourceSkillId\":\"OWNER-BP-S1\",\"outputHash\":\"934457b5\",\"fullTextLength\":111,\"delivery\":\"full_text\",\"excerptLength\":111,\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792092082072-23",
-      "ts": 1792092082072,
+      "id": "event-1792101892174-23",
+      "ts": 1792101892174,
       "seq": 19,
       "type": "chain-context-slim",
       "level": "info",
@@ -215,8 +215,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":330,\"finalPromptLength\":330,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792092082073-24",
-      "ts": 1792092082073,
+      "id": "event-1792101892178-24",
+      "ts": 1792101892178,
       "seq": 20,
       "type": "chain-handoff-delivery",
       "level": "info",
@@ -224,8 +224,8 @@
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":111,\"deliveredLength\":111,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"OWNER-BP-S2\",\"skillName\":\"S2 生成（文本）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792092082073-25",
-      "ts": 1792092082073,
+      "id": "event-1792101892179-25",
+      "ts": 1792101892179,
       "seq": 21,
       "type": "chain-step",
       "level": "info",
@@ -233,8 +233,8 @@
       "detail": "S2 生成（文本）"
     },
     {
-      "id": "event-1792092082073-27",
-      "ts": 1792092082073,
+      "id": "event-1792101892180-27",
+      "ts": 1792101892180,
       "seq": 22,
       "type": "api-start",
       "level": "info",
@@ -242,8 +242,8 @@
       "detail": "{\"skillName\":\"S2 生成\",\"model\":\"owner-breakpoint-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792092082074-29",
-      "ts": 1792092082074,
+      "id": "event-1792101892180-29",
+      "ts": 1792101892180,
       "seq": 23,
       "type": "run-activity",
       "level": "info",
@@ -255,22 +255,22 @@
       }
     },
     {
-      "id": "event-1792092082074-30",
-      "ts": 1792092082074,
+      "id": "event-1792101892180-30",
+      "ts": 1792101892180,
       "seq": 24,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792092082074-28",
+        "physicalCallId": "physical-1792101892180-28",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792092082074-31",
-      "ts": 1792092082074,
+      "id": "event-1792101892180-31",
+      "ts": 1792101892180,
       "seq": 25,
       "type": "physical-call",
       "level": "info",
@@ -278,8 +278,8 @@
       "detail": "normal / S2 生成 / owner-breakpoint-model"
     },
     {
-      "id": "event-1792092082082-32",
-      "ts": 1792092082082,
+      "id": "event-1792101892196-32",
+      "ts": 1792101892196,
       "seq": 26,
       "type": "physical-call",
       "level": "info",
@@ -287,8 +287,8 @@
       "detail": "normal / S2 生成 / owner-breakpoint-model / stop"
     },
     {
-      "id": "event-1792092082082-33",
-      "ts": 1792092082082,
+      "id": "event-1792101892197-33",
+      "ts": 1792101892197,
       "seq": 27,
       "type": "run-activity",
       "level": "info",
@@ -300,8 +300,8 @@
       }
     },
     {
-      "id": "event-1792092082083-34",
-      "ts": 1792092082083,
+      "id": "event-1792101892198-34",
+      "ts": 1792101892198,
       "seq": 28,
       "type": "run-activity",
       "level": "info",
@@ -313,17 +313,17 @@
       }
     },
     {
-      "id": "event-1792092082083-35",
-      "ts": 1792092082083,
+      "id": "event-1792101892198-35",
+      "ts": 1792101892198,
       "seq": 29,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792092082073-26 seq=2"
+      "detail": "apiCall=api-1792101892180-26 seq=2"
     },
     {
-      "id": "event-1792092082083-36",
-      "ts": 1792092082083,
+      "id": "event-1792101892198-36",
+      "ts": 1792101892198,
       "seq": 30,
       "type": "api-success",
       "level": "info",
@@ -331,8 +331,8 @@
       "detail": "S2 生成 / owner-breakpoint-model"
     },
     {
-      "id": "event-1792092082084-37",
-      "ts": 1792092082084,
+      "id": "event-1792101892206-37",
+      "ts": 1792101892206,
       "seq": 31,
       "type": "body-chain-contract-failed",
       "level": "error",
@@ -340,17 +340,17 @@
       "detail": "{\"attemptChapterId\":\"chapter-owner-breakpoint-1\",\"targetWords\":3000,\"wordCount\":4,\"errors\":[\"正文过短：4字，要求不低于1800字\"]}"
     },
     {
-      "id": "event-1792092082091-38",
-      "ts": 1792092082091,
+      "id": "event-1792101892214-38",
+      "ts": 1792101892214,
       "seq": 32,
       "type": "body-artifact-attempt",
       "level": "error",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-1-attempt-1-eyp4jpnt\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"正文生成步骤契约失败：正文过短：4字，要求不低于1800字\"],\"bodyPreview\":\"\"}"
+      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-1-attempt-1-4sj9ztwp\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"正文生成步骤契约失败：正文过短：4字，要求不低于1800字\"],\"bodyPreview\":\"\"}"
     },
     {
-      "id": "event-1792092082092-39",
-      "ts": 1792092082092,
+      "id": "event-1792101892214-39",
+      "ts": 1792101892214,
       "seq": 33,
       "type": "failed",
       "level": "error",
@@ -358,8 +358,8 @@
       "detail": "正文生成步骤契约失败：正文过短：4字，要求不低于1800字"
     },
     {
-      "id": "event-1792092082096-40",
-      "ts": 1792092082096,
+      "id": "event-1792101892221-40",
+      "ts": 1792101892221,
       "seq": 34,
       "type": "finished",
       "level": "error",
@@ -367,18 +367,18 @@
       "detail": "generation_failed"
     },
     {
-      "id": "event-1792092082096-41",
-      "ts": 1792092082096,
+      "id": "event-1792101892221-41",
+      "ts": 1792101892221,
       "seq": 35,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1792092081952-1"
+      "detail": "generation_failed / run=run-1792101892016-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792092081997-9",
+      "id": "api-1792101892073-9",
       "seq": 1,
       "step": 4,
       "skillId": "OWNER-BP-S1",
@@ -402,11 +402,11 @@
       "streamText": "雨夜第一段：林照进入灯塔，发现纸条藏在灯座下。\n他把纸条压在掌心，听见门外传来巡逻声。\n他记下纸条日期，开始怀疑灯芯维护记录被人涂改。\n他在窗边观察到船队灯光异常，决定继续调查。\n他把线索写在袖口，等待雨声掩护下一步行动。雨夜第一段：林照进入灯塔，发现纸条藏在灯座下。\n他把纸条压在掌心，听见门外传来巡逻声。\n他记下纸条日期，开始怀疑灯芯维护记录被人涂改。\n他在窗边观察到船队灯光异常，决定继续调查。\n他把线索写在袖口，等待雨声掩护下一步行动。",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792092081997,
+      "startedAt": 1792101892073,
       "physicalCalls": [
         {
-          "id": "physical-1792092082002-11",
-          "physicalCallId": "physical-1792092081998-0",
+          "id": "physical-1792101892081-11",
+          "physicalCallId": "physical-1792101892074-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -430,11 +430,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792092082002,
-          "durationMs": 55,
-          "firstTokenMs": 46,
-          "outputMs": 9,
-          "endedAt": 1792092082055,
+          "startedAt": 1792101892081,
+          "durationMs": 67,
+          "firstTokenMs": 59,
+          "outputMs": 8,
+          "endedAt": 1792101892147,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -449,22 +449,22 @@
             "driftRatio": -0.9914015477214101,
             "correctedRatio": 0.008598452278589854
           },
-          "firstContentAt": 1792092082046,
-          "lastContentAt": 1792092082046,
+          "firstContentAt": 1792101892138,
+          "lastContentAt": 1792101892138,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792092082047,
-      "lastStreamActivityAt": 1792092082047,
+      "lastExecutionActivityAt": 1792101892149,
+      "lastStreamActivityAt": 1792101892149,
       "finishReason": "stop",
-      "durationMs": 53,
+      "durationMs": 67,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 55,
-        "minFirstTokenMs": 46,
-        "maxFirstTokenMs": 46,
-        "localOverheadMs": -2
+        "physicalDurationSumMs": 67,
+        "minFirstTokenMs": 59,
+        "maxFirstTokenMs": 59,
+        "localOverheadMs": 0
       },
       "usage": {
         "inputTokens": 10,
@@ -472,9 +472,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792092082058,
+      "endedAt": 1792101892152,
       "semantic": {
-        "conversationId": "run-1792092081952-1",
+        "conversationId": "run-1792101892016-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -483,7 +483,7 @@
       }
     },
     {
-      "id": "api-1792092082073-26",
+      "id": "api-1792101892180-26",
       "seq": 2,
       "step": 4,
       "skillId": "OWNER-BP-S2",
@@ -507,11 +507,11 @@
       "streamText": "雨夜第一段：林照进入灯塔，发现纸条藏在灯座下。\n他把纸条压在掌心，听见门外传来巡逻声。\n他记下纸条日期，开始怀疑灯芯维护记录被人涂改。\n他在窗边观察到船队灯光异常，决定继续调查。\n他把线索写在袖口，等待雨声掩护下一步行动。雨夜短稿。雨夜短稿。",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792092082073,
+      "startedAt": 1792101892180,
       "physicalCalls": [
         {
-          "id": "physical-1792092082074-28",
-          "physicalCallId": "physical-1792092082073-0",
+          "id": "physical-1792101892180-28",
+          "physicalCallId": "physical-1792101892180-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -535,11 +535,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792092082074,
-          "durationMs": 8,
-          "firstTokenMs": 7,
-          "outputMs": 1,
-          "endedAt": 1792092082082,
+          "startedAt": 1792101892180,
+          "durationMs": 16,
+          "firstTokenMs": 14,
+          "outputMs": 2,
+          "endedAt": 1792101892196,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -554,22 +554,22 @@
             "driftRatio": -0.9922178988326849,
             "correctedRatio": 0.007782101167315175
           },
-          "firstContentAt": 1792092082081,
-          "lastContentAt": 1792092082081,
+          "firstContentAt": 1792101892194,
+          "lastContentAt": 1792101892194,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792092082082,
-      "lastStreamActivityAt": 1792092082082,
+      "lastExecutionActivityAt": 1792101892198,
+      "lastStreamActivityAt": 1792101892198,
       "finishReason": "stop",
-      "durationMs": 8,
+      "durationMs": 15,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 8,
-        "minFirstTokenMs": 7,
-        "maxFirstTokenMs": 7,
-        "localOverheadMs": 0
+        "physicalDurationSumMs": 16,
+        "minFirstTokenMs": 14,
+        "maxFirstTokenMs": 14,
+        "localOverheadMs": -1
       },
       "usage": {
         "inputTokens": 10,
@@ -577,9 +577,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792092082083,
+      "endedAt": 1792101892198,
       "semantic": {
-        "conversationId": "run-1792092081952-1",
+        "conversationId": "run-1792101892016-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -592,28 +592,28 @@
   "promptSnapshots": [],
   "processingReports": [
     {
-      "id": "processing-1792092082062-20",
+      "id": "processing-1792101892158-20",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
       "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。",
       "outputPreview": "雨夜第一段：林照进入灯塔，发现纸条藏在灯座下。\n他把纸条压在掌心，听见门外传来巡逻声。\n他记下纸条日期，开始怀疑灯芯维护记录被人涂改。\n他在窗边观察到船队灯光异常，决定继续调查。\n他把线索写在袖口，等待雨声掩护下一步行动。",
       "output": "雨夜第一段：林照进入灯塔，发现纸条藏在灯座下。\n他把纸条压在掌心，听见门外传来巡逻声。\n他记下纸条日期，开始怀疑灯芯维护记录被人涂改。\n他在窗边观察到船队灯光异常，决定继续调查。\n他把线索写在袖口，等待雨声掩护下一步行动。",
-      "startedAt": 1792092082061,
-      "endedAt": 1792092082061,
+      "startedAt": 1792101892158,
+      "endedAt": 1792101892158,
       "durationMs": 0
     }
   ],
   "payloads": [],
-  "dirName": "run-trace-正文层-20261016-032121",
+  "dirName": "run-trace-正文层-20261016-060452",
   "timingLedger": {
     "apiCallCount": 2,
     "physicalCallCount": 2,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 63,
-    "firstTokenSumMs": 53,
+    "physicalDurationSumMs": 83,
+    "firstTokenSumMs": 73,
     "outputSumMs": 10,
-    "localOverheadSumMs": -2,
+    "localOverheadSumMs": -1,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -626,14 +626,14 @@
     "physicalCallCount": 2,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 53,
+    "firstTokenSumMs": 73,
     "outputSumMs": 10,
     "postProcessSumMs": 0,
     "repeatedPromptBlocks": {},
     "contextChars": 4959,
     "outputChars": 116,
-    "physicalDurationSumMs": 63
+    "physicalDurationSumMs": 83
   },
-  "endedAt": 1792092082096,
-  "durationMs": 144
+  "endedAt": 1792101892221,
+  "durationMs": 205
 }

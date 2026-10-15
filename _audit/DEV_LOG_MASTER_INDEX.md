@@ -954,6 +954,16 @@
 - 范围：F1-F6 全量落地；owner 成功断点对称清理、completed 断点拒绝恢复、attempt 请求指纹、degraded 无效输出拦截、正文长度契约前移、终步 echo 职责化。
 - 关键修正：Electron 首跑发现契约误套 S1 分析步；新增 `isBodyContractStep()` 与 `chainHandoff.role`，仅生成步执行正文契约。
 - 验证：定向 3 files / 33 tests、全量 165 files / 1937 tests、type-check、build:vue、两个真实 Electron 验证器全过；completed owner 断点被拒绝、S2 短产契约结构化失败、旧产物未入库、targeted 修复回归不破坏。
-- 诚实边界：V6/V7 为接线断言与源码行为路径，未做 Electron 故障注入；V10 依赖历史回归；015556 原始 trace 用同语义 Electron 复刻替代逐 token 回放器；heartbeat 运行中采样不足已登记。
+- 诚实边界：V6/V7/V10 当轮为接线断言与历史回归，015556 原始 trace 用同语义 Electron 复刻替代逐 token 回放器；该缺口已在同日故障注入补强条目收口。
 - 封装：升级 3.91.0；安装包 `dist/神意助手-Setup-3.91.0.exe`，231,553,091 bytes，SHA256 `9758313b7c5ff5ff02f6d4595a909e41072daf70d8652d14e2dd0141b390ab11`；打包真实启动核验通过，证据 `_audit/verification-packaging-3-91-0/packaging-evidence.json`；已清理 3.90.0 旧安装包与 blockmap。
 - 打包机况：本机首次完整构建出现 `win-unpacked/神意助手.exe` EBUSY/rcedit `Unable to commit changes` 间歇资源锁；独立复测同一 EXE 的完整 rcedit 参数成功。最终 NSIS 构建使用一次性 `--config.win.signAndEditExecutable=false` 绕过该间歇冲突，asar integrity 与打包后真实启动核验均已通过。后续若复现，应优先查杀安全软件/索引器句柄并恢复默认签名编辑路径。
+
+# 2026-10-16 owner 断点故障注入证据补强与 3.91.1 封装
+
+- 脚本：[_audit/verification-owner-breakpoint-failure-injection-electron/report.json](_audit/verification-owner-breakpoint-failure-injection-electron/report.json)
+- 范围：补齐 V6 storage 清理失败、V7 folder degraded、V10 owner/章节共享槽双注入三个真实 Electron 故障注入场景；无假 SKILL 注入，V6 失败仅注入存储层。
+- 根因修正：`isBodyContractStep()` 改为 `declaredRole` 优先，两步链 S1 `role: analysis` 不再被位置推断误判为生成步；closure/body-repair heartbeat 采集器补 `durationMs()`，修复“断言升级但采集器未升级”的假失败。
+- 经验回写：`神意开发经验总结_v7.md` 升级 v8.12；G1.5 补入验证器断言、采集器、证据载体同批升级契约。
+- 验证：故障注入脚本 PASSED（V6/V7 各 4 次物理请求且 run failed，V10 4 次物理请求且 success）；closure/body-repair Electron 验证器重跑 PASSED；`npm run test:services` 165 files / 1939 tests；type-check、build:vue、build 通过。
+- 诚实边界：本地 mock 供应商 Electron 验证，未覆盖外部 live 供应商；015556 原始 trace 仍未做逐 token 回放器。
+- 封装：升级 3.91.1；安装包 `dist/神意助手-Setup-3.91.1.exe`，231,532,815 bytes，SHA256 `451167c3cc43b242dd1410d8565276925829242ef1fd161bdd790a4354a0412e`；rendererFiles=74、electronAPI methods=77；证据 `_audit/verification-packaging-3-91-1/packaging-evidence.json`；已清理 3.91.0 安装包与 blockmap 及 `_data/owner-breakpoint-failure-profile` 临时 profile。

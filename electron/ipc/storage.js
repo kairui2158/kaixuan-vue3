@@ -7,6 +7,10 @@ var dataDir = ''
 var legacyDir = ''
 var writeQueues = new Map()
 
+function isConfiguredRemoveFailure(key) {
+  return Boolean(key) && process.env.SHENYI_TEST_STORAGE_REMOVE_FAILURE_KEY === key
+}
+
 function getPrimaryDataDir() {
   return path.join(os.homedir(), 'Documents', '神意助手数据')
 }
@@ -210,6 +214,9 @@ function registerStorageHandlers(targetIpc) {
 
   ipc.handle('storage:remove', async function(event, key) {
     try {
+      if (isConfiguredRemoveFailure(key)) {
+        return false
+      }
       await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
       try { await fs.unlink(filePath) } catch(e) { /* not found */ }

@@ -1,14 +1,16 @@
 {
   "schema": "shenyi.owner-breakpoint-closure.electron",
   "version": 1,
-  "generatedAt": "2026-10-15T19:21:22.682Z",
+  "generatedAt": "2026-10-15T22:04:52.815Z",
   "script": "verify-owner-breakpoint-closure-electron.mjs",
-  "runId": "run-1792092081952-1",
+  "runId": "run-1792101892016-1",
   "status": "failed",
   "requestCount": 2,
   "completedCheckpointRejected": true,
   "bodyContractFailed": true,
   "generationStepFingerprint": {
     "physicalRequests": 2
-  }
+  },
+  "heartbeatFrames": 2,
+  "heartbeatDurationMs": 1968
 }

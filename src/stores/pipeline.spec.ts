@@ -86,4 +86,18 @@ describe('pipeline breakpoint storage isolation', () => {
     expect(await store.refreshBreakpoint('pipeline:project-1:step-2')).toBeNull()
     expect(await store.refreshBreakpoint()).toMatchObject({ kind: 'chapters' })
   })
+
+  it('fails and keeps the checkpoint when storage removal reports failure', async () => {
+    const store = usePipelineStore()
+    await store.saveBreakpoint(chainBreakpoint)
+    const storageRemove = window.electronAPI.storageRemove as ReturnType<typeof vi.fn>
+    storageRemove.mockResolvedValueOnce(false)
+
+    await expect(store.clearBreakpoint('pipeline:project-1:step-2'))
+      .rejects.toThrow('pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:project-1:step-2')
+    expect(store.breakpoint).toMatchObject({ ownerKey: 'pipeline:project-1:step-2' })
+    expect(storage.get('wa_pipeline_breakpoint_owner_pipeline:project-1:step-2')).toMatchObject({
+      ownerKey: 'pipeline:project-1:step-2',
+    })
+  })
 })

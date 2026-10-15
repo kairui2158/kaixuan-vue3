@@ -115,20 +115,20 @@ Electron 首跑暴露 F5 的一个真实缺口：契约最初套在所有中间�
 
 | 用例 | 证据类型 | 证据 |
 |---|---|---|
-| V1 compose fresh 回归 | 运行证据 | 全量 `npm run test:services`：165 files / 1937 tests 全绿 |
+| V1 compose fresh 回归 | 运行证据 | 全量 `npm run test:services`：165 files / 1939 tests 全绿 |
 | V2 fresh chain + owner 清理 | 接线/运行组合 | `ownerBreakpointClosureWiring.spec.ts` 断言 owner 清理调用；`verify-owner-breakpoint-closure-electron.mjs` 真实进入 chain 分支 |
 | V3 completed 断点二次进入 | Electron 运行证据 | `_audit/verification-owner-breakpoint-closure-electron/`：`chain-completed-checkpoint-rejected`、新物理请求 2 次、旧产物未入库、run failed 且锁释放 |
 | V4 失败断点恢复 | 单测运行证据 | `chainBreakpoint.spec.ts`：失败步骤恢复，不重跑已完成步骤 |
 | V5 修复 attempt 指纹 | 单测 + Electron 运行证据 | `bodyArtifactOrchestrator.spec.ts` 零请求判 `execution_invalid`；`verification-body-repair-ledger-electron/trace-run.json` 两个 attempt 各有 physicalRequests/promptHash/outputHash |
-| V6 清理失败 | 接线断言 + 源码行为路径 | `ownerBreakpointClosureWiring.spec.ts` 断言 `chain-breakpoint-clear-failed`；无独立 Electron 清理失败注入场景 |
-| V7 degraded 无输出 | 接线断言 + 源码行为路径 | `ownerBreakpointClosureWiring.spec.ts` 断言 degraded 无有效输出不包装；无独立 Electron degraded 注入场景 |
+| V6 清理失败 | Electron 故障注入 | `_audit/verification-owner-breakpoint-failure-injection-electron/`（v6）：真实 UI 触发链路，storage clear 失败仅注入存储层；4 次物理请求；trace `chain-breakpoint-clear-failed`；run failed，不宣称成功 |
+| V7 degraded 无输出 | Electron 故障注入 | `_audit/verification-owner-breakpoint-failure-injection-electron/`（v7）：真实 folder degraded；4 次物理请求；trace `folder-skill-degraded-with-error` + `body-chain-contract-failed`；6 字短输出被 1800 字下限拒绝，run failed |
 | V8 S2 短产契约 | Electron 运行证据 | `_audit/verification-owner-breakpoint-closure-electron/`：S1 正常执行，S2 4 字触发 `body-chain-contract-failed`，S3 未被迫扩写 |
 | V9 S3 高重合 | 单测运行证据 | `chainExecution.spec.ts`：polish 终步 0.93/0.99 不触发重试；generator 0.93 仍触发 |
-| V10 章节批次共存 | 历史运行证据 + 单测回归 | 章节批次共享断点路径保持无参清理；本轮未新增 owner/共享槽双注入 Electron 场景 |
+| V10 章节批次共存 | Electron 双注入 | `_audit/verification-owner-breakpoint-failure-injection-electron/`（v10）：owner 断点与章节批次共享槽共存；run success；4 次物理请求；清理互不干扰 |
 
 ### 9.3 停止条件对账
 
-- 全量回归：`npm run test:services` 通过，165 files / 1937 tests。
+- 全量回归：`npm run test:services` 通过，165 files / 1939 tests。
 - `npm run type-check` 通过；`npm run build:vue` 通过（仅既有 Vite/jieba/chunk 警告）。
 - Electron 验证器真实进入 chain 分支：trace 含 `chain-step`、`api-start`、`chain-completed-checkpoint-rejected`、`body-chain-contract-failed`；物理请求 2 次。
 - 原事故核心路径已由等价 Electron 复刻覆盖：completed owner 断点不再回放旧产物；S2 契约失败表现为结构化失败；无零请求 attempt 成功。
@@ -136,6 +136,7 @@ Electron 首跑暴露 F5 的一个真实缺口：契约最初套在所有中间�
 
 ### 9.4 诚实边界与后续登记
 
-- V6/V7 当前为源码接线断言与行为路径覆盖，未做 Electron 故障注入；后续可在 Electron 验证器中加 storage clear 失败与 degraded 无输出场景。
-- V10 未新增本轮 owner/共享槽双注入场景，依赖历史章节批次回归与共享槽路径不变。
-- 新 Electron 验证器的 heartbeat 只有初始帧，停滞监控深度不足；建议后续将 heartbeat 提升为运行中连续采样，避免“应用卡死但验证器仍宣称通过”。
+- V6/V7/V10 已由 `scripts/verify-owner-breakpoint-failure-injection-electron.mjs` 补齐真实 Electron 故障注入证据；V6 为存储层失败注入，V7 为真实 folder degraded，V10 为 owner/共享槽双注入共存。
+- heartbeat 已升级为运行中连续采样并记录 `durationMs`；closure 与 body-repair 两个既有验证器同步升级采集器后重跑通过。
+- 首轮注入验证暴露 `isBodyContractStep()` 只按位置推断的根因缺陷，已修复为 `declaredRole` 优先、未声明时才回退位置推断，并补回归测试。
+- 边界：以上均为本地 mock 供应商 Electron 验证，未覆盖外部 live 供应商；015556 原始 trace 仍未做逐 token 回放器，事故路径由同语义复刻与故障注入共同覆盖。

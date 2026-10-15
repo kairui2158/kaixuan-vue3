@@ -1,1 +1,3 @@
-{"at":"2026-10-15T19:21:21.863Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":27624}
+{"at":"2026-10-15T22:04:50.688Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":36252,"frame":1}
+{"at":"2026-10-15T22:04:51.708Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":36252,"frame":2}
+{"at":"2026-10-15T22:04:52.790Z","runId":"run-1792101892016-1","runStatus":"failed","lastEventType":"state-transition","progress":20,"status":"failed: 正文生成步骤契约失败：正文过短：4字，要求不低于1800字","isGenerating":false,"electronPid":36252,"frame":3}

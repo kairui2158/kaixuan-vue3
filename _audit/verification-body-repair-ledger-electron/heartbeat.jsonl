@@ -1,2 +1,3 @@
-{"at":"2026-10-15T19:21:43.193Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":20944}
-{"at":"2026-10-15T19:21:44.196Z","runId":"run-1792092103521-1","runStatus":"success","lastEventType":"state-transition","progress":100,"status":"done","isGenerating":false,"electronPid":20944}
+{"at":"2026-10-15T22:05:53.613Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":38232,"frame":1}
+{"at":"2026-10-15T22:05:54.632Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":38232,"frame":2}
+{"at":"2026-10-15T22:05:55.650Z","runId":"run-1792101955068-1","runStatus":"success","lastEventType":"state-transition","progress":100,"status":"done","isGenerating":false,"electronPid":38232,"frame":3}

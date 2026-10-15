@@ -235,7 +235,7 @@ export function buildChainSkillSequence<T>(skills: T[]): T[] {
  */
 export function isBodyContractStep(input: BodyContractStepInput): boolean {
   if (input.step !== 4 || input.totalSteps <= 1) return false
-  if (input.declaredRole === 'generator' || input.declaredRole === 'polish') {
+  if (input.declaredRole) {
     return input.declaredRole === 'generator'
   }
   return input.stepIndex === input.totalSteps - 2

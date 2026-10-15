@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-15T22:03:26.385Z",
+  "runId": "run-1792101805730-1",
+  "runStatus": "success",
+  "lastEventType": "state-transition",
+  "eventCount": 62,
+  "apiCallCount": 4,
+  "progress": 100,
+  "status": "done",
+  "isGenerating": false,
+  "skillIds": [
+    "OWNER-BP-FAIL-S1",
+    "OWNER-BP-FAIL-S2",
+    "OWNER-BP-FAIL-S3"
+  ],
+  "pipelineSkills": [
+    "OWNER-BP-FAIL-S1",
+    "OWNER-BP-FAIL-S2",
+    "OWNER-BP-FAIL-S3"
+  ]
+}

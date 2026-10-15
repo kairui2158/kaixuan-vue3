@@ -68,4 +68,19 @@ describe('electron ipc storage', () => {
     await expect(fs.access(path.join(dataDir, 'breakpoint.json'))).rejects.toThrow()
     await expect(fs.access(path.join(dataDir, 'breakpoint.json.bak'))).rejects.toThrow()
   })
+
+  it('reports removal failure only for the test-designated key', async () => {
+    process.env.SHENYI_TEST_STORAGE_REMOVE_FAILURE_KEY = 'owner-checkpoint'
+    try {
+      await write('owner-checkpoint', { status: 'completed' })
+      await write('other-checkpoint', { status: 'completed' })
+
+      expect(await remove('owner-checkpoint')).toBe(false)
+      expect(await remove('other-checkpoint')).toBe(true)
+      expect(await read('owner-checkpoint')).toEqual({ status: 'completed' })
+      expect(await read('other-checkpoint')).toBeNull()
+    } finally {
+      delete process.env.SHENYI_TEST_STORAGE_REMOVE_FAILURE_KEY
+    }
+  })
 })

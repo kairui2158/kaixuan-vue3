@@ -109,7 +109,10 @@ export const usePipelineStore = defineStore('pipeline', () => {
     const key = ownerKey
       ? storageKey(`pipeline_breakpoint_owner_${ownerKey}`)
       : storageKey('pipeline_breakpoint')
-    await window.electronAPI.storageRemove(key)
+    const removed = await window.electronAPI.storageRemove(key)
+    if (removed === false) {
+      throw new Error(`pipeline breakpoint remove failed: ${key}`)
+    }
     breakpoint.value = null
     if (!ownerKey) chapterProgress.value = null
   }

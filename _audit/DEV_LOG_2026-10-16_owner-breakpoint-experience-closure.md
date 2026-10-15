@@ -52,7 +52,20 @@ Electron 首跑发现契约最初误套 S1 分析步，已通过 `isBodyContract
 
 ## 诚实边界
 
-- V6（清理失败）与 V7（degraded 无输出）目前为接线断言与源码行为路径，未做独立 Electron 故障注入。
-- V10（章节共享断点）依赖历史回归与共享槽路径不变，本轮未新增双注入场景。
+- V6（清理失败）与 V7（degraded 无输出）原为接线断言与源码行为路径，已在下方“故障注入补强收口”补齐 Electron 注入证据。
+- V10（章节共享断点）原依赖历史回归与共享槽路径不变，已在下方补强中完成 owner/共享槽双注入验证。
 - 原始 015556 trace 未写逐 token 回放器；已用同一语义 Electron 复刻覆盖事故核心路径。
-- 新验证器 heartbeat 只有初始帧，运行中停滞监控深度不足，已登记为后续验证器增强项。
+- heartbeat 原只有初始帧，已升级为运行中连续采样并记录 `durationMs`。
+
+## 故障注入补强收口
+
+- 新增 `scripts/verify-owner-breakpoint-failure-injection-electron.mjs`，PASSED；证据 `_audit/verification-owner-breakpoint-failure-injection-electron/`，含 v6/v7/v10 三个子目录的 trace-run.json、provider-requests.json、snapshot.json、body.txt。
+- V6：storage 清理失败仅注入存储层，无假 SKILL 注入；4 次物理请求；`chain-breakpoint-clear-failed`；run failed。
+- V7：真实 folder degraded；4 次物理请求；`folder-skill-degraded-with-error` + `body-chain-contract-failed`；6 字短输出被 1800 字下限拒绝。
+- V10：owner 断点与章节批次共享槽共存；run success；4 次物理请求；清理互不干扰。
+- 根因修复：`chainExecution.ts` 的 `isBodyContractStep()` 改为 `declaredRole` 优先；两步链中 S1 `role: analysis` 不再被误判为生成步；未声明 role 时才回退位置推断，并补 `chainExecution.spec.ts` 回归。
+- 验证器修复：closure 与 body-repair 脚本 heartbeat 采集器补 `durationMs()`，修复“断言升级但采集器未升级”的假失败后完整重跑通过。
+- 经验文件升级 v8.12：G1.5 新增验证器断言、采集器、证据载体必须同批升级的门禁。
+- 复核：`npm run test:services` 165 files / 1939 tests 全绿；`npm run type-check`、`build:vue`、`build` 通过。
+- 封装：3.91.1 安装包 231,532,815 bytes，SHA256 `451167c3cc43b242dd1410d8565276925829242ef1fd161bdd790a4354a0412e`，证据 `_audit/verification-packaging-3-91-1/packaging-evidence.json`；旧 3.91.0 安装包与 blockmap 已清理。
+- 边界：全部为本地 mock 供应商 Electron 验证，未覆盖外部 live 供应商。

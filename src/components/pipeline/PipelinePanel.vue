@@ -1899,6 +1899,9 @@ async function hydrateFolderTemplates(templates: PipelineSkillTemplate[], step: 
     const loadedMeta = (loaded.package as { meta?: unknown } | null)?.meta
     if (loadedMeta && typeof loadedMeta === 'object') {
       ;(t as HydratedFolderMeta).meta = loadedMeta
+      // The body-contract selector reads t.skill.meta; keep the hydrated folder
+      // declaration on the same object so catalog and package stay single-source.
+      ;(t.skill as { meta?: unknown }).meta = loadedMeta
     }
   }
 }
