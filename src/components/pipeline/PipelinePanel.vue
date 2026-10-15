@@ -725,7 +725,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue"
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick, shallowRef } from "vue"
 import { usePipelineStore } from "../../stores/pipeline"
 import { useProjectStore } from "../../stores/project"
 import { useProviderStore } from "../../stores/provider"
@@ -768,6 +768,7 @@ import { buildOutlineUnitClosure, validateOutlineContextScope } from "../../serv
 import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
+import { isBodyContractStep } from "../../services/chainExecution"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
@@ -783,7 +784,9 @@ import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
 import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
-import { countBodyWords } from "../../services/bodyArtifactContract"
+import { countBodyWords, validateBodyArtifact } from "../../services/bodyArtifactContract"
+import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
+import { hashEditorContent } from "../../services/editorTarget"
 import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
 import {
   applyHardSignalRepairWindow,
@@ -2190,11 +2193,26 @@ async function callValidatedSkill(
       }
       finishFolderTraceFromResult(route.folderResult)
       if (folderStatus === "degraded") {
+        if (!route.folderResult.output.trim()) {
+          const errors = route.folderResult.errors.length
+            ? route.folderResult.errors.join("；")
+            : "folder SKILL 降级且无有效输出"
+          throw new Error(`folder SKILL 降级且无有效输出：${errors}`)
+        }
         const warnings = route.folderResult.diagnostics
           .filter(item => item.type === "warning")
           .map(item => item.message)
           .filter(Boolean)
           .join("；")
+        const errorMessages = route.folderResult.errors.join("；")
+        if (errorMessages && traceRunId) {
+          runTraceStore.addEvent(traceRunId, {
+            type: 'folder-skill-degraded-with-error',
+            level: 'warn',
+            label: `SKILL「${template.name || template.id}」降级但保留有效输出`,
+            detail: errorMessages
+          })
+        }
         appendStepLog(step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
       }
       return route.folderResult.output
@@ -2877,6 +2895,18 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       skillSequence,
       ownerKey: checkpointOwnerKey
     })
+    if (resumePoint.completedChain && runTraceStore.currentRunId) {
+      runTraceStore.addEvent(runTraceStore.currentRunId, {
+        type: 'chain-completed-checkpoint-rejected',
+        level: 'warn',
+        label: '链式完成断点已拒绝回放',
+        detail: JSON.stringify({
+          ownerKey: checkpointOwnerKey,
+          skillSequence,
+          reason: 'completed_chain_checkpoint'
+        })
+      })
+    }
     let startSi = resumePoint.startIndex
     let current = resumePoint.previousOutput || prompt
     const seenHandoffHashes = new Set<string>(resumePoint.handoffHashes)
@@ -3098,7 +3128,11 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         )
         if (
           echoDiagnostic &&
-          shouldRepairChainEcho(si, templates.length, echoDiagnostic.echoRatio)
+          shouldRepairChainEcho(si, templates.length, echoDiagnostic.echoRatio, {
+            finalStepRole: 'polish',
+            identicalOutput: previousOutput.trim() === stepOutput.trim() ||
+              hashEditorContent(previousOutput) === hashEditorContent(stepOutput)
+          })
         ) {
           appendPipelineChainWarning({
             step,
@@ -3118,7 +3152,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             step,
             t,
             injection,
-            `${nextPrompt}\n\n[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物，不要复述上一步内容。`,
+            `${nextPrompt}\n\n[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物。`,
             { ...ctxForSkill, previousOutput },
             timeoutMs,
             skillAgentId,
@@ -3146,6 +3180,33 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             label: `链式步骤 ${si + 1}/${templates.length} 输出回显警告`,
             detail: `${repairedEchoDiagnostic.message}（前序长度 ${repairedEchoDiagnostic.previousLength}，当前长度 ${stepOutput.length}）`
           })
+        }
+        if (
+          isBodyContractStep({
+            step,
+            stepIndex: si,
+            totalSteps: templates.length,
+            declaredRole: templateMeta?.chainHandoff?.role || null
+          }) &&
+          currentBodyChainContract.value
+        ) {
+          const bodyValidation = validateBodyArtifact(stepOutput, currentBodyChainContract.value)
+          if (!bodyValidation.valid) {
+            if (runTraceStore.currentRunId) {
+              runTraceStore.addEvent(runTraceStore.currentRunId, {
+                type: 'body-chain-contract-failed',
+                level: 'error',
+                label: `正文生成步骤 ${si + 1}/${templates.length} 契约失败`,
+                detail: JSON.stringify({
+                  attemptChapterId: currentBodyChainContract.value.chapterId,
+                  targetWords: currentBodyChainContract.value.targetWords,
+                  wordCount: bodyValidation.wordCount,
+                  errors: bodyValidation.errors
+                })
+              })
+            }
+            throw new Error(`正文生成步骤契约失败：${bodyValidation.errors.join('；')}`)
+          }
         }
         current = stepOutput
         chainCtx.prevResponse = current
@@ -3387,7 +3448,19 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         throw error
       }
     }
-    await pipelineStore.clearBreakpoint()
+    try {
+      await pipelineStore.clearBreakpoint(checkpointOwnerKey)
+    } catch (error) {
+      if (runTraceStore.currentRunId) {
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: 'chain-breakpoint-clear-failed',
+          level: 'error',
+          label: '链式完成断点清理失败',
+          detail: `${checkpointOwnerKey} / ${error instanceof Error ? error.message : String(error)}`
+        })
+      }
+      throw error instanceof Error ? error : new Error(String(error))
+    }
     return current
   }
   const resolvedParts = templates.map((t) => {
@@ -3574,6 +3647,8 @@ async function genSettings() {
     trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'settings_generation_complete' : 'generation_failed')
   }
 }
+
+const currentBodyChainContract = shallowRef<BodyArtifactContract | null>(null)
 
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
@@ -4196,17 +4271,40 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       label: "正文层执行包已构建",
       detail: JSON.stringify({ volume: vol.name, chapter: ch.title, targetWords: _bodyWordsPerChapter })
     })
+    const bodyChainContract = {
+      chapterId: String(ch.id || `${volId}-chapter-${chapterIndex + 1}`),
+      targetWords: _bodyWordsPerChapter
+    }
+    currentBodyChainContract.value = bodyChainContract
     let bodyArtifact = await generateBodyArtifact({
-      contract: {
-        chapterId: String(ch.id || `${volId}-chapter-${chapterIndex + 1}`),
-        targetWords: _bodyWordsPerChapter
-      },
+      contract: bodyChainContract,
       basePrompt: prompt,
       callBodyApi: (requestPrompt, context) => {
         if (context.chapterId !== generationTargetSnapshot.chapterId) {
           return Promise.reject(new Error('正文目标已变化，本次生成终止'))
         }
-        return runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
+        const runId = trace.runId || runTraceStore.getRunId('pipeline')
+        const runAtStart = runId ? runTraceStore.getRun(runId) : null
+        const apiCallsAtStart = runAtStart?.apiCalls.length ?? 0
+        const eventsAtStart = runAtStart?.events.length ?? 0
+        return runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。").then(text => {
+          const runAfter = runId ? runTraceStore.getRun(runId) : null
+          const physicalRequests = Math.max(
+            0,
+            (runAfter?.apiCalls.length ?? apiCallsAtStart) - apiCallsAtStart
+          )
+          const resumedFromBreakpoint = (runAfter?.events.slice(eventsAtStart) || [])
+            .some(event => event.type === 'chain-handoff-resume')
+          return {
+            text,
+            fingerprint: {
+              physicalRequests,
+              promptHash: hashEditorContent(requestPrompt),
+              outputHash: hashEditorContent(text),
+              resumedFromBreakpoint
+            }
+          }
+        })
       },
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
       onAttempt: (attempt) => {
@@ -4225,11 +4323,13 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             ratio: attempt.ratio,
             validationMs: attempt.validationMs,
             errors: attempt.errors,
-            bodyPreview: (attempt.body || '').slice(0, 200)
+            bodyPreview: (attempt.body || '').slice(0, 200),
+            requestFingerprint: attempt.metadata?.requestFingerprint
           })
         })
       }
     })
+    currentBodyChainContract.value = null
     pipelineStore.updateProgress(80, "API 返回完成，正在执行正文契约验收")
     bodyGenerationLogs.value.push("API 已返回，正在执行正文契约验收")
     if (bodyArtifact.status !== 'complete') {

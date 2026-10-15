@@ -9,7 +9,7 @@ export interface BodyArtifactAttempt {
   attemptId: string
   repairAttempt: number
   repairScope: BodyArtifactRepairScope
-  status: 'complete' | 'too_short' | 'too_long' | 'empty' | 'error'
+  status: 'complete' | 'too_short' | 'too_long' | 'empty' | 'error' | 'execution_invalid'
   wordCount: number
   targetWords: number
   ratio: number
@@ -33,10 +33,22 @@ export interface BodyArtifactCallContext {
   errors: string[]
 }
 
+export interface BodyArtifactRequestFingerprint {
+  physicalRequests: number
+  promptHash: string
+  outputHash: string
+  resumedFromBreakpoint: boolean
+}
+
+export type BodyArtifactCallResult = string | {
+  text: string
+  fingerprint: BodyArtifactRequestFingerprint
+}
+
 export interface GenerateBodyArtifactInput {
   contract: BodyArtifactContract
   basePrompt: string
-  callBodyApi: (prompt: string, context: BodyArtifactCallContext) => Promise<string>
+  callBodyApi: (prompt: string, context: BodyArtifactCallContext) => Promise<BodyArtifactCallResult>
   shouldContinue?: () => boolean
   maxRepairAttempts?: number
   onAttempt?: (attempt: BodyArtifactAttempt) => void
@@ -180,8 +192,15 @@ export async function generateBodyArtifact(
     })
 
     let raw: string
+    let fingerprint: BodyArtifactRequestFingerprint | undefined
     try {
-      raw = await input.callBodyApi(prompt, context)
+      const callResult = await input.callBodyApi(prompt, context)
+      if (typeof callResult === 'string') {
+        raw = callResult
+      } else {
+        raw = callResult.text
+        fingerprint = callResult.fingerprint
+      }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
       const attempt: BodyArtifactAttempt = {
@@ -200,6 +219,30 @@ export async function generateBodyArtifact(
       throw error
     }
 
+    if (fingerprint && Number(fingerprint.physicalRequests) <= 0) {
+      const attempt: BodyArtifactAttempt = {
+        attemptId,
+        repairAttempt,
+        repairScope,
+        status: 'execution_invalid',
+        wordCount: 0,
+        targetWords: input.contract.targetWords,
+        ratio: 0,
+        errors: ['执行无效：本次 attempt 零物理请求，疑似被断点回放短路'],
+        body: '',
+        metadata: { requestFingerprint: fingerprint }
+      }
+      attempts.push(attempt)
+      input.onAttempt?.(attempt)
+      return {
+        status: 'failed',
+        body: '',
+        metadata: {},
+        attempts,
+        errors: ['执行无效：本次 attempt 零物理请求，疑似被断点回放短路']
+      }
+    }
+
     const generation = parseGenerationResult(raw)
     const validationStartedAt = Date.now()
     const validation = validateBodyArtifact(generation.body, input.contract)
@@ -214,7 +257,8 @@ export async function generateBodyArtifact(
       ratio: validation.ratio,
       validationMs,
       errors: validation.errors,
-      body: generation.body
+      body: generation.body,
+      ...(fingerprint ? { metadata: { requestFingerprint: fingerprint } } : {})
     }
     attempts.push(attempt)
     input.onAttempt?.(attempt)

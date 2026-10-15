@@ -194,6 +194,28 @@ describe('generateBodyArtifact', () => {
     expect(prompts[1]).toContain('禁止整篇重写')
     expect(prompts[1]).toContain('只输出修复后的完整正文')
   })
+
+  it('marks an attempt execution_invalid when its fingerprint proves zero physical requests', async () => {
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async () => ({
+        text: '这是一段合格的正文。',
+        fingerprint: {
+          physicalRequests: 0,
+          promptHash: 'prompt-hash',
+          outputHash: 'output-hash',
+          resumedFromBreakpoint: true
+        }
+      }) as any
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.attempts).toHaveLength(1)
+    expect(result.attempts[0].status).toBe('execution_invalid')
+    expect(result.attempts[0].metadata?.requestFingerprint).toMatchObject({ physicalRequests: 0 })
+    expect(result.errors[0]).toContain('零物理请求')
+  })
 })
 
 describe('recordBodyArtifactPostProcess', () => {

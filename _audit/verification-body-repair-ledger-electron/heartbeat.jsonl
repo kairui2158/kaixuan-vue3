@@ -1,1 +1,2 @@
-{"at":"2026-10-15T17:40:39.141Z","runId":"run-1792086039057-1","runStatus":"running","lastEventType":"physical-call","progress":20,"status":"API 生成正文中（已注入降AI约束）","isGenerating":true,"electronPid":28908}
+{"at":"2026-10-15T19:21:43.193Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":20944}
+{"at":"2026-10-15T19:21:44.196Z","runId":"run-1792092103521-1","runStatus":"success","lastEventType":"state-transition","progress":100,"status":"done","isGenerating":false,"electronPid":20944}

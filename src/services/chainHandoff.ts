@@ -38,7 +38,9 @@ export interface ChainHandoffArtifact {
 
 export interface ChainHandoffTemplateMeta {
   chainHandoff?: {
-    requiresFullPreviousOutput?: boolean
+  requiresFullPreviousOutput?: boolean
+    /** Step role used by pipeline contracts (for example `generator`, `polish`). */
+    role?: 'generator' | 'polish' | 'analysis'
     /** Folder pass input=previous should also keep the declared upstream chain context. */
     requiresFullUpstreamContext?: boolean
     previousOutput?: 'full' | 'excerpt' | 'structured'

@@ -6,6 +6,7 @@ import {
   dedupeChainIntermediateOutput,
   detectChainOutputEcho,
   formatMemoryPrompt,
+  isBodyContractStep,
   shouldRepairChainEcho,
   slimChainUpstreamPrompt,
   templateReferencesPreviousOutput
@@ -145,6 +146,32 @@ describe("body chain execution contract", () => {
     expect(shouldRepairChainEcho(1, 3, 0.93)).toBe(false)
     expect(shouldRepairChainEcho(0, 1, 0.93)).toBe(false)
     expect(shouldRepairChainEcho(2, 3, 0.84)).toBe(false)
+  })
+
+  it("does not repair a polishing final step for high lexical overlap", () => {
+    expect(shouldRepairChainEcho(2, 3, 0.93, { finalStepRole: "polish" })).toBe(false)
+    expect(shouldRepairChainEcho(2, 3, 0.99, { finalStepRole: "polish", identicalOutput: false })).toBe(false)
+    expect(shouldRepairChainEcho(2, 3, 0.93, { finalStepRole: "generator" })).toBe(true)
+  })
+
+  it("applies the body contract to the generation step only", () => {
+    expect(isBodyContractStep({ step: 4, stepIndex: 0, totalSteps: 3 })).toBe(false)
+    expect(isBodyContractStep({ step: 4, stepIndex: 1, totalSteps: 3 })).toBe(true)
+    expect(isBodyContractStep({ step: 4, stepIndex: 2, totalSteps: 3 })).toBe(false)
+    expect(isBodyContractStep({ step: 4, stepIndex: 0, totalSteps: 2 })).toBe(true)
+    expect(isBodyContractStep({ step: 2, stepIndex: 1, totalSteps: 3 })).toBe(false)
+    expect(isBodyContractStep({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 4,
+      declaredRole: 'generator'
+    })).toBe(true)
+    expect(isBodyContractStep({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 4,
+      declaredRole: 'polish'
+    })).toBe(false)
   })
 
   it("keeps S1 full upstream context and slims later steps deterministically", () => {

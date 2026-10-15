@@ -938,3 +938,22 @@
 - 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live；本轮只断言正文层单章路径，批量子 Agent 与多 SKILL 组合未纳入。
 - 封装：升级 3.90.0；安装包 `dist/神意助手-Setup-3.90.0.exe`，231,531,641 bytes，SHA256 `9930d761905d97db2dfdbffd2e4345ff03336714627a829e383fd4f40493ed3d`；打包真实启动核验通过，证据 `_audit/verification-packaging-3-90-0/packaging-evidence.json`；已清理 3.89.0 旧安装包与 blockmap。
 - 补账：用户追问经验文件未跟随更新后，经验文件升级 v8.10（G2.9 并入正文修复三态、attempt 单账、owner 隔离与生成中目标锁），新增 RETROSPECTIVE_2026-10-16_BODY_REPAIR_LEDGER.md，DEV_LOG 增补回写追记。
+
+# 2026-10-16 owner 断点事故经验回写与方案
+
+- 文件：[_audit/DEV_LOG_2026-10-16_owner-breakpoint-experience-closure.md](_audit/DEV_LOG_2026-10-16_owner-breakpoint-experience-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-16_owner-breakpoint-experience-closure.md](_audit/TASK_LEDGERS/2026-10-16_owner-breakpoint-experience-closure.md)
+- 范围：核实 015556 正文层事故根因；经验文件升级 v8.11，G1.17 补状态生命周期对账、二次进入矩阵、查账三列法，G2.9 补断点清理对称、已完成链拒绝恢复、attempt 请求指纹；新增事故复盘与 F1-F6/V1-V10 修复方案，等待用户审核。
+- 验证：文档任务，不改生产代码；经验文件版本、G1.17、G2.9、L3 映射与 diff check 待收尾复核。
+- 诚实边界：V1-V10 验证矩阵与事故 trace 回放尚未执行；生产修复未开始。
+
+# 2026-10-16 owner 断点生命周期闭环实施收口
+
+- 文件：[_audit/PROPOSAL_2026-10-16_OWNER_BREAKPOINT_LIFECYCLE_CLOSURE.md](_audit/PROPOSAL_2026-10-16_OWNER_BREAKPOINT_LIFECYCLE_CLOSURE.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-16_owner-breakpoint-experience-closure.md](_audit/TASK_LEDGERS/2026-10-16_owner-breakpoint-experience-closure.md)
+- 范围：F1-F6 全量落地；owner 成功断点对称清理、completed 断点拒绝恢复、attempt 请求指纹、degraded 无效输出拦截、正文长度契约前移、终步 echo 职责化。
+- 关键修正：Electron 首跑发现契约误套 S1 分析步；新增 `isBodyContractStep()` 与 `chainHandoff.role`，仅生成步执行正文契约。
+- 验证：定向 3 files / 33 tests、全量 165 files / 1937 tests、type-check、build:vue、两个真实 Electron 验证器全过；completed owner 断点被拒绝、S2 短产契约结构化失败、旧产物未入库、targeted 修复回归不破坏。
+- 诚实边界：V6/V7 为接线断言与源码行为路径，未做 Electron 故障注入；V10 依赖历史回归；015556 原始 trace 用同语义 Electron 复刻替代逐 token 回放器；heartbeat 运行中采样不足已登记。
+- 封装：升级 3.91.0；安装包 `dist/神意助手-Setup-3.91.0.exe`，231,553,091 bytes，SHA256 `9758313b7c5ff5ff02f6d4595a909e41072daf70d8652d14e2dd0141b390ab11`；打包真实启动核验通过，证据 `_audit/verification-packaging-3-91-0/packaging-evidence.json`；已清理 3.90.0 旧安装包与 blockmap。
+- 打包机况：本机首次完整构建出现 `win-unpacked/神意助手.exe` EBUSY/rcedit `Unable to commit changes` 间歇资源锁；独立复测同一 EXE 的完整 rcedit 参数成功。最终 NSIS 构建使用一次性 `--config.win.signAndEditExecutable=false` 绕过该间歇冲突，asar integrity 与打包后真实启动核验均已通过。后续若复现，应优先查杀安全软件/索引器句柄并恢复默认签名编辑路径。

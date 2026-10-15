@@ -45,6 +45,7 @@ export type ChainResumePoint = {
   lastHandoff?: ChainBreakpointHandoff
   handoffHashes: string[]
   resumed: boolean
+  completedChain: boolean
 }
 
 export function createChainSuccessBreakpoint(input: Omit<ChainBreakpoint, 'kind' | 'status' | 'updatedAt'>): ChainBreakpoint {
@@ -68,21 +69,25 @@ export function createChainFailureBreakpoint(input: Omit<ChainBreakpoint, 'kind'
 export function getChainResumePoint(input: ChainResumeInput): ChainResumePoint {
   const bp = input.breakpoint
   if (!bp || bp.step !== input.step || bp.projectId !== input.projectId) {
-    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: false }
   }
   // ownerKey is mandatory for resumes once this field exists. Legacy breakpoints
   // had no owner, so treating them as another run's state would be cross-owner reuse.
   if (!bp.ownerKey || bp.ownerKey !== input.ownerKey) {
-    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: false }
   }
   const sequenceMatches = Array.isArray(bp.skillSequence)
     ? bp.skillSequence.length === input.skillSequence.length && bp.skillSequence.every((id, index) => id === input.skillSequence[index])
     : true
   if (!sequenceMatches) {
-    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: false }
   }
 
   const legacyNext = Number.isInteger(bp.lastSuccessChainIndex) ? Number(bp.lastSuccessChainIndex) + 1 : 0
+  const completedChain = bp.status === 'completed' && legacyNext >= input.skillSequence.length
+  if (completedChain) {
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: true }
+  }
   const failedIndex = bp.status === 'failed' && Number.isInteger(bp.skillIndex) ? Number(bp.skillIndex) : -1
   const startIndex = Math.max(0, Math.min(failedIndex >= 0 ? failedIndex : legacyNext, input.skillSequence.length))
   return {
@@ -92,6 +97,7 @@ export function getChainResumePoint(input: ChainResumeInput): ChainResumePoint {
     handoffHashes: Array.isArray(bp.handoffHashes)
       ? bp.handoffHashes.filter(hash => typeof hash === 'string' && hash.length > 0)
       : [],
-    resumed: startIndex > 0 || failedIndex >= 0
+    resumed: startIndex > 0 || failedIndex >= 0,
+    completedChain: false
   }
 }

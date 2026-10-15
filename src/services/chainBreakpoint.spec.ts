@@ -28,13 +28,30 @@ describe('chain breakpoint state machine', () => {
   it('resumes after the last successful skill', () => {
     const bp = createChainSuccessBreakpoint(base)
     expect(resume(bp))
-      .toEqual({ startIndex: 1, previousOutput: 'parse output', handoffHashes: [], resumed: true })
+      .toEqual({ startIndex: 1, previousOutput: 'parse output', handoffHashes: [], resumed: true, completedChain: false })
+  })
+
+  it('rejects a completed chain checkpoint instead of replaying its final artifact', () => {
+    const bp = createChainSuccessBreakpoint({
+      ...base,
+      skillIndex: 2,
+      skillId: 'check',
+      lastSuccessChainIndex: 2,
+      lastOutput: 'check output'
+    })
+    expect(resume(bp)).toEqual({
+      startIndex: 0,
+      previousOutput: '',
+      handoffHashes: [],
+      resumed: false,
+      completedChain: true
+    })
   })
 
   it('retries the failed skill instead of skipping to the next skill', () => {
     const bp = createChainFailureBreakpoint({ ...base, skillIndex: 1, skillId: 'fill', lastSuccessChainIndex: 0, lastOutput: 'parse output', retryCount: 2, error: 'network' })
     expect(resume(bp))
-      .toEqual({ startIndex: 1, previousOutput: 'parse output', handoffHashes: [], resumed: true })
+      .toEqual({ startIndex: 1, previousOutput: 'parse output', handoffHashes: [], resumed: true, completedChain: false })
   })
 
   it('restores a saved handoff artifact for resume compatibility', () => {
@@ -49,13 +66,13 @@ describe('chain breakpoint state machine', () => {
     }
     const bp = createChainSuccessBreakpoint({ ...base, lastHandoff })
     expect(resume(bp))
-      .toEqual({ startIndex: 1, previousOutput: 'parse output', lastHandoff, handoffHashes: [], resumed: true })
+      .toEqual({ startIndex: 1, previousOutput: 'parse output', lastHandoff, handoffHashes: [], resumed: true, completedChain: false })
   })
 
   it('starts fresh when the saved skill sequence changed', () => {
     const bp = createChainSuccessBreakpoint(base)
     expect(resume(bp, ['fill', 'parse', 'check']))
-      .toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false })
+      .toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: false })
   })
 
   it('rejects a resume when the breakpoint owner key differs', () => {
@@ -66,12 +83,12 @@ describe('chain breakpoint state machine', () => {
       projectId: 'project-1',
       skillSequence: base.skillSequence,
       ownerKey: 'chapter:ch-2'
-    })).toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false })
+    })).toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: false })
   })
 
   it('allows a legacy breakpoint without an owner only as a non-resumed fresh run', () => {
     const bp = createChainSuccessBreakpoint({ ...base, ownerKey: undefined })
-    expect(resume(bp)).toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false })
+    expect(resume(bp)).toEqual({ startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false, completedChain: false })
   })
 
   it('persists and restores seen handoff hashes across process restarts', () => {

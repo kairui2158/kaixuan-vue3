@@ -23,6 +23,13 @@ export interface ChainUpstreamPromptResult {
   reason: 'primary_consumer' | 'declared_full_context' | 'outline_block_absent' | 'slimmed'
 }
 
+export interface BodyContractStepInput {
+  step: number
+  stepIndex: number
+  totalSteps: number
+  declaredRole?: string | null
+}
+
 export const MEMORY_PROMPT_HEADER = "[相关记忆]"
 const PREVIOUS_OUTPUT_HEADER = "--- 上一步 SKILL 完整输出 ---"
 const OUTLINE_HEADER = "[大纲]"
@@ -187,10 +194,16 @@ export function detectChainOutputEcho(
 export function shouldRepairChainEcho(
   stepIndex: number,
   totalSteps: number,
-  echoRatio: number
+  echoRatio: number,
+  options?: {
+    finalStepRole?: 'polish' | 'generator'
+    identicalOutput?: boolean
+  }
 ): boolean {
   if (totalSteps <= 1) return false
   if (stepIndex !== totalSteps - 1) return false
+  if (options?.identicalOutput) return true
+  if (options?.finalStepRole === 'polish') return false
   return Number.isFinite(echoRatio) && echoRatio >= 0.85
 }
 
@@ -212,4 +225,18 @@ function countChainOverlap(previous: string, current: string): number {
 
 export function buildChainSkillSequence<T>(skills: T[]): T[] {
   return skills.slice()
+}
+
+/**
+ * Body length contracts belong to the prose-generation step, not every chain
+ * step. The legacy 3-skill chain is analysis -> generation -> polish; until
+ * folder SKILL meta can declare `chainHandoff.role`, the penultimate step is
+ * the deterministic application-side selector.
+ */
+export function isBodyContractStep(input: BodyContractStepInput): boolean {
+  if (input.step !== 4 || input.totalSteps <= 1) return false
+  if (input.declaredRole === 'generator' || input.declaredRole === 'polish') {
+    return input.declaredRole === 'generator'
+  }
+  return input.stepIndex === input.totalSteps - 2
 }
