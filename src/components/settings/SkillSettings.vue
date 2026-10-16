@@ -190,8 +190,6 @@
          <label>执行模式</label>
          <select v-model="editingExecutionMode" class="sem-input">
            <option value="chain">串行链式</option>
-           <option value="split-merge">切分并行</option>
-           <option value="multi-step">多步控制</option>
          </select>
          <label>输出格式</label>
          <select v-model="editingOutputFormat" class="sem-input">

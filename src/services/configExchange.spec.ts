@@ -326,6 +326,23 @@ describe('config exchange bindings and bundle', () => {
     expect(result.value?.bindings.skillAgents['1-1']).toBeUndefined()
   })
 
+  it('normalizes legacy engine modes during binding import', () => {
+    const result = parseBindingJson(JSON.stringify({
+      schema: 'shenyi.binding',
+      version: 1,
+      bindings: { pipeline: {
+        modes: { '1': 'split-merge', '2': 'multi-step', '3': 'compose' }
+      } }
+    }))
+    expect(result.ok).toBe(true)
+    expect(result.value?.bindings.modes['1']).toBe('chain')
+    expect(result.value?.bindings.modes['2']).toBe('chain')
+    expect(result.value?.bindings.modes['3']).toBe('compose')
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({ field: '$.modes.1' })
+    )
+  })
+
   it('keeps stable binding when a legacy index collides with it', () => {
     const result = parseBindingJson(JSON.stringify({
       schema: 'shenyi.binding',

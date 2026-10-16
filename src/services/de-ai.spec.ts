@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DEAI_CREATIVE_PROMPT,
   DEAI_METHODOLOGY_PROMPT,
+  DEAI_POLISH_PROMPT,
   resolveDeaiPromptForChainStep
 } from './de-ai'
 
@@ -20,6 +21,13 @@ describe('DEAI per-step prompts', () => {
     expect(resolveDeaiPromptForChainStep(3, 1)).toBe('')
     expect(resolveDeaiPromptForChainStep(4, 0)).toBe(DEAI_METHODOLOGY_PROMPT)
     expect(resolveDeaiPromptForChainStep(4, 1)).toBe(DEAI_CREATIVE_PROMPT)
-    expect(resolveDeaiPromptForChainStep(4, 2)).toBe(DEAI_METHODOLOGY_PROMPT)
+    expect(resolveDeaiPromptForChainStep(4, 2)).toBe(DEAI_POLISH_PROMPT)
+  })
+
+  it('dispatches DEAI prompts by chain role for variable chain lengths', () => {
+    expect(resolveDeaiPromptForChainStep(4, 0, 1)).toBe(DEAI_METHODOLOGY_PROMPT)
+    expect(resolveDeaiPromptForChainStep(4, 2, 4)).toBe(DEAI_CREATIVE_PROMPT)
+    expect(resolveDeaiPromptForChainStep(4, 3, 4)).toBe(DEAI_POLISH_PROMPT)
+    expect(resolveDeaiPromptForChainStep(4, undefined, 3)).toBe(DEAI_METHODOLOGY_PROMPT)
   })
 })

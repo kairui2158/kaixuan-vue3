@@ -746,10 +746,25 @@ var DEAI_CREATIVE_PROMPT = [
   '7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。',
   '8. 只输出本步骤定稿产物。'
 ].join('\n');
+var DEAI_POLISH_PROMPT = [
+  '【降AI打磨契约 - 语言收敛阶段】',
+  '只做语言层收敛，不重新创作，不改变叙事结构和事实。',
+  '1. 保留上游段落数量、场景顺序、人物设定、伏笔和对白含义。',
+  '2. 只修改词语生硬处、重复处、报告腔和明显的AI痕迹。',
+  '3. 修复AI痕迹时优先使用具体动作、身体感受和现场细节，不用泛化同义词替换。',
+  '4. 不为了降低检测命中而增加新比喻；明喻数量不得高于打磨前。',
+  '5. 不扩写、不压缩、不补设定，不为字数目标服务。',
+  '6. 只输出本步骤定稿产物。'
+].join('\n');
 
-function resolveDeaiPromptForChainStep(step, skillIndex) {
+function resolveDeaiPromptForChainStep(step, skillIndex, totalSkillCount) {
   if (step !== 4) return "";
-  return skillIndex === 1 ? DEAI_CREATIVE_PROMPT : DEAI_METHODOLOGY_PROMPT;
+  var count = Number.isFinite(totalSkillCount) ? totalSkillCount : 3;
+  if (count <= 1) return DEAI_METHODOLOGY_PROMPT;
+  if (skillIndex === undefined || skillIndex === null) return DEAI_METHODOLOGY_PROMPT;
+  if (skillIndex <= 0) return DEAI_METHODOLOGY_PROMPT;
+  if (skillIndex >= count - 1) return DEAI_POLISH_PROMPT;
+  return DEAI_CREATIVE_PROMPT;
 }
 
-export { DeAiProcessor, DEAI_METHODOLOGY_PROMPT, DEAI_CREATIVE_PROMPT, resolveDeaiPromptForChainStep };
+export { DeAiProcessor, DEAI_METHODOLOGY_PROMPT, DEAI_CREATIVE_PROMPT, DEAI_POLISH_PROMPT, resolveDeaiPromptForChainStep };

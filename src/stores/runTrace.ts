@@ -178,6 +178,8 @@ export interface RunTraceApiCall {
   executionSettlement?: RunTraceExecutionSettlement
   /** Read-cache observation for this API call. */
   readLedger?: RunTraceReadLedgerSnapshot
+  /** Layered de-AI prompt variant used by this API call. */
+  deaiPromptVariant?: 'methodology' | 'creative' | 'polish' | 'methodology-compose'
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -698,6 +700,7 @@ export interface StartApiCallInput {
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   requestMessages: RunTraceMessage[]
   toolRequestDeltas?: RunTraceMessage[]
+  deaiPromptVariant?: RunTraceApiCall['deaiPromptVariant']
 }
 
 export interface FinishApiCallInput {
@@ -729,6 +732,7 @@ export interface FinishApiCallInput {
   toolAudit?: unknown
   executionSettlement?: RunTraceExecutionSettlement
   readLedger?: RunTraceReadLedgerSnapshot
+  deaiPromptVariant?: RunTraceApiCall['deaiPromptVariant']
   timingLedger?: RunTraceTimingLedger
 }
 
@@ -1395,6 +1399,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       actualToolSurface: input.actualToolSurface,
       requestMessages: input.requestMessages.map(m => ({ role: m.role, content: m.content })),
       toolRequestDeltas: input.toolRequestDeltas?.map(m => ({ role: m.role, content: m.content })),
+      deaiPromptVariant: input.deaiPromptVariant,
       responseText: '',
     streamText: '',
       reasoningText: '',
@@ -2093,6 +2098,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     call.convergenceReason = patch.convergenceReason ?? call.convergenceReason
     if (patch.executionSettlement) call.executionSettlement = patch.executionSettlement
     if (patch.readLedger) call.readLedger = patch.readLedger
+    if (patch.deaiPromptVariant) call.deaiPromptVariant = patch.deaiPromptVariant
     call.durationMs = patch.durationMs ?? (Date.now() - call.startedAt)
     call.timingLedger = {
       ...computeApiCallTimingLedger(call),

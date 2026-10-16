@@ -185,6 +185,16 @@ export function normalizePipelineBindings(
   const agents = normalizeStringRecord(source.agents)
   const skills = normalizeStringArrayRecord(source.skills)
   const modes = normalizeStringRecord(source.modes)
+  for (const [key, mode] of Object.entries(modes)) {
+    if (mode === 'split-merge' || mode === 'multi-step') {
+      modes[key] = 'chain'
+      issues.push({
+        code: 'warning',
+        field: `${field}.modes.${key}`,
+        message: `旧模式 ${mode} 已收口为 chain，请使用链式 SKILL 与分层降AI注入`,
+      })
+    }
+  }
   const rawSkillAgents = normalizeStringRecord(source.skillAgents)
   const skillAgents = normalizeSkillAgentBindings(rawSkillAgents, skills)
   for (const [key, agentId] of Object.entries(rawSkillAgents)) {

@@ -2010,7 +2010,9 @@ async function callValidatedSkill(
   resolvedTemplate: string | undefined = undefined,
   templateVariables: Record<string, unknown> | undefined = undefined,
   validateOutputSchema: boolean = false,
-  chainUpstreamContext: string | undefined = undefined
+  chainUpstreamContext: string | undefined = undefined,
+  chainSkillIndex: number | undefined = undefined,
+  chainSkillCount: number | undefined = undefined
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
   if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
@@ -2019,9 +2021,33 @@ async function callValidatedSkill(
     const agentSource = skillAgentId ? "user-binding" : agentId ? "step-default" : "none"
     const traceRunId = runTraceStore.currentRunId
     const fallbackProviderId = activeProviderId()
-    const systemPromptSuffix = resolveDeaiPromptForChainStep(step)
+    const systemPromptSuffix = resolveDeaiPromptForChainStep(step, chainSkillIndex, chainSkillCount)
     let traceCallId = ''
     const startedAt = Date.now()
+    const deaiVariant = chainSkillCount && chainSkillCount > 1
+      ? chainSkillIndex === 0
+        ? 'methodology'
+        : chainSkillIndex === chainSkillCount - 1
+          ? 'polish'
+          : 'creative'
+      : chainSkillIndex !== undefined
+        ? 'methodology'
+        : 'methodology-compose'
+    const logDeaiVariant = () => {
+      if (traceRunId && systemPromptSuffix) {
+        runTraceStore.addEvent(traceRunId, {
+          type: 'deai-prompt-variant',
+          level: 'info',
+          label: `降AI注入变体：${chainSkillIndex !== undefined ? `链步骤 ${chainSkillIndex + 1}/${chainSkillCount}` : '非链式调用'}`,
+          detail: JSON.stringify({
+            skillIndex: chainSkillIndex,
+            totalSkillCount: chainSkillCount,
+            variant: deaiVariant,
+            charCount: systemPromptSuffix.length
+          })
+        })
+      }
+    }
     const finishFolderTrace = (status: 'success' | 'degraded' | 'failed' | 'canceled', error?: string, output = '') => {
       if (!traceRunId || !traceCallId) return
       flushPipelineStreamState(step)
@@ -2101,9 +2127,11 @@ async function callValidatedSkill(
           providerId: fallbackProviderId || undefined,
           providerName: providerStore.getProvider(fallbackProviderId)?.name,
           model: agentConfig?.model || activeProviderModel(),
-          requestMessages: [{ role: 'user', content: prompt }]
+          requestMessages: [{ role: 'user', content: prompt }],
+          deaiPromptVariant: systemPromptSuffix ? deaiVariant : undefined
         })
         : ''
+      logDeaiVariant()
       route = await routeSkill(template.skill, {
         input: prompt,
         agent: agentConfig ? {
@@ -2275,9 +2303,18 @@ async function callValidatedSkill(
   let currentError: unknown = null
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。"
-    const output = timeoutMs
-      ? await callApiWithAgentTimeout(step, injection.systemSkill || "", attemptPrompt, timeoutMs, skillAgentId, injection, template.id)
-      : await callApiWithAgent(step, injection.systemSkill || "", attemptPrompt, skillAgentId, injection, undefined, undefined, template.id)
+    const output = await callApiWithAgentVariant(
+      step,
+      injection.systemSkill || "",
+      attemptPrompt,
+      skillAgentId,
+      injection,
+      undefined,
+      timeoutMs,
+      template.id,
+      chainSkillIndex,
+      chainSkillCount
+    )
     try {
       validateSkillOutputOrThrow(template, output)
       return output
@@ -2681,6 +2718,10 @@ function prevStep() {
 }
 
 async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string): Promise<string> {
+  return callApiWithAgentVariant(step, skillTemplate, prompt, skillAgentOverride, promptParts, signal, timeoutMs, skillId)
+}
+
+async function callApiWithAgentVariant(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
   const provider = providerStore.getProvider(agentConfig?.provider || "")
@@ -2692,13 +2733,35 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
  const agentPart = agentConfig?.systemPrompt || ""
  // P1: 正文层注入降AI方法论（17条生成阶段约束）
- const deaiPrompt = resolveDeaiPromptForChainStep(step)
+ const deaiPrompt = resolveDeaiPromptForChainStep(step, chainSkillIndex, chainSkillCount)
+ const deaiVariant = chainSkillCount && chainSkillCount > 1
+   ? chainSkillIndex === 0
+     ? 'methodology'
+     : chainSkillIndex === chainSkillCount - 1
+       ? 'polish'
+       : 'creative'
+   : chainSkillIndex !== undefined
+     ? 'methodology'
+     : 'methodology-compose'
     const systemPrompt = [skillPart, agentPart, deaiPrompt].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
   const aiService = await getAiService()
   const runId = runTraceStore.currentRunId
+  if (runId && deaiPrompt) {
+    runTraceStore.addEvent(runId, {
+      type: 'deai-prompt-variant',
+      level: 'info',
+      label: `降AI注入变体：${chainSkillIndex !== undefined ? `链步骤 ${chainSkillIndex + 1}/${chainSkillCount}` : '非链式调用'}`,
+      detail: JSON.stringify({
+        skillIndex: chainSkillIndex,
+        totalSkillCount: chainSkillCount,
+        variant: deaiVariant,
+        charCount: deaiPrompt.length
+      })
+    })
+  }
   const apiCallId = runId ? runTraceStore.startApiCall(runId, {
     step,
     skillId: skillId || undefined,
@@ -2710,7 +2773,8 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
     model,
     temperature,
     maxTokens,
-    requestMessages
+    requestMessages,
+    deaiPromptVariant: deaiPrompt ? deaiVariant : undefined
   }) : ""
   try {
       const result = await aiService.callAi({
@@ -2823,137 +2887,6 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   const baseCtx = buildTemplateContext(step, prompt, undefined, currentGenerationVolume.value)
   const memoryPrompt = formatMemoryPrompt(baseCtx.memoryContext)
   const generationPrompt = appendMemoryPromptOnce(prompt, baseCtx.memoryContext)
-  // Use SkillExecutionEngine for split-merge / multi-step
-  if ((mode === "split-merge" || mode === "multi-step") && templates.length > 0) {
-    const engine = (window as any).SkillExecutionEngine
-    if (engine) {
-      if (runTraceStore.currentRunId) {
-        runTraceStore.addEvent(runTraceStore.currentRunId, {
-          type: "engine-start",
-          level: "info",
-          label: mode === "split-merge" ? "分合执行引擎开始" : "多步执行引擎开始",
-          detail: templates.map(t => t.name || t.id).join("、")
-        })
-      }
-      const _engineAiRequest = async (opts: any) => {
-        const traceRunId = runTraceStore.currentRunId
-        const traceCallId = traceRunId ? runTraceStore.startApiCall(traceRunId, {
-          step,
-          skillId: opts.skillId || templates[0]?.id,
-          skillName: opts.skillName || templates[0]?.name,
-          agentName: getStepAgentName(step) || undefined,
-          providerId: activeProviderId() || undefined,
-          providerName: providerStore.getProvider(activeProviderId())?.name,
-          model: opts.model || activeProviderModel(),
-          temperature: opts.temperature,
-          maxTokens: opts.maxTokens,
-          requestMessages: opts.messages || []
-        }) : ''
-        const startedAt = Date.now()
-        const aiSvc = await getAiService()
-        let result: Awaited<ReturnType<typeof aiSvc.callAi>>
-        try {
-          result = await aiSvc.callAi({
-          purpose: 'generate',
-          messages: opts.messages || [],
-          model: opts.model || undefined,
-          temperature: opts.temperature != null ? opts.temperature : undefined,
-          maxTokens: opts.maxTokens || null,
-          stream: opts.stream !== false,
-          retry: true,
-          signal: pipelineStore.getGenerationSignal(),
-          meta: { source: 'PipelinePanel.engine' },
-          onChunk: (text: string) => {
-            opts.onChunk?.(text)
-            appendPipelineDelta(step, 'text', text)
-          },
-          onReasoning: (text: string) => {
-            opts.onReasoning?.(text)
-            appendPipelineDelta(step, 'reasoning', text)
-          },
-          onPhysicalCall: (event) => {
-            if (traceRunId && traceCallId) runTraceStore.appendPhysicalCall(traceRunId, traceCallId, {
-              physicalCallId: event.physicalCallId,
-              phase: event.phase,
-              status: event.status,
-              requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-              responseText: event.responseText || '',
-              streamText: event.streamText || '',
-              reasoningText: event.reasoningText || '',
-              finishReason: event.finishReason,
-              usage: event.usage,
-              durationMs: event.durationMs,
-              error: event.error,
-            toolsEnabled: event.toolsEnabled,
-            toolsDowngraded: event.toolsDowngraded,
-              downgradeReason: event.downgradeReason,
-              retryStrategy: event.retryStrategy,
-              maxTokens: event.maxTokens,
-              providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-              estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-              contextBudgetDecision: event.contextBudget?.decision,
-              contextBudgetReason: event.contextBudget?.reason,
-              usageReconciliation: event.usageReconciliation,
-              interruptionCode: event.interruptionCode,
-              heartbeat: event.heartbeat,
-              firstContentAt: event.firstContentAt,
-              lastContentAt: event.lastContentAt,
-              lastReasoningAt: event.lastReasoningAt,
-              bodyAbsentMs: event.bodyAbsentMs,
-              firstTokenMs: event.firstTokenMs,
-              outputMs: event.outputMs
-            })
-          }
-          })
-        } catch (error) {
-          if (traceRunId && traceCallId) {
-            flushPipelineStreamState(step)
-            const canceled = pipelineStore.isGenerationCanceled()
-            runTraceStore.finishApiCall(traceRunId, traceCallId, {
-              status: canceled ? 'canceled' : 'failed',
-              error: error instanceof Error ? error.message : String(error)
-            })
-          }
-          throw error
-        }
-        if (traceRunId && traceCallId) {
-          flushPipelineStreamState(step)
-          const traceStatus = traceStatusFromAiResult(result, result.maxTokens ?? opts.maxTokens)
-          runTraceStore.finishApiCall(traceRunId, traceCallId, {
-            status: traceStatus.status,
-            responseText: result.text || '',
-            reasoningText: result.reasoning || '',
-            finishReason: result.finishReason,
-            usage: result.usage,
-            durationMs: result.durationMs ?? (Date.now() - startedAt),
-            error: traceStatus.error
-          })
-          if (traceStatus.status === 'failed') {
-            throw new Error(traceStatus.error || '模型没有返回正文')
-          }
-        }
-        return { text: result.text, reasoning: result.reasoning }
-      }
-      const engineSkills = templates.map((t: any) => ({ name: t.name, template: t.template, customVars: t.customVars || {} }))
-      let result: any
-      if (mode === "split-merge") {
-        console.log("[PIPELINE] split-merge mode, step=" + step + " skills=" + engineSkills.length)
-          result = await engine.splitMerge(generationPrompt, engineSkills, { aiRequest: _engineAiRequest, splitSize: 1000, stream: true, templateContext: baseCtx })
-      } else {
-        console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest: _engineAiRequest, splitSize: 1500, stream: true, templateContext: baseCtx })
-      }
-      if (runTraceStore.currentRunId) {
-        runTraceStore.addEvent(runTraceStore.currentRunId, {
-          type: "engine-finished",
-          level: "info",
-          label: "执行引擎完成",
-          detail: "返回 " + String(result?.text || '').length + " 字"
-        })
-      }
-      return result?.text || prompt
-    }
-  }
   if (mode === "chain" && templates.length > 1) {
     const chainCtx = { ...baseCtx, prevResponse: "" }
     const checkpointProjectId = String(projectStore.currentProjectId || "")
@@ -3170,7 +3103,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           resolvedTemplate,
           ctxForSkill,
           si < templates.length - 1,
-          upstreamPrompt.prompt
+          upstreamPrompt.prompt,
+          si,
+          templates.length
         )
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
@@ -3234,7 +3169,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             resolvedTemplate,
             ctxForSkill,
             si < templates.length - 1,
-            upstreamPrompt.prompt
+            upstreamPrompt.prompt,
+            si,
+            templates.length
           )
         }
         const repairedEchoDiagnostic = detectChainOutputEcho(
@@ -3394,7 +3331,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               fullRetryResolvedTemplate,
               ctxForSkill,
               si < templates.length - 1,
-              upstreamPrompt.prompt
+              upstreamPrompt.prompt,
+              si,
+              templates.length
             )
             validateSkillOutputOrThrow(t, stepOutput)
             if (si < templates.length - 1) {

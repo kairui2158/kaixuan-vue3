@@ -196,7 +196,8 @@ describe('runTrace store', () => {
       skillId: 'skill-1',
       skillName: '卷纲技能',
       temperature: 0.7,
-      maxTokens: 8192
+      maxTokens: 8192,
+      deaiPromptVariant: 'creative'
     })
     store.appendStream(runId, callId, 'A'.repeat(600))
     store.appendStream(runId, callId, 'B'.repeat(600))
@@ -243,6 +244,7 @@ describe('runTrace store', () => {
     expect(call?.executionSettlement?.successfulWriteCount).toBe(4)
     expect(call?.executionSettlement?.trustedCoverageCount).toBe(3)
     expect(call?.readLedger?.duplicateReadCount).toBe(2)
+    expect(call?.deaiPromptVariant).toBe('creative')
     expect(call?.seq).toBe(1)
     expect(run?.events.map(e => e.type)).toContain('api-start')
     expect(run?.events.map(e => e.type)).toContain('api-success')

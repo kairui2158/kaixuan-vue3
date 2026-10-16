@@ -311,7 +311,7 @@ async function seedApplication(page, apiKey, skills) {
       outlineLockedText: outline,
       bookWordCount: 1000,
       volumesConfirmed: true,
-      pipelineConfig: { volumeCount: 1, volumeWords: 1000, chapterWords: 200 },
+      pipelineConfig: { volumeCount: 1, volumeWords: 1200, chapterWords: 1200 },
       chaptersConfirmed: true,
       settingsGenerated: true,
       settings: [],
@@ -322,7 +322,7 @@ async function seedApplication(page, apiKey, skills) {
         summary: '灯塔信标与南方航线构成第一卷冲突。',
         allocatedWords: 1000,
         suggestedWords: 1000,
-        wordsPerChapter: 200,
+        wordsPerChapter: 1200,
         chapterCount: 1,
         confirmed: true,
         locked: true,
@@ -334,7 +334,7 @@ async function seedApplication(page, apiKey, skills) {
         'vol-repair-feedback-live': [{
           id: 'ch-repair-feedback-live',
           title: '灯塔信标',
-          plot: '主角确认灯塔信标，收到旧航道的线索，并决定沿南方航线继续调查。',
+          plot: '周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。',
           summary: '灯塔信标与旧航道线索推动主角南下。',
           confirmed: true,
           pipelineGenerated: true,
@@ -572,6 +572,26 @@ function findFolderDiagnosticForSkill(folderDiagnostics, sourceId) {
       String(diagnostic?.message || '').includes(sourceId)))
 }
 
+function assertDeaiVariants(run) {
+  const variantEvents = eventsByType(run, 'deai-prompt-variant')
+    .map(event => parseDetail(event.detail))
+  assert(variantEvents.length > 0,
+    'run records at least one deai-prompt-variant event')
+  const expected = new Set(variantEvents.map(event => event.variant))
+  const actual = new Set((run.apiCalls || [])
+    .map(call => call.deaiPromptVariant)
+    .filter(Boolean))
+  for (const variant of expected) {
+    assert(actual.has(variant),
+      `deai prompt variant is persisted on api calls: expected ${variant}, got ${[...actual].join(', ') || 'none'}`)
+  }
+  for (const call of run.apiCalls || []) {
+    if (!call.deaiPromptVariant) continue
+    assert(variantEvents.some(event => event.variant === call.deaiPromptVariant),
+      `api call ${call.id} variant ${call.deaiPromptVariant} has a matching deai-prompt-variant event`)
+  }
+}
+
 function assertBaselineRun({ tracePath, run, payloads }) {
   assert.equal(run.step, 4, 'baseline run is the body layer')
   assert(['success', 'degraded'].includes(run.status),
@@ -614,6 +634,7 @@ function assertBaselineRun({ tracePath, run, payloads }) {
   }
   const payloadValues = Object.values(payloads)
   assert(payloadValues.length > 0, 'baseline deep trace contains physical request payloads')
+  assertDeaiVariants(run)
 
   for (const call of run.apiCalls || []) {
     const calls = physicalCallsOf(call)
@@ -629,13 +650,21 @@ function assertSchemaRetryRun({ tracePath, run }) {
   assert.equal(run.step, 4, 'schema run is the body layer')
   assert(['success', 'degraded'].includes(run.status),
     `schema retry run completes with usable output, got ${run.status}`)
+  assert((run.apiCalls || []).length >= 1, 'schema run records its API call')
   const schemaFailures = (run.folderDiagnostics || [])
     .filter(item => (item?.diagnostics || []).some?.(diagnostic => diagnostic?.code === 'schema-validation-failed'))
   assert(schemaFailures.length > 0,
     'live schema SKILL actually produced a schema failure before repair')
-  assert((run.apiCalls || []).length >= 1, 'schema run records its API call')
-  const call = (run.apiCalls || []).find(item =>
-    physicalCallsOf(item).length >= 2) || (run.apiCalls || [])[0]
+  const schemaFailureIndex = (run.folderDiagnostics || [])
+    .findIndex(item => item === schemaFailures[0])
+  const schemaFailureSkillId = schemaFailureIndex >= 0
+    ? (run.apiCalls || [])[schemaFailureIndex]?.skillId
+    : undefined
+  const call = schemaFailureSkillId
+    ? (run.apiCalls || []).find(item => item.skillId === schemaFailureSkillId)
+    : (run.apiCalls || []).find(item => physicalCallsOf(item).length >= 2)
+  assert(call,
+    'schema retry verification finds the API call that owns the schema failure')
   const calls = physicalCallsOf(call)
   assert(calls.length >= 2,
     `schema failure causes a retry request, got ${calls.length} physical calls`)
@@ -652,6 +681,7 @@ function assertSchemaRetryRun({ tracePath, run }) {
   const passInputs = eventsByType(run, 'folder-pass-input').map(event => parseDetail(event.detail))
   assert(passInputs.some(item => item.isRetry === true),
     'folder-pass-input marks the retry attempt')
+  assertDeaiVariants(run)
 }
 
 function assertEchoRepairRun({ tracePath, run }) {
@@ -673,6 +703,7 @@ function assertEchoRepairRun({ tracePath, run }) {
     'echo repair retry carries the concrete repair feedback')
   assert(!(run.apiCalls || []).some(call => physicalCallsOf(call).length > 3),
     'echo repair does not loop into unlimited retries')
+  assertDeaiVariants(run)
 }
 
 async function archiveRunEvidence({ directory, run, scenario }) {
