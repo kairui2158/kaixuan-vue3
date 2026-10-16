@@ -765,9 +765,10 @@ import { extractJsonArray, extractJsonObject } from "../../services/jsonExtracti
 import type { RunTraceStatus } from "../../stores/runTrace"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
 import { buildOutlineUnitClosure, validateOutlineContextScope } from "../../services/outlineContextScope"
-import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
+import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, getChainEchoWarningLevel, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
+import type { ChainBreakpointStepOutput } from "../../services/chainBreakpoint"
 import { isBodyContractStep } from "../../services/chainExecution"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
@@ -786,6 +787,7 @@ import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
 import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
+import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords, validateBodyArtifact } from "../../services/bodyArtifactContract"
 import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
 import { hashEditorContent } from "../../services/editorTarget"
@@ -2858,7 +2860,15 @@ async function callApiWithAgentVariant(step: number, skillTemplate: string, prom
   }
 }
 
-async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
+type RunStepSkillsExecutionPlan = {
+  startIndex?: BodyArtifactExecutionPlan['startIndex']
+  reuseArtifacts?: BodyArtifactExecutionPlan['reuseArtifacts']
+  disableBreakpointReplay?: BodyArtifactExecutionPlan['disableBreakpointReplay']
+  upstreamStepOutputs?: ChainBreakpointStepOutput[]
+  onStepOutputs?: (outputs: ChainBreakpointStepOutput[]) => void
+}
+
+async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan) {
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
@@ -2866,7 +2876,7 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   const mode = getStepSkillMode(step)
   const skillNames = templates.map((t) => t.name).filter(Boolean);
   try {
-    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates);
+    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates, executionPlan);
     execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(result||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
     return result;
   } catch (e) {
@@ -2876,7 +2886,7 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   }
 }
 
-async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[]) {
+async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan) {
   const templates = hydratedTemplates
   const mode = getStepSkillMode(step)
   const baseCtx = buildTemplateContext(step, prompt, undefined, currentGenerationVolume.value)
@@ -2911,8 +2921,35 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     }
     let startSi = resumePoint.startIndex
     let current = resumePoint.previousOutput || prompt
+    let completedStepOutputs = resumePoint.stepOutputs.slice()
+    if (executionPlan?.disableBreakpointReplay) {
+      startSi = Math.max(0, Math.min(Math.floor(executionPlan.startIndex ?? 0), templates.length))
+      current = prompt
+      if (executionPlan.reuseArtifacts && startSi > 0) {
+        const upstreamSource = executionPlan.upstreamStepOutputs?.length
+          ? executionPlan.upstreamStepOutputs
+          : resumePoint.stepOutputs
+        const upstream = upstreamSource.find(output => output.skillIndex === startSi - 1)
+        if (upstream) {
+          current = upstream.output
+        } else {
+          startSi = 0
+          if (runTraceStore.currentRunId) {
+            runTraceStore.addEvent(runTraceStore.currentRunId, {
+              type: 'body-targeted-repair-artifact-missing',
+              level: 'warn',
+              label: '定点修复缺少上游产物，已降级整链重跑',
+              detail: JSON.stringify({
+                requestedStartIndex: executionPlan.startIndex,
+                reason: 'upstream_step_output_not_persisted'
+              })
+            })
+          }
+        }
+      }
+    }
     const seenHandoffHashes = new Set<string>(resumePoint.handoffHashes)
-    if (resumePoint.lastHandoff?.outputHash) {
+    if (!executionPlan?.disableBreakpointReplay && resumePoint.lastHandoff?.outputHash) {
       seenHandoffHashes.add(resumePoint.lastHandoff.outputHash)
       if (runTraceStore.currentRunId) {
         runTraceStore.addEvent(runTraceStore.currentRunId, {
@@ -2923,7 +2960,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         })
       }
     }
-    if (resumePoint.resumed) {
+    if (!executionPlan?.disableBreakpointReplay && resumePoint.resumed) {
       if (step === 2) {
         volumeGenerationLogs.value.push(
           "检测到卷纲断点：将从第" + (startSi + 1) + "步继续（失败步骤会重试）"
@@ -3173,7 +3210,10 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           si === 0 ? undefined : previousResolution.output,
           stepOutput
         )
-        if (runTraceStore.currentRunId && repairedEchoDiagnostic) {
+        const repairedEchoWarningLevel = getChainEchoWarningLevel(si, templates.length, {
+          finalStepRole: 'polish'
+        })
+        if (runTraceStore.currentRunId && repairedEchoDiagnostic && repairedEchoWarningLevel === 'warning') {
           appendPipelineChainWarning({
             step,
             skillIndex: si,
@@ -3247,9 +3287,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             detail: JSON.stringify(describeChainHandoffEvent(handoffArtifact))
           })
         }
-        // Persist a complete success checkpoint immediately after each Skill.
-        const handoffHashes = Array.from(seenHandoffHashes)
-        await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
+    // Persist a complete success checkpoint immediately after each Skill.
+    const handoffHashes = Array.from(seenHandoffHashes)
+    completedStepOutputs = completedStepOutputs
+      .filter(output => output.skillIndex < si)
+      .concat([{ skillIndex: si, skillId: t.id, output: current }])
+    await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
           step,
           projectId: checkpointProjectId,
           ownerKey: checkpointOwnerKey,
@@ -3258,6 +3301,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           skillSequence,
           lastSuccessChainIndex: si,
           lastOutput: current,
+          stepOutputs: completedStepOutputs,
           lastHandoff: {
             artifactId: handoffArtifact.artifactId,
             sourceStep: handoffArtifact.sourceStep,
@@ -3353,8 +3397,10 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               }
             }
             const echoDiagnostic = detectChainOutputEcho(current, stepOutput)
-            const escalationFinalStep = si === templates.length - 1
-            if (runTraceStore.currentRunId && echoDiagnostic && !escalationFinalStep) {
+            const escalationEchoWarningLevel = getChainEchoWarningLevel(si, templates.length, {
+              finalStepRole: 'polish'
+            })
+            if (runTraceStore.currentRunId && echoDiagnostic && escalationEchoWarningLevel === 'warning') {
               appendPipelineChainWarning({
                 step,
                 skillIndex: si,
@@ -3409,6 +3455,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               })
             }
             const handoffHashes = Array.from(seenHandoffHashes)
+            completedStepOutputs = completedStepOutputs
+              .filter(output => output.skillIndex < si)
+              .concat([{ skillIndex: si, skillId: t.id, output: current }])
             await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
               step,
               projectId: checkpointProjectId,
@@ -3418,6 +3467,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               skillSequence,
               lastSuccessChainIndex: si,
               lastOutput: current,
+              stepOutputs: completedStepOutputs,
               lastHandoff: {
                 artifactId: handoffArtifact.artifactId,
                 sourceStep: handoffArtifact.sourceStep,
@@ -3448,6 +3498,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           skillSequence,
           lastSuccessChainIndex: si - 1,
           lastOutput: si === 0 ? "" : current,
+          stepOutputs: completedStepOutputs,
           inputPrompt: nextPrompt,
           agentId: fallbackAgentId(skillAgentId),
           retryCount: Number(bp?.skillId === t.id ? bp.retryCount || 0 : 0) + 1,
@@ -3458,6 +3509,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       }
     }
     try {
+      executionPlan?.onStepOutputs?.(completedStepOutputs)
       await pipelineStore.clearBreakpoint(checkpointOwnerKey)
     } catch (error) {
       if (runTraceStore.currentRunId) {
@@ -3658,6 +3710,21 @@ async function genSettings() {
 }
 
 const currentBodyChainContract = shallowRef<BodyArtifactContract | null>(null)
+
+function resolveBodyGeneratorStepIndex(): { index: number | null; role: 'generator' | null } {
+  const templates = getStepSkillTemplates(4)
+  const totalSteps = templates.length
+  const generatorIndex = templates.findIndex(template => {
+    const meta = readChainHandoffMeta(template.skill) ||
+      ((template as HydratedFolderMeta).meta && typeof (template as HydratedFolderMeta).meta === 'object'
+        ? (template as HydratedFolderMeta).meta as ChainHandoffTemplateMeta
+        : null)
+    return meta?.chainHandoff?.role === 'generator'
+  })
+  if (generatorIndex > 0) return { index: generatorIndex, role: 'generator' }
+  if (totalSteps > 2) return { index: totalSteps - 2, role: 'generator' }
+  return { index: null, role: null }
+}
 
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
@@ -4285,9 +4352,18 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       targetWords: _bodyWordsPerChapter
     }
     currentBodyChainContract.value = bodyChainContract
+    const generatorStep = resolveBodyGeneratorStepIndex()
+    let previousBodyStepOutputs: ChainBreakpointStepOutput[] = []
+    const rememberBodyStepOutputs = (outputs: ChainBreakpointStepOutput[]) => {
+      previousBodyStepOutputs = outputs
+    }
     let bodyArtifact = await generateBodyArtifact({
       contract: bodyChainContract,
       basePrompt: prompt,
+      generatorStepIndex: generatorStep.index,
+      generatorDeclaredRole: generatorStep.role,
+      finalStepRole: 'polish',
+      totalSteps: getStepSkillTemplates(4).length,
       callBodyApi: (requestPrompt, context) => {
         if (context.chapterId !== generationTargetSnapshot.chapterId) {
           return Promise.reject(new Error('正文目标已变化，本次生成终止'))
@@ -4296,7 +4372,18 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         const runAtStart = runId ? runTraceStore.getRun(runId) : null
         const apiCallsAtStart = runAtStart?.apiCalls.length ?? 0
         const eventsAtStart = runAtStart?.events.length ?? 0
-        return runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。").then(text => {
+        const executionPlan = {
+          ...context.executionPlan,
+          upstreamStepOutputs: previousBodyStepOutputs,
+          onStepOutputs: rememberBodyStepOutputs
+        }
+        return runStepSkills(
+          4,
+          requestPrompt,
+          undefined,
+          "你是小说写作专家。请基于章节剧情点生成正文。",
+          executionPlan
+        ).then(text => {
           const runAfter = runId ? runTraceStore.getRun(runId) : null
           const physicalRequests = Math.max(
             0,

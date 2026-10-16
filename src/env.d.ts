@@ -21,6 +21,7 @@ interface ElectronApiBridge {
 
 declare global {
   const __SHENYI_BODY_ABSENT_TIMEOUT_MS__: string
+  const __SHENYI_BUILD_MANIFEST__: string
   interface Window {
     electronAPI: ElectronApiBridge
   }

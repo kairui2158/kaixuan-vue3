@@ -1,16 +1,40 @@
 {
   "schema": "shenyi.owner-breakpoint-closure.electron",
   "version": 1,
-  "generatedAt": "2026-10-15T22:04:52.815Z",
+  "generatedAt": "2026-10-16T19:51:58.026Z",
   "script": "verify-owner-breakpoint-closure-electron.mjs",
-  "runId": "run-1792101892016-1",
-  "status": "failed",
-  "requestCount": 2,
+  "runId": "run-1792180317155-1",
+  "status": "success",
+  "requestCount": 5,
+  "targetedRequestCount": 2,
   "completedCheckpointRejected": true,
-  "bodyContractFailed": true,
+  "targetedGeneratorStep": true,
+  "persistedS1ArtifactReused": true,
+  "bodyAttemptLedger": [
+    {
+      "repairAttempt": 0,
+      "repairScope": "none",
+      "status": "too_short",
+      "wordCount": 4,
+      "requestCount": 3
+    },
+    {
+      "repairAttempt": 1,
+      "repairScope": "targeted",
+      "status": "complete",
+      "wordCount": 2000,
+      "requestCount": 2
+    }
+  ],
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "b8699f560ab3",
+    "buildTime": "2026-10-16T19:51:24.248Z"
+  },
   "generationStepFingerprint": {
-    "physicalRequests": 2
+    "physicalRequests": 5
   },
   "heartbeatFrames": 2,
-  "heartbeatDurationMs": 1968
+  "heartbeatDurationMs": 1812
 }

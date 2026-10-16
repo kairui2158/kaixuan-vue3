@@ -1,44 +1,81 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import type { Plugin } from 'vite'
+import { dirname } from 'node:path'
 
-export default defineConfig({
-  plugins: [vue()],
-  base: './',
-  define: {
-    __SHENYI_BODY_ABSENT_TIMEOUT_MS__: JSON.stringify(process.env.SHENYI_BODY_ABSENT_TIMEOUT_MS ?? ''),
-  },
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+function readGitCommit(): string {
+  try {
+    return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim()
+  } catch {
+    return 'unknown'
+  }
+}
+
+function createBuildManifest(): { schemaVersion: number; commit: string; buildTime: string } {
+  const manifest = {
+    schemaVersion: 1,
+    commit: readGitCommit(),
+    buildTime: new Date().toISOString(),
+  }
+  return manifest
+}
+
+function buildManifestPlugin(manifest: { schemaVersion: number; commit: string; buildTime: string }): Plugin {
+  const manifestPath = fileURLToPath(new URL('./dist-renderer/build-manifest.json', import.meta.url))
+  return {
+    name: 'shenyi-build-manifest',
+    closeBundle() {
+      mkdirSync(dirname(manifestPath), { recursive: true })
+      writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8')
     }
-  },
-  optimizeDeps: {
-    exclude: ['electron-log']
-  },
-  build: {
-    rollupOptions: {
-      external: ['electron-log']
+  }
+}
+
+export default defineConfig(({ mode }) => {
+  const manifest = createBuildManifest()
+  const buildManifest = mode === 'test' ? '' : JSON.stringify(manifest)
+  return {
+    plugins: mode === 'test' ? [vue()] : [vue(), buildManifestPlugin(manifest)],
+    base: './',
+    define: {
+      __SHENYI_BODY_ABSENT_TIMEOUT_MS__: JSON.stringify(mode === 'test' ? '' : process.env.SHENYI_BODY_ABSENT_TIMEOUT_MS ?? ''),
+      __SHENYI_BUILD_MANIFEST__: JSON.stringify(buildManifest),
     },
-    outDir: 'dist-renderer'
-  },
-  server: {
-    port: 5173,
-    strictPort: true
-  },
-  test: {
-    include: [
-      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
-      'electron/**/*.spec.js'
-    ],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/dist-renderer/**',
-      '**/cypress/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '_audit/**',
-      'scripts/tests/**'
-    ]
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
+    },
+    optimizeDeps: {
+      exclude: ['electron-log']
+    },
+    build: {
+      rollupOptions: {
+        external: ['electron-log']
+      },
+      outDir: 'dist-renderer'
+    },
+    server: {
+      port: 5173,
+      strictPort: true
+    },
+    test: {
+      include: [
+        'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        'electron/**/*.spec.js'
+      ],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/dist-renderer/**',
+        '**/cypress/**',
+        '**/.{idea,git,cache,output,temp}/**',
+        '_audit/**',
+        'scripts/tests/**'
+      ]
+    }
   }
 })

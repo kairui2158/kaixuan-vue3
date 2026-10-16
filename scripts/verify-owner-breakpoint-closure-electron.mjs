@@ -47,9 +47,13 @@ const S1_BODY = [
   '他把线索写在袖口，等待雨声掩护下一步行动。',
 ].join('\n')
 const S2_SHORT_BODY = '雨夜短稿。'
-const S2_VALID_BODY = Array.from({ length: 60 }, (_, index) =>
+const S2_VALID_BODY = Array.from({ length: 100 }, (_, index) =>
   `林照把纸条放进灯座，潮声第${index + 1}次盖住他的呼吸。`).join('\n')
-const S3_POLISHED_BODY = S2_VALID_BODY
+const S3_SHORT_BODY = '终稿短文。'
+const S3_POLISHED_BODY = Array.from({ length: 100 }, (_, index) =>
+  index === 0
+    ? `林照将纸条压进灯座，潮声第${index + 1}次盖住他的呼吸。`
+    : `林照把纸条放进灯座，潮声第${index + 1}次盖住他的呼吸。`).join('\n')
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -84,6 +88,15 @@ function assertFreshRendererBuild() {
   const staleBundles = bundleNames.filter(name =>
     fs.statSync(path.join(ROOT, 'dist-renderer', name)).mtimeMs < newestSourceMs)
   assert.equal(staleBundles.length, 0, `renderer build is stale: ${staleBundles.join(', ')}`)
+  const manifestPath = path.join(ROOT, 'dist-renderer', 'build-manifest.json')
+  assert(fs.existsSync(manifestPath), 'dist-renderer/build-manifest.json exists')
+  const diskManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  const bundleText = bundleNames.map(name =>
+    fs.readFileSync(path.join(ROOT, 'dist-renderer', name), 'utf8')).join('\n')
+  const injectedMarker = JSON.stringify(diskManifest)
+  assert(bundleText.includes(injectedMarker),
+    'renderer bundle contains the same build manifest injected at runtime')
+  return diskManifest
 }
 
 function startElectron() {
@@ -189,7 +202,7 @@ function startProvider() {
 
 async function seedApplication(page, provider) {
   await page.evaluate(async seed => {
-    const { baseUrl, projectId, volumeId, chapterId, volumeOutline, skillIds, ownerKey } = seed
+    const { baseUrl, projectId, volumeId, chapterId, volumeOutline, skillIds, ownerKey, s1Body } = seed
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', {
       providers: [{
@@ -325,6 +338,9 @@ async function seedApplication(page, provider) {
       skillSequence: skillIds,
       lastSuccessChainIndex: 2,
       lastOutput: '旧正文：这不该被回放。',
+      stepOutputs: [
+        { skillIndex: 0, skillId: skillIds[0], output: s1Body },
+      ],
       inputPrompt: '旧 prompt',
       agentId: '',
       retryCount: 0,
@@ -338,6 +354,7 @@ async function seedApplication(page, provider) {
     volumeOutline: VOLUME_OUTLINE,
     skillIds: SKILL_IDS,
     ownerKey: OWNER_KEY,
+    s1Body: S1_BODY,
   })
   await page.reload({ waitUntil: 'domcontentloaded' })
   await page.waitForSelector('#app', { timeout: 20_000 })
@@ -465,7 +482,7 @@ async function currentRun(page) {
 }
 
 async function main() {
-  assertFreshRendererBuild()
+  const diskManifest = assertFreshRendererBuild()
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
@@ -494,8 +511,11 @@ async function main() {
     await sleep(1500)
     await seedApplication(page, provider)
 
+    // First chain must complete so the final artifact validator can produce
+    // too_short. Targeted repair then starts at S2 and reuses persisted S1.
     provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
-    provider.enqueue({ body: S2_SHORT_BODY, finishReason: 'stop' })
+    provider.enqueue({ body: S2_VALID_BODY, finishReason: 'stop' })
+    provider.enqueue({ body: S3_SHORT_BODY, finishReason: 'stop' })
     provider.enqueue({ body: S2_VALID_BODY, finishReason: 'stop' })
     provider.enqueue({ body: S3_POLISHED_BODY, finishReason: 'stop' })
 
@@ -503,24 +523,62 @@ async function main() {
     const state = await runBodyThroughUi(page)
     const { run, body } = await currentRun(page)
     const events = run?.events || []
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'trace-run.json'),
+      JSON.stringify(run, null, 2), 'utf8')
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
+      JSON.stringify(provider.requests(), null, 2), 'utf8')
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'final-body.txt'), body, 'utf8')
 
     assert(events.some(event => event.type === 'chain-completed-checkpoint-rejected'),
       'completed owner checkpoint is explicitly rejected in trace')
-    assert(events.some(event => event.type === 'chain-step' && event.label === '链式步骤 1/3'),
-      'chain starts from S1 after completed checkpoint rejection')
-    assert(events.some(event => event.type === 'body-chain-contract-failed'),
-      'short S2 output fails the generation-step body contract')
-    assert.equal(state.runStatus, 'failed', `run fails instead of replaying stale output, got ${state.runStatus}`)
+    assert(!events.some(event => event.type === 'body-targeted-repair-artifact-missing'),
+      'targeted repair finds the persisted S1 artifact and does not downgrade to a full chain')
+    const firstChainStepCount = events.filter(event =>
+      event.type === 'chain-step' && event.label === '链式步骤 1/3').length
+    assert.equal(firstChainStepCount, 1,
+      `the first fresh chain runs S1 exactly once, got ${firstChainStepCount}`)
+    assert.equal(state.runStatus, 'success', `targeted repair completes the run, got ${state.runStatus}`)
     assert.equal(state.isGenerating, false, 'generation lock is released')
     assert(!body.includes('这不该被回放'), 'stale completed breakpoint output is not persisted')
+    assert(body.includes('潮声第100次'), 'the repaired polished body is persisted')
 
-    const failedEvent = events.find(event => event.type === 'body-chain-contract-failed')
-    const failedDetail = parseDetail(failedEvent?.detail)
-    assert.equal(failedDetail.wordCount, 4, `S2 short output word count is audited, got ${failedDetail.wordCount}`)
-    assert.equal(failedDetail.targetWords, 3000, 'S2 contract uses the chapter target words')
+    const attemptEvents = events.filter(event => event.type === 'body-artifact-attempt')
+    assert.equal(attemptEvents.length, 2,
+      `one fresh-chain attempt and one targeted repair attempt are recorded, got ${attemptEvents.length}`)
+    const attemptLedger = attemptEvents.map(event => {
+      const detail = parseDetail(event.detail)
+      return {
+        repairAttempt: detail.repairAttempt,
+        repairScope: detail.repairScope,
+        status: detail.status,
+        wordCount: detail.wordCount,
+        requestCount: detail.requestFingerprint?.physicalRequests
+      }
+    })
+    assert.deepEqual(attemptLedger, [
+      { repairAttempt: 0, repairScope: 'none', status: 'too_short', wordCount: 4, requestCount: 3 },
+      { repairAttempt: 1, repairScope: 'targeted', status: 'complete', wordCount: 2000, requestCount: 2 }
+    ], `body attempt ledger must prove one failed fresh chain and one targeted repair: ${JSON.stringify(attemptLedger)}`)
+
+    const runtimeFingerprint = run?.runtimeFingerprint
+    assert.deepEqual(runtimeFingerprint, {
+      source: 'vite-manifest',
+      manifestVersion: String(diskManifest.schemaVersion),
+      commit: diskManifest.commit,
+      buildTime: diskManifest.buildTime
+    }, 'trace runtime fingerprint matches the disk build manifest')
+
+    assert(!events.some(event => event.type.includes('echo') && event.level === 'warn'),
+      'final polish overlap is exempt from echo repair warnings')
 
     const requestCount = provider.requests().length
-    assert.equal(requestCount, 2, `S1 and S2 each make one request, got ${requestCount}`)
+    assert.equal(requestCount, 5,
+      `fresh chain uses 3 requests and targeted repair uses 2, got ${requestCount}`)
+    const targetedGeneratorRequest = JSON.parse(provider.requests()[3].bodyText)
+    const targetedGeneratorPrompt = targetedGeneratorRequest.messages
+      .find(message => message.role === 'user')?.content || ''
+    assert(targetedGeneratorPrompt.includes(S1_BODY),
+      'the targeted generator request reuses the persisted S1 artifact')
 
     const heartbeatFrames = heartbeat.frameCount()
     const heartbeatDuration = heartbeat.durationMs()
@@ -529,11 +587,7 @@ async function main() {
     assert(heartbeatFrames >= Math.max(1, Math.floor(heartbeatDuration / 1200)),
       `heartbeat cadence is continuous for ${heartbeatDuration}ms, got ${heartbeatFrames} frames`)
 
-    await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'failure.png'), fullPage: false })
-    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
-      JSON.stringify(provider.requests(), null, 2), 'utf8')
-    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'trace-run.json'),
-      JSON.stringify(run, null, 2), 'utf8')
+    await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'success.png'), fullPage: false })
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'report.json'), JSON.stringify({
       schema: 'shenyi.owner-breakpoint-closure.electron',
       version: 1,
@@ -542,8 +596,12 @@ async function main() {
       runId: state.runId,
       status: state.runStatus,
       requestCount,
+      targetedRequestCount: 2,
       completedCheckpointRejected: true,
-      bodyContractFailed: true,
+      targetedGeneratorStep: true,
+      persistedS1ArtifactReused: true,
+      bodyAttemptLedger: attemptLedger,
+      runtimeFingerprint,
       generationStepFingerprint: {
         physicalRequests: requestCount,
       },

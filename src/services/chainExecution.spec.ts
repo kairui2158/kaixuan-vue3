@@ -6,6 +6,7 @@ import {
   dedupeChainIntermediateOutput,
   detectChainOutputEcho,
   formatMemoryPrompt,
+  getChainEchoWarningLevel,
   isBodyContractStep,
   shouldRepairChainEcho,
   slimChainUpstreamPrompt,
@@ -152,6 +153,15 @@ describe("body chain execution contract", () => {
     expect(shouldRepairChainEcho(2, 3, 0.93, { finalStepRole: "polish" })).toBe(false)
     expect(shouldRepairChainEcho(2, 3, 0.99, { finalStepRole: "polish", identicalOutput: false })).toBe(false)
     expect(shouldRepairChainEcho(2, 3, 0.93, { finalStepRole: "generator" })).toBe(true)
+  })
+
+  it("keeps final-step polish echo at info while intermediate steps stay warnings", () => {
+    expect(getChainEchoWarningLevel(0, 3, { finalStepRole: "polish" })).toBe("warning")
+    expect(getChainEchoWarningLevel(1, 3, { finalStepRole: "polish" })).toBe("warning")
+    expect(getChainEchoWarningLevel(2, 3, { finalStepRole: "polish" })).toBe("info")
+    expect(getChainEchoWarningLevel(2, 3, { finalStepRole: "generator" })).toBe("warning")
+    expect(getChainEchoWarningLevel(0, 1, { finalStepRole: "polish" })).toBeNull()
+    expect(getChainEchoWarningLevel(2, 3)).toBe("info")
   })
 
   it("applies the body contract to the generation step only", () => {

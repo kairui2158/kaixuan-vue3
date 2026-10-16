@@ -22,6 +22,18 @@ export interface BodyArtifactAttempt {
 
 export type BodyArtifactRepairScope = 'none' | 'targeted' | 'full_chain' | 'post_process'
 
+export type BodyArtifactExecutionTopology =
+  | 'fresh_chain'
+  | 'generator_step'
+
+export interface BodyArtifactExecutionPlan {
+  topology: BodyArtifactExecutionTopology
+  targetRole: 'chain_start' | 'generator'
+  reuseArtifacts: boolean
+  startIndex: number | null
+  disableBreakpointReplay: boolean
+}
+
 export interface BodyArtifactCallContext {
   attemptId: string
   chapterId: string
@@ -31,6 +43,7 @@ export interface BodyArtifactCallContext {
   previousBody: string
   previousWordCount: number
   errors: string[]
+  executionPlan?: BodyArtifactExecutionPlan
 }
 
 export interface BodyArtifactRequestFingerprint {
@@ -49,6 +62,14 @@ export interface GenerateBodyArtifactInput {
   contract: BodyArtifactContract
   basePrompt: string
   callBodyApi: (prompt: string, context: BodyArtifactCallContext) => Promise<BodyArtifactCallResult>
+  /** 0-based chain index of the prose-generator skill, when the chain declares it. */
+  generatorStepIndex?: number | null
+  /** Folder chain-handoff role for the generator step, if declared. */
+  generatorDeclaredRole?: 'generator' | null
+  /** Role of the final chain skill, used when metadata is absent. */
+  finalStepRole?: string | null
+  /** Total chain skills; used to infer the penultimate generator fallback. */
+  totalSteps?: number | null
   shouldContinue?: () => boolean
   maxRepairAttempts?: number
   onAttempt?: (attempt: BodyArtifactAttempt) => void
@@ -93,6 +114,45 @@ export function recordBodyArtifactPostProcess(
       }
     }
   ]
+}
+
+export function planBodyArtifactExecution(input: {
+  repairScope: BodyArtifactRepairScope
+  generatorStepIndex?: number | null
+  generatorDeclaredRole?: 'generator' | null
+  finalStepRole?: string | null
+  totalSteps?: number | null
+}): BodyArtifactExecutionPlan {
+  const generatorIndexCandidate = Number(input.generatorStepIndex)
+  const hasGeneratorIndex = Number.isFinite(generatorIndexCandidate) && generatorIndexCandidate > 0
+  const generatorRole = input.generatorDeclaredRole === 'generator'
+  const fallbackGeneratorIndex = input.finalStepRole === 'polish' &&
+    Number.isFinite(Number(input.totalSteps)) && Number(input.totalSteps) > 2
+    ? Number(input.totalSteps) - 2
+    : null
+  const resolvedGeneratorIndex = hasGeneratorIndex
+    ? Math.floor(generatorIndexCandidate)
+    : generatorRole && fallbackGeneratorIndex !== null
+      ? fallbackGeneratorIndex
+      : null
+  if (input.repairScope === 'targeted' && resolvedGeneratorIndex !== null) {
+    // Length contracts are enforced at the prose-generator step. Targeted
+    // repair must reuse analysis, regenerate prose, then rerun polish.
+    return {
+      topology: 'generator_step',
+      startIndex: resolvedGeneratorIndex,
+      targetRole: 'generator',
+      reuseArtifacts: true,
+      disableBreakpointReplay: true
+    }
+  }
+  return {
+    topology: 'fresh_chain',
+    startIndex: 0,
+    targetRole: 'chain_start',
+    reuseArtifacts: false,
+    disableBreakpointReplay: true
+  }
 }
 
 function buildPrompt(input: {
@@ -179,7 +239,14 @@ export async function generateBodyArtifact(
       repairScope,
       previousBody,
       previousWordCount: lastAttempt?.wordCount ?? 0,
-      errors: lastAttempt?.errors ?? []
+      errors: lastAttempt?.errors ?? [],
+      executionPlan: planBodyArtifactExecution({
+        repairScope,
+        generatorStepIndex: input.generatorStepIndex ?? null,
+        generatorDeclaredRole: input.generatorDeclaredRole ?? null,
+        finalStepRole: input.finalStepRole ?? null,
+        totalSteps: input.totalSteps ?? null
+      })
     }
 
     const prompt = buildPrompt({

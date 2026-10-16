@@ -5,6 +5,7 @@ import { checkStateIntegrity } from '../services/stateIntegrityCheck'
 import { createLifecycleTransitionEvent } from '../services/stateTransitionGuard'
 import { getStateTimeout, startStateWatchdog, type StateWatchdog } from '../services/stateWatchdog'
 import type { ContextBudgetDecision } from '../services/contextBudget'
+import { resolveRuntimeBuildFingerprint } from '../services/buildManifest'
 import type { LifecycleStatus } from '../services/stateTransitionGuard'
 import { normalizeUsage as normalizeTraceUsage } from '../services/traceFieldNormalizer'
 
@@ -451,6 +452,12 @@ export interface RunTrace {
   dirName?: string
   currentTurnId?: string
   sessionKind?: 'task' | 'chat'
+  runtimeFingerprint?: {
+    source: 'vite-manifest' | 'dev'
+    manifestVersion: string
+    commit: string
+    buildTime: string
+  }
   sessionSnapshot?: boolean
   folderDiagnostics?: RunTraceFolderDiagnostic[]
   executionContext?: 'skill-eval'
@@ -1075,6 +1082,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       target: input.target ? { ...input.target } : undefined,
       context: input.context ? { ...input.context } : undefined,
       status: 'running',
+      runtimeFingerprint: resolveRuntimeBuildFingerprint(),
       executionContext: source === 'eval' ? 'skill-eval' : undefined,
       startedAt: Date.now(),
       timeoutHint: input.timeoutHint ? { ...input.timeoutHint } : undefined,

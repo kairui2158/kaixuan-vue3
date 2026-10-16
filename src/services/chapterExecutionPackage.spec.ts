@@ -81,6 +81,28 @@ describe("chapter execution package", () => {
     expect(prompt).toContain("约3000字")
   })
 
+  it("does not duplicate the body word contract for non-generation chain steps", () => {
+    const base = {
+      volume: { name: "第一卷", outline: "卷纲" },
+      chapter: { title: "雨夜", plot: "发现纸条" },
+      contextScope: {
+        unitId: "D1-03",
+        closure: "卷级常任 + 当前单元闭包",
+        permanentCount: 1,
+        unitCount: 1,
+        undeclaredCount: 0,
+        closureBytes: 32,
+        targetBytes: 12000,
+        maxBytes: 24000,
+        trimmed: [],
+        warnings: [],
+        degradedReason: null
+      }
+    }
+    const prompt = buildChapterExecutionPrompt(createChapterExecutionPackage(base), 3000)
+    expect(prompt.match(/约3000字/g)).toHaveLength(1)
+  })
+
   it("renders forbidden final cards as a no-early-release block", () => {
     const pkg = createChapterExecutionPackage({
       volume: { name: "第一卷", outline: "卷纲" },

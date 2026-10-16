@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-16
+更新日期：2026-10-17
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -985,3 +985,20 @@
 - 验证：type-check 通过；skillRouter / realSkillExecutor / skillOrchestrator 62 tests 通过；全量 `npm run test:services` 169 files / 1961 tests 通过；真实 Electron UI + 外部 live provider 三场景通过（baseline 3 calls / 1760 字、schema-retry 3 calls / 1952 字、echo-repair 4 calls / 1936 字，脚本 exit 0）。
 - 诚实边界：上一轮 200 字通过是 `[NOT-READY]` 透传，本轮 1200 字目标夹具才构成有效证据；schema 断言失败曾由验证脚本选错调用导致，已修复并复核；live 覆盖当前一个供应商形态。
 - SKILL 反馈闭环：新增 `deaiChainVariantIntegration.spec.ts` 贯通 routeSkill → realSkillExecutor → requestMessages，锁定三档变体互斥；清理 `callApiWithAgentTimeout` 死代码。验证：定向 4 files / 54 tests、type-check、全量 170 files / 1962 tests 通过。
+
+# 2026-10-17 协议建议、真降级与终步回显状态收口
+
+- 文件：[_audit/DEV_LOG_2026-10-17_protocol-status-echo-consolidation.md](_audit/DEV_LOG_2026-10-17_protocol-status-echo-consolidation.md)
+- 范围：advisory warnings 与真降级分流、`success_with_warnings / completed_with_warnings` 终态、两个工作台 postProcess 文案统一、升级重试路径终步回显豁免。
+- 验证：定向 6 files / 153 tests、全量 170 files / 1966 tests、type-check、真实 Electron 双工作台 UI 全过；历史卷纲/正文 trace 回放完成双语义对账。
+- 诚实边界：本地 mock OpenAI-compatible provider，非外部 live 供应商。
+
+# 2026-10-17 正文层四漏整改收口与 3.94.0 升版
+
+- 文件：[_audit/DEV_LOG_2026-10-17_four-leak-remediation.md](_audit/DEV_LOG_2026-10-17_four-leak-remediation.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-17_four-leak-remediation.md](_audit/TASK_LEDGERS/2026-10-17_four-leak-remediation.md)
+- 门禁：[_audit/PHASE_MINUS1_FOUR_LEAK_GATES_2026-10-17.md](_audit/PHASE_MINUS1_FOUR_LEAK_GATES_2026-10-17.md)
+- 范围：终步回显三路单源化、build manifest/runtime fingerprint、targeted 修复按 generator 步执行、断点清理与 attempt 产物同步传递、S1 字数契约单次注入、验证器锚点与样稿职责差异修正、经验 v8.13。
+- 验证：全量 170 files / 1978 tests、type-check、build:vue、真实 Electron UI 全过；首链 3 请求后 targeted 2 请求，S1 仅执行 1 次，attempt 2 为 `targeted/complete/2000字`。
+- 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live 矩阵；SKILL 层 S1 模板问题已转达；原始 021335 trace 未做逐 token 回放器。
+- 封装：版本升级 3.94.0；`package.json` 与 `package-lock.json` 同步；既有 chunk 超限与 `vite.protocols.config.mts` `__dirname` warning 保持登记不修。

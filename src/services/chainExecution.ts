@@ -207,6 +207,18 @@ export function shouldRepairChainEcho(
   return Number.isFinite(echoRatio) && echoRatio >= 0.85
 }
 
+export function getChainEchoWarningLevel(
+  stepIndex: number,
+  totalSteps: number,
+  options?: {
+    finalStepRole?: 'polish' | 'generator'
+  }
+): 'warning' | 'info' | null {
+  if (totalSteps <= 1 || stepIndex < 0 || stepIndex >= totalSteps) return null
+  if (stepIndex !== totalSteps - 1) return 'warning'
+  return options?.finalStepRole === 'generator' ? 'warning' : 'info'
+}
+
 function normalizeChainText(text: string): string {
   return text.replace(/\s+/g, '').toLowerCase()
 }

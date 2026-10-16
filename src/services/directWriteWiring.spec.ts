@@ -172,8 +172,9 @@ describe('direct write production wiring', () => {
   it('keeps escalation echo warnings off the polishing final step', () => {
     const pipeline = readComponentSource('src/components/pipeline/PipelinePanel.vue')
 
-    expect(pipeline).toContain('const escalationFinalStep = si === templates.length - 1')
-    expect(pipeline).toContain('runTraceStore.currentRunId && echoDiagnostic && !escalationFinalStep')
+    expect(pipeline).toContain('getChainEchoWarningLevel(si, templates.length')
+    expect(pipeline).toContain("finalStepRole: 'polish'")
+    expect(pipeline).not.toContain('escalationFinalStep')
   })
 
   it('keeps outline supervisor failures terminal instead of defaulting them to plain-dialogue success', () => {

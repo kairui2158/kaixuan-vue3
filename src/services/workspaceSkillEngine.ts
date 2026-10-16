@@ -22,6 +22,7 @@ import {
 import {
   buildChainSkillPrompt,
   detectChainOutputEcho,
+  getChainEchoWarningLevel,
   templateReferencesPreviousOutput,
 } from './chainExecution'
 import {
@@ -1643,13 +1644,16 @@ export async function runWorkspaceSkills(
           previousOutput || undefined,
           current,
         )
-        if (stepMeta && echoDiagnostic) {
+        const echoWarningLevel = getChainEchoWarningLevel(index, chainTemplates.length, {
+          finalStepRole: 'polish',
+        })
+        if (stepMeta && echoDiagnostic && echoWarningLevel) {
           stepMeta.diagnostics = [
             ...(stepMeta.diagnostics || []),
             {
-              type: index === chainTemplates.length - 1 ? 'info' : 'warning',
+              type: echoWarningLevel,
               code: echoDiagnostic.code,
-              message: index === chainTemplates.length - 1
+              message: echoWarningLevel === 'info'
                 ? `${echoDiagnostic.message}（终步为打磨角色，高重合保留为警告观察）`
                 : echoDiagnostic.message,
             },

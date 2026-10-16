@@ -8,6 +8,26 @@ describe('runTrace store', () => {
     setActivePinia(createPinia())
   })
 
+  it('records the renderer build fingerprint on every run', () => {
+    const store = useRunTraceStore()
+    vi.stubGlobal('__SHENYI_BUILD_MANIFEST__', JSON.stringify({
+      schemaVersion: 1,
+      commit: 'fingerprint-test',
+      buildTime: '2026-10-17T03:11:00.000Z'
+    }))
+    const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
+    const run = store.getRun(runId)
+    expect(run?.runtimeFingerprint).toEqual({
+      source: 'vite-manifest',
+      manifestVersion: expect.any(String),
+      commit: expect.any(String),
+      buildTime: expect.any(String),
+    })
+    const exported = store.exportRunToJson(run!) as Record<string, unknown>
+    expect(exported.runtimeFingerprint).toEqual(run?.runtimeFingerprint)
+    vi.unstubAllGlobals()
+  })
+
   it('keeps only the latest 20 runs', () => {
     const store = useRunTraceStore()
     for (let i = 1; i <= 21; i++) {

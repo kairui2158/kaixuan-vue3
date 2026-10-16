@@ -27,4 +27,24 @@ describe('owner breakpoint lifecycle closure wiring', () => {
     expect(source).toContain("type: 'body-chain-contract-failed'")
     expect(source).toContain('isBodyContractStep({')
   })
+
+  it('passes the orchestrator execution plan into every body API call', () => {
+    expect(source).toContain('const generatorStep = resolveBodyGeneratorStepIndex()')
+    expect(source).toContain('totalSteps: getStepSkillTemplates(4).length')
+    expect(source).toContain('context.executionPlan')
+  })
+
+  it('keeps successful body step outputs alive for targeted repair attempts', () => {
+    expect(source).toContain('let previousBodyStepOutputs: ChainBreakpointStepOutput[] = []')
+    expect(source).toContain('const rememberBodyStepOutputs = (outputs: ChainBreakpointStepOutput[]) => {')
+    expect(source).toContain('previousBodyStepOutputs = outputs')
+    expect(source).toContain('upstreamStepOutputs: previousBodyStepOutputs')
+    expect(source).toContain('onStepOutputs: rememberBodyStepOutputs')
+    expect(source).toContain('executionPlan?.onStepOutputs?.(completedStepOutputs)')
+  })
+
+  it('prefers attempt-scoped upstream outputs over a cleared completed breakpoint', () => {
+    expect(source).toContain('const upstreamSource = executionPlan.upstreamStepOutputs?.length')
+    expect(source).toContain('? executionPlan.upstreamStepOutputs')
+  })
 })

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { generateBodyArtifact, recordBodyArtifactPostProcess } from './bodyArtifactOrchestrator'
+import {
+  generateBodyArtifact,
+  planBodyArtifactExecution,
+  recordBodyArtifactPostProcess
+} from './bodyArtifactOrchestrator'
 import type { BodyArtifactCallContext } from './bodyArtifactOrchestrator'
 
 const contract = { chapterId: 'ch-1', targetWords: 10 }
@@ -215,6 +219,94 @@ describe('generateBodyArtifact', () => {
     expect(result.attempts[0].status).toBe('execution_invalid')
     expect(result.attempts[0].metadata?.requestFingerprint).toMatchObject({ physicalRequests: 0 })
     expect(result.errors[0]).toContain('零物理请求')
+  })
+})
+
+describe('planBodyArtifactExecution', () => {
+  it('plans targeted repair from the declared generator step', () => {
+    expect(planBodyArtifactExecution({
+      repairScope: 'targeted',
+      generatorStepIndex: 1,
+      generatorDeclaredRole: 'generator',
+      finalStepRole: 'polish',
+      totalSteps: 3
+    })).toEqual({
+      topology: 'generator_step',
+      startIndex: 1,
+      targetRole: 'generator',
+      reuseArtifacts: true,
+      disableBreakpointReplay: true
+    })
+  })
+
+  it('falls back to the penultimate generator for legacy 3-step chains', () => {
+    expect(planBodyArtifactExecution({
+      repairScope: 'targeted',
+      generatorStepIndex: null,
+      generatorDeclaredRole: 'generator',
+      finalStepRole: 'polish',
+      totalSteps: 3
+    })).toMatchObject({ topology: 'generator_step', startIndex: 1, reuseArtifacts: true })
+  })
+
+  it('does not guess a targeted topology without a generator anchor', () => {
+    expect(planBodyArtifactExecution({
+      repairScope: 'targeted',
+      generatorStepIndex: null,
+      generatorDeclaredRole: null,
+      finalStepRole: null,
+      totalSteps: 3
+    })).toEqual({
+      topology: 'fresh_chain',
+      startIndex: 0,
+      targetRole: 'chain_start',
+      reuseArtifacts: false,
+      disableBreakpointReplay: true
+    })
+  })
+
+  it('forces full-chain repair back to the chain start', () => {
+    expect(planBodyArtifactExecution({
+      repairScope: 'full_chain',
+      generatorStepIndex: 1,
+      generatorDeclaredRole: 'generator',
+      finalStepRole: 'polish',
+      totalSteps: 3
+    })).toEqual({
+      topology: 'fresh_chain',
+      startIndex: 0,
+      targetRole: 'chain_start',
+      reuseArtifacts: false,
+      disableBreakpointReplay: true
+    })
+  })
+
+  it('passes the execution topology to every body API attempt', async () => {
+    const contexts: Array<BodyArtifactCallContext | undefined> = []
+    await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      generatorStepIndex: 1,
+      generatorDeclaredRole: 'generator',
+      finalStepRole: 'polish',
+      totalSteps: 3,
+      callBodyApi: async (_prompt, context) => {
+        contexts.push(context)
+        return contexts.length === 1 ? '短' : '这是一段合格的正文。'
+      }
+    })
+
+    expect(contexts[0]?.executionPlan).toMatchObject({
+      topology: 'fresh_chain',
+      startIndex: 0,
+      disableBreakpointReplay: true
+    })
+    expect(contexts[1]?.executionPlan).toMatchObject({
+      topology: 'generator_step',
+      startIndex: 1,
+      reuseArtifacts: true,
+      disableBreakpointReplay: true
+    })
   })
 })
 
