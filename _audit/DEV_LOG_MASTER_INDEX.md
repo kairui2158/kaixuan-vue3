@@ -984,3 +984,4 @@
 - 范围：S1 方法论 / S2 创作精简 / S3 打磨契约三档分派；folder 与非 folder 全链接线；chain 主调用、echo 修复、full-retry 全覆盖；compose 保持方法论并标注 `methodology-compose`；导入配置把 `split-merge` / `multi-step` 归一为 `chain` 并写 warning。
 - 验证：type-check 通过；skillRouter / realSkillExecutor / skillOrchestrator 62 tests 通过；全量 `npm run test:services` 169 files / 1961 tests 通过；真实 Electron UI + 外部 live provider 三场景通过（baseline 3 calls / 1760 字、schema-retry 3 calls / 1952 字、echo-repair 4 calls / 1936 字，脚本 exit 0）。
 - 诚实边界：上一轮 200 字通过是 `[NOT-READY]` 透传，本轮 1200 字目标夹具才构成有效证据；schema 断言失败曾由验证脚本选错调用导致，已修复并复核；live 覆盖当前一个供应商形态。
+- SKILL 反馈闭环：新增 `deaiChainVariantIntegration.spec.ts` 贯通 routeSkill → realSkillExecutor → requestMessages，锁定三档变体互斥；清理 `callApiWithAgentTimeout` 死代码。验证：定向 4 files / 54 tests、type-check、全量 170 files / 1962 tests 通过。

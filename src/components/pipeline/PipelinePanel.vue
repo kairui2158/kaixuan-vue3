@@ -2858,11 +2858,6 @@ async function callApiWithAgentVariant(step: number, skillTemplate: string, prom
   }
 }
 
-async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts, skillId?: string): Promise<string> {
-  const parentSignal = pipelineStore.getGenerationSignal()
-  return await callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride, promptParts, parentSignal, timeoutMs, skillId)
-}
-
 async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
   const startTime = Date.now();
   const stepName = "step-" + step;

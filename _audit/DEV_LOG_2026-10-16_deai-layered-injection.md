@@ -28,4 +28,10 @@
 - 上一轮 200 字“通过”是 `[NOT-READY]` 透传，不能算有效正文证据；本轮夹具改为 1200 字目标并产生 1760/1952/1936 字真实输出，才完成有效验证。
 - 上一轮 schema 断言失败源于验证脚本选择器选错 API 调用，不是应用缺陷。脚本已改为通过 `folderDiagnostics` 的 `schema-validation-failed` 对位到目标 `skillId` 再选调用。
 - `deai-prompt-variant` 已落到 apiCall 结构化字段，并由三场景断言事件与字段一致。
-- live 验证覆盖当前一个供应商形态；其他供应商仍按既有矩阵分阶段补测。
+  - live 验证覆盖当前一个供应商形态；其他供应商仍按既有矩阵分阶段补测。
+
+## SKILL 层反馈闭环
+
+- 反馈：缺“S1/S2/S3 三次真实路由调用分别组装出三档变体标题”的集成断言；`callApiWithAgentTimeout` 仅剩定义，已无调用方。
+- 修复：新增 `src/services/deaiChainVariantIntegration.spec.ts`，不 mock `skillRouter` / `realSkillExecutor`，三次真实 `routeSkill` 调用分别携带 `resolveDeaiPromptForChainStep(4, 0/1/2, 3)`，断言 `apiMeta.requestMessages` 的 system 消息包含本档标题且不包含另外两档标题；删除 `PipelinePanel.vue` 中无调用方的 `callApiWithAgentTimeout`。
+- 验证：`npx vitest run src/services/deaiChainVariantIntegration.spec.ts src/services/de-ai.spec.ts src/services/skillRouter.spec.ts src/services/realSkillExecutor.spec.ts` 通过（4 files / 54 tests）；`npm run type-check` 通过；`npm run test:services` 通过（170 files / 1962 tests）；`rg callApiWithAgentTimeout src` 无结果。
