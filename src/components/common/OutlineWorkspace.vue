@@ -280,7 +280,7 @@
       </div>
       <div class="ow-footer">
         <div class="ow-footer-config">
-          <StyleProfileCard />
+          <StyleProfileCard host="outline" />
           <div v-if="selectedWorkspaceSkills.length" id="ow-selected-skills" class="ow-selected-skills">
             <span
               v-for="(skill, index) in selectedWorkspaceSkills"
@@ -463,8 +463,10 @@ import {
   runFinalDraft,
 } from '../../services/finalDraftRunner'
 import { canResumeFinalDraftTask, finalDraftCheckpointId, resolveFinalDraftTaskFromView } from '../../services/finalDraftCheckpoint'
+import { compileStyleContext } from '../../services/styleContextCompiler'
 import { createElectronFinalDraftCheckpointStore } from '../../services/finalDraftCheckpointElectron'
 import { formatFinalDraftProgress } from '../../services/finalDraftProgress'
+import { buildStyleTemplateVariables } from '../../services/styleTemplateContext'
 import {
   type FinalDraftEvent as FinalDraftTaskEvent,
   describeFinalDraftEvent,
@@ -501,6 +503,14 @@ import type { EditTaskCompletionReport } from '../../services/editTaskCompletion
 import type { EditTask } from '../../services/editTaskService'
 import { detectSourceContamination } from '../../services/sourceContaminationDetector'
 import { describeRoutingDiagEvent } from '../../services/routingDiagBridge'
+import {
+  buildStyleAnalysisUserPrompt,
+  parseStyleAnalysis,
+  STYLE_ANALYSIS_SYSTEM_PROMPT,
+  type StyleAnalysisReport,
+  type StyleAnalysisRequestPayload,
+  type StyleAnalysisResultPayload,
+} from '../../services/styleAnalysis'
 import StyleProfileCard from './StyleProfileCard.vue'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
@@ -520,6 +530,7 @@ onUnmounted(() => modalQueue.close('outline-workspace'))
 
 const messages = computed(() => projectStore.outlineChat)
 const outlineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
+let outlineStyleAnalysisRunId: string | null = null
 const inputText = ref('')
 const outlineStalledRetryProviderId = ref('')
 const outlineDeletionContract = createOutlineDeletionContract()
@@ -1100,12 +1111,25 @@ async function runOutlineFinalDraftTurn(options: {
     })
     const aiService = await getAiService()
     const styleProfile = outlineStyleProfileEffective.value
-    const styleConstraints = styleProfile.injected
+    const styleCompilation = compileStyleContext('final-draft', styleProfile)
+    const styleConstraints = styleCompilation.injectedChars > 0
       ? [
-        '创作风格约束：风格标签=' + styleProfile.styleTags + '；节奏参数=' + styleProfile.pacingParams
+        styleCompilation.text
           + '。终稿生成必须符合该风格；如与用户当前指令冲突，以用户当前指令为准并在输出中说明冲突。',
       ]
       : []
+    addOutlineTraceEvent({
+      type: 'style-profile',
+      label: '终稿风格约束已编译',
+      detail: JSON.stringify({
+        profileVersion: styleProfile.profileVersion,
+        target: 'final-draft',
+        injectedChars: styleCompilation.injectedChars,
+        truncated: styleCompilation.truncated,
+        truncationReason: styleCompilation.truncationReason,
+        sections: styleCompilation.sections,
+      }),
+    })
     const task = await runFinalDraft({
       aiService,
       adapter: outlineFinalDraftAdapter(),
@@ -1116,6 +1140,7 @@ async function runOutlineFinalDraftTurn(options: {
       operation: options.plan.operation,
       model: options.model,
       skillGuidance: options.skillGuidance,
+      styleProfileVersion: styleProfile.profileVersion,
       conversationMarkers: options.conversationMarkers,
       signal: abortController.signal,
       cancelSignal,
@@ -1958,18 +1983,24 @@ function buildOutlineSystemPrompt(
   activeTask?: EditTask | null,
 ) {
   const style = outlineStyleProfileEffective.value
-  const styleBlock = style.injected
+  const styleCompilation = compileStyleContext('outline', style)
+  const styleBlock = styleCompilation.injectedChars > 0
     ? '\n\n[创作风格约束（应用级，优先级高于普通建议）]\n'
-      + '风格标签：' + style.styleTags + '\n'
-      + '节奏参数：' + style.pacingParams + '\n'
+      + styleCompilation.text + '\n'
       + '要求：所有大纲创作、扩写、修改建议必须符合上述风格；如与用户当轮明确要求冲突，以用户当轮要求为准并在回复中说明冲突。'
     : ''
   addOutlineTraceEvent({
     type: 'style-profile',
     label: '大纲工作台风格注入决策',
     detail: JSON.stringify({
+      profileVersion: style.profileVersion,
       locked: style.locked,
       injected: style.injected,
+      target: 'outline',
+      injectedChars: styleCompilation.injectedChars,
+      truncated: styleCompilation.truncated,
+      truncationReason: styleCompilation.truncationReason,
+      sections: styleCompilation.sections,
       reason: style.injected
         ? null
         : !style.locked
@@ -2507,6 +2538,153 @@ function recordOutlineStyleProfileExemption(reason: 'local_transform' | 'extract
   })
 }
 
+function addOutlineStyleAnalysisEvent(event: {
+  type: 'style-benchmark-import' | 'style-analysis'
+  label: string
+  level?: 'info' | 'warn' | 'error'
+  detail: Record<string, unknown>
+}) {
+  if (!outlineStyleAnalysisRunId) return
+  runTraceStore.addEvent(outlineStyleAnalysisRunId, {
+    type: event.type,
+    level: event.level || 'info',
+    label: event.label,
+    detail: JSON.stringify(event.detail),
+    payload: event.detail,
+  })
+}
+
+function publishOutlineStyleAnalysisResult(payload: StyleAnalysisResultPayload) {
+  window.dispatchEvent(new CustomEvent('style-analysis-result', { detail: payload }))
+}
+
+async function handleStyleAnalysisRequest(event: Event) {
+  const payload = (event as CustomEvent).detail as StyleAnalysisRequestPayload | undefined
+  if (!payload?.sourceId || payload.host !== 'outline') return
+  const outlineText = projectStore.outlineText || projectStore.outlineLockedText
+  if (!outlineText?.trim()) {
+    publishOutlineStyleAnalysisResult({
+      sourceId: payload.sourceId,
+      host: 'outline',
+      report: {
+        ok: false,
+        errors: ['当前项目没有可分析的大纲文本'],
+        insufficientEvidenceFields: [],
+        ignoredFields: [],
+        draft: null,
+      },
+    })
+    return
+  }
+  const provider = providerStore.activeGenerateProvider
+  if (!provider?.id || !provider.apiKey) {
+    publishOutlineStyleAnalysisResult({
+      sourceId: payload.sourceId,
+      host: 'outline',
+      report: {
+        ok: false,
+        errors: ['未配置可用的生成供应商'],
+        insufficientEvidenceFields: [],
+        ignoredFields: [],
+        draft: null,
+      },
+    })
+    return
+  }
+  const model = provider.selectedModel || provider.models?.[0] || ''
+  const runId = runTraceStore.startRun({
+    source: 'outline',
+    stepName: '创作风格 AI 分析',
+    mode: 'style-analysis',
+    sessionKind: 'task',
+    projectId: projectStore.currentProjectId || undefined,
+    projectName: projectStore.projectName,
+    providerId: provider.id,
+    providerName: provider.name,
+    model,
+    target: {
+      type: 'outline',
+      id: 'outline',
+      name: projectStore.projectName || '未命名项目',
+      activeTab: '大纲编辑器',
+      locked: projectStore.outlineLocked,
+    },
+    context: { turns: 0 },
+  })
+  outlineStyleAnalysisRunId = runId
+  const turnId = runTraceStore.startTurn(runId, {
+    userRequest: '分析大纲风格',
+    mode: 'style-analysis',
+  })
+  runTraceStore.addEvent(runId, {
+    type: 'style-analysis',
+    level: 'info',
+    label: '大纲风格分析开始',
+    detail: JSON.stringify({ sourceId: payload.sourceId, outlineChars: outlineText.length, model }),
+    payload: { sourceId: payload.sourceId, outlineChars: outlineText.length, model },
+    turnId,
+  })
+  const finishAnalysis = (status: RunTraceStatus, report: StyleAnalysisReport | null, reason?: string) => {
+    if (turnId) runTraceStore.finishTurn(runId, turnId, status, undefined, reason)
+    runTraceStore.finishRun(runId, status, undefined, reason)
+    outlineStyleAnalysisRunId = null
+    if (report) {
+      publishOutlineStyleAnalysisResult({ sourceId: payload.sourceId, host: 'outline', report })
+    }
+  }
+  try {
+    const aiService = await getAiService()
+    const messagesToCall = [
+      { role: 'system', content: STYLE_ANALYSIS_SYSTEM_PROMPT },
+      { role: 'user', content: buildStyleAnalysisUserPrompt(outlineText) },
+    ]
+    const response = await aiService.callAi({
+      purpose: 'generate',
+      messages: messagesToCall,
+      model,
+      temperature: 0.2,
+      stream: false,
+      retry: true,
+      meta: { source: 'OutlineWorkspace.style-analysis' },
+    })
+    const responseText = response.text || ''
+    const report = parseStyleAnalysis(responseText)
+    addOutlineStyleAnalysisEvent({
+      type: 'style-analysis',
+      label: report.ok ? '大纲风格结构化分析完成' : '大纲风格结构化分析未通过校验',
+      level: report.ok ? 'info' : 'warn',
+      detail: {
+        sourceId: payload.sourceId,
+        ok: report.ok,
+        errors: report.errors,
+        insufficientEvidenceFields: report.insufficientEvidenceFields,
+        ignoredFields: report.ignoredFields,
+        responsePreview: responseText.slice(0, 400),
+      },
+    })
+    if (!report.ok || !report.draft) {
+      finishAnalysis('degraded', report, '结构化分析结果未通过校验')
+      return
+    }
+    finishAnalysis('success', report)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    addOutlineStyleAnalysisEvent({
+      type: 'style-analysis',
+      level: 'error',
+      label: '大纲风格分析请求失败',
+      detail: { sourceId: payload.sourceId, error: message },
+    })
+    finishAnalysis('failed', {
+      ok: false,
+      errors: ['AI 请求失败：' + message],
+      insufficientEvidenceFields: [],
+      ignoredFields: [],
+      draft: null,
+    }, 'AI 请求失败')
+  }
+}
+
 function recordOutlineFinalDraftStyleConstraints(task: FinalDraftTask | undefined, action: string) {
   if (!task) return
   addOutlineTraceEvent({
@@ -2515,8 +2693,15 @@ function recordOutlineFinalDraftStyleConstraints(task: FinalDraftTask | undefine
     detail: JSON.stringify({
       constraintsSource: 'task_snapshot',
       action,
+      styleProfileVersion: task.styleProfileVersion || 1,
       hasStyleConstraint: task.constraints.some(constraint => constraint.startsWith('创作风格约束：')),
       constraintsCount: task.constraints.length,
+      constraintsHash: task.constraints.length
+        ? `${[...task.constraints.join('')].reduce((hash, char) => {
+          const next = (hash * 31 + char.charCodeAt(0)) >>> 0
+          return next
+        }, 7)}`
+        : null,
     }),
   })
 }
@@ -2975,6 +3160,7 @@ function createWorkspaceSkillAdapter(
       novelTitle: projectStore.projectName || '',
       styleTags: outlineStyleProfileEffective.value.injected ? outlineStyleProfileEffective.value.styleTags : '',
       pacingParams: outlineStyleProfileEffective.value.injected ? outlineStyleProfileEffective.value.pacingParams : '',
+      ...buildStyleTemplateVariables(outlineStyleProfileEffective.value),
       prevResponse: previousOutput || ''
     }),
     getWorkspaceState: () => ({
@@ -3088,12 +3274,14 @@ onMounted(async () => {
   workspaceSkillMode.value = config.mode
   workspaceSkillAgents.value = migrateSkillAgentBindings(config.skillAgents, { 0: config.skillIds })
   window.addEventListener('diff-locate', handleDiffLocate)
+  window.addEventListener('style-analysis-request', handleStyleAnalysisRequest)
 })
 
 onUnmounted(() => {
   outlineViewport?.dispose()
   outlineViewport = null
   window.removeEventListener('diff-locate', handleDiffLocate)
+  window.removeEventListener('style-analysis-request', handleStyleAnalysisRequest)
 })
 
 function handleDiffLocate(event: Event) {

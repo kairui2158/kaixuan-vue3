@@ -2,6 +2,7 @@ import type { FinalDraftTask, FinalDraftTaskView } from './finalDraftService'
 import { hashContent } from './finalDraftService'
 
 export const FINAL_DRAFT_CHECKPOINT_SCHEMA_VERSION = 1
+const FINAL_DRAFT_CHECKPOINT_SCHEMA_VERSION_V2 = 2
 
 export interface FinalDraftCheckpointPayload {
   schemaVersion: number
@@ -13,6 +14,8 @@ export interface FinalDraftCheckpointPayload {
   instruction: string
   operation?: FinalDraftTask['operation']
   constraints: string[]
+  styleProfileVersion?: 1 | 2
+  constraintsHash?: string
   protectedRanges: FinalDraftTask['protectedRanges']
   sourceSegments: FinalDraftTask['sourceSegments']
   segmentOrder: string[]
@@ -134,6 +137,8 @@ export async function saveFinalDraftCheckpoint(
     instruction: task.instruction,
     operation: task.operation,
     constraints: task.constraints,
+    styleProfileVersion: task.styleProfileVersion,
+    constraintsHash: hashContent(task.constraints.join('\n')),
     protectedRanges: task.protectedRanges,
     sourceSegments: task.sourceSegments,
     segmentOrder: task.segmentOrder,
@@ -181,7 +186,8 @@ export function restoreFinalDraftTaskFromCheckpoint(
 ): { ok: true; task: FinalDraftTask } | { ok: false; reason: string } {
   const payload = checkpoint?.payload
   if (!payload) return { ok: false, reason: 'checkpoint_not_found' }
-  if (payload.schemaVersion !== FINAL_DRAFT_CHECKPOINT_SCHEMA_VERSION) {
+  if (payload.schemaVersion !== FINAL_DRAFT_CHECKPOINT_SCHEMA_VERSION
+    && payload.schemaVersion !== FINAL_DRAFT_CHECKPOINT_SCHEMA_VERSION_V2) {
     return { ok: false, reason: 'schema_version_mismatch' }
   }
   if (!RESUMABLE_STATUSES.has(payload.status)) return { ok: false, reason: 'task_not_resumable' }
@@ -200,6 +206,7 @@ export function restoreFinalDraftTaskFromCheckpoint(
       instruction: payload.instruction,
       operation: payload.operation,
       constraints: payload.constraints,
+      styleProfileVersion: payload.styleProfileVersion,
       protectedRanges: payload.protectedRanges,
       sourceContent: payload.sourceContent,
       sourceSegments: payload.sourceSegments,

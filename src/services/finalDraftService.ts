@@ -45,6 +45,8 @@ export interface FinalDraftTask {
   operation?: LongDocumentExecutionOperation
   skillGuidance?: string
   constraints: string[]
+  /** Style snapshot metadata; old tasks keep V1 semantics when absent. */
+  styleProfileVersion?: 1 | 2
   protectedRanges: FinalDraftProtectedRange[]
   sourceContent: string
   sourceSegments: FinalDraftSourceSegment[]
@@ -279,6 +281,7 @@ export function createFinalDraftTask(input: {
   operation?: LongDocumentExecutionOperation
   skillGuidance?: string
   constraints?: string[]
+  styleProfileVersion?: 1 | 2
   protectedRanges?: FinalDraftProtectedRange[]
   sourceSegments?: FinalDraftSourceSegment[]
   now?: number
@@ -296,6 +299,7 @@ export function createFinalDraftTask(input: {
     operation: input.operation,
     skillGuidance: normalizeFinalDraftSkillGuidance(input.skillGuidance)?.text,
     constraints: input.constraints || [],
+    styleProfileVersion: input.styleProfileVersion,
     protectedRanges: input.protectedRanges || [],
     sourceContent: input.sourceContent,
     sourceSegments,

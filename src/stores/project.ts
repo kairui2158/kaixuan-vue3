@@ -116,6 +116,7 @@ function createDefaultMemories(): MemoryData {
 }
 
 export interface StyleProfile {
+  profileVersion: 1 | 2
   styleTags: string
   pacingParams: string
   pacingParamsObj: {
@@ -129,11 +130,66 @@ export interface StyleProfile {
   aiPacingSnapshot: { pacingParams: string } | null
   locked: boolean
   lockedAt: number | null
-  source: 'manual' | 'ai-analysis' | null
+  source: 'manual' | 'ai-analysis' | 'benchmark-import' | null
+  positioning?: {
+    coreTemperament: string[]
+    genreTags: string[]
+    oneLinePositioning: string
+  }
+  quantitative?: {
+    sampleSource: string
+    dialogueDensityPerKChars: number | null
+    sentenceMix: { short: number | null; medium: number | null; long: number | null } | null
+    punctuation: {
+      comma: number
+      period: number
+      exclamation: number
+      question: number
+      ellipsis: number
+      dash: number
+    } | null
+  }
+  voice?: { protagonistSpeech: string; dialogueTags: string; subtextDensity: string }
+  descriptionFocus?: { senses: string; sketch: string; psychology: string }
+  sceneTemplates?: StyleRule[]
+  sentencePatterns?: StyleRule[]
+  positiveRules?: StyleRule[]
+  prohibitions?: StyleRule[]
+  dailyRules?: StyleRule[]
+}
+
+export interface StyleRule {
+  id: string
+  text: string
+  enabled: boolean
+}
+
+export interface StyleImportPreview {
+  profileVersion: 2
+  styleTags: string
+  pacingParams: string
+  positioning: NonNullable<StyleProfile['positioning']>
+  quantitative: NonNullable<StyleProfile['quantitative']>
+  voice: NonNullable<StyleProfile['voice']>
+  descriptionFocus: NonNullable<StyleProfile['descriptionFocus']>
+  sceneTemplates: StyleRule[]
+  sentencePatterns: StyleRule[]
+  positiveRules: StyleRule[]
+  prohibitions: StyleRule[]
+  dailyRules: StyleRule[]
+}
+
+export interface StyleAnalysisPreview {
+  profileVersion: 2
+  styleTags: string
+  pacingParams: string
+  positioning: NonNullable<StyleProfile['positioning']>
+  positiveRules: StyleRule[]
 }
 
 function createDefaultStyleProfile(): StyleProfile {
   return {
+    profileVersion: 1,
     styleTags: '',
     pacingParams: '',
     pacingParamsObj: {
@@ -155,6 +211,7 @@ function normalizeStyleProfile(value: any): StyleProfile {
   const profile = createDefaultStyleProfile()
   if (!value || typeof value !== 'object') return profile
   return {
+    profileVersion: value.profileVersion === 2 ? 2 : 1,
     styleTags: normalizeString(value.styleTags),
     pacingParams: normalizeString(value.pacingParams),
     pacingParamsObj: {
@@ -170,8 +227,93 @@ function normalizeStyleProfile(value: any): StyleProfile {
       : null,
     locked: normalizeBoolean(value.locked, false),
     lockedAt: value.locked && typeof value.lockedAt === 'number' ? value.lockedAt : null,
-    source: value.source === 'manual' || value.source === 'ai-analysis' ? value.source : null,
+    source: value.source === 'manual' || value.source === 'ai-analysis' || value.source === 'benchmark-import'
+      ? value.source
+      : null,
+    positioning: value.profileVersion === 2
+      ? {
+        coreTemperament: normalizeStrings(value.positioning?.coreTemperament),
+        genreTags: normalizeStrings(value.positioning?.genreTags),
+        oneLinePositioning: normalizeStyleRuleText(value.positioning?.oneLinePositioning),
+      }
+      : undefined,
+    quantitative: value.profileVersion === 2
+      ? {
+        sampleSource: normalizeStyleRuleText(value.quantitative?.sampleSource),
+        dialogueDensityPerKChars: normalizeFiniteNumberOrNull(value.quantitative?.dialogueDensityPerKChars),
+        sentenceMix: normalizeSentenceMix(value.quantitative?.sentenceMix),
+        punctuation: normalizePunctuation(value.quantitative?.punctuation),
+      }
+      : undefined,
+    voice: value.profileVersion === 2
+      ? {
+        protagonistSpeech: normalizeStyleRuleText(value.voice?.protagonistSpeech),
+        dialogueTags: normalizeStyleRuleText(value.voice?.dialogueTags),
+        subtextDensity: normalizeStyleRuleText(value.voice?.subtextDensity),
+      }
+      : undefined,
+    descriptionFocus: value.profileVersion === 2
+      ? {
+        senses: normalizeStyleRuleText(value.descriptionFocus?.senses),
+        sketch: normalizeStyleRuleText(value.descriptionFocus?.sketch),
+        psychology: normalizeStyleRuleText(value.descriptionFocus?.psychology),
+      }
+      : undefined,
+    sceneTemplates: value.profileVersion === 2 ? normalizeStyleRules(value.sceneTemplates) : undefined,
+    sentencePatterns: value.profileVersion === 2 ? normalizeStyleRules(value.sentencePatterns) : undefined,
+    positiveRules: value.profileVersion === 2 ? normalizeStyleRules(value.positiveRules) : undefined,
+    prohibitions: value.profileVersion === 2 ? normalizeStyleRules(value.prohibitions) : undefined,
+    dailyRules: value.profileVersion === 2 ? normalizeStyleRules(value.dailyRules) : undefined,
   }
+}
+
+const STYLE_RULE_TEXT_LIMIT = 240
+const STYLE_RULE_COUNT_LIMIT = 12
+
+function normalizeStyleRuleText(value: unknown): string {
+  return sanitizeControlCharacters(typeof value === 'string' ? value.trim().slice(0, STYLE_RULE_TEXT_LIMIT) : '')
+}
+
+function sanitizeControlCharacters(value: string): string {
+  return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+}
+
+function normalizeFiniteNumberOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function normalizeSentenceMix(value: any): NonNullable<StyleProfile['quantitative']>['sentenceMix'] {
+  if (!value || typeof value !== 'object') return null
+  const mix = {
+    short: normalizeFiniteNumberOrNull(value.short),
+    medium: normalizeFiniteNumberOrNull(value.medium),
+    long: normalizeFiniteNumberOrNull(value.long),
+  }
+  return mix.short === null && mix.medium === null && mix.long === null ? null : mix
+}
+
+function normalizePunctuation(value: any): NonNullable<StyleProfile['quantitative']>['punctuation'] {
+  if (!value || typeof value !== 'object') return null
+  return {
+    comma: normalizeFiniteNumberOrNull(value.comma) ?? 0,
+    period: normalizeFiniteNumberOrNull(value.period) ?? 0,
+    exclamation: normalizeFiniteNumberOrNull(value.exclamation) ?? 0,
+    question: normalizeFiniteNumberOrNull(value.question) ?? 0,
+    ellipsis: normalizeFiniteNumberOrNull(value.ellipsis) ?? 0,
+    dash: normalizeFiniteNumberOrNull(value.dash) ?? 0,
+  }
+}
+
+function normalizeStyleRules(value: unknown): StyleRule[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .slice(0, STYLE_RULE_COUNT_LIMIT)
+    .map((item: any) => ({
+      id: typeof item?.id === 'string' && item.id.trim() ? item.id.trim().slice(0, 64) : '',
+      text: normalizeStyleRuleText(item?.text),
+      enabled: typeof item?.enabled === 'boolean' ? item.enabled : true,
+    }))
+    .filter(rule => rule.text.length > 0)
 }
 
 function normalizeString(value: unknown): string {
@@ -394,15 +536,41 @@ export const useProjectStore = defineStore('project', () => {
 
  const styleProfileEffective = computed(() => {
    const profile = styleProfile.value
-   const hasContent = Boolean(profile.styleTags.trim() || profile.pacingParams.trim())
+   const hasContent = Boolean(
+     profile.styleTags.trim()
+      || profile.pacingParams.trim()
+      || (profile.profileVersion === 2 && styleProfileHasV2Content(profile)),
+   )
    return {
+    profileVersion: profile.profileVersion,
      locked: profile.locked,
      injected: profile.locked && hasContent,
      styleTags: profile.styleTags,
      pacingParams: profile.pacingParams,
      pacingParamsObj: { ...profile.pacingParamsObj },
+    positioning: profile.positioning ? { ...profile.positioning } : undefined,
+    quantitative: profile.quantitative ? { ...profile.quantitative } : undefined,
+    voice: profile.voice ? { ...profile.voice } : undefined,
+    descriptionFocus: profile.descriptionFocus ? { ...profile.descriptionFocus } : undefined,
+    sceneTemplates: profile.sceneTemplates?.map(rule => ({ ...rule })),
+    sentencePatterns: profile.sentencePatterns?.map(rule => ({ ...rule })),
+    positiveRules: profile.positiveRules?.map(rule => ({ ...rule })),
+    prohibitions: profile.prohibitions?.map(rule => ({ ...rule })),
+    dailyRules: profile.dailyRules?.map(rule => ({ ...rule })),
    }
  })
+
+ function styleProfileHasV2Content(profile: StyleProfile): boolean {
+   return Boolean(
+     profile.positioning?.oneLinePositioning
+      || profile.voice?.protagonistSpeech
+      || profile.sceneTemplates?.length
+      || profile.sentencePatterns?.length
+      || profile.positiveRules?.length
+      || profile.prohibitions?.length
+      || profile.dailyRules?.length,
+   )
+ }
 
  function updateStyleProfileDraft(patch: Partial<Omit<StyleProfile, 'locked' | 'lockedAt' | 'source'>>) {
    if (styleProfile.value.locked) {
@@ -438,6 +606,51 @@ export const useProjectStore = defineStore('project', () => {
    }
    saveProject()
    return { ok: true as const }
+ }
+
+ function applyStyleProfileDraftPatch(patch: Partial<StyleProfile>) {
+   if (styleProfile.value.locked) {
+     return { ok: false as const, reason: 'style_locked' as const }
+   }
+   const normalized = normalizeStyleProfile({ ...styleProfile.value, ...patch, profileVersion: 2 })
+   styleProfile.value = normalized
+   saveProject()
+   return { ok: true as const }
+ }
+
+ function applyStyleImportPreview(preview: StyleImportPreview) {
+   const result = applyStyleProfileDraftPatch({
+     ...preview,
+     source: 'benchmark-import',
+   })
+   return result
+ }
+
+ function applyStyleAnalysisPreview(preview: StyleAnalysisPreview) {
+   const result = applyStyleProfileDraftPatch({
+     profileVersion: 2,
+     styleTags: preview.styleTags,
+     pacingParams: preview.pacingParams,
+     positioning: preview.positioning,
+     positiveRules: preview.positiveRules,
+     source: 'ai-analysis',
+   })
+   return result
+ }
+
+ function updateStyleRuleEnabled(
+   field: 'sceneTemplates' | 'sentencePatterns' | 'positiveRules' | 'prohibitions' | 'dailyRules',
+   ruleId: string,
+   enabled: boolean,
+ ) {
+   const rules = styleProfile.value[field]
+   if (!rules) return { ok: false as const, reason: 'style_rule_not_found' as const }
+   const rule = rules.find(item => item.id === ruleId)
+   if (!rule) return { ok: false as const, reason: 'style_rule_not_found' as const }
+   rule.enabled = enabled
+   const result = applyStyleProfileDraftPatch({ [field]: [...rules] })
+   if (!result.ok) rule.enabled = !enabled
+   return result
  }
 
   function nameFromOutline(text: string): string {
@@ -1382,7 +1595,8 @@ export const useProjectStore = defineStore('project', () => {
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
     editorBookmarks, setEditorBookmarks,
-    styleProfile, styleProfileEffective, updateStyleProfileDraft, lockStyleProfile, unlockStyleProfile, applyAiStyleAnalysis,
+    styleProfile, styleProfileEffective, updateStyleProfileDraft, applyStyleProfileDraftPatch, lockStyleProfile, unlockStyleProfile, applyAiStyleAnalysis,
+    applyStyleImportPreview, applyStyleAnalysisPreview, updateStyleRuleEnabled,
    aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
    ,startProjectAutoSave, stopProjectAutoSave
  }

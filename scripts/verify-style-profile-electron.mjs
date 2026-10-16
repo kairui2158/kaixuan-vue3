@@ -22,11 +22,31 @@ const STEP_TIMEOUT_MS = Number(process.env.SHENYI_STYLE_PROFILE_STEP_TIMEOUT_MS 
 const STYLE_TAGS = '冷硬推理, 近未来都市'
 const PACING_PARAMS = '速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血'
 const STYLE_BLOCK_MARKER = '[创作风格约束（应用级，优先级高于普通建议）]'
+const BENCHMARK_SOURCE = 'D:/codex/拆文库/踏星/.novel/benchmarks/踏星/文风.md'
+const BENCHMARK_IMPORT_PATH = path.join(PROFILE, 'fixtures', '文风.md')
+const AI_ANALYSIS_TAGS = '末世高武, 星际升级, 冷硬快节奏'
+const AI_ANALYSIS_REPLY = JSON.stringify({
+  positioning: {
+    coreTemperament: ['冷硬', '务实', '危机感强'],
+    genreTags: ['末世高武', '星际升级'],
+    oneLinePositioning: '用干净动作和身份重估推进更大的世界。',
+  },
+  styleTags: AI_ANALYSIS_TAGS,
+  pacingParams: '速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血',
+  positiveRules: ['动作推进优先，少写情绪空喊。', '世界观说明必须挂在事件后果上。'],
+  voice: { protagonistSpeech: '模型越权返回的声口' },
+  sentencePatterns: ['模型越权返回的句式'],
+})
 const PROVIDER_REPLIES = {
   unlockedDraft: '未锁定阶段只做讨论，不注入创作风格。',
   lockedDraft: '已按锁定风格给出大纲建议。',
   unlockedLocalTransform: '本地确定性整理已执行。',
   lockedLocalTransform: '本地确定性整理已执行，不需要模型改写。',
+}
+
+function isStyleAnalysisRequest(body) {
+  return (body?.messages || []).some(message =>
+    message?.role === 'system' && String(message.content || '').includes('小说风格分析专家'))
 }
 
 function sleep(ms) {
@@ -103,6 +123,19 @@ function startProvider() {
   const respond = (response, bodyText) => {
     let body = null
     try { body = JSON.parse(bodyText) } catch {}
+    if (isStyleAnalysisRequest(body)) {
+      const payload = {
+        id: 'style-profile-analysis',
+        object: 'chat.completion',
+        choices: [{
+          finish_reason: 'stop',
+          message: { role: 'assistant', content: AI_ANALYSIS_REPLY },
+        }],
+      }
+      response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+      response.end(JSON.stringify(payload))
+      return
+    }
     if ((body?.messages || []).some(message => message?.role === 'system' && String(message.content || '').includes('意图分类器'))) {
       const requestedIntent = (() => {
         const userMessage = (body?.messages || []).find(message => message?.role === 'user')
@@ -156,6 +189,7 @@ function startProvider() {
         at: new Date().toISOString(),
         isIntentClassifier: (body?.messages || []).some(message =>
           message?.role === 'system' && String(message.content || '').includes('意图分类器')),
+        isStyleAnalysis: isStyleAnalysisRequest(body),
         systemPrompt: (body?.messages || [])
           .filter(message => message?.role === 'system')
           .map(message => String(message.content || ''))
@@ -190,6 +224,7 @@ function startElectron() {
       SHENYI_ALLOW_TEST_ISOLATION: '1',
       SHENYI_DATA_DIR: DATA_DIR,
       SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'),
+      SHENYI_TEST_IMPORT_PATH: BENCHMARK_IMPORT_PATH,
     },
     windowsHide: false,
   })
@@ -205,6 +240,25 @@ function startElectron() {
     fs.appendFileSync(RUN_LOG_PATH, text, 'utf8')
   })
   return child
+}
+
+function installStyleAnalysisObserver(page) {
+  return page.evaluate(() => {
+    window.__styleAnalysisResults = []
+    window.addEventListener('style-analysis-result', event => {
+      window.__styleAnalysisResults.push(event.detail)
+    })
+  })
+}
+
+async function readStyleAnalysisEvents(page) {
+  return page.evaluate(() => (window.__styleAnalysisResults || []).map(item => ({
+    sourceId: item?.sourceId || null,
+    host: item?.host || null,
+    ok: item?.report?.ok ?? null,
+    insufficientEvidenceFields: item?.report?.insufficientEvidenceFields || [],
+    ignoredFields: item?.report?.ignoredFields || [],
+  })))
 }
 
 async function waitForCdp() {
@@ -394,6 +448,8 @@ async function main() {
   archiveExistingEvidence()
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
+  fs.mkdirSync(path.dirname(BENCHMARK_IMPORT_PATH), { recursive: true })
+  fs.copyFileSync(BENCHMARK_SOURCE, BENCHMARK_IMPORT_PATH)
   const watchdog = setTimeout(() => {
     console.error(`[FAIL] global timeout after ${GLOBAL_TIMEOUT_MS}ms`)
     process.exit(1)
@@ -413,6 +469,7 @@ async function main() {
     await sleep(1500)
     await seedApplication(page, provider)
     await openOutlineWorkspace(page)
+    await installStyleAnalysisObserver(page)
 
     provider.setReply(PROVIDER_REPLIES.unlockedDraft)
     await runOutlineTurn(page, '先讨论第一章的钩子设计。')
@@ -472,10 +529,14 @@ async function main() {
     assert(pipelineCardText.includes('已锁定'), 'pipeline card shows the locked state')
     await page.click('#pipeline-panel #pl-style-card .pl-style-card-header')
     await page.waitForSelector('#pipeline-panel #pl-style-card .pl-style-card-body:visible', { timeout: 20_000 })
+    // Style lock freezes editing, not inspection. Tab navigation must stay
+    // usable while every mutating control is disabled.
     const pipelineControlsDisabled = await page.locator(
-      '#pipeline-panel #pl-style-card input, #pipeline-panel #pl-style-card select, #pipeline-panel #pl-style-card button:not(#btn-unlock-style-profile)',
+      '#pipeline-panel #pl-style-card input, #pipeline-panel #pl-style-card select, #pipeline-panel #pl-style-card button:not(#btn-unlock-style-profile):not(.pl-style-tab)',
     ).evaluateAll(elements => elements.map(element => element.disabled))
     assert(pipelineControlsDisabled.every(Boolean), 'pipeline style controls are locked')
+    const pipelineTabEnabled = await page.locator('#pipeline-panel #pl-style-card .pl-style-tab').first().isEnabled()
+    assert(pipelineTabEnabled, 'pipeline style tabs remain navigable while locked')
 
     await page.click('#btn-unlock-style-profile')
     await page.waitForSelector('#btn-lock-style-profile', { state: 'visible', timeout: 20_000 })
@@ -498,20 +559,135 @@ async function main() {
     assert(unlockedCardText.includes('未锁定'), 'outline card reflects the unlocked state')
     assert(unlockedCardText.includes(STYLE_TAGS), 'outline card keeps the unlocked draft')
 
+    await expandStyleCard(page)
+    await page.click('.ow-footer-config #pl-style-card #btn-style-import')
+    await page.waitForSelector('.ow-footer-config #pl-style-card #style-import-preview:visible', { timeout: STEP_TIMEOUT_MS })
+    const importPreviewText = await page.locator('.ow-footer-config #pl-style-card #style-import-preview').innerText()
+    assert(importPreviewText.includes('导入拆书档案预览'), 'import preview opens from the real file dialog path')
+    assert(importPreviewText.includes('末世高武'), 'import preview shows parsed benchmark tags')
+    assert(importPreviewText.includes('标志性句式'), 'import preview shows structured rule diff')
+    await page.click('.ow-footer-config #pl-style-card #btn-style-preview-apply')
+    await page.waitForSelector('.ow-footer-config #pl-style-card #style-import-preview', { state: 'detached', timeout: STEP_TIMEOUT_MS })
+    const importedSnapshot = await storeSnapshot(page)
+    const importedProfile = importedSnapshot.styleProfile
+    assert.equal(importedProfile.profileVersion, 2, 'benchmark import upgrades the draft to profileVersion 2')
+    assert.equal(importedProfile.source, 'benchmark-import', 'benchmark import records its source')
+    assert(importedProfile.styleTags.includes('末世高武'), 'benchmark import applies parsed tags')
+    assert.equal(importedProfile.sentencePatterns?.length, 8, 'benchmark import applies eight sentence patterns')
+    assert.equal(importedProfile.sceneTemplates?.length, 4, 'benchmark import applies four scene templates')
+    assert.equal(importedProfile.prohibitions?.length, 4, 'benchmark import applies four prohibitions')
+    assert.equal(importedProfile.dailyRules?.length, 5, 'benchmark import applies five daily rules')
+    assert(importedProfile.voice?.protagonistSpeech?.includes('短句'), 'benchmark import applies voice evidence')
+
+    await page.click('.ow-footer-config #pl-style-card #pl-style-tab-voice')
+    const firstPatternBefore = importedProfile.sentencePatterns?.[0]
+    await page.locator('.ow-footer-config #pl-style-card .pl-style-rule input[type="checkbox"]').first().click()
+    await page.waitForFunction(ruleId => {
+      const profile = window.__pinia?._s?.get('project')?.styleProfile
+      return profile?.sentencePatterns?.find(rule => rule.id === ruleId)?.enabled === false
+    }, firstPatternBefore?.id, { timeout: STEP_TIMEOUT_MS, polling: 200 })
+    const toggledSnapshot = await storeSnapshot(page)
+    const toggledPattern = toggledSnapshot.styleProfile.sentencePatterns
+      ?.find(rule => rule.id === firstPatternBefore?.id)
+    assert.equal(toggledPattern?.enabled, false, 'sentence pattern can be disabled through the real UI')
+
+    await page.click('.ow-footer-config #pl-style-card #btn-style-ai-analysis')
+    await page.waitForSelector('.ow-footer-config #pl-style-card #style-import-preview:visible', { timeout: STEP_TIMEOUT_MS })
+    const analysisPreviewText = await page.locator('.ow-footer-config #pl-style-card #style-import-preview').innerText()
+    assert(analysisPreviewText.includes('AI 分析结果预览'), 'AI analysis preview opens in the outline host')
+    assert(analysisPreviewText.includes('证据不足，未填充'), 'AI analysis preview exposes evidence boundaries')
+    assert(analysisPreviewText.includes('voice'), 'AI analysis preview lists voice as insufficient evidence')
+    assert(analysisPreviewText.includes('已忽略模型越权返回'), 'AI analysis preview exposes ignored model overreach')
+    const analysisEvents = await readStyleAnalysisEvents(page)
+    assert.equal(analysisEvents.length, 1, 'exactly one style-analysis result is published')
+    assert.equal(analysisEvents[0]?.host, 'outline', 'outline card request is routed to the outline host')
+    assert.equal(analysisEvents[0]?.ok, true, 'outline style analysis succeeds')
+    assert.deepEqual(
+      analysisEvents[0]?.insufficientEvidenceFields,
+      ['voice', 'sentencePatterns', 'sceneTemplates', 'dailyRules', 'prohibitions'],
+      'AI analysis declares all evidence-bound fields',
+    )
+    assert.deepEqual(
+      analysisEvents[0]?.ignoredFields,
+      ['voice', 'sentencePatterns'],
+      'AI analysis ignores model overreach fields',
+    )
+    await page.click('.ow-footer-config #pl-style-card #btn-style-preview-apply')
+    await page.waitForSelector('.ow-footer-config #pl-style-card #style-import-preview', { state: 'detached', timeout: STEP_TIMEOUT_MS })
+    const analyzedSnapshot = await storeSnapshot(page)
+    const analyzedProfile = analyzedSnapshot.styleProfile
+    assert.equal(analyzedProfile.styleTags, AI_ANALYSIS_TAGS, 'AI analysis applies supported tags')
+    assert.equal(analyzedProfile.source, 'ai-analysis', 'AI analysis records its source')
+    assert.equal(analyzedProfile.positiveRules?.length, 2, 'AI analysis applies positive rules')
+    assert(
+      analyzedProfile.voice?.protagonistSpeech === importedProfile.voice?.protagonistSpeech,
+      'AI analysis does not overwrite imported voice evidence',
+    )
+    assert(
+      analyzedProfile.sentencePatterns?.length === importedProfile.sentencePatterns?.length
+        && !analyzedProfile.sentencePatterns?.some(rule => rule.text === '模型越权返回的句式'),
+      'AI analysis does not fabricate sentence patterns',
+    )
+
+    await lockStyleThroughUi(page)
+    provider.setReply(PROVIDER_REPLIES.lockedDraft)
+    await runOutlineTurn(page, '按已锁定的结构化风格讨论第一章开场。')
+    const lockedV2Turn = await latestOutlineTurn(page)
+    latestTurnEvidence = lockedV2Turn
+    assert.equal(lockedV2Turn.turnStatus, 'success', 'locked V2 draft turn succeeds')
+    const lockedV2StyleEvent = lockedV2Turn.styleEvents.at(-1)
+    assert.equal(lockedV2StyleEvent?.profileVersion, 2, 'locked V2 trace records profileVersion')
+    assert.equal(lockedV2StyleEvent?.injected, true, 'locked V2 profile is injected')
+    assert.equal(lockedV2StyleEvent?.target, 'outline', 'locked V2 trace records the outline target')
+    assert(lockedV2StyleEvent?.injectedChars > 0, 'locked V2 trace records injected characters')
+    assert(lockedV2StyleEvent?.injectedChars <= 600, 'locked V2 outline injection stays inside budget')
+    assert(
+      (lockedV2StyleEvent?.sections || []).some(section => section.section === '定位'),
+      'locked V2 trace records the positioning section',
+    )
+    assert(
+      (lockedV2StyleEvent?.sections || []).some(section => section.section === '警戒线'),
+      'locked V2 trace records the prohibition section',
+    )
+    const lockedImportDisabled = await page.locator('.ow-footer-config #pl-style-card #btn-style-import').isDisabled()
+    const lockedAnalysisDisabled = await page.locator('.ow-footer-config #pl-style-card #btn-style-ai-analysis').isDisabled()
+    const lockedRuleDisabled = await page.locator(
+      '.ow-footer-config #pl-style-card .pl-style-rule input[type="checkbox"]',
+    ).first().isDisabled()
+    assert(lockedImportDisabled, 'locked profile disables benchmark import')
+    assert(lockedAnalysisDisabled, 'locked profile disables AI analysis')
+    assert(lockedRuleDisabled, 'locked profile disables rule toggles')
+    await page.click('.ow-footer-config #pl-style-card #btn-unlock-style-profile')
+    await page.waitForSelector('.ow-footer-config #pl-style-card #btn-lock-style-profile', { state: 'visible', timeout: 20_000 })
+
     await page.click('#btn-lock-outline')
     const outlineLockedSnapshot = await storeSnapshot(page)
     assert.equal(outlineLockedSnapshot.outlineLocked, true, 'outline lock succeeds')
     assert.equal(outlineLockedSnapshot.styleProfile.locked, false, 'outline lock does not lock style')
-    assert.equal(outlineLockedSnapshot.styleProfile.styleTags, STYLE_TAGS, 'outline lock does not clear style')
+    assert.equal(
+      outlineLockedSnapshot.styleProfile.styleTags,
+      AI_ANALYSIS_TAGS,
+      'outline lock preserves the independently imported style evidence',
+    )
 
     const persisted = await page.evaluate(async projectId => {
       return await window.electronAPI.storageRead(`wa_project_${projectId}`)
     }, PROJECT_ID)
-    assert.equal(persisted?.styleProfile?.styleTags, STYLE_TAGS, 'style profile persists to project storage')
-    assert.equal(persisted?.styleProfile?.pacingParams, PACING_PARAMS, 'pacing profile persists to project storage')
+    assert.equal(persisted?.styleProfile?.profileVersion, 2, 'V2 profile version persists to project storage')
+    assert.equal(persisted?.styleProfile?.styleTags, AI_ANALYSIS_TAGS, 'analyzed style tags persist to project storage')
+    assert.equal(persisted?.styleProfile?.source, 'ai-analysis', 'style source persists to project storage')
+    assert.equal(persisted?.styleProfile?.sentencePatterns?.length, 8, 'sentence patterns persist to project storage')
+    assert.equal(persisted?.styleProfile?.sceneTemplates?.length, 4, 'scene templates persist to project storage')
     assert.equal(persisted?.styleProfile?.locked, false, 'unlocked draft state persists to project storage')
 
     const providerRequests = provider.requests()
+    // Persist requests before assertions so a failed audit still leaves a
+    // inspectable request-level scene instead of a bare assertion message.
+    fs.writeFileSync(
+      path.join(EVIDENCE_ROOT, 'provider-requests.json'),
+      JSON.stringify(providerRequests, null, 2),
+      'utf8',
+    )
     const unlockedDraftRequest = providerRequests.find(item =>
       !item.isIntentClassifier && item.systemPrompt.includes('继续讨论第一章的钩子设计') === false && item.systemPrompt.includes('冷硬推理') === false)
     assert(unlockedDraftRequest, 'unlocked draft request is captured')
@@ -525,17 +701,31 @@ async function main() {
     assert(lockedDraftRequest.systemPrompt.includes(STYLE_TAGS), 'locked draft request carries style tags')
     assert(lockedDraftRequest.systemPrompt.includes(PACING_PARAMS), 'locked draft request carries pacing params')
     const nonIntentRequests = providerRequests.filter(item => !item.isIntentClassifier)
+    const styleInjectionRequests = nonIntentRequests
+      .filter(item => item.systemPrompt.includes(STYLE_BLOCK_MARKER))
     assert(
-      nonIntentRequests
-        .filter(item => item !== lockedDraftRequest)
-        .every(item => !item.systemPrompt.includes(STYLE_BLOCK_MARKER)),
-      'no other business request leaks the style block',
+      styleInjectionRequests.length > 0
+        && styleInjectionRequests.every(item => item === lockedDraftRequest || item === nonIntentRequests.at(-1)),
+      'style block only appears in locked style injection requests',
+    )
+    const styleAnalysisRequest = providerRequests.find(item => item.isStyleAnalysis)
+    assert(styleAnalysisRequest, 'style analysis request is captured')
+    assert(
+      styleAnalysisRequest.systemPrompt.includes('小说风格分析专家'),
+      'style analysis request uses the evidence-bound system prompt',
+    )
+    const lockedV2Request = providerRequests.filter(item =>
+      !item.isIntentClassifier && !item.isStyleAnalysis && item.systemPrompt.includes('[定位]'))
+    assert(lockedV2Request.length > 0, 'locked V2 request carries structured positioning block')
+    assert(
+      lockedV2Request.at(-1)?.systemPrompt.includes('[警戒线]'),
+      'locked V2 outline request carries the prohibition block',
     )
 
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'final-state.png'), fullPage: false })
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'report.json'), JSON.stringify({
       schema: 'shenyi.style-profile-lock-sync.electron',
-      version: 1,
+      version: 2,
       generatedAt: new Date().toISOString(),
       script: SCRIPT_NAME,
       cases: {
@@ -547,9 +737,44 @@ async function main() {
         },
         pipelineSync: { tags: pipelineCardText.includes(STYLE_TAGS), pacing: pipelineCardText.includes(PACING_PARAMS), locked: pipelineCardText.includes('已锁定') },
         persistence: {
+          profileVersion: persisted?.styleProfile?.profileVersion || null,
           styleTags: persisted?.styleProfile?.styleTags || null,
-          pacingParams: persisted?.styleProfile?.pacingParams || null,
+          sentencePatterns: persisted?.styleProfile?.sentencePatterns?.length || 0,
+          sceneTemplates: persisted?.styleProfile?.sceneTemplates?.length || 0,
+          prohibitions: persisted?.styleProfile?.prohibitions?.length || 0,
+          dailyRules: persisted?.styleProfile?.dailyRules?.length || 0,
           locked: persisted?.styleProfile?.locked ?? null,
+        },
+        v2Import: {
+          profileVersion: importedProfile.profileVersion,
+          source: importedProfile.source,
+          sentencePatterns: importedProfile.sentencePatterns?.length || 0,
+          sceneTemplates: importedProfile.sceneTemplates?.length || 0,
+          prohibitions: importedProfile.prohibitions?.length || 0,
+          dailyRules: importedProfile.dailyRules?.length || 0,
+          ruleToggleDisabledId: firstPatternBefore?.id || null,
+        },
+        aiAnalysis: {
+          host: analysisEvents[0]?.host || null,
+          ok: analysisEvents[0]?.ok ?? null,
+          insufficientEvidenceFields: analysisEvents[0]?.insufficientEvidenceFields || [],
+          ignoredFields: analysisEvents[0]?.ignoredFields || [],
+          appliedTags: analyzedProfile.styleTags,
+          preservedVoice: analyzedProfile.voice?.protagonistSpeech === importedProfile.voice?.protagonistSpeech,
+        },
+        hostRouting: {
+          resultCount: analysisEvents.length,
+          outlineHandled: analysisEvents[0]?.host === 'outline',
+          providerPromptEvidence: Boolean(styleAnalysisRequest),
+        },
+        lockedV2Injection: {
+          status: lockedV2Turn.turnStatus,
+          profileVersion: lockedV2StyleEvent?.profileVersion || null,
+          injectedChars: lockedV2StyleEvent?.injectedChars || 0,
+          sections: lockedV2StyleEvent?.sections || [],
+          importDisabled: lockedImportDisabled,
+          analysisDisabled: lockedAnalysisDisabled,
+          ruleDisabled: lockedRuleDisabled,
         },
       },
     }, null, 2), 'utf8')

@@ -77,6 +77,7 @@ export interface FinalDraftRunInput {
   /** App-owned SKILL guidance. It never changes the final-draft execution protocol. */
   skillGuidance?: string
   constraints?: string[]
+  styleProfileVersion?: 1 | 2
   model?: string
   providerId?: string
   signal?: AbortSignal
@@ -197,6 +198,7 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
     operation: input.operation,
     skillGuidance: guidance?.text,
     constraints: input.constraints,
+    styleProfileVersion: input.styleProfileVersion,
     sourceSegments: input.sourceSegments,
   })
   if (contamination.detected) {

@@ -1,0 +1,563 @@
+{
+  "generatedAt": "2026-10-16T06:19:44.840Z",
+  "sampleSource": "D:/codex/拆文库/踏星/.novel/benchmarks/踏星/文风.md",
+  "sampleExists": true,
+  "sampleChars": 1368,
+  "contextBudgetGuard": "token估算为字符*0.6，仅用于路由不变性粗检；正式路由仍以 contextBudget 服务为准。",
+  "summary": {
+    "outline": {
+      "samples": 3,
+      "beforeMin": 58,
+      "beforeMax": 58,
+      "afterMax": 343,
+      "injectedChars": 232,
+      "truncated": false
+    },
+    "settings": {
+      "samples": 3,
+      "beforeMin": 12069,
+      "beforeMax": 12069,
+      "afterMax": 12382,
+      "injectedChars": 304,
+      "truncated": false
+    },
+    "volume": {
+      "samples": 3,
+      "beforeMin": 12179,
+      "beforeMax": 12214,
+      "afterMax": 12443,
+      "injectedChars": 219,
+      "truncated": false
+    },
+    "chapter": {
+      "samples": 3,
+      "beforeMin": 12100,
+      "beforeMax": 12100,
+      "afterMax": 12489,
+      "injectedChars": 379,
+      "truncated": false
+    },
+    "body": {
+      "samples": 3,
+      "beforeMin": 1323,
+      "beforeMax": 90123,
+      "afterMax": 90902,
+      "injectedChars": 767,
+      "truncated": false
+    },
+    "final-draft": {
+      "samples": 3,
+      "beforeMin": 1231,
+      "beforeMax": 90031,
+      "afterMax": 90809,
+      "injectedChars": 767,
+      "truncated": false
+    }
+  },
+  "samples": [
+    {
+      "layer": "outline",
+      "sample": 1,
+      "variant": "medium",
+      "beforeChars": 58,
+      "afterChars": 343,
+      "injectedChars": 232,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 35,
+      "afterEstimatedTokens": 206
+    },
+    {
+      "layer": "outline",
+      "sample": 2,
+      "variant": "medium",
+      "beforeChars": 58,
+      "afterChars": 343,
+      "injectedChars": 232,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 35,
+      "afterEstimatedTokens": 206
+    },
+    {
+      "layer": "outline",
+      "sample": 3,
+      "variant": "medium",
+      "beforeChars": 58,
+      "afterChars": 343,
+      "injectedChars": 232,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 35,
+      "afterEstimatedTokens": 206
+    },
+    {
+      "layer": "settings",
+      "sample": 1,
+      "variant": "medium",
+      "beforeChars": 12069,
+      "afterChars": 12382,
+      "injectedChars": 304,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7242,
+      "afterEstimatedTokens": 7430
+    },
+    {
+      "layer": "settings",
+      "sample": 2,
+      "variant": "medium",
+      "beforeChars": 12069,
+      "afterChars": 12382,
+      "injectedChars": 304,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7242,
+      "afterEstimatedTokens": 7430
+    },
+    {
+      "layer": "settings",
+      "sample": 3,
+      "variant": "medium",
+      "beforeChars": 12069,
+      "afterChars": 12382,
+      "injectedChars": 304,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7242,
+      "afterEstimatedTokens": 7430
+    },
+    {
+      "layer": "volume",
+      "sample": 1,
+      "variant": "single",
+      "beforeChars": 12197,
+      "afterChars": 12426,
+      "injectedChars": 219,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "正向规则",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7319,
+      "afterEstimatedTokens": 7456
+    },
+    {
+      "layer": "volume",
+      "sample": 2,
+      "variant": "continue",
+      "beforeChars": 12214,
+      "afterChars": 12443,
+      "injectedChars": 219,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "正向规则",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7329,
+      "afterEstimatedTokens": 7466
+    },
+    {
+      "layer": "volume",
+      "sample": 3,
+      "variant": "auto",
+      "beforeChars": 12179,
+      "afterChars": 12408,
+      "injectedChars": 219,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "正向规则",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7308,
+      "afterEstimatedTokens": 7445
+    },
+    {
+      "layer": "chapter",
+      "sample": 1,
+      "variant": "medium",
+      "beforeChars": 12100,
+      "afterChars": 12489,
+      "injectedChars": 379,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        }
+      ],
+      "beforeEstimatedTokens": 7260,
+      "afterEstimatedTokens": 7494
+    },
+    {
+      "layer": "chapter",
+      "sample": 2,
+      "variant": "medium",
+      "beforeChars": 12100,
+      "afterChars": 12489,
+      "injectedChars": 379,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        }
+      ],
+      "beforeEstimatedTokens": 7260,
+      "afterEstimatedTokens": 7494
+    },
+    {
+      "layer": "chapter",
+      "sample": 3,
+      "variant": "medium",
+      "beforeChars": 12100,
+      "afterChars": 12489,
+      "injectedChars": 379,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        }
+      ],
+      "beforeEstimatedTokens": 7260,
+      "afterEstimatedTokens": 7494
+    },
+    {
+      "layer": "body",
+      "sample": 1,
+      "variant": "short",
+      "beforeChars": 1323,
+      "afterChars": 2102,
+      "injectedChars": 767,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 794,
+      "afterEstimatedTokens": 1262
+    },
+    {
+      "layer": "body",
+      "sample": 2,
+      "variant": "medium",
+      "beforeChars": 12123,
+      "afterChars": 12902,
+      "injectedChars": 767,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7274,
+      "afterEstimatedTokens": 7742
+    },
+    {
+      "layer": "body",
+      "sample": 3,
+      "variant": "long",
+      "beforeChars": 90123,
+      "afterChars": 90902,
+      "injectedChars": 767,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 54074,
+      "afterEstimatedTokens": 54542
+    },
+    {
+      "layer": "final-draft",
+      "sample": 1,
+      "variant": "short",
+      "beforeChars": 1231,
+      "afterChars": 2009,
+      "injectedChars": 767,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 739,
+      "afterEstimatedTokens": 1206
+    },
+    {
+      "layer": "final-draft",
+      "sample": 2,
+      "variant": "medium",
+      "beforeChars": 12031,
+      "afterChars": 12809,
+      "injectedChars": 767,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 7219,
+      "afterEstimatedTokens": 7686
+    },
+    {
+      "layer": "final-draft",
+      "sample": 3,
+      "variant": "long",
+      "beforeChars": 90031,
+      "afterChars": 90809,
+      "injectedChars": 767,
+      "truncated": false,
+      "truncationReason": null,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "声口",
+          "entries": 3
+        },
+        {
+          "section": "句式模式",
+          "entries": 8
+        },
+        {
+          "section": "场景写法",
+          "entries": 4
+        },
+        {
+          "section": "日更规则",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "beforeEstimatedTokens": 54019,
+      "afterEstimatedTokens": 54486
+    }
+  ]
+}

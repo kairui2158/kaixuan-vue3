@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.style-profile-lock-sync.electron",
-  "version": 1,
-  "generatedAt": "2026-10-15T12:26:59.586Z",
+  "version": 2,
+  "generatedAt": "2026-10-16T08:18:56.945Z",
   "script": "verify-style-profile-electron.mjs",
   "cases": {
     "unlockedDraft": {
@@ -24,9 +24,62 @@
       "locked": true
     },
     "persistence": {
-      "styleTags": "冷硬推理, 近未来都市",
-      "pacingParams": "速度:快节奏, 紧张度:4, 密度:密集, 视角:第三人称限知, 基调:热血",
+      "profileVersion": 2,
+      "styleTags": "末世高武, 星际升级, 冷硬快节奏",
+      "sentencePatterns": 8,
+      "sceneTemplates": 4,
+      "prohibitions": 4,
+      "dailyRules": 5,
       "locked": false
+    },
+    "v2Import": {
+      "profileVersion": 2,
+      "source": "benchmark-import",
+      "sentencePatterns": 8,
+      "sceneTemplates": 4,
+      "prohibitions": 4,
+      "dailyRules": 5,
+      "ruleToggleDisabledId": "pattern-ouvpfz-1"
+    },
+    "aiAnalysis": {
+      "host": "outline",
+      "ok": true,
+      "insufficientEvidenceFields": [
+        "voice",
+        "sentencePatterns",
+        "sceneTemplates",
+        "dailyRules",
+        "prohibitions"
+      ],
+      "ignoredFields": [
+        "voice",
+        "sentencePatterns"
+      ],
+      "appliedTags": "末世高武, 星际升级, 冷硬快节奏",
+      "preservedVoice": true
+    },
+    "hostRouting": {
+      "resultCount": 1,
+      "outlineHandled": true,
+      "providerPromptEvidence": true
+    },
+    "lockedV2Injection": {
+      "status": "success",
+      "profileVersion": 2,
+      "injectedChars": 210,
+      "sections": [
+        {
+          "section": "定位",
+          "entries": 5
+        },
+        {
+          "section": "警戒线",
+          "entries": 4
+        }
+      ],
+      "importDisabled": true,
+      "analysisDisabled": true,
+      "ruleDisabled": true
     }
   }
 }

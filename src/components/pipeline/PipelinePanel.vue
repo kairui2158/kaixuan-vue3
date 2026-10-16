@@ -111,7 +111,7 @@
               </template>
             </div>
           </div>
-            <StyleProfileCard ref="pipelineStyleCard" />
+            <StyleProfileCard ref="pipelineStyleCard" host="pipeline" />
             <div class="pl-settings-workspace" id="pl-settings-workspace">
               <div class="pl-settings-navigation">
                 <div class="pl-settings-navigation-label">设定分类</div>
@@ -773,6 +773,8 @@ import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPrevio
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
 import { buildVolumePrompt, hasVolumeContent } from "../../services/volumeGeneration"
+import { compileStyleContext } from "../../services/styleContextCompiler"
+import { buildStyleTemplateVariables } from "../../services/styleTemplateContext"
 import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services/volumePlanIntegrity"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 import { buildChapterHistoryFacts, renderChapterHistoryContext, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
@@ -797,6 +799,14 @@ import {
 import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
 import { buildPipelineChainWarningLine, coalescePipelineStepWarning } from "../../services/pipelineStepLog"
 import { DeAiProcessor, resolveDeaiPromptForChainStep } from "../../services/de-ai"
+import {
+  buildStyleAnalysisUserPrompt,
+  parseStyleAnalysis,
+  STYLE_ANALYSIS_SYSTEM_PROMPT,
+  type StyleAnalysisReport,
+  type StyleAnalysisRequestPayload,
+  type StyleAnalysisResultPayload,
+} from "../../services/styleAnalysis"
 import type { RealSkillExecutionResult } from "../../services/realSkillTypes"
 import RealSkillDiagnosticsPanel from "../common/RealSkillDiagnosticsPanel.vue"
 import RunTracePanel from "../common/RunTracePanel.vue"
@@ -820,6 +830,7 @@ const execLogStore = useExecutionLogStore()
 const runTraceStore = useRunTraceStore()
 const pipelineStyleCard = ref<InstanceType<typeof StyleProfileCard> | null>(null)
 const pipelineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
+let pipelineStyleAnalysisRunId: string | null = null
 function startStepTrace(step: number, stepName: string, mode: string): AiCallContext {
   return useAiCallTrace({
     source: "pipeline",
@@ -830,6 +841,26 @@ function startStepTrace(step: number, stepName: string, mode: string): AiCallCon
     projectName: projectStore.projectName,
     skillNames: getStepSkillTemplates(step).map(t => t.name).filter(Boolean),
     skillMode: getStepSkillMode(step)
+  })
+}
+
+function publishPipelineStyleAnalysisResult(payload: StyleAnalysisResultPayload) {
+  window.dispatchEvent(new CustomEvent("style-analysis-result", { detail: payload }))
+}
+
+function addPipelineStyleAnalysisEvent(event: {
+  type: "style-benchmark-import" | "style-analysis"
+  label: string
+  level?: "info" | "warn" | "error"
+  detail: Record<string, unknown>
+}) {
+  if (!pipelineStyleAnalysisRunId) return
+  runTraceStore.addEvent(pipelineStyleAnalysisRunId, {
+    type: event.type,
+    level: event.level || "info",
+    label: event.label,
+    detail: JSON.stringify(event.detail),
+    payload: event.detail,
   })
 }
 function readChainHandoffMeta(skill: Skill | undefined): ChainHandoffTemplateMeta | null {
@@ -1016,11 +1047,13 @@ onMounted(() => {
   window.addEventListener('real-skill:step', handleRealSkillStep)
   window.addEventListener('real-skill:pass', handleRealSkillPass)
   window.addEventListener('real-skill:folder-pass-input', handleRealSkillFolderPassInput)
+  window.addEventListener('style-analysis-request', handlePipelineStyleAnalysisRequest)
 })
 onBeforeUnmount(() => {
   window.removeEventListener('real-skill:step', handleRealSkillStep)
   window.removeEventListener('real-skill:pass', handleRealSkillPass)
   window.removeEventListener('real-skill:folder-pass-input', handleRealSkillFolderPassInput)
+  window.removeEventListener('style-analysis-request', handlePipelineStyleAnalysisRequest)
 })
 const activeVolumeGenerationIndex = ref(-1)
 // The volume that owns the generation currently being executed. Skills use it
@@ -2312,6 +2345,7 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     wordsPerChapter: Number(vol?.wordsPerChapter || chapterWords.value || 3500) || "",
     styleTags: pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.styleTags : "",
     pacingParams: pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.pacingParams : "",
+    ...buildStyleTemplateVariables(pipelineStyleProfileEffective.value),
     volumeOutline: vol ? (vol.outline || vol.summary || "") : "",
     chapterTitle: selectedCh ? (selectedCh.title || "") : "",
     chapterSummary: selectedCh ? (selectedCh.summary || selectedCh.plot || "") : "",
@@ -2379,12 +2413,21 @@ function getBoundSettingsText(): string {
 function getStyleContext(): string {
   const style = pipelineStyleProfileEffective.value
   if (!style.injected) return ""
-  return [style.styleTags, style.pacingParams].filter(Boolean).join("\n")
+  return compileStyleContext("settings", style).text
 }
 
-// Analyze outline for narrative style and pacing parameters.
-// Equivalent to old architecture _plAnalyzeOutline: independent API call,
-// empty skillIds, returns {styleTags, pacingParams} JSON.
+function getVolumeStyleContext(): string {
+  return compileStyleContext("volume", pipelineStyleProfileEffective.value).text
+}
+
+function getChapterStyleContext(): string {
+  return compileStyleContext("chapter", pipelineStyleProfileEffective.value).text
+}
+
+function getBodyStyleContext(): string {
+  return compileStyleContext("body", pipelineStyleProfileEffective.value).text
+}
+
 async function analyzeOutline() {
   if (!projectStore.pipelineOutlineText) return
   if (projectStore.styleProfile.locked) return
@@ -2402,90 +2445,118 @@ async function analyzeOutline() {
   try {
     const aiService = await getAiService()
     trace.begin()
-    const messages = await trace.measurePhase('promptBuild', () => [
-      { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
-      { role: "user", content: "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.pipelineOutlineText }
-    ])
-    const messagesForTrace = messages.map(m => ({ role: m.role, content: m.content }))
-    const callId = trace.beginApiCall({
-      providerId: provider.id,
-      providerName: provider.name,
-      model,
-      requestMessages: messagesForTrace
-    })
-    const callResult = await aiService.callAi({
-      purpose: 'generate',
-      messages,
-      model,
-      retry: true,
-      meta: { source: 'PipelinePanel.outline-analysis' },
-      onPhysicalCall: (event) => {
-        runTraceStore.appendPhysicalCall(trace.runId!, callId, {
-          physicalCallId: event.physicalCallId,
-          phase: event.phase,
-          status: event.status,
-          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-          responseText: event.responseText || '',
-          streamText: event.streamText || '',
-          reasoningText: event.reasoningText || '',
-          finishReason: event.finishReason,
-          usage: event.usage,
-          durationMs: event.durationMs,
-          error: event.error,
-          toolsEnabled: event.toolsEnabled,
-          toolsDowngraded: event.toolsDowngraded,
-          downgradeReason: event.downgradeReason,
-          retryStrategy: event.retryStrategy,
-          maxTokens: event.maxTokens,
-          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-          contextBudgetDecision: event.contextBudget?.decision,
-          contextBudgetReason: event.contextBudget?.reason,
-          usageReconciliation: event.usageReconciliation,
-          interruptionCode: event.interruptionCode,
-          heartbeat: event.heartbeat,
-          firstContentAt: event.firstContentAt,
-          lastContentAt: event.lastContentAt,
-          lastReasoningAt: event.lastReasoningAt,
-          bodyAbsentMs: event.bodyAbsentMs,
-          firstTokenMs: event.firstTokenMs,
-          outputMs: event.outputMs
-        })
-      }
-    })
-    trace.finishApiCall(callId, {
-      status: callResult.text ? 'success' : 'degraded',
-      responseText: callResult.text || '',
-      reasoningText: callResult.reasoning || '',
-      finishReason: callResult.finishReason,
-      usage: callResult.usage
-    })
-    const text = callResult.text || ''
-    if (!text) {
-      console.warn("[WARN] Outline analysis returned empty")
-      trace.finish('degraded', '大纲风格分析返回为空')
-      return
-    }
-    let data: any = null
-    data = extractJsonObject(text)
-    if (data) {
-      projectStore.applyAiStyleAnalysis({
-        styleTags: data.styleTags || data.style || "",
-        pacingParams: data.pacingParams || data.pacing || "",
-      })
-      console.log("[OK] Outline analyzed: styleTags=" + (data.styleTags || data.style || "").substring(0,50) + ", pacing=" + (data.pacingParams || data.pacing || "").substring(0,50))
-    } else {
-      projectStore.applyAiStyleAnalysis({ styleTags: text.substring(0, 200) })
-      console.log("[OK] Outline analyzed (raw text fallback)")
-      trace.finish('degraded', '大纲风格分析未返回JSON，已使用原文截断兜底')
-      return
-    }
+    window.dispatchEvent(new CustomEvent('style-analysis-request', {
+      detail: {
+        sourceId: `pipeline-auto-${trace.runId || Date.now()}`,
+        host: 'pipeline',
+        mode: 'analysis',
+      },
+    }))
+    trace.finish('success', '已转入结构化分析预览流程')
   } catch(e: any) {
     console.warn("[WARN] Outline analysis failed (non-blocking):", e.message)
     trace.fail(e)
     return
   }
   trace.finish('success')
+}
+
+async function handlePipelineStyleAnalysisRequest(event: Event) {
+  const payload = (event as CustomEvent).detail as StyleAnalysisRequestPayload | undefined
+  if (!payload?.sourceId || payload.host !== 'pipeline') return
+  if (!projectStore.pipelineOutlineText) {
+    publishPipelineStyleAnalysisResult({
+      sourceId: payload.sourceId,
+      host: 'pipeline',
+      report: {
+        ok: false,
+        errors: ['当前项目没有可分析的大纲文本'],
+        insufficientEvidenceFields: [],
+        ignoredFields: [],
+        draft: null,
+      },
+    })
+    return
+  }
+  const provider = providerStore.preferredGenerateProvider
+  if (!provider?.id || !provider.apiKey) {
+    publishPipelineStyleAnalysisResult({
+      sourceId: payload.sourceId,
+      host: 'pipeline',
+      report: {
+        ok: false,
+        errors: ['未配置可用的生成供应商'],
+        insufficientEvidenceFields: [],
+        ignoredFields: [],
+        draft: null,
+      },
+    })
+    return
+  }
+  const model = provider.selectedModel || provider.models?.[0] || ""
+  const trace = startStepTrace(0, "创作风格 AI 分析", "style-analysis")
+  pipelineStyleAnalysisRunId = trace.runId || null
+  trace.begin()
+  addPipelineStyleAnalysisEvent({
+    type: "style-analysis",
+    label: "流水线大纲风格分析开始",
+    detail: { sourceId: payload.sourceId, outlineChars: projectStore.pipelineOutlineText.length, model },
+  })
+  const finishPipelineAnalysis = (status: RunTraceStatus, report: StyleAnalysisReport | null, reason?: string) => {
+    trace.finish(status, reason)
+    pipelineStyleAnalysisRunId = null
+    if (report) publishPipelineStyleAnalysisResult({ sourceId: payload.sourceId, host: 'pipeline', report })
+  }
+  try {
+    const aiService = await getAiService()
+    const messagesToCall = [
+      { role: "system", content: STYLE_ANALYSIS_SYSTEM_PROMPT },
+      { role: "user", content: buildStyleAnalysisUserPrompt(projectStore.pipelineOutlineText) },
+    ]
+    const response = await aiService.callAi({
+      purpose: 'generate',
+      messages: messagesToCall,
+      model,
+      temperature: 0.2,
+      stream: false,
+      retry: true,
+      meta: { source: 'PipelinePanel.style-analysis' },
+    })
+    const report = parseStyleAnalysis(response.text || '')
+    addPipelineStyleAnalysisEvent({
+      type: "style-analysis",
+      label: report.ok ? '流水线风格结构化分析完成' : '流水线风格结构化分析未通过校验',
+      level: report.ok ? 'info' : 'warn',
+      detail: {
+        sourceId: payload.sourceId,
+        ok: report.ok,
+        errors: report.errors,
+        insufficientEvidenceFields: report.insufficientEvidenceFields,
+        ignoredFields: report.ignoredFields,
+        responsePreview: (response.text || '').slice(0, 400),
+      },
+    })
+    if (!report.ok || !report.draft) {
+      finishPipelineAnalysis('degraded', report, '结构化分析结果未通过校验')
+      return
+    }
+    finishPipelineAnalysis('success', report)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    addPipelineStyleAnalysisEvent({
+      type: "style-analysis",
+      level: "error",
+      label: "流水线大纲风格分析请求失败",
+      detail: { sourceId: payload.sourceId, error: message },
+    })
+    finishPipelineAnalysis('failed', {
+      ok: false,
+      errors: ['AI 请求失败：' + message],
+      insufficientEvidenceFields: [],
+      ignoredFields: [],
+      draft: null,
+    }, 'AI 请求失败')
+  }
 }
 
 function getStepAgentConfig(step: number) {
@@ -3714,7 +3785,7 @@ async function genVolumes(mode: string) {
       totalWords,
       allocatedSum: volumePlan.allocatedWords,
       existingVolumes: previousVolumes,
-      styleContext: getStyleContext()
+      styleContext: getVolumeStyleContext()
     })
     const basePrompt = prompt
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
@@ -3957,7 +4028,7 @@ async function genChapters(mode: ChapterGenerationMode) {
     if (!volOutline.trim()) {
       chapterGenerationLogs.value.push("警告：本卷没有卷纲要，章节将只能依据卷名和上游大纲、设定生成")
     }
-    const styleCtxForChapters = getStyleContext()
+    const styleCtxForChapters = getChapterStyleContext()
     if (styleCtxForChapters) {
       chapterGenerationLogs.value.push("已注入风格与节奏上下文")
     }
@@ -4166,7 +4237,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     pipelineStore.updateProgress(20, "API 生成正文中（已注入降AI约束）")
     const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
-    const styleCtx = getStyleContext()
+    const styleCtx = getBodyStyleContext()
     const pacingCtx = pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.pacingParams : ""
     const bodyVolId = volId ?? (vol.id || vol.name)
     const bodyChs = bodyVolId ? (projectStore.chapters[bodyVolId] || []) : []

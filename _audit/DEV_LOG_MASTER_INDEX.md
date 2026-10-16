@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-14
+更新日期：2026-10-16
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -967,3 +967,13 @@
 - 验证：故障注入脚本 PASSED（V6/V7 各 4 次物理请求且 run failed，V10 4 次物理请求且 success）；closure/body-repair Electron 验证器重跑 PASSED；`npm run test:services` 165 files / 1939 tests；type-check、build:vue、build 通过。
 - 诚实边界：本地 mock 供应商 Electron 验证，未覆盖外部 live 供应商；015556 原始 trace 仍未做逐 token 回放器。
 - 封装：升级 3.91.1；安装包 `dist/神意助手-Setup-3.91.1.exe`，231,532,815 bytes，SHA256 `451167c3cc43b242dd1410d8565276925829242ef1fd161bdd790a4354a0412e`；rendererFiles=74、electronAPI methods=77；证据 `_audit/verification-packaging-3-91-1/packaging-evidence.json`；已清理 3.91.0 安装包与 blockmap 及 `_data/owner-breakpoint-failure-profile` 临时 profile。
+
+# 2026-10-16 创作风格档案结构化 V2 与 3.92.0 封装
+
+- 文件：[_audit/DEV_LOG_2026-10-16_style-profile-structured-v2.md](_audit/DEV_LOG_2026-10-16_style-profile-structured-v2.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-16_style-profile-structured-plan.md](_audit/TASK_LEDGERS/2026-10-16_style-profile-structured-plan.md)
+- 方案：[_audit/PROPOSAL_2026-10-16_STYLE_PROFILE_STRUCTURED_ARCHITECTURE.md](_audit/PROPOSAL_2026-10-16_STYLE_PROFILE_STRUCTURED_ARCHITECTURE.md)
+- 范围：`profileVersion:2`、真实拆书档案严格导入、AI 分析证据边界、单源风格编译器、六层预算注入、结构化 trace、锁定态保护、双宿主同步与 P0 before/after 长度账。
+- 验证：定向 4 files / 14 tests、全量 169 files / 1959 tests、type-check、完整 build、可见 Electron UI、3.92.0 打包真实启动核验全部通过；V2 导入 8 句式 / 4 场景 / 4 警戒线 / 5 日更规则，锁定态导入、分析、启停禁用，注入账 232-767 字符且未裁剪。
+- 诚实边界：生成质量提升 `untested`；Electron 为本地 mock provider，非外部 live；极端拆书格式变体需真实客户档案持续采样。
+- 封装：升级 3.92.0；安装包 `dist/神意助手-Setup-3.92.0.exe`，231,539,306 bytes，SHA256 `aa25935ec9313b9387fd4c350760764ca97af46247976098fb91fe0b02250a2f`；rendererFiles=74、electronAPI methods=77；证据 `_audit/verification-packaging-3-92-0/packaging-evidence.json`；已清理 3.91.1 安装包与 blockmap。
