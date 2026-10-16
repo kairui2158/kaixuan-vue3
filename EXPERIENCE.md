@@ -436,3 +436,19 @@
 4. 构建产物中 `n.map is not a function` 这类 TypeError 可以直接从压缩 JS 提取，比猜源码更快锁定崩溃点。
 5. 同类隐患排查：搜索所有 `getStepSkills(` / `getStepAgents(` 的同步消费点。`PipelinePanel.vue` 里同步调用 async `getStepSkills` 后强转数组的死代码分支已删除；删除前确认 `onMounted` 已异步加载同一份 `stepSkills`，删除后用“构建 → Electron → CDP → 存储/DOM 对照”复核。
 6. 删除“Promise truthy 但 `.length` undefined”这类死代码兜底的条件是：先证明该分支从未有效生效，再证明调用链上存在异步等价数据源；如果缺少等价数据源，应改造成异步加载，而不是静默删除。
+
+## 2026-10-17 协议建议、真降级与终步回显的状态语义收口
+
+1. “成功但有建议”和“输出已降级”必须是两个终态：`success_with_warnings` 映射 `completed_with_warnings`，不能并入 `degraded`。否则协议建议、恢复成功、未知字段都会把一次可用生成染红，用户会忽略全部警告，真降级也被淹没。
+2. 警告分级要区分“影响交付物”与“过程提示”：`generation-direct-retry-recovered` 是重试成功的过程信息，`hook-field-ignored` 是协议观察，二者保留诊断但不能降级；`generation-truncated*`、`schema-validation-exhausted`、结构丢失 postProcess issue 仍必须降级。删降级码时必须同时补“真降级仍降级”的反测，防止全绿但失明。
+3. 新终态不是只改一个枚举：要同时检查协议执行器、workspace 引擎、状态映射、runTrace 展示、两个工作台消费点和类型声明。只改服务层会让 UI 三元链把新状态落到 `error`，只改 ChatPanel 会让大纲工作台继续误报。补 wiring 断言，防止新旧语义并存。
+4. 终步打磨师的高重合是职责特性，不是回显事故：主链升级重试和普通链路都要豁免终步 `chain-output-echo` 的 warn；中间步回显仍要报警。豁免要有纯函数测试和 wiring 测试两层。
+5. 在 `realSkillExecutor.spec.ts` 这类大量同构断言文件里用 `apply_patch` 时，短上下文匹配极易打错相邻用例；必须带完整测试名锚定，打完立刻 diff 复核，否则会把“改了”误当“改对了”。
+
+## 2026-10-17 真实 UI 硬门禁与生产渲染包对账
+
+1. 用户可见行为、终态语义、工作台链路改动必须做真实 Electron UI 验证。单测、纯函数测试、源码 wiring 断言通过只能叫“逻辑通过”，不能替代“用户看到的行为正确”；未做真实 UI 验证时必须明说，不允许默认通过。
+2. 真实 UI 验证必须走应用真实入口：启动 Electron 窗口、通过 DOM 操作输入与点击、走真实供应商请求（mock 供应商也必须是应用实际 HTTP 客户端发起的物理请求），并保留截图、trace 事件、请求计数三重证据。禁止用 `page.evaluate` 注入内部状态冒充 UI，也禁止旧截图或旧结果冒充本轮证据。
+3. 生产模式 Electron 加载 `dist-renderer`，不是当前源码。任何 UI 验证前必须先 `npm run build:vue`，并在启动前对账生产 bundle：新语义存在、旧语义映射不存在、源码与 bundle 的关键用户可见文案一致。否则会出现“源码已修、单测全绿、真实窗口仍是旧行为”的假完成。
+4. 检查旧语义时要区分“合法展示分支”和“旧映射逻辑”：`postProcess 输出已降级` 文案可以保留给真降级；必须禁止的是 `changedOutput/issues => degraded` 这类旧映射。门禁应断言语义，而不是粗暴禁词。
+5. 一次验证失败不等于业务链路失败，先看完整事件序列和物理请求证据，再判断是断言错、样本错、旧 bundle 还是源码缺陷。本轮先排除了“流式卡住”误判，再由生产 bundle 对账定位到旧映射残留，避免再次修错层。

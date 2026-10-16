@@ -3353,7 +3353,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               }
             }
             const echoDiagnostic = detectChainOutputEcho(current, stepOutput)
-            if (runTraceStore.currentRunId && echoDiagnostic) {
+            const escalationFinalStep = si === templates.length - 1
+            if (runTraceStore.currentRunId && echoDiagnostic && !escalationFinalStep) {
               appendPipelineChainWarning({
                 step,
                 skillIndex: si,

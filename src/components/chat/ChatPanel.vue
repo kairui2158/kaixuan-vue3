@@ -2413,7 +2413,7 @@ async function runHomeCoCreationSkills(
   text: string
   maxTokens?: number | null
   toolCallSummary: string | null
-  terminalStatus?: 'success' | 'degraded' | 'blocked'
+  terminalStatus?: 'success' | 'success_with_warnings' | 'degraded' | 'blocked'
   terminalReason?: string
 }> {
   if (coCreationMode.value !== 'chain') {
@@ -2432,7 +2432,7 @@ async function runHomeCoCreationSkills(
 
   let streamedText = ''
   let firstChunkSeen = false
-  let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
+  let homeSkillTerminalStatus: 'success' | 'success_with_warnings' | 'degraded' | 'blocked' | undefined
   let homeSkillTerminalReason: string | undefined
   let homeAgentTerminalStatus: RunTraceStatus | undefined
   let homeAgentTerminalReason: string | undefined
@@ -2708,12 +2708,14 @@ async function runHomeCoCreationSkills(
     })
     addHomeTraceEvent({
       type: postProcessTerminal.eventReason,
-      level: postProcessTerminal.runStatus === 'success' ? 'info' : postProcessTerminal.runStatus === 'degraded' ? 'warn' : 'error',
+      level: postProcessTerminal.runStatus === 'success' ? 'info' : postProcessTerminal.runStatus === 'degraded' || postProcessTerminal.runStatus === 'success_with_warnings' ? 'warn' : 'error',
       label: postProcessTerminal.runStatus === 'success'
         ? 'postProcess 完成'
-        : postProcessTerminal.runStatus === 'degraded'
-          ? 'postProcess 输出已降级'
-          : 'postProcess 阻断输出',
+        : postProcessTerminal.runStatus === 'success_with_warnings'
+          ? 'postProcess 完成但保留警告'
+          : postProcessTerminal.runStatus === 'degraded'
+            ? 'postProcess 输出已降级'
+            : 'postProcess 阻断输出',
       detail: `${report.issues.length} 个 issue；changedOutput=${report.changedOutput}`
     })
   }
@@ -3197,7 +3199,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   chatStore.setGenerationState('preparing', '正在准备请求…')
   let response = ''
   let failedTurnMaxTokens: number | null | undefined
-  let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
+  let homeSkillTerminalStatus: 'success' | 'success_with_warnings' | 'degraded' | 'blocked' | undefined
   let homeSkillTerminalReason: string | undefined
   let homeAgentTerminalStatus: RunTraceStatus | undefined
   let homeAgentTerminalReason: string | undefined

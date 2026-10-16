@@ -7,6 +7,7 @@ export type LifecycleStatus =
   | 'retrying'
   | 'completed'
   | 'completed_partial'
+  | 'completed_with_warnings'
   | 'degraded'
   | 'failed'
   | 'blocked'
@@ -28,11 +29,12 @@ export const LIFECYCLE_TRANSITIONS: Record<LifecycleStatus, LifecycleStatus[]> =
   idle: ['routing', 'awaiting_user', 'active'],
   routing: ['active', 'awaiting_user', 'failed', 'blocked', 'canceled'],
   awaiting_user: ['active', 'canceled', 'expired'],
-  active: ['completed', 'completed_partial', 'degraded', 'failed', 'blocked', 'canceled', 'paused', 'retrying', 'expired'],
+  active: ['completed', 'completed_partial', 'completed_with_warnings', 'degraded', 'failed', 'blocked', 'canceled', 'paused', 'retrying', 'expired'],
   paused: ['active', 'canceled'],
   retrying: ['active', 'failed', 'blocked', 'canceled', 'expired'],
   completed: [],
   completed_partial: [],
+  completed_with_warnings: [],
   degraded: [],
   failed: ['active'],
   blocked: ['active'],
@@ -47,7 +49,7 @@ export const LIFECYCLE_MAPPINGS: Record<string, Record<string, LifecycleStatus>>
     success: 'completed',
     partially_applied: 'completed_partial',
     failed_after_write: 'failed',
-    success_with_warnings: 'degraded',
+    success_with_warnings: 'completed_with_warnings',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',
@@ -58,7 +60,7 @@ export const LIFECYCLE_MAPPINGS: Record<string, Record<string, LifecycleStatus>>
     success: 'completed',
     partially_applied: 'completed_partial',
     failed_after_write: 'failed',
-    success_with_warnings: 'degraded',
+    success_with_warnings: 'completed_with_warnings',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',

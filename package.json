@@ -19,6 +19,7 @@
     "verify:intent-embedding-node": "node scripts/verify-intent-embedding-node.mjs",
     "verify:intent-embedding-electron": "node scripts/verify-intent-embedding-electron.mjs",
     "verify:provider-wire-electron": "node scripts/verify-api-direct-write-provider-wire-electron.mjs",
+    "verify:postprocess-ui-electron": "npm run build:vue && node scripts/verify-postprocess-terminal-ui-electron.mjs",
     "verify:production-wiring": "depcruise src --config .dependency-cruiser.cjs"
   },
   "author": "kaixuan",

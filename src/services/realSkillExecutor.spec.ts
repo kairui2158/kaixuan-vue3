@@ -345,9 +345,9 @@ describe('realSkillExecutor single pass', () => {
       'direct-retry-finished'
     ])
     expect(eventSpy.mock.calls[2]![0].success).toBe(true)
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('success')
     expect(result.output).toBe('直出正文')
-    expect(result.diagnostics.some(item => item.code === 'generation-direct-retry-recovered')).toBe(true)
+    expect(result.diagnostics.some(item => item.code === 'generation-direct-retry-recovered' && item.type === 'warning')).toBe(true)
   })
 
   it('continues truncated output and removes the overlap between calls', async () => {
@@ -727,6 +727,30 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     }
   })
 
+  it('accepts advisory postProcess warnings without downgrading a valid output', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { return { output, valid: true, issues: [], warnings: ['文风建议：保留事实，仅轻微调整节奏'] } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.postProcessReport).toMatchObject({
+      applied: true,
+      changedOutput: false,
+      output: '输出',
+      issues: []
+    })
+    expect(result.diagnostics.some(item => item.type === 'warning' && item.code.startsWith('post-process'))).toBe(false)
+  })
+
   it('downgrades structural postProcess warnings but keeps prose taste warnings successful', async () => {
     const callAi = vi.fn(async () => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
@@ -1099,9 +1123,9 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('success')
     expect(result.output).toBe('结构化后输出')
-    expect(result.diagnostics.some(item => item.code === 'hook-field-ignored' && item.message.includes('ignored'))).toBe(true)
+    expect(result.diagnostics.some(item => item.code === 'hook-field-ignored' && item.type === 'info' && item.message.includes('ignored'))).toBe(true)
     expect(result.diagnostics.some(item => item.code === 'script-hook-failed')).toBe(false)
   })
 

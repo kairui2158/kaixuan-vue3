@@ -5146,16 +5146,18 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
         endedAt: Date.now(),
         durationMs: report.durationMs
       })
-      addOutlineTraceEvent({
-        type: postProcessTerminal.eventReason,
-        level: postProcessTerminal.runStatus === 'success' ? 'info' : postProcessTerminal.runStatus === 'degraded' ? 'warn' : 'error',
-        label: postProcessTerminal.runStatus === 'success'
-          ? 'postProcess 完成'
+    addOutlineTraceEvent({
+      type: postProcessTerminal.eventReason,
+      level: postProcessTerminal.runStatus === 'success' ? 'info' : postProcessTerminal.runStatus === 'degraded' || postProcessTerminal.runStatus === 'success_with_warnings' ? 'warn' : 'error',
+      label: postProcessTerminal.runStatus === 'success'
+        ? 'postProcess 完成'
+        : postProcessTerminal.runStatus === 'success_with_warnings'
+          ? 'postProcess 完成但保留警告'
           : postProcessTerminal.runStatus === 'degraded'
             ? 'postProcess 输出已降级'
             : 'postProcess 阻断输出',
-        detail: `${report.issues.length} 个 issue；changedOutput=${report.changedOutput}`
-      })
+      detail: `${report.issues.length} 个 issue；changedOutput=${report.changedOutput}`
+    })
     }
     addOutlineTraceEvent({
       type: 'skill-run-complete',

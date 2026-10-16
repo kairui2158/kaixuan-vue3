@@ -157,6 +157,25 @@ describe('direct write production wiring', () => {
     expect(home).not.toContain("homeSkillTerminalStatus || 'success'")
   })
 
+  it('keeps advisory postProcess results distinct from real degradation in both workspaces', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    for (const source of [outline, home]) {
+      expect(source).toContain("postProcessTerminal.runStatus === 'success_with_warnings'")
+      expect(source).toContain("'postProcess 完成但保留警告'")
+      expect(source).toContain("'postProcess 输出已降级'")
+      expect(source).toContain("'postProcess 阻断输出'")
+    }
+  })
+
+  it('keeps escalation echo warnings off the polishing final step', () => {
+    const pipeline = readComponentSource('src/components/pipeline/PipelinePanel.vue')
+
+    expect(pipeline).toContain('const escalationFinalStep = si === templates.length - 1')
+    expect(pipeline).toContain('runTraceStore.currentRunId && echoDiagnostic && !escalationFinalStep')
+  })
+
   it('keeps outline supervisor failures terminal instead of defaulting them to plain-dialogue success', () => {
     const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
 

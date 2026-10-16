@@ -342,8 +342,8 @@ describe('workspace skill engine', () => {
       durationMs: 2,
     })).toMatchObject({
       processingStatus: 'warning',
-      runStatus: 'degraded',
-      eventReason: 'post-process-degraded',
+      runStatus: 'success_with_warnings',
+      eventReason: 'post-process-warning',
     })
 
     expect(resolvePostProcessTerminalStatus({
@@ -354,8 +354,8 @@ describe('workspace skill engine', () => {
       durationMs: 2,
     })).toMatchObject({
       processingStatus: 'warning',
-      runStatus: 'degraded',
-      eventReason: 'post-process-degraded',
+      runStatus: 'success_with_warnings',
+      eventReason: 'post-process-warning',
     })
 
     expect(resolvePostProcessTerminalStatus({

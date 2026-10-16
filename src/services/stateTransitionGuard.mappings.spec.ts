@@ -15,7 +15,7 @@ const expectedLifecycleMappings: Record<string, Record<string, string>> = {
     success: 'completed',
     partially_applied: 'completed_partial',
     failed_after_write: 'failed',
-    success_with_warnings: 'degraded',
+    success_with_warnings: 'completed_with_warnings',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',
@@ -26,7 +26,7 @@ const expectedLifecycleMappings: Record<string, Record<string, string>> = {
     success: 'completed',
     partially_applied: 'completed_partial',
     failed_after_write: 'failed',
-    success_with_warnings: 'degraded',
+    success_with_warnings: 'completed_with_warnings',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',
@@ -174,6 +174,7 @@ describe('unified lifecycle mappings', () => {
       'retrying',
       'completed',
       'completed_partial',
+      'completed_with_warnings',
       'degraded',
       'failed',
       'blocked',
@@ -200,6 +201,13 @@ describe('unified lifecycle mappings', () => {
     expect(mapToLifecycle('FinishReason', 'timeout')).toBe(mapToLifecycle('ContinuationStatus', 'interrupted'))
     expect(mapToLifecycle('ChainRunState', 'budget_exhausted')).toBe(mapToLifecycle('RealSkillExecutionStatus', 'blocked'))
     expect(LIFECYCLE_MAPPINGS.RunTraceStatus).toEqual(LIFECYCLE_MAPPINGS.AiTraceStatus)
+  })
+
+  it('keeps advisory success terminal and distinct from degradation', () => {
+    expect(mapToLifecycle('RunTraceStatus', 'success_with_warnings')).toBe('completed_with_warnings')
+    expect(mapToLifecycle('AiTraceStatus', 'success_with_warnings')).toBe('completed_with_warnings')
+    expect(LIFECYCLE_TRANSITIONS.completed_with_warnings).toEqual([])
+    expect(mapToLifecycle('RunTraceStatus', 'degraded')).toBe('degraded')
   })
 
   it('makes unknown module statuses observable instead of silently passing', () => {

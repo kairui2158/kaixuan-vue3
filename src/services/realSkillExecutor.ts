@@ -24,7 +24,7 @@ export type { RealSkillDiagnostic } from './realSkillTypes'
 
 
 const ALLOWED_PRE_FIELDS = new Set(['input', 'template', 'samples'])
-const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues'])
+const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues', 'warnings'])
 const TEMPLATE_LIMIT = 20000
 const RETRY_LIMIT = 3
 const SMART_SAMPLE_CHAR_LIMIT = 4000
@@ -138,7 +138,6 @@ export async function collectSkillPackageProtocolDiagnostics(templates: Array<{
  * generation into a degraded one.
  */
 const OUTPUT_DEGRADING_WARNING_CODES = new Set([
-  'generation-direct-retry-recovered',
   'generation-truncated',
   'generation-truncated-after-continuation',
   'template-truncated',
@@ -148,7 +147,6 @@ const OUTPUT_DEGRADING_WARNING_CODES = new Set([
   'script-hook-failed',
   'script-hook-exception',
   'hook-result-ignored',
-  'hook-field-ignored',
   'schema-validation-exhausted'
 ])
 
@@ -209,7 +207,7 @@ function normalizeRecord(
   const result: Record<string, unknown> = {}
   for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
     if (allowedFields.has(key)) result[key] = item
-    else diagnostics.push(diagnostic('warning', 'hook-field-ignored', `未知字段已忽略：${key}`))
+    else diagnostics.push(diagnostic('info', 'hook-field-ignored', `未知字段已忽略：${key}`))
   }
   return result
 }

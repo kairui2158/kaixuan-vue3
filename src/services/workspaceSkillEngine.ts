@@ -242,7 +242,7 @@ export type WorkspaceSkillRunMeta = {
 export type WorkspaceSkillRunResult = {
   text: string
   meta: WorkspaceSkillRunMeta | null
-  terminalStatus?: 'success' | 'degraded' | 'blocked'
+  terminalStatus?: 'success' | 'success_with_warnings' | 'degraded' | 'blocked'
   terminalReason?: string
   mode: WorkspaceSkillMode
   allMetas?: WorkspaceSkillRunMeta[]
@@ -386,8 +386,8 @@ export interface WorkspaceContextServiceLike {
 
 export type PostProcessTerminalStatus = {
   processingStatus: 'success' | 'warning' | 'failed'
-  runStatus: 'success' | 'degraded' | 'blocked'
-  eventReason: 'post-process-completed' | 'post-process-degraded' | 'post-process-blocked' | 'post-process-warning'
+  runStatus: 'success' | 'success_with_warnings' | 'degraded' | 'blocked'
+  eventReason: 'post-process-completed' | 'post-process-warning' | 'post-process-degraded' | 'post-process-blocked'
 }
 
 export function resolvePostProcessTerminalStatus(
@@ -410,8 +410,8 @@ export function resolvePostProcessTerminalStatus(
   if (report.changedOutput || report.issues.length > 0) {
     return {
       processingStatus: 'warning',
-      runStatus: 'degraded',
-      eventReason: 'post-process-degraded',
+      runStatus: 'success_with_warnings',
+      eventReason: 'post-process-warning',
     }
   }
   return {
@@ -1647,9 +1647,11 @@ export async function runWorkspaceSkills(
           stepMeta.diagnostics = [
             ...(stepMeta.diagnostics || []),
             {
-              type: 'warning',
+              type: index === chainTemplates.length - 1 ? 'info' : 'warning',
               code: echoDiagnostic.code,
-              message: echoDiagnostic.message,
+              message: index === chainTemplates.length - 1
+                ? `${echoDiagnostic.message}（终步为打磨角色，高重合保留为警告观察）`
+                : echoDiagnostic.message,
             },
           ]
         }
