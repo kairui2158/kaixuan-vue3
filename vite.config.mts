@@ -56,6 +56,20 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         external: ['electron-log']
       },
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'g6',
+                test: /[\\/]node_modules[\\/]@antv[\\/]g6[\\/]/,
+                priority: 10,
+                minSize: 20000
+              }
+            ]
+          }
+        }
+      },
       outDir: 'dist-renderer'
     },
     server: {

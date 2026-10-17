@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite'
-import { resolve } from 'path'
+import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
   build: {
     copyPublicDir: false,
     emptyOutDir: false,
     lib: {
-      entry: resolve(__dirname, 'src/services/providerProtocols.ts'),
+      entry: fileURLToPath(new URL('./src/services/providerProtocols.ts', import.meta.url)),
       formats: ['cjs'],
       name: 'providerProtocols',
       fileName: () => 'providerProtocols.cjs',

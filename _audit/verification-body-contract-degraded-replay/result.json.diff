@@ -77,6 +77,30 @@
       "src/services/stepArtifactFlow.spec.ts:degraded 1654 words matrix case rejects and downstream=false"
     ]
   },
+  "payloadVerification": {
+    "ledgerCount": 85,
+    "physicalFiles": 85,
+    "directRefCount": 80,
+    "unreferenced": {
+      "count": 5,
+      "kinds": {
+        "processing-output": 5
+      },
+      "conclusion": [
+        "All retry physical request payloads remain directly referenced by their physicalCalls.requestMessages wrappers.",
+        "5 processing-output payloads are report.outputPreview copies collected by collectPayloads; replacePayloadFields clears outputPreview after assigning outputRef, so the preview copies intentionally remain ledger-only evidence."
+      ]
+    },
+    "eventCounts": {
+      "api-start": 8,
+      "folder-pass-input": 13,
+      "physical-call": 117,
+      "api-success": 7,
+      "api-degraded": 1,
+      "body-artifact-attempt": 3
+    },
+    "eventTotal": 528
+  },
   "regression": {
     "source": "historical trace-derived facts + service behavior matrix",
     "guard": "degraded caller + extracted body below contract floor must reject before S3",

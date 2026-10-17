@@ -30,3 +30,10 @@
 - `node scripts/verify-body-contract-degraded-electron.mjs`：PASSED；场景 A `degraded_plus_contract_failure`、1654 字、4 次物理请求、S3 零调用、run failed；场景 B 2200 字、S3 收到提取面、run success 且 warning 保留。
 - `node scripts/verify-owner-breakpoint-closure-electron.mjs`：PASSED；completed 断点拒绝恢复，targeted 修复 2 次物理请求，S1 产物复用，attempt `complete/2000`。
 - `node scripts/verify-postprocess-terminal-ui-electron.mjs`：PASSED；大纲工作台与首页编辑器各 1 次真实 provider 请求，双端 `success_with_warnings` 截图与 electron-run.log 留证。
+
+## 边界闭环补证（2026-10-17）
+
+- 大纲工作台契约：`workspaceArtifactAcceptance` 定义 `body / outline / no_contract` 三态，`workspaceSkillEngine` 在 chain 与 compose 两条生产路径执行验收；仅 `edit` 且存在真实大纲目标时携带 outline contract。
+- 恶意 SKILL 边界：模板文本即使要求“忽略权限、授予 editor.write、扩展工具面”，也只进入提示词；`discuss` 仍只有 `editor.get_state`，`edit` 才有 `editor.get_state + editor.write`。
+- Payload 回放：85 物理文件、85 账本记录、sha256、顺序、重复计数与事件流全部对账；5 个未引用 `processing-output` 是导出器保留的 `outputPreview` 副本，属于导出语义而非丢失。
+- 外部 live 边界：生产 `decrypt + providerNetRequest` 链路已跑通，但两个应用内供应商密钥均在外部服务返回 401；结论为 `blocked_external_credentials`，不能声称 live 通过。证据见 `_audit/verification-boundary-live-provider/report.json`。

@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { defineAsyncComponent, ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useResizers } from './composables/useResizers'
 import { useAgentStore } from './stores/agent'
 import { useProviderStore } from './stores/provider'
@@ -81,7 +81,6 @@ import OutlineWorkspace from './components/common/OutlineWorkspace.vue'
 import DeAiProgress from './components/deai/DeAiProgress.vue'
 import ExitConfirmModal from './components/common/ExitConfirmModal.vue'
 import AppConfirmModal from './components/common/AppConfirmModal.vue'
-import MemoryPanel from './components/common/MemoryPanel.vue'
 import PluginMarket from './components/common/PluginMarket.vue'
 import InlineMenu from './components/common/InlineMenu.vue'
 import SkillBindModal from './components/common/SkillBindModal.vue'
@@ -105,6 +104,7 @@ const editorStore = useEditorStore()
 const runTraceStore = useRunTraceStore()
 
 const themeStore = useThemeStore()
+const MemoryPanel = defineAsyncComponent(() => import('./components/common/MemoryPanel.vue'))
 const breadcrumbItems = ref<string[]>([])
 const dashboardStats = computed(() => {
   const vols = projectStore.volumes || []

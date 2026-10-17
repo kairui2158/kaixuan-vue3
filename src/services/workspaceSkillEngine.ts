@@ -54,6 +54,12 @@ import type {
 } from './realSkillTypes'
 import { formatSkillFallback, type RoutedSkill, routeSkill } from './skillRouter'
 import {
+  acceptWorkspaceArtifact,
+  type WorkspaceArtifactAcceptanceResult,
+  type WorkspaceArtifactContract,
+} from './workspaceArtifactAcceptance'
+export type { WorkspaceArtifactContract } from './workspaceArtifactAcceptance'
+import {
   authorizeDialogueTools,
   type DialogueToolSurfaceTaskContext,
   type DialogueWriteAuthorization,
@@ -234,6 +240,7 @@ export type WorkspaceSkillRunMeta = {
   budget?: { used: number; limit: number }
   folderPackageCache?: boolean
   postProcessReport?: RealSkillPostProcessReport
+  artifactAcceptance?: WorkspaceArtifactAcceptanceResult | null
   toolCalls?: Array<{ name: string; input?: unknown }>
   toolResults?: Array<{ call: { id?: string; name: string; input?: unknown; argumentsRaw?: string }; result: unknown }>
   toolRequestDeltas?: Array<{ role: string; content: string }>
@@ -316,6 +323,11 @@ export type WorkspaceSkillEngineCallbacks = {
     skillId: string,
     skillName: string,
     output: string,
+  ) => void
+  onArtifactAcceptance?: (
+    result: WorkspaceArtifactAcceptanceResult,
+    stepIndex: number,
+    mode: WorkspaceSkillMode,
   ) => void
   onApiCallStart?: (
     skillId: string,
@@ -422,6 +434,30 @@ export function resolvePostProcessTerminalStatus(
   }
 }
 
+function resolveArtifactTerminal(
+  artifact: WorkspaceArtifactAcceptanceResult | null,
+  postProcess: RealSkillPostProcessReport | undefined,
+): {
+  processingStatus: 'success' | 'warning' | 'failed'
+  runStatus: WorkspaceSkillRunResult['terminalStatus']
+  eventReason: string
+} {
+  if (artifact) {
+    return {
+      processingStatus: artifact.decision === 'reject'
+        ? artifact.callerStatus === 'failed' || artifact.callerStatus === 'blocked'
+          ? 'failed'
+          : 'warning'
+        : artifact.terminalStatus === 'success'
+          ? 'success'
+          : 'warning',
+      runStatus: artifact.terminalStatus,
+      eventReason: artifact.terminalReason,
+    }
+  }
+  return resolvePostProcessTerminalStatus(postProcess)
+}
+
 export type WorkspaceContextBlock = {
   source:
     | 'editorContent'
@@ -517,6 +553,7 @@ export interface RunWorkspaceSkillsInput {
   adapter: WorkspaceSkillEngineAdapter
   signal?: AbortSignal
   apiBudget?: ApiCallBudget
+  artifactContract?: WorkspaceArtifactContract | null
   routingOverride?: {
     bypass?: boolean
     forcedIntent?: Exclude<ChainIntent, 'auto'>
@@ -1490,6 +1527,7 @@ export async function runWorkspaceSkills(
     }
     const allMetas: WorkspaceSkillRunMeta[] = []
     const skillSequence = templates.map((template) => template.id)
+    let artifactAcceptance: WorkspaceArtifactAcceptanceResult | null = null
     const stepToolSurface = resolveAuthorizedToolSurface(
       adapter,
       intentResult.intent,
@@ -1660,6 +1698,24 @@ export async function runWorkspaceSkills(
           ]
         }
         if (stepMeta) allMetas.push(stepMeta)
+        let acceptedStepOutput = current
+        if (input.artifactContract) {
+          artifactAcceptance = acceptWorkspaceArtifact({
+            rawOutput: current,
+            callerStatus: stepMeta?.status === 'degraded' ? 'degraded' : 'success',
+            degradedErrors: stepMeta?.diagnostics
+              ?.filter(diagnostic => diagnostic.type === 'warning' || diagnostic.type === 'error')
+              .map(diagnostic => diagnostic.message) || [],
+            contract: input.artifactContract,
+          })
+          callbacks.onArtifactAcceptance?.(artifactAcceptance, index, 'chain')
+          if (artifactAcceptance.decision === 'reject') {
+            throw new Error(
+              `工作区产物步骤验收失败（${artifactAcceptance.terminalReason}）：${artifactAcceptance.errors.join('；')}`,
+            )
+          }
+          acceptedStepOutput = artifactAcceptance.downstreamPayload || current
+        }
         callbacks.onApiCallFinish?.(
           callId || '',
           stepMeta || {
@@ -1668,13 +1724,13 @@ export async function runWorkspaceSkills(
             skillId: template.id,
           },
           Math.round(performance.now() - stepStart),
-          { status: 'success', text: current, reasoning: stepMeta?.reasoningText },
+          { status: 'success', text: acceptedStepOutput, reasoning: stepMeta?.reasoningText },
         )
         callbacks.onAfterSkill?.(
           index,
           template.id,
           template.name || template.id,
-          current,
+          acceptedStepOutput,
         )
         await adapter.saveBreakpoint(
           createChainSuccessBreakpoint({
@@ -1737,10 +1793,12 @@ export async function runWorkspaceSkills(
   return {
     text: current,
     meta: allMetas[allMetas.length - 1] || lastRunMeta.get(input) || null,
-    terminalStatus: resolvePostProcessTerminalStatus(
+    terminalStatus: resolveArtifactTerminal(
+      artifactAcceptance,
       allMetas[allMetas.length - 1]?.postProcessReport,
     ).runStatus,
-    terminalReason: resolvePostProcessTerminalStatus(
+    terminalReason: resolveArtifactTerminal(
+      artifactAcceptance,
       allMetas[allMetas.length - 1]?.postProcessReport,
     ).eventReason,
     allMetas,
@@ -1833,6 +1891,7 @@ export async function runWorkspaceSkills(
     composeCallIds.set(composeSkillId, composeCallId)
   }
   let text = ''
+  let composeArtifact: WorkspaceArtifactAcceptanceResult | null = null
   try {
     text = await callWorkspaceSkill(
       input,
@@ -1851,6 +1910,23 @@ export async function runWorkspaceSkills(
         callbacks.onStatus?.('正在生成...')
       },
     )
+    if (input.artifactContract) {
+      composeArtifact = acceptWorkspaceArtifact({
+        rawOutput: text,
+        callerStatus: lastRunMeta.get(input)?.status === 'degraded' ? 'degraded' : 'success',
+        degradedErrors: lastRunMeta.get(input)?.diagnostics
+          ?.filter(diagnostic => diagnostic.type === 'warning' || diagnostic.type === 'error')
+          .map(diagnostic => diagnostic.message) || [],
+        contract: input.artifactContract,
+      })
+      callbacks.onArtifactAcceptance?.(composeArtifact, 0, 'compose')
+      if (composeArtifact.decision === 'reject') {
+        throw new Error(
+          `工作区产物步骤验收失败（${composeArtifact.terminalReason}）：${composeArtifact.errors.join('；')}`,
+        )
+      }
+      text = composeArtifact.downstreamPayload || text
+    }
     if (composeCallId) {
       activeSkillCallIds.get(input)?.delete(composeSkillId)
     }
@@ -1883,10 +1959,12 @@ export async function runWorkspaceSkills(
   return {
     text,
     meta: lastRunMeta.get(input) || null,
-    terminalStatus: resolvePostProcessTerminalStatus(
+    terminalStatus: resolveArtifactTerminal(
+      composeArtifact,
       lastRunMeta.get(input)?.postProcessReport,
     ).runStatus,
-    terminalReason: resolvePostProcessTerminalStatus(
+    terminalReason: resolveArtifactTerminal(
+      composeArtifact,
       lastRunMeta.get(input)?.postProcessReport,
     ).eventReason,
     allMetas: [lastRunMeta.get(input)].filter(

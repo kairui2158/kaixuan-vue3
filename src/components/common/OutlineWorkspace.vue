@@ -368,7 +368,7 @@ import { usePipelineStore } from '../../stores/pipeline'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
-import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceArtifactContract, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
@@ -4871,8 +4871,16 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     const startedAt = performance.now()
     let firstChunkSeen = false
     let activeWorkspaceApiCallId: string | undefined
-    let outlineSkillTerminalStatus: RunTraceStatus | undefined
-    let outlineSkillTerminalReason: string | undefined
+  let outlineSkillTerminalStatus: RunTraceStatus | undefined
+  let outlineSkillTerminalReason: string | undefined
+  const outlineArtifactContract: WorkspaceArtifactContract | null =
+    resolvedIntent === 'edit' && requestTarget.content
+      ? {
+          kind: 'outline',
+          original: requestTarget.content,
+          options: { validateDocumentBody: true },
+        }
+      : null
   try {
     const aiService = await getAiService()
     if (workspaceSkillMode.value !== 'chain') {
@@ -4891,6 +4899,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
       adapter: createWorkspaceSkillAdapter(),
       signal: generationController?.signal,
       apiBudget,
+      artifactContract: outlineArtifactContract,
       routingOverride: routingDecision.bypass
         ? { bypass: true }
         : routingDecision.forcedIntent
@@ -5039,7 +5048,26 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
           detail: `输出 ${output.length} 字`
         })
       },
-      onRoutingEvent: event => recordOutlineRoutingEvent(event)
+      onRoutingEvent: event => recordOutlineRoutingEvent(event),
+      onArtifactAcceptance: (acceptance, stepIndex, mode) => {
+        if (acceptance.reason === 'no_contract') return
+        outlineSkillTerminalStatus = acceptance.terminalStatus
+        outlineSkillTerminalReason = acceptance.terminalReason
+        addOutlineTraceEvent({
+          type: acceptance.decision === 'accept'
+            ? 'workspace-artifact-accepted'
+            : 'workspace-artifact-rejected',
+          level: acceptance.decision === 'accept'
+            ? (acceptance.warnings.length ? 'warn' : 'info')
+            : 'error',
+          label: acceptance.decision === 'accept'
+            ? '大纲产物契约通过'
+            : '大纲产物契约失败',
+          detail: `mode=${mode}; step=${stepIndex}; reason=${acceptance.terminalReason}`,
+          payload: acceptance.traceDetail,
+          turnId: outlineRunTurnId,
+        })
+      }
     }
   })
   if (result.runState === 'awaiting_user') {

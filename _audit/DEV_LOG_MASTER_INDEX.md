@@ -1013,3 +1013,12 @@
 - 范围补口：收尾复跑发现无 SKILL compose 未被识别为唯一生成步；修复 `null` / `0` 语义、compose 契约注入与验收台账，compose 契约失败时修复决策权交回编排器；经验升级 v8.15。
 - 验证：定向 4 files / 67 tests；历史事故回放 PASSED（旧 `generation_failed` 在生成步以 `degraded_plus_contract_failure` 阻断且 S3 零调用）；真实 Electron UI PASSED（拒绝场景 S3 零调用且 run failed，通过场景 S3 一次调用且 warning 保留）；全量 172 files / 1998 tests、type-check、build:vue、body-repair / owner-breakpoint / postprocess 双工作台 Electron 回归全部通过。
 - 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live 矩阵；原始 043758 trace 未做逐 token 回放器；SKILL 提示词内容未修改；postProcess 证据位于 `output/playwright/postprocess-terminal-ui/`。
+
+# 2026-10-17 五项登记边界闭环与 3.96.0 升版
+
+- 文件：[_audit/DEV_LOG_2026-10-17_boundary-closure.md](_audit/DEV_LOG_2026-10-17_boundary-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-17_boundary-closure.md](_audit/TASK_LEDGERS/2026-10-17_boundary-closure.md)
+- 范围：大纲产物契约生产接线、恶意 SKILL 提示词/授权边界测试、payload 三方同源回放、live 供应商生产入口验证器、Electron 契约 UI 复验。
+- 验证：type-check、专项 49 tests、全量 173 files / 2009 tests、build:vue、payload replay、Electron 拒收/接受双场景全部通过。
+- 诚实边界：外部 live 供应商两个已配置 key 均返回 401，状态为 `blocked_external_credentials`，应用链路已验证但 live 成功响应未验证。
+- 封装：升级 3.96.0；构建 chunk 超限为真实体积提示（index 1,054.41 kB、g6 1,406.66 kB），未调阈值伪装消警。

@@ -1,0 +1,39 @@
+{
+  "schema": "shenyi.boundary.live-provider",
+  "version": 1,
+  "generatedAt": "2026-10-17T08:32:47.598Z",
+  "status": "blocked_external_credentials",
+  "attempts": [
+    {
+      "providerId": "prov-1788185503573",
+      "providerName": "新供应商",
+      "baseUrl": "https://openapi.cloud-ai.cn/v1",
+      "model": "deepseek-v4-pro",
+      "ok": false,
+      "durationMs": 246,
+      "statusCode": 401,
+      "textPreview": null,
+      "finishReason": null,
+      "error": "Invalid token (request id: 202610170832473296835198268d9d6vac8awHJ)",
+      "apiKey": "***MASKED***"
+    },
+    {
+      "providerId": "prov-1788240547075",
+      "providerName": "deepseek官网",
+      "baseUrl": "https://api.deepseek.com",
+      "model": "deepseek-v4-pro",
+      "ok": false,
+      "durationMs": 256,
+      "statusCode": 401,
+      "textPreview": null,
+      "finishReason": null,
+      "error": "Authentication Fails, Your api key: ****9Wbd is invalid (request_id: 75a71c17-26b3-45f0-b7e5-3dd5aca605b9)",
+      "apiKey": "***MASKED***"
+    }
+  ],
+  "coverage": {
+    "testedLiveProviders": 2,
+    "otherConfiguredProviders": 0,
+    "others": []
+  }
+}
