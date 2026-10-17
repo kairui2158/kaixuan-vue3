@@ -32,3 +32,11 @@
 - `_data/boundary-live-profile`、`_data/body-contract-degraded-profile`、`_data/body-contract-degraded-skills` 已清理，复核不存在。
 - 保留验证证据：`_audit/verification-body-contract-degraded-replay/`、`_audit/verification-body-contract-degraded-electron/`、`_audit/verification-boundary-live-provider/`。
 - 经验文件保持 v8.15，不升 v8.16：本轮没有发现新的工程纪律缺陷；外部凭据失效属于 v8.15 已覆盖的“无法验证必须显式登记”边界，升版反而会稀释版本含义。
+
+## 封装登记
+
+- `npm run build` exit 0，安装包 `dist/神意助手-Setup-3.96.0.exe`，231,544,720 bytes，SHA256 `b43ec972633ae06458ab9d2e38ee489f4376ae68da2b3ccc55be71bed3b3d141`。
+- `node scripts/verify-packaging-3-96-0.mjs` 打包后真实启动核验 PASSED：asar 版本 3.96.0、rendererFiles=81、electronAPI methods=77、本地 embedding 模型加载成功、渲染 bodyTextLength=912。
+- 证据：`_audit/verification-packaging-3-96-0/packaging-evidence.json`。
+- 本次默认构建路径未复现历史 rcedit EBUSY 间歇锁；首跑失败是核验脚本自身被计入 SOURCE_ROOTS 导致的时间戳断言误判，已将 `scripts` 排除后复跑通过。
+- 旧产物 `神意助手-Setup-3.94.0.exe` 与对应 blockmap 已删除，Node 复核均不存在；`dist` 仅保留 3.96.0 exe/blockmap、builder-debug.yml、builder-effective-config.yaml、latest.yml，以及作为真实启动核验载体的 `dist/win-unpacked`。

@@ -1022,3 +1022,4 @@
 - 验证：type-check、专项 49 tests、全量 173 files / 2009 tests、build:vue、payload replay、Electron 拒收/接受双场景全部通过。
 - 诚实边界：外部 live 供应商两个已配置 key 均返回 401，状态为 `blocked_external_credentials`，应用链路已验证但 live 成功响应未验证。
 - 封装：升级 3.96.0；构建 chunk 超限为真实体积提示（index 1,054.41 kB、g6 1,406.66 kB），未调阈值伪装消警。
+- 封装收口：安装包 `dist/神意助手-Setup-3.96.0.exe`，231,544,720 bytes，SHA256 `b43ec972633ae06458ab9d2e38ee489f4376ae68da2b3ccc55be71bed3b3d141`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-96-0/packaging-evidence.json`；3.94.0 旧安装包与 blockmap 已清理，dist 仅保留 3.96.0 产物及核验载体。
