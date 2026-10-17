@@ -3,6 +3,7 @@ import { buildChatUrl, buildModelsUrl, extractNonStreamText, extractStreamDelta,
 import { buildProviderChatUrl, buildProviderModelsUrl, buildProviderHeaders, buildProviderModelsHeaders, getProviderProtocol, httpErrorMessage, sanitizeUrlForLog } from './providerProtocols';
 import { resolveProvider, tryResolveProvider } from './providerRouter';
 import { createAiService, createThinkingTagStreamFilter, filterThinkingTags, resolveRequestTimeout, AiServiceErrorImpl, classifyToolRejection, detectUserHandoffResponse } from './aiService';
+import { currentInputTokenCalibration, resetInputTokenCalibration } from './contextBudget';
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner';
 import { createToolRunBudget } from './toolRunBudget';
 
@@ -266,6 +267,7 @@ function runtimeStore(provider = runtimeProvider) {
 describe('createAiService.callAi', () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
+    resetInputTokenCalibration();
   });
 
   afterEach(() => {
@@ -313,6 +315,35 @@ describe('createAiService.callAi', () => {
         driftRatio: -0.76,
       },
     });
+    vi.unstubAllGlobals();
+  });
+
+  it('calibrates token estimates once per terminal physical call and keeps running events inert', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      choices: [{ message: { content: 'calibrated' }, finish_reason: 'stop' }],
+      usage: { prompt_tokens: 100, completion_tokens: 10, total_tokens: 110 },
+    }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '中'.repeat(1700) }],
+      stream: false,
+      physicalPhase: 'schema_retry',
+      onPhysicalCall: event => physicalEvents.push(event),
+    });
+
+    const terminalEvents = physicalEvents.filter(event => event.status !== 'running');
+    expect(terminalEvents).toHaveLength(1);
+    expect(terminalEvents[0].phase).toBe('schema_retry');
+    expect(terminalEvents[0].usageReconciliation).toMatchObject({
+      status: 'available',
+      estimatedInputTokens: 1000,
+      actualInputTokens: 100,
+    });
+    expect(result.usageReconciliation).toEqual(terminalEvents[0].usageReconciliation);
+    expect(currentInputTokenCalibration({ providerId: 'runtime', model: 'test-model' })).toBe(0.65);
     vi.unstubAllGlobals();
   });
 

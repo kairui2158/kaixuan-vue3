@@ -4,7 +4,8 @@ vi.mock('./realSkillLoader', () => ({
   loadRealSkill: vi.fn()
 }))
 vi.mock('./aiService', () => ({
-  getAiService: vi.fn()
+  getAiService: vi.fn(),
+  filterThinkingTags: vi.fn((text: string) => text)
 }))
 
 const skillExecuteScriptMock = vi.fn(async (script: string, payload: { hook: string }) => {

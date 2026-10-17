@@ -276,7 +276,7 @@ export interface RunTracePhysicalCall {
   id: string
   physicalCallId?: string
   seq: number
-  phase: 'normal' | 'tool_iteration' | 'tool_convergence' | 'downgrade_initial' | 'downgrade_retry' | 'continuation' | 'retry' | 'heartbeat_retry'
+  phase: 'normal' | 'tool_iteration' | 'tool_convergence' | 'downgrade_initial' | 'downgrade_retry' | 'continuation' | 'schema_retry' | 'direct_retry' | 'retry' | 'heartbeat_retry'
   status: RunTraceStatus
   requestMessages: RunTraceMessage[]
   responseText: string
@@ -1988,12 +1988,19 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const firstTokens = physicalCalls
       .map(item => item.firstTokenMs)
       .filter((value): value is number => typeof value === 'number')
+    const outputDurations = physicalCalls
+      .map(item => typeof item.firstTokenMs === 'number' ? item.outputMs : undefined)
+      .filter((value): value is number => typeof value === 'number')
     const physicalDurationSumMs = physicalCalls.reduce((sum, item) => sum + (item.durationMs || 0), 0)
     const callDurationMs = call.durationMs || 0
     return {
       physicalCallCount: physicalCalls.length,
-      retryPhysicalCallCount: physicalCalls.filter(item => item.phase === 'retry').length,
+      retryPhysicalCallCount: physicalCalls.filter(item =>
+        item.phase === 'retry' || item.phase === 'schema_retry' || item.phase === 'direct_retry'
+      ).length,
       physicalDurationSumMs,
+      firstTokenSumMs: sumNumber(firstTokens),
+      outputSumMs: sumNumber(outputDurations),
       minFirstTokenMs: firstTokens.length ? Math.min(...firstTokens) : undefined,
       maxFirstTokenMs: firstTokens.length ? Math.max(...firstTokens) : undefined,
       localOverheadMs: callDurationMs - physicalDurationSumMs
@@ -2015,12 +2022,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       physicalCallCount: sum(ledger => ledger.physicalCallCount),
       retryPhysicalCallCount: sum(ledger => ledger.retryPhysicalCallCount),
       physicalDurationSumMs: sum(ledger => ledger.physicalDurationSumMs),
-      firstTokenSumMs: sum(ledger => ledger.maxFirstTokenMs),
-      outputSumMs: sum(ledger =>
-        typeof ledger.physicalDurationSumMs === 'number' && typeof ledger.maxFirstTokenMs === 'number'
-          ? ledger.physicalDurationSumMs - ledger.maxFirstTokenMs
-          : undefined
-      ),
+      firstTokenSumMs: sum(ledger => ledger.firstTokenSumMs),
+      outputSumMs: sum(ledger => ledger.outputSumMs),
       localOverheadSumMs: sum(ledger => ledger.localOverheadMs),
       requestBuildSumMs: sum(ledger => ledger.requestBuildMs),
       schemaValidateSumMs: sum(ledger => ledger.schemaValidateMs),
@@ -2048,7 +2051,12 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       contextLoadMs: sumNumber([localPhases.contextLoad]),
       apiCallCount: run.apiCalls.length,
       physicalCallCount: physicalCalls.length,
-      retryCallCount: physicalCalls.filter(call => call.phase === 'retry' || call.phase === 'heartbeat_retry').length,
+      retryCallCount: physicalCalls.filter(call =>
+        call.phase === 'retry' ||
+        call.phase === 'schema_retry' ||
+        call.phase === 'direct_retry' ||
+        call.phase === 'heartbeat_retry'
+      ).length,
       schemaRetryCallCount: schemaRetries || undefined,
       continuationCallCount: physicalCalls.filter(call => call.phase === 'continuation').length,
       firstTokenSumMs: sumNumber(physicalCalls.map(call => call.firstTokenMs)),

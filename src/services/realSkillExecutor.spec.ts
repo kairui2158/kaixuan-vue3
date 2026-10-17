@@ -1222,6 +1222,10 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     }
     expect(secondPassMeasurement.inputLength).toBeGreaterThan('第一步输出'.length)
     expect(secondPassMeasurement.userPromptLength).toBeGreaterThan(0)
+
+    expect(callAi.mock.calls[0]![0]).toMatchObject({ physicalPhase: 'normal' })
+    expect(callAi.mock.calls[1]![0]).toMatchObject({ physicalPhase: 'schema_retry' })
+    expect(callAi.mock.calls[2]![0]).toMatchObject({ physicalPhase: 'normal' })
   })
 
   it('retries schema validation up to three attempts and returns degraded output', async () => {

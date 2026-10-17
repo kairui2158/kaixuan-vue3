@@ -28,6 +28,7 @@ describe('acceptStepArtifact', () => {
       expect(result.decision).toBe('reject')
       expect(result.reason).toBe('caller_failed')
       expect(result.downstreamPayload).toBeNull()
+      expect(result.metadata).toEqual({})
     }
   })
 
@@ -43,6 +44,7 @@ describe('acceptStepArtifact', () => {
       reason: 'no_contract',
       downstreamPayload: '普通步骤产物'
     })
+    expect(result.metadata).toEqual({})
   })
 
   it('accepts a contract step only on the extracted final body', () => {
@@ -59,6 +61,7 @@ describe('acceptStepArtifact', () => {
     expect(result.decision).toBe('accept')
     expect(result.reason).toBe('contract_valid')
     expect(result.extractedBody).toBe('正文'.repeat(1200))
+    expect(result.metadata).toEqual({ status: 'success' })
     expect(result.downstreamPayload).toBe(result.extractedBody)
     expect(result.validation?.valid).toBe(true)
   })
@@ -78,6 +81,7 @@ describe('acceptStepArtifact', () => {
     expect(result.rawWordCount - result.extractedWordCount).toBeGreaterThanOrEqual(1300)
     expect(result.metadataDelta).toBe(result.rawWordCount - result.extractedWordCount)
     expect(result.downstreamPayload).toBeNull()
+    expect(result.metadata.extractedMeta?.length).toBeGreaterThan(0)
     expect(result.errors).toEqual([
       '正文交接缺少NEW_FACT',
       '正文过短：1654字，要求不低于2100字'

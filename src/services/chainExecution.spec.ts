@@ -58,6 +58,41 @@ describe("body chain execution contract", () => {
     expect((withMemory.match(/\[相关记忆\]/g) || []).length).toBe(1)
   })
 
+  it("injects upstream metadata as a structured handoff without contaminating prose", () => {
+    const prompt = buildChainSkillPrompt({
+      initialPrompt: "原始章节执行包",
+      previousOutput: "S1完整输出",
+      isFirst: false,
+      delivery: "inline_block",
+      upstreamMetadata: {
+        coveredItems: ["第1章", "第2章"],
+        status: "success",
+        sourceRefs: ["H1-01"],
+        extractedMeta: ["【正文交接】\nrunId: r-1", "【来源覆盖】\nH1-01"],
+        empty: "",
+        nullValue: null
+      }
+    })
+
+    expect(prompt).toContain("--- 上一步结构化交接 ---")
+    expect(prompt).toContain("- coveredItems: count=2,preview=第1章, 第2章")
+    expect(prompt).toContain("- status: success")
+    expect(prompt).toContain("- sourceRefs: count=1,preview=H1-01")
+    expect(prompt).toMatch(/- extractedMeta: count=2,totalChars=\d+/)
+    expect(prompt).not.toContain("【正文交接】")
+    expect(prompt).not.toContain("runId: r-1")
+    expect(prompt).not.toContain("empty:")
+    expect(prompt).not.toContain("nullValue:")
+
+    const withoutMetadata = buildChainSkillPrompt({
+      initialPrompt: "原始章节执行包",
+      previousOutput: "S1完整输出",
+      isFirst: false,
+      delivery: "inline_block"
+    })
+    expect(withoutMetadata).not.toContain("--- 上一步结构化交接 ---")
+  })
+
   it("delivers the previous output once for pipeline text and folder skills", () => {
     const previousOutput = "S1完整输出锚点".repeat(80)
     const textSkillPrompt = buildChainSkillPrompt({

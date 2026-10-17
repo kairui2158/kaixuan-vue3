@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.body-contract-degraded.electron",
   "version": 1,
-  "generatedAt": "2026-10-17T08:32:01.398Z",
+  "generatedAt": "2026-10-17T14:43:12.300Z",
   "script": "verify-body-contract-degraded-electron.mjs",
   "projectId": "body-contract-degraded-gate",
   "chapterId": "ch-body-contract-degraded",
@@ -9,8 +9,8 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "51c30acb4b6f",
-    "buildTime": "2026-10-17T08:31:37.883Z"
+    "commit": "10e1dcb41d5a",
+    "buildTime": "2026-10-17T14:41:54.666Z"
   },
   "hardRules": {
     "visibleElectron": true,
@@ -21,19 +21,22 @@
   "scenarios": {
     "reject-before-s3": {
       "status": "failed",
-      "runId": "run-1792225920014-1",
+      "runId": "run-1792248190641-1",
       "requestCount": 4,
       "extractedWordCount": 1654,
       "rejectReason": "degraded_plus_contract_failure"
     },
     "accept-and-extract": {
       "status": "success",
-      "runId": "run-1792225920712-61",
+      "runId": "run-1792248191556-61",
       "requestCount": 5,
       "extractedWordCount": 2200,
-      "s3ReceivesExtractedFace": true
+      "s3ReceivesExtractedFace": true,
+      "s3ReceivesStructuredHandoff": true,
+      "s2SchemaRetryPhases": 2,
+      "timingLedgerConsistency": "call/run/step same-source sums"
     }
   },
-  "heartbeatFrames": 2,
-  "heartbeatDurationMs": 2018
+  "heartbeatFrames": 3,
+  "heartbeatDurationMs": 2496
 }

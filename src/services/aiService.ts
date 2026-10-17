@@ -25,6 +25,7 @@ import {
 import type { ModelCapability } from './modelCapability'
 import {
   buildUsageReconciliation,
+  updateInputTokenCalibration,
   resolveContextBudget,
   type ContextBudgetResult,
   type UsageReconciliation,
@@ -235,10 +236,22 @@ export interface CallAiParams {
   /** @internal Keep the legacy public path clean; P6 callers receive a typed helper instead. */
 }
 
+export type PhysicalCallPhase =
+  | 'normal'
+  | 'tool_iteration'
+  | 'tool_convergence'
+  | 'downgrade_initial'
+  | 'downgrade_retry'
+  | 'continuation'
+  | 'schema_retry'
+  | 'direct_retry'
+  | 'retry'
+  | 'heartbeat_retry'
+
 export interface PhysicalCallEvent {
   /** Stable identity for one physical network request; running/finish records use the same value. */
   physicalCallId?: string
-  phase: 'normal' | 'tool_iteration' | 'tool_convergence' | 'downgrade_initial' | 'downgrade_retry' | 'continuation' | 'retry' | 'heartbeat_retry'
+  phase: PhysicalCallPhase
   status: 'running' | 'success' | 'failed' | 'canceled'
   attempt: number
   durationMs: number
@@ -2464,6 +2477,8 @@ export function createAiService(
       provider,
       messages: params.messages,
       maxOutputTokens: modelCapability.maxOutputTokens,
+      providerId,
+      model,
     })
     const loopScenario = params.toolPolicy?.scenario || (compatibleMode ? 'compatibility-json' : 'direct')
     const maxIterations = normalizeToolIterations(
@@ -3723,6 +3738,8 @@ export function createAiService(
       provider,
       messages: params.messages,
       maxOutputTokens: modelCapability.maxOutputTokens,
+      providerId,
+      model: resolveModel(provider, params.model),
     })
     let lastErr: any = null
     let lastResp: { text: string; reasoning: string; usage?: any } | null = null
@@ -3755,6 +3772,17 @@ export function createAiService(
       >,
     ) => {
       try {
+        const reconciliation = buildUsageReconciliation({
+          estimatedInputTokens: contextBudget.estimatedInputTokens,
+          usage: result?.usage,
+        })
+        if (status !== 'running') {
+          updateInputTokenCalibration({
+            providerId,
+            model: resolveModel(provider, params.model),
+            usageReconciliation: reconciliation
+          })
+        }
         let physicalCallId = physicalCallIds.get(attempt)
         if (!physicalCallId) {
           physicalCallId = `physical-${startTime}-${attempt}`
@@ -3788,10 +3816,7 @@ export function createAiService(
           modelCapability,
           contextBudget,
           contextCompactedMessageCount: params.contextCompactedMessageCount,
-          usageReconciliation: buildUsageReconciliation({
-            estimatedInputTokens: contextBudget.estimatedInputTokens,
-            usage: result?.usage,
-          }),
+          usageReconciliation: reconciliation,
           heartbeat: status === 'running'
             ? Boolean(heartbeat || physicalHeartbeatTimer !== null)
             : undefined,

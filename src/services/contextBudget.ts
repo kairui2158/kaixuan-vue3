@@ -45,6 +45,65 @@ export const CONTEXT_BUDGET_DEFAULTS = {
   windowSafetyRatio: 0.9,
 } as const
 
+export interface ContextBudgetCalibrationKey {
+  providerId?: string
+  model?: string
+}
+
+interface CalibrationState {
+  ratio: number
+  samples: number
+}
+
+const DEFAULT_CALIBRATION_RATIO = 1
+const MIN_CALIBRATION_RATIO = 0.65
+const MAX_CALIBRATION_RATIO = 1.6
+const CALIBRATION_SAMPLE_LIMIT = 20
+const CALIBRATION_LEARNING_RATE = 0.2
+const calibrationByProviderModel = new Map<string, CalibrationState>()
+
+function calibrationKey(input: ContextBudgetCalibrationKey): string {
+  return `${String(input.providerId || 'unknown').toLowerCase()}::${String(input.model || 'unknown').toLowerCase()}`
+}
+
+/**
+ * Refines the estimate only. Safety ratios and output reserves stay fixed;
+ * a calibrated estimate must never widen the effective planning budget.
+ */
+export function updateInputTokenCalibration(input: {
+  providerId?: string
+  model?: string
+  usageReconciliation?: UsageReconciliation | null
+}): number {
+  const reconciliation = input.usageReconciliation
+  if (!reconciliation || reconciliation.status !== 'available') return currentInputTokenCalibration(input)
+  const correctedRatio = Number(reconciliation.correctedRatio)
+  if (!Number.isFinite(correctedRatio) || correctedRatio <= 0) return currentInputTokenCalibration(input)
+  // correctedRatio is actual/estimated. Use it directly: if actual usage is
+  // lower than the estimate, the next estimate must shrink by the same ratio.
+  const observedRatio = correctedRatio
+  const boundedRatio = Math.min(MAX_CALIBRATION_RATIO, Math.max(MIN_CALIBRATION_RATIO, observedRatio))
+  const key = calibrationKey(input)
+  const state = calibrationByProviderModel.get(key) || { ratio: DEFAULT_CALIBRATION_RATIO, samples: 0 }
+  const nextRatio = state.samples === 0
+    ? boundedRatio
+    : state.ratio * (1 - CALIBRATION_LEARNING_RATE) + boundedRatio * CALIBRATION_LEARNING_RATE
+  const nextState = {
+    ratio: Math.min(MAX_CALIBRATION_RATIO, Math.max(MIN_CALIBRATION_RATIO, nextRatio)),
+    samples: Math.min(CALIBRATION_SAMPLE_LIMIT, state.samples + 1)
+  }
+  calibrationByProviderModel.set(key, nextState)
+  return nextState.ratio
+}
+
+export function currentInputTokenCalibration(input: ContextBudgetCalibrationKey): number {
+  return calibrationByProviderModel.get(calibrationKey(input))?.ratio ?? DEFAULT_CALIBRATION_RATIO
+}
+
+export function resetInputTokenCalibration(): void {
+  calibrationByProviderModel.clear()
+}
+
 /**
  * Single planning budget shared by every caller. Keep this as the only
  * hand-written safety-ratio computation so planner, pipeline, and request
@@ -73,7 +132,10 @@ export function resolveContextWindowTokens(provider: ContextBudgetProviderLike):
   return Math.floor(value)
 }
 
-export function estimateInputTokens(input: string | ContextBudgetMessageLike[] | null | undefined): number {
+export function estimateInputTokens(
+  input: string | ContextBudgetMessageLike[] | null | undefined,
+  calibration?: ContextBudgetCalibrationKey
+): number {
   const text = typeof input === 'string'
     ? input
     : (input || []).map(message => String(message?.content ?? '')).join('\n')
@@ -94,7 +156,7 @@ export function estimateInputTokens(input: string | ContextBudgetMessageLike[] |
 
   const tokens = chineseCount / CONTEXT_BUDGET_DEFAULTS.chineseCharsPerToken
     + otherCount / CONTEXT_BUDGET_DEFAULTS.englishCharsPerToken
-  return Math.ceil(tokens)
+  return Math.ceil(tokens * currentInputTokenCalibration(calibration || {}))
 }
 
 /**
@@ -115,6 +177,8 @@ export function resolveContextBudget(input: {
   provider: ContextBudgetProviderLike
   messages: ContextBudgetMessageLike[]
   maxOutputTokens?: number | null
+  providerId?: string
+  model?: string
 }): ContextBudgetResult {
   const providerWindow = resolveContextWindowTokens(input.provider)
   const windowDeclared = providerWindow > 0
@@ -122,7 +186,10 @@ export function resolveContextBudget(input: {
   const contextWindow = windowDeclared
     ? providerWindow
     : CONTEXT_BUDGET_DEFAULTS.unknownWindowTokens
-  const estimatedInputTokens = estimateInputTokens(input.messages)
+  const estimatedInputTokens = estimateInputTokens(input.messages, {
+    providerId: input.providerId,
+    model: input.model
+  })
   const requestedOutput = input.maxOutputTokens == null || input.maxOutputTokens <= 0
     ? CONTEXT_BUDGET_DEFAULTS.defaultOutputReserveTokens
     : input.maxOutputTokens

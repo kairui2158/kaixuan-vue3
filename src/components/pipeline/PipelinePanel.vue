@@ -2939,6 +2939,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     let startSi = resumePoint.startIndex
     let current = resumePoint.previousOutput || prompt
     let completedStepOutputs = resumePoint.stepOutputs.slice()
+    let upstreamStepMetadata: Record<string, unknown> | null =
+      resumePoint.stepOutputs.find(output => output.skillIndex === startSi - 1)?.metadata || null
     if (executionPlan?.disableBreakpointReplay) {
       startSi = Math.max(0, Math.min(Math.floor(executionPlan.startIndex ?? 0), templates.length))
       current = prompt
@@ -2947,6 +2949,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           ? executionPlan.upstreamStepOutputs
           : resumePoint.stepOutputs
         const upstream = upstreamSource.find(output => output.skillIndex === startSi - 1)
+        upstreamStepMetadata = upstream?.metadata || null
         if (upstream) {
           current = upstream.output
         } else {
@@ -3049,7 +3052,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         memoryPrompt,
         isFirst: useOriginal,
         templateOwnsPreviousOutput,
-        delivery
+        delivery,
+        upstreamMetadata: si === 0 ? null : upstreamStepMetadata
       })
       const previousOutput = si === 0 ? "" : previousResolution.output
       const ctxForSkill = {
@@ -3317,6 +3321,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             throw new Error(artifactFlow.failure?.message || '正文生成步骤验收失败')
           }
           stepOutput = artifactFlow.downstreamPayload || ''
+          if (Object.keys(artifactFlow.metadata).length) {
+            upstreamStepMetadata = artifactFlow.metadata
+          }
         }
         current = stepOutput
         chainCtx.prevResponse = current
@@ -3340,6 +3347,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           output: current,
           delivery: handoffDelivery,
           templateMeta,
+          metadata: upstreamStepMetadata,
           previousSeenHashes: seenHandoffHashes
         })
         seenHandoffHashes.add(handoffArtifact.outputHash)
@@ -3355,7 +3363,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     const handoffHashes = Array.from(seenHandoffHashes)
     completedStepOutputs = completedStepOutputs
       .filter(output => output.skillIndex < si)
-      .concat([{ skillIndex: si, skillId: t.id, output: current }])
+      .concat([{
+        skillIndex: si,
+        skillId: t.id,
+        output: current,
+        metadata: upstreamStepMetadata || undefined
+      }])
     await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
           step,
           projectId: checkpointProjectId,
@@ -3507,6 +3520,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               output: current,
               delivery: 'full_text',
               templateMeta: { chainHandoff: { requiresFullPreviousOutput: true } },
+              metadata: upstreamStepMetadata,
               previousSeenHashes: seenHandoffHashes
             })
             seenHandoffHashes.add(handoffArtifact.outputHash)
@@ -3521,7 +3535,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             const handoffHashes = Array.from(seenHandoffHashes)
             completedStepOutputs = completedStepOutputs
               .filter(output => output.skillIndex < si)
-              .concat([{ skillIndex: si, skillId: t.id, output: current }])
+              .concat([{
+                skillIndex: si,
+                skillId: t.id,
+                output: current,
+                metadata: upstreamStepMetadata || undefined
+              }])
             await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
               step,
               projectId: checkpointProjectId,
@@ -4813,7 +4832,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       detail: JSON.stringify({
         chapterId: String(ch.id || ''),
         targetWords: _bodyWordsPerChapter,
-        wordCount: validatedAttempt?.wordCount ?? (finalBody || '').length,
+        wordCount: validatedAttempt?.wordCount ?? countBodyWords(finalBody),
         ratio: validatedAttempt?.ratio ?? 0,
         status: bodyArtifact.status,
         repairAttempts: bodyArtifact.attempts.filter(attempt => attempt.repairAttempt > 0).length
@@ -4823,8 +4842,9 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     bodyArtifactDelivered = true
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
-    bodyGenerationLogs.value.push("正文生成完成，字数：" + (finalBody || "").length)
-    trace.addEvent({ type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + (finalBody || "").length })
+    const finalWordCount = countBodyWords(finalBody)
+    bodyGenerationLogs.value.push("正文生成完成，字数：" + finalWordCount)
+    trace.addEvent({ type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + finalWordCount })
     // Insert into the editor automatically (same link as old architecture).
     window.dispatchEvent(new CustomEvent("insert-text", {
       detail: {

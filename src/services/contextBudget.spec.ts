@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
   CONTEXT_BUDGET_DEFAULTS,
   buildUsageReconciliation,
@@ -7,7 +7,13 @@ import {
   resolveAvailableContextTokens,
   resolveContextWindowTokens,
   resolvePlanningInputBudget,
+  resetInputTokenCalibration,
+  updateInputTokenCalibration,
 } from './contextBudget'
+
+beforeEach(() => {
+  resetInputTokenCalibration()
+})
 
 describe('resolveContextWindowTokens', () => {
   it('keeps an explicit 1M window', () => {
@@ -25,6 +31,84 @@ describe('resolveContextWindowTokens', () => {
     expect(resolveContextWindowTokens({ contextWindowTokens: Number.POSITIVE_INFINITY })).toBe(0)
     expect(resolveContextWindowTokens({ contextWindowTokens: '131072' as any })).toBe(131072)
     expect(resolveContextWindowTokens({ contextWindowTokens: -1 })).toBe(0)
+  })
+})
+
+describe('input token calibration', () => {
+  it('only refines the estimate and never widens the fixed safety reserves', () => {
+    const reconciliation = buildUsageReconciliation({
+      estimatedInputTokens: 100,
+      usage: { prompt_tokens: 125 },
+    })
+    const ratio = updateInputTokenCalibration({
+      providerId: 'provider-a',
+      model: 'model-a',
+      usageReconciliation: reconciliation,
+    })
+
+    expect(ratio).toBeCloseTo(1.25, 5)
+    expect(estimateInputTokens('中'.repeat(170), {
+      providerId: 'provider-a',
+      model: 'model-a',
+    })).toBe(125)
+
+    const budget = resolveContextBudget({
+      provider: { contextWindowTokens: 131_072 },
+      messages: [{ role: 'user', content: '中'.repeat(17_000) }],
+      maxOutputTokens: 8192,
+      providerId: 'provider-a',
+      model: 'model-a',
+    })
+    expect(budget.outputReserveTokens).toBe(8192)
+    expect(budget.availableContextTokens).toBe(
+      131_072 - 8192
+    )
+  })
+
+  it('keeps calibration isolated per provider and model', () => {
+    const reconciliation = buildUsageReconciliation({
+      estimatedInputTokens: 100,
+      usage: { prompt_tokens: 125 },
+    })
+    updateInputTokenCalibration({
+      providerId: 'provider-a',
+      model: 'model-a',
+      usageReconciliation: reconciliation,
+    })
+
+    expect(estimateInputTokens('中'.repeat(170), {
+      providerId: 'provider-b',
+      model: 'model-b',
+    })).toBe(100)
+    expect(estimateInputTokens('中'.repeat(170), {
+      providerId: 'provider-a',
+      model: 'model-b',
+    })).toBe(100)
+  })
+
+  it('bounds the calibration ratio and ignores unavailable usage', () => {
+    expect(updateInputTokenCalibration({
+      providerId: 'provider-a',
+      model: 'model-a',
+      usageReconciliation: undefined,
+    })).toBe(1)
+
+    const extreme = buildUsageReconciliation({
+      estimatedInputTokens: 100,
+      usage: { prompt_tokens: 1 },
+    })
+    const ratio = updateInputTokenCalibration({
+      providerId: 'provider-a',
+      model: 'model-a',
+      usageReconciliation: extreme,
+    })
+    expect(ratio).toBe(0.65)
+
+    resetInputTokenCalibration()
+    expect(estimateInputTokens('中'.repeat(170), {
+      providerId: 'provider-a',
+      model: 'model-a',
+    })).toBe(100)
   })
 })
 

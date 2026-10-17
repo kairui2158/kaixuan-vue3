@@ -1023,3 +1023,13 @@
 - 诚实边界：外部 live 供应商两个已配置 key 均返回 401，状态为 `blocked_external_credentials`，应用链路已验证但 live 成功响应未验证。
 - 封装：升级 3.96.0；构建 chunk 超限为真实体积提示（index 1,054.41 kB、g6 1,406.66 kB），未调阈值伪装消警。
 - 封装收口：安装包 `dist/神意助手-Setup-3.96.0.exe`，231,544,720 bytes，SHA256 `b43ec972633ae06458ab9d2e38ee489f4376ae68da2b3ccc55be71bed3b3d141`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-96-0/packaging-evidence.json`；3.94.0 旧安装包与 blockmap 已清理，dist 仅保留 3.96.0 产物及核验载体。
+
+# 2026-10-17 正文层 metadata 契约与物理重试台账收口
+
+- 文件：[_audit/DEV_LOG_2026-10-17_metadata-retry-ledger-closure.md](_audit/DEV_LOG_2026-10-17_metadata-retry-ledger-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-17_metadata-retry-ledger-closure.md](_audit/TASK_LEDGERS/2026-10-17_metadata-retry-ledger-closure.md)
+- 范围：metadata 受控摘要交接与断点持久化、`normal/schema_retry/direct_retry/continuation` 物理请求分类、run/step timing 同源求和、token 校准方向修正、`countBodyWords` 生产统一、`legacy_outline_no_scope` 如实登记。
+- 验证：全量 173 files / 2015 tests、type-check、build:vue、真实 Electron 拒绝/接受双场景全部通过；接受场景 S3 请求携带 `extractedMeta: count=1,totalChars=6867` 且无原文，timing 为 call/run/step same-source sums。
+- 诚实边界：`legacy_outline_no_scope` 为历史遗留；`buildSchemaRetryFeedback` 全文回传为同族未修登记项；Electron 为本地 provider，非外部 live 矩阵。
+- 经验裁决：保持 v8.15，不升 v8.16；验证器断言自相矛盾属于 G1.5 既有门禁覆盖案例。
+- 封装：升级 3.97.0；安装包 `dist/神意助手-Setup-3.97.0.exe`，231,547,162 bytes，SHA256 `d25c45ac8a88a2881869b6855a82ac63f278c13b0c44c24e1a3ecba21a06f723`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-97-0/packaging-evidence.json`；3.96.0 旧安装包与 blockmap 已清理，dist 仅保留 3.97.0 产物及核验载体。

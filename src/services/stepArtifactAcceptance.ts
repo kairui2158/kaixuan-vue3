@@ -1,4 +1,5 @@
 import { parseGenerationResult } from './generationResult'
+import type { GenerationMetadata } from './generationResult'
 import {
   countBodyWords,
   validateBodyArtifact,
@@ -21,6 +22,7 @@ export interface StepArtifactAcceptanceResult {
   callerStatus: StepArtifactCallerStatus
   stepIndex?: number
   extractedBody: string
+  metadata: GenerationMetadata
   rawWordCount: number
   extractedWordCount: number
   metadataDelta: number
@@ -45,11 +47,13 @@ export interface StepArtifactFlowResult {
   acceptance: StepArtifactAcceptanceResult
   continueChain: boolean
   downstreamPayload: string | null
+  metadata: GenerationMetadata
   traceDetail: {
     stepIndex: number
     callerStatus: StepArtifactCallerStatus
     rawWordCount: number
     extractedWordCount: number
+    metadata: GenerationMetadata
     metadataDelta: number
     decision: 'accept' | 'reject'
     reason: StepArtifactAcceptanceResult['reason']
@@ -125,11 +129,13 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
     acceptance: result,
     continueChain: !rejected,
     downstreamPayload: result.downstreamPayload,
+    metadata: result.metadata,
     traceDetail: {
       stepIndex: input.stepIndex,
       callerStatus: result.callerStatus,
       rawWordCount: result.rawWordCount,
       extractedWordCount: result.extractedWordCount,
+      metadata: result.metadata,
       metadataDelta: result.metadataDelta,
       decision: result.decision,
       reason: result.reason,
@@ -156,11 +162,13 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
   const callerFailed = input.callerStatus === 'failed' || input.callerStatus === 'blocked'
 
   if (callerFailed) {
+    const failedGeneration = parseGenerationResult(rawOutput)
     return {
       decision: 'reject',
       reason: 'caller_failed',
       callerStatus: input.callerStatus,
       extractedBody: '',
+      metadata: failedGeneration.metadata,
       rawWordCount,
       extractedWordCount: 0,
       metadataDelta: rawWordCount,
@@ -171,11 +179,13 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
   }
 
   if (!input.contract) {
+    const noContractGeneration = parseGenerationResult(rawOutput)
     return {
       decision: 'accept',
       reason: 'no_contract',
       callerStatus: input.callerStatus,
       extractedBody: rawOutput,
+      metadata: noContractGeneration.metadata,
       rawWordCount,
       extractedWordCount: rawWordCount,
       metadataDelta: 0,
@@ -200,6 +210,7 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
       reason: 'contract_failed',
       callerStatus: input.callerStatus,
       extractedBody,
+      metadata: generation.metadata,
       rawWordCount,
       extractedWordCount,
       metadataDelta,
@@ -214,6 +225,7 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
     reason: 'contract_valid',
     callerStatus: input.callerStatus,
     extractedBody,
+    metadata: generation.metadata,
     rawWordCount,
     extractedWordCount,
     metadataDelta,

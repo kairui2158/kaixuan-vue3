@@ -365,6 +365,8 @@ describe('runTrace store', () => {
       physicalCallCount: 2,
       retryPhysicalCallCount: 1,
       physicalDurationSumMs: 1900,
+      firstTokenSumMs: 500,
+      outputSumMs: 1400,
       minFirstTokenMs: 200,
       maxFirstTokenMs: 300,
       localOverheadMs: 600,
@@ -407,6 +409,51 @@ describe('runTrace store', () => {
       localOverheadSumMs: 500,
       requestBuildSumMs: 100,
       schemaValidateSumMs: 50
+    })
+  })
+
+  it('counts schema and direct physical retries without changing continuation accounting', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain' })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成正文' }]
+    })
+    const phases = ['normal', 'schema_retry', 'direct_retry', 'continuation', 'heartbeat_retry'] as const
+    for (const [index, phase] of phases.entries()) {
+      store.appendPhysicalCall(runId, callId, {
+        physicalCallId: `phase-${phase}`,
+        phase,
+        requestMessages: [{ role: 'user', content: `第${index + 1}次请求` }],
+        responseText: `第${index + 1}次响应`,
+        durationMs: 100,
+        firstTokenMs: 20,
+        outputMs: 80
+      })
+    }
+    store.finishApiCall(runId, callId, {
+      status: 'success',
+      responseText: '第5次响应',
+      durationMs: 600
+    })
+    store.finishRun(runId, 'success')
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    expect(call?.timingLedger).toMatchObject({
+      physicalCallCount: 5,
+      retryPhysicalCallCount: 2,
+      firstTokenSumMs: 100,
+      outputSumMs: 400
+    })
+    expect(store.getRun(runId)?.timingLedger).toMatchObject({
+      retryPhysicalCallCount: 2,
+      firstTokenSumMs: 100,
+      outputSumMs: 400
+    })
+    expect(store.getRun(runId)?.stepTimingLedger).toMatchObject({
+      retryCallCount: 3,
+      continuationCallCount: 1,
+      firstTokenSumMs: 100,
+      outputSumMs: 400
     })
   })
 

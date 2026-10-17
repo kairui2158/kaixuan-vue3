@@ -31,6 +31,7 @@ export interface ChainHandoffArtifact {
   delivery: ChainHandoffDelivery
   canonicalExcerpt?: string
   structuredSummary?: ChainHandoffStructuredSummary
+  metadata?: Record<string, unknown>
   declaredFields?: Record<string, string>
   requiresFullPreviousOutput: boolean
   repeatedHashCount: number
@@ -81,6 +82,7 @@ export interface MakeChainHandoffArtifactInput {
   delivery?: ChainHandoffDelivery
   templateMeta?: ChainHandoffTemplateMeta | null
   structuredSummary?: ChainHandoffStructuredSummary
+  metadata?: Record<string, unknown> | null
   previousSeenHashes?: Set<string>
   excerptLimit?: number
 }
@@ -255,6 +257,7 @@ export function makeChainHandoffArtifact(input: MakeChainHandoffArtifactInput): 
     delivery: input.delivery || 'canonical_excerpt',
     canonicalExcerpt: canonicalExcerpt || undefined,
     structuredSummary: input.structuredSummary,
+    metadata: input.metadata && Object.keys(input.metadata).length ? input.metadata : undefined,
     declaredFields: input.templateMeta?.chainHandoff?.requires
       ? Object.fromEntries(input.templateMeta.chainHandoff.requires.map(key => [key, 'declared']))
       : undefined,
@@ -273,6 +276,7 @@ export function describeChainHandoffEvent(artifact: ChainHandoffArtifact) {
     fullTextLength: artifact.fullTextLength,
     delivery: artifact.delivery,
     excerptLength: artifact.canonicalExcerpt?.length || 0,
+    metadataKeys: artifact.metadata ? Object.keys(artifact.metadata) : [],
     factCount: summary?.facts?.length || 0,
     constraintCount: summary?.constraints?.length || 0,
     requiresFullPreviousOutput: artifact.requiresFullPreviousOutput,

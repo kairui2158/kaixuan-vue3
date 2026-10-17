@@ -7,6 +7,7 @@ export interface ChainPromptInput {
   isFirst: boolean
   templateOwnsPreviousOutput?: boolean
   delivery?: 'template_variable' | 'context_block' | 'inline_block'
+  upstreamMetadata?: Record<string, unknown> | null
 }
 
 export interface ChainUpstreamPromptInput {
@@ -41,6 +42,8 @@ export function bodyGeneratorContractSentence(targetWords: unknown): string {
 
 export const MEMORY_PROMPT_HEADER = "[相关记忆]"
 const PREVIOUS_OUTPUT_HEADER = "--- 上一步 SKILL 完整输出 ---"
+const UPSTREAM_METADATA_HEADER = "--- 上一步结构化交接 ---"
+const UPSTREAM_METADATA_MARKER = /【(?:来源覆盖|状态变化|交接清单|交接状态|正文交接|输出末尾元数据)】/g
 const OUTLINE_HEADER = "[大纲]"
 const OUTLINE_END_HEADERS = ["[设定]", "[绑定设定]", "[卷数]"]
 
@@ -102,10 +105,51 @@ export function buildChainSkillPrompt(input: ChainPromptInput): string {
   if (delivery === 'inline_block' && previousOutput) {
     prompt += `\n\n${PREVIOUS_OUTPUT_HEADER}\n${previousOutput}`
   }
+  const upstreamMetadata = formatUpstreamMetadata(input.upstreamMetadata)
+  if (upstreamMetadata) {
+    prompt += `\n\n${UPSTREAM_METADATA_HEADER}\n${upstreamMetadata}`
+  }
   const memoryPrompt = input.memoryPrompt && !prompt.includes(MEMORY_PROMPT_HEADER)
     ? input.memoryPrompt
     : ""
   return prompt + memoryPrompt
+}
+
+export function formatUpstreamMetadata(metadata: Record<string, unknown> | null | undefined): string {
+  const entries = Object.entries(metadata || {}).filter(([, value]) =>
+    value !== undefined && value !== null && String(value).trim() !== ''
+  )
+  if (!entries.length) return ''
+  return entries.slice(0, 16).map(([key, value]) => {
+    return `- ${key}: ${summarizeUpstreamMetadataValue(key, value)}`
+  }).join('\n')
+}
+
+function summarizeUpstreamMetadataValue(key: string, value: unknown): string {
+  if (key === 'extractedMeta' && Array.isArray(value)) {
+    const totalChars = value.reduce((sum, item) => sum + String(item ?? '').length, 0)
+    return `count=${value.length},totalChars=${totalChars}`
+  }
+  if (Array.isArray(value)) {
+    if (!value.length) return 'count=0'
+    const preview = value.slice(0, 8)
+      .map(item => sanitizeUpstreamMetadataText(item))
+      .filter(Boolean)
+      .join(', ')
+    return `count=${value.length}${preview ? `,preview=${preview}` : ''}`
+  }
+  if (value && typeof value === 'object') {
+    return `fields=${Object.keys(value as Record<string, unknown>).length}`
+  }
+  return sanitizeUpstreamMetadataText(value)
+}
+
+function sanitizeUpstreamMetadataText(value: unknown): string {
+  const text = String(value ?? '')
+    .replace(UPSTREAM_METADATA_MARKER, '[metadata-section]')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text.length > 160 ? `${text.slice(0, 157)}...` : text
 }
 
 /**

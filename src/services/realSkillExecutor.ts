@@ -1,4 +1,5 @@
 import { getAiService } from './aiService'
+import type { PhysicalCallPhase } from './aiService'
 import {
   appendDialogueToolSurfaceDeclaration,
   buildDialogueToolSurfaceDeclarationAudit,
@@ -903,6 +904,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           retryOptions?: {
             reasoningRetry?: RealSkillExecuteOptions['reasoningRetry']
             maxTokens?: number | null
+            physicalPhase?: PhysicalCallPhase
+            defaultPhysicalPhase?: PhysicalCallPhase
           }
         ) => {
           const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
@@ -919,6 +922,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             // Keep the caller's stream contract. Leaving undefined lets
             // aiService apply its purpose-based generate/rewrite default.
             stream: options.stream,
+          physicalPhase: retryOptions?.physicalPhase ||
+            retryOptions?.defaultPhysicalPhase ||
+            (attempt > 1 ? 'schema_retry' : 'normal'),
           signal: options.signal,
           timeoutMs: options.timeoutMs,
           onChunk: options.onChunk,
@@ -950,7 +956,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           })) as { text: string; reasoning?: string; providerId?: string; providerType?: string; finishReason?: string; usage?: Record<string, unknown>; maxTokens?: number | null } & CallAiToolResultLike
         }
 
-        let result = await callAiOnce(requestMessages)
+        let result = await callAiOnce(requestMessages, undefined, {
+          defaultPhysicalPhase: attempt > 1 ? 'schema_retry' : 'normal'
+        })
         let validity = classifyGenerationValidity({
           text: result.text,
           reasoning: (result as { reasoning?: string }).reasoning,
@@ -990,6 +998,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           result = await callAiOnce(retryMessages, DIRECT_OUTPUT_SUFFIX, {
             reasoningRetry: retryStrategy,
             maxTokens: retryMaxTokens,
+            physicalPhase: 'direct_retry',
           })
           validity = classifyGenerationValidity({
             text: result.text,
@@ -1028,7 +1037,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         } else if (validity.kind === 'truncated') {
           diagnostics.push(diagnostic('warning', 'generation-truncated', validity.message))
           const continuationMessages = buildContinuationMessages(requestMessages, result.text)
-          const continuation = await callAiOnce(continuationMessages)
+          const continuation = await callAiOnce(continuationMessages, undefined, {
+            physicalPhase: 'continuation',
+          })
           const continuationValidity = classifyGenerationValidity({
             text: continuation.text,
             reasoning: (continuation as { reasoning?: string }).reasoning,

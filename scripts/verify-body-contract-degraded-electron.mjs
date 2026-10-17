@@ -29,6 +29,7 @@ const CHAPTER_ID = 'ch-body-contract-degraded'
 const TARGET_WORDS = 3500
 const MIN_WORDS = Math.round(TARGET_WORDS * 0.6)
 const SKILL_IDS = ['BODY-GATE-S1', 'BODY-GATE-S2', 'BODY-GATE-S3']
+const UPSTREAM_METADATA_HEADER = '--- 上一步结构化交接 ---'
 
 const VOLUME_OUTLINE = [
   '## 剧情单元 H1-01 雨夜',
@@ -111,6 +112,12 @@ function assertFreshRendererBuild() {
     'renderer bundle contains the step artifact envelope marker')
   assert(bundleText.includes('degraded_plus_contract_failure'),
     'renderer bundle contains the degraded-plus-contract rejection reason')
+  assert(bundleText.includes(UPSTREAM_METADATA_HEADER),
+    'renderer bundle contains the structured upstream metadata handoff marker')
+  assert(bundleText.includes('totalChars=') && bundleText.includes('[metadata-section]'),
+    'renderer bundle contains the controlled metadata summary implementation')
+  assert(bundleText.includes('schema_retry'),
+    'renderer bundle contains the schema_retry physical phase classification')
   assert(!bundleText.includes("folderStatus===`degraded`&&stepArtifactContext"),
     'renderer bundle does not retain the old unguarded degraded flow text')
   const manifestPath = path.join(ROOT, 'dist-renderer', 'build-manifest.json')
@@ -561,6 +568,50 @@ function userText(messages) {
   return (messages || []).filter(item => item?.role === 'user').map(messageText).join('\n')
 }
 
+function assertS2SchemaRetryLedger(run, expectedTotalPhysicalCalls) {
+  const physicalCalls = (run.apiCalls || []).flatMap(call => call.physicalCalls || [])
+  assert.equal(physicalCalls.length, expectedTotalPhysicalCalls,
+    `run records the expected physical lifecycle, got ${physicalCalls.length}/${expectedTotalPhysicalCalls}`)
+  assert.deepEqual(physicalCalls.map(call => call.phase),
+    expectedTotalPhysicalCalls === 4
+      ? ['normal', 'normal', 'schema_retry', 'schema_retry']
+      : ['normal', 'normal', 'schema_retry', 'schema_retry', 'normal'],
+    `S2 physical retries are classified as schema_retry, got ${JSON.stringify(physicalCalls.map(call => call.phase))}`)
+  assert.equal(physicalCalls.filter(call => call.phase !== 'normal').length + 1,
+    3, 'S2 contributes three physical requests (one initial + two schema retries)')
+  assert(!physicalCalls.some(call => call.phase === 'heartbeat_retry'),
+    'S2 schema retries are not misclassified as heartbeat retries')
+}
+
+function assertTimingLedgers(run) {
+  const physicalCalls = (run.apiCalls || []).flatMap(call => call.physicalCalls || [])
+  const firstTokenSumMs = physicalCalls.reduce((sum, call) => sum + (Number(call.firstTokenMs) || 0), 0)
+  const outputSumMs = physicalCalls.reduce((sum, call) => sum + (Number(call.outputMs) || 0), 0)
+  const retryPhases = ['retry', 'schema_retry', 'direct_retry', 'heartbeat_retry']
+  const retryCount = physicalCalls.filter(call => retryPhases.includes(call.phase)).length
+  assert(run.timingLedger, 'run timing ledger exists after finish')
+  assert(run.stepTimingLedger, 'step timing ledger exists after finish')
+  assert.equal(run.timingLedger.physicalCallCount, physicalCalls.length,
+    'run ledger counts every physical request')
+  assert.equal(run.stepTimingLedger.physicalCallCount, physicalCalls.length,
+    'step ledger counts every physical request')
+  assert.equal(run.timingLedger.retryPhysicalCallCount, retryCount,
+    `run ledger counts retry physical calls, got ${run.timingLedger.retryPhysicalCallCount}/${retryCount}`)
+  assert.equal(run.stepTimingLedger.retryCallCount, retryCount,
+    `step ledger counts retry physical calls, got ${run.stepTimingLedger.retryCallCount}/${retryCount}`)
+  assert.equal(run.stepTimingLedger.continuationCallCount,
+    physicalCalls.filter(call => call.phase === 'continuation').length,
+    'step ledger counts continuation calls independently')
+  assert.equal(run.timingLedger.firstTokenSumMs, firstTokenSumMs,
+    `run firstTokenSumMs matches the physical-call sum, got ${run.timingLedger.firstTokenSumMs}/${firstTokenSumMs}`)
+  assert.equal(run.stepTimingLedger.firstTokenSumMs, firstTokenSumMs,
+    `step firstTokenSumMs matches the physical-call sum, got ${run.stepTimingLedger.firstTokenSumMs}/${firstTokenSumMs}`)
+  assert.equal(run.timingLedger.outputSumMs, outputSumMs,
+    `run outputSumMs matches the physical-call sum, got ${run.timingLedger.outputSumMs}/${outputSumMs}`)
+  assert.equal(run.stepTimingLedger.outputSumMs, outputSumMs,
+    `step outputSumMs matches the physical-call sum, got ${run.stepTimingLedger.outputSumMs}/${outputSumMs}`)
+}
+
 function assertRequestDoesNotContain(messages, fragment, label) {
   const text = userText(messages)
   assert(!text.includes(fragment), `${label} must not contain ${fragment}; got request tail: ${text.slice(-500)}`)
@@ -645,6 +696,8 @@ async function runRejectScenario(page, provider) {
 
   assert.equal(requests.length, 4,
     `scenario A uses S1 once and S2 three times, got ${requests.length}`)
+  assertS2SchemaRetryLedger(run, 4)
+  assertTimingLedgers(run)
   assertRequestDoesNotContain(requests[0].messages, '目标约3500字', 'S1 request')
   for (const request of requests.slice(1)) {
     assert(userText(request.messages).includes('目标约3500字'),
@@ -694,8 +747,13 @@ async function runAcceptScenario(page, provider) {
 
   assert.equal(requests.length, 5,
     `scenario B uses S1 once, S2 three times, S3 once, got ${requests.length}`)
+  assertS2SchemaRetryLedger(run, 5)
   const s3Request = requests[4]
   const s3Prompt = userText(s3Request.messages)
+  assert(s3Prompt.includes(UPSTREAM_METADATA_HEADER),
+    'S3 request receives the structured upstream metadata handoff')
+  assert(s3Prompt.includes('extractedMeta: count='),
+    'S3 structured handoff summarizes the extracted metadata envelope')
   assertRequestDoesNotContain(s3Request.messages, '【正文交接】', 'S3 request')
   assert(s3Prompt.includes(bodyText(110).split('\n')[0]),
     'S3 request receives the extracted body, not the raw degraded output')
@@ -788,7 +846,10 @@ async function main() {
           runId: scenarioB.run?.id,
           requestCount: scenarioB.requests.length,
           extractedWordCount: 2200,
-          s3ReceivesExtractedFace: true,
+      s3ReceivesExtractedFace: true,
+      s3ReceivesStructuredHandoff: true,
+      s2SchemaRetryPhases: 2,
+      timingLedgerConsistency: 'call/run/step same-source sums',
         },
       },
       heartbeatFrames,

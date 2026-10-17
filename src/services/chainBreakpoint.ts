@@ -15,6 +15,7 @@ export type ChainBreakpointStepOutput = {
   skillId: string
   output: string
   outputHash?: string
+  metadata?: Record<string, unknown>
 }
 
 export type ChainBreakpoint = {
@@ -118,5 +119,12 @@ function normalizeStepOutputs(outputs?: ChainBreakpointStepOutput[]): ChainBreak
     Number.isInteger(output.skillIndex) &&
     typeof output.skillId === 'string' &&
     typeof output.output === 'string'
-  )
+  ).map(output => ({
+    ...output,
+    metadata: isPlainRecord(output.metadata) ? output.metadata : undefined
+  }))
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
