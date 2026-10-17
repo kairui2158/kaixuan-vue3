@@ -74,11 +74,12 @@ describe("chapter execution package", () => {
         degradedReason: null
       }
     })
-    const prompt = buildChapterExecutionPrompt(pkg, 3000)
+    const prompt = buildChapterExecutionPrompt(pkg)
     expect(prompt).toContain("[单元闭包卷纲]\n卷级常任 + 当前单元闭包")
     expect(prompt).toContain("[当前章节剧情点]\n雨夜 - 发现纸条")
     expect(prompt).toContain("[相关记忆]\n纸条伏笔")
-    expect(prompt).toContain("约3000字")
+    expect(prompt).not.toContain("约3000字")
+    expect(prompt).toContain("请执行本章节的正文生成链路。")
   })
 
   it("does not duplicate the body word contract for non-generation chain steps", () => {
@@ -99,8 +100,8 @@ describe("chapter execution package", () => {
         degradedReason: null
       }
     }
-    const prompt = buildChapterExecutionPrompt(createChapterExecutionPackage(base), 3000)
-    expect(prompt.match(/约3000字/g)).toHaveLength(1)
+    const prompt = buildChapterExecutionPrompt(createChapterExecutionPackage(base))
+    expect(prompt.includes('约3000字')).toBe(false)
   })
 
   it("renders forbidden final cards as a no-early-release block", () => {
@@ -123,7 +124,7 @@ describe("chapter execution package", () => {
       }
     })
 
-    const prompt = buildChapterExecutionPrompt(pkg, 3000)
+    const prompt = buildChapterExecutionPrompt(pkg)
     expect(prompt).toContain("[禁止提前释放]")
     expect(prompt).toContain("全书头号宿敌、母亲身世")
     expect(prompt).toContain("不得提前揭示")
@@ -148,7 +149,7 @@ describe("chapter execution package", () => {
         degradedReason: null
       }
     })
-    const prompt = buildChapterExecutionPrompt(pkg, 3000)
+    const prompt = buildChapterExecutionPrompt(pkg)
     expect(prompt).toContain("[单元闭包卷纲]\n卷级常任 + 当前单元闭包")
     expect(prompt).not.toContain("全书大纲")
   })
@@ -172,7 +173,7 @@ describe("chapter execution package", () => {
         degradedReason: "unit_not_found:找不到单元 D9-99"
       }
     })
-    expect(() => buildChapterExecutionPrompt(pkg, 3000)).toThrow(
+    expect(() => buildChapterExecutionPrompt(pkg)).toThrow(
       "正文上下文闭包为空，禁止回退全书大纲"
     )
   })
@@ -197,14 +198,13 @@ describe("chapter execution package", () => {
       }
     }
     const withPrev = buildChapterExecutionPrompt(
-      createChapterExecutionPackage({ ...base, prevChapterSummary: "主角逃离旧宅" }),
-      3000
+      createChapterExecutionPackage({ ...base, prevChapterSummary: "主角逃离旧宅" })
     )
     expect(withPrev).toContain("[上一章概要]\n主角逃离旧宅")
     expect(withPrev.indexOf("[当前卷概要]")).toBeLessThan(withPrev.indexOf("[上一章概要]"))
     expect(withPrev.indexOf("[上一章概要]")).toBeLessThan(withPrev.indexOf("[当前章节剧情点]"))
 
-    const firstChapter = buildChapterExecutionPrompt(createChapterExecutionPackage(base), 3000)
+    const firstChapter = buildChapterExecutionPrompt(createChapterExecutionPackage(base))
     expect(firstChapter).not.toContain("[上一章概要]")
   })
 })

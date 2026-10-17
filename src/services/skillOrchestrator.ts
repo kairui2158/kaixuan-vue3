@@ -1,6 +1,7 @@
 import { executeRealSkill } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
 import { formatSkillFallback } from './skillRouter'
+import { acceptStepArtifact } from './stepArtifactAcceptance'
 import type {
   RealSkillAgentContext,
   RealSkillDiagnostic,
@@ -323,14 +324,25 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
               apiMeta: lastApiMeta
             }
           }
+          const acceptance = acceptStepArtifact({
+            rawOutput: result.output,
+            contract: null,
+            callerStatus: 'degraded',
+            degradedErrors: result.errors
+          })
           transition('done', '降级输出保留')
           diagnostics.push(diagnostic(
             'warning',
             'step-degraded-with-output',
             `${child.id} 未通过校验但保留了可用输出，链路按降级完成继续`
           ))
-          currentInput = result.output
-          output = result.output
+          diagnostics.push(diagnostic(
+            'warning',
+            'step-artifact-no-contract',
+            `${child.id} 无产物契约，验收门按 no_contract 保留原始输出`
+          ))
+          currentInput = acceptance.downstreamPayload ?? ''
+          output = acceptance.downstreamPayload ?? ''
           break
         }
 

@@ -1,0 +1,85 @@
+{
+  "schema": "shenyi.body-contract-degraded-replay",
+  "version": 1,
+  "tracePath": "C:\\Users\\凯瑞\\Desktop\\SKILL调试文件\\run-trace-正文层-20261017-043758-deep\\run-trace.json",
+  "traceId": "run-1792183078760-1",
+  "historicalOutcome": {
+    "outcome": "failed",
+    "finalEvent": "generation_failed",
+    "attemptCount": 3,
+    "physicalModelCalls": 8,
+    "skillSequence": [
+      "S1-骨架师（文件夹）",
+      "S2-血肉师（文件夹）",
+      "S3-打磨师（文件夹）",
+      "S2-血肉师（文件夹）",
+      "S3-打磨师（文件夹）",
+      "S1-骨架师（文件夹）",
+      "S2-血肉师（文件夹）",
+      "S3-打磨师（文件夹）"
+    ],
+    "attempts": [
+      {
+        "repairAttempt": 0,
+        "repairScope": "none",
+        "status": "too_short",
+        "wordCount": 1654,
+        "targetWords": 3500,
+        "ratio": 0.4725714285714286,
+        "errors": [
+          "正文过短：1654字，要求不低于2100字"
+        ]
+      },
+      {
+        "repairAttempt": 1,
+        "repairScope": "targeted",
+        "status": "too_short",
+        "wordCount": 1971,
+        "targetWords": 3500,
+        "ratio": 0.5631428571428572,
+        "errors": [
+          "正文过短：1971字，要求不低于2100字"
+        ]
+      },
+      {
+        "repairAttempt": 2,
+        "repairScope": "full_chain",
+        "status": "too_short",
+        "wordCount": 2011,
+        "targetWords": 3500,
+        "ratio": 0.5745714285714286,
+        "errors": [
+          "正文过短：2011字，要求不低于2100字"
+        ]
+      }
+    ],
+    "degradedStep": "S2-血肉师（文件夹）",
+    "degradedErrors": [
+      "第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT或“新增事实：无”",
+      "第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT或“新增事实：无”",
+      "第 3/3 次输出未通过 postProcess 校验：FACT_LOCK缺字段：伤势",
+      "输出未通过校验，已达最大尝试次数 3"
+    ],
+    "stepAcceptanceEvents": 0
+  },
+  "currentOutcome": {
+    "outcome": "failed_at_generator_step",
+    "s3Invoked": false,
+    "rejectReason": "degraded_plus_contract_failure",
+    "callerStatus": "degraded",
+    "rawWordCount": 1654,
+    "extractedWordCount": 1654,
+    "minWords": 2100,
+    "downstreamCallsAfterReject": 0,
+    "evidence": [
+      "src/services/stepArtifactAcceptance.ts:acceptStepArtifact",
+      "src/services/stepArtifactFlow.spec.ts:degraded + contract-failure accident reason explicit",
+      "src/services/stepArtifactFlow.spec.ts:degraded 1654 words matrix case rejects and downstream=false"
+    ]
+  },
+  "regression": {
+    "source": "historical trace-derived facts + service behavior matrix",
+    "guard": "degraded caller + extracted body below contract floor must reject before S3",
+    "implementation": "stepArtifactAcceptance.acceptStepArtifact / resolveStepArtifactFlow"
+  }
+}

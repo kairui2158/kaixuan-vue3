@@ -1,0 +1,39 @@
+{
+  "schema": "shenyi.body-contract-degraded.electron",
+  "version": 1,
+  "generatedAt": "2026-10-17T01:02:56.806Z",
+  "script": "verify-body-contract-degraded-electron.mjs",
+  "projectId": "body-contract-degraded-gate",
+  "chapterId": "ch-body-contract-degraded",
+  "targetWords": 3500,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "5b3538e67730",
+    "buildTime": "2026-10-17T01:01:11.803Z"
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realDropdownSelection": "#pl-s5-skill / #pl-s5-add-skill / #pl-s5-skills-list",
+    "noInjectionImpersonation": true,
+    "physicalRequestSequenceAsserted": true
+  },
+  "scenarios": {
+    "reject-before-s3": {
+      "status": "failed",
+      "runId": "run-1792198975004-1",
+      "requestCount": 4,
+      "extractedWordCount": 1654,
+      "rejectReason": "degraded_plus_contract_failure"
+    },
+    "accept-and-extract": {
+      "status": "success",
+      "runId": "run-1792198975954-61",
+      "requestCount": 5,
+      "extractedWordCount": 2200,
+      "s3ReceivesExtractedFace": true
+    }
+  },
+  "heartbeatFrames": 3,
+  "heartbeatDurationMs": 2777
+}

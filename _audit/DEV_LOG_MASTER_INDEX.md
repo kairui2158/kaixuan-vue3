@@ -1002,3 +1002,14 @@
 - 验证：全量 170 files / 1978 tests、type-check、build:vue、真实 Electron UI 全过；首链 3 请求后 targeted 2 请求，S1 仅执行 1 次，attempt 2 为 `targeted/complete/2000字`。
 - 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live 矩阵；SKILL 层 S1 模板问题已转达；原始 021335 trace 未做逐 token 回放器。
 - 封装：版本升级 3.94.0；`package.json` 与 `package-lock.json` 同步；既有 chunk 超限与 `vite.protocols.config.mts` `__dirname` warning 保持登记不修。
+
+# 2026-10-17 正文层降级越权与产物契约收口
+
+- 文件：[_audit/DEV_LOG_2026-10-17_body-contract-degraded-gate.md](_audit/DEV_LOG_2026-10-17_body-contract-degraded-gate.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-17_body-contract-degraded-gate.md](_audit/TASK_LEDGERS/2026-10-17_body-contract-degraded-gate.md)
+- 方案：[_audit/PROPOSAL_2026-10-17_BODY_CONTRACT_DEGRADED_GATE_ROOT_CLOSURE.md](_audit/PROPOSAL_2026-10-17_BODY_CONTRACT_DEGRADED_GATE_ROOT_CLOSURE.md)
+- 跨层审计：[_audit/CROSS_LAYER_DEGRADED_AUDIT_2026-10-17.md](_audit/CROSS_LAYER_DEGRADED_AUDIT_2026-10-17.md)
+- 范围：单源 `stepArtifactAcceptance` 验收门、生成步契约注入、degraded envelope、S3 只消费提取面、attempt 决策台账、`skillOrchestrator` 局部放行规则清除、复合 SKILL `no_contract` 边界、经验 v8.14。
+- 范围补口：收尾复跑发现无 SKILL compose 未被识别为唯一生成步；修复 `null` / `0` 语义、compose 契约注入与验收台账，compose 契约失败时修复决策权交回编排器；经验升级 v8.15。
+- 验证：定向 4 files / 67 tests；历史事故回放 PASSED（旧 `generation_failed` 在生成步以 `degraded_plus_contract_failure` 阻断且 S3 零调用）；真实 Electron UI PASSED（拒绝场景 S3 零调用且 run failed，通过场景 S3 一次调用且 warning 保留）；全量 172 files / 1998 tests、type-check、build:vue、body-repair / owner-breakpoint / postprocess 双工作台 Electron 回归全部通过。
+- 诚实边界：Electron 为本地 OpenAI-compatible provider，非外部 live 矩阵；原始 043758 trace 未做逐 token 回放器；SKILL 提示词内容未修改；postProcess 证据位于 `output/playwright/postprocess-terminal-ui/`。

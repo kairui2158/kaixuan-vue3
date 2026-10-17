@@ -24,8 +24,15 @@ describe('owner breakpoint lifecycle closure wiring', () => {
   })
 
   it('keeps body length contracts at the generation step', () => {
-    expect(source).toContain("type: 'body-chain-contract-failed'")
+    expect(source).toContain("type: 'body-generator-step-rejected'")
     expect(source).toContain('isBodyContractStep({')
+    expect(source).toContain('bodyGeneratorContractSentence(')
+  })
+
+  it('keeps the no-skill compose call a first-class unique body generator step', () => {
+    expect(source).toContain("declaredRole: 'generator'")
+    expect(source).toContain('composeArtifactContext')
+    expect(source).toContain('currentBodyGeneratorStepIndex.value = 0')
   })
 
   it('passes the orchestrator execution plan into every body API call', () => {

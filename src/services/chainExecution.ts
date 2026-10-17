@@ -30,6 +30,15 @@ export interface BodyContractStepInput {
   declaredRole?: string | null
 }
 
+/** The prose word contract belongs to the generator step, not the base package. */
+export function bodyGeneratorContractSentence(targetWords: unknown): string {
+  const target = Math.max(0, Math.round(Number(targetWords) || 0))
+  if (!target) return ''
+  const min = Math.max(1, Math.round(target * 0.6))
+  const max = Math.round(target * 2)
+  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。只输出正文本身。`
+}
+
 export const MEMORY_PROMPT_HEADER = "[相关记忆]"
 const PREVIOUS_OUTPUT_HEADER = "--- 上一步 SKILL 完整输出 ---"
 const OUTLINE_HEADER = "[大纲]"

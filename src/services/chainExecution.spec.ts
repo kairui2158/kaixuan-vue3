@@ -8,6 +8,7 @@ import {
   formatMemoryPrompt,
   getChainEchoWarningLevel,
   isBodyContractStep,
+  bodyGeneratorContractSentence,
   shouldRepairChainEcho,
   slimChainUpstreamPrompt,
   templateReferencesPreviousOutput
@@ -188,6 +189,14 @@ describe("body chain execution contract", () => {
       totalSteps: 2,
       declaredRole: 'analysis'
     })).toBe(false)
+  })
+
+  it("renders one deterministic body contract sentence for generator steps only", () => {
+    const sentence = bodyGeneratorContractSentence(3500)
+    expect(sentence).toBe("请生成本章节正文，目标约3500字（不低于2100字，不超过7000字）。只输出正文本身。")
+    expect(bodyGeneratorContractSentence(null)).toBe("")
+    expect(bodyGeneratorContractSentence(undefined)).toBe("")
+    expect(bodyGeneratorContractSentence(0)).toBe("")
   })
 
   it("keeps S1 full upstream context and slims later steps deterministically", () => {

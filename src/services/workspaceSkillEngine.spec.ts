@@ -369,6 +369,18 @@ describe('workspace skill engine', () => {
       runStatus: 'blocked',
       eventReason: 'post-process-blocked',
     })
+
+    expect(resolvePostProcessTerminalStatus({
+      applied: false,
+      changedOutput: false,
+      output: '',
+      issues: [{ severity: 'info', code: 'degraded', message: 'postProcess 降级保留输出' }],
+      durationMs: 2,
+    })).toMatchObject({
+      processingStatus: 'warning',
+      runStatus: 'success_with_warnings',
+      eventReason: 'post-process-warning',
+    })
   })
 
   it('maps skill injection modes and merges compose parts', () => {

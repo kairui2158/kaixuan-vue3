@@ -123,8 +123,9 @@ export function planBodyArtifactExecution(input: {
   finalStepRole?: string | null
   totalSteps?: number | null
 }): BodyArtifactExecutionPlan {
-  const generatorIndexCandidate = Number(input.generatorStepIndex)
-  const hasGeneratorIndex = Number.isFinite(generatorIndexCandidate) && generatorIndexCandidate > 0
+  const generatorIndexCandidate = input.generatorStepIndex ?? null
+  const hasGeneratorIndex = generatorIndexCandidate !== null &&
+    Number.isFinite(generatorIndexCandidate) && generatorIndexCandidate >= 0
   const generatorRole = input.generatorDeclaredRole === 'generator'
   const fallbackGeneratorIndex = input.finalStepRole === 'polish' &&
     Number.isFinite(Number(input.totalSteps)) && Number(input.totalSteps) > 2

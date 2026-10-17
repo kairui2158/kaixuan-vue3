@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-b-accept",
+  "runId": "run-1792198975954-61",
+  "runStatus": "success",
+  "requestCount": 5,
+  "heartbeatFrames": 1,
+  "screenshots": [
+    "scenario-b-success.png"
+  ]
+}

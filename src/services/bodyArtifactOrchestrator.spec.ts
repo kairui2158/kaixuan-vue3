@@ -249,6 +249,22 @@ describe('planBodyArtifactExecution', () => {
     })).toMatchObject({ topology: 'generator_step', startIndex: 1, reuseArtifacts: true })
   })
 
+  it('treats the compose single call as the unique generator step', () => {
+    expect(planBodyArtifactExecution({
+      repairScope: 'targeted',
+      generatorStepIndex: 0,
+      generatorDeclaredRole: 'generator',
+      finalStepRole: 'polish',
+      totalSteps: 1
+    })).toEqual({
+      topology: 'generator_step',
+      startIndex: 0,
+      targetRole: 'generator',
+      reuseArtifacts: true,
+      disableBreakpointReplay: true
+    })
+  })
+
   it('does not guess a targeted topology without a generator anchor', () => {
     expect(planBodyArtifactExecution({
       repairScope: 'targeted',

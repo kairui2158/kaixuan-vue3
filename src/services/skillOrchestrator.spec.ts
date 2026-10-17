@@ -312,6 +312,10 @@ describe('skillOrchestrator composite', () => {
     expect(result.output).toBe('后续步骤输出')
     expect(result.steps.map(step => step.status)).toEqual(['done', 'done'])
     expect(result.diagnostics.some(item => item.code === 'step-degraded-with-output')).toBe(true)
+    expect(result.diagnostics.some(item =>
+      item.code === 'step-artifact-no-contract'
+      && item.message.includes('no_contract')
+    )).toBe(true)
   })
 
   it('blocks a degraded step when no usable output remains', async () => {

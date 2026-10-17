@@ -1,2 +1,2 @@
-{"at":"2026-10-16T19:51:56.047Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":1044,"frame":1}
-{"at":"2026-10-16T19:51:57.055Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":1044,"frame":2}
+{"at":"2026-10-17T01:02:13.804Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":9852,"frame":1}
+{"at":"2026-10-17T01:02:14.821Z","runId":"run-1792198934788-1","runStatus":"running","lastEventType":"prompt-built","progress":20,"status":"API 生成正文中（已注入降AI约束）","isGenerating":true,"electronPid":9852,"frame":2}

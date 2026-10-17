@@ -769,7 +769,7 @@ import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateO
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import type { ChainBreakpointStepOutput } from "../../services/chainBreakpoint"
-import { isBodyContractStep } from "../../services/chainExecution"
+import { bodyGeneratorContractSentence, isBodyContractStep } from "../../services/chainExecution"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
@@ -788,8 +788,13 @@ import { generateSettingsArtifact } from "../../services/settingsArtifactOrchest
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
 import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
 import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
-import { countBodyWords, validateBodyArtifact } from "../../services/bodyArtifactContract"
+import { countBodyWords } from "../../services/bodyArtifactContract"
 import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
+import {
+  makeStepArtifactEnvelope,
+  resolveStepArtifactFlow,
+  type StepArtifactAcceptanceResult
+} from "../../services/stepArtifactAcceptance"
 import { hashEditorContent } from "../../services/editorTarget"
 import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
 import {
@@ -2014,7 +2019,13 @@ async function callValidatedSkill(
   validateOutputSchema: boolean = false,
   chainUpstreamContext: string | undefined = undefined,
   chainSkillIndex: number | undefined = undefined,
-  chainSkillCount: number | undefined = undefined
+  chainSkillCount: number | undefined = undefined,
+  stepArtifactContext?: {
+    stepIndex: number
+    totalSteps: number
+    declaredRole: string | null
+    targetWords: number | null
+  }
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
   if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
@@ -2259,7 +2270,7 @@ async function callValidatedSkill(
       }
       finishFolderTraceFromResult(route.folderResult)
       if (folderStatus === "degraded") {
-        if (!route.folderResult.output.trim()) {
+        if (!stepArtifactContext && !route.folderResult.output.trim()) {
           const errors = route.folderResult.errors.length
             ? route.folderResult.errors.join("；")
             : "folder SKILL 降级且无有效输出"
@@ -2281,7 +2292,13 @@ async function callValidatedSkill(
         }
         appendStepLog(step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
       }
-      return route.folderResult.output
+      return folderStatus === "degraded" && stepArtifactContext
+        ? makeStepArtifactEnvelope({
+            status: folderStatus,
+            output: route.folderResult.output,
+            errors: route.folderResult.errors
+          })
+        : route.folderResult.output
     }
     if (route.fallbackReason) {
       const detail = formatSkillFallback(route.fallback) || route.fallbackReason
@@ -3042,6 +3059,44 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         previousSkillOutput: previousOutput,
         prevResponse: previousOutput
       }
+      const bodyStepContext = step === 4 && currentBodyChainContract.value
+        ? {
+            stepIndex: si,
+            totalSteps: templates.length,
+            declaredRole: templateMeta?.chainHandoff?.role || null,
+            targetWords: currentBodyChainContract.value.targetWords
+          }
+        : undefined
+      const isGeneratorStep = bodyStepContext
+        ? isBodyContractStep({
+            step,
+            stepIndex: bodyStepContext.stepIndex,
+            totalSteps: bodyStepContext.totalSteps,
+            declaredRole: bodyStepContext.declaredRole
+          })
+        : false
+      if (bodyStepContext && isGeneratorStep) {
+        if (currentBodyGeneratorStepIndex.value === null) {
+          currentBodyGeneratorStepIndex.value = si
+        }
+        if (currentBodyGeneratorStepIndex.value !== si) {
+          runTraceStore.addEvent(runTraceStore.currentRunId!, {
+            type: 'body-generator-step-unresolved',
+            level: 'error',
+            label: '正文生成步骤无法唯一识别',
+            detail: JSON.stringify({
+              reason: 'generator_index_changed_within_attempt',
+              previousIndex: currentBodyGeneratorStepIndex.value,
+              currentIndex: si,
+              totalSteps: templates.length
+            })
+          })
+          throw new Error('正文生成步骤无法唯一识别，禁止向所有步骤注入正文契约')
+        }
+      }
+      const generatorPromptSuffix = isGeneratorStep && bodyStepContext?.targetWords
+        ? bodyGeneratorContractSentence(bodyStepContext.targetWords)
+        : ''
       const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       if (si > 0 && runTraceStore.currentRunId) {
         const fullReason = templateMeta?.chainHandoff?.reason?.trim() || ""
@@ -3127,7 +3182,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           step,
           t,
           injection,
-          nextPrompt,
+          generatorPromptSuffix ? `${nextPrompt}\n\n${generatorPromptSuffix}` : nextPrompt,
           { ...ctxForSkill, previousOutput },
           timeoutMs,
           skillAgentId,
@@ -3137,7 +3192,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           si < templates.length - 1,
           upstreamPrompt.prompt,
           si,
-          templates.length
+          templates.length,
+          bodyStepContext
         )
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
@@ -3228,31 +3284,39 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           })
         }
         if (
-          isBodyContractStep({
-            step,
-            stepIndex: si,
-            totalSteps: templates.length,
-            declaredRole: templateMeta?.chainHandoff?.role || null
-          }) &&
+          isGeneratorStep &&
           currentBodyChainContract.value
         ) {
-          const bodyValidation = validateBodyArtifact(stepOutput, currentBodyChainContract.value)
-          if (!bodyValidation.valid) {
+          const artifactFlow = resolveStepArtifactFlow({
+            stepOutput,
+            stepIndex: si,
+            contract: currentBodyChainContract.value
+          })
+          const acceptance = artifactFlow.acceptance
+          rememberBodyStepAcceptance(si, acceptance)
+          if (runTraceStore.currentRunId) {
+            runTraceStore.addEvent(runTraceStore.currentRunId, {
+              type: 'body-step-acceptance',
+              level: acceptance.decision === 'accept' ? (acceptance.errors.length ? 'warn' : 'info') : 'error',
+              label: `正文生成步骤 ${si + 1}/${templates.length} 统一验收`,
+              detail: JSON.stringify(artifactFlow.traceDetail)
+            })
+          }
+          if (acceptance.decision === 'reject') {
             if (runTraceStore.currentRunId) {
               runTraceStore.addEvent(runTraceStore.currentRunId, {
-                type: 'body-chain-contract-failed',
+                type: 'body-generator-step-rejected',
                 level: 'error',
-                label: `正文生成步骤 ${si + 1}/${templates.length} 契约失败`,
+                label: `正文生成步骤 ${si + 1}/${templates.length} 拒绝流转`,
                 detail: JSON.stringify({
-                  attemptChapterId: currentBodyChainContract.value.chapterId,
-                  targetWords: currentBodyChainContract.value.targetWords,
-                  wordCount: bodyValidation.wordCount,
-                  errors: bodyValidation.errors
+                  reason: artifactFlow.failure?.reason,
+                  errors: acceptance.errors
                 })
               })
             }
-            throw new Error(`正文生成步骤契约失败：${bodyValidation.errors.join('；')}`)
+            throw new Error(artifactFlow.failure?.message || '正文生成步骤验收失败')
           }
+          stepOutput = artifactFlow.downstreamPayload || ''
         }
         current = stepOutput
         chainCtx.prevResponse = current
@@ -3537,7 +3601,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   } else if (folderSkills.length === 1 && templates.some((t) => getStepSkillAgentId(step, t.id))) {
     appendStepLog(step, "compose 提示：并行模式下技能级智能体不会生效，本层将使用智能体配置执行文件夹技能")
   }
-  const composePrompt = generationPrompt
+  let composePrompt = generationPrompt
   let result: string
   const composeTemplate: PipelineSkillTemplate = {
     id: "compose",
@@ -3550,7 +3614,70 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     validationRules: templates.flatMap(t => t.validationRules || []),
     retryPolicy: templates.reduce((max, t) => Math.max(max, getSkillMaxAttempts(t.retryPolicy)), 1)
   }
-  result = await callValidatedSkill(step, composeTemplate, merged, composePrompt, baseCtx, timeoutMs, undefined, combined)
+  const composeArtifactContext = step === 4 && currentBodyChainContract.value
+    ? {
+        stepIndex: 0,
+        totalSteps: Math.max(1, templates.length),
+        declaredRole: 'generator',
+        targetWords: currentBodyChainContract.value.targetWords
+      }
+    : undefined
+  if (composeArtifactContext) {
+    currentBodyGeneratorStepIndex.value = 0
+    composePrompt += bodyGeneratorContractSentence(composeArtifactContext.targetWords)
+  }
+  result = await callValidatedSkill(
+    step,
+    composeTemplate,
+    merged,
+    composePrompt,
+    baseCtx,
+    timeoutMs,
+    undefined,
+    combined,
+    undefined,
+    undefined,
+    false,
+    undefined,
+    undefined,
+    undefined,
+    composeArtifactContext
+  )
+  if (composeArtifactContext && currentBodyChainContract.value) {
+    const artifactFlow = resolveStepArtifactFlow({
+      stepOutput: result,
+      stepIndex: 0,
+      contract: currentBodyChainContract.value
+    })
+    const acceptance = artifactFlow.acceptance
+    rememberBodyStepAcceptance(0, acceptance)
+    if (runTraceStore.currentRunId) {
+      runTraceStore.addEvent(runTraceStore.currentRunId, {
+        type: 'body-step-acceptance',
+        level: acceptance.decision === 'accept' ? (acceptance.errors.length ? 'warn' : 'info') : 'error',
+        label: `正文生成步骤 1/${Math.max(1, templates.length)} 统一验收`,
+        detail: JSON.stringify(artifactFlow.traceDetail)
+      })
+    }
+    if (acceptance.decision === 'reject') {
+      if (runTraceStore.currentRunId) {
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: 'body-generator-step-rejected',
+          level: 'error',
+          label: `正文生成步骤 1/${Math.max(1, templates.length)} 拒绝流转`,
+          detail: JSON.stringify({
+            reason: artifactFlow.failure?.reason,
+            errors: acceptance.errors
+          })
+        })
+      }
+      // Compose has no downstream chain step. Returning the raw output lets
+      // generateBodyArtifact own repair attempts; throwing here would turn a
+      // repairable short draft into an immediate terminal API error.
+      return result
+    }
+    result = artifactFlow.downstreamPayload || ''
+  }
   return result
 }
 
@@ -3710,6 +3837,19 @@ async function genSettings() {
 }
 
 const currentBodyChainContract = shallowRef<BodyArtifactContract | null>(null)
+const currentBodyGeneratorStepIndex = shallowRef<number | null>(null)
+const currentBodyStepAcceptance = shallowRef<StepArtifactAcceptanceResult[]>([])
+
+function rememberBodyStepAcceptance(stepIndex: number, acceptance: StepArtifactAcceptanceResult) {
+  const next = currentBodyStepAcceptance.value.filter(item => item.stepIndex !== stepIndex)
+  next.push({ ...acceptance, stepIndex })
+  currentBodyStepAcceptance.value = next
+}
+
+function resetBodyStepAcceptance() {
+  currentBodyStepAcceptance.value = []
+  currentBodyGeneratorStepIndex.value = null
+}
 
 function resolveBodyGeneratorStepIndex(): { index: number | null; role: 'generator' | null } {
   const templates = getStepSkillTemplates(4)
@@ -4340,7 +4480,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       ]
     })
     ch.chapterExecutionPackage = executionPackage
-    const prompt = buildChapterExecutionPrompt(executionPackage, _bodyWordsPerChapter)
+    const prompt = buildChapterExecutionPrompt(executionPackage)
     trace.addEvent({
       type: "prompt-built",
       level: "info",
@@ -4372,6 +4512,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         const runAtStart = runId ? runTraceStore.getRun(runId) : null
         const apiCallsAtStart = runAtStart?.apiCalls.length ?? 0
         const eventsAtStart = runAtStart?.events.length ?? 0
+        resetBodyStepAcceptance()
         const executionPlan = {
           ...context.executionPlan,
           upstreamStepOutputs: previousBodyStepOutputs,
@@ -4384,6 +4525,20 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           "你是小说写作专家。请基于章节剧情点生成正文。",
           executionPlan
         ).then(text => {
+          if (currentBodyChainContract.value && currentBodyGeneratorStepIndex.value === null) {
+            if (trace.runId) {
+              runTraceStore.addEvent(trace.runId, {
+                type: 'body-generator-step-unresolved',
+                level: 'error',
+                label: '正文生成步骤无法唯一识别',
+                detail: JSON.stringify({
+                  reason: 'generator_not_identified',
+                  totalSteps: getStepSkillTemplates(4).length
+                })
+              })
+            }
+            throw new Error('正文生成步骤无法唯一识别，禁止向所有步骤注入正文契约')
+          }
           const runAfter = runId ? runTraceStore.getRun(runId) : null
           const physicalRequests = Math.max(
             0,
@@ -4420,7 +4575,26 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             validationMs: attempt.validationMs,
             errors: attempt.errors,
             bodyPreview: (attempt.body || '').slice(0, 200),
-            requestFingerprint: attempt.metadata?.requestFingerprint
+            requestFingerprint: attempt.metadata?.requestFingerprint,
+            generatorStepIndex: currentBodyGeneratorStepIndex.value,
+            stepAcceptanceDecisions: currentBodyStepAcceptance.value.map(item => ({
+              stepIndex: item.stepIndex,
+              callerStatus: item.callerStatus,
+              decision: item.decision,
+              reason: item.reason,
+              rawWordCount: item.rawWordCount,
+              extractedWordCount: item.extractedWordCount,
+              errors: item.errors
+            })),
+            degradedSteps: currentBodyStepAcceptance.value
+              .filter(item => item.callerStatus === 'degraded')
+              .map(item => ({
+                stepIndex: item.stepIndex,
+                errors: item.errors
+              })),
+            rawVsExtractedDelta: currentBodyStepAcceptance.value.reduce((total, item) => (
+              total + Math.max(0, item.rawWordCount - item.extractedWordCount)
+            ), 0)
           })
         })
       }

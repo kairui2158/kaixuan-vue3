@@ -140,7 +140,7 @@ export function createChapterExecutionPackage(input: ChapterExecutionPackageInpu
   }
 }
 
-export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage, targetWords: unknown): string {
+export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage): string {
   if (!pkg.contextScope?.closure) {
     throw new Error("正文上下文闭包为空，禁止回退全书大纲")
   }
@@ -164,5 +164,5 @@ export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage, target
     + prevChapter
     + "\n\n[当前章节剧情点]\n" + pkg.chapter.title + " - " + pkg.chapter.plot
     + memory
-    + "\n\n请为本章节生成约" + text(targetWords) + "字的正文内容。"
+    + "\n\n请执行本章节的正文生成链路。"
 }
