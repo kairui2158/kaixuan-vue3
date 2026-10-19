@@ -1,0 +1,207 @@
+[
+  {
+    "Path": "export.json",
+    "Hash": "EC143FB884DA9B5C62499AA83FD289B2109114E0CB9802A64406A7E8E148A501",
+    "Bytes": 1233396
+  },
+  {
+    "Path": "run-trace.json",
+    "Hash": "3AD88DF8E0F467046ECA327BB2395854E9468135CF911426F629DDCBA12525DA",
+    "Bytes": 1221952
+  },
+  {
+    "Path": "payloads\\001-request.json",
+    "Hash": "48AB066487A1410958561FA4E464E67493C384E451DF94F0695C1F0926C8D52A",
+    "Bytes": 163644
+  },
+  {
+    "Path": "payloads\\002-response.json",
+    "Hash": "630DBD9F0C6B1CA317CB5F7F0916E388BFDFEDA5D5F4813468831AC00D8FC2F0",
+    "Bytes": 7233
+  },
+  {
+    "Path": "payloads\\003-stream.json",
+    "Hash": "FA1A0A494A39F9431592AFBF28757632CA4BEE09114BE25818B4382DD6314169",
+    "Bytes": 7236
+  },
+  {
+    "Path": "payloads\\004-reasoning.json",
+    "Hash": "FCBC2850B02753825D99A18C3CEEF5DA6DAD14F3B72F0F2396426F612E9A3E14",
+    "Bytes": 33324
+  },
+  {
+    "Path": "payloads\\005-stream.json",
+    "Hash": "630DBD9F0C6B1CA317CB5F7F0916E388BFDFEDA5D5F4813468831AC00D8FC2F0",
+    "Bytes": 7233
+  },
+  {
+    "Path": "payloads\\006-request.json",
+    "Hash": "8F92AB06E9E8897F6788E6D6690600B0FD8FE194B4416424EE915B24538AECFB",
+    "Bytes": 165952
+  },
+  {
+    "Path": "payloads\\007-response.json",
+    "Hash": "1D136DFEBD8AB70AED6D48A472F4A11B98E6410D5BDFF09D118267BE42C8EB56",
+    "Bytes": 13813
+  },
+  {
+    "Path": "payloads\\008-stream.json",
+    "Hash": "08B2DF4DD2E4091BF075E5C4EE0DF7227DC988CE8BCF7AB6DDA7218D71CF8377",
+    "Bytes": 42673
+  },
+  {
+    "Path": "payloads\\009-reasoning.json",
+    "Hash": "B0F699507F328D1EFD91FCE53EC097AFE61C8A414FD22F03B0AADB8CB596FBF7",
+    "Bytes": 46642
+  },
+  {
+    "Path": "payloads\\010-request.json",
+    "Hash": "3F1E170976C4653FC54C896C9D5DC70664C89E3DF48E23281FDB2A49D9DA6914",
+    "Bytes": 154566
+  },
+  {
+    "Path": "payloads\\011-response.json",
+    "Hash": "11D85B51C28DDC79C3B7BC498EE6384F8C549928645E84778CE865113B648924",
+    "Bytes": 10719
+  },
+  {
+    "Path": "payloads\\012-stream.json",
+    "Hash": "11D85B51C28DDC79C3B7BC498EE6384F8C549928645E84778CE865113B648924",
+    "Bytes": 10719
+  },
+  {
+    "Path": "payloads\\013-reasoning.json",
+    "Hash": "B92874D71EE4BC8A6A527E7FAFB2134EE45F505AFBD8E39355D20F7325AFBF04",
+    "Bytes": 28416
+  },
+  {
+    "Path": "payloads\\014-request.json",
+    "Hash": "A93F92A8721CE2267F163CC9C21DB53012928B84716CEAB2445727C99AE89BEC",
+    "Bytes": 165814
+  },
+  {
+    "Path": "payloads\\015-response.json",
+    "Hash": "743F2CED7F4A8DDB4E51CF89E8DB9FC6521A9013C6F7992955285C92831C6F22",
+    "Bytes": 10857
+  },
+  {
+    "Path": "payloads\\016-stream.json",
+    "Hash": "743F2CED7F4A8DDB4E51CF89E8DB9FC6521A9013C6F7992955285C92831C6F22",
+    "Bytes": 10857
+  },
+  {
+    "Path": "payloads\\017-reasoning.json",
+    "Hash": "38461F3B41734A1C178DF99C0CCF3463301D864F214F42B5CDD6AE349A3F7E45",
+    "Bytes": 4444
+  },
+  {
+    "Path": "payloads\\018-stream.json",
+    "Hash": "1D136DFEBD8AB70AED6D48A472F4A11B98E6410D5BDFF09D118267BE42C8EB56",
+    "Bytes": 13813
+  },
+  {
+    "Path": "payloads\\019-reasoning.json",
+    "Hash": "BB941BD98586F45B009AD8FD804ADADB7F14E4A1A385D0DF691F993B290C425F",
+    "Bytes": 13782
+  },
+  {
+    "Path": "payloads\\020-request.json",
+    "Hash": "F31F2750FC5FA52302C81CDD85223E58EBDB6FC2AFB6F0FC0E3CE6AFBA727266",
+    "Bytes": 160152
+  },
+  {
+    "Path": "payloads\\021-response.json",
+    "Hash": "2E0EAF4CB479CAF82CC301479E635F8BCF8771575606B2CAC74B049595B460C8",
+    "Bytes": 13775
+  },
+  {
+    "Path": "payloads\\022-stream.json",
+    "Hash": "486A3A5BD13C8A863E93F1B562DF10EFF8C04C1BD854EC0B6C55DB375871F2CC",
+    "Bytes": 69222
+  },
+  {
+    "Path": "payloads\\023-reasoning.json",
+    "Hash": "C9C196D45D01C9653324D90C3E55D6E242842168AEFEF16D693C400A9CF08CDB",
+    "Bytes": 66661
+  },
+  {
+    "Path": "payloads\\024-request.json",
+    "Hash": "81925BD8A7BB3BED5142267238FA1A9DAA57B1C96EE58FD34E26886C5F690227",
+    "Bytes": 146744
+  },
+  {
+    "Path": "payloads\\025-response.json",
+    "Hash": "57443D0448ADE1ED530695C0F783045E0486EBE7D7A1E9BD030BA4EE34C82D13",
+    "Bytes": 12819
+  },
+  {
+    "Path": "payloads\\026-stream.json",
+    "Hash": "57443D0448ADE1ED530695C0F783045E0486EBE7D7A1E9BD030BA4EE34C82D13",
+    "Bytes": 12819
+  },
+  {
+    "Path": "payloads\\027-reasoning.json",
+    "Hash": "DBF47FB20D3FD1C214C161C5BF1A583D11269D0696F41382B6E8A9A4EDCEF25A",
+    "Bytes": 55958
+  },
+  {
+    "Path": "payloads\\028-stream.json",
+    "Hash": "2E0EAF4CB479CAF82CC301479E635F8BCF8771575606B2CAC74B049595B460C8",
+    "Bytes": 13775
+  },
+  {
+    "Path": "payloads\\029-reasoning.json",
+    "Hash": "7D5ADF464B6EA39F12DBC45E07CD28C767C7C497F5F3F46419009CC819AB6B67",
+    "Bytes": 10703
+  },
+  {
+    "Path": "payloads\\030-processing-input.json",
+    "Hash": "726472F787021DB1342313F2249DA549CE430E8B15CAD5D59C3DE19A10FAA53C",
+    "Bytes": 1456
+  },
+  {
+    "Path": "payloads\\031-processing-output.json",
+    "Hash": "703FDBB831B9826F1F4319EED5842F39BD52AC4BBF61C32E78E3F4511E6BBC5C",
+    "Bytes": 1436
+  },
+  {
+    "Path": "payloads\\032-processing-output.json",
+    "Hash": "630DBD9F0C6B1CA317CB5F7F0916E388BFDFEDA5D5F4813468831AC00D8FC2F0",
+    "Bytes": 7233
+  },
+  {
+    "Path": "payloads\\033-processing-output.json",
+    "Hash": "D40D16A9E852FA67988415E6BD848E0DF1AEA0D3596B5A82060DE1DCD9B29092",
+    "Bytes": 1488
+  },
+  {
+    "Path": "payloads\\034-processing-output.json",
+    "Hash": "F01A04886D84F3DA82B5580C1B5F040F730DAF2B0BEC492C4B669937D5ACE0B7",
+    "Bytes": 12277
+  },
+  {
+    "Path": "payloads\\035-folder-output.json",
+    "Hash": "630DBD9F0C6B1CA317CB5F7F0916E388BFDFEDA5D5F4813468831AC00D8FC2F0",
+    "Bytes": 7233
+  },
+  {
+    "Path": "payloads\\036-folder-output.json",
+    "Hash": "1D136DFEBD8AB70AED6D48A472F4A11B98E6410D5BDFF09D118267BE42C8EB56",
+    "Bytes": 13813
+  },
+  {
+    "Path": "payloads\\037-processing-output.json",
+    "Hash": "1D136DFEBD8AB70AED6D48A472F4A11B98E6410D5BDFF09D118267BE42C8EB56",
+    "Bytes": 13813
+  },
+  {
+    "Path": "payloads\\038-folder-output.json",
+    "Hash": "2E0EAF4CB479CAF82CC301479E635F8BCF8771575606B2CAC74B049595B460C8",
+    "Bytes": 13775
+  },
+  {
+    "Path": "payloads\\039-processing-output.json",
+    "Hash": "2E0EAF4CB479CAF82CC301479E635F8BCF8771575606B2CAC74B049595B460C8",
+    "Bytes": 13775
+  }
+]

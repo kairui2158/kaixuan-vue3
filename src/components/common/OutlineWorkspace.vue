@@ -2632,12 +2632,24 @@ async function handleStyleAnalysisRequest(event: Event) {
       publishOutlineStyleAnalysisResult({ sourceId: payload.sourceId, host: 'outline', report })
     }
   }
+  const messagesToCall = [
+    { role: 'system', content: STYLE_ANALYSIS_SYSTEM_PROMPT },
+    { role: 'user', content: buildStyleAnalysisUserPrompt(outlineText) },
+  ]
+  const apiCallId = runTraceStore.startApiCall(runId, {
+    turnId,
+    step: 0,
+    skillName: '创作风格 AI 分析',
+    providerId: provider.id,
+    providerName: provider.name,
+    model,
+    temperature: 0.2,
+    intent: 'analyze',
+    requestMessages: messagesToCall,
+    actualToolSurface: [],
+  })
   try {
     const aiService = await getAiService()
-    const messagesToCall = [
-      { role: 'system', content: STYLE_ANALYSIS_SYSTEM_PROMPT },
-      { role: 'user', content: buildStyleAnalysisUserPrompt(outlineText) },
-    ]
     const response = await aiService.callAi({
       purpose: 'generate',
       messages: messagesToCall,
@@ -2645,8 +2657,43 @@ async function handleStyleAnalysisRequest(event: Event) {
       temperature: 0.2,
       stream: false,
       retry: true,
+      onPhysicalCall: (event) => {
+        if (!apiCallId) return
+        runTraceStore.appendPhysicalCall(runId, apiCallId, {
+          physicalCallId: event.physicalCallId,
+          phase: event.phase,
+          status: event.status,
+          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+          responseText: event.responseText || '',
+          streamText: event.streamText || '',
+          reasoningText: event.reasoningText || '',
+          finishReason: event.finishReason,
+          usage: event.usage,
+          durationMs: event.durationMs,
+          error: event.error,
+          toolsEnabled: event.toolsEnabled,
+          toolsDowngraded: event.toolsDowngraded,
+          downgradeReason: event.downgradeReason,
+          maxTokens: event.maxTokens,
+          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+          firstTokenMs: event.firstTokenMs,
+          outputMs: event.outputMs,
+        })
+      },
       meta: { source: 'OutlineWorkspace.style-analysis' },
     })
+    if (apiCallId) {
+      runTraceStore.finishApiCall(runId, apiCallId, {
+        status: response.text ? 'success' : 'failed',
+        responseText: response.text || '',
+        reasoningText: response.reasoning || '',
+        finishReason: response.finishReason,
+        usage: response.usage,
+        durationMs: response.durationMs,
+        error: response.text ? undefined : '模型没有返回风格分析结果',
+      })
+    }
     const responseText = response.text || ''
     const report = parseStyleAnalysis(responseText)
     addOutlineStyleAnalysisEvent({
@@ -2669,6 +2716,12 @@ async function handleStyleAnalysisRequest(event: Event) {
     finishAnalysis('success', report)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
+    if (apiCallId) {
+      runTraceStore.finishApiCall(runId, apiCallId, {
+        status: 'failed',
+        error: message,
+      })
+    }
     addOutlineStyleAnalysisEvent({
       type: 'style-analysis',
       level: 'error',

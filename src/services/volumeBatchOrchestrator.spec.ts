@@ -45,14 +45,16 @@ describe('buildVolumeBatchPrompt', () => {
         contract: { ...contract, mode: 'single', expectedCount: 1, existingCount: 1 },
         repair: true,
         missingStart: 2,
-        missingCount: 1
+        missingCount: 1,
+        outputProtocol: 'direct-json'
       }),
       buildVolumeBatchPrompt({
         ...base,
         repair: false,
         requestPolicy: 'single-volume',
         missingStart: 2,
-        missingCount: 1
+        missingCount: 1,
+        outputProtocol: 'direct-json'
       })
     ]
 
@@ -74,7 +76,8 @@ describe('buildVolumeBatchPrompt', () => {
       missingCount: 2,
       basePrompt: '[大纲] 全书大纲',
       historyContext: '[已生成卷事实清单]\n第1卷《第一卷》',
-      requestPolicy: 'single-volume'
+      requestPolicy: 'single-volume',
+      outputProtocol: 'direct-json'
     })
 
     expect(prompt).toContain('[大纲] 全书大纲')
@@ -83,6 +86,82 @@ describe('buildVolumeBatchPrompt', () => {
     expect(prompt).toContain('全书计划到第3卷')
     expect(prompt).toContain('数组长度必须为1')
     expect(prompt).not.toContain('数组长度必须为2')
+  })
+
+  it('does not inject the direct output protocol into folder chains', () => {
+    const { prompt } = buildVolumeBatchPromptWithAudit({
+      contract,
+      repair: false,
+      missingStart: 1,
+      missingCount: 3,
+      basePrompt: '[大纲]\n第一卷 风暴起点：主角完成第一次远航。\n\n[卷数]\n3\n\n[已生成卷数]\n0\n\n[全书总字数]\n10000字',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      requestPolicy: 'single-volume',
+      outputProtocol: 'folder-chain'
+    })
+
+    expect(prompt).toContain('本次只生成第1卷')
+    expect(prompt).toContain('全书计划到第3卷')
+    expect(prompt).toContain('输出协议由当前 SKILL 模板决定')
+    expect(prompt).not.toContain('输出JSON数组')
+    expect(prompt).not.toContain('readerExpectations')
+    expect(prompt).not.toContain('contractRisk')
+    expect(prompt).not.toContain('数组长度必须为')
+  })
+
+  it('keeps the direct JSON protocol for direct requests', () => {
+    const { prompt } = buildVolumeBatchPromptWithAudit({
+      contract,
+      repair: false,
+      missingStart: 1,
+      missingCount: 3,
+      basePrompt: '[大纲]\n第一卷 风暴起点：主角完成第一次远航。\n\n[卷数]\n3\n\n[已生成卷数]\n0\n\n[全书总字数]\n10000字',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      requestPolicy: 'batch',
+      outputProtocol: 'direct-json'
+    })
+
+    expect(prompt).toContain('输出JSON数组')
+    expect(prompt).toContain('readerExpectations')
+    expect(prompt).toContain('contractRisk')
+    expect(prompt).toContain('数组长度必须为3')
+  })
+
+  it('strips the stale direct-channel JSON protocol while preserving volume facts', () => {
+    const basePrompt = [
+      '[大纲]\n第一卷 风暴起点：主角完成第一次远航。',
+      '[卷数]\n3',
+      '[已生成卷数]\n0',
+      '[全书总字数]\n10000字',
+      '请生成3卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。'
+    ].join('\n\n')
+    const { prompt, audit } = buildVolumeBatchPromptWithAudit({
+      contract,
+      repair: false,
+      missingStart: 1,
+      missingCount: 3,
+      basePrompt,
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      requestPolicy: 'single-volume'
+    })
+
+    expect(audit.legacyJsonProtocolStripped).toBe(true)
+    expect(prompt).toContain('第一卷 风暴起点：主角完成第一次远航。')
+    expect(prompt).toContain('[卷数]\n3')
+    expect(prompt).toContain('[全书总字数]\n10000字')
+    expect(prompt).toContain('本次只生成第1卷')
+    expect(prompt).not.toContain('请生成3卷的卷纲')
+    expect(prompt).not.toMatch(/输出JSON数组（正好1项）/)
+  })
+
+  it('keeps the direct JSON protocol when no legacy sentence is present', () => {
+    const { audit } = buildVolumeBatchPromptWithAudit({
+      contract,
+      repair: false,
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷'
+    })
+    expect(audit.legacyJsonProtocolStripped).toBe(false)
   })
 
   it('suppresses history context already present in the base prompt and reports the audit', () => {
@@ -169,6 +248,31 @@ describe('buildVolumeBatchPrompt', () => {
 })
 
 describe('generateVolumeBatch', () => {
+  it('keeps generated-volume facts and history context consistent across single-volume attempts', async () => {
+    const calls: string[] = []
+    const result = await generateVolumeBatch({
+      contract,
+      historyVolumes: [],
+      basePrompt: '[大纲] 全书大纲\n\n[卷数]\n3\n\n[已生成卷数]\n0\n\n[全书总字数]\n10000字',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      requestPolicy: 'single-volume',
+      outputProtocol: 'folder-chain',
+      callVolumeApi: async prompt => {
+        calls.push(prompt)
+        return calls.length === 1 ? json(['第一卷']) : json(['第二卷'])
+      }
+    })
+
+    expect(result.status).toBe('incomplete')
+    expect(result.attempts[0].acceptedCount).toBe(1)
+    expect(calls[0]).toContain('[已生成卷数]\n0')
+    expect(calls[0]).toContain('[已生成卷事实清单]\n暂无已生成卷')
+    expect(calls[1]).toContain('[已生成卷数]\n1')
+    expect(calls[1]).toContain('第1卷《第一卷》')
+    expect(calls[1]).toContain('本次只生成第2卷')
+    expect(calls[1]).not.toMatch(/\[已生成卷数\]\n0/)
+  })
+
   it('reports prompt audit for every batch and single-volume request', async () => {
     const audits: Array<{ duplicateHistoryContextSuppressed: boolean }> = []
     const result = await generateVolumeBatch({
@@ -195,6 +299,7 @@ describe('generateVolumeBatch', () => {
       basePrompt: '[大纲] 全书大纲',
       historyContext: '[已生成卷事实清单]\n暂无已生成卷',
       requestPolicy: 'single-volume',
+      outputProtocol: 'direct-json',
       callVolumeApi: async prompt => {
         calls.push(prompt)
         return responses[calls.length - 1]

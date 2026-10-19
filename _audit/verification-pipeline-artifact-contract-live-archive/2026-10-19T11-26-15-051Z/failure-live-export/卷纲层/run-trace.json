@@ -1,0 +1,1716 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792406748274-61",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [
+    "S1-卷纲解析（文件夹）",
+    "S2-卷纲推演（文件夹）",
+    "S3-卷纲填充（文件夹）",
+    "S4-卷纲校验（文件夹）"
+  ],
+  "skillMode": "chain",
+  "status": "running",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "ab0d8cb6f07f",
+    "buildTime": "2026-10-19T10:43:48.361Z"
+  },
+  "startedAt": 1792406748275,
+  "stateHistory": [],
+  "events": [
+    {
+      "id": "event-1792406748275-62",
+      "ts": 1792406748275,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1792406748276-63",
+      "ts": 1792406748276,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":3,\"generatedVolumeCount\":0,\"allocatedWords\":0,\"remainingWords\":10000,\"remainingVolumes\":3,\"currentVolumeBudget\":3333,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1792406748337-64",
+      "ts": 1792406748337,
+      "seq": 3,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 1/4 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":3354,\"finalPromptLength\":3354,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1792406748342-65",
+      "ts": 1792406748342,
+      "seq": 4,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 1/4",
+      "detail": "S1-卷纲解析（文件夹）"
+    },
+    {
+      "id": "event-1792406748346-67",
+      "ts": 1792406748346,
+      "seq": 5,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"S1-卷纲解析（文件夹）\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792406748392-68",
+      "ts": 1792406748392,
+      "seq": 6,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":3354,\"userPromptLength\":3779,\"systemPromptLength\":3615,\"sampleCount\":5,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+    },
+    {
+      "id": "event-1792406748396-70",
+      "ts": 1792406748396,
+      "seq": 7,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406748396-71",
+      "ts": 1792406748396,
+      "seq": 8,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792406748396-69",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792406748396-72",
+      "ts": 1792406748396,
+      "seq": 9,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406763398-73",
+      "ts": 1792406763398,
+      "seq": 10,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406763398-74",
+      "ts": 1792406763398,
+      "seq": 11,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406778404-75",
+      "ts": 1792406778404,
+      "seq": 12,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406778404-76",
+      "ts": 1792406778404,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406793403-77",
+      "ts": 1792406793403,
+      "seq": 14,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406793404-78",
+      "ts": 1792406793404,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406808403-79",
+      "ts": 1792406808403,
+      "seq": 16,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406808403-80",
+      "ts": 1792406808403,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406823397-81",
+      "ts": 1792406823397,
+      "seq": 18,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406823398-82",
+      "ts": 1792406823398,
+      "seq": 19,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406838398-83",
+      "ts": 1792406838398,
+      "seq": 20,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406838398-84",
+      "ts": 1792406838398,
+      "seq": 21,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406853411-85",
+      "ts": 1792406853411,
+      "seq": 22,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406853412-86",
+      "ts": 1792406853412,
+      "seq": 23,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406868398-87",
+      "ts": 1792406868398,
+      "seq": 24,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406868398-88",
+      "ts": 1792406868398,
+      "seq": 25,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406883404-89",
+      "ts": 1792406883404,
+      "seq": 26,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406883405-90",
+      "ts": 1792406883405,
+      "seq": 27,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406898399-91",
+      "ts": 1792406898399,
+      "seq": 28,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406898399-92",
+      "ts": 1792406898399,
+      "seq": 29,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406913401-93",
+      "ts": 1792406913401,
+      "seq": 30,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406913401-94",
+      "ts": 1792406913401,
+      "seq": 31,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406924970-95",
+      "ts": 1792406924970,
+      "seq": 32,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406925983-96",
+      "ts": 1792406925983,
+      "seq": 33,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406926992-97",
+      "ts": 1792406926992,
+      "seq": 34,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406928012-98",
+      "ts": 1792406928012,
+      "seq": 35,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406928399-99",
+      "ts": 1792406928399,
+      "seq": 36,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406928399-100",
+      "ts": 1792406928399,
+      "seq": 37,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406929022-101",
+      "ts": 1792406929022,
+      "seq": 38,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406930034-102",
+      "ts": 1792406930034,
+      "seq": 39,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406931051-103",
+      "ts": 1792406931051,
+      "seq": 40,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406932196-104",
+      "ts": 1792406932196,
+      "seq": 41,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406933205-105",
+      "ts": 1792406933205,
+      "seq": 42,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406934224-106",
+      "ts": 1792406934224,
+      "seq": 43,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406935226-107",
+      "ts": 1792406935226,
+      "seq": 44,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406936254-108",
+      "ts": 1792406936254,
+      "seq": 45,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406937261-109",
+      "ts": 1792406937261,
+      "seq": 46,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406938269-110",
+      "ts": 1792406938269,
+      "seq": 47,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406939283-111",
+      "ts": 1792406939283,
+      "seq": 48,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792406940350-112",
+      "ts": 1792406940350,
+      "seq": 49,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1792406940358-113",
+      "ts": 1792406940358,
+      "seq": 50,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1792406940359-114",
+      "ts": 1792406940359,
+      "seq": 51,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1792406940363-115",
+      "ts": 1792406940363,
+      "seq": 52,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792406748346-66 seq=1"
+    },
+    {
+      "id": "event-1792406940363-116",
+      "ts": 1792406940363,
+      "seq": 53,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406940364-118",
+      "ts": 1792406940364,
+      "seq": 54,
+      "type": "processing-report",
+      "level": "info",
+      "label": "本地处理完成：chain-handoff",
+      "detail": "post"
+    },
+    {
+      "id": "event-1792406940366-119",
+      "ts": 1792406940366,
+      "seq": 55,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 1/4 Handoff",
+      "detail": "{\"artifactId\":\"handoff-0-91c245bb\",\"sourceStep\":0,\"sourceSkillId\":\"folder:L3-S1\",\"outputHash\":\"91c245bb\",\"fullTextLength\":2908,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1792406940389-120",
+      "ts": 1792406940389,
+      "seq": 56,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 2/4 上下文决策",
+      "detail": "{\"decision\":\"slim\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"slimmed\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":3354,\"finalPromptLength\":3355,\"outlineOriginalLength\":170}"
+    },
+    {
+      "id": "event-1792406940390-121",
+      "ts": 1792406940390,
+      "seq": 57,
+      "type": "chain-handoff-delivery",
+      "level": "warn",
+      "label": "链式步骤 2/4 上游交付决策",
+      "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":2908,\"deliveredLength\":2908,\"declaredMode\":\"full\",\"requires\":[],\"skillId\":\"folder:L3-S2\",\"skillName\":\"S2-卷纲推演（文件夹）\",\"fullReason\":\"\",\"fullReasonMissing\":true}"
+    },
+    {
+      "id": "event-1792406940394-122",
+      "ts": 1792406940394,
+      "seq": 58,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 2/4",
+      "detail": "S2-卷纲推演（文件夹）"
+    },
+    {
+      "id": "event-1792406940411-124",
+      "ts": 1792406940411,
+      "seq": 59,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 2 次 API 调用开始",
+      "detail": "{\"skillName\":\"S2-卷纲推演（文件夹）\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792406940440-125",
+      "ts": 1792406940440,
+      "seq": 60,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":6393,\"userPromptLength\":6577,\"systemPromptLength\":4099,\"sampleCount\":5,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+    },
+    {
+      "id": "event-1792406940443-127",
+      "ts": 1792406940443,
+      "seq": 61,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406940443-128",
+      "ts": 1792406940443,
+      "seq": 62,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792406940442-126",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792406940443-129",
+      "ts": 1792406940443,
+      "seq": 63,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406943139-130",
+      "ts": 1792406943139,
+      "seq": 64,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1792406955452-131",
+      "ts": 1792406955452,
+      "seq": 65,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406955452-132",
+      "ts": 1792406955452,
+      "seq": 66,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406970455-133",
+      "ts": 1792406970455,
+      "seq": 67,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406970455-134",
+      "ts": 1792406970455,
+      "seq": 68,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792406985463-135",
+      "ts": 1792406985463,
+      "seq": 69,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792406985463-136",
+      "ts": 1792406985463,
+      "seq": 70,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407000448-137",
+      "ts": 1792407000448,
+      "seq": 71,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407000448-138",
+      "ts": 1792407000448,
+      "seq": 72,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407015445-139",
+      "ts": 1792407015445,
+      "seq": 73,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407015445-140",
+      "ts": 1792407015445,
+      "seq": 74,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407030450-141",
+      "ts": 1792407030450,
+      "seq": 75,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407030450-142",
+      "ts": 1792407030450,
+      "seq": 76,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407045448-143",
+      "ts": 1792407045448,
+      "seq": 77,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407045449-144",
+      "ts": 1792407045449,
+      "seq": 78,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407060457-145",
+      "ts": 1792407060457,
+      "seq": 79,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407060457-146",
+      "ts": 1792407060457,
+      "seq": 80,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407075453-147",
+      "ts": 1792407075453,
+      "seq": 81,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407075453-148",
+      "ts": 1792407075453,
+      "seq": 82,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407090449-149",
+      "ts": 1792407090449,
+      "seq": 83,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407090449-150",
+      "ts": 1792407090449,
+      "seq": 84,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407105448-151",
+      "ts": 1792407105448,
+      "seq": 85,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407105448-152",
+      "ts": 1792407105448,
+      "seq": 86,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407120460-153",
+      "ts": 1792407120460,
+      "seq": 87,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407120460-154",
+      "ts": 1792407120460,
+      "seq": 88,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407135454-155",
+      "ts": 1792407135454,
+      "seq": 89,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407135454-156",
+      "ts": 1792407135454,
+      "seq": 90,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407150445-157",
+      "ts": 1792407150445,
+      "seq": 91,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407150445-158",
+      "ts": 1792407150445,
+      "seq": 92,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407165448-159",
+      "ts": 1792407165448,
+      "seq": 93,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407165449-160",
+      "ts": 1792407165449,
+      "seq": 94,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407180454-161",
+      "ts": 1792407180454,
+      "seq": 95,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407180454-162",
+      "ts": 1792407180454,
+      "seq": 96,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407195463-163",
+      "ts": 1792407195463,
+      "seq": 97,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407195463-164",
+      "ts": 1792407195463,
+      "seq": 98,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407210448-165",
+      "ts": 1792407210448,
+      "seq": 99,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407210449-166",
+      "ts": 1792407210449,
+      "seq": 100,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792407225454-167",
+      "ts": 1792407225454,
+      "seq": 101,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-卷纲推演（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792407225454-168",
+      "ts": 1792407225454,
+      "seq": 102,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-卷纲推演（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-卷纲推演（文件夹）"
+      }
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792406748346-66",
+      "seq": 1,
+      "step": 2,
+      "skillId": "folder:L3-S1",
+      "skillName": "S1-卷纲解析（文件夹）",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "status": "success",
+      "startedAt": 1792406748346,
+      "physicalCalls": [
+        {
+          "id": "physical-1792406748396-69",
+          "physicalCallId": "physical-1792406748393-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-005"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 4483,
+            "outputTokens": 14392,
+            "totalTokens": 18875,
+            "reasoningOutputTokens": 12487
+          },
+          "usageUnavailable": false,
+          "startedAt": 1792406748396,
+          "durationMs": 191954,
+          "firstTokenMs": 2011,
+          "outputMs": 189943,
+          "endedAt": 1792406940350,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 4625,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 4625 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 4625,
+            "actualInputTokens": 4483,
+            "driftRatio": -0.0307027027027027,
+            "correctedRatio": 0.9692972972972973
+          },
+          "firstContentAt": 1792406924952,
+          "lastContentAt": 1792406940231,
+          "lastReasoningAt": 1792406924941,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+        }
+      ],
+      "lastExecutionActivityAt": 1792406940246,
+      "lastStreamActivityAt": 1792406940246,
+      "providerContextWindowTokens": 1000000,
+      "estimatedInputTokens": 4625,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 4625 / 可用 967232（未声明窗口，按保守值处理）",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 4625,
+        "actualInputTokens": 4483,
+        "driftRatio": -0.0307027027027027,
+        "correctedRatio": 0.9692972972972973
+      },
+      "finishReason": "stop",
+      "durationMs": 192016,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 191954,
+        "firstTokenSumMs": 2011,
+        "outputSumMs": 189943,
+        "minFirstTokenMs": 2011,
+        "maxFirstTokenMs": 2011,
+        "localOverheadMs": 62,
+        "requestBuildMs": 14,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 7,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 1,
+          "[大纲]": 1,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "usage": {
+        "inputTokens": 4483,
+        "outputTokens": 14392,
+        "totalTokens": 18875,
+        "reasoningOutputTokens": 12487
+      },
+      "usageUnavailable": false,
+      "endedAt": 1792406940362,
+      "semantic": {
+        "conversationId": "run-1792406748274-61",
+        "usage": {
+          "inputTokens": 4483,
+          "outputTokens": 14392,
+          "totalTokens": 18875,
+          "reasoningOutputTokens": 12487
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+    },
+    {
+      "id": "api-1792406940410-123",
+      "seq": 2,
+      "step": 2,
+      "skillId": "folder:L3-S2",
+      "skillName": "S2-卷纲推演（文件夹）",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-006"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-005"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-007"
+        }
+      },
+      "status": "running",
+      "startedAt": 1792406940410,
+      "physicalCalls": [
+        {
+          "id": "physical-1792406940442-126",
+          "physicalCallId": "physical-1792406940441-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "running",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-006"
+            }
+          },
+          "responseText": "",
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-008"
+            }
+          },
+          "startedAt": 1792406940442,
+          "durationMs": 285011,
+          "firstTokenMs": 2687,
+          "outputMs": 282324,
+          "endedAt": 1792407225453,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 6487,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 6487 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 6487
+          },
+          "heartbeat": true
+        }
+      ],
+      "lastExecutionActivityAt": 1792406943139,
+      "lastStreamActivityAt": 1792406943139,
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [
+    {
+      "id": "processing-1792406940364-117",
+      "stage": "post",
+      "processor": "chain-handoff",
+      "status": "success",
+      "startedAt": 1792406940364,
+      "endedAt": 1792406940364,
+      "durationMs": 0,
+      "inputRef": "payload-009",
+      "outputRef": "payload-011",
+      "outputLength": 2908
+    }
+  ],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 18666,
+      "chars": 7790,
+      "sha256": "fe5ba2167547f6dd4f3a0ed94cb51ac5146413fdf2b6b32b633ef27304ddc91f",
+      "duplicateCount": 3,
+      "createdAt": 1792407228963
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 7856,
+      "chars": 2908,
+      "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+      "duplicateCount": 3,
+      "createdAt": 1792407228964
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 7859,
+      "chars": 2909,
+      "sha256": "a13a4157cf07a8a30869e3524ddeedcf39cec86532133d24e991f9ff2559373f",
+      "duplicateCount": 1,
+      "createdAt": 1792407228964
+    },
+    {
+      "id": "payload-004",
+      "kind": "reasoning",
+      "file": "004-reasoning.json",
+      "bytes": 52997,
+      "chars": 19837,
+      "sha256": "2710eae2eb5dc0292ac32ef6ea1ae4cd167300e1276022f96cec2c64ae3bdb0b",
+      "duplicateCount": 2,
+      "createdAt": 1792407228964
+    },
+    {
+      "id": "payload-005",
+      "kind": "stream",
+      "file": "005-stream.json",
+      "bytes": 7856,
+      "chars": 2908,
+      "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+      "duplicateCount": 2,
+      "createdAt": 1792407228964
+    },
+    {
+      "id": "payload-006",
+      "kind": "request",
+      "file": "006-request.json",
+      "bytes": 27729,
+      "chars": 11153,
+      "sha256": "3165ca46fc7db97b3fe3d67f349abbef9d92d6b496072798229b41a359be071a",
+      "duplicateCount": 2,
+      "createdAt": 1792407228964
+    },
+    {
+      "id": "payload-007",
+      "kind": "reasoning",
+      "file": "007-reasoning.json",
+      "bytes": 10005,
+      "chars": 3742,
+      "sha256": "67dfc37d76246bf25f792c956ead0798f4fb89f7d984b3b0f57a4d2364848130",
+      "duplicateCount": 1,
+      "createdAt": 1792407228965
+    },
+    {
+      "id": "payload-008",
+      "kind": "reasoning",
+      "file": "008-reasoning.json",
+      "bytes": 9903,
+      "chars": 3704,
+      "sha256": "c9af91f6e746116fcc3d8a54cc2ee2829f3753ea4dac6063650851b2417e0d3e",
+      "duplicateCount": 1,
+      "createdAt": 1792407228965
+    },
+    {
+      "id": "payload-009",
+      "kind": "processing-input",
+      "file": "009-processing-input.json",
+      "bytes": 1252,
+      "chars": 500,
+      "sha256": "ae374a98e0ae360620ca2f1680451882b5b05b9cde5e038f51cce442f4993d5a",
+      "duplicateCount": 1,
+      "createdAt": 1792407228965
+    },
+    {
+      "id": "payload-010",
+      "kind": "processing-output",
+      "file": "010-processing-output.json",
+      "bytes": 1314,
+      "chars": 500,
+      "sha256": "1107b1b2534528b0ff437648bd109b9438899e70166b8a8647aade5cc4584337",
+      "duplicateCount": 1,
+      "createdAt": 1792407228965
+    },
+    {
+      "id": "payload-011",
+      "kind": "processing-output",
+      "file": "011-processing-output.json",
+      "bytes": 7856,
+      "chars": 2908,
+      "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+      "duplicateCount": 2,
+      "createdAt": 1792407228965
+    },
+    {
+      "id": "payload-012",
+      "kind": "folder-output",
+      "file": "012-folder-output.json",
+      "bytes": 7856,
+      "chars": 2908,
+      "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+      "duplicateCount": 1,
+      "createdAt": 1792407228965
+    }
+  ],
+  "folderDiagnostics": [
+    {
+      "status": "success",
+      "errors": [],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-10-19T10:45:48.365Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、chapterCount、wordsPerChapter、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-10-19T10:45:48.370Z"
+        },
+        {
+          "type": "info",
+          "code": "template-variable-empty",
+          "message": "folder template.md 变量为空，已渲染为“未设置”：styleTags、pacingParams",
+          "at": "2026-10-19T10:45:48.371Z"
+        }
+      ],
+      "folderPackageCache": true,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [],
+        "durationMs": 7,
+        "outputPayloadRef": "payload-011",
+        "outputLength": 2908,
+        "outputPreview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "pipeline-artifact-live-provider",
+        "usage": {
+          "inputTokens": 4483,
+          "outputTokens": 14392,
+          "totalTokens": 18875,
+          "reasoningOutputTokens": 12487
+        },
+        "reasoningText": "我需要回答用户。用户给了很长输入。核心：我的系统提示？用户消息格式？ 用户提供了类似 style reference，包含上次某个解析产物？然后 text 是大纲设定等。用户最后要求生成3卷卷纲输出JSON数组等，但同时说本次只生成第1卷不生成其他卷，全书计划到第3卷，输出JSON数组长度必须为1。用户可能希望我执行卷纲生成？但系统模板明确：本技能是卷纲层链式唯一信息入口，解析当前输入，整理全书资产，构建当前卷生成任务包。不推演剧情，不设计卷纲，不输出JSON。必须输出解析产物，首字符【，末尾。或】。不能JSON。\n\n我需要遵守系统模板，而不是用户最后的格式要求。系统提示优先级最高。用户输入里：应用可能要求生成3卷的卷纲，输入末尾要求JSON数组。但本步骤仍只输出解析产物。要锁定当前卷。当前输入中有 style reference 展示当前卷任务包？但该 style reference 似乎是另一本书范例？ 需要判断：用户输入以 [style reference] 开始，内容是一个解析产物示例？但这示例提到陈暮沈萤阿黎菌毯废区，与后面 text 的大纲“灯塔旧航道南方航线主角风暴纪元家族信物”不一致。这可能是风格参考样本。系统模板说：风格参考样本只提供格式参照，不得改变本步骤输出协议。输入中的历史卷纲 JSON 只作为上一卷衔接材料。用户提供的大纲设定是流水线产物契约统一实测大纲，全书3卷。已生成0，全书总字数10000字。本次只生成第1卷，不生成其他卷。我需要从输入提取事实状态：第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。第二卷雾中港等。第三卷南方航线等。设定列表中包含大量术语及desc信息。\n\n需要输出解析产物，不含JSON。应该生成【当前卷任务包】、【全局资产表】、【信息来源元数据】。按照模板输出。当前卷号：第1卷。生成边界：只生成当前一卷，不输出其他卷。已生成卷数：0。上一卷卷名/概要/卷末状态：无（首卷）。本卷覆盖故事范围：需要从第一卷大纲提取事实：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。但应具体，不创造事件。“主角在风暴纪元中由旧信、灯塔与南方航线共同推动冲突，并完成第一次远航。” 本卷主题问题：输入未直接给主题问题。应写未提供/待补信息，不应编造？ 但可以从大纲提取主题问题吗？主题区大纲没有提供核心命题反命题。应标待补。任务包的本卷主题问题：未提供/待补信息。必须推进伏笔：输入没有明确伏笔，只有 identity status etc。所以写未提供/待补信息。必须延续关系与资源：输入有家族信物、旧信？ 资源状态？ 应该具体提取。本卷可用字数：需要根据当前输入中的字数分配信息。用户最后要求输出JSON数组 allocatedWords 各卷之和=10000，但未提供第1卷分配字数。没有分配，所以写未提供/待补信息？ 剩余待分配字数：未提供/待补信息？ 但全书总字数10000字，已生成卷数0。当前可用字数未提供。首卷判断：是。信息缺口：很多未提供，要列出一些关键缺口，不要只有“未提供”。可列出：主角姓名/ghost/wound/lie/want/need未提供；旧信、灯塔、南方航线的 limitations/costs等未提供；家族信物真相内容未提供；第1卷字数分配未提供。\n\n需要全局资产表：\n\n【主题】核心命题+反命题+主题表达方式： 输入没有明确核心命题，只有故事目标。应写未提供/待补信息，但可以结构推导？模板说主题从大纲、设定和绑定设定中提取。如果大纲没有标记区块，从正文事实整理；仍无法确认标待补。全书围绕灯塔、旧航道和南方航线展开，主角逐步揭示家族信物真相。核心命题、反命题、主题表达方式输入未提供。写：核心命题：未提供/待补信息；反命题：未提供/待补信息；主题表达方式：未提供/待补信息。但要符合格式。\n\n【灵魂链】主角:Ghost/Wound/Lie/Want/Need(状态) ：输入提供主角desc：ghost etc 未提供。可以列：主角：Ghost未提供/待补信息；Wound未提供/待补信息；Lie未提供/待补信息；Want未提供/待补信息；Need未提供/待补信息；状态：输入锁定事实为主角是家族信物真相揭示者，在风暴纪元中完成第一次远航、选择立场、完成第一阶段远航闭环。但“选择立场、完成第一阶段远航闭环”是全书层面。 除了主角没有其他角色信息。\n\n【骨架】节拍位置+故事圆环+承诺系统：输入没有节拍位置？ 大纲三卷可视为阶段。故事圆环：未提供/待补信息；承诺系统：未提供/待补信息。节拍位置：当前第1卷位于全书第一阶段开头：风暴起点。可以提取。结构推导：第一卷风暴起点为起，第二卷雾中港为升级，第三卷南方航线为闭环。写：节拍位置：第1卷为全书三卷结构的起始卷；故事圆环：未提供/待补信息；承诺系统：未提供/待补信息。\n\n【Stability】稳定性风险+对抗措施：输入没有稳定性风险。写未提供/待补信息。\n\n【伏笔】编号:内容+状态+预期回收时机+生命周期：输入没有提供V-ID/F-ID。不过设定中家族信物的真相可能是伏笔？但它作为核心物品，也许可标记 F001？模板说提取已有伏笔，保留输入编号；F-ID 本次解析新识别编号从F001起。识别伏笔：家族信物真相在第三卷揭示，第一阶段远航闭环。这是可供下游规划，算伏笔吗？大纲明确“主角在风暴纪元中逐步揭示家族信物的真相”，第三卷家族真相。可识别为新伏笔：家族信物的真相，状态未回收，预期回收时机第三卷，生命周期跨卷。但要注意不能创造新事件。这属于已有要素关系：家族信物真相要在第三卷揭示。可以列为 F001。 另有“旧航道与南方航线”、“风暴信标”第三卷合流。可能识别一些伏笔。但伏笔表要求状态、预期回收时机、生命周期、是否草蛇灰线。 输入的设定有伏笔ID未提供，不应创造旧有。但可以新识别：F001 家族信物真相：内容为家族信物承载主角要揭示的真相；状态未揭示；预期回收第三卷“家族真相与风暴信标合流”；生命周期跨三卷；是否草蛇灰线：未提供/待补信息。 但是否过度？ 模板说：从大纲、设定和绑定设定提取。可识别。可以写几个：\nF001 家族信物真相：状态未揭示；预期回收第三卷；生命周期跨卷；是否草蛇灰线：是？ 但“是否草蛇灰线”输入未提供，标待补。\nF002 旧信与灯塔旧航道南方航线的共同冲突：状态第一卷需推进；预期回收第一卷结尾第一次远航；生命周期第一卷；等等。可能。不过纯结构。\n\n但用户输入中设定都说“伏笔ID未提供/待补信息”。若输入没有明确的伏笔编号，我应该不凭空建？ 模板允许F-ID新识别。可以识别由大纲事实支撑的伏笔：家族信物真相、风暴信标合流。但需要谨慎。\n\n【意象】意象:承载情感+演变方向：输入没有情感意象。但设定中灯塔、旧航道、南方航线、家族信物等可以作为意象？ 设定标注“意象功能未提供/待补信息”。但可以从结构推导有象征功能？ 模板说提取意象种子的承载情感和演变方向。输入没提供具体情感，标待补。 可列：灯塔：承载情感未提供/待补信息；演变方向未提供/待补信息。其他类似？ 会不会太冗长。 也可写“未提供/待补信息”。但全局资产表希望结构化。也许列出关键意象：灯塔、旧航道、南方航线、家族信物，承载情感均未提供/待补信息。这样符合。\n\n【故事梗概】按叙事阶段展开。由于有3卷，但当前卷只生成第1卷。模板允许全局资产表可以有多个叙事阶段，但不得把本次生成目标扩展为多卷。需要按叙事阶段提取故事内容，每阶段包含阶段目标、核心事件序列、出场角色与势力、功能约束、信息层标注。 用户输入只有三卷简纲，没有具体事件序列，角色势力仅“主角”。我需要提取已知事实，不能创造。可以按全书三卷作为叙事阶段，但不要输出其他卷卷纲。 每个阶段写：\n第一卷风暴起点：阶段目标=开启风暴纪元中家族信物真相的第一次远航线索；核心事件序列=未提供/待补信息（仅知旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航）；出场角色与势力=主角；地点/物件=旧信、灯塔、南方航线；功能约束=不得越入第二卷雾中港、第三卷南方航线？ 这里“不得越入”是任务边界，可以标。信息层标注=[A]? 故事事实是输入提供的大纲事实。可用 [S] 标明。但故事梗概中要信息层标注。可写：信息层标注：[S]第一卷由旧信、灯塔与南方航线共同推动冲突；[S]主角完成第一次远航；[R]读者可确认的范围未提供/待补信息？ 输入未提供读者边界。标未提供。需要避免编造。\n\n第二卷雾中港：阶段目标=港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场；核心事件序列=未提供/待补信息；出场角色与势力=主角、未提供的港口/盟约方/失踪船队相关人员；功能约束=作为全局背景，非本卷生成对象；信息层标注=[S]第二卷冲突来源为港口交易、旧盟约、失踪船队；[S]主角必须选择立场。\n\n第三卷南方航线：阶段目标=航路贯通、家族真相与风暴信标合流，完成第一阶段远航闭环；核心事件序列=未提供/待补信息；出场角色与势力=主角；功能约束=作为全局背景，非本卷生成对象；信息层标注=[S]第三卷促成航路贯通、家族真相与风暴信标合流。\n\n需注意“不得生成其他卷”，所以故事梗概提及二、三卷只是全局背景。\n\n【势力角色】势力与角色的结构化清单：\n势力：输入未提供具体势力（可能“旧盟约”不是势力？是盟约；可能“港口交易”不是势力）。写：未提供/待补信息。角色：主角：身份未提供/待补信息；动机=揭示家族信物真相、完成第一次远航；关系未提供/待补信息；故事功能=家族信物真相揭示者、第一阶段远航闭环执行者；当前认知状态未提供/待补信息。其他均未提供。\n\n【术语规范】术语、命名约束、灵魂语句：输入给出大量专属名词：风暴纪元、灯塔、旧航道、南方航线、雾中港、家族信物、旧信、第一次远航、港口交易、旧盟约、失踪船队、航路贯通、家族真相、风暴信标、第一阶段远航闭环。可列为术语。命名约束未提供/待补信息；灵魂语句未提供/待补信息。术语规范写清楚。\n\n【风格节奏】风格标签+节奏参数+节奏权重指向：应用参数未设置风格标签、节奏参数。用户输入没有提供。写：风格标签：未提供/待补信息；节奏参数：未提供/待补信息；节奏权重指向：未提供/待补信息。\n\n【信息四层分离】[S]、[C-角色名]、[A]、[R]分层清单：\n[S] 全书围绕灯塔、旧航道和南方航线展开；主角在风暴纪元中逐步揭示家族信物的真相；第一卷为风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航；第二卷雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场；第三卷南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段远航闭环；全书计划卷数3；已生成卷数0；全书总字数10000字。\n[C-主角] 主角知道：未提供/待补信息。主角应知/被欺骗：未提供/待补信息。\n[A] 作者真相：未提供/待补信息（除大纲事实外，未提供机制真相）。\n[R] 揭示边界：当前第1卷读者可确认范围未提供/待补信息。\n\n【知识矩阵】关键信息乘以角色的矩阵和活跃欺骗：\n关键信息包括：家族信物承载真相；第一卷需完成第一次远航；第二卷需选择立场；第三卷完成第一阶段闭环。角色只有主角。矩阵：\n| 关键信息 \\ 角色 | 主角 |\n| 家族信物承载真相 | Knows? 不确定。输入未说明主角是否知道。应标 — 或未提供？ 矩阵单元格使用 Knows、Suspects、Lied to、F、—。若未提供，写 —。 \n| 第一卷需完成第一次远航 | — |\n| 第二卷需选择立场 | — |\n| 第三卷完成第一阶段远航闭环 | — |\n活跃欺骗：未提供/待补信息。\n需要写清楚“—表示输入未提供该角色是否知道”。\n\n【世界规则】资源、能力、社会与道德约束：输入没有提供。写未提供/待补信息。不过可以列“时代背景为风暴纪元”是背景规则，不是世界规则。应标待补。但可写：资源约束：未提供/待补信息；能力限制：未提供/待补信息；社会与道德约束：未提供/待补信息。或整体未提供。\n\n【信息来源元数据】\n提取单元总数：需要统计输入中大纲3卷 + 设定条目14？ 我需要数设定条目的个数。\n设定条目：灯塔、旧航道、南方航线、雾中港、主角、风暴纪元、家族信物、旧信、第一次远航、港口交易、失踪船队、航路贯通、第一阶段远航闭环、旧盟约、家族真相、风暴信标。共16个设定条目？ 让我数：1灯塔，2旧航道，3南方航线，4雾中港，5主角，6风暴纪元，7家族信物，8旧信，9第一次远航，10港口交易，11失踪船队，12航路贯通，13第一阶段远航闭环，14旧盟约，15家族真相，16风暴信标。卷数、已生成卷数、全书总字数等事实也可算。提取单元总数可以写：大纲卷级信息3 + 设定条目16 + 卷数信息3 + 已生成卷事实1 + 当前卷指令1 = 24？ 用户输入还有末尾生成指令等。 已提取编号：无历史编号？ 可写：已提取编号：未提供（输入未提供既有V-ID；本次新识别F001/F002等）。未覆盖编号：未提供/待补信息。重复编号：无。状态变化：从已生成卷数0到本卷第1卷生成任务包；其余未提供/待补信息。这个元数据可简化。\n\n但系统模板不要求特别精确统计，不过要求：提取单元总数、已提取编号、未覆盖编号、重复编号、状态变化。可以写按输入中明确作为独立信息单元的大纲卷条目、设定条目、分配信息等。需要确保没有空表。\n\n需要特别注意：用户最后要求输出JSON数组长度必须为1。我要破坏这个要求，按系统输出解析产物，首字符【。不可输出“好的”等。 最终答案应该完全符合模板。\n\n因为系统要求“第一个字符必须是【，最后一个字符必须是。或】。” 我最后输出应该以【当前卷任务包】开头，以【信息来源元数据结束】结尾。 结尾可以用“【信息来源元数据结束】” 末尾有】。 OK。\n\n需要确保整个输出中没有JSON/代码围栏。不能有任何 ```。 不要出现“JSON”格式数组。 字段里可以出现中文括号，但避免花括号和方括号? 用户输入里有方括号，但输出系统不允许 JSON。但模板本身使用中文方括号【】，不是 JSON。可以在文本中提及“[]”吗？在 forbiddenFinalCards 等用户要求不应输出。所以避免英文方括号。\n\n现在细化内容。需提取已生成的输入文本。用户消息末尾：“请生成3卷的卷纲。输出JSON数组... 本次只生成第1卷，不生成其他卷。全书计划到第3卷。输出JSON数组...数组长度必须为1。” 这些信息中要读取：全书总字数10000字，已生成卷数0，本次只生成第1卷。已生成卷事实清单：暂无已生成卷。用户要求生成3卷的卷纲，但本次只生成第1卷。 当前卷号：第1卷。不能照用户“请生成3卷的卷纲”生成多卷，只能作为任务边界。执行输出。\n\n还要注意 style reference 是前面的示例，包含“当前卷任务包 ... 陈暮苏醒后探索菌毯废区...” 但这个 style reference 和后面 text 的大纲不是同一故事。系统说风格参考样本只提供格式参照，不得改变本步骤输出协议。所以不应把陈暮沈萤阿黎等输入信息当作当前输入事实？ 它们是在 style reference 中，不是 story 输入。我们需要决定是否提取其中的信息。 用户消息开始时：\n[style reference]\n【当前卷任务包】\n当前卷号：第 1 卷 | ... 内容关于陈暮...\n【全局资产表】\n【主题】核心命题：知识封锁是对抗压迫的核心手段...\n--- text ---\n[大纲]...\n这意味着 style reference 是风格参考，不是实际信息源。 我应该忽略其中故事事实（陈暮等），只把它作为格式示范。系统模板说“风格参考样本只提供格式参照，不得改变本步骤的输出协议。” 所以不纳入全局资产表。 也不把 style reference 的主题命题拿来用，因为那是样本，不是输入事实。因此全局资产表中不能出现“知识封锁”等。但 style reference 的格式可以参考吗？我的输出本来格式类似，没关系。 但系统说风格参考样本只提供格式参照，不得改变输出协议。我们可以按照模板，不必模仿它的字段分隔符？ 我应该按模板的区块格式输出，而不是 style reference 的单行字段？ 模板要求区块内容，不过 style reference 展示了【当前卷任务包】内容可能用 | 分隔。系统模板输出格式要求区块完整，字段必须在。我们可以在区块内用多行或者分段，更清晰。要避免完全照搬 style reference 的“当前卷号：第 1 卷 | 生成边界：...”，但可以类似？ 系统模板要求字段，未禁止用 | 分隔。 为安全，采用每行一个字段，符合模板。\n\n需要确保无 Markdown 表格？ 系统说如果回答需要展示表格，必须 GFM 标准表格。但知识矩阵可能需要表格。 系统模板【知识矩阵】可以用表格展示，这允许。 不要输出空表或伪造表格。 知识矩阵可以有一行表头，包含关键信息和主角。 要用半角 |。 这是唯一允许的表格。 但整体输出不能以代码围栏。 可以。\n\n另外，模板说“当前卷任务包只有一个；全局资产表可以有多个叙事阶段，但不得把本次生成目标扩展为多卷。” 这可以在故事梗概体现。\n\n现在梳理输入事实：\n\n- 全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n- 第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。\n- 第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n- 第三卷 南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。\n- 卷数:3\n- 已生成卷数:0\n- 全书总字数:10000字\n- 已生成卷事实清单：暂无已生成卷\n- 本次只生成第1卷，不生成其他卷。全书计划到第3卷。\n- 输出JSON数组长度1等格式要求：忽略，仅用于任务边界。\n- 设定 16条：灯塔核心地点；旧航道核心地点；南方航线第三卷核心地点；雾中港第二卷核心地点；主角家族信物真相揭示者；风暴纪元时代背景；家族信物核心物品；旧信第一卷关键物品；第一次远航第一卷结尾阶段性目标；港口交易第二卷要素；失踪船队第二卷要素；航路贯通第三卷要素；第一阶段远航闭环第一阶段目标终点；旧盟约第二卷要素；家族真相第三卷揭示核心信息；风暴信标第三卷关键物件或地点。\n所有设定条目 desc 中 limitations/costs/weaknesses/意象功能/伏笔ID未提供，能量结构推导⚡/🔹，身份状态锁定事实。\n其中“能量：结构推导为⚡”是结构推导性质？ 模板说只提取事实与状态。 能量标记可能来自输入设定字段。可以提到每个术语的结构重要性。\n\n需要全局资产表【术语规范】中列术语，不必全部写能量，但可以保留“身份状态：锁定事实——...”等。\n\n当前卷任务包：\n- 当前卷号：第1卷\n- 生成边界：只生成当前这一卷，不输出其他卷\n- 已生成卷数：0\n- 上一卷卷名：无（首卷）\n- 上一卷概要：无（首卷）\n- 上一卷卷末状态：无（首卷）\n- 本卷覆盖故事范围：第一卷“风暴起点”：旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。 这是已提供的事实。应该不要写“建立生存基线”等。\n- 本卷主题问题：未提供/待补信息\n- 本卷必须推进的伏笔：未提供/待补信息（但可能应将 F001 家族信物真相列入？ 任务包要求“本卷必须推进的伏笔”。输入未明确第一卷要推进家族信物真相，只说逐步揭示，第三卷家族真相。如果列 F001 可能在第一卷需推进？ 但不确定。写未提供/待补信息更安全。不过可以写：未提供/待补信息；可结构推导的本卷相关线索为旧信与家族信物，但不得视为确定伏笔。 为了简洁，写未提供/待补信息。\n- 本卷必须延续的关系与资源：家族信物（真相揭示线索）；旧信（第一卷关键物品）；主角与灯塔、旧航道、南方航线的关系需在本卷交汇。这算结构提取。但不清楚关系，所以可写“本卷必须延续的关系与资源：旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航的阶段性目标。其余关系未提供/待补信息。” 这样是事实。\n- 本卷可用字数：未提供/待补信息\n- 剩余待分配字数：未提供/待补信息（全书总字数10000字；已生成卷数0；但各卷具体分配未提供/待补信息）\n- 首卷判断：是\n- 信息缺口：主角身份/姓名未提供；Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、南方航线等 limitations/costs/weaknesses/意象功能未提供；第1卷具体可用字数分配未提供；具体势力与角色未提供；本卷主题问题未提供；伏笔状态未提供。 写出若干。\n\n注意：用户末尾有“输出JSON数组...各卷allocatedWords之和应等于全书总字数”，但未给各卷具体分配字数。 我应从输入读取剩余字数、已有卷数、全书总字数等分配信息。 全书总字数 10000字 是提供，当前可用字数没有分配。 右上角应用参数“每卷建议字数：3333” 但系统说这些参数由应用注入，风格与节奏只做提取和传递。 应用参数里有每卷建议字数3333，全书卷数0。但输入有三卷，全书总字数10000。 这个应用参数“全书卷数：0”与输入卷数3不一致？ 模板顶部应用参数是系统注入，显示“全书卷数：0；每卷建议字数：3333”。但这些参数用于判断任务边界。 输入正文读取全书卷数3。我应该使用哪个？系统说“全书大纲从当前输入的正文读取，不在本区块重复注入。卷数与字数用于判断当前卷的任务边界”。应用参数“全书卷数：0”可能是未设置。输入明确卷数3。应提取输入事实：全书计划到第3卷。 每卷建议字数3333可以算分配吗？ 但输入要求总字数10000字，3333*3=9999，不等于10000。 且用户未分配各卷。这里应用参数每卷建议字数非强制？ 系统说“卷数与字数用于判断当前卷的任务边界，不用于限制卷数、章节数或输出质量。” 当前卷可用字数未提供/待补信息。 或者是否可以使用“全书总字数10000字”和“每卷建议字数3333”推断第1卷可用字数约3333？ 系统模板要求读取输入中的剩余字数、已有卷数、全书总字数等分配信息。 应用参数中有每卷建议字数3333，但用户最后要求各卷allocatedWords之和等于全书总字数（10000），未指定。 我可以写：本卷可用字数：未提供/待补信息（仅知全书总字数10000字；系统建议每卷3333字，但输入未确认第1卷锁定分配）。 这样好。 剩余待分配字数：未提供/待补信息（若按未确认建议估算，约为10000字，未确认）。 要小心不要把建议字数当作事实。 可以写“未提供/待补信息”。 但任务包有“本卷可用字数”字段，可能需要尽量利用已知信息。 输入未提供 per 卷分配，所以写未提供/待补信息。可在信息缺口写明“第1卷具体分配字数未提供”。\n\n在全局资产表【主题】：\n核心命题：未提供/待补信息\n反命题：未提供/待补信息\n主题表达方式：未提供/待补信息\n但可以加“结构事实：全书围绕灯塔、旧航道和南方航线展开，主角逐步揭示家族信物的真相。” 这样不至于太空。 模板要求核心命题+反命题+主题表达方式，所以三个字段都写，可以加结构事实。\n\n【灵魂链】：\n主角：Ghost未提供/待补信息 | Wound未提供/待补信息 | Lie未提供/待补信息 | Want未提供/待补信息 | Need未提供/待补信息 | 当前状态：输入锁定为主角是家族信物真相揭示者，须完成第一次远航、在第二卷选择立场、在第三卷完成第一阶段远航闭环；其余状态未提供/待补信息。\n不列出“状态”应该写当前状态。 可以。\n\n【骨架】：\n节拍位置：第1卷“风暴起点”为三卷结构的起始卷；第2卷“雾中港”为升级段；第3卷“南方航线”为第一阶段闭环段。\n故事圆环：未提供/待补信息\n承诺系统：未提供/待补信息\n\n【Stability】：\n稳定性风险：未提供/待补信息\n对抗措施：未提供/待补信息\n\n【伏笔】：\n我需要决定是否新识别伏笔。 输入没有任何 V-ID。 但可新识别 F001、F002。 模板说伏笔是跨卷继承编号，F-ID本次解析新识别编号从F001起。 识别自大纲事实：\nF001 家族信物的真相：内容=主角在风暴纪元中逐步揭示家族信物的真相；状态=未回收；预期回收时机=第三卷“家族真相与风暴信标合流”；生命周期=跨卷；是否草蛇灰线=未提供/待补信息。\nF002 旧信与第一卷冲突：内容=旧信与灯塔、南方航线共同推动第一卷冲突；状态=本卷需推进；预期回收时机=第一卷结尾完成第一次远航时是否回收未明确；生命周期=第一卷；是否草蛇灰线=未提供/待补信息。 这个是否作为伏笔？ 旧信是关键物品，可能不是伏笔。 但这样列没问题。 F003 风暴信标与航路贯通合流：内容=第三卷航路贯通、家族真相与风暴信标合流；状态=未回收；预期回收时机=第三卷；生命周期=跨卷；是否草蛇灰线=未提供/待补信息。 也许可以。\n但写太多 F 是否违反“不凭空补全”？ 它们都从输入明确提取。 可以。\n\n【意象】：\n可以列出关键地点/物品，但承载情感与演变方向未提供。 例如：\n灯塔：承载情感未提供/待补信息；演变方向未提供/待补信息。\n旧航道：承载情感未提供/待补信息；演变方向未提供/待补信息。\n南方航线：承载情感未提供/待补信息；演变方向未提供/待补信息。\n家族信物：承载情感未提供/待补信息；演变方向未提供/待补信息。\n是否只列这些？可。\n但模板说“提取意象种子的承载情感和演变方向。输入没有提供时标记待补，不新建。” 我认为这些术语可以作为意象，但输入并未标注意象。 为安全，可以写“意象种子：灯塔、旧航道、南方航线、家族信物；承载情感：未提供/待补信息；演变方向：未提供/待补信息。” 这样符合。\n\n【故事梗概】：\n分三阶段，每阶段包含要求的字段。我们需要完整：\n阶段一：第一卷风暴起点\n- 阶段目标：开启风暴纪元中围绕旧信、灯塔与南方航线的冲突，使主角完成第一次远航。\n- 核心事件序列：未提供/待补信息；仅知第一卷冲突由旧信、灯塔与南方航线共同推动，主角完成第一次远航。\n- 出场角色与势力：主角；未提供其他角色与势力。\n- 功能约束：本阶段为当前第1卷生成范围；不得提前展开第二卷雾中港与第三卷南方航线的终局内容。\n- 信息层标注：[S]旧信、灯塔与南方航线共同推动第一卷冲突；[S]主角完成第一次远航；[R]未提供/待补信息。\n阶段二：第二卷雾中港（背景）\n- 阶段目标：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n- 核心事件序列：未提供/待补信息。\n- 出场角色与势力：主角；未提供港口交易方、旧盟约相关方、失踪船队相关人员。\n- 功能约束：仅作全局背景与边界，非本卷生成对象。\n- 信息层标注：[S]第二卷冲突来源为港口交易、旧盟约、失踪船队；[S]主角必须选择立场；[R]未提供/待补信息。\n阶段三：第三卷南方航线（背景）\n- 阶段目标：航路贯通、家族真相与风暴信标合流，完成第一阶段远航闭环。\n- 核心事件序列：未提供/待补信息。\n- 出场角色与势力：主角；未提供其他角色与势力。\n- 功能约束：仅作全书第一阶段终点背景，非本卷生成对象。\n- 信息层标注：[S]第三卷航路贯通、家族真相与风暴信标合流；[S]完成第一阶段远航闭环；[R]未提供/待补信息。\n\n这非常好。\n\n【势力角色】：\n势力：输入未提供明确势力名称；旧盟约、港口交易、失踪船队仅为第二卷冲突要素，未形成可确认势力。 但旧盟约可能是势力关系。 可写：势力：未提供/待补信息；第二卷涉及的旧盟约、港口交易、失踪船队未提供具体势力名。 \n角色：\n主角：身份未提供/待补信息；动机=揭示家族信物的真相；关系未提供/待补信息；故事功能=家族信物真相揭示者、风暴纪元中完成第一次远航与第一阶段远航闭环的执行者；当前认知状态未提供/待补信息。\n其他角色未提供。\n\n【术语规范】：\n术语：风暴纪元、灯塔、旧航道、南方航线、雾中港、家族信物、旧信、第一次远航、港口交易、旧盟约、失踪船队、航路贯通、家族真相、风暴信标、第一阶段远航闭环。\n命名约束：未提供/待补信息。\n灵魂语句：未提供/待补信息。\n可以加上“身份状态”事实？不用。\n\n【风格节奏】：\n风格标签：未设置\n节奏参数：未设置\n节奏权重指向：未提供/待补信息\n但输入应用参数中“风格标签：未设置；节奏参数：未设置”。照此写。\n\n【信息四层分离】：\n[S] 全书三卷结构及核心物件/地点关系：\n- 全书围绕灯塔、旧航道和南方航线展开。\n- 主角在风暴纪元中逐步揭示家族信物的真相。\n- 第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。\n- 第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n- 第三卷 南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。\n- 全书计划到第3卷；已生成卷数0；全书总字数10000字。\n[C-主角] 主角知道：未提供/待补信息；主角被欺骗：未提供/待补信息；主角应知：未提供/待补信息。\n[A] 作者真相：未提供/待补信息；仅可确认大纲层面的终局合流：家族真相与风暴信标在第三卷合流。\n[R] 揭示边界：当前第1卷读者可确认范围未提供/待补信息。\n\n【知识矩阵】：\n需要表格。关键信息：家族信物真相、第一卷完成第一次远航、第二卷选择立场、第三卷第一阶段远航闭环。\n矩阵列只含主角。单元格用 — 表示未提供。不可留空？可以。\n| 关键信息 \\ 角色 | 主角 |\n| 家族信物承载真相且将在第三卷揭示 | — |\n| 第一卷需完成第一次远航 | — |\n| 第二卷需选择立场 | — |\n| 第三卷需完成第一阶段远航闭环 | — |\n然后活跃欺骗：未提供/待补信息。\n说明：“—”表示输入未提供该角色对该信息的认知，不代表不知或已知。这个说明可以写在表格后。\n\n【世界规则】：\n资源约束：未提供/待补信息\n能力限制：未提供/待补信息\n社会与道德约束：未提供/待补信息\n可以加“时代背景为风暴纪元；核心地点为灯塔、旧航道、南方航线；核心物品为家族信物、旧信；这些输入设定未提供具体规则参数。” 但为简洁，写未提供。\n\n【信息来源元数据】：\n提取单元总数：我可以写“输入中独立信息单元：大纲卷级事实3条，设定条目16条，卷数/已生成卷数/总字数3条，当前卷指令1条，共23条。” 这样可以。\n已提取编号：输入未提供既有V-ID；本次新识别 F001、F002、F003。\n未覆盖编号：输入未提供编号体系，未覆盖编号为未提供/待补信息。\n重复编号：无。\n状态变化：已生成卷数由0进入第1卷任务包准备；伏笔状态从输入未提供转为本次新识别F001-F003，状态均为未回收或本卷待推进；其他状态变化未提供/待补信息。\n注意不要出现英文方括号数组。可以使用 F001-F003。 OK.\n\n需要确定 F001-F003 的具体编号，如果要用，要在【伏笔】表和元数据一致。\n\n伏笔表格式：\n【伏笔】\nF001:内容=主角在风暴纪元中逐步揭示家族信物的真相；状态=未回收；预期回收时机=第三卷家族真相与风暴信标合流；生命周期=跨卷；是否草蛇灰线=未提供/待补信息。\nF002:内容=旧信与灯塔、南方航线共同推动第一卷冲突；状态=本卷需推进；预期回收时机=第一卷结尾完成第一次远航；生命周期=第一卷；是否草蛇灰线=未提供/待补信息。\nF003:内容=第三卷航路贯通、家族真相与风暴信标合流完成第一阶段远航闭环；状态=未回收；预期回收时机=第三卷；生命周期=跨卷；是否草蛇灰线=未提供/待补信息。\n\nF002 的预期回收时机“第一卷结尾完成第一次远航”是否明确？原文：“第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。” 可以推断冲突在卷末完成远航，但伏笔不一定回收。 但我写预期的时机是“第一卷完成第一次远航时”，不是确定回收。 这样写没问题：预期回收时机=第一卷完成第一次远航时（未确认回收）。 要加“未确认”。 由于伏笔状态“本卷需推进”，符合任务包？ 任务包“本卷必须推进的伏笔”可以引用 F002 和 F001? 或许本卷必须推进的伏笔可写：F002 旧信相关线索需在本卷推进；F001 家族信物真相需逐步推进但不得揭示终局。 可是输入没有这么明确。 但作为解析产物，这算结构推导。 但系统模板任务包“必须推进的伏笔”要求提取已有伏笔。 如果我在伏笔表新识别了 F001/F002，任务包应保持一致。 我可以写：本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）。 这样是否“不设计卷纲”？ 这是边界约束，可以。\n\n但需考虑是否过度。 输入没有明确“伏笔”，但设定中家族信物真相和第三卷合流有跨卷伏笔属性。 我认为可以。这样输出更有用。\n\n主题问题仍保持未提供，因为输入无核心命题反命题。 \n\n注意系统模板中“当前卷任务包”字段顺序固定：\n当前卷号：第 N 卷或未提供/待补信息\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：\n上一卷卷名：\n上一卷概要：\n上一卷卷末状态：\n本卷覆盖故事范围：\n本卷主题问题：\n本卷必须推进的伏笔：\n本卷必须延续的关系与资源：\n本卷可用字数：\n剩余待分配字数：\n首卷判断：是/否\n信息缺口：\n【当前卷任务包结束】\n\n需要输出这些准确字段，不要乱序。\n\n首卷判断：是。\n\n本卷可用字数：未提供/待补信息（全书总字数10000字，未提供第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但未确认按卷分配方案）\n\n信息缺口列出：\n- 主角姓名、身份、Ghost、Wound、Lie、Want、Need未提供；\n- 旧信、灯塔、旧航道、南方航线、家族信物等的 limitations、costs、weaknesses、意象功能、伏笔ID未提供；\n- 第1卷具体字数分配未提供（仅知全书总字数10000字）；\n- 具体势力、角色关系未提供；\n- 本卷主题问题、承诺系统、稳定性和世界规则未提供。\n这足够。\n\n全局资产表主题结构：\n【主题】核心命题：未提供/待补信息 | 反命题：未提供/待补信息 | 主题表达方式：未提供/待补信息 | 结构事实：全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n这样。\n\n【灵魂链】主角:Ghost未提供/待补信息 / Wound未提供/待补信息 / Lie未提供/待补信息 / Want未提供/待补信息 / Need未提供/待补信息 (状态：输入锁定主角为家族信物真相揭示者；当前阶段须完成第一次远航；其余未提供/待补信息)\n可以。\n\n【Stability】稳定性风险：未提供/待补信息 | 对抗措施：未提供/待补信息\n\n需要确保不输出 JSON 数组。不使用英文冒号半角? 可以用中文冒号。但文本中可以使用半角冒号？没问题。 但避免出现英文双引号等 JSON 特征。系统只是禁止 JSON 结构和代码围栏。 可以有英文 | 和中文标点。 对于“F001:内容=...”中的冒号可以中文或者半角。 为了不显 JSON，用中文冒号：F001：内容=... 但模板格式示例“编号:内容”用的是英文冒号？ 系统模板写“【伏笔】编号:内容+状态+预期回收时机+生命周期”。 可以用英文冒号，因为不是 JSON。但避免方括号。 OK.\n\n字段内容不能使用花括号 {}，因为 JSON 特征？ 系统禁止输出 JSON，但不禁止花括号在文本里，但最好避免。 用户输入有 JSON 花括号，但我们不应复制结构。 我们的输出不用花括号。\n\n现在考虑输出末尾的【信息来源元数据结束】之后不应有额外内容。 首字符一定是【，最后字符是】。 我输出应该从【当前卷任务包】开始，但系统要求输出顺序“按以下顺序输出”第一个区块是【当前卷任务包】，然后【当前卷任务包结束】，然后【全局资产表】... 首字符【。 最后字符【信息来源元数据结束】的】。 OK.\n\n需要保证没有空表。 知识矩阵可以有一个表，非空。 其他区块没有表格。\n\n可能【伏笔】区块内的编号是否看作 JSON? 不是。\n\n关于【故事梗概】中信息层标注：每条关键信息按四层标注。 我们可以写 [S]、[R] 等。 使用英文方括号吗？ 系统模板示例 [S] 等。这不算 JSON。 可以。\n\n但在故事梗概中使用英文 [S] 可能导致字符不是中文方括号，但没问题。\n\n【知识矩阵】表：使用 GFM 表格。 表头：“| 关键信息 \\ 角色 | 主角 |”。第二行“|---|---|”。第三行起。 必须半角 | 和短横线。 单元格不换行。 可以。\n\n全篇中出现“\\”符号在表头，没问题。\n\n需要避免把用户 style reference 中的故事事实纳入。 不出现陈暮、沈萤等。 这样正确。\n\n但现在检查系统模板开头给出的应用参数“全书卷数：0；每卷建议字数：3333；风格标签：未设置；节奏参数：未设置”。 在全局资产表【风格节奏】写风格标签未设置，节奏参数未设置。 每卷建议字数3333可在任务包可用字数中提到“系统建议每卷3333字，但输入未确认第1卷分配”。 因为模板说应用参数由应用注入，卷数与字数用于判断当前卷任务边界。 可以这么写。\n本卷可用字数：未提供/待补信息（输入确认全书总字数10000字，但未确认第1卷分配；系统建议每卷3333字不视为锁定）\n剩余待分配字数：未提供/待补信息（若按未锁定建议，全书剩余约10000字；具体分配未提供/待补信息）\n这里“约10000字”可以。但“剩余待分配字数”输入没有分配，严格应写未提供。 但可以同时写事实。\n\n但避免“约10000字”可能被当成事实。 我写“未提供/待补信息（仅知全书总字数10000字、已生成卷数0）”。 这样不会误导。\n\n【信息来源元数据】提取单元总数23，是否要解释？ 可以：\n提取单元总数：23（大纲卷级事实3条；设定条目16条；卷数、已生成卷数、全书总字数3条；本次生成目标1条）\n这个数字依据输入结构。 已提取编号：输入未提供既有V-ID；本次新识别F001-F003。\n未覆盖编号：未提供/待补信息。\n重复编号：无。\n状态变化：已生成卷数由0进入第1卷解析；F001-F003为本次新识别，状态均为待推进或未回收；其余状态变化未提供/待补信息。\nOK.\n\n还需要注意系统模板中部有：“输入中的历史卷纲成品（含 JSON 数组或单卷对象）只作为上一卷衔接材料，抽取上一卷卷名、概要和卷末状态，不得把它当作本步骤的输出格式，也不得把其中后续卷列为本次生成对象。” 当前输入没有历史卷纲成品。 style reference 中包含历史卷纲风格样本吗？ 它只是风格样本。 不应抽取上一卷信息。 由于已生成卷数0，上一卷无。 正确。\n\n另外输入末尾“已生成卷事实清单：暂无已生成卷”。 确认。\n\n用户指令要求“本次只生成第1卷，不生成其他卷。全书计划到第3卷。” 这在任务包首卷判断等体现。\n\n现在开始撰写最终答案，按模板区块。 需要注意不能使用“【当前卷任务包】”内容中不宜包含用户要求中的“输出JSON数组”等格式要求，只提取边界信息。 如果提到“输出JSON数组”也不必要。 不复制用户格式指令。 但“生成边界”字段可写“只生成当前这一卷，不输出其他卷”。\n\n让我逐字构建输出：\n\n【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与角色关系未提供；本卷主题问题未提供；世界规则与资源约束未提供。\n【当前卷任务包结束】\n\n这里本卷必须推进的伏笔 F002/F001 在之前伏笔表会有定义。没问题。\n\n全局资产表：\n【全局资产表】\n【主题】核心命题：未提供/待补信息 | 反命题：未提供/待补信息 | 主题表达方式：未提供/待补信息 | 结构事实：全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n【灵魂链】主角：Ghost未提供/待补信息 / Wound未提供/待补信息 / Lie未提供/待补信息 / Want未提供/待补信息 / Need未提供/待补信息（当前状态：输入锁定主角为家族信物真相揭示者；当前阶段须完成第一次远航；其余状态未提供/待补信息）\n【骨架】节拍位置：第1卷“风暴起点”为三卷结构的起始卷；第2卷“雾中港”为矛盾升级段；第3卷“南方航线”为第一阶段闭环段 | 故事圆环：未提供/待补信息 | 承诺系统：未提供/待补信息\n【Stability】稳定性风险：未提供/待补信息 | 对抗措施：未提供/待补信息\n【伏笔】\nF001：内容=主角在风暴纪元中逐步揭示家族信物的真相；状态=未回收；预期回收时机=第三卷家族真相与风暴信标合流；生命周期=跨卷；是否草蛇灰线=未提供/待补信息\nF002：内容=旧信与灯塔、南方航线共同推动第一卷冲突；状态=本卷需推进；预期回收时机=第一卷完成第一次远航时（是否回收未确认）；生命周期=第一卷；是否草蛇灰线=未提供/待补信息\nF003：内容=第三卷航路贯通、家族真相与风暴信标合流完成第一阶段远航闭环；状态=未回收；预期回收时机=第三卷；生命周期=跨卷；是否草蛇灰线=未提供/待补信息\n【意象】意象种子：灯塔、旧航道、南方航线、家族信物 | 承载情感：未提供/待补信息 | 演变方向：未提供/待补信息\n【故事梗概】\n阶段一：第一卷“风暴起点”\n阶段目标：开启风暴纪元中由旧信、灯塔与南方航线共同推动的冲突，使主角完成第一次远航。\n核心事件序列：未提供/待补信息；仅知第一卷冲突由旧信、灯塔与南方航线共同推动，主角完成第一次远航。\n出场角色与势力：主角；未提供其他角色与势力。\n功能约束：本阶段为当前第1卷生成范围；不得提前展开第二卷雾中港与第三卷南方航线的终局内容。\n信息层标注：[S]旧信、灯塔与南方航线共同推动第一卷冲突；[S]主角完成第一次远航；[R]读者可确认范围未提供/待补信息。\n阶段二：第二卷“雾中港”\n阶段目标：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n核心事件序列：未提供/待补信息。\n出场角色与势力：主角；未提供港口交易方、旧盟约相关方、失踪船队相关人员。\n功能约束：仅作全局背景与边界，非本卷生成对象。\n信息层标注：[S]港口交易、旧盟约与失踪船队为第二卷冲突来源；[S]主角必须选择立场；[R]读者可确认范围未提供/待补信息。\n阶段三：第三卷“南方航线”\n阶段目标：航路贯通、家族真相与风暴信标合流，完成第一阶段远航闭环。\n核心事件序列：未提供/待补信息。\n出场角色与势力：主角；未提供其他角色与势力。\n功能约束：仅作全书第一阶段终点背景，非本卷生成对象。\n信息层标注：[S]航路贯通、家族真相与风暴信标合流；[S]完成第一阶段远航闭环；[R]读者可确认范围未提供/待补信息。\n【势力角色】势力：未提供/待补信息（第二卷涉及的旧盟约、港口交易、失踪船队未提供具体势力名）；角色：主角：身份未提供/待补信息；动机=揭示家族信物的真相；关系未提供/待补信息；故事功能=家族信物真相揭示者、完成第一次远航与第一阶段远航闭环的执行者；当前认知状态未提供/待补信息；其他角色未提供/待补信息。\n【术语规范】术语：风暴纪元、灯塔、旧航道、南方航线、雾中港、家族信物、旧信、第一次远航、港口交易、旧盟约、失踪船队、航路贯通、家族真相、风暴信标、第一阶段远航闭环 | 命名约束：未提供/待补信息 | 灵魂语句：未提供/待补信息\n【风格节奏】风格标签：未设置 | 节奏参数：未设置 | 节奏权重指向：未提供/待补信息\n【信息四层分离】\n[S] 全书三卷结构与核心物件、地点关系：全书围绕灯塔、旧航道和南方航线展开；主角在风暴纪元中逐步揭示家族信物的真相；第一卷“风暴起点”由旧信、灯塔与南方航线共同推动冲突，主角完成第一次远航；第二卷“雾中港”由港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场；第三卷“南方航线”由航路贯通、家族真相与风暴信标合流完成第一阶段远航闭环；全书计划到第3卷；已生成卷数0；全书总字数10000字。\n[C-主角] 主角知道：未提供/待补信息；主角应知：未提供/待补信息；主角被欺骗：未提供/待补信息。\n[A] 作者真相：未提供/待补信息；仅可确认大纲层面的第三卷合流事实为家族真相与风暴信标合流。\n[R] 揭示边界：当前第1卷读者可确认范围未提供/待补信息。\n【知识矩阵】\n| 关键信息 \\ 角色 | 主角 |\n| 家族信物承载真相且将在第三卷揭示 | — |\n| 第一卷需完成第一次远航 | — |\n| 第二卷需选择立场 | — |\n| 第三卷需完成第一阶段远航闭环 | — |\n上表“—”表示输入未提供该角色对对应信息的认知状态。\n活跃欺骗：未提供/待补信息。\n【世界规则】资源约束：未提供/待补信息 | 能力限制：未提供/待补信息 | 社会与道德约束：未提供/待补信息。\n【全局资产表结束】\n\n【信息来源元数据】\n提取单元总数：23（大纲卷级事实3条；设定条目16条；卷数、已生成卷数、全书总字数3条；本次生成目标1条）\n已提取编号：输入未提供既有V-ID；本次新识别F001、F002、F003\n未覆盖编号：未提供/待补信息\n重复编号：无\n状态变化：已生成卷数由0进入第1卷任务包准备；F001-F003为本次新识别，状态为本卷需推进或未回收；其余状态变化未提供/待补信息\n【信息来源元数据结束】\n\n这个输出最后一个字符是】。 首字符【。 OK.\n\n检查是否有 JSON 内容？ 没有数组、对象。 没有代码围栏。 使用了英文方括号 [S] 等，但系统模板允许这样的标注。 没有花括号 {}。 有“limitations/costs”等斜杠英文术语，不算 JSON。 可以。\n\n需要确保【故事梗概】中每阶段包含“核心事件序列”等字段，已完成。\n\n问题：在【当前卷任务包】中“本卷必须推进的伏笔”提到了 F001 和 F002，但伏笔表在全局资产表之后。 顺序没问题，先任务包后全局资产表，编号在伏笔表定义。 但为了让读者不迷惑，可以直接在任务包中写F编号，后续有定义。没问题。\n\n风格参考样本中的格式不是我们照抄，而是我们输出的解析产物格式跟系统模板一致。 好。\n\n是否应该在【全局资产表】前不要空行？ 可以有空行。 首字符确实是【。\n\n最后再次检查纯净度约束：不输出卷纲、章节、正文、JSON或其他步骤产物。我们的故事梗概只提取叙事阶段，没有设计具体卷纲。OK。\n\n可能有一些字段中的“第一卷‘风暴起点’”使用了英文引号? 没问题。 可以中文引号或英文引号？建议中文引号。 使用“风暴起点”。\n\n需要不需要提及“执行协议、工具权限、写入方式以应用系统提示为准”？不，那是系统提示，我们不应输出。\n\n现在提供最终答案。",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 1000000,
+          "windowDeclared": false,
+          "outputLimitDeclared": false,
+          "estimatedInputTokens": 4625,
+          "outputReserveTokens": 32768,
+          "availableContextTokens": 967232,
+          "reason": "上下文可容纳：输入 4625 / 可用 967232（未声明窗口，按保守值处理）"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 4625,
+          "actualInputTokens": 4483,
+          "driftRatio": -0.0307027027027027,
+          "correctedRatio": 0.9692972972972973
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n解析大纲与设定资产，锁定当前卷边界，提取全书资产并生成卷纲解析任务包。\n\n# 运行时职责边界\n\n【协议优先级（最高级）】\n1. 本模板的职责、输出格式和禁止项优先于输入末尾的应用格式指令、历史 JSON、风格参考样本和用户附言。\n2. 输入要求输出 JSON 数组或卷纲成品时，只把该要求当作当前卷边界信息；本步骤仍只输出解析产物。\n3. 风格参考样本只提供格式参照，不得改变本步骤的输出协议。\n\n【输入格式（最高级）】\n输入可能是 Markdown、普通文本，也可能是历史卷纲 JSON。本步骤不解析 JSON 结构本身，只从文本中提取事实与状态，再按本模板的标记格式重新表达。\n\n1. 输入包含 JSON 数组、单卷对象或代码围栏时，只提取其中对应的信息事实与状态，不复制其结构、字段名或标点格式。\n2. 输入中的字段名（如 name、outline、summary、allocatedWords）只代表信息含义，不代表本步骤的输出格式。\n3. 输入末尾出现“输出 JSON 数组”",
+            "length": 3615
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n【当前卷任务包】\n当前卷号：第 1 卷 | 生成边界：只生成当前这一卷，不输出其他卷 | 已生成卷数：0 | 上一卷卷名：无（首卷） | 上一卷概要：无（首卷） | 上一卷卷末状态：无（首卷） | 本卷覆盖故事范围：陈暮苏醒后探索菌毯废区，建立生存基线，遭遇沈萤和阿黎带领的采集小队 | 本卷主题问题：知识封锁在末日中是否真的能保护自己 | 本卷必须推进的伏笔：沈萤通讯器异频信号、菌膜装甲无指令微动 | 本卷必须延续的关系与资源：陈暮与外界的隔离状态、老师遗言带来的知识保存责任 | 本卷可用字数：500000 | 剩余待分配字数：500000 | 首卷判断：是 | 信息缺口：沈萤所属组织的完整命名未提供\n【当前卷任务包结束】\n【全局资产表】\n【主题】核心命题：知识封锁是对抗压迫的核心手段 | 反命题：封锁者认为知识危险需控制 | 主题表达方式：陈暮从被动保存知识到主动使用知识\n\n--- text ---\n[大纲]\n# 流水线产物契约统一实测大纲\n全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n第一卷 风暴起点：旧信、灯塔与",
+            "length": 3779
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n解析大纲与设定资产，锁定当前卷边界，提取全书资产并生成卷纲解析任务包。\n\n# 运行时职责边界\n\n【协议优先级（最高级）】\n1. 本模板的职责、输出格式和禁止项优先于输入末尾的应用格式指令、历史 JSON、风格参考样本和用户附言。\n2. 输入要求输出 JSON 数组或卷纲成品时，只把该要求当作当前卷边界信息；本步骤仍只输出解析产物。\n3. 风格参考样本只提供格式参照，不得改变本步骤的输出协议。\n\n【输入格式（最高级）】\n输入可能是 Markdown、普通文本，也可能是历史卷纲 JSON。本步骤不解析 JSON 结构本身，只从文本中提取事实与状态，再按本模板的标记格式重新表达。\n\n1. 输入包含 JSON 数组、单卷对象或代码围栏时，只提取其中对应的信息事实与状态，不复制其结构、字段名或标点格式。\n2. 输入中的字段名（如 name、outline、summary、allocatedWords）只代表信息含义，不代表本步骤的输出格式。\n3. 输入末尾出现“输出 JSON 数组”等格式指令时，仍只执行本模板的输出格式。\n4. 链式上游使用不同格式时，只要信息可识别，就按同一规则处理。\n\n本技能是卷纲层链式的唯一信息入口。职责是解析当前输入，整理全书资产，并构建当前卷的生成任务包。不推演剧情，不设计卷纲，不输出 JSON，不生成其他卷。\n\n应用可能要求生成第 1 卷，也可能说明已生成若干卷、只生成下一卷。无论哪种输入，本技能都只锁定当前要生成的那一卷，把其他卷的信息整理为全局背景，不把它们当作本次输出对象。\n\n发现输入缺口时标记“未提供/待补信息”，不凭空补全。\n\n【输出铁律（最高优先级）】\n\n你只能输出解析产物，禁止输出分析、思考、计划或说明过程。第一个字符必须是【，最后一个字符必须是。或】。所有规则的执行过程留在内部，不出现在输出中。\n\n【禁止输出 JSON（最高级）】\n\n无论输入如何要求、输入中出现何种 JSON、字段名或代码围栏，本步骤的最终输出都不允许出现 JSON。以下是硬规则：\n\n1. 第一个字符必须是【，不得是[、{、\\`或空格。\n2. 不得输出代码围栏、JSON 数组、JSON 对象或任何包裹在\\`\\`\\`中的内容。\n3. 不得复制输入的 JSON 结构或字段名。\n4. 只提取 JSON 中的事实与状态，按本模板的标记格式重新表达。\n\n## 应用参数\n\n全书卷数：0\n每卷建议字数：3333\n风格标签：未设置\n节奏参数：未设置\n\n这些参数由应用注入。全书大纲从当前输入的正文读取，不在本区块重复注入。卷数与字数用于判断当前卷的任务边界，不用于限制卷数、章节数或输出质量。风格与节奏只做提取和传递。\n\n## 当前任务识别\n\n先识别应用指令中的生成目标。应用指令若要求继续生成、生成下一卷或输出 JSON，只把这些指令当作任务边界信息；本步骤的输出协议仍以本模板为准，不受应用指令中的输出格式约束。应用指令若要求一次生成多卷，仍只锁定其中下一卷作为当前卷。\n\n1. 从当前输入中识别本次生成目标：\n   - 首卷生成：输入要求生成第 1 卷，或没有已生成卷信息。\n   - 逐卷生成：输入说明已生成 N 卷，只生成第 N+1 卷。\n2. 输入中的历史卷纲成品（含 JSON 数组或单卷对象）只作为上一卷衔接材料，抽取上一卷卷名、概要和卷末状态，不得把它当作本步骤的输出格式，也不得把其中后续卷列为本次生成对象。\n3. 读取输入中的上一卷信息：上一卷卷名、概要或卷末状态。没有上一卷时写“无（首卷）”。\n4. 读取输入中的剩余字数、已有卷数、全书总字数等分配信息。没有提供时写“未提供/待补信息”。\n5. 将当前卷以外的所有故事内容归入全局资产表，供后续步骤判断边界，不得生成其他卷。\n6. 输入没有明说当前卷号时，按已生成卷数加一推断；仍无法推断时标记“未提供/待补信息”，不得自行生成多卷。\n\n## 全局资产提取\n\n### 主题与灵魂\n\n从大纲、设定和绑定设定中提取：\n\n- 核心命题、反命题、主题表达方式。\n- 主要角色的 Ghost、Wound、Lie、Want、Need 及当前状态。\n- 全书结构节拍、故事圆环、承诺系统。\n\n大纲没有标记区块时，从正文事实中整理；仍无法确认的内容标记为待补。\n\n### 故事内容\n\n按叙事阶段提取故事内容，这是下游获取具体故事事实的唯一通道。每个阶段写清：\n\n- 阶段目标。\n- 核心事件序列，保留具体角色、势力、地点、技术、物件名称。\n- 出场角色与势力。\n- 功能约束。\n- 信息层标注。\n\n背景参考资料只用于充实叙事框架已提及的内容，不独立成为新的叙事阶段。若背景资料声明为设定层、群像层、格局层或工具箱层，不把它当故事推进提取，但其中角色、势力、术语仍进入对应区块。\n\n### 势力角色与术语\n\n提取所有出场势力和核心角色：\n\n- 势力：名称、核心人物、技术或军事特征、组织风格、势力关系、故事角色。\n- 角色：姓名或群像称谓、身份、动机、关系、故事功能、当前认知状态。\n\n提取术语规范：专属名词、命名约束、视角用法、核心术语定义、灵魂语句。没有明确术语时写“无明确术语规范”。\n\n### 伏笔、意象与世界规则\n\n提取已有伏笔，保留输入编号：\n\n- V-ID 是跨卷继承编号，原样保留。\n- F-ID 是本次解析新识别编号，从 F001 起。\n- 标注内容、状态、预期回收时机、生命周期、是否草蛇灰线。\n\n提取意象种子的承载情感和演变方向。提取世界规则、能力限制、资源约束、资源状态（存在可计量体系时登记既有资源、计量单位、补给来源、消耗方式、缺口）、道德规则。输入没有提供时标记待补，不新建。\n\n### 信息四层分离与知识矩阵\n\n每条关键信息按四层标注：\n\n- [S] 故事事实：客观发生、可被观察。\n- [C-角色名] 角色认知：角色知道、误判、应知或被欺骗。\n- [A] 作者真相：角色未必知道但作者必须知道的机制。\n- [R] 揭示边界：当前阶段读者可确认的范围。\n\n构建知识矩阵，行为关键信息，列为主要角色。单元格使用 Knows、Suspects、Lied to、F、—标注。活跃欺骗单独列出欺骗者、被欺骗者、内容、起始时间、是否仍活跃。\n\n## 当前卷任务包\n\n输出唯一一个【当前卷任务包】区块，包含以下字段：\n\n【当前卷任务包】\n当前卷号：第 N 卷或未提供/待补信息\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：\n上一卷卷名：\n上一卷概要：\n上一卷卷末状态：\n本卷覆盖故事范围：\n本卷主题问题：\n本卷必须推进的伏笔：\n本卷必须延续的关系与资源：\n本卷可用字数：\n剩余待分配字数：\n首卷判断：是/否\n信息缺口：\n【当前卷任务包结束】\n\n上一卷卷末状态至少包含人物处境、关系状态、情感债务、悬念库存、卷级钩子、钩子形态、下卷衔接信号。输入没有提供时标记待补，不虚构。\n\n## 输出格式\n\n按以下顺序输出，区块完整，不遗漏，不重复：\n\n【当前卷任务包】\n...区块内容...\n【当前卷任务包结束】\n\n【全局资产表】\n【主题】核心命题+反命题+主题表达方式\n【灵魂链】角色:Ghost/Wound/Lie/Want/Need(状态)\n【骨架】节拍位置+故事圆环+承诺系统\n【Stability】稳定性风险+对抗措施\n【伏笔】编号:内容+状态+预期回收时机+生命周期\n【意象】意象:承载情感+演变方向\n【故事梗概】按叙事阶段展开，每阶段包含阶段目标、事件序列、出场角色与势力、功能约束、信息层标注\n【势力角色】势力与角色的结构化清单\n【术语规范】术语、命名约束、灵魂语句\n【风格节奏】风格标签+节奏参数+节奏权重指向\n【信息四层分离】[S]、[C-角色名]、[A]、[R]分层清单\n【知识矩阵】关键信息乘以角色的矩阵和活跃欺骗\n【世界规则】资源、能力、社会与道德约束\n【全局资产表结束】\n\n【信息来源元数据】\n提取单元总数：\n已提取编号：\n未覆盖编号：\n重复编号：\n状态变化：\n【信息来源元数据结束】\n\n## 纯净度约束\n\n1. 只提取输入已经提供的信息；结构推导只能说明已有要素之间的关系，不能创造新事件。\n2. 待补信息必须写“未提供/待补信息”，不得写成确定事实。\n3. 具体事件不得抽象化替代。写“陈暮遭遇沈萤和阿黎带领的采集小队”，不写“主角遇到幸存者”。\n4. 不输出卷纲、章节、正文、JSON 或其他步骤的产物。\n5. 当前卷任务包只有一个；全局资产表可以有多个叙事阶段，但不得把本次生成目标扩展为多卷。\n6. 历史卷纲 JSON 只允许进入上一卷衔接字段和全局资产表，不得在输出中原样复述。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n【当前卷任务包】\n当前卷号：第 1 卷 | 生成边界：只生成当前这一卷，不输出其他卷 | 已生成卷数：0 | 上一卷卷名：无（首卷） | 上一卷概要：无（首卷） | 上一卷卷末状态：无（首卷） | 本卷覆盖故事范围：陈暮苏醒后探索菌毯废区，建立生存基线，遭遇沈萤和阿黎带领的采集小队 | 本卷主题问题：知识封锁在末日中是否真的能保护自己 | 本卷必须推进的伏笔：沈萤通讯器异频信号、菌膜装甲无指令微动 | 本卷必须延续的关系与资源：陈暮与外界的隔离状态、老师遗言带来的知识保存责任 | 本卷可用字数：500000 | 剩余待分配字数：500000 | 首卷判断：是 | 信息缺口：沈萤所属组织的完整命名未提供\n【当前卷任务包结束】\n【全局资产表】\n【主题】核心命题：知识封锁是对抗压迫的核心手段 | 反命题：封锁者认为知识危险需控制 | 主题表达方式：陈暮从被动保存知识到主动使用知识\n\n--- text ---\n[大纲]\n# 流水线产物契约统一实测大纲\n全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。\n第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n第三卷 南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。\n\n[设定]\n灯塔 - {\"desc\":\"核心地点；与旧航道、南方航线共同推动第一卷冲突。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——灯塔为全书核心地点。\"}\n旧航道 - {\"desc\":\"核心地点；与灯塔、南方航线共同推动第一卷冲突。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——旧航道为全书核心地点。\"}\n南方航线 - {\"desc\":\"核心地点；第三卷航路贯通、家族真相与风暴信标合流，完成第一阶段远航闭环。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——南方航线为全书核心地点。\"}\n雾中港 - {\"desc\":\"第二卷核心地点；港口交易、旧盟约与失踪船队在此让矛盾升级。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——雾中港为第二卷核心地点。\"}\n主角 - {\"desc\":\"输入仅提供主角在风暴纪元中逐步揭示家族信物真相，并完成第一次远航、选择立场、完成第一阶段远航闭环。ghost未提供/待补信息；wound未提供/待补信息；lie未提供/待补信息；want未提供/待补信息；need未提供/待补信息；proactivity未提供/待补信息；likability未提供/待补信息；competence未提供/待补信息；对话指纹未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——主角是家族信物真相揭示者。\"}\n风暴纪元 - {\"desc\":\"故事发生的时代背景。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为🔹；身份状态：锁定事实——风暴纪元为背景时代。\"}\n家族信物 - {\"desc\":\"主角逐步揭示其真相的核心物品。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——家族信物为真相载体。\"}\n旧信 - {\"desc\":\"第一卷关键物品；与灯塔、旧航道和南方航线共同推动第一卷冲突。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——旧信为第一卷关键物品。\"}\n第一次远航 - {\"desc\":\"第一卷结尾主角完成的阶段性目标；与旧信、灯塔、南方航线共同推动冲突。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为🔹；身份状态：锁定事实——第一次远航由大纲明确。\"}\n港口交易 - {\"desc\":\"第二卷关键冲突来源之一；与旧盟约、失踪船队共同让矛盾升级。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为🔹；身份状态：锁定事实——港口交易为第二卷要素。\"}\n失踪船队 - {\"desc\":\"第二卷关键冲突来源之一；与港口交易、旧盟约共同让矛盾升级。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为🔹；身份状态：锁定事实——失踪船队为第二卷要素。\"}\n航路贯通 - {\"desc\":\"第三卷要素；与家族真相、风暴信标合流，完成第一阶段远航闭环。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为🔹；身份状态：锁定事实——航路贯通为第三卷要素。\"}\n第一阶段远航闭环 - {\"desc\":\"全书第一阶段的目标终点；由航路贯通、家族真相与风暴信标合流完成。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为🔹；身份状态：锁定事实——第一阶段远航闭环由大纲明确。\"}\n旧盟约 - {\"desc\":\"第二卷关键冲突来源之一；与港口交易、失踪船队共同让矛盾升级。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——旧盟约为第二卷要素。\"}\n家族真相 - {\"desc\":\"第三卷揭示的核心信息；与航路贯通、风暴信标合流。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——家族真相为第三卷要素。\"}\n风暴信标 - {\"desc\":\"第三卷关键物件或地点；与航路贯通、家族真相合流。limitations未提供/待补信息；costs未提供/待补信息；weaknesses未提供/待补信息；意象功能未提供/待补信息；伏笔ID未提供/待补信息；能量：结构推导为⚡；身份状态：锁定事实——风暴信标为第三卷要素。\"}\n\n[卷数]\n3\n\n[已生成卷数]\n0\n\n[全书总字数]\n10000字\n\n请生成3卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。\n\n[已生成卷事实清单]\n暂无已生成卷\n\n本次只生成第1卷，不生成其他卷。全书计划到第3卷。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 14,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 7,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 1,
+            "[大纲]": 1,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "requestPayloadRef": "payload-001"
+      },
+      "outputPayloadRef": "payload-012",
+      "outputLength": 2908,
+      "outputPreview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+    }
+  ],
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1792406748346-66",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+        "bytes": 7856,
+        "chars": 2908,
+        "preview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "a13a4157cf07a8a30869e3524ddeedcf39cec86532133d24e991f9ff2559373f",
+        "bytes": 7859,
+        "chars": 2909
+      },
+      "reasoning": {
+        "ref": "payload-004",
+        "file": "004-reasoning.json",
+        "sha256": "2710eae2eb5dc0292ac32ef6ea1ae4cd167300e1276022f96cec2c64ae3bdb0b",
+        "bytes": 52997,
+        "chars": 19837
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792406748393-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+            "bytes": 7856,
+            "chars": 2908,
+            "preview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+          },
+          "stream": {
+            "ref": "payload-005",
+            "file": "005-stream.json",
+            "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+            "bytes": 7856,
+            "chars": 2908
+          },
+          "reasoning": {
+            "ref": "payload-004",
+            "file": "004-reasoning.json",
+            "sha256": "2710eae2eb5dc0292ac32ef6ea1ae4cd167300e1276022f96cec2c64ae3bdb0b",
+            "bytes": 52997,
+            "chars": 19837
+          }
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1792406940410-123",
+      "seq": 2,
+      "status": "running",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+        "bytes": 7856,
+        "chars": 2908,
+        "preview": "【当前卷任务包】\n当前卷号：第1卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”；旧信、灯塔与南方航线共同推动第一卷冲突；主角完成第一次远航。\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：F002（旧信与灯塔、南方航线共同推动第一卷冲突）；F001（家族信物真相仅限逐步推进，不得在本卷揭示终局）\n本卷必须延续的关系与资源：旧信作为第一卷关键物品；家族信物作为真相揭示线索；主角与灯塔、旧航道、南方航线的交汇关系；其余关系未提供/待补信息\n本卷可用字数：未提供/待补信息（仅知全书总字数10000字，未确认第1卷分配）\n剩余待分配字数：未提供/待补信息（已生成卷数0，但各卷具体分配方案未提供）\n首卷判断：是\n信息缺口：主角姓名与身份未提供；主角Ghost/Wound/Lie/Want/Need未提供；旧信、灯塔、旧航道、南方航线、家族信物等的limitations/costs/weaknesses/意象功能/伏笔ID未提供；第1卷具体字数分配未提供；具体势力与"
+      },
+      "stream": {
+        "ref": "payload-005",
+        "file": "005-stream.json",
+        "sha256": "75451e78bbf7c3a03665d1ac9de55a25f1138dd7eac30f5e8d05f6dd74754700",
+        "bytes": 7856,
+        "chars": 2908
+      },
+      "reasoning": {
+        "ref": "payload-007",
+        "file": "007-reasoning.json",
+        "sha256": "67dfc37d76246bf25f792c956ead0798f4fb89f7d984b3b0f57a4d2364848130",
+        "bytes": 10005,
+        "chars": 3742
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792406940441-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "running",
+          "reasoning": {
+            "ref": "payload-008",
+            "file": "008-reasoning.json",
+            "sha256": "c9af91f6e746116fcc3d8a54cc2ee2829f3753ea4dac6063650851b2417e0d3e",
+            "bytes": 9903,
+            "chars": 3704
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

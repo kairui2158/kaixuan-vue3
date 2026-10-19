@@ -769,7 +769,7 @@ import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateO
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import type { ChainBreakpointStepOutput } from "../../services/chainBreakpoint"
-import { bodyGeneratorContractSentence, isBodyContractStep } from "../../services/chainExecution"
+import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepRole } from "../../services/chainExecution"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
@@ -792,7 +792,9 @@ import { countBodyWords } from "../../services/bodyArtifactContract"
 import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
 import {
   makeStepArtifactEnvelope,
+  resolveFinalStepMetadataFlow,
   resolveStepArtifactFlow,
+  type FinalStepMetadataFlowResult,
   type StepArtifactAcceptanceResult
 } from "../../services/stepArtifactAcceptance"
 import { hashEditorContent } from "../../services/editorTarget"
@@ -806,6 +808,8 @@ import {
 import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
 import { buildPipelineChainWarningLine, coalescePipelineStepWarning } from "../../services/pipelineStepLog"
 import { DeAiProcessor, resolveDeaiPromptForChainStep } from "../../services/de-ai"
+import { buildFinalStepFeedback } from "../../services/finalStepFeedback"
+import { parseGenerationResult } from "../../services/generationResult"
 import {
   buildStyleAnalysisUserPrompt,
   parseStyleAnalysis,
@@ -2005,6 +2009,54 @@ function validateSkillOutputOrThrow(template: PipelineSkillTemplate, output: str
   if (!rules.valid) throw new Error("「" + template.name + "」规则校验失败：" + rules.errors.join("；"))
 }
 
+function buildFinalStepUpstreamAnchors(upstreamOutput: string): string[] {
+  const text = upstreamOutput.trim()
+  if (!text) return []
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map(paragraph => paragraph.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+  const indexes = paragraphs.length >= 3
+    ? Array.from(new Set([0, Math.floor(paragraphs.length / 2), paragraphs.length - 1]))
+    : [0]
+  return indexes
+    .map(index => paragraphs[index]?.slice(0, 200) || '')
+    .filter(Boolean)
+    .slice(0, 3)
+}
+
+function buildFinalStepEchoRetryFeedback(
+  finalStepRetry: {
+    role: 'generator' | 'polish'
+    upstreamAnchors?: string[]
+    deaiFindings?: Array<{ code?: string; label?: string; message?: string }>
+  },
+  stepIndex: number,
+  totalSteps: number
+): string {
+  const result = buildFinalStepFeedback({
+    errors: [
+      `终步回显校验失败：第 ${stepIndex + 1}/${totalSteps} 步输出与上一步输出高度重复。`,
+      'failureKind: chain_output_echo'
+    ],
+    upstreamAnchors: finalStepRetry.upstreamAnchors,
+    deaiFindings: finalStepRetry.deaiFindings
+  })
+  if (runTraceStore.currentRunId) {
+    runTraceStore.addEvent(runTraceStore.currentRunId, {
+      type: 'final-step-feedback-composed',
+      level: 'info',
+      label: '终步回显重试反馈已单源合成',
+      detail: JSON.stringify({
+        sourceCounts: result.sourceCounts,
+        length: result.length,
+        trigger: 'chain-output-echo-repair'
+      })
+    })
+  }
+  return result.feedback
+}
+
 async function callValidatedSkill(
   step: number,
   template: PipelineSkillTemplate,
@@ -2025,6 +2077,11 @@ async function callValidatedSkill(
     totalSteps: number
     declaredRole: string | null
     targetWords: number | null
+  },
+  finalStepRetryParam?: {
+    role: 'generator' | 'polish'
+    upstreamAnchors?: string[]
+    deaiFindings?: Array<{ code?: string; label?: string; message?: string }>
   }
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
@@ -2168,6 +2225,19 @@ async function callValidatedSkill(
         stream: true,
         signal: pipelineStore.getGenerationSignal(),
         timeoutMs,
+        finalStepRetry: finalStepRetryParam,
+        onFinalStepFeedbackComposed: (result) => {
+          if (!traceRunId) return
+          runTraceStore.addEvent(traceRunId, {
+            type: 'final-step-feedback-composed',
+            level: 'info',
+            label: `终步重试反馈已单源合成：${template.name || template.id}`,
+            detail: JSON.stringify({
+              sourceCounts: result.sourceCounts,
+              length: result.length
+            })
+          })
+        },
       onChunk: (text: string) => {
         appendPipelineDelta(step, 'text', text)
       },
@@ -2320,8 +2390,32 @@ async function callValidatedSkill(
     ? getSkillMaxAttempts(template.retryPolicy)
     : template.outputFormat === "json" ? 2 : 1
   let currentError: unknown = null
+  const composeFinalStepFeedback = (errors: string[]) => buildFinalStepFeedback({
+    errors,
+    upstreamAnchors: finalStepRetryParam?.upstreamAnchors,
+    deaiFindings: finalStepRetryParam?.deaiFindings
+  }).feedback
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。"
+    const attemptFeedback = attempt === 1
+      ? ''
+      : composeFinalStepFeedback(
+          currentError instanceof Error
+            ? [currentError.message]
+            : ['上次输出未满足技能的结构化约束。']
+        )
+    const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n" + attemptFeedback
+    if (attempt > 1 && runTraceStore.currentRunId) {
+      runTraceStore.addEvent(runTraceStore.currentRunId, {
+        type: 'final-step-feedback-composed',
+        level: 'info',
+        label: `终步重试反馈已单源合成：${template.name || template.id}`,
+        detail: JSON.stringify({
+          channel: 'non-folder',
+          trigger: 'schema-retry',
+          length: attemptFeedback.length
+        })
+      })
+    }
     const output = await callApiWithAgentVariant(
       step,
       injection.systemSkill || "",
@@ -2395,7 +2489,7 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     userPrompt: prompt,
     outlineContent: projectStore.pipelineOutlineText || "",
     novelTitle: projectStore.projectName || "",
-    volumeCount: volumePlan.generatedVolumeCount,
+    volumeCount: step === 2 ? volumePlan.plannedVolumeCount : volumePlan.generatedVolumeCount,
     wordsPerVolume: volumePlan.currentVolumeBudget || "",
     chapterCount: chs.length,
     wordsPerChapter: Number(vol?.wordsPerChapter || chapterWords.value || 3500) || "",
@@ -2514,7 +2608,6 @@ async function analyzeOutline() {
     trace.fail(e)
     return
   }
-  trace.finish('success')
 }
 
 async function handlePipelineStyleAnalysisRequest(event: Event) {
@@ -2550,7 +2643,7 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
     return
   }
   const model = provider.selectedModel || provider.models?.[0] || ""
-  const trace = startStepTrace(0, "创作风格 AI 分析", "style-analysis")
+  const trace = startStepTrace(0, "大纲风格分析", "style-analysis")
   pipelineStyleAnalysisRunId = trace.runId || null
   trace.begin()
   addPipelineStyleAnalysisEvent({
@@ -2563,12 +2656,24 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
     pipelineStyleAnalysisRunId = null
     if (report) publishPipelineStyleAnalysisResult({ sourceId: payload.sourceId, host: 'pipeline', report })
   }
+  const traceRunId = trace.runId
+  const messagesToCall = [
+    { role: "system", content: STYLE_ANALYSIS_SYSTEM_PROMPT },
+    { role: "user", content: buildStyleAnalysisUserPrompt(projectStore.pipelineOutlineText) },
+  ]
+  const apiCallId = traceRunId ? runTraceStore.startApiCall(traceRunId, {
+    step: 0,
+    skillName: "创作风格 AI 分析",
+    providerId: provider.id,
+    providerName: provider.name,
+    model,
+    temperature: 0.2,
+    intent: "analyze",
+    requestMessages: messagesToCall,
+    actualToolSurface: [],
+  }) : ""
   try {
     const aiService = await getAiService()
-    const messagesToCall = [
-      { role: "system", content: STYLE_ANALYSIS_SYSTEM_PROMPT },
-      { role: "user", content: buildStyleAnalysisUserPrompt(projectStore.pipelineOutlineText) },
-    ]
     const response = await aiService.callAi({
       purpose: 'generate',
       messages: messagesToCall,
@@ -2576,8 +2681,43 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
       temperature: 0.2,
       stream: false,
       retry: true,
+      onPhysicalCall: (event) => {
+        if (!traceRunId || !apiCallId) return
+        runTraceStore.appendPhysicalCall(traceRunId, apiCallId, {
+          physicalCallId: event.physicalCallId,
+          phase: event.phase,
+          status: event.status,
+          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+          responseText: event.responseText || '',
+          streamText: event.streamText || '',
+          reasoningText: event.reasoningText || '',
+          finishReason: event.finishReason,
+          usage: event.usage,
+          durationMs: event.durationMs,
+          error: event.error,
+          toolsEnabled: event.toolsEnabled,
+          toolsDowngraded: event.toolsDowngraded,
+          downgradeReason: event.downgradeReason,
+          maxTokens: event.maxTokens,
+          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+          firstTokenMs: event.firstTokenMs,
+          outputMs: event.outputMs,
+        })
+      },
       meta: { source: 'PipelinePanel.style-analysis' },
     })
+    if (traceRunId && apiCallId) {
+      runTraceStore.finishApiCall(traceRunId, apiCallId, {
+        status: response.text ? 'success' : 'failed',
+        responseText: response.text || '',
+        reasoningText: response.reasoning || '',
+        finishReason: response.finishReason,
+        usage: response.usage,
+        durationMs: response.durationMs,
+        error: response.text ? undefined : '模型没有返回风格分析结果',
+      })
+    }
     const report = parseStyleAnalysis(response.text || '')
     addPipelineStyleAnalysisEvent({
       type: "style-analysis",
@@ -2599,6 +2739,12 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
     finishPipelineAnalysis('success', report)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
+    if (traceRunId && apiCallId) {
+      runTraceStore.finishApiCall(traceRunId, apiCallId, {
+        status: 'failed',
+        error: message,
+      })
+    }
     addPipelineStyleAnalysisEvent({
       type: "style-analysis",
       level: "error",
@@ -2883,6 +3029,10 @@ type RunStepSkillsExecutionPlan = {
   disableBreakpointReplay?: BodyArtifactExecutionPlan['disableBreakpointReplay']
   upstreamStepOutputs?: ChainBreakpointStepOutput[]
   onStepOutputs?: (outputs: ChainBreakpointStepOutput[]) => void
+  onFinalStepMetadata?: (result: {
+    authoritativeGeneratorMetadata: Record<string, unknown> | null
+    finalStepFlow: FinalStepMetadataFlowResult
+  }) => void
 }
 
 async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan) {
@@ -2941,6 +3091,13 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     let completedStepOutputs = resumePoint.stepOutputs.slice()
     let upstreamStepMetadata: Record<string, unknown> | null =
       resumePoint.stepOutputs.find(output => output.skillIndex === startSi - 1)?.metadata || null
+    let authoritativeGeneratorMetadata: Record<string, unknown> | null = null
+    if (step === 4) {
+      const persistedGeneratorIndex = resolveBodyGeneratorStepIndex().index
+      authoritativeGeneratorMetadata = persistedGeneratorIndex === null
+        ? null
+        : completedStepOutputs.find(output => output.skillIndex === persistedGeneratorIndex)?.metadata || null
+    }
     if (executionPlan?.disableBreakpointReplay) {
       startSi = Math.max(0, Math.min(Math.floor(executionPlan.startIndex ?? 0), templates.length))
       current = prompt
@@ -3046,6 +3203,57 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           : templateOwnsPreviousOutput
             ? "template_variable"
             : "inline_block"
+      const bodyStepContext = step === 4 && currentBodyChainContract.value
+        ? {
+            stepIndex: si,
+            totalSteps: templates.length,
+            declaredRole: templateMeta?.chainHandoff?.role || null,
+            targetWords: currentBodyChainContract.value.targetWords
+          }
+        : undefined
+      const finalStepRole = bodyStepContext
+        ? resolveFinalStepRole({
+            step,
+            stepIndex: si,
+            totalSteps: templates.length,
+            declaredRole: bodyStepContext.declaredRole,
+            generatorStepIndexes: currentBodyGeneratorStepIndex.value === null
+              ? []
+              : [currentBodyGeneratorStepIndex.value]
+          })
+        : null
+      const finalStepMetadataMode = finalStepRole?.mode === 'final_step_ledger'
+        ? 'final_step_ledger'
+        : 'summary'
+      if (finalStepRole?.reason === 'unresolved' && si === templates.length - 1) {
+        appendPipelineChainWarning({
+          step,
+          skillIndex: si,
+          code: 'final-step-role-unresolved',
+          summary: '终步角色无法确认，已退回摘要交接，不启用终步账本原文。'
+        })
+        if (runTraceStore.currentRunId) {
+          runTraceStore.addEvent(runTraceStore.currentRunId, {
+            type: 'final-step-role-unresolved',
+            level: 'warn',
+            label: `正文终步 ${si + 1}/${templates.length} 角色未确认`,
+            detail: JSON.stringify({
+              declaredRole: bodyStepContext?.declaredRole || null,
+              metadataMode: finalStepMetadataMode,
+              generatorStepIndexes: currentBodyGeneratorStepIndex.value === null
+                ? []
+                : [currentBodyGeneratorStepIndex.value]
+            })
+          })
+        }
+      }
+      const finalStepRetry = finalStepRole?.role === 'polish'
+        ? {
+            role: 'polish' as const,
+            upstreamAnchors: buildFinalStepUpstreamAnchors(previousResolution.output),
+            deaiFindings: []
+          }
+        : undefined
       const nextPrompt = buildChainSkillPrompt({
         initialPrompt: upstreamPrompt.prompt,
         previousOutput: previousResolution.output,
@@ -3053,7 +3261,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         isFirst: useOriginal,
         templateOwnsPreviousOutput,
         delivery,
-        upstreamMetadata: si === 0 ? null : upstreamStepMetadata
+        upstreamMetadata: si === 0 ? null : upstreamStepMetadata,
+        metadataMode: finalStepMetadataMode
       })
       const previousOutput = si === 0 ? "" : previousResolution.output
       const ctxForSkill = {
@@ -3063,14 +3272,6 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         previousSkillOutput: previousOutput,
         prevResponse: previousOutput
       }
-      const bodyStepContext = step === 4 && currentBodyChainContract.value
-        ? {
-            stepIndex: si,
-            totalSteps: templates.length,
-            declaredRole: templateMeta?.chainHandoff?.role || null,
-            targetWords: currentBodyChainContract.value.targetWords
-          }
-        : undefined
       const isGeneratorStep = bodyStepContext
         ? isBodyContractStep({
             step,
@@ -3197,7 +3398,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           upstreamPrompt.prompt,
           si,
           templates.length,
-          bodyStepContext
+          bodyStepContext,
+          finalStepRetry
         )
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
@@ -3253,7 +3455,11 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             step,
             t,
             injection,
-            `${nextPrompt}\n\n[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物。`,
+            `${nextPrompt}\n\n${buildFinalStepEchoRetryFeedback(
+              finalStepRetry ?? { role: 'polish' as const },
+              si,
+              templates.length
+            )}`,
             { ...ctxForSkill, previousOutput },
             timeoutMs,
             skillAgentId,
@@ -3263,7 +3469,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             si < templates.length - 1,
             upstreamPrompt.prompt,
             si,
-            templates.length
+            templates.length,
+            bodyStepContext,
+            finalStepRetry
           )
         }
         const repairedEchoDiagnostic = detectChainOutputEcho(
@@ -3322,11 +3530,51 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           }
           stepOutput = artifactFlow.downstreamPayload || ''
           if (Object.keys(artifactFlow.metadata).length) {
-            upstreamStepMetadata = artifactFlow.metadata
+        upstreamStepMetadata = artifactFlow.metadata
+            authoritativeGeneratorMetadata = artifactFlow.metadata
+          }
+        }
+        const isFinalBodyStep = bodyStepContext && si === templates.length - 1
+        if (isFinalBodyStep) {
+          const finalGeneration = parseGenerationResult(stepOutput)
+          const finalStepFlow = resolveFinalStepMetadataFlow({
+            finalMetadata: finalGeneration.metadata,
+            authoritativeGeneratorMetadata,
+            finalBody: finalGeneration.body
+          })
+          rememberBodyFinalStepMetadata(finalStepFlow)
+          executionPlan?.onFinalStepMetadata?.({
+            authoritativeGeneratorMetadata,
+            finalStepFlow
+          })
+          if (runTraceStore.currentRunId) {
+            for (const warning of finalStepFlow.warnings) {
+              runTraceStore.addEvent(runTraceStore.currentRunId, {
+                type: warning.code,
+                level: 'warn',
+                label: '终步元数据保真警告',
+                detail: warning.message
+              })
+            }
+            runTraceStore.addEvent(runTraceStore.currentRunId, {
+              type: 'body-final-step-metadata',
+              level: finalStepFlow.decision === 'pass' ? 'info' : 'warn',
+              label: `正文终步 ${si + 1}/${templates.length} 元数据对账`,
+              detail: JSON.stringify({
+                decision: finalStepFlow.decision,
+                comparison: finalStepFlow.comparison,
+                authoritativeKeys: Object.keys(authoritativeGeneratorMetadata || {}),
+                metadataKeys: Object.keys(finalStepFlow.metadata),
+                consumedMetadata: finalStepFlow.metadata
+              })
+            })
           }
         }
         current = stepOutput
         chainCtx.prevResponse = current
+        if (step === 4 && si === templates.length - 1) {
+          upstreamStepMetadata = authoritativeGeneratorMetadata || upstreamStepMetadata
+        }
         if (si < templates.length - 1 && runTraceStore.currentRunId) {
           const reportStartedAt = Date.now()
           runTraceStore.attachProcessingReport(runTraceStore.currentRunId, {
@@ -3426,7 +3674,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               memoryPrompt,
               isFirst: useOriginal,
               templateOwnsPreviousOutput,
-              delivery
+              delivery,
+              upstreamMetadata: si === 0 ? null : upstreamStepMetadata,
+              metadataMode: finalStepMetadataMode
             })
             const fullRetryContext = { ...ctxForSkill, previousOutput: current }
             const fullRetryResolvedTemplate = resolveSkillTemplate(t.template, {
@@ -3439,18 +3689,20 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               step,
               t,
               injection,
-              fullRetryPrompt,
-              fullRetryContext,
-              timeoutMs,
+            fullRetryPrompt,
+            fullRetryContext,
+            timeoutMs,
               skillAgentId,
               undefined,
               fullRetryResolvedTemplate,
               ctxForSkill,
               si < templates.length - 1,
               upstreamPrompt.prompt,
-              si,
-              templates.length
-            )
+            si,
+            templates.length,
+            bodyStepContext,
+            finalStepRetry
+          )
             validateSkillOutputOrThrow(t, stepOutput)
             if (si < templates.length - 1) {
               const dedupedOutput = dedupeChainIntermediateOutput(stepOutput)
@@ -3493,6 +3745,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             }
             current = stepOutput
             chainCtx.prevResponse = current
+            if (step === 4 && si === templates.length - 1) {
+              upstreamStepMetadata = authoritativeGeneratorMetadata || upstreamStepMetadata
+            }
             const reportStartedAt = Date.now()
             if (runTraceStore.currentRunId) {
               runTraceStore.attachProcessingReport(runTraceStore.currentRunId, {
@@ -3858,6 +4113,11 @@ async function genSettings() {
 const currentBodyChainContract = shallowRef<BodyArtifactContract | null>(null)
 const currentBodyGeneratorStepIndex = shallowRef<number | null>(null)
 const currentBodyStepAcceptance = shallowRef<StepArtifactAcceptanceResult[]>([])
+const currentBodyFinalStepMetadata = shallowRef<FinalStepMetadataFlowResult | null>(null)
+
+function rememberBodyFinalStepMetadata(flow: FinalStepMetadataFlowResult | null) {
+  currentBodyFinalStepMetadata.value = flow
+}
 
 function rememberBodyStepAcceptance(stepIndex: number, acceptance: StepArtifactAcceptanceResult) {
   const next = currentBodyStepAcceptance.value.filter(item => item.stepIndex !== stepIndex)
@@ -3868,6 +4128,7 @@ function rememberBodyStepAcceptance(stepIndex: number, acceptance: StepArtifactA
 function resetBodyStepAcceptance() {
   currentBodyStepAcceptance.value = []
   currentBodyGeneratorStepIndex.value = null
+  currentBodyFinalStepMetadata.value = null
 }
 
 function resolveBodyGeneratorStepIndex(): { index: number | null; role: 'generator' | null } {
@@ -3957,13 +4218,14 @@ async function genVolumes(mode: string) {
       historyContext: volumeHistoryContext,
       callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, undefined, "你是卷纲生成专家。基于大纲和设定生成卷纲。"),
       requestPolicy: getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath) ? "single-volume" : "batch",
+      outputProtocol: getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath) ? "folder-chain" : "direct-json",
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
       onPromptBuilt: (requestPrompt, promptAudit) => {
-        if (!promptAudit.duplicateHistoryContextSuppressed) return
+        if (!promptAudit.duplicateHistoryContextSuppressed && !promptAudit.progressFactsSynced) return
         trace.addEvent({
-          type: "duplicate-history-context-suppressed",
-          level: "warn",
-          label: "卷纲历史块重复注入已抑制",
+          type: "volume-prompt-fact-audit",
+          level: "info",
+          label: "卷纲请求事实同步审计",
           detail: JSON.stringify({
             promptLength: requestPrompt.length,
             ...promptAudit
@@ -4513,6 +4775,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     currentBodyChainContract.value = bodyChainContract
     const generatorStep = resolveBodyGeneratorStepIndex()
     let previousBodyStepOutputs: ChainBreakpointStepOutput[] = []
+    const bodyAttemptMetadataState = {
+      authoritativeGeneratorMetadata: null as Record<string, unknown> | null,
+      finalStepFlow: null as FinalStepMetadataFlowResult | null
+    }
     const rememberBodyStepOutputs = (outputs: ChainBreakpointStepOutput[]) => {
       previousBodyStepOutputs = outputs
     }
@@ -4535,8 +4801,17 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         const executionPlan = {
           ...context.executionPlan,
           upstreamStepOutputs: previousBodyStepOutputs,
-          onStepOutputs: rememberBodyStepOutputs
+          onStepOutputs: rememberBodyStepOutputs,
+          onFinalStepMetadata: (result: {
+            authoritativeGeneratorMetadata: Record<string, unknown> | null
+            finalStepFlow: FinalStepMetadataFlowResult
+          }) => {
+            bodyAttemptMetadataState.authoritativeGeneratorMetadata = result.authoritativeGeneratorMetadata
+            bodyAttemptMetadataState.finalStepFlow = result.finalStepFlow
+          }
         }
+        bodyAttemptMetadataState.authoritativeGeneratorMetadata = null
+        bodyAttemptMetadataState.finalStepFlow = null
         return runStepSkills(
           4,
           requestPrompt,
@@ -4605,6 +4880,12 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
               extractedWordCount: item.extractedWordCount,
               errors: item.errors
             })),
+            finalStepMetadata: bodyAttemptMetadataState.finalStepFlow
+              ? {
+                  decision: bodyAttemptMetadataState.finalStepFlow.decision,
+                  comparison: bodyAttemptMetadataState.finalStepFlow.comparison
+                }
+              : undefined,
             degradedSteps: currentBodyStepAcceptance.value
               .filter(item => item.callerStatus === 'degraded')
               .map(item => ({
@@ -4629,7 +4910,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     }
     const generationResult = {
       body: bodyArtifact.body,
-      metadata: bodyArtifact.metadata
+      metadata: bodyAttemptMetadataState.finalStepFlow?.metadata || bodyArtifact.metadata
     }
     let finalBody = generationResult.body || ""
     const postProcessAttemptId = bodyArtifact.attempts[bodyArtifact.attempts.length - 1]?.attemptId || generationTargetSnapshot.chapterId

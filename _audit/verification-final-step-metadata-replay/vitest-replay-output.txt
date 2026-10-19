@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 D:/codex/novel-workshop-vue3
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:49:15
+   Duration  1.68s (transform 771ms, setup 0ms, import 929ms, tests 74ms, environment 0ms)
+

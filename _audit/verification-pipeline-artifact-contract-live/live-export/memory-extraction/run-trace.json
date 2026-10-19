@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1791839374471-1462",
+  "id": "run-1792440851806-1565",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -15,26 +15,32 @@
   ],
   "skillMode": "chain",
   "status": "success",
-  "startedAt": 1791839374471,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "ab0d8cb6f07f",
+    "buildTime": "2026-10-19T19:24:27.093Z"
+  },
+  "startedAt": 1792440851806,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
-      "recordedAt": 1791839390223
+      "recordedAt": 1792440880214
     }
   ],
   "events": [
     {
-      "id": "event-1791839374471-1463",
-      "ts": 1791839374471,
+      "id": "event-1792440851806-1566",
+      "ts": 1792440851806,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 记忆抽取运行"
     },
     {
-      "id": "event-1791839374492-1465",
-      "ts": 1791839374492,
+      "id": "event-1792440851823-1568",
+      "ts": 1792440851823,
       "seq": 2,
       "type": "api-start",
       "level": "info",
@@ -42,35 +48,35 @@
       "detail": "{\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1791839374492-1467",
-      "ts": 1791839374492,
+      "id": "event-1792440851826-1570",
+      "ts": 1792440851826,
       "seq": 3,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
-      "detail": "physical_call_running / 1/api-1791839374491-1464",
+      "detail": "physical_call_running / 1/api-1792440851823-1567",
       "payload": {
         "source": "physical_call_running",
-        "detail": "1/api-1791839374491-1464"
+        "detail": "1/api-1792440851823-1567"
       }
     },
     {
-      "id": "event-1791839374492-1468",
-      "ts": 1791839374492,
+      "id": "event-1792440851826-1571",
+      "ts": 1792440851826,
       "seq": 4,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1791839374492-1466",
+        "physicalCallId": "physical-1792440851826-1569",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1791839374492-1469",
-      "ts": 1791839374492,
+      "id": "event-1792440851826-1572",
+      "ts": 1792440851826,
       "seq": 5,
       "type": "physical-call",
       "level": "info",
@@ -78,8 +84,8 @@
       "detail": "normal"
     },
     {
-      "id": "event-1791839389506-1470",
-      "ts": 1791839389506,
+      "id": "event-1792440866834-1573",
+      "ts": 1792440866834,
       "seq": 6,
       "type": "physical-call",
       "level": "info",
@@ -87,21 +93,21 @@
       "detail": "normal"
     },
     {
-      "id": "event-1791839389506-1471",
-      "ts": 1791839389506,
+      "id": "event-1792440866834-1574",
+      "ts": 1792440866834,
       "seq": 7,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
-      "detail": "physical_call_heartbeat / 1/api-1791839374491-1464",
+      "detail": "physical_call_heartbeat / 1/api-1792440851823-1567",
       "payload": {
         "source": "physical_call_heartbeat",
-        "detail": "1/api-1791839374491-1464"
+        "detail": "1/api-1792440851823-1567"
       }
     },
     {
-      "id": "event-1791839390215-1472",
-      "ts": 1791839390215,
+      "id": "event-1792440880166-1575",
+      "ts": 1792440880166,
       "seq": 8,
       "type": "physical-call",
       "level": "info",
@@ -109,17 +115,17 @@
       "detail": "normal / stop"
     },
     {
-      "id": "event-1791839390215-1473",
-      "ts": 1791839390215,
+      "id": "event-1792440880167-1576",
+      "ts": 1792440880167,
       "seq": 9,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1791839374491-1464 seq=1"
+      "detail": "apiCall=api-1792440851823-1567 seq=1"
     },
     {
-      "id": "event-1791839390215-1474",
-      "ts": 1791839390215,
+      "id": "event-1792440880167-1577",
+      "ts": 1792440880167,
       "seq": 10,
       "type": "api-success",
       "level": "info",
@@ -127,8 +133,8 @@
       "detail": ""
     },
     {
-      "id": "event-1791839390223-1475",
-      "ts": 1791839390223,
+      "id": "event-1792440880214-1578",
+      "ts": 1792440880214,
       "seq": 11,
       "type": "finished",
       "level": "info",
@@ -136,18 +142,18 @@
       "detail": ""
     },
     {
-      "id": "event-1791839390223-1476",
-      "ts": 1791839390223,
+      "id": "event-1792440880214-1579",
+      "ts": 1792440880214,
       "seq": 12,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "run=run-1791839374471-1462"
+      "detail": "run=run-1792440851806-1565"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1791839374491-1464",
+      "id": "api-1792440851823-1567",
       "seq": 1,
       "requestMessages": {
         "__payload": {
@@ -155,11 +161,11 @@
         }
       },
       "status": "success",
-      "startedAt": 1791839374492,
+      "startedAt": 1792440851823,
       "physicalCalls": [
         {
-          "id": "physical-1791839374492-1466",
-          "physicalCallId": "physical-1791839374492-0",
+          "id": "physical-1792440851826-1569",
+          "physicalCallId": "physical-1792440851823-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -170,62 +176,62 @@
           },
           "finishReason": "stop",
           "usage": {
-            "inputTokens": 1416,
-            "outputTokens": 1348,
-            "totalTokens": 2764,
+            "inputTokens": 2142,
+            "outputTokens": 2355,
+            "totalTokens": 4497,
             "reasoningOutputTokens": 0
           },
           "usageUnavailable": false,
-          "startedAt": 1791839374492,
-          "durationMs": 15722,
-          "endedAt": 1791839390215,
+          "startedAt": 1792440851826,
+          "durationMs": 28341,
+          "endedAt": 1792440880166,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": null,
           "providerContextWindowTokens": 1000000,
-          "estimatedInputTokens": 1021,
+          "estimatedInputTokens": 1717,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 1021 / 可用 967232（未声明窗口，按保守值处理）",
+          "contextBudgetReason": "上下文可容纳：输入 1717 / 可用 967232（未声明窗口，按保守值处理）",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 1021,
-            "actualInputTokens": 1416,
-            "driftRatio": 0.3868756121449559,
-            "correctedRatio": 1.386875612144956
+            "estimatedInputTokens": 1717,
+            "actualInputTokens": 2142,
+            "driftRatio": 0.24752475247524752,
+            "correctedRatio": 1.2475247524752475
           },
           "heartbeat": true,
           "responseTextPayloadRef": "payload-002",
-          "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"叙述者，发现旧信并决定驾船前往浅屿缺口，不走南线。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"我蹲在木箱前，把最上面那层湿木头一块一块托出来\"\n        }\n      ]\n    },\n    {\n      \"name\": \"老舵工\",\n      \"type\": \"character\",\n      \"description\": \"船边蹲着的老舵工，提醒马头湾旧礁会吃船，似乎了解南线危险。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"老舵"
+          "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"主角\",\n      \"type\": \"character\",\n      \"description\": \"本章POV角色，离开出发港，在风浪中掌舵，持有旧信、补给袋和防滑绳，对旧信与灯塔从依凭转为怀疑但未放弃。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792440126613_9ssiku-001\",\n          \"snippet\": \"他松开撑在门边的手，坐回窄桌旁，右手掌心重新压住信纸下沿。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"item\",\n      \"description\": \"主角长期持有的家族信物，纸页四角卷着，有从信头裂到信尾的中线折痕；折痕处压出短划，与信文“南方航线”形成对应，被主角当作遗物，现开始被当作航线图。\",\n      \"evidence\": [\n        {\n          "
         }
       ],
-      "lastExecutionActivityAt": 1791839374492,
+      "lastExecutionActivityAt": 1792440851826,
       "finishReason": "stop",
-      "durationMs": 15723,
+      "durationMs": 28344,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 15722,
-        "localOverheadMs": 1
+        "physicalDurationSumMs": 28341,
+        "localOverheadMs": 3
       },
       "usage": {
-        "inputTokens": 1416,
-        "outputTokens": 1348,
-        "totalTokens": 2764,
+        "inputTokens": 2142,
+        "outputTokens": 2355,
+        "totalTokens": 4497,
         "reasoningOutputTokens": 0
       },
       "usageUnavailable": false,
-      "endedAt": 1791839390215,
+      "endedAt": 1792440880167,
       "semantic": {
-        "conversationId": "run-1791839374471-1462",
+        "conversationId": "run-1792440851806-1565",
         "usage": {
-          "inputTokens": 1416,
-          "outputTokens": 1348,
-          "totalTokens": 2764,
+          "inputTokens": 2142,
+          "outputTokens": 2355,
+          "totalTokens": 4497,
           "reasoningOutputTokens": 0
         }
       },
       "responseTextPayloadRef": "payload-002",
-      "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"叙述者，发现旧信并决定驾船前往浅屿缺口，不走南线。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"我蹲在木箱前，把最上面那层湿木头一块一块托出来\"\n        }\n      ]\n    },\n    {\n      \"name\": \"老舵工\",\n      \"type\": \"character\",\n      \"description\": \"船边蹲着的老舵工，提醒马头湾旧礁会吃船，似乎了解南线危险。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"老舵"
+      "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"主角\",\n      \"type\": \"character\",\n      \"description\": \"本章POV角色，离开出发港，在风浪中掌舵，持有旧信、补给袋和防滑绳，对旧信与灯塔从依凭转为怀疑但未放弃。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792440126613_9ssiku-001\",\n          \"snippet\": \"他松开撑在门边的手，坐回窄桌旁，右手掌心重新压住信纸下沿。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"item\",\n      \"description\": \"主角长期持有的家族信物，纸页四角卷着，有从信头裂到信尾的中线折痕；折痕处压出短划，与信文“南方航线”形成对应，被主角当作遗物，现开始被当作航线图。\",\n      \"evidence\": [\n        {\n          "
     }
   ],
   "sessionKind": "task",
@@ -236,32 +242,32 @@
       "id": "payload-001",
       "kind": "request",
       "file": "001-request.json",
-      "bytes": 5630,
-      "chars": 2294,
-      "sha256": "f836af61fabb4a142c64c0f98367979b592599c10aa04c0a36f016232478a902",
+      "bytes": 8091,
+      "chars": 3301,
+      "sha256": "5355037a0c5d540fdbf9779bb1cde9cbf8716019ad80669f1945871bcf1e3c1a",
       "duplicateCount": 2,
-      "createdAt": 1791839390938
+      "createdAt": 1792440881736
     },
     {
       "id": "payload-002",
       "kind": "response",
       "file": "002-response.json",
-      "bytes": 4888,
-      "chars": 3418,
-      "sha256": "ecbf5266e3cb66c5530048075d6a1e9188352061c42c638352df6eeff078dbcf",
+      "bytes": 8551,
+      "chars": 5507,
+      "sha256": "b5ad78d18c5e2c082ea39ef03f832bf2157c08513fe8ff742ddb4ab88c54eacb",
       "duplicateCount": 2,
-      "createdAt": 1791839390939
+      "createdAt": 1792440881736
     }
   ],
-  "stepBoundaryGapMs": 1053,
+  "stepBoundaryGapMs": 1038,
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 15722,
+    "physicalDurationSumMs": 28341,
     "firstTokenSumMs": 0,
     "outputSumMs": 0,
-    "localOverheadSumMs": 1,
+    "localOverheadSumMs": 3,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -274,40 +280,40 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "stepBoundaryGapMs": 1053,
+    "stepBoundaryGapMs": 1038,
     "repeatedPromptBlocks": {},
-    "contextChars": 2111,
-    "outputChars": 3418,
-    "physicalDurationSumMs": 15722
+    "contextChars": 3088,
+    "outputChars": 5507,
+    "physicalDurationSumMs": 28341
   },
-  "endedAt": 1791839390223,
-  "durationMs": 15752,
+  "endedAt": 1792440880214,
+  "durationMs": 28408,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1791839374491-1464",
+      "apiCallId": "api-1792440851823-1567",
       "seq": 1,
       "status": "success",
       "response": {
         "ref": "payload-002",
         "file": "002-response.json",
-        "sha256": "ecbf5266e3cb66c5530048075d6a1e9188352061c42c638352df6eeff078dbcf",
-        "bytes": 4888,
-        "chars": 3418,
-        "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"叙述者，发现旧信并决定驾船前往浅屿缺口，不走南线。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"我蹲在木箱前，把最上面那层湿木头一块一块托出来\"\n        }\n      ]\n    },\n    {\n      \"name\": \"老舵工\",\n      \"type\": \"character\",\n      \"description\": \"船边蹲着的老舵工，提醒马头湾旧礁会吃船，似乎了解南线危险。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"老舵"
+        "sha256": "b5ad78d18c5e2c082ea39ef03f832bf2157c08513fe8ff742ddb4ab88c54eacb",
+        "bytes": 8551,
+        "chars": 5507,
+        "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"主角\",\n      \"type\": \"character\",\n      \"description\": \"本章POV角色，离开出发港，在风浪中掌舵，持有旧信、补给袋和防滑绳，对旧信与灯塔从依凭转为怀疑但未放弃。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792440126613_9ssiku-001\",\n          \"snippet\": \"他松开撑在门边的手，坐回窄桌旁，右手掌心重新压住信纸下沿。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"item\",\n      \"description\": \"主角长期持有的家族信物，纸页四角卷着，有从信头裂到信尾的中线折痕；折痕处压出短划，与信文“南方航线”形成对应，被主角当作遗物，现开始被当作航线图。\",\n      \"evidence\": [\n        {\n          "
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1791839374492-0",
+          "physicalCallId": "physical-1792440851823-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
           "response": {
             "ref": "payload-002",
             "file": "002-response.json",
-            "sha256": "ecbf5266e3cb66c5530048075d6a1e9188352061c42c638352df6eeff078dbcf",
-            "bytes": 4888,
-            "chars": 3418,
-            "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"叙述者，发现旧信并决定驾船前往浅屿缺口，不走南线。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"我蹲在木箱前，把最上面那层湿木头一块一块托出来\"\n        }\n      ]\n    },\n    {\n      \"name\": \"老舵工\",\n      \"type\": \"character\",\n      \"description\": \"船边蹲着的老舵工，提醒马头湾旧礁会吃船，似乎了解南线危险。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1791838556708_who17c-001\",\n          \"snippet\": \"老舵"
+            "sha256": "b5ad78d18c5e2c082ea39ef03f832bf2157c08513fe8ff742ddb4ab88c54eacb",
+            "bytes": 8551,
+            "chars": 5507,
+            "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"主角\",\n      \"type\": \"character\",\n      \"description\": \"本章POV角色，离开出发港，在风浪中掌舵，持有旧信、补给袋和防滑绳，对旧信与灯塔从依凭转为怀疑但未放弃。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792440126613_9ssiku-001\",\n          \"snippet\": \"他松开撑在门边的手，坐回窄桌旁，右手掌心重新压住信纸下沿。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"item\",\n      \"description\": \"主角长期持有的家族信物，纸页四角卷着，有从信头裂到信尾的中线折痕；折痕处压出短划，与信文“南方航线”形成对应，被主角当作遗物，现开始被当作航线图。\",\n      \"evidence\": [\n        {\n          "
           }
         }
       ]

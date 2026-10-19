@@ -25,6 +25,9 @@ export interface VolumeBatchAttempt {
 
 export interface VolumeBatchPromptAudit {
   duplicateHistoryContextSuppressed: boolean
+  legacyJsonProtocolStripped: boolean
+  progressFactsSynced: boolean
+  progressFactsCount: number
 }
 
 export interface GenerateVolumeBatchInput {
@@ -34,6 +37,7 @@ export interface GenerateVolumeBatchInput {
   historyContext?: string
   callVolumeApi: (prompt: string) => Promise<string>
   requestPolicy?: 'batch' | 'single-volume'
+  outputProtocol?: 'folder-chain' | 'direct-json'
   shouldContinue?: () => boolean
   maxRepairAttempts?: number
   onAttempt?: (attempt: VolumeBatchAttempt) => void
@@ -55,6 +59,27 @@ const VOLUME_OUTPUT_PROTOCOL = [
   '语义字段允许输出[待补充]，但字段必须在场。'
 ].join('\n')
 
+const FOLDER_CHAIN_TASK_BOUNDARY_NOTE = '本步骤只处理当前卷任务；输出协议由当前 SKILL 模板决定，本段内容仅提供任务边界与事实约束。'
+
+/**
+ * Folder chain skills execute with a marker-text protocol and explicitly forbid
+ * JSON output. The direct-channel volume prompt is still the source of factual
+ * input, so remove only its stale output-protocol sentences before reuse.
+ */
+function stripLegacyVolumeJsonProtocol(prompt: string): { prompt: string; stripped: boolean } {
+  const directProtocolPatterns = [
+    /(?:当前还没有任何卷纲。)?请只生成第\d+卷的卷纲。输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数），(?:不得生成其他卷。)?/g,
+    /已生成\d+卷，上一卷为：[^\n]*。请只生成第\d+卷的卷纲。输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数）。/g,
+    /请生成\d+卷的卷纲。输出JSON数组，每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。/g
+  ]
+  let next = prompt
+  for (const pattern of directProtocolPatterns) {
+    next = next.replace(pattern, '')
+  }
+  next = next.replace(/[ \t]*\n{3,}/g, '\n\n').trim()
+  return { prompt: next, stripped: next !== prompt }
+}
+
 export function buildVolumeBatchPromptWithAudit(input: {
   contract: VolumeGenerationContract
   repair: boolean
@@ -63,25 +88,37 @@ export function buildVolumeBatchPromptWithAudit(input: {
   basePrompt: string
   historyContext: string
   requestPolicy?: 'batch' | 'single-volume'
+  outputProtocol?: 'folder-chain' | 'direct-json'
   repairErrors?: string[]
   forbiddenVolumeNames?: string[]
 }): { prompt: string; audit: VolumeBatchPromptAudit } {
   const { contract } = input
+  const legacy = stripLegacyVolumeJsonProtocol(input.basePrompt)
+  const basePrompt = legacy.prompt
   const historyContext = input.historyContext.trim()
   const duplicateHistoryContextSuppressed = Boolean(historyContext && input.basePrompt.includes(historyContext))
   const historyLines = duplicateHistoryContextSuppressed ? [] : ['', input.historyContext, '']
+  const outputProtocol = input.outputProtocol ?? (input.requestPolicy === 'single-volume' ? 'folder-chain' : 'direct-json')
+  const protocolLines = outputProtocol === 'folder-chain'
+    ? [FOLDER_CHAIN_TASK_BOUNDARY_NOTE]
+    : [VOLUME_OUTPUT_PROTOCOL]
 
   if (input.requestPolicy === 'single-volume') {
     const missingStart = input.missingStart ?? contract.existingCount + 1
     const missingEnd = contract.existingCount + contract.expectedCount
     return {
-      audit: { duplicateHistoryContextSuppressed },
+      audit: {
+        duplicateHistoryContextSuppressed,
+        legacyJsonProtocolStripped: legacy.stripped,
+        progressFactsSynced: false,
+        progressFactsCount: 0
+      },
       prompt: [
-        input.basePrompt,
+        basePrompt,
         ...historyLines,
         `本次只生成第${missingStart}卷，不生成其他卷。全书计划到第${missingEnd}卷。`,
-        VOLUME_OUTPUT_PROTOCOL,
-        '数组长度必须为1。'
+        ...protocolLines,
+        ...(outputProtocol === 'direct-json' ? ['数组长度必须为1。'] : [])
       ].join('\n')
     }
   }
@@ -90,13 +127,18 @@ export function buildVolumeBatchPromptWithAudit(input: {
     const missingCount = input.missingCount ?? contract.expectedCount
     const missingEnd = missingStart + missingCount - 1
     return {
-      audit: { duplicateHistoryContextSuppressed },
+      audit: {
+        duplicateHistoryContextSuppressed,
+        legacyJsonProtocolStripped: legacy.stripped,
+        progressFactsSynced: false,
+        progressFactsCount: 0
+      },
       prompt: [
-        input.basePrompt,
+        basePrompt,
         ...historyLines,
         `补充生成第${missingStart}卷到第${missingEnd}卷，共${missingCount}卷。只输出缺失卷，不要重复任何已有卷名。`,
-        VOLUME_OUTPUT_PROTOCOL,
-        '数组长度必须为' + missingCount + '。'
+        ...protocolLines,
+        ...(outputProtocol === 'direct-json' ? ['数组长度必须为' + missingCount + '。'] : [])
       ].concat(input.repairErrors?.length ? [
         '',
         '【上一次验收失败原因】',
@@ -109,13 +151,18 @@ export function buildVolumeBatchPromptWithAudit(input: {
     }
   }
   return {
-    audit: { duplicateHistoryContextSuppressed },
-    prompt: [
-      input.basePrompt,
-      ...historyLines,
-      `生成${contract.expectedCount}卷的卷纲。不要重复任何已有卷名。`,
-      VOLUME_OUTPUT_PROTOCOL,
-      '数组长度必须为' + contract.expectedCount + '。'
+    audit: {
+      duplicateHistoryContextSuppressed,
+      legacyJsonProtocolStripped: legacy.stripped,
+      progressFactsSynced: false,
+      progressFactsCount: 0
+    },
+      prompt: [
+        basePrompt,
+        ...historyLines,
+        `生成${contract.expectedCount}卷的卷纲。不要重复任何已有卷名。`,
+        ...protocolLines,
+        ...(outputProtocol === 'direct-json' ? ['数组长度必须为' + contract.expectedCount + '。'] : [])
     ].join('\n')
   }
 }
@@ -128,6 +175,12 @@ function volumeName(value: unknown): string {
   return (typeof value === 'string' ? value : String(value || '')).trim()
 }
 
+function syncVolumePromptProgress(prompt: string, generatedCount: number): { prompt: string; synced: boolean } {
+  if (!/\[已生成卷数\]/.test(prompt)) return { prompt, synced: false }
+  const next = prompt.replace(/\[已生成卷数\]\s*\d+/g, `[已生成卷数]\n${generatedCount}`)
+  return { prompt: next, synced: next !== prompt && new RegExp(`\\[已生成卷数\\]\\s*${generatedCount}`).test(next) }
+}
+
 function hasVolumeArtifact(value: any): boolean {
   return Boolean(volumeName(value?.name).length > 0)
 }
@@ -136,6 +189,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
   const attempts: VolumeBatchAttempt[] = []
   const maxRepairs = Math.max(0, Math.round(Number(input.maxRepairAttempts ?? 3)))
   const requestPolicy = input.requestPolicy ?? 'batch'
+  const outputProtocol = input.outputProtocol ?? (requestPolicy === 'single-volume' ? 'folder-chain' : 'direct-json')
   const expectedCount = Math.max(0, Math.round(Number(input.contract.expectedCount) || 0))
   if (expectedCount <= 0) {
     return {
@@ -153,6 +207,12 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
   const renderProgressContext = () => renderVolumeHistoryContext(
     buildVolumeHistoryFacts(progressVolumes)
   )
+  let basePrompt = input.basePrompt
+  const syncProgressFacts = (generatedCount: number) => {
+    const result = syncVolumePromptProgress(basePrompt, generatedCount)
+    basePrompt = result.prompt
+    return result
+  }
   let repairAttempt = 0
   let stalledAttempts = 0
   let previousErrors: string[] = []
@@ -172,17 +232,24 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
     const progressContext = requestPolicy === 'single-volume'
       ? renderProgressContext()
       : (input.historyContext || renderProgressContext())
-    const { prompt, audit } = buildVolumeBatchPromptWithAudit({
+    const progressFacts = syncProgressFacts(input.contract.existingCount + accepted.length)
+    const { prompt, audit: promptAudit } = buildVolumeBatchPromptWithAudit({
       contract: input.contract,
       repair: repairAttempt > 0,
       missingStart,
       missingCount,
-      basePrompt: input.basePrompt,
+      basePrompt,
       historyContext: progressContext,
       requestPolicy,
+      outputProtocol,
       repairErrors: previousErrors,
       forbiddenVolumeNames
     })
+    const audit: VolumeBatchPromptAudit = {
+      ...promptAudit,
+      progressFactsSynced: progressFacts.synced,
+      progressFactsCount: input.contract.existingCount + accepted.length
+    }
     input.onPromptBuilt?.(prompt, audit)
 
     const acceptedCountBefore = accepted.length

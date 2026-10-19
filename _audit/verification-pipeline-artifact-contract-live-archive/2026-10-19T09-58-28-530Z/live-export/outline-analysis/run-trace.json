@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1791836205524-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 0,
+  "stepName": "大纲风格分析",
+  "mode": "outline-analysis",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [],
+  "skillMode": "compose",
+  "status": "success",
+  "startedAt": 1791836205524,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "recordedAt": 1791836228005
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1791836205525-2",
+      "ts": 1791836205525,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 大纲风格分析运行"
+    },
+    {
+      "id": "event-1791836205527-4",
+      "ts": 1791836205527,
+      "seq": 2,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1791836205531-6",
+      "ts": 1791836205531,
+      "seq": 3,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/api-1791836205527-3",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/api-1791836205527-3"
+      }
+    },
+    {
+      "id": "event-1791836205531-7",
+      "ts": 1791836205531,
+      "seq": 4,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1791836205530-5",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1791836205531-8",
+      "ts": 1791836205531,
+      "seq": 5,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791836220546-9",
+      "ts": 1791836220546,
+      "seq": 6,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791836220546-10",
+      "ts": 1791836220546,
+      "seq": 7,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/api-1791836205527-3",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/api-1791836205527-3"
+      }
+    },
+    {
+      "id": "event-1791836227895-11",
+      "ts": 1791836227895,
+      "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1791836227898-12",
+      "ts": 1791836227898,
+      "seq": 9,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1791836205527-3 seq=1"
+    },
+    {
+      "id": "event-1791836227898-13",
+      "ts": 1791836227898,
+      "seq": 10,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791836228004-14",
+      "ts": 1791836228004,
+      "seq": 11,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": ""
+    },
+    {
+      "id": "event-1791836228005-15",
+      "ts": 1791836228005,
+      "seq": 12,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "run=run-1791836205524-1"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1791836205527-3",
+      "seq": 1,
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "status": "success",
+      "startedAt": 1791836205527,
+      "physicalCalls": [
+        {
+          "id": "physical-1791836205530-5",
+          "physicalCallId": "physical-1791836205528-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-003"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 310,
+            "outputTokens": 1263,
+            "totalTokens": 1573,
+            "reasoningOutputTokens": 1114
+          },
+          "usageUnavailable": false,
+          "startedAt": 1791836205530,
+          "durationMs": 22366,
+          "firstTokenMs": 2028,
+          "outputMs": 20338,
+          "endedAt": 1791836227895,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 143,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 143 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 143,
+            "actualInputTokens": 310,
+            "driftRatio": 1.167832167832168,
+            "correctedRatio": 2.167832167832168
+          },
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "{\"styleTags\":\"航海奇幻,史诗冒险,悬疑揭秘,三幕结构,意象驱动,线索推进,线性叙事,高度结构化\",\"pacingParams\":\"整体采用三卷递进式节奏：第一卷通过旧信、灯塔与南方航线建立冲突并完成第一次远航；第二卷以港口交易、旧盟约和失踪船队升级矛盾并迫使主角选择立场；第三卷让航路贯通、家族真相与风暴信标合流，形成第一阶段远航闭环。节奏呈起—承—合分布，单卷内部先铺陈元素再完成阶段目标，信息释放均匀，整体中速偏紧，具有阶段性收束与长线揭秘并行的推进感。\"}"
+        }
+      ],
+      "lastExecutionActivityAt": 1791836205531,
+      "finishReason": "stop",
+      "durationMs": 22368,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 22366,
+        "minFirstTokenMs": 2028,
+        "maxFirstTokenMs": 2028,
+        "localOverheadMs": 2
+      },
+      "usage": {
+        "inputTokens": 310,
+        "outputTokens": 1263,
+        "totalTokens": 1573,
+        "reasoningOutputTokens": 1114
+      },
+      "usageUnavailable": false,
+      "endedAt": 1791836227896,
+      "semantic": {
+        "conversationId": "run-1791836205524-1",
+        "usage": {
+          "inputTokens": 310,
+          "outputTokens": 1263,
+          "totalTokens": 1573,
+          "reasoningOutputTokens": 1114
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "{\"styleTags\":\"航海奇幻,史诗冒险,悬疑揭秘,三幕结构,意象驱动,线索推进,线性叙事,高度结构化\",\"pacingParams\":\"整体采用三卷递进式节奏：第一卷通过旧信、灯塔与南方航线建立冲突并完成第一次远航；第二卷以港口交易、旧盟约和失踪船队升级矛盾并迫使主角选择立场；第三卷让航路贯通、家族真相与风暴信标合流，形成第一阶段远航闭环。节奏呈起—承—合分布，单卷内部先铺陈元素再完成阶段目标，信息释放均匀，整体中速偏紧，具有阶段性收束与长线揭秘并行的推进感。\"}"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 859,
+      "chars": 393,
+      "sha256": "da1c7ebf0ece102e99415a486c734f06e9d5d704b2f94ef8c0503a61ea0d3025",
+      "duplicateCount": 2,
+      "createdAt": 1791836228861
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 632,
+      "chars": 238,
+      "sha256": "d5d31c8aee2e18f13a8345655f523a4c72eff5395e5842089c623495a44c000c",
+      "duplicateCount": 2,
+      "createdAt": 1791836228861
+    },
+    {
+      "id": "payload-003",
+      "kind": "reasoning",
+      "file": "003-reasoning.json",
+      "bytes": 5043,
+      "chars": 1871,
+      "sha256": "b0eead4af0d55fe0c6de733aa938ebfad5cad5426b6ff475b74f7c77f3bcbf4d",
+      "duplicateCount": 2,
+      "createdAt": 1791836228861
+    }
+  ],
+  "stepPhaseTiming": {
+    "promptBuild": 0
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 22366,
+    "firstTokenSumMs": 2028,
+    "outputSumMs": 20338,
+    "localOverheadSumMs": 2,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 2028,
+    "outputSumMs": 20338,
+    "repeatedPromptBlocks": {},
+    "contextChars": 284,
+    "outputChars": 238,
+    "physicalDurationSumMs": 22366
+  },
+  "endedAt": 1791836228004,
+  "durationMs": 22480,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1791836205527-3",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "d5d31c8aee2e18f13a8345655f523a4c72eff5395e5842089c623495a44c000c",
+        "bytes": 632,
+        "chars": 238,
+        "preview": "{\"styleTags\":\"航海奇幻,史诗冒险,悬疑揭秘,三幕结构,意象驱动,线索推进,线性叙事,高度结构化\",\"pacingParams\":\"整体采用三卷递进式节奏：第一卷通过旧信、灯塔与南方航线建立冲突并完成第一次远航；第二卷以港口交易、旧盟约和失踪船队升级矛盾并迫使主角选择立场；第三卷让航路贯通、家族真相与风暴信标合流，形成第一阶段远航闭环。节奏呈起—承—合分布，单卷内部先铺陈元素再完成阶段目标，信息释放均匀，整体中速偏紧，具有阶段性收束与长线揭秘并行的推进感。\"}"
+      },
+      "reasoning": {
+        "ref": "payload-003",
+        "file": "003-reasoning.json",
+        "sha256": "b0eead4af0d55fe0c6de733aa938ebfad5cad5426b6ff475b74f7c77f3bcbf4d",
+        "bytes": 5043,
+        "chars": 1871
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791836205528-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "d5d31c8aee2e18f13a8345655f523a4c72eff5395e5842089c623495a44c000c",
+            "bytes": 632,
+            "chars": 238,
+            "preview": "{\"styleTags\":\"航海奇幻,史诗冒险,悬疑揭秘,三幕结构,意象驱动,线索推进,线性叙事,高度结构化\",\"pacingParams\":\"整体采用三卷递进式节奏：第一卷通过旧信、灯塔与南方航线建立冲突并完成第一次远航；第二卷以港口交易、旧盟约和失踪船队升级矛盾并迫使主角选择立场；第三卷让航路贯通、家族真相与风暴信标合流，形成第一阶段远航闭环。节奏呈起—承—合分布，单卷内部先铺陈元素再完成阶段目标，信息释放均匀，整体中速偏紧，具有阶段性收束与长线揭秘并行的推进感。\"}"
+          },
+          "reasoning": {
+            "ref": "payload-003",
+            "file": "003-reasoning.json",
+            "sha256": "b0eead4af0d55fe0c6de733aa938ebfad5cad5426b6ff475b74f7c77f3bcbf4d",
+            "bytes": 5043,
+            "chars": 1871
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

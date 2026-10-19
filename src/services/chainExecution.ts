@@ -8,6 +8,7 @@ export interface ChainPromptInput {
   templateOwnsPreviousOutput?: boolean
   delivery?: 'template_variable' | 'context_block' | 'inline_block'
   upstreamMetadata?: Record<string, unknown> | null
+  metadataMode?: 'summary' | 'final_step_ledger'
 }
 
 export interface ChainUpstreamPromptInput {
@@ -43,6 +44,7 @@ export function bodyGeneratorContractSentence(targetWords: unknown): string {
 export const MEMORY_PROMPT_HEADER = "[相关记忆]"
 const PREVIOUS_OUTPUT_HEADER = "--- 上一步 SKILL 完整输出 ---"
 const UPSTREAM_METADATA_HEADER = "--- 上一步结构化交接 ---"
+const FINAL_STEP_METADATA_HEADER = "--- 上一步结构化交接（终步账本） ---"
 const UPSTREAM_METADATA_MARKER = /【(?:来源覆盖|状态变化|交接清单|交接状态|正文交接|输出末尾元数据)】/g
 const OUTLINE_HEADER = "[大纲]"
 const OUTLINE_END_HEADERS = ["[设定]", "[绑定设定]", "[卷数]"]
@@ -105,9 +107,12 @@ export function buildChainSkillPrompt(input: ChainPromptInput): string {
   if (delivery === 'inline_block' && previousOutput) {
     prompt += `\n\n${PREVIOUS_OUTPUT_HEADER}\n${previousOutput}`
   }
-  const upstreamMetadata = formatUpstreamMetadata(input.upstreamMetadata)
+  const upstreamMetadata = formatUpstreamMetadata(input.upstreamMetadata, input.metadataMode)
   if (upstreamMetadata) {
-    prompt += `\n\n${UPSTREAM_METADATA_HEADER}\n${upstreamMetadata}`
+    const header = input.metadataMode === 'final_step_ledger'
+      ? FINAL_STEP_METADATA_HEADER
+      : UPSTREAM_METADATA_HEADER
+    prompt += `\n\n${header}\n${upstreamMetadata}`
   }
   const memoryPrompt = input.memoryPrompt && !prompt.includes(MEMORY_PROMPT_HEADER)
     ? input.memoryPrompt
@@ -115,14 +120,64 @@ export function buildChainSkillPrompt(input: ChainPromptInput): string {
   return prompt + memoryPrompt
 }
 
-export function formatUpstreamMetadata(metadata: Record<string, unknown> | null | undefined): string {
+export function formatUpstreamMetadata(
+  metadata: Record<string, unknown> | null | undefined,
+  mode: 'summary' | 'final_step_ledger' = 'summary'
+): string {
   const entries = Object.entries(metadata || {}).filter(([, value]) =>
     value !== undefined && value !== null && String(value).trim() !== ''
   )
   if (!entries.length) return ''
+  if (mode === 'final_step_ledger') return formatFinalStepLedger(entries)
   return entries.slice(0, 16).map(([key, value]) => {
     return `- ${key}: ${summarizeUpstreamMetadataValue(key, value)}`
   }).join('\n')
+}
+
+const FINAL_STEP_LEDGER_SECTION_LIMIT = 4000
+const FINAL_STEP_LEDGER_TOTAL_LIMIT = 12000
+
+function formatFinalStepLedger(entries: Array<[string, unknown]>): string {
+  const lines: string[] = []
+  let total = 0
+  let truncatedSections = 0
+  let truncatedChars = 0
+  for (const [key, value] of entries.slice(0, 16)) {
+    if (total >= FINAL_STEP_LEDGER_TOTAL_LIMIT) break
+    let text: string
+    if (key === 'extractedMeta' && Array.isArray(value)) {
+      text = value.map(item => sanitizeFinalStepLedgerText(item)).filter(Boolean)
+        .map((item, index) => `- extractedMeta[${index}]: ${item}`)
+        .join('\n')
+    } else {
+      text = `- ${key}: ${sanitizeFinalStepLedgerText(value)}`
+    }
+    if (!text) continue
+    if (text.length > FINAL_STEP_LEDGER_SECTION_LIMIT) {
+      truncatedSections += 1
+      truncatedChars += text.length - FINAL_STEP_LEDGER_SECTION_LIMIT
+      text = text.slice(0, FINAL_STEP_LEDGER_SECTION_LIMIT)
+    }
+    const remaining = FINAL_STEP_LEDGER_TOTAL_LIMIT - total
+    if (text.length > remaining) {
+      truncatedSections += 1
+      truncatedChars += text.length - remaining
+      text = text.slice(0, remaining)
+    }
+    lines.push(text)
+    total += text.length
+  }
+  const suffix = truncatedSections
+    ? `\n- ledger_limit: truncated=true,truncatedSections=${truncatedSections},truncatedChars=${truncatedChars}`
+    : ''
+  return lines.join('\n') + suffix
+}
+
+function sanitizeFinalStepLedgerText(value: unknown): string {
+  return String(value ?? '')
+    .replace(UPSTREAM_METADATA_MARKER, '[metadata-section]')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 function summarizeUpstreamMetadataValue(key: string, value: unknown): string {
@@ -304,4 +359,44 @@ export function isBodyContractStep(input: BodyContractStepInput): boolean {
     return input.declaredRole === 'generator'
   }
   return input.stepIndex === input.totalSteps - 2
+}
+
+export type FinalStepRoleResolution =
+  | { role: 'polish'; mode: 'final_step_ledger'; reason: 'declared' | 'inferred'; generatorStepIndex: number }
+  | { role: 'generator'; mode: 'summary'; reason: 'declared'; generatorStepIndex: number }
+  | { role: null; mode: 'summary'; reason: 'unresolved'; generatorStepIndex: number | null }
+
+/**
+ * Terminal-step role is a chain-level fact, not a per-template guess. Explicit
+ * declarations win; otherwise the final step is polish only when the chain has
+ * exactly one distinct generator step before it.
+ */
+export function resolveFinalStepRole(input: {
+  step: number
+  stepIndex: number
+  totalSteps: number
+  declaredRole: string | null
+  generatorStepIndexes: number[]
+}): FinalStepRoleResolution {
+  const normalized = input.declaredRole?.trim() || null
+  const distinctGeneratorIndexes = Array.from(new Set(input.generatorStepIndexes))
+
+  if (input.step !== 4 || input.totalSteps <= 1 || input.stepIndex !== input.totalSteps - 1) {
+    return { role: null, mode: 'summary', reason: 'unresolved', generatorStepIndex: null }
+  }
+  if (normalized === 'generator') {
+    return { role: 'generator', mode: 'summary', reason: 'declared', generatorStepIndex: input.stepIndex }
+  }
+  if (normalized === 'polish') {
+    return { role: 'polish', mode: 'final_step_ledger', reason: 'declared', generatorStepIndex: distinctGeneratorIndexes[0] ?? null }
+  }
+  if (distinctGeneratorIndexes.length === 1 && distinctGeneratorIndexes[0] < input.stepIndex) {
+    return {
+      role: 'polish',
+      mode: 'final_step_ledger',
+      reason: 'inferred',
+      generatorStepIndex: distinctGeneratorIndexes[0]
+    }
+  }
+  return { role: null, mode: 'summary', reason: 'unresolved', generatorStepIndex: distinctGeneratorIndexes.length === 1 ? distinctGeneratorIndexes[0] : null }
 }

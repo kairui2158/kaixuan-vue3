@@ -8,6 +8,7 @@ import {
   formatMemoryPrompt,
   getChainEchoWarningLevel,
   isBodyContractStep,
+  resolveFinalStepRole,
   bodyGeneratorContractSentence,
   shouldRepairChainEcho,
   slimChainUpstreamPrompt,
@@ -91,6 +92,63 @@ describe("body chain execution contract", () => {
       delivery: "inline_block"
     })
     expect(withoutMetadata).not.toContain("--- 上一步结构化交接 ---")
+  })
+
+  it("passes the controlled final-step ledger only in final_step_ledger mode", () => {
+    const metadata = {
+      status: "success",
+      extractedMeta: [
+        "【正文交接】\nrunId: r-1\nFACT_LOCK:人物状态=受伤",
+        "【来源覆盖】\nH1-01,H1-02"
+      ]
+    }
+    const summaryPrompt = buildChainSkillPrompt({
+      initialPrompt: "原始章节执行包",
+      previousOutput: "S2完整输出",
+      isFirst: false,
+      delivery: "inline_block",
+      upstreamMetadata: metadata
+    })
+    const finalPrompt = buildChainSkillPrompt({
+      initialPrompt: "原始章节执行包",
+      previousOutput: "S2完整输出",
+      isFirst: false,
+      delivery: "inline_block",
+      upstreamMetadata: metadata,
+      metadataMode: "final_step_ledger"
+    })
+
+    expect(summaryPrompt).toContain("--- 上一步结构化交接 ---")
+    expect(summaryPrompt).toMatch(/- extractedMeta: count=2,totalChars=\d+/)
+    expect(summaryPrompt).not.toContain("FACT_LOCK:人物状态=受伤")
+
+    expect(finalPrompt).toContain("--- 上一步结构化交接（终步账本） ---")
+    expect(finalPrompt).toContain("FACT_LOCK:人物状态=受伤")
+    expect(finalPrompt).toContain("H1-01,H1-02")
+    expect(finalPrompt).not.toContain("【正文交接】")
+    expect(finalPrompt).not.toContain("--- 上一步结构化交接 ---\n- status")
+  })
+
+  it("bounds the final-step ledger and records deterministic truncation", () => {
+    const metadata = {
+      extractedMeta: [
+        "长账本A：" + "事实".repeat(2500),
+        "长账本B：" + "事实".repeat(2500),
+        "长账本C：" + "事实".repeat(2500)
+      ]
+    }
+    const finalPrompt = buildChainSkillPrompt({
+      initialPrompt: "原始章节执行包",
+      previousOutput: "S2完整输出",
+      isFirst: false,
+      delivery: "inline_block",
+      upstreamMetadata: metadata,
+      metadataMode: "final_step_ledger"
+    })
+
+    expect(finalPrompt).toContain("truncated=true")
+    expect(finalPrompt).toMatch(/- extractedMeta\[\d+\]:/)
+    expect(finalPrompt.length).toBeLessThan(16000)
   })
 
   it("delivers the previous output once for pipeline text and folder skills", () => {
@@ -232,6 +290,52 @@ describe("body chain execution contract", () => {
     expect(bodyGeneratorContractSentence(null)).toBe("")
     expect(bodyGeneratorContractSentence(undefined)).toBe("")
     expect(bodyGeneratorContractSentence(0)).toBe("")
+  })
+
+  it("infers an undeclared terminal polish step when the generator step is unique", () => {
+    expect(resolveFinalStepRole({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 3,
+      declaredRole: null,
+      generatorStepIndexes: [1]
+    })).toEqual({
+      role: 'polish',
+      mode: 'final_step_ledger',
+      reason: 'inferred',
+      generatorStepIndex: 1
+    })
+  })
+
+  it("respects explicit terminal roles and stays unresolved without a unique generator", () => {
+    expect(resolveFinalStepRole({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 3,
+      declaredRole: 'polish',
+      generatorStepIndexes: [1]
+    })).toMatchObject({ role: 'polish', reason: 'declared' })
+    expect(resolveFinalStepRole({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 3,
+      declaredRole: 'generator',
+      generatorStepIndexes: [2]
+    })).toMatchObject({ role: 'generator', mode: 'summary' })
+    expect(resolveFinalStepRole({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 3,
+      declaredRole: null,
+      generatorStepIndexes: []
+    })).toMatchObject({ role: null, mode: 'summary', reason: 'unresolved' })
+    expect(resolveFinalStepRole({
+      step: 4,
+      stepIndex: 2,
+      totalSteps: 3,
+      declaredRole: null,
+      generatorStepIndexes: [2]
+    })).toMatchObject({ role: null, reason: 'unresolved' })
   })
 
   it("keeps S1 full upstream context and slims later steps deterministically", () => {

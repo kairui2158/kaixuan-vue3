@@ -32,6 +32,14 @@ const KEEP_PROFILE = process.env.SHENYI_ARTIFACT_CONTRACT_KEEP_PROFILE === '1'
 const RUN_TRACE_SCHEMA_VERSION = 19
 const { safeStorage } = require('electron')
 
+function bodyGeneratorContractSentence(targetWords) {
+  const target = Number(targetWords)
+  if (!Number.isFinite(target) || target <= 0) return ''
+  const min = Math.round(target * 0.6)
+  const max = target * 2
+  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。只输出正文本身。`
+}
+
 const SKILL_SOURCES = [
   { layer: 'settings', root: 'D:/codex/玄武规划SKILL/L2-设定层', folder: 'l2-s1' },
   { layer: 'volume', root: 'D:/codex/玄武规划SKILL/L3-卷纲层', folder: 'l3-s1' },
@@ -342,13 +350,63 @@ function currentRunSnapshot(page, expectedStep) {
     const run = [...(store?.runs || [])]
       .filter(item => item.source === 'pipeline' && item.step === stepNumber)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const events = run?.events || []
+    // Transport heartbeats prove the socket is alive, not that the task is
+    // progressing. Mirror toolRunSupervisor.physicalCallReportsProgress: only
+    // stream/reasoning/tool content or a state change may reset idle timers.
+    const meaningfulEvents = events.filter(event => {
+      if (event.type !== 'run-activity') return true
+      return event?.payload?.source !== 'physical_call_heartbeat'
+    })
+    const progressEvents = meaningfulEvents.filter(event => {
+      if (event.type === 'run-activity') {
+        return event?.payload?.source !== 'physical_call_running'
+      }
+      return event.type === 'stream-delta'
+        || event.type === 'physical-call'
+        || event.type === 'chain-step'
+        || event.type === 'state-transition'
+        || event.type === 'api-start'
+        || event.type === 'api-success'
+        || event.type === 'volume-batch-attempt'
+        || event.type === 'volume-batch-validated'
+        || event.type === 'write'
+        || event.type === 'finished'
+    })
+    const apiCalls = run?.apiCalls || []
+    const physicalProgress = apiCalls.some(call => {
+      if (call.status === 'success' || call.status === 'failed' || call.status === 'canceled') return true
+      return Boolean(
+        (call.physicalCalls || []).some(physical =>
+          physical.status === 'success'
+          || physical.status === 'failed'
+          || physical.status === 'canceled'
+          || (physical.status === 'running' && Boolean(
+            physical.streamText
+            || physical.reasoningText
+            || physical.responseText
+          ))
+        )
+      )
+    })
+    const eventProgressAt = Math.max(
+      0,
+      ...meaningfulEvents.map(event => Number(event?.ts) || 0),
+      ...apiCalls.map(call => Number(call?.lastStreamActivityAt) || 0),
+      ...apiCalls.map(call => Number(call?.lastToolArgumentProgressAt) || 0),
+      ...apiCalls.map(call => Number(call?.lastExecutionActivityAt) || 0),
+    )
     return {
       runId: run?.id || null,
       runStatus: run?.status || null,
-      events: (run?.events || []).length,
-      lastEventType: (run?.events || []).at(-1)?.type || null,
-      apiCalls: (run?.apiCalls || []).length,
-      runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
+      events: meaningfulEvents.length,
+      lastEventType: meaningfulEvents.at(-1)?.type || null,
+      progressEvents: progressEvents.length,
+      lastProgressEventType: progressEvents.at(-1)?.type || null,
+      physicalProgress,
+      lastProgressAtMs: eventProgressAt || null,
+      apiCalls: apiCalls.length,
+      runningApiCalls: apiCalls.filter(call => call.status === 'running').length,
       progress: pipeline?.generationProgress ?? null,
       status: pipeline?.generationStatus || null,
       isGenerating: Boolean(pipeline?.isGenerating),
@@ -405,16 +463,35 @@ async function waitForLayerCompletion(page, {
   isFinished,
   isFailed,
   describeState,
+  timeoutMs = STEP_TIMEOUT_MS,
 }) {
   let lastSignature = null
   let lastProgressAt = Date.now()
   let lastSnapshot = null
-  const deadline = Date.now() + STEP_TIMEOUT_MS
+  const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
     const snapshot = await currentRunSnapshot(page, step)
-    const signature = JSON.stringify(snapshot)
-    if (signature !== lastSignature) {
-      lastSignature = signature
+    const progressSignature = JSON.stringify({
+      runId: snapshot.runId,
+      runStatus: snapshot.runStatus,
+      events: snapshot.events,
+      lastEventType: snapshot.lastEventType,
+      progressEvents: snapshot.progressEvents,
+      lastProgressEventType: snapshot.lastProgressEventType,
+      physicalProgress: snapshot.physicalProgress,
+      lastProgressAtMs: snapshot.lastProgressAtMs,
+      apiCalls: snapshot.apiCalls,
+      runningApiCalls: snapshot.runningApiCalls,
+      progress: snapshot.progress,
+      status: snapshot.status,
+      isGenerating: snapshot.isGenerating,
+      settingsGenerated: snapshot.settingsGenerated,
+      volumeCount: snapshot.volumeCount,
+      chapterCount: snapshot.chapterCount,
+      lastLog: snapshot.lastLog,
+    })
+    if (progressSignature !== lastSignature) {
+      lastSignature = progressSignature
       lastProgressAt = Date.now()
       lastSnapshot = snapshot
       console.log(`[STEP ${step}] ${JSON.stringify(snapshot)}`)
@@ -431,7 +508,7 @@ async function waitForLayerCompletion(page, {
     }
     await sleep(1000)
   }
-  throw new Error(`step ${step} did not finish within ${STEP_TIMEOUT_MS}ms: ${describeState ? describeState() : JSON.stringify(lastSnapshot)}`)
+  throw new Error(`step ${step} did not finish within ${timeoutMs}ms: ${describeState ? describeState() : JSON.stringify(lastSnapshot)}`)
 }
 
 async function confirmSettingsThroughUi(page) {
@@ -643,8 +720,11 @@ async function generateBodyThroughUi(page) {
   await page.click('#btn-pl-gen-body')
   return await waitForLayerCompletion(page, {
     step: 4,
+    // The live body chain runs three real API steps (S1/S2/S3), and S2 may
+    // also include schema retries. Stall/death monitors stay at 2/5 minutes.
     isFinished: state => state.runStatus === 'success',
     isFailed: state => state.status?.startsWith('failed:'),
+    timeoutMs: STEP_TIMEOUT_MS * 3,
   })
 }
 
@@ -748,6 +828,64 @@ async function exportLatestRun(page, step) {
   return exported
 }
 
+async function exportFailureEvidence(page) {
+  const failureLogPath = path.join(EVIDENCE_ROOT, 'failure-export.log')
+  try {
+    const exported = await page.evaluate(async ({ exportRoot }) => {
+      const store = window.__pinia?._s?.get('runTrace')
+      const run = [...(store?.runs || [])]
+        .filter(item => item.source === 'pipeline' && (item.apiCalls || []).length > 0)
+        .sort((a, b) => b.startedAt - a.startedAt)[0]
+      if (!run) return null
+      const result = await window.electronAPI.runTraceExport({
+        schema: 'shenyi.run-trace',
+        version: 2,
+        run: store.exportRunToJson(run),
+        mode: 'deep',
+        payloadDirectoryHint: exportRoot,
+      })
+      return {
+        runId: run.id,
+        step: run.step,
+        stepName: run.stepName,
+        status: run.status,
+        apiCalls: (run.apiCalls || []).length,
+        result,
+      }
+    }, { exportRoot: EXPORT_ROOT })
+    if (!exported) {
+      fs.writeFileSync(failureLogPath, 'no pipeline run with API activity was available for failure export\n', 'utf8')
+      return
+    }
+    if (!exported.result?.success) {
+      fs.writeFileSync(failureLogPath,
+        `deep export failed: ${exported.result?.error || exported.result?.reason || 'unknown error'}\n`, 'utf8')
+      return
+    }
+    const exportedRun = JSON.parse(fs.readFileSync(path.join(exported.result.path, 'run-trace.json'), 'utf8'))
+    const safeName = String(exported.stepName || `step-${exported.step}`).replace(/[\\/:*?"<>|\s]+/g, '-').slice(0, 48)
+    const target = path.join(EVIDENCE_ROOT, 'failure-live-export', safeName)
+    fs.mkdirSync(target, { recursive: true })
+    fs.cpSync(exported.result.path, target, { recursive: true })
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-live-export', 'summary.json'), JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      runId: exported.runId,
+      step: exported.step,
+      stepName: exported.stepName,
+      status: exported.status,
+      apiCalls: exported.apiCalls,
+      sourceDirectory: exported.result.path,
+      evidenceDirectory: target,
+      eventTypes: [...new Set((exportedRun.events || []).map(event => event.type))],
+    }, null, 2), 'utf8')
+    console.log(`[FAILURE EVIDENCE] exported run ${exported.runId} to ${target}`)
+  } catch (error) {
+    fs.writeFileSync(failureLogPath,
+      `failure export crashed: ${error?.stack || error?.message || String(error)}\n`, 'utf8')
+    console.error('[FAILURE EVIDENCE] export failed:', error)
+  }
+}
+
 function readExportedRun(exported) {
   assert(exported.result?.success, `deep run trace export succeeds: ${exported.result?.error || 'unknown error'}`)
   const directory = exported.result.path
@@ -813,8 +951,18 @@ function assertVolumeRun({ run, payloads }) {
     .flatMap(payload => collectPayloadStrings(payload))
   assert(prompts.some(text => text.includes('[已生成卷事实清单]')),
     'volume request includes the generated-volume history facts ledger')
-  assert(prompts.some(text => text.includes('生成3卷的卷纲')),
-    'volume request asks for exactly three volumes')
+  const plannedVolumeFact = prompts.find(text =>
+    text.includes('全书卷数：3')
+    || text.includes('[卷数]\n3')
+    || text.includes('全书计划到第3卷')
+    || text.includes('生成3卷的卷纲'))
+  assert(plannedVolumeFact,
+    'volume requests carry the three-volume plan as a semantic fact, not one fixed sentence')
+  for (let volume = 1; volume <= 3; volume++) {
+    assert(prompts.some(text => text.includes(`本次只生成第${volume}卷`)
+      || text.includes(`生成边界：只生成第${volume}卷`)),
+      `volume requests carry a single-volume boundary for volume ${volume}`)
+  }
 
   const chainSteps = (run.events || []).filter(event => event.type === 'chain-step')
   assert(chainSteps.length >= 12,
@@ -847,11 +995,53 @@ function assertBodyRun({ run, payloads }) {
   const targetWords = Number(validated[0].targetWords)
   assert(Number.isFinite(targetWords) && targetWords > 0,
     `body validation records a usable target-word contract, got ${validated[0].targetWords}`)
-  const targetContract = `请为本章节生成约${targetWords}字的正文内容`
+  const targetContract = bodyGeneratorContractSentence(targetWords)
   const prompt = Object.values(payloads)
     .flatMap(payload => collectPayloadStrings(payload))
     .find(text => text.includes(targetContract))
   assert(prompt, `body request contains the target-word contract: ${targetContract}`)
+
+  const finalStepLedgerPrompt = Object.values(payloads)
+    .flatMap(payload => collectPayloadStrings(payload))
+    .find(text => text.includes('--- 上一步结构化交接（终步账本） ---'))
+  assert(finalStepLedgerPrompt, 'body final step request carries the controlled final-step ledger')
+  assert(finalStepLedgerPrompt.includes('FACT_LOCK'), 'final-step ledger retains FACT_LOCK')
+  assert(!finalStepLedgerPrompt.includes('【正文交接】'),
+    'final-step ledger normalizes the legacy body handoff marker')
+
+  const finalStepMetadataEvents = parseEvents(run, 'body-final-step-metadata')
+  assert(finalStepMetadataEvents.length >= 1,
+    `body run records final-step metadata flow, got ${finalStepMetadataEvents.length}`)
+  assert(finalStepMetadataEvents.every(event => event.decision === 'pass'
+    || event.decision === 'backfilled'),
+    `final-step metadata decision is pass/backfilled, got ${finalStepMetadataEvents.map(event => event.decision).join(',')}`)
+  const consumedMetadata = finalStepMetadataEvents.map(event =>
+    event.consumedMetadata || event.downstreamMetadata || event.metadata)
+    .filter(value => value)
+  assert(consumedMetadata.length === finalStepMetadataEvents.length,
+    'every final-step metadata event records the consumed downstream metadata')
+  for (const metadata of consumedMetadata) {
+    const text = JSON.stringify(metadata)
+    assert(!text.includes('无法核对'),
+      'consumed final metadata must not retain the historical un-verifiable ledger')
+  }
+
+  const finalStepTexts = Object.values(payloads)
+    .flatMap(payload => collectPayloadStrings(payload))
+    .filter(text => text.includes('【终步重试协议】'))
+  if (finalStepTexts.length > 0) {
+    for (const text of finalStepTexts) {
+      assert(text.match(/【终步重试协议】/g).length === 1,
+        'a final-step retry request contains exactly one feedback block')
+      assert(!text.includes('必须以它为基底'),
+        'final-step retry must not use the legacy candidate-as-base protocol')
+      assert(!text.includes('<<<上一版候选输出开始>>>'),
+        'final-step retry must not carry the previous S3 candidate')
+    }
+    assert(parseEvents(run, 'final-step-feedback-composed').length > 0,
+      'final-step retry records feedback composition evidence')
+  }
+
   assertStepTimingLedger(run, 'body')
 }
 
@@ -1072,11 +1262,13 @@ async function main() {
   const electronProcess = startElectron()
   let browser = null
   let heartbeat = null
+  let livePage = null
   const evidence = []
   try {
     assert(await waitForCdp(), 'CDP reachable')
     browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`)
     const page = await connectPage(browser)
+    livePage = page
     page.on('pageerror', error => console.error(`[PAGE ERROR] ${error.message}`))
     page.on('crash', () => console.error('[PAGE CRASH] renderer process crashed'))
     page.on('console', message => {
@@ -1159,6 +1351,11 @@ async function main() {
         step: 2,
         isFinished: state => state.runStatus === 'success',
         isFailed: state => state.status?.startsWith('failed:'),
+        // Live runs measure 15-20 minutes per four-step volume chain, and three
+        // volumes are generated sequentially. The 2-minute stall and 5-minute
+        // dead-call monitors still guard against a genuinely stuck run, so this
+        // budget only removes the structural false timeout.
+        timeoutMs: STEP_TIMEOUT_MS * 9,
       })
       assert.equal(volumeCompletion.volumeCount, 3, 'volume layer contains exactly three volumes')
       const volumeExport = await exportLatestRun(page, 2)
@@ -1305,6 +1502,13 @@ async function main() {
       memory: memoryCompletion,
     }, null, 2), 'utf8')
     console.log('===== PIPELINE ARTIFACT CONTRACT ELECTRON LIVE PASSED =====')
+  } catch (error) {
+    // Timeout/failure evidence must survive before the finally block closes the
+    // renderer and removes the isolated profile. Otherwise the only remaining
+    // signal is the heartbeat, and slow-stream root cause analysis loses the
+    // physical request bodies and stream events.
+    if (livePage) await exportFailureEvidence(livePage)
+    throw error
   } finally {
     heartbeat?.stop()
     clearTimeout(watchdog)

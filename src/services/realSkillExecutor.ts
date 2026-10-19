@@ -6,10 +6,12 @@ import {
 } from './dialogueToolSurface'
 import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
+import { DeAiProcessor } from './de-ai'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
 import { formatSkillFallback } from './skillRouter'
+import { buildFinalStepFeedback } from './finalStepFeedback'
 import { validateSkillOutput } from './skillValidation'
 import type {
   RealSkillAgentContext,
@@ -517,6 +519,38 @@ function buildSchemaRetryFeedback(errors: string[], previousOutput?: string): st
       : '请修复上述错误，只输出符合 schema 的完整结果，不要输出解释。'
   )
   return lines.join('\n')
+}
+
+function buildFinalStepSchemaRetryFeedback(
+  options: RealSkillExecuteOptions,
+  errors: string[],
+): string {
+  const deaiFindings = options.finalStepRetry?.role === 'polish'
+    ? collectFinalStepDeaiFindings(lastFinalStepCandidateBySkill.get(options.skillId || 'default') || '')
+    : undefined
+  const result = buildFinalStepFeedback({
+    errors,
+    upstreamAnchors: options.finalStepRetry?.upstreamAnchors,
+    deaiFindings: deaiFindings ?? options.finalStepRetry?.deaiFindings,
+  })
+  options.onFinalStepFeedbackComposed?.(result)
+  return result.feedback
+}
+
+const lastFinalStepCandidateBySkill = new Map<string, string>()
+
+function collectFinalStepDeaiFindings(candidate: string): Array<{ code: string; label: string; message: string }> {
+  if (!candidate.trim()) return []
+  try {
+    const report = DeAiProcessor.detectBody(candidate, {})
+    return report.findings.slice(0, 10).map((finding: { id: string; type: string; suggestion: string }) => ({
+      code: finding.id,
+      label: finding.type,
+      message: finding.suggestion
+    }))
+  } catch {
+    return []
+  }
 }
 
 /**
@@ -1111,7 +1145,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           const retryErrors = blockingErrors.length > 0 ? blockingErrors : ['postProcess 返回阻断性问题']
           const report = buildValidationErrorReport(retryErrors)
           lastAttempt = { output: candidateOutput, validation: { valid: false, errors: retryErrors } }
-          schemaRetryFeedback = buildSchemaRetryFeedback(retryErrors, candidateOutput)
+          if (options.finalStepRetry?.role === 'polish') {
+            lastFinalStepCandidateBySkill.set(options.skillId || 'default', candidateOutput)
+          }
+          schemaRetryFeedback = options.finalStepRetry?.role === 'polish'
+            ? buildFinalStepSchemaRetryFeedback(options, retryErrors)
+            : buildSchemaRetryFeedback(retryErrors, candidateOutput)
           timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
           errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过 postProcess 校验：${report}`)
           diagnostics.push(diagnostic(
@@ -1168,7 +1207,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
 
         const report = buildValidationErrorReport(validation.errors)
-        schemaRetryFeedback = buildSchemaRetryFeedback(validation.errors, candidateOutput)
+        if (options.finalStepRetry?.role === 'polish') {
+          lastFinalStepCandidateBySkill.set(options.skillId || 'default', candidateOutput)
+        }
+        schemaRetryFeedback = options.finalStepRetry?.role === 'polish'
+          ? buildFinalStepSchemaRetryFeedback(options, validation.errors)
+          : buildSchemaRetryFeedback(validation.errors, candidateOutput)
         timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
         errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过校验：${report}`)
         diagnostics.push(diagnostic('warning', 'schema-validation-failed', `尝试 ${attempt}/${RETRY_LIMIT}：${report}`))

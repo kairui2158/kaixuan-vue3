@@ -1,0 +1,561 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792435769497-1420",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 3,
+  "stepName": "章节层",
+  "mode": "chapters",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [],
+  "skillMode": "chain",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "ab0d8cb6f07f",
+    "buildTime": "2026-10-19T17:00:24.984Z"
+  },
+  "startedAt": 1792435769497,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "chapters_generation_complete",
+      "recordedAt": 1792435826639
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1792435769498-1421",
+      "ts": 1792435769498,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 章节层运行"
+    },
+    {
+      "id": "event-1792435769535-1422",
+      "ts": 1792435769535,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "章节层执行参数已构建",
+      "detail": "{\"volume\":\"风暴起点\",\"totalChapters\":3,\"wordsPerChapter\":1200,\"resumeCount\":0}"
+    },
+    {
+      "id": "event-1792435769549-1424",
+      "ts": 1792435769549,
+      "seq": 3,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792435769551-1426",
+      "ts": 1792435769551,
+      "seq": 4,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1792435769551-1427",
+      "ts": 1792435769551,
+      "seq": 5,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792435769551-1425",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792435769551-1428",
+      "ts": 1792435769551,
+      "seq": 6,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792435784555-1429",
+      "ts": 1792435784555,
+      "seq": 7,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792435784555-1430",
+      "ts": 1792435784555,
+      "seq": 8,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1792435799555-1431",
+      "ts": 1792435799555,
+      "seq": 9,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792435799556-1432",
+      "ts": 1792435799556,
+      "seq": 10,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1792435814560-1433",
+      "ts": 1792435814560,
+      "seq": 11,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792435814560-1434",
+      "ts": 1792435814560,
+      "seq": 12,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/compose",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1792435823303-1435",
+      "ts": 1792435823303,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792435824335-1436",
+      "ts": 1792435824335,
+      "seq": 14,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792435825345-1437",
+      "ts": 1792435825345,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792435826352-1438",
+      "ts": 1792435826352,
+      "seq": 16,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792435826587-1439",
+      "ts": 1792435826587,
+      "seq": 17,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1792435826588-1440",
+      "ts": 1792435826588,
+      "seq": 18,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1792435826591-1441",
+      "ts": 1792435826591,
+      "seq": 19,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792435769549-1423 seq=1"
+    },
+    {
+      "id": "event-1792435826591-1442",
+      "ts": 1792435826591,
+      "seq": 20,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792435826594-1443",
+      "ts": 1792435826594,
+      "seq": 21,
+      "type": "chapter-batch-attempt",
+      "level": "info",
+      "label": "章节批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":3,\"acceptedCount\":3,\"missingStart\":1,\"missingCount\":3,\"validationMs\":0,\"errors\":[]}"
+    },
+    {
+      "id": "event-1792435826626-1444",
+      "ts": 1792435826626,
+      "seq": 22,
+      "type": "chapter-batch-validated",
+      "level": "info",
+      "label": "章节批次验收通过",
+      "detail": "{\"batchIndex\":0,\"expectedStart\":1,\"expectedEnd\":3,\"requestedCount\":3,\"actualCount\":3,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1792435826638-1445",
+      "ts": 1792435826638,
+      "seq": 23,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "chapters_generation_complete"
+    },
+    {
+      "id": "event-1792435826638-1446",
+      "ts": 1792435826638,
+      "seq": 24,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "chapters_generation_complete / run=run-1792435769497-1420"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792435769549-1423",
+      "seq": 1,
+      "step": 3,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "temperature": 0.1,
+      "maxTokens": null,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "status": "success",
+      "startedAt": 1792435769549,
+      "physicalCalls": [
+        {
+          "id": "physical-1792435769551-1425",
+          "physicalCallId": "physical-1792435769550-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-005"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 6592,
+            "outputTokens": 3647,
+            "totalTokens": 10239,
+            "reasoningOutputTokens": 3314
+          },
+          "usageUnavailable": false,
+          "startedAt": 1792435769551,
+          "durationMs": 57036,
+          "firstTokenMs": 2167,
+          "outputMs": 54869,
+          "endedAt": 1792435826587,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 5782,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 5782 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 5782,
+            "actualInputTokens": 6592,
+            "driftRatio": 0.14008993427879624,
+            "correctedRatio": 1.1400899342787962
+          },
+          "firstContentAt": 1792435823299,
+          "lastContentAt": 1792435826568,
+          "lastReasoningAt": 1792435823284,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "[\n  {\n    \"title\": \"第一章 旧信显影\",\n    \"plot\": \"风暴纪元下，主角靠港补给时旧信受潮，显影出旧航道灯塔残图。他试图掩饰，却被港口航商窥见，对方以扣船、追加税单和常规航路封锁逼他交出旧信。为保住旧信并完成第一次远航，主角隐瞒完整残图，被迫选择未验证旧航道离港，留下港口债和追踪船影。\"\n  },\n  {\n    \"title\": \"第二章 雾中半灯\",\n    \"plot\": \"旧航道海雾与风暴前兆持续损耗船况，灯塔信号时断时续，与旧信残图部分匹配，南方航线从传闻变为唯一出口。旧信部分浸损后，风暴升级切断灯塔信号，旧信完整坐标又被毁一角。家族信物发出不完整微光补出部分航向，主角在保信物与保船之间抉择，被迫承认不能只取航路不接家族债。\"\n  },\n  {\n    \"title\": \"第三章 南方入口\",\n    \"plot\": \"主角凭借残破旧信与信物微光冲出风暴，识别南方航线入口，完成第一次远航。短暂喘息中，旧信与信物同时显出新坐标指向雾中港，新坐标不在旧海图；港口债未清，追踪风险未消，风暴信标只在信物联动中留下未解暗示。主角意识到远航完成不是结束，家"
+        }
+      ],
+      "lastExecutionActivityAt": 1792435826571,
+      "lastStreamActivityAt": 1792435826571,
+      "finishReason": "stop",
+      "durationMs": 57036,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 57036,
+        "firstTokenSumMs": 2167,
+        "outputSumMs": 54869,
+        "minFirstTokenMs": 2167,
+        "maxFirstTokenMs": 2167,
+        "localOverheadMs": 0
+      },
+      "usage": {
+        "inputTokens": 6592,
+        "outputTokens": 3647,
+        "totalTokens": 10239,
+        "reasoningOutputTokens": 3314
+      },
+      "usageUnavailable": false,
+      "endedAt": 1792435826591,
+      "semantic": {
+        "conversationId": "run-1792435769497-1420",
+        "usage": {
+          "inputTokens": 6592,
+          "outputTokens": 3647,
+          "totalTokens": 10239,
+          "reasoningOutputTokens": 3314
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "[\n  {\n    \"title\": \"第一章 旧信显影\",\n    \"plot\": \"风暴纪元下，主角靠港补给时旧信受潮，显影出旧航道灯塔残图。他试图掩饰，却被港口航商窥见，对方以扣船、追加税单和常规航路封锁逼他交出旧信。为保住旧信并完成第一次远航，主角隐瞒完整残图，被迫选择未验证旧航道离港，留下港口债和追踪船影。\"\n  },\n  {\n    \"title\": \"第二章 雾中半灯\",\n    \"plot\": \"旧航道海雾与风暴前兆持续损耗船况，灯塔信号时断时续，与旧信残图部分匹配，南方航线从传闻变为唯一出口。旧信部分浸损后，风暴升级切断灯塔信号，旧信完整坐标又被毁一角。家族信物发出不完整微光补出部分航向，主角在保信物与保船之间抉择，被迫承认不能只取航路不接家族债。\"\n  },\n  {\n    \"title\": \"第三章 南方入口\",\n    \"plot\": \"主角凭借残破旧信与信物微光冲出风暴，识别南方航线入口，完成第一次远航。短暂喘息中，旧信与信物同时显出新坐标指向雾中港，新坐标不在旧海图；港口债未清，追踪风险未消，风暴信标只在信物联动中留下未解暗示。主角意识到远航完成不是结束，家"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 27014,
+      "chars": 10460,
+      "sha256": "2a16048ccf69e9265c4d9a43d5306446a94ac2e1371f6d406a2eca5cf13e4aaf",
+      "duplicateCount": 2,
+      "createdAt": 1792435827958
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 1289,
+      "chars": 515,
+      "sha256": "50e36bc447a445fccabd00f75ef1a550b52bfe1abfc9a48eff261e59cc5bf947",
+      "duplicateCount": 2,
+      "createdAt": 1792435827958
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 1294,
+      "chars": 520,
+      "sha256": "97ee3890a79d9875bcb72ce62ffe1c1279bc9b27c1f2baa890e932b68fb230db",
+      "duplicateCount": 1,
+      "createdAt": 1792435827958
+    },
+    {
+      "id": "payload-004",
+      "kind": "reasoning",
+      "file": "004-reasoning.json",
+      "bytes": 13447,
+      "chars": 5079,
+      "sha256": "cfcf9301227b06742c04970f73d1b0bc67401ef63501f4f45bbc81a3497385c7",
+      "duplicateCount": 2,
+      "createdAt": 1792435827958
+    },
+    {
+      "id": "payload-005",
+      "kind": "stream",
+      "file": "005-stream.json",
+      "bytes": 1289,
+      "chars": 515,
+      "sha256": "50e36bc447a445fccabd00f75ef1a550b52bfe1abfc9a48eff261e59cc5bf947",
+      "duplicateCount": 1,
+      "createdAt": 1792435827958
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 0,
+    "persistence": 31
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 57036,
+    "firstTokenSumMs": 2167,
+    "outputSumMs": 54869,
+    "localOverheadSumMs": 0,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 2167,
+    "outputSumMs": 54869,
+    "validationSumMs": 0,
+    "persistenceSumMs": 31,
+    "repeatedPromptBlocks": {},
+    "contextChars": 9865,
+    "outputChars": 515,
+    "physicalDurationSumMs": 57036
+  },
+  "endedAt": 1792435826638,
+  "durationMs": 57141,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1792435769549-1423",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "50e36bc447a445fccabd00f75ef1a550b52bfe1abfc9a48eff261e59cc5bf947",
+        "bytes": 1289,
+        "chars": 515,
+        "preview": "[\n  {\n    \"title\": \"第一章 旧信显影\",\n    \"plot\": \"风暴纪元下，主角靠港补给时旧信受潮，显影出旧航道灯塔残图。他试图掩饰，却被港口航商窥见，对方以扣船、追加税单和常规航路封锁逼他交出旧信。为保住旧信并完成第一次远航，主角隐瞒完整残图，被迫选择未验证旧航道离港，留下港口债和追踪船影。\"\n  },\n  {\n    \"title\": \"第二章 雾中半灯\",\n    \"plot\": \"旧航道海雾与风暴前兆持续损耗船况，灯塔信号时断时续，与旧信残图部分匹配，南方航线从传闻变为唯一出口。旧信部分浸损后，风暴升级切断灯塔信号，旧信完整坐标又被毁一角。家族信物发出不完整微光补出部分航向，主角在保信物与保船之间抉择，被迫承认不能只取航路不接家族债。\"\n  },\n  {\n    \"title\": \"第三章 南方入口\",\n    \"plot\": \"主角凭借残破旧信与信物微光冲出风暴，识别南方航线入口，完成第一次远航。短暂喘息中，旧信与信物同时显出新坐标指向雾中港，新坐标不在旧海图；港口债未清，追踪风险未消，风暴信标只在信物联动中留下未解暗示。主角意识到远航完成不是结束，家"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "97ee3890a79d9875bcb72ce62ffe1c1279bc9b27c1f2baa890e932b68fb230db",
+        "bytes": 1294,
+        "chars": 520
+      },
+      "reasoning": {
+        "ref": "payload-004",
+        "file": "004-reasoning.json",
+        "sha256": "cfcf9301227b06742c04970f73d1b0bc67401ef63501f4f45bbc81a3497385c7",
+        "bytes": 13447,
+        "chars": 5079
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792435769550-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "50e36bc447a445fccabd00f75ef1a550b52bfe1abfc9a48eff261e59cc5bf947",
+            "bytes": 1289,
+            "chars": 515,
+            "preview": "[\n  {\n    \"title\": \"第一章 旧信显影\",\n    \"plot\": \"风暴纪元下，主角靠港补给时旧信受潮，显影出旧航道灯塔残图。他试图掩饰，却被港口航商窥见，对方以扣船、追加税单和常规航路封锁逼他交出旧信。为保住旧信并完成第一次远航，主角隐瞒完整残图，被迫选择未验证旧航道离港，留下港口债和追踪船影。\"\n  },\n  {\n    \"title\": \"第二章 雾中半灯\",\n    \"plot\": \"旧航道海雾与风暴前兆持续损耗船况，灯塔信号时断时续，与旧信残图部分匹配，南方航线从传闻变为唯一出口。旧信部分浸损后，风暴升级切断灯塔信号，旧信完整坐标又被毁一角。家族信物发出不完整微光补出部分航向，主角在保信物与保船之间抉择，被迫承认不能只取航路不接家族债。\"\n  },\n  {\n    \"title\": \"第三章 南方入口\",\n    \"plot\": \"主角凭借残破旧信与信物微光冲出风暴，识别南方航线入口，完成第一次远航。短暂喘息中，旧信与信物同时显出新坐标指向雾中港，新坐标不在旧海图；港口债未清，追踪风险未消，风暴信标只在信物联动中留下未解暗示。主角意识到远航完成不是结束，家"
+          },
+          "stream": {
+            "ref": "payload-005",
+            "file": "005-stream.json",
+            "sha256": "50e36bc447a445fccabd00f75ef1a550b52bfe1abfc9a48eff261e59cc5bf947",
+            "bytes": 1289,
+            "chars": 515
+          },
+          "reasoning": {
+            "ref": "payload-004",
+            "file": "004-reasoning.json",
+            "sha256": "cfcf9301227b06742c04970f73d1b0bc67401ef63501f4f45bbc81a3497385c7",
+            "bytes": 13447,
+            "chars": 5079
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

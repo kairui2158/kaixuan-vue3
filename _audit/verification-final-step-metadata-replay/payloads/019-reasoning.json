@@ -1,0 +1,258 @@
+Let me analyze the task. I'm being asked to generate the prose for a chapter based on a skeleton/outline. The user has provided a skeleton with two scenes, and I need to write approximately 3500 words (target 3500, minimum 2800, maximum 7000).
+
+Wait, looking more carefully at the instructions, there's a note saying:
+"上一次输出未通过校验。具体错误如下：正文2748字，低于生成下限2800字（目标3500字）"
+And then it provides a previous candidate output that was 2748 words, below the 2800 minimum.
+
+So actually, the task is asking me to fix the previous candidate by expanding it to reach at least 2800 words, while keeping the rest intact.
+
+Let me re-read: "请基于上一版候选输出修正上述错误，输出修正后的完整结果，不要重写无关内容，不要输出解释。"
+
+So I need to:
+1. Take the previous candidate output as the base
+2. Fix the issue: expand from 2748 words to at least 2800 words (target 3500)
+3. Keep everything else intact
+4. Output the complete corrected result
+
+The previous candidate is provided after "<<<上一版候选输出开始>>>" and before "<<<上一版候选输出结束>>>".
+
+I need to expand the text by at least about 52 words to reach 2800, but the target is 3500, so I should aim higher. Let me count the current text length first.
+
+Actually, given the instructions say to aim for the target of 3500 words, and the previous output was 2748 words, I should expand it to around 3500 words. That means adding about 750 words.
+
+I should expand the text by:
+- Adding more action chains
+- Adding more sensory consequences
+- Adding more dialogue turns (though this chapter has no dialogue)
+- Adding more on-site costs
+- Not adding new facts beyond what's authorized
+
+I need to be careful to:
+- Keep the same POV (陈暮)
+- Keep all scene events intact
+- Not delete events or change outcomes
+- Not switch POV
+- Keep the style consistent
+- Maintain the final 3-5 paragraphs as effective closing
+
+Let me plan where to expand:
+
+Scene 1 (approximately 2000 words budget):
+- The physical recovery could be expanded
+- The walk to the fire cabinet could have more detail
+- The password attempts could be more detailed
+- The reading of the data board could have more expansion
+- More sensory details throughout
+
+Scene 2 (approximately 1500 words budget):
+- The moment at the door could be expanded
+- The door opening could be more gradual
+- The external world could have more description
+- The final movement could be expanded
+
+Let me identify specific places to expand:
+
+1. The initial physical sensations - expand the cold, the stiffness, the recovery
+2. The walk along the wall - more detailed
+3. The password attempts - more physical detail
+4. The data board reading - more specific content and reactions
+5. The moment at the door - more hesitation and physical detail
+6. The external world - more sensory overload
+7. The final closing - more emotional resonance
+
+I need to add about 750 words while keeping the quality high. Let me write this out now.
+
+Actually, wait - I need to be careful. The instruction says "以它为基底，只修正上述错误，保留其余内容" - use it as base, only fix the mentioned error, keep the rest. But also the target is 3500 words. So I should expand it to reach the target.
+
+Let me count the existing text first to know exactly how much I need to add.
+
+Actually, I can't count precisely, but the previous text was reported as 2748 words. I need to reach at least 3500 to hit the target, or at minimum 2800 to pass the threshold. The instruction says "施工时逐场景写满各自预算后再进入下一场景，全章以wordsPerChapter为目标" - so I should aim for 3500.
+
+I need to add about 752 words. Let me expand strategically throughout the text.
+
+Let me go through and expand:
+
+1. After the initial paragraph about the knee cold and chest pressure - add more physical detail about the awakening
+2. The observation of the lab - expand the sensory exploration
+3. The walk to the cabinet - add more physical struggle
+4. The password attempts - more detail on the trembling fingers
+5. The data board content - more specific notes and reactions
+6. The door moment - more hesitation and internal conflict
+7. The external world - more sensory overload
+
+Let me write the expanded version now. I'll keep the same structure and wording where possible, just add more content.
+
+Actually, the approach should be: take the existing text verbatim and add sentences/paragraphs at strategic points. Let me do that.
+
+Let me draft the expanded text:
+
+Key areas to expand:
+1. Scene 1 body recovery - expand from about 500 words to 650
+2. Walk to cabinet - expand from about 300 to 400
+3. Password attempts - expand from about 200 to 300
+4. Data board reading - expand from about 500 to 650
+5. Door moment - expand from about 200 to 300
+6. External world - expand from about 300 to 400
+
+Let me write it out:
+
+...
+
+Actually, I realize I should just write the complete corrected text. Let me go through the existing text and add content.
+
+Let me count the scenes and make sure I cover everything. The previous output is quite good. I need to add about 750 words. Let me identify the best places.
+
+I'll expand:
+1. The initial sensory recovery (add ~100 words)
+2. The walk to the cabinet (add ~100 words)  
+3. The password attempts (add ~75 words)
+4. The data board reading (add ~150 words)
+5. The moment at the door (add ~75 words)
+6. The external world (add ~100 words)
+7. The final closing (add ~50 words)
+
+That's about 650 words. Let me also add some more to reach 750.
+
+Let me now write the complete output.
+
+Actually, I realize the key thing here is: the user says the word count is too low. I need to expand. But I also need to maintain quality and not just pad. Let me expand with meaningful content that follows the rules:
+
+- Add action chains
+- Add sensory consequences  
+- Add physical costs
+- No new facts beyond what's authorized
+
+Let me write:
+
+---
+
+灰绿微光从观察窗渗进来，落在地板细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的甜腐味，喉结动了动，只滚出一声短气。手还扶在舱壁上，指节发僵，指甲缝里结着一层撕扯时留下的旧釉。
+
+他试着把重心从膝盖挪到脚掌。麻木从腿肚子爬上来，像有无数细针同时扎进去，又同时抽走。他等了几个呼吸，等痛感找到自己的位置。后脑还有一块压得太久的硬感，像枕骨下面卡着半块冰。
+
+他偏头看过去。舱盖开着，歪在自己右后方，边沿凝着几道干掉的深色液痕。观察窗外只有那种灰绿色的光，厚厚地压在玻璃另一面。没有人的动静。他等了等，耳膜深处有一片细密的嗡响，像雪落进旧电线，偶尔被某个很远的低音盖过去。
+
+[continue expanding...]
+
+Let me actually write the entire text now. I'll be careful to keep the original wording and add content where it fits naturally.
+
+I'll go through the original text paragraph by paragraph and add expansions.
+
+Let me write the complete output now.
+
+Actually, I think I should just write the complete expanded text directly. Let me do it.
+
+Let me count the existing text carefully:
+
+Paragraph 1: 灰绿微光从观察窗渗进来...旧釉。(~50 words)
+Paragraph 2: 他偏头看过去。舱盖开着...低音盖过去。(~60 words)
+Paragraph 3: 他想不起来自己是怎么从舱里出来的...记不起来。(~70 words)
+Paragraph 4: 他扶住舱壁起身...一条一条在皮肤上分开。(~90 words)
+Paragraph 5: 是活的。(~3 words)
+Paragraph 6: 他重新站起来...还在漏气。(~80 words)
+Paragraph 7: 听的工夫里，他盯着北墙...没有人应。(~80 words)
+Paragraph 8: 他把背包拽过来...模模糊糊裹着灰。(~70 words)
+Paragraph 9: 不，他还不能确定那是自己。(~10 words)
+Paragraph 10: 到柜前时...裤管往下一塌。(~85 words)
+Paragraph 11: 柜内很暗...一盒冷透的土。(~90 words)
+Paragraph 12: 背包拉链在结霜的指头上滑了几下...被谁反复握过。(~70 words)
+Paragraph 13: 他按了下缘...先记录如下：(~80 words)
+Paragraph 14: 下面几行都带着同一种断口...远一点就没了。(~60 words)
+Paragraph 15: 他接着往下划...就顺着日期往下翻。(~80 words)
+Paragraph 16: 灾前政府最后紧急通告跳出屏幕...有人曾把水滴掉在上面。(~80 words)
+Paragraph 17: 他不动了...像在黑暗里又冻了一次脸。(~100 words)
+Paragraph 18: 他后来站起身...只有衣服摩擦出细碎的响。(~70 words)
+Paragraph 19: 走到走廊尽头...又抬头看门。(~70 words)
+Paragraph 20: 门很冷...也不会。(~80 words)
+Paragraph 21: 他把手按在门把上...推出半寸。(~60 words)
+Paragraph 22: 门缝撕开的一瞬...化成一块白斑。(~90 words)
+Paragraph 23: 远处有声音滚过来...腿侧发麻。(~100 words)
+Paragraph 24: 风扑到脸上...白色轿车。(~110 words)
+Paragraph 25: 不是他要找的样子。(~7 words)
+Paragraph 26: 风又紧了一阵...一样不可追回。(~50 words)
+Paragraph 27: 声音又起时更近了...他以为自己还会回去。(~80 words)
+Paragraph 28: 他没有回...像等他往前走。(~120 words)
+Paragraph 29: 陈暮把背包带往肩上提了提...风经过的地方。(~90 words)
+
+Total: ~2748 words (as reported)
+
+I need to add ~750 words to reach 3500. Let me add expansions at these points:
+
+1. After paragraph 1 - add more physical detail about waking
+2. After paragraph 4 - add more about checking the body
+3. After paragraph 6 - add more about listening and the environment
+4. After paragraph 10 - add more about the password attempts
+5. After paragraph 15 - add more about reading the data
+6. After paragraph 17 - add more about the emotional moment
+7. After paragraph 19 - add more about the door
+8. After paragraph 23 - add more about the external sounds
+9. After paragraph 28 - add more about the final decision
+
+Let me write the expanded version. I'll keep all original text and add new sentences/paragraphs.
+
+OK, I have a clear plan. Let me write the complete output now. I'll naturally expand the text while keeping the quality.
+
+Actually, I realize I should be systematic. Let me write the entire text with expansions built in. I'll add around 750 words across the two scenes.
+
+Here's my approach:
+- Scene 1 needs about 450 more words (from ~2000 budget to ~2450)
+- Scene 2 needs about 300 more words (from ~1500 budget to ~1800)
+
+Wait, no. The total is 2748 and target is 3500. I need to add ~752 words. Scene 1 is about 1600 words currently, Scene 2 is about 1150 words currently. So:
+- Scene 1 add ~400 words
+- Scene 2 add ~350 words
+
+Let me write it out now.
+
+I'll now produce the complete corrected output. I need to ensure the first character is prose text (not metadata or explanation).
+
+Let me write this carefully, maintaining quality.
+
+One important thing: the style contract says "behavior_only" for emotional expression, "克制" language, "中快" rhythm, "动作优先". So my expansions should follow these guidelines.
+
+Let me write:
+
+---
+
+灰绿微光从观察窗渗进来，落在地板细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的甜腐味，喉结动了动，只滚出一声短气。手还扶在舱壁上，指节发僵，指甲缝里结着一层撕扯时留下的旧釉。
+
+他试着把重心从膝盖挪到脚掌。麻木从腿肚子往上爬，像无数细针同时扎进去，又同时抽走。针感退去后，剩下的是关节里生涩的钝痛，像多年没转过的铰链。后脑还有一块压得太久的硬痛，半个掌心大小，贴着头骨不放。他把头往左偏了偏，那块硬痛没有松开。
+
+[continue...]
+
+OK let me just write the full thing now. I'll do it in one go and make it good.
+
+Let me think about what specific meaningful expansions to add:
+
+**Scene 1 expansions:**
+1. After the initial waking - more body awareness: breathing, heartbeat, muscle response
+2. Checking the 菌膜 - more tactile detail, more physical response
+3. The walk along the wall - more physical struggle, more detail about the lab environment
+4. Password attempts - each attempt more physical, the trembling, the concentration
+5. The data board reading - more specific notes, more emotional response
+6. The emotional moment after reading the announcement - expand the stillness
+
+**Scene 2 expansions:**
+1. At the door - expand the hesitation, the physical sensation of the handle
+2. The door opening - more gradual, more sensory detail
+3. The external world - expand the sensory overload
+4. The final closing - expand the moment of decision
+
+Let me write the complete text now. I'll be careful to maintain all the quality standards.
+
+I'm going to write the full text now, aiming for about 3500 words.
+
+Actually, let me be strategic about this. The existing text is very good. I'll preserve it mostly intact and add new content at natural break points. The key is to make the additions feel seamless and purposeful, not padded.
+
+Here are my planned insertions:
+
+1. After "指甲缝里结着一层撕扯时留下的旧釉。" - add a paragraph about the breathing and physical recovery
+2. After "一条一条在皮肤上分开。" / "是活的。" - add a sentence or two about the significance
+3. After "没有人应。" - add a brief paragraph about the lab's silence
+4. In the password section - expand the physical struggle
+5. In the data board section - expand the reading content 
+6. At the door - expand the moment
+7. In the external world - expand the sensory overload
+8. Final closing - expand the final moment
+
+OK, I think I've planned enough. Let me write the full output now.

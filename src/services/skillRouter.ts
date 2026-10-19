@@ -48,6 +48,8 @@ export interface SkillRouteOptions {
   toolSurface?: RealSkillExecuteOptions['toolSurface']
   activeEditTask?: RealSkillExecuteOptions['activeEditTask']
   executionPlan?: RealSkillExecuteOptions['executionPlan']
+  finalStepRetry?: RealSkillExecuteOptions['finalStepRetry']
+  onFinalStepFeedbackComposed?: RealSkillExecuteOptions['onFinalStepFeedbackComposed']
 }
 
 export interface SkillRouteResult {
@@ -184,7 +186,9 @@ export async function routeSkill(
     toolPolicy: options.toolPolicy,
     toolSurface: options.toolSurface,
     activeEditTask: options.activeEditTask,
-    executionPlan: options.executionPlan
+    executionPlan: options.executionPlan,
+    finalStepRetry: options.finalStepRetry,
+    onFinalStepFeedbackComposed: options.onFinalStepFeedbackComposed
   }
 
   if (probe.package.meta.executionMode === 'composite') {

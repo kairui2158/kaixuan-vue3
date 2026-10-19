@@ -1,0 +1,1501 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792409337583-70",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [
+    "S1-卷纲解析（文件夹）",
+    "S2-卷纲推演（文件夹）",
+    "S3-卷纲填充（文件夹）",
+    "S4-卷纲校验（文件夹）"
+  ],
+  "skillMode": "chain",
+  "status": "running",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "ab0d8cb6f07f",
+    "buildTime": "2026-10-19T11:20:15.668Z"
+  },
+  "startedAt": 1792409337583,
+  "stateHistory": [],
+  "events": [
+    {
+      "id": "event-1792409337584-71",
+      "ts": 1792409337584,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1792409337585-72",
+      "ts": 1792409337585,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":3,\"generatedVolumeCount\":0,\"allocatedWords\":0,\"remainingWords\":10000,\"remainingVolumes\":3,\"currentVolumeBudget\":3333,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1792409337640-73",
+      "ts": 1792409337640,
+      "seq": 3,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 1/4 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":3694,\"finalPromptLength\":3694,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1792409337643-74",
+      "ts": 1792409337643,
+      "seq": 4,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 1/4",
+      "detail": "S1-卷纲解析（文件夹）"
+    },
+    {
+      "id": "event-1792409337646-76",
+      "ts": 1792409337646,
+      "seq": 5,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"S1-卷纲解析（文件夹）\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792409337654-77",
+      "ts": 1792409337654,
+      "seq": 6,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":3694,\"userPromptLength\":4119,\"systemPromptLength\":3615,\"sampleCount\":5,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+    },
+    {
+      "id": "event-1792409337658-79",
+      "ts": 1792409337658,
+      "seq": 7,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409337658-80",
+      "ts": 1792409337658,
+      "seq": 8,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792409337657-78",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792409337658-81",
+      "ts": 1792409337658,
+      "seq": 9,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409352666-82",
+      "ts": 1792409352666,
+      "seq": 10,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409352666-83",
+      "ts": 1792409352666,
+      "seq": 11,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409367663-84",
+      "ts": 1792409367663,
+      "seq": 12,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409367663-85",
+      "ts": 1792409367663,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409382659-86",
+      "ts": 1792409382659,
+      "seq": 14,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409382659-87",
+      "ts": 1792409382659,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409397663-88",
+      "ts": 1792409397663,
+      "seq": 16,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409397663-89",
+      "ts": 1792409397663,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409412669-90",
+      "ts": 1792409412669,
+      "seq": 18,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409412669-91",
+      "ts": 1792409412669,
+      "seq": 19,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409427669-92",
+      "ts": 1792409427669,
+      "seq": 20,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409427669-93",
+      "ts": 1792409427669,
+      "seq": 21,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409442660-94",
+      "ts": 1792409442660,
+      "seq": 22,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409442660-95",
+      "ts": 1792409442660,
+      "seq": 23,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409457660-96",
+      "ts": 1792409457660,
+      "seq": 24,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409457660-97",
+      "ts": 1792409457660,
+      "seq": 25,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409472665-98",
+      "ts": 1792409472665,
+      "seq": 26,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409472665-99",
+      "ts": 1792409472665,
+      "seq": 27,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409487661-100",
+      "ts": 1792409487661,
+      "seq": 28,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409487662-101",
+      "ts": 1792409487662,
+      "seq": 29,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409502661-102",
+      "ts": 1792409502661,
+      "seq": 30,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409502661-103",
+      "ts": 1792409502661,
+      "seq": 31,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409517661-104",
+      "ts": 1792409517661,
+      "seq": 32,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409517661-105",
+      "ts": 1792409517661,
+      "seq": 33,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409532665-106",
+      "ts": 1792409532665,
+      "seq": 34,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409532665-107",
+      "ts": 1792409532665,
+      "seq": 35,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409547671-108",
+      "ts": 1792409547671,
+      "seq": 36,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409547671-109",
+      "ts": 1792409547671,
+      "seq": 37,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409562664-110",
+      "ts": 1792409562664,
+      "seq": 38,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409562664-111",
+      "ts": 1792409562664,
+      "seq": 39,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409577660-112",
+      "ts": 1792409577660,
+      "seq": 40,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409577660-113",
+      "ts": 1792409577660,
+      "seq": 41,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409592674-114",
+      "ts": 1792409592674,
+      "seq": 42,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409592674-115",
+      "ts": 1792409592674,
+      "seq": 43,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409607664-116",
+      "ts": 1792409607664,
+      "seq": 44,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409607664-117",
+      "ts": 1792409607664,
+      "seq": 45,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409622669-118",
+      "ts": 1792409622669,
+      "seq": 46,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409622669-119",
+      "ts": 1792409622669,
+      "seq": 47,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409637664-120",
+      "ts": 1792409637664,
+      "seq": 48,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409637664-121",
+      "ts": 1792409637664,
+      "seq": 49,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409652675-122",
+      "ts": 1792409652675,
+      "seq": 50,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409652675-123",
+      "ts": 1792409652675,
+      "seq": 51,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409667671-124",
+      "ts": 1792409667671,
+      "seq": 52,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409667671-125",
+      "ts": 1792409667671,
+      "seq": 53,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409682670-126",
+      "ts": 1792409682670,
+      "seq": 54,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409682670-127",
+      "ts": 1792409682670,
+      "seq": 55,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409697668-128",
+      "ts": 1792409697668,
+      "seq": 56,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409697669-129",
+      "ts": 1792409697669,
+      "seq": 57,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409712669-130",
+      "ts": 1792409712669,
+      "seq": 58,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409712669-131",
+      "ts": 1792409712669,
+      "seq": 59,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409727668-132",
+      "ts": 1792409727668,
+      "seq": 60,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409727668-133",
+      "ts": 1792409727668,
+      "seq": 61,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409742664-134",
+      "ts": 1792409742664,
+      "seq": 62,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409742664-135",
+      "ts": 1792409742664,
+      "seq": 63,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409757674-136",
+      "ts": 1792409757674,
+      "seq": 64,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409757675-137",
+      "ts": 1792409757675,
+      "seq": 65,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409772668-138",
+      "ts": 1792409772668,
+      "seq": 66,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409772668-139",
+      "ts": 1792409772668,
+      "seq": 67,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409779228-140",
+      "ts": 1792409779228,
+      "seq": 68,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409780256-141",
+      "ts": 1792409780256,
+      "seq": 69,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409781256-142",
+      "ts": 1792409781256,
+      "seq": 70,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409782378-143",
+      "ts": 1792409782378,
+      "seq": 71,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409783732-144",
+      "ts": 1792409783732,
+      "seq": 72,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409784744-145",
+      "ts": 1792409784744,
+      "seq": 73,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409785808-146",
+      "ts": 1792409785808,
+      "seq": 74,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409786821-147",
+      "ts": 1792409786821,
+      "seq": 75,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409787667-148",
+      "ts": 1792409787667,
+      "seq": 76,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409787667-149",
+      "ts": 1792409787667,
+      "seq": 77,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409787843-150",
+      "ts": 1792409787843,
+      "seq": 78,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409788856-151",
+      "ts": 1792409788856,
+      "seq": 79,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409789886-152",
+      "ts": 1792409789886,
+      "seq": 80,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409790886-153",
+      "ts": 1792409790886,
+      "seq": 81,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409791923-154",
+      "ts": 1792409791923,
+      "seq": 82,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409792956-155",
+      "ts": 1792409792956,
+      "seq": 83,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409793968-156",
+      "ts": 1792409793968,
+      "seq": 84,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409795001-157",
+      "ts": 1792409795001,
+      "seq": 85,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409796045-158",
+      "ts": 1792409796045,
+      "seq": 86,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409797068-159",
+      "ts": 1792409797068,
+      "seq": 87,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409798169-160",
+      "ts": 1792409798169,
+      "seq": 88,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409799240-161",
+      "ts": 1792409799240,
+      "seq": 89,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409800266-162",
+      "ts": 1792409800266,
+      "seq": 90,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409801266-163",
+      "ts": 1792409801266,
+      "seq": 91,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409802343-164",
+      "ts": 1792409802343,
+      "seq": 92,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409802662-165",
+      "ts": 1792409802662,
+      "seq": 93,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409802662-166",
+      "ts": 1792409802662,
+      "seq": 94,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409803371-167",
+      "ts": 1792409803371,
+      "seq": 95,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409804391-168",
+      "ts": 1792409804391,
+      "seq": 96,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409805445-169",
+      "ts": 1792409805445,
+      "seq": 97,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409806522-170",
+      "ts": 1792409806522,
+      "seq": 98,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409807535-171",
+      "ts": 1792409807535,
+      "seq": 99,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409808562-172",
+      "ts": 1792409808562,
+      "seq": 100,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409809562-173",
+      "ts": 1792409809562,
+      "seq": 101,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409810632-174",
+      "ts": 1792409810632,
+      "seq": 102,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409811657-175",
+      "ts": 1792409811657,
+      "seq": 103,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409812692-176",
+      "ts": 1792409812692,
+      "seq": 104,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409813715-177",
+      "ts": 1792409813715,
+      "seq": 105,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409814737-178",
+      "ts": 1792409814738,
+      "seq": 106,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409815796-179",
+      "ts": 1792409815796,
+      "seq": 107,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409816831-180",
+      "ts": 1792409816831,
+      "seq": 108,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792409817662-181",
+      "ts": 1792409817662,
+      "seq": 109,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-卷纲解析（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792409817662-182",
+      "ts": 1792409817662,
+      "seq": 110,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-卷纲解析（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-卷纲解析（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792409817879-183",
+      "ts": 1792409817879,
+      "seq": 111,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792409337646-75",
+      "seq": 1,
+      "step": 2,
+      "skillId": "folder:L3-S1",
+      "skillName": "S1-卷纲解析（文件夹）",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "status": "running",
+      "startedAt": 1792409337646,
+      "physicalCalls": [
+        {
+          "id": "physical-1792409337657-78",
+          "physicalCallId": "physical-1792409337655-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "running",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "responseText": "",
+          "streamText": {
+            "__payload": {
+              "id": "payload-005"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "startedAt": 1792409337657,
+          "durationMs": 480004,
+          "firstTokenMs": 2320,
+          "outputMs": 477684,
+          "endedAt": 1792409817662,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 4742,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 4742 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 4742
+          },
+          "heartbeat": true
+        }
+      ],
+      "lastExecutionActivityAt": 1792409818478,
+      "lastStreamActivityAt": 1792409818478,
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "【【当前卷任务包】\n当前卷号：第 1 卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：未提供/待补信息\n本卷必须延续的关系与资源：未提供/待补信息\n本卷可用字数：3333字（由应用参数每卷建议字数注入；输入未明确单卷分配）\n剩余待分配字数：10000字\n首卷判断：是\n信息缺口：主角Ghost/Wound/Lie/Need/Proactivity/Likability/Competence及对话指纹未提供；核心命题与反命题未提供；各对象的limitations/costs/weaknesses未提供；势力与角色具体名称未提供；本卷可用字数非输入明确分配；伏笔编号与内容未提供\n【当前卷任务包结束】\n\n【全局资产表】\n【主题】核心命题：未提供/待补信息 | 反命题：未提供/待补信息 | 主题表达方式：未提供/待补信息\n【灵魂链】主角:Ghost=未提供/待"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 19161,
+      "chars": 8531,
+      "sha256": "0c4100b7d7888ce2d8bd6ffd58f4ce773aa4cb255c96b26972c6b9f278b18ec6",
+      "duplicateCount": 2,
+      "createdAt": 1792409818492
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 3313,
+      "chars": 1285,
+      "sha256": "25f56955cba0005224a2019640d22226d87be4ee5951b0ea23f299813a1a8272",
+      "duplicateCount": 1,
+      "createdAt": 1792409818492
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 3313,
+      "chars": 1285,
+      "sha256": "25f56955cba0005224a2019640d22226d87be4ee5951b0ea23f299813a1a8272",
+      "duplicateCount": 1,
+      "createdAt": 1792409818492
+    },
+    {
+      "id": "payload-004",
+      "kind": "reasoning",
+      "file": "004-reasoning.json",
+      "bytes": 38786,
+      "chars": 14257,
+      "sha256": "ac1b7ef7d2e79621b59f5064c27db510aafe0a91b57f2c6e2f6293aa4eb945ba",
+      "duplicateCount": 2,
+      "createdAt": 1792409818492
+    },
+    {
+      "id": "payload-005",
+      "kind": "stream",
+      "file": "005-stream.json",
+      "bytes": 3223,
+      "chars": 1251,
+      "sha256": "4bbb54997323c0402ab1db51691924c0b04f8dd4f232f796448efbbb0b86eda9",
+      "duplicateCount": 1,
+      "createdAt": 1792409818492
+    }
+  ],
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1792409337646-75",
+      "seq": 1,
+      "status": "running",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "25f56955cba0005224a2019640d22226d87be4ee5951b0ea23f299813a1a8272",
+        "bytes": 3313,
+        "chars": 1285,
+        "preview": "【【当前卷任务包】\n当前卷号：第 1 卷\n生成边界：只生成当前这一卷，不输出其他卷\n已生成卷数：0\n上一卷卷名：无（首卷）\n上一卷概要：无（首卷）\n上一卷卷末状态：无（首卷）\n本卷覆盖故事范围：第一卷“风暴起点”：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航\n本卷主题问题：未提供/待补信息\n本卷必须推进的伏笔：未提供/待补信息\n本卷必须延续的关系与资源：未提供/待补信息\n本卷可用字数：3333字（由应用参数每卷建议字数注入；输入未明确单卷分配）\n剩余待分配字数：10000字\n首卷判断：是\n信息缺口：主角Ghost/Wound/Lie/Need/Proactivity/Likability/Competence及对话指纹未提供；核心命题与反命题未提供；各对象的limitations/costs/weaknesses未提供；势力与角色具体名称未提供；本卷可用字数非输入明确分配；伏笔编号与内容未提供\n【当前卷任务包结束】\n\n【全局资产表】\n【主题】核心命题：未提供/待补信息 | 反命题：未提供/待补信息 | 主题表达方式：未提供/待补信息\n【灵魂链】主角:Ghost=未提供/待"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "25f56955cba0005224a2019640d22226d87be4ee5951b0ea23f299813a1a8272",
+        "bytes": 3313,
+        "chars": 1285
+      },
+      "reasoning": {
+        "ref": "payload-004",
+        "file": "004-reasoning.json",
+        "sha256": "ac1b7ef7d2e79621b59f5064c27db510aafe0a91b57f2c6e2f6293aa4eb945ba",
+        "bytes": 38786,
+        "chars": 14257
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792409337655-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "running",
+          "stream": {
+            "ref": "payload-005",
+            "file": "005-stream.json",
+            "sha256": "4bbb54997323c0402ab1db51691924c0b04f8dd4f232f796448efbbb0b86eda9",
+            "bytes": 3223,
+            "chars": 1251
+          },
+          "reasoning": {
+            "ref": "payload-004",
+            "file": "004-reasoning.json",
+            "sha256": "ac1b7ef7d2e79621b59f5064c27db510aafe0a91b57f2c6e2f6293aa4eb945ba",
+            "bytes": 38786,
+            "chars": 14257
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

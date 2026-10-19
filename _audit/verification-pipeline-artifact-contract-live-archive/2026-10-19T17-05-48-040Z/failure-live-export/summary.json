@@ -1,0 +1,24 @@
+{
+  "exportedAt": "2026-10-19T16:32:59.874Z",
+  "runId": "run-1792427578780-18",
+  "step": 1,
+  "stepName": "设定层",
+  "status": "failed",
+  "apiCalls": 1,
+  "sourceDirectory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-artifact-contract-live-exports\\run-trace-设定层-20261020-003258-deep",
+  "evidenceDirectory": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-pipeline-artifact-contract-live\\failure-live-export\\设定层",
+  "eventTypes": [
+    "started",
+    "prompt-built",
+    "api-start",
+    "folder-pass-input",
+    "run-activity",
+    "long-request-in-progress",
+    "physical-call",
+    "folder-diagnostics",
+    "state-transition",
+    "api-failed",
+    "settings-artifact-attempt",
+    "finished"
+  ]
+}

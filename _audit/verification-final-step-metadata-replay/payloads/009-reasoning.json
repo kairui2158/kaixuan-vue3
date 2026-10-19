@@ -1,0 +1,698 @@
+用户想要我基于骨架生成小说章节正文。让我分析关键要求：
+
+1. 只输出正文，不带元数据（正文交接除外，应放在末尾）
+2. 目标3500字（下限2100，上限7000）
+3. POV：陈暮，单一视角
+4. 两个场景：场景1约2000字+场景2约1500字
+5. 无对白，失语症状态
+6. 行为优先的情感表达（behavior_only）
+7. 时间顺序+悬疑递增
+8. 克制语域，中等粗糙度，允许碎句
+9. 中快节奏，动作优先
+10. 必须涵盖两场景的所有节拍
+11. 章节末钩子：陈暮推开门，灰绿光与变异兽嘶鸣涌入，他拎了拎背包带，没有回头
+
+让我仔细思考，写一个引人入胜的第一章，确立：
+- 陈暮自低温睡眠中苏醒
+- 身体控制/运动技能恢复
+- 实验室死寂
+- 失语
+- 从防火柜获取数据板和后备菌株
+- 阅读数据板——大量“推测”“可能”“大概率”备注
+- 灾前政府最后紧急通告
+- 情感高潮：读完通告后用拇指摩挲数据板边缘
+- 决定离开
+- 场景2：开门，灰绿光，变异兽嘶鸣，孢子尘埃，门在身后关上，满怀警惕踏入未知世界
+
+让我逐场景按所有节拍来写。
+
+场景1（约2000字）：
+- 陈暮半跪在试验舱旁，手扶在舱壁上
+- 灰绿微光从观察窗透进来
+- 无其他人声，无其他人影
+- 开启的舱盖在身后一侧
+- 舱壁上干涸的营养液痕迹
+- 北墙防火柜——数据板和后备菌株在内
+- 动作：借助舱壁起身→触摸胸背锚定区确认温热→沿墙走向防火柜→密码输错几次→打开柜门→取出数据板和后备菌株→把后备菌株放入背包、背上背包→点亮屏幕→读取第一条记录→读到“推测”“可能”“大概率”备注→读灾前最后紧急通告→拇指摩挲数据板边缘→等屏幕变暗→再次点亮→滑到最后一条备注
+- 阻力：身体僵硬，听觉混乱，记忆断裂，手指功能差
+- 判断变化：以为在实验室保护范围内/外面能找到人→实验室无其他声音，数据板未经验证，公告是灾前最后通讯→这里不是等待救援的庇护所，而是未经验证的遗产，必须靠判断来行动
+- 结局：陈暮站在北墙防火柜前，背包上肩，准备向走廊尽头的门走去
+
+场景2（约1500字）：
+- 在走廊尽头的防火门前
+- 数据板仍亮着最后一条备注
+- 手放在门把上停了几秒
+- 没有回头，推门
+- 灰绿光与低吼嘶鸣涌入
+- 阻力：视觉与听觉过载
+- 判断：以为门外会找到熟悉世界的痕迹→灰绿光线不像日光，声音来源不明，空气中满是孢子尘埃→世界已变，没有安全路线，只能向外探查
+- 结局：陈暮站在门外，门已合上，灰绿菌毯公路在眼前延伸，远处的变异兽隐在雾中，拎了拎背包带
+
+现在来写，注意：
+- 状态语言表达的失语
+- 行为优先的情感（内心状态让物理行为与身体感受来揭示）
+- 无对白
+- 时间顺序
+- 克制，中等粗糙度
+- 短长句交替
+- 避免常见AI词汇
+- 动作链有因果/代价
+- 感官细节有后果
+- V1-8（“推测”“可能”“大概率”加亮）
+- 灾前政府最后紧急通告
+- 情感高潮：读完公告后用拇指摩挲数据板
+
+写正文。
+
+我需要注意：
+- 第一句话必须直接进入具体动作、身体感受、环境声音或视觉画面
+- 无元信息
+- 章节末尾有正文交接区
+- 禁词密度
+- 段落结构变化
+- 每段约30-140字
+- 两段规则：连续两段不能风格雷同
+
+另外，当前章节末尾应有【正文交接】区块。让我看下要求——上面的正文交接是输入的元数据，但我也需要为自己的输出末尾写正文交接。是的，S2步骤要求正文交接。但让我重读一遍……
+
+“正文主体结束后输出【正文交接】区块”——是的，我必须在我的正文结束时输出。
+
+现在来应对字数：目标3500。场景1约2000，场景2约1500。我需要按场景预算来写。
+
+写正文。
+
+从场景1开始：
+
+第一句话：直接进入动作/感官。
+
+让我起草：
+
+灰绿微光从观察窗渗进来，落在地板上细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的那股甜腐味，喉结动了动，只能滚出一声短促的“啊”。
+
+这个行。直接进入感官。无余赘。确立了身体状态：冷膝盖，温暖胸口（菌膜），气味，尝试发声但失语。
+
+好，继续。他半跪在舱旁，扶着舱壁。我需要遵循动作链：扶壁起身→摸到胸口和背部菌膜锚定区→确认温热→沿着墙走→输错几次密码→打开柜门→取出数据板和后备菌株→放入背包、上肩→点亮屏幕→阅读第一条记录→读到“推测”“可能”“大概率”→阅读灾前最后公告→拇指摩挲边缘→等变暗→再按亮→滑到最后备注页。
+
+让我像写作一样写出来。需要为约2000字的场景1铺开动作。我需要控制好节奏。
+
+关于章节的元数据/输出，我应该保持章节正文干净，不要加入“场景1”这样的标记。只在结尾放正文交接。
+
+现在无标记地写两个场景。让我仔细起草。
+
+字数很重要——目标3500，下限2100。我打算写3500-4000字左右。
+
+让我先起草，再检查与要求的匹配度。
+
+草稿：
+
+灰绿微光从观察窗渗进来，落在地板细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的甜腐味，喉结动了动，只滚出一声短气。手还扶在舱壁上，指节发僵，指甲缝里结着一层撕扯时留下的旧釉。
+
+他偏头看过去。舱盖开着，歪在自己右后方，边缘凝着几道干掉的深色液痕。观察窗外什么也没有——只有那种灰绿色的光，厚厚地压在玻璃另一面。
+
+没有人的动静。他等了等，耳膜深处有一片细密的嗡响，时不时被某个很远的低音盖过去，又只剩下嗡响。
+
+这个不错。确立了环境，失语，没有他人。
+
+继续建立：尝试站立，检查锚定区。
+
+我想确认身体控制恢复，检查菌膜共生：
+
+他按住舱壁起身，膝盖给了一下，又撑住。然后把手伸进领口，贴着锁骨摸到胸口右侧。菌膜还是一层温的，边缘微微搏动，像贴着一块没有轮廓的活物。他转到背后去过，手指够不到太深，只摸到肩胛下角那几片更薄的膜层，也是温的。
+
+他松开衣领，目光重新找向北墙。防火柜在那边，差不多和观察窗对成一条线。看不清细节，但柜门上的锁口还反着一小点绿光。
+
+这个可以。
+
+现在我需要朝柜子走，解决密码锁问题。我需要描写身体僵硬、听觉混乱、记忆断裂影响手指操作。
+
+继续：
+
+他喘了几口，开始贴着墙往北边挪。左腿还是慢，每踩一步都要等膝盖自己跟上来。柜门在灰绿里一块一块地清楚起来，锁口那个反光点也跟着变大，像一只不眨的眼睛。他把左手从墙上拿开放进外套口袋，指尖碰到几条旧接缝，又缩回来。
+
+失败几次输入密码——我需要输入方法，比如挂在柜子旁的小键盘或直接输入柜门上的面板。写清楚：
+
+柜前停住时，冷气从门缝下头爬上来，冻得脚踝发紧。输入板嵌在锁口右侧，和墙一个颜色。他伸出食指去按，第一次戳到了空处。指节在板面上滑了一下，留下浅浅一道指痕。他看了一会儿按键的位置，重新按。数字跳错。又按。跳错。
+
+一定是记错了。他合上眼再想，那串密码像被抻散的线，断在末两位。他吸了口气，慢慢把数字排出来，一个一个按下去，像把散开的线头重新穿回针孔。第三遍时，锁口“咯”地跳开。柜门自己弹出来半寸，带出一股尘灰和低温气。
+
+不错。情感幅度：慢慢重新组码，是“重新掌控”主题的好例子。
+
+现在取出数据板和后备菌株。确认它们在柜内。然后背包。
+
+柜内很暗。他先看到那个金属盒子，立在内侧，贴着柜壁。大小和半截前臂差不多，盒盖四周有一圈微白的霜。数据板放在盒子前面，用两条宽橡皮筋固定在隔板上。他抓了一下橡皮筋，手指滑脱两次，最后连板带筋一起取出来，数据板抵着胸口，皮筋绷得发响。盒子比他想的轻，托在手里像托着一盒冷的土。
+
+他把盒子装进背包，包本来靠墙立着，沾了水。拉链在结霜的指头上滑了几下才合上。背上之后，肩带压住菌膜近旁，后颈一阵麻，又慢慢松开。
+
+这个段落很好地建立了物品并描写了动作。现在数据板在手里。点亮屏幕。读第一条记录。
+
+他重新拿起数据板，在柜前蹲下来。屏幕黑着，表面反复映着同一个模糊的浅灰影子。他不知道自己还在等什么，也许是一个没有的名字。拇指按住下缘，亮起来了。
+
+屏幕光刺进眼睛，他把数据板拿远半寸。第一条记录弹出来，字齐整地码在深灰底上，不是他预想中的说明。
+
+——2042年4月18日，备忘。低温流程中止。我没有更多时间做对照，先记录如下：
+
+下面连续几行，都带着同一个断口。手指停不下来，继续往下划。每划一下，总能看见那几个词从字堆里浮起来。
+
+“推测。”
+
+“可能。”
+
+“大概率。”
+
+屏幕上也映出他低下去的脸，灰地绿光。他盯着那几个词，像看一堆没有火把的路标。
+
+作为画面锚点，这个组合不错。我需要继续读灾前政府最后紧急通告。让我自然地引到那里。也许是数据板上稍后的一条记录，或者一个单独的文件。骨架说：读第一条记录→读到备注中的“推测”“可能”“大概率”→读灾前政府最后紧急通告。所以顺序是：读第一条记录（含备注），然后读最后紧急通告。
+
+继续：
+
+他又往下划。后面几屏是数据、曲线、温度测量，还有一些用字母和数字层层垒起来的短句，像有人匆忙间把一整间实验室叠进几页纸。指头在一块划痕上停住，数据板的光慢慢暗下去。他按亮一次，翻到最后几页。
+
+灾前政府最后紧急通告置顶跳出来，深色底子，白色字，字块边缘有点发虚：
+
+“……全球范围孢子扩散已不可逆。各区域维持最低限度生存秩序。通讯系统即将全面静默。这不是演习。请……”
+
+后面的字被截断。他往下划，只剩一张空屏，右下角留着日期。几个月，还是更久，他算不清。日期上的墨早被谁摩得淡了。
+
+这个悬念不错。我应该更具体地描写陈暮的情感反应——拇指摩挲数据板边缘，如行为化指令所写。让我加上：
+
+他没有立刻走。拇指沿着数据板下缘的边角来回蹭，一下，又一下，直到屏幕自己暗下去。他和自己的呼吸留在柜前。隔了很长时间，才又按亮一次。光第二次铺在脸上，冷白，像一层薄霜。
+
+这不错，以行为描写捕捉了情感峰值。然后我应该过渡到他准备去门那里。可能再描写一会儿他的身体状态——逐渐变冷的地板，正在回来的身体控制力。
+
+他到底还是从柜前站起来。血往小腿压，脚底像踩着一片针。他数自己的呼吸，数到五，才开始往走廊方向看。门在更北的尽头，闭着。窗帘早就不在了，只有安全灯在墙和天花交界处拖出一段一段的绿影。
+
+这样可以。现在场景1应该大致结束于他走向/面对门。骨架说场景1空间结果：站在北墙防火柜前，背上背包，准备走向走廊尽头的门。场景2起点：面对走廊尽头关闭的门，数据板仍亮着。
+
+所以我该在场景1的最后过渡一下：
+
+他检查了一遍背包带，又把数据板屏幕按亮到那条备注页，攥在手里。黑暗沿着地板朝他身后退去，又从不远处漫回来。陈暮转过身，朝着走廊尽头的防火门。每一步都踩在绿光与阴影的交界处，脚步声被厚重的空气吸得很轻，只有衣服摩擦挂出了点响动。
+
+这个不错。让我估算场景1的草稿字数。我觉得大约1000-1200字。我需要扩展到约2000字，所以还需要一些段落。展开身体恢复过程，听觉混乱，以及关于所读之物的更多细节。刚醒来的失忆感和缓慢的重新掌控过程。
+
+我可以在场景1的早期添加一些内容——更多关于醒来后身体的感觉，对外部世界可能残留的记忆/闪回（记忆碎片）。他记得一些，但断断续续。骨架说：“所有信息通过听觉、触觉、视线与短暂记忆碎片获取。”让我添加一些记忆碎片，接通过去，却不展开。
+
+比如，在走向柜子或在柜子前时，可以有短暂的记忆闪回：导师方岫岩的手，某种姿态。但不写明最后去向。比如：
+
+他想不起来自己是怎么从舱里出来的。只记得后脑压着的硬边，然后是地板，冷得离人很远。更早一点的事断成几片：一个手掌隔着观察窗按下来，手指慢慢抻开，又退进绿光里。那人是不是叫过他，他记不起来。
+
+这不错。微妙，不点破方岫岩最后去向。我应该自然融入。
+
+另外，作为听觉/环境探索的一部分，我应该更明确地建立实验室的死寂。他在某处停下，聆听：
+
+实验室尽头没有回声。他试着用鞋跟磕了下地面，一下，声音像被四周墙壁分食了，只剩下很细的一层颤。没人应。
+
+这个好。通过无应答，以行为证实死寂。
+
+让我修改/扩展场景1草稿，写完整。
+
+我还要注意两段规则——变化段落结构。让我逐段写出来，比较好。
+
+完整场景1草稿（稍扩展）：
+
+---
+
+灰绿微光从观察窗渗进来，落在地板细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的甜腐味，喉结动了动，只滚出一声短气。手还扶在舱壁上，指节发僵，指甲缝里结着一层撕扯时留下的旧釉。
+
+他偏头看过去。舱盖开着，歪在自己右后方，边缘凝着几道干掉的深色液痕。观察窗外只有那种灰绿色的光，厚厚地压在玻璃另一面。没有人的动静。他等了等，耳膜深处有一片细密的嗡响，像雪落进旧电线，偶尔被某个很远的低音盖过去。
+
+他想不起来自己是怎么从舱里出来的。只记得后脑压着的硬边，然后是地板，冷得离人很远。更早一点的事断成几片：一个手掌隔着观察窗按下来，手指慢慢抻开，又退进绿光里。那人是不是叫过他，他记不起来。
+
+他扶住舱壁起身，膝盖给了一下，又撑住。随后半跪回原来的高度，把衣服从胸口拉开一点，贴着锁骨摸下去。菌膜还是一层温的，边缘在指腹下微微搏动，像贴着一块没有轮廓的活物。他反手去摸背后，够到肩胛下角，那几片更薄的膜层也是温的，沾着汗，一条一条在皮肤上分开。
+
+是活的。
+
+他重新站起来，抬起左手试了试握拳。手指能弯，但每一节都像被冷水泡过，合不紧。腿也一样，左膝总要慢半拍。他干脆背靠着舱壁，不急着走。实验室的空气又干又冷，每一次吸气，喉咙都像刮过一层细冰。些微的嗡响渐渐分成两种，一种在耳内，一种在天花板上面的管道里，像有什么停得很久了，还在漏气。
+
+听的功夫里，他盯着北墙。防火柜在那边，柜门关着，锁口反着很小一点绿光，和观察窗的方向对成一条线。没有灯在闪。没有人影移过去。他用鞋跟磕了一下地板。“咚”地一声，被四周的墙壁分食了，剩一点细颤，很快也没有了。没有人应。
+
+他把背包拽过来，先挂在肩上。左膝还是不听话，他就贴着墙往北挪，一步一顿，手指在墙面上刮出断续的沙声。经过观察窗时，绿的重量压过来，他下意识停住，没往玻璃那边看。玻璃上只有自己的轮廓，模模糊糊裹着灰。
+
+不，他还不能确定那是自己。
+
+到柜前时，冷气从门缝下头爬上来，冻得脚踝发紧。输入板嵌在锁口右侧，和墙一个颜色。他伸出食指去按，第一下戳在空处，指甲划过金属面，发出很轻的“吱”。他看了片刻按键的位置，又按下去。数字跳红。再按。还是红。
+
+一定是记错了。他闭了闭眼，想把那串数字从断掉的记忆里拎出来。头两个清晰，像被反复写过；后两位散成几粒白点，怎么抓都滑开。他干脆不硬想，慢慢地试，试一组错一组，错到第三组，手指已经开始在低温里打抖。他开始按第四组，每一个键都按得又慢又稳，像把散开的线头重新一个个穿回针眼。
+
+锁口“咯”地跳开。柜门自己弹出来半寸，带出一股陈灰和冷气，扑在小腿上，裤管往下一塌。
+
+柜内很暗。他先看见那个金属盒子，立在内侧，贴着柜壁。大小和半截前臂差不多，盒盖四周有一圈微白的霜。数据板放在盒子前面，用两条宽橡皮筋固定在隔板上。他抓了一下橡皮筋，手指滑脱两次，最后连板带筋一起取下来。数据板抵着胸口，皮筋绷得太紧，发出很小的吱嘎声。盒子比想象中轻，托在手里像托着一盒冷透的土。
+
+背包拉链在结霜的指头上滑了几下才合上。背上之后，肩带压住菌膜近旁，脖子上爬过一阵细麻，又慢慢松开。他再把数据板从橡皮筋里退出来，半跪在地上，用掌心擦了几下屏幕。没裂。边角有圈发白的磨痕，像被谁反复握过。
+
+他按了下缘。屏幕亮起来。光刺得眼球发痛，他往后仰了半寸，等那阵白慢慢散成深灰。第一条记录弹出来，字齐整地码在深灰底上，分不出先后：
+
+——2042年4月18日，备忘。低温流程中止。我没有更多时间做对照，先记录如下：
+
+下面几行都带着同一种断口。他继续往下划。每划一下，总能看见那几个词从字堆里浮出来。
+
+“推测。”
+
+“可能。”
+
+“大概率。”
+
+它们一会儿闪进数据项里，一会儿落在同类的底下，像没有火把的路标，只能照亮一步，远一点就没了。
+
+他继续往下划。后面几屏是数据、曲线、温度读数，还有一些用字母和数字垒起来的短句，像有人把整间实验室叠进几页纸里。屏幕的光忽明忽暗。他停在一串已经会背的东西上，又划过去。有些字认得，有些字别得像另一个人的手势。他读不连贯，就顺着日期往下翻。
+
+灾前政府最后紧急通告跳出屏幕，深底白字，边缘像泡过水：
+
+“……全球范围孢子扩散已不可逆。各区域维持最低限度生存秩序。通讯系统即将全面静默。这不是演习。请……”
+
+后面的字被截断，跟着一页空白。右下角不是日期，是一小块干涸的浅灰，像曾有水滴掉在上面。他反复划了几次，还是空白。隔着几年的黑暗，这块屏幕突然收拢了整个世界的响动。
+
+他关不了这个念头。没划回去找第二条，也没有继续翻后面的备注。拇指沿着数据板下缘的边角来回蹭，一下，又一下，直到屏幕自己暗下去。他和自己的呼吸留在柜前，没有人出来问他怎么还没走。他数到第十次呼气，按亮屏幕。光第二次铺在脸上，冷白，像在黑暗里又冻了一次脸。
+
+他后来站起身。血往小腿压，脚底像踩着一片针。他检查背包带，把数据板调回最后那条备注，攥在手里。关着的防火门还在走廊尽头。暗处有些他还没能看得清的地方，也许还有人，也许只剩下他和这些带“可能”的字。他往门的方向走，脚步声被空气吸得很轻，只有衣服摩擦出细碎的响。
+
+---
+
+好，这大约1500-1700字。仍然有点少，但差不多。现在写场景2（约1500字）。需要：
+
+- 走廊尽头的防火门
+- 数据板仍亮着最后一条备注
+- 手放在门把上停了几秒
+- 没有回头，推门
+- 灰绿光与低吼嘶鸣涌入
+- 视觉与听觉过载
+- 灰绿光线不像日光，声音来源不明，空气中满是孢子尘埃
+- 判断转变
+- 结局：站在门外，门已合上，灰绿菌毯公路铺展开去，远方变异兽隐在雾中，拎了拎背包带
+
+写场景2：
+
+---
+
+走到走廊尽头，陈暮才看清门把上裹着一层灰膜。他伸左手碰了碰，指腹陷进去半寸，像压进一层细密的活苔。数据板在右手里还亮着，最后一条备注停在屏幕中央，字很小。他低头看了一遍，又抬头看门。
+
+门很冷。冷从掌心顺着腕骨往手肘爬。他试过用鼻吸一口走廊里的气，只有干燥的、带点霉锈的味道。背后实验室更安静了，什么声音都像落在水里，没浮上来。他知道自己可以退回去。退回柜前，再等一会。也许门会自己响，也许不会。
+
+他把手按在门把上，停了几秒。掌心压着那层灰膜，它静得出奇。陈暮没有回头。肩上的背包向下坠，像把身体往原地按。他用力将门往外推出半寸。
+
+门缝撕开的一瞬，光涌进来。可世上所有的日落都不会是这种颜色。
+
+灰绿天光铺天盖地压下来，和风里的气味绞在一起，风是一蓬凉极了的甜腐积尘。几千几万个灰色颗粒悬在半空，飞进他眼眶。他没有闭眼。门外那道公路像一条被刀柄磨白的壳脊，一直伸进雾里，表面全是菌毯，颜色比天更深，像谁把汁液泼上去又冻住。李节才走上室外一步，鞋底与菌毯接触的那声“噗”软得像踩进一块腐的很厚的苔皮。
+
+好，这里有问题——我完全偏离了。这不是正确的故事。
+
+继续。
+
+门缝撕开的一瞬，光涌进来。灰绿天光铺天盖地压下来。和风里的气味绞在一起，那风凉极了，带着甜腐积尘。陈暮被这道光呛了一下，喉咙里滚出半截声音，又咽回去。他没有闭眼。数据板屏幕上的字在强光里几乎化成一块白斑。
+
+远处有声音滚过来。很低，从雾与灰绿天光交叠的深处传来，像很大的东西磨过路面，又散成一串更低的喘息。那不是人的声音。他分辨不出距离，只觉得声音像换了方向，一会儿在北边，一会儿贴着地，一会儿又跑到自己锁骨后面，震得腿侧发麻。耳朵里的嗡响和这嘶鸣混在一起，成了同一条线，越扯越远。
+
+风扑到脸上，卷着细小颗粒，落进眼睛和唇缝。他尝到一股土腥，夹杂着甜，像有人把半烂的植物和铁锈一起磨碎，撒进空气里。他试着只呼吸嘴，还是被呛得咳出来。但没闭眼。他盯着门外那条公路，想从雾里找出一点旧世界的痕迹。路灯还在，斜成几杆黑色的细线，灯下没有树，灯后没有车。再远些，只有菌毯，一层一层地盖过去，吞掉路沿、碎玻璃、半截护栏和一辆车顶瘪下的白色轿车。
+
+不是他要找的样子。
+
+风又紧了一阵，把孢子尘埃从左往右推过去，像在水底看一场灰绿的雪。他不知怎么想起了那个隔窗按下手掌的人，那道掌印和此刻落在皮肤上的颗粒一样轻，一样不可召回。
+
+声音变得千年。不，听起来。声音又起时，更近了，像门外的野地里有一道巨创重新裂开。他猛地回头，身后没有人。只看见门廊深处自己的脚印，在薄光里一道深一道浅地排过来。那颗心像卡在胸口右上方，和菌膜的搏动压在同一个位置。有几秒他以为自己还会回去。
+
+他没有回。手腕向前推尽，门“咔”地扣在墙外，身体一过门槛，从脚心到腹部的肌肉都跳了一下。背后的门被风吹合上，带来“嘭”的一声。指尖还发软，他索性把数据板扣在背包带里，两手空出来。灰绿光从四面八方压着他，像空气本身长了重量。远处的嘶鸣沉下去一段，又在雾的更深处浮起来，像是等他再往前走。
+
+陈暮把背包带往肩上提了提。带子滑过菌膜近旁，勒过去，疼了一瞬，又归位。他站在门外，听见自己喉咙里滚出一个不像字的音，很短，像把“走”说坍了。雾没有散。他没有回头，脚步已经朝公路迈出去。
+
+---
+
+好，这场景2大概800-1000字。加起来大约2300-2700字。稍微有点少，但可以。我可以加一点细节来接近3000，但目标至少2100。两个场景草稿的粗略估计在约2500。我应该再润色一段。
+
+现在，确保两段规则正确应用——变化段落结构。确保没有违反禁词用法。检查“像”的使用——不要超过6个明喻。让我数一下草稿中的明喻：
+
+1. “像雪落进旧电线”
+2. “像贴着一块没有轮廓的活物”
+3. “像散开的线头重新一个个穿回针眼”
+4. “像把散开的线头重新穿回针眼” —— 不，我写了一次：“像把散开的线头重新一个个穿回针眼”
+5. “像没有火把的路标”
+6. “像把整间实验室叠进几页纸里”
+7. “像贴着一块没有轮廓的活物”——不，我重复使用了
+2. 让我再仔细数：
+
+草稿中：
+- “像雪落进旧电线”
+- “像贴着一块没有轮廓的活物”
+- “像被冷水泡过”
+- “像把散开的线头重新一个个穿回针眼”
+- “像没有火把的路标”
+- “像把整间实验室叠进几页纸里”
+- “像曾有水滴掉在上面”
+- “像重新冻了一次脸”
+- “像踩着一片针”
+- “像压进一层细密的活苔”（这不对，我写的是“像压进一层细密的活苔”）
+- “像换了方向”
+- “像有人把半烂的植物和铁锈一起磨碎”
+- “像在水底看一场灰绿的雪”
+- “像门外的野地里有一道巨创重新裂开”
+- “像把‘走’说坍了”
+
+太多了。“像”的明喻超过了6处上限。我需要把它们减少到最多6处。
+
+让我修改，删掉或改写很多明喻。我会保留最关键的，删掉其他的。
+
+让我重写草稿，减少明喻。初学者数字符号。
+
+也检查其他禁词：似乎、仿佛、此刻、这一刻、不禁、缓缓、渐渐、微微、淡淡、确实、好像、充满、凝固、沉重、闪烁、弥漫
+
+我的草稿中：我没有使用这些，但让我检查。我没发现。有些描写里有“慢慢”之类的词，但没关系。让我保持这些词只出现一次或完全不用。
+
+“他看了片刻”没问题。“慢慢”也没问题。
+
+我再稍微润色一下，写终稿。尽量写长一点，删掉多余的明喻，保持流畅。
+
+我也要考虑第一句——它直接进入感官体验吗？是的：“灰绿微光从观察窗渗进来，落在地板细碎的水痕上。”不错。
+
+我对最终的新增事实很谨慎。骨架说数据板不是操作手册，没有设计图、配方或者其他势力情报。所以我不该加进具体技术术语来描述数据板。我只写骨架描述过的：“推测、可能、大概率”、日期、温度读数、短行文字等等。这很好。
+
+对灾前紧急通告，我不该试图填充这个背景故事的太多细节。骨架说：“……全球范围孢子扩散已不可逆。各区域维持最低限度生存秩序。通讯系统即将全面静默。这不是演习。请……”后续消失。这是笼统的。
+
+让我也确保我不写对白，只写内心（在心里过一下）。规则说，只有说出声的台词才可写口腔和呼吸动作；内心独白只写内容和停顿。我把握住这个。
+
+好，开始写终稿。我会确保两个场景都完全实现，并在末尾添加正文交接。
+
+另外，我意识到应该确保不使用“——”，除非必要。避免在正文中使用独立的“---”分隔线。使用常规标点。
+
+好，让我写终稿。我会写得稍微长一点，约3500字。需要为两个场景都增加一些内容。
+
+让我好好写出来。用户希望我以提供的上一版候选正文为基底，将其从2708字扩写至至少2800字（目标3500字），保持其余内容不变。让我仔细分析文本，找出可以自然扩写、不改变骨架、不添加新事实的位置。
+
+我需要至少增加约100-200字才能达到2800字下限，但既然目标是3500字，我应该争取写得更充实一些。让我审视以下位置：
+
+1. 开篇——可以略为丰富身体感知，但要保持第一句原样
+2. 输密码的段落——可以稍加扩展动作细节（输错、停顿、低温对手指的影响）
+3. 阅读数据的段落——可以增加一处感知后果或身体反应
+4. 走至门前的过渡——可以稍事扩展缄默与身体重量的感受
+5. 推开门后的户外段落——可以更细致地描写风、颗粒、声音
+
+让我避免注入任何新事实。我需要在不改变事件的情况下加入身体动作、感知和情绪后果。
+
+让我从上一版正文中找出几个可以自然延伸的段落：
+
+1. “他把背包拽过来，先挂在肩上。左膝还是不听话，他就贴着墙往北挪，一步一顿，手指在墙面上刮出断续的沙声。”——我可以在此加入更多关于身体僵硬的内容。
+
+2. “他伸出食指去按，第一下戳在空处，指甲划过金属面，发出很轻的吱声。他看了片刻按键的位置，又按下去。数字跳红。再按。还是红。”——此处可以增加手指的温度和犹豫。
+
+3. “他接着往下划。”——阅读数据板的部分可以增加一些细节。
+
+4. 外出前门的段落可以略有扩展。
+
+让我在这些区域内做微小的插入。目标是至少达到2800字，最好能更接近3200-3500字。
+
+实际上，让我重新考虑。用户说只需修正错误（2708字<2800字下限），不要重写无关内容。所以我应该做最小限度的、针对性明确的增补，使其达到下限。同时也要保留上一版中的一切。
+
+让我计算一下：2708字。我需要至少92字才能达到2800字，但应该瞄准更多以留出余量。让我针对性地加入几处描写，每处30-60字，总计约200-300字。
+
+我可以在以下位置插入内容：
+
+1. 第五段之后（“是活的。”之后）——加入一个关于呼吸与站立不稳的身体细节。
+
+2. 在输密码段落——“数字跳红。再按。还是红。”之后，我可以增加关于他手指温度或颈部紧张的细节。
+
+3. 在读到灾前通告之后——“后面的字被截断，跟着一页空白。”之后，加入更多他的身体反应。
+
+4. 在门前——“门很冷。冷从掌心顺着腕骨往手肘爬。”之后，可以略有扩展。
+
+5. 在户外——“风扑到脸上，卷着细小颗粒”部分，可以加入一项景物细节。
+
+让我仔细斟酌几处插入内容，使其读起来自然，不改变任何事实或事件。
+
+候选插入1，在“他后来站起身。血往小腿压，脚底踩着一片针。他检查背包带，把数据板调回最后那条备注，攥在手里。”之后，我可以加入行走时的感官细节：
+
+“关着的防火门在走廊尽头，暗处有些他还没能看清的地方。”这部分可以加入关于停留或呼吸的内容。
+
+候选插入2，在五六段后“没有人应。”之后。原文是：
+
+“他把背包拽过来，先挂在肩上。左膝还是不听话，他就贴着墙往北挪，一步一顿，手指在墙面上刮出断续的沙声。经过观察窗时，绿的重量从右侧压过来，他停住，没往玻璃那边看。玻璃上只有自己的轮廓，模模糊糊裹着灰。”
+
+我可以在“一步一顿”部分加入细节。
+
+让我先写下需要修改的内容。
+
+实际上，我应该思考更实际的做法。让我找出需要插入的高价值位置：
+
+1. 在“没有人应。”和“他把背包拽过来”之间——扩展走廊的死寂感
+2. 在“数字跳红。再按。还是红。”之后——加入手指感温与呼吸
+3. 在“他没有回。”之前——扩展犹豫与脚步
+4. 在户外部分——加入更多关于风的细节
+
+让我写一个新版本，在几个位置补充，使字数达到约3000字左右。
+
+实际上，更简单的办法是：取上一版文本，在关键位置做少量增补，使总字数为2900-3100字左右。这样既达到下限，又有余量，同时保持上一版的所有内容。
+
+让我来完成。Let me analyze the task. I'm being asked to generate the prose for a chapter based on a skeleton/outline. The user has provided a skeleton with two scenes, and I need to write approximately 3500 words (target 3500, minimum 2800, maximum 7000).
+
+Wait, looking more carefully at the instructions, there's a note saying:
+"上一次输出未通过校验。具体错误如下：正文2748字，低于生成下限2800字（目标3500字）"
+And then it provides a previous candidate output that was 2748 words, below the 2800 minimum.
+
+So actually, the task is asking me to fix the previous candidate by expanding it to reach at least 2800 words, while keeping the rest intact.
+
+Let me re-read: "请基于上一版候选输出修正上述错误，输出修正后的完整结果，不要重写无关内容，不要输出解释。"
+
+So I need to:
+1. Take the previous candidate output as the base
+2. Fix the issue: expand from 2748 words to at least 2800 words (target 3500)
+3. Keep everything else intact
+4. Output the complete corrected result
+
+The previous candidate is provided after "<<<上一版候选输出开始>>>" and before "<<<上一版候选输出结束>>>".
+
+I need to expand the text by at least about 52 words to reach 2800, but the target is 3500, so I should aim higher. Let me count the current text length first.
+
+Actually, given the instructions say to aim for the target of 3500 words, and the previous output was 2748 words, I should expand it to around 3500 words. That means adding about 750 words.
+
+I should expand the text by:
+- Adding more action chains
+- Adding more sensory consequences
+- Adding more dialogue turns (though this chapter has no dialogue)
+- Adding more on-site costs
+- Not adding new facts beyond what's authorized
+
+I need to be careful to:
+- Keep the same POV (陈暮)
+- Keep all scene events intact
+- Not delete events or change outcomes
+- Not switch POV
+- Keep the style consistent
+- Maintain the final 3-5 paragraphs as effective closing
+
+Let me plan where to expand:
+
+Scene 1 (approximately 2000 words budget):
+- The physical recovery could be expanded
+- The walk to the fire cabinet could have more detail
+- The password attempts could be more detailed
+- The reading of the data board could have more expansion
+- More sensory details throughout
+
+Scene 2 (approximately 1500 words budget):
+- The moment at the door could be expanded
+- The door opening could be more gradual
+- The external world could have more description
+- The final movement could be expanded
+
+Let me identify specific places to expand:
+
+1. The initial physical sensations - expand the cold, the stiffness, the recovery
+2. The walk along the wall - more detailed
+3. The password attempts - more physical detail
+4. The data board reading - more specific content and reactions
+5. The moment at the door - more hesitation and physical detail
+6. The external world - more sensory overload
+7. The final closing - more emotional resonance
+
+I need to add about 750 words while keeping the quality high. Let me write this out now.
+
+Actually, wait - I need to be careful. The instruction says "以它为基底，只修正上述错误，保留其余内容" - use it as base, only fix the mentioned error, keep the rest. But also the target is 3500 words. So I should expand it to reach the target.
+
+Let me count the existing text first to know exactly how much I need to add.
+
+Actually, I can't count precisely, but the previous text was reported as 2748 words. I need to reach at least 3500 to hit the target, or at minimum 2800 to pass the threshold. The instruction says "施工时逐场景写满各自预算后再进入下一场景，全章以wordsPerChapter为目标" - so I should aim for 3500.
+
+I need to add about 752 words. Let me expand strategically throughout the text.
+
+Let me go through and expand:
+
+1. After the initial paragraph about the knee cold and chest pressure - add more physical detail about the awakening
+2. The observation of the lab - expand the sensory exploration
+3. The walk to the cabinet - add more physical struggle
+4. The password attempts - more detail on the trembling fingers
+5. The data board content - more specific notes and reactions
+6. The door moment - more hesitation and internal conflict
+7. The external world - more sensory overload
+
+Let me write the expanded version now. I'll keep the same structure and wording where possible, just add more content.
+
+Actually, the approach should be: take the existing text verbatim and add sentences/paragraphs at strategic points. Let me do that.
+
+Let me draft the expanded text:
+
+Key areas to expand:
+1. Scene 1 body recovery - expand from about 500 words to 650
+2. Walk to cabinet - expand from about 300 to 400
+3. Password attempts - expand from about 200 to 300
+4. Data board reading - expand from about 500 to 650
+5. Door moment - expand from about 200 to 300
+6. External world - expand from about 300 to 400
+
+Let me write it out:
+
+...
+
+Actually, I realize I should just write the complete corrected text. Let me go through the existing text and add content.
+
+Let me count the scenes and make sure I cover everything. The previous output is quite good. I need to add about 750 words. Let me identify the best places.
+
+I'll expand:
+1. The initial sensory recovery (add ~100 words)
+2. The walk to the cabinet (add ~100 words)  
+3. The password attempts (add ~75 words)
+4. The data board reading (add ~150 words)
+5. The moment at the door (add ~75 words)
+6. The external world (add ~100 words)
+7. The final closing (add ~50 words)
+
+That's about 650 words. Let me also add some more to reach 750.
+
+Let me now write the complete output.
+
+Actually, I realize the key thing here is: the user says the word count is too low. I need to expand. But I also need to maintain quality and not just pad. Let me expand with meaningful content that follows the rules:
+
+- Add action chains
+- Add sensory consequences  
+- Add physical costs
+- No new facts beyond what's authorized
+
+Let me write:
+
+---
+
+灰绿微光从观察窗渗进来，落在地板细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的甜腐味，喉结动了动，只滚出一声短气。手还扶在舱壁上，指节发僵，指甲缝里结着一层撕扯时留下的旧釉。
+
+他试着把重心从膝盖挪到脚掌。麻木从腿肚子爬上来，像有无数细针同时扎进去，又同时抽走。他等了几个呼吸，等痛感找到自己的位置。后脑还有一块压得太久的硬感，像枕骨下面卡着半块冰。
+
+他偏头看过去。舱盖开着，歪在自己右后方，边沿凝着几道干掉的深色液痕。观察窗外只有那种灰绿色的光，厚厚地压在玻璃另一面。没有人的动静。他等了等，耳膜深处有一片细密的嗡响，像雪落进旧电线，偶尔被某个很远的低音盖过去。
+
+[continue expanding...]
+
+Let me actually write the entire text now. I'll be careful to keep the original wording and add content where it fits naturally.
+
+I'll go through the original text paragraph by paragraph and add expansions.
+
+Let me write the complete output now.
+
+Actually, I think I should just write the complete expanded text directly. Let me do it.
+
+Let me count the existing text carefully:
+
+Paragraph 1: 灰绿微光从观察窗渗进来...旧釉。(~50 words)
+Paragraph 2: 他偏头看过去。舱盖开着...低音盖过去。(~60 words)
+Paragraph 3: 他想不起来自己是怎么从舱里出来的...记不起来。(~70 words)
+Paragraph 4: 他扶住舱壁起身...一条一条在皮肤上分开。(~90 words)
+Paragraph 5: 是活的。(~3 words)
+Paragraph 6: 他重新站起来...还在漏气。(~80 words)
+Paragraph 7: 听的工夫里，他盯着北墙...没有人应。(~80 words)
+Paragraph 8: 他把背包拽过来...模模糊糊裹着灰。(~70 words)
+Paragraph 9: 不，他还不能确定那是自己。(~10 words)
+Paragraph 10: 到柜前时...裤管往下一塌。(~85 words)
+Paragraph 11: 柜内很暗...一盒冷透的土。(~90 words)
+Paragraph 12: 背包拉链在结霜的指头上滑了几下...被谁反复握过。(~70 words)
+Paragraph 13: 他按了下缘...先记录如下：(~80 words)
+Paragraph 14: 下面几行都带着同一种断口...远一点就没了。(~60 words)
+Paragraph 15: 他接着往下划...就顺着日期往下翻。(~80 words)
+Paragraph 16: 灾前政府最后紧急通告跳出屏幕...有人曾把水滴掉在上面。(~80 words)
+Paragraph 17: 他不动了...像在黑暗里又冻了一次脸。(~100 words)
+Paragraph 18: 他后来站起身...只有衣服摩擦出细碎的响。(~70 words)
+Paragraph 19: 走到走廊尽头...又抬头看门。(~70 words)
+Paragraph 20: 门很冷...也不会。(~80 words)
+Paragraph 21: 他把手按在门把上...推出半寸。(~60 words)
+Paragraph 22: 门缝撕开的一瞬...化成一块白斑。(~90 words)
+Paragraph 23: 远处有声音滚过来...腿侧发麻。(~100 words)
+Paragraph 24: 风扑到脸上...白色轿车。(~110 words)
+Paragraph 25: 不是他要找的样子。(~7 words)
+Paragraph 26: 风又紧了一阵...一样不可追回。(~50 words)
+Paragraph 27: 声音又起时更近了...他以为自己还会回去。(~80 words)
+Paragraph 28: 他没有回...像等他往前走。(~120 words)
+Paragraph 29: 陈暮把背包带往肩上提了提...风经过的地方。(~90 words)
+
+Total: ~2748 words (as reported)
+
+I need to add ~750 words to reach 3500. Let me add expansions at these points:
+
+1. After paragraph 1 - add more physical detail about waking
+2. After paragraph 4 - add more about checking the body
+3. After paragraph 6 - add more about listening and the environment
+4. After paragraph 10 - add more about the password attempts
+5. After paragraph 15 - add more about reading the data
+6. After paragraph 17 - add more about the emotional moment
+7. After paragraph 19 - add more about the door
+8. After paragraph 23 - add more about the external sounds
+9. After paragraph 28 - add more about the final decision
+
+Let me write the expanded version. I'll keep all original text and add new sentences/paragraphs.
+
+OK, I have a clear plan. Let me write the complete output now. I'll naturally expand the text while keeping the quality.
+
+Actually, I realize I should be systematic. Let me write the entire text with expansions built in. I'll add around 750 words across the two scenes.
+
+Here's my approach:
+- Scene 1 needs about 450 more words (from ~2000 budget to ~2450)
+- Scene 2 needs about 300 more words (from ~1500 budget to ~1800)
+
+Wait, no. The total is 2748 and target is 3500. I need to add ~752 words. Scene 1 is about 1600 words currently, Scene 2 is about 1150 words currently. So:
+- Scene 1 add ~400 words
+- Scene 2 add ~350 words
+
+Let me write it out now.
+
+I'll now produce the complete corrected output. I need to ensure the first character is prose text (not metadata or explanation).
+
+Let me write this carefully, maintaining quality.
+
+One important thing: the style contract says "behavior_only" for emotional expression, "克制" language, "中快" rhythm, "动作优先". So my expansions should follow these guidelines.
+
+Let me write:
+
+---
+
+灰绿微光从观察窗渗进来，落在地板细碎的水痕上。陈暮先感到的是膝盖的冷，再是胸口一处闷热的压感。他闻到营养液干涸后的甜腐味，喉结动了动，只滚出一声短气。手还扶在舱壁上，指节发僵，指甲缝里结着一层撕扯时留下的旧釉。
+
+他试着把重心从膝盖挪到脚掌。麻木从腿肚子往上爬，像无数细针同时扎进去，又同时抽走。针感退去后，剩下的是关节里生涩的钝痛，像多年没转过的铰链。后脑还有一块压得太久的硬痛，半个掌心大小，贴着头骨不放。他把头往左偏了偏，那块硬痛没有松开。
+
+[continue...]
+
+OK let me just write the full thing now. I'll do it in one go and make it good.
+
+Let me think about what specific meaningful expansions to add:
+
+**Scene 1 expansions:**
+1. After the initial waking - more body awareness: breathing, heartbeat, muscle response
+2. Checking the 菌膜 - more tactile detail, more physical response
+3. The walk along the wall - more physical struggle, more detail about the lab environment
+4. Password attempts - each attempt more physical, the trembling, the concentration
+5. The data board reading - more specific notes, more emotional response
+6. The emotional moment after reading the announcement - expand the stillness
+
+**Scene 2 expansions:**
+1. At the door - expand the hesitation, the physical sensation of the handle
+2. The door opening - more gradual, more sensory detail
+3. The external world - expand the sensory overload
+4. The final closing - expand the moment of decision
+
+Let me write the complete text now. I'll be careful to maintain all the quality standards.
+
+I'm going to write the full text now, aiming for about 3500 words.
+
+Actually, let me be strategic about this. The existing text is very good. I'll preserve it mostly intact and add new content at natural break points. The key is to make the additions feel seamless and purposeful, not padded.
+
+Here are my planned insertions:
+
+1. After "指甲缝里结着一层撕扯时留下的旧釉。" - add a paragraph about the breathing and physical recovery
+2. After "一条一条在皮肤上分开。" / "是活的。" - add a sentence or two about the significance
+3. After "没有人应。" - add a brief paragraph about the lab's silence
+4. In the password section - expand the physical struggle
+5. In the data board section - expand the reading content 
+6. At the door - expand the moment
+7. In the external world - expand the sensory overload
+8. Final closing - expand the final moment
+
+OK, I think I've planned enough. Let me write the full output now.

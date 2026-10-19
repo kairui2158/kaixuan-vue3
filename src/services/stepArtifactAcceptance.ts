@@ -37,6 +37,29 @@ export interface StepArtifactEnvelope {
   degradedErrors: string[]
 }
 
+export interface FinalStepMetadataWarning {
+  code: 'body-final-step-metadata-repaired' | 'body-final-step-fact-divergence' | 'generator-ledger-missing'
+  message: string
+}
+
+export interface FinalStepMetadataFlowInput {
+  finalMetadata: GenerationMetadata | null | undefined
+  authoritativeGeneratorMetadata: GenerationMetadata | null | undefined
+  finalBody: string
+}
+
+export interface FinalStepMetadataFlowResult {
+  decision: 'pass' | 'backfilled' | 'divergence' | 'generator_ledger_missing'
+  metadata: GenerationMetadata
+  comparison: {
+    matched: string[]
+    missing_in_final: string[]
+    conflicting: string[]
+    conflictTypes?: Record<string, 'label_drift' | 'body_divergence'>
+  }
+  warnings: FinalStepMetadataWarning[]
+}
+
 export interface StepArtifactFlowInput {
   stepOutput: string
   stepIndex: number
@@ -153,6 +176,134 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
           message: `正文生成步骤验收失败（${failureReason}）：${result.errors.join('；')}`
         }
       : null
+  }
+}
+
+const FACT_LOCK_PATTERN = /FACT_LOCK[:：]\s*([^=\s]+)\s*=\s*([^\n\r]+)/g
+const FACT_LOCK_BLOCK_HEADER_PATTERN = /(?:^|\n)\s*FACT_LOCK\s*[:：]\s*(?=\n|$)/g
+const RESERVED_FACT_LOCK_TAIL_KEYS = new Set(['NEW_FACT'])
+
+function extractFactLockEntries(metadata: GenerationMetadata | null | undefined): Map<string, string> {
+  const entries = new Map<string, string>()
+  const sections = Array.isArray(metadata?.extractedMeta) ? metadata?.extractedMeta || [] : []
+  for (const section of sections) {
+    FACT_LOCK_PATTERN.lastIndex = 0
+    let match = FACT_LOCK_PATTERN.exec(String(section || ''))
+    while (match) {
+      const [, key, value] = match
+      const normalizedKey = String(key || '').trim()
+      const normalizedValue = String(value || '').trim()
+      if (normalizedKey && normalizedValue) entries.set(normalizedKey, normalizedValue)
+      match = FACT_LOCK_PATTERN.exec(String(section || ''))
+    }
+
+    FACT_LOCK_BLOCK_HEADER_PATTERN.lastIndex = 0
+    let headerMatch = FACT_LOCK_BLOCK_HEADER_PATTERN.exec(String(section || ''))
+    while (headerMatch) {
+      const headerEnd = headerMatch.index + headerMatch[0].length
+      const tail = String(section || '').slice(
+        String(section || '').charAt(headerEnd) === '\n' ? headerEnd + 1 : headerEnd
+      )
+      for (const rawLine of tail.split(/\r?\n/)) {
+        const line = rawLine.trim()
+        if (!line) break
+        if (RESERVED_FACT_LOCK_TAIL_KEYS.has(line.split(/[:：]/, 1)[0].trim())) break
+        const lineMatch = /^([^：:=\n]{1,32})\s*[:：]\s*(.+)$/.exec(line)
+        if (!lineMatch) break
+        const [, key, value] = lineMatch
+        const normalizedKey = String(key || '').trim()
+        const normalizedValue = String(value || '').trim()
+        if (normalizedKey && normalizedValue) entries.set(normalizedKey, normalizedValue)
+      }
+      headerMatch = FACT_LOCK_BLOCK_HEADER_PATTERN.exec(String(section || ''))
+    }
+  }
+  return entries
+}
+
+function normalizeFactText(value: string): string {
+  return String(value || '').replace(/[\s，。；、！？"'（）()【】\[\]]/g, '')
+}
+
+export function resolveFinalStepMetadataFlow(
+  input: FinalStepMetadataFlowInput
+): FinalStepMetadataFlowResult {
+  const finalMetadata: GenerationMetadata = { ...(input.finalMetadata || {}) }
+  const warnings: FinalStepMetadataWarning[] = []
+  if (!input.authoritativeGeneratorMetadata) {
+    return {
+      decision: 'generator_ledger_missing',
+      metadata: finalMetadata,
+      comparison: { matched: [], missing_in_final: [], conflicting: [] },
+      warnings: [{
+        code: 'generator-ledger-missing',
+        message: 'S2 权威账本缺失，终稿保留 S3 元数据，不伪造权威值。'
+      }]
+    }
+  }
+
+  const authoritative = extractFactLockEntries(input.authoritativeGeneratorMetadata)
+  const final = extractFactLockEntries(input.finalMetadata)
+  const matched: string[] = []
+  const missingInFinal: string[] = []
+  const conflicting: string[] = []
+  const conflictTypes: Record<string, 'label_drift' | 'body_divergence'> = {}
+  const finalBodyNormalized = normalizeFactText(input.finalBody)
+
+  for (const [key, authoritativeValue] of authoritative) {
+    const entry = `${key}=${authoritativeValue}`
+    const finalValue = final.get(key)
+    if (finalValue !== undefined && finalValue === authoritativeValue) {
+      matched.push(entry)
+      continue
+    }
+    if (finalValue === undefined) missingInFinal.push(entry)
+    else conflicting.push(`${key}: ${finalValue} -> ${authoritativeValue}`)
+    const finalFactText = finalValue === undefined ? '' : normalizeFactText(finalValue)
+    const bodyHasFact = finalBodyNormalized.includes(normalizeFactText(authoritativeValue))
+      || (finalFactText && finalBodyNormalized.includes(finalFactText))
+    const type = finalValue !== undefined && !bodyHasFact ? 'body_divergence' : 'label_drift'
+    conflictTypes[key] = type
+    if (type === 'body_divergence') {
+      warnings.push({
+        code: 'body-final-step-fact-divergence',
+        message: `终稿事实与 S2 FACT_LOCK 分歧：${key}=${authoritativeValue}`
+      })
+    }
+  }
+
+  const hasDivergence = Object.values(conflictTypes).includes('body_divergence')
+  if (!hasDivergence && (missingInFinal.length || conflicting.length)) {
+    warnings.push({
+      code: 'body-final-step-metadata-repaired',
+      message: `终步元数据退化，已用 S2 权威账本回填：missing=${missingInFinal.length},conflicting=${conflicting.length}`
+    })
+  }
+
+  let metadata = finalMetadata
+  if (!hasDivergence && (missingInFinal.length || conflicting.length)) {
+    const repairedSections: string[] = []
+    for (const [key, value] of authoritative) {
+      repairedSections.push(`FACT_LOCK:${key}=${value}`)
+    }
+    metadata = {
+      ...finalMetadata,
+      extractedMeta: repairedSections,
+      conflicts: conflicting.length ? conflicting : undefined
+    } as GenerationMetadata
+  }
+
+  return {
+    decision: hasDivergence ? 'divergence'
+      : missingInFinal.length || conflicting.length ? 'backfilled' : 'pass',
+    metadata,
+    comparison: {
+      matched,
+      missing_in_final: missingInFinal,
+      conflicting,
+      conflictTypes
+    },
+    warnings
   }
 }
 

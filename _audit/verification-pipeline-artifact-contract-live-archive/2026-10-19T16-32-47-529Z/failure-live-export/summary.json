@@ -1,0 +1,29 @@
+{
+  "exportedAt": "2026-10-19T16:30:55.337Z",
+  "runId": "run-1792426015024-86",
+  "step": 2,
+  "stepName": "卷纲层",
+  "status": "running",
+  "apiCalls": 5,
+  "sourceDirectory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-artifact-contract-live-exports\\run-trace-卷纲层-20261020-000655-deep",
+  "evidenceDirectory": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-pipeline-artifact-contract-live\\failure-live-export\\卷纲层",
+  "eventTypes": [
+    "started",
+    "prompt-built",
+    "chain-context-slim",
+    "chain-step",
+    "api-start",
+    "folder-pass-input",
+    "run-activity",
+    "long-request-in-progress",
+    "physical-call",
+    "folder-diagnostics",
+    "state-transition",
+    "api-success",
+    "processing-report",
+    "chain-handoff",
+    "chain-handoff-delivery",
+    "volume-batch-attempt",
+    "volume-prompt-fact-audit"
+  ]
+}

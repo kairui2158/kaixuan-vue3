@@ -1308,6 +1308,82 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     }
   })
 
+  it('retries the final chain step with upstream anchors instead of the failed candidate', async () => {
+    const candidateOutput = JSON.stringify({
+      output: '终步候选全文',
+      metadata: { 来源覆盖状态: '无法核对' }
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: callAi.mock.calls.length === 1 ? candidateOutput : JSON.stringify({ output: '修复后的终稿' })
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        schema: {
+          type: 'object',
+          required: ['output'],
+          properties: { output: { type: 'string' } }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '上游原文',
+      budget: createBudget(),
+      finalStepRetry: {
+        role: 'polish',
+        upstreamAnchors: ['S2 权威事实锚点'],
+      }
+    })
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('终步重试协议')
+    expect(retrySystemPrompt).toContain('FACT_LOCK')
+    expect(retrySystemPrompt).toContain('S2 权威事实锚点')
+    expect(retrySystemPrompt).toContain('上一步完整输出')
+    expect(retrySystemPrompt).not.toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).not.toContain(candidateOutput)
+    expect(retrySystemPrompt).not.toContain('必须以它为基底')
+    expect(retrySystemPrompt).not.toContain('保留其余内容')
+  })
+
+  it('keeps the normal retry protocol for non-final chain steps', async () => {
+    const candidateOutput = JSON.stringify({ wrong: true })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: callAi.mock.calls.length === 1 ? candidateOutput : JSON.stringify({ output: '修复后的中间步' })
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        schema: {
+          type: 'object',
+          required: ['output'],
+          properties: { output: { type: 'string' } }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      finalStepRetry: { role: 'generator' }
+    })
+
+    expect(result.status).toBe('success')
+    const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain(candidateOutput)
+    expect(retrySystemPrompt).not.toContain('终步重试协议')
+  })
+
   it('injects the previous candidate into postProcess validation retries', async () => {
     const callAi = vi.fn(async (_params: CallAiParams) => ({
       text: callAi.mock.calls.length === 1 ? '{"wrong": true}' : '{"output": "修复后的输出"}'

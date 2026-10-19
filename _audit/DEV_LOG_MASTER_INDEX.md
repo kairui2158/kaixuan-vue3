@@ -1033,3 +1033,14 @@
 - 诚实边界：`legacy_outline_no_scope` 为历史遗留；`buildSchemaRetryFeedback` 全文回传为同族未修登记项；Electron 为本地 provider，非外部 live 矩阵。
 - 经验裁决：保持 v8.15，不升 v8.16；验证器断言自相矛盾属于 G1.5 既有门禁覆盖案例。
 - 封装：升级 3.97.0；安装包 `dist/神意助手-Setup-3.97.0.exe`，231,547,162 bytes，SHA256 `d25c45ac8a88a2881869b6855a82ac63f278c13b0c44c24e1a3ecba21a06f723`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-97-0/packaging-evidence.json`；3.96.0 旧安装包与 blockmap 已清理，dist 仅保留 3.97.0 产物及核验载体。
+
+# 2026-10-19 正文终步元数据保真与流水线契约 live 收口
+
+- 文件：[_audit/DEV_LOG_2026-10-19_final-step-metadata-fidelity.md](_audit/DEV_LOG_2026-10-19_final-step-metadata-fidelity.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-19_final-step-metadata-fidelity.md](_audit/TASK_LEDGERS/2026-10-19_final-step-metadata-fidelity.md)
+- 方案：[_audit/PROPOSAL_2026-10-19_BODY_FINAL_STEP_METADATA_FIDELITY.md](_audit/PROPOSAL_2026-10-19_BODY_FINAL_STEP_METADATA_FIDELITY.md)
+- 范围：终步反馈单源化且 retry 禁携候选全文、终步元数据提取与结构化修复、终步角色显式推断、卷纲逐批事实同步、验证器语义断言与预算随执行形态迁移。
+- 验证：反证矩阵 3 files / 15 tests、实现面 5 files / 107 tests、全量 177 files / 2048 tests、type-check、build:vue 全部通过；第 12 轮完整 Electron + 真实 API live 输出 `PIPELINE ARTIFACT CONTRACT ELECTRON LIVE PASSED`，卷纲 12 次调用 3 卷收敛，正文 3 API / 7 物理 / 4 schema retry 后契约通过。
+- 诚实边界：live 为 `deepseek-v4-pro` 单一供应商形态；1500 字结构下限与降 AI 约束冲突属 SKILL 层缺口，应用不放宽阈值；其他供应商与未来输出形态登记 `untested`。
+- 经验回写：升级 v8.16；G2.9 补终步角色与反馈单源契约，G1.19 补验证器预算随执行形态迁移契约。
+- 封装：版本升级 3.99.0；live 证据保留于 `_audit/verification-pipeline-artifact-contract-live/`，历史失败现场归档于 `verification-pipeline-artifact-contract-live-archive/`。

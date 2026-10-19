@@ -210,6 +210,13 @@ export interface RealSkillExecuteOptions {
   }
   /** Retry strategy for reasoning models whose thinking consumes the output budget. */
   reasoningRetry?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  /** Final polish-step retry contract; disables candidate-full-text injection. */
+  finalStepRetry?: {
+    role: 'generator' | 'polish'
+    upstreamAnchors?: string[]
+    deaiFindings?: Array<{ code?: string; label?: string; message?: string }>
+  }
+  onFinalStepFeedbackComposed?: (result: import('./finalStepFeedback').FinalStepFeedbackResult) => void
   stream?: boolean
   signal?: AbortSignal
   timeoutMs?: number

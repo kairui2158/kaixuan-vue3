@@ -15,6 +15,15 @@ describe('DEAI per-step prompts', () => {
     expect(DEAI_CREATIVE_PROMPT).not.toContain('禁止Chatbot痕迹')
     expect(DEAI_CREATIVE_PROMPT).not.toContain('speculative gap-filling')
     expect(DEAI_CREATIVE_PROMPT).toContain('只输出本步骤定稿产物。')
+    expect(DEAI_CREATIVE_PROMPT).toContain('短句仅用于关键转折')
+    expect(DEAI_CREATIVE_PROMPT).toContain('章节号密度参考上限35/千字')
+    expect(DEAI_CREATIVE_PROMPT).toContain('过度纠错和过度碎片化本身也是AI信号')
+  })
+
+  it('keeps polish-side information-lossless merging as a legal language pass', () => {
+    expect(DEAI_POLISH_PROMPT).toContain('信息无损的相邻短句合并、句号改逗号或分号')
+    expect(DEAI_POLISH_PROMPT).toContain('属于合法语言打磨，不算结构变更')
+    expect(DEAI_POLISH_PROMPT).toContain('只输出本步骤定稿产物。')
   })
 
   it('dispatches DEAI prompts by chain step without a second call site', () => {

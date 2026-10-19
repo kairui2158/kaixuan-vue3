@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   acceptStepArtifact,
+  resolveFinalStepMetadataFlow,
   type StepArtifactAcceptanceInput
 } from './stepArtifactAcceptance'
 
@@ -129,5 +130,82 @@ describe('acceptStepArtifact', () => {
     expect(result.reason).toBe('contract_failed')
     expect(result.extractedBody).toBe('')
     expect(result.validation?.status).toBe('empty')
+  })
+
+  it('passes a complete final-step ledger without backfill', () => {
+    const flow = resolveFinalStepMetadataFlow({
+      finalMetadata: {
+        status: 'success',
+        extractedMeta: [
+          'FACT_LOCK:人物状态=受伤\nFACT_LOCK:位置=仓库',
+          '【来源覆盖】\nH1-01,H1-02'
+        ]
+      },
+      authoritativeGeneratorMetadata: {
+        status: 'success',
+        extractedMeta: [
+          'FACT_LOCK:人物状态=受伤\nFACT_LOCK:位置=仓库',
+          '【来源覆盖】\nH1-01,H1-02'
+        ]
+      },
+      finalBody: '正文包含人物状态受伤与仓库位置。'
+    })
+
+    expect(flow.decision).toBe('pass')
+    expect(flow.comparison.matched).toContain('人物状态=受伤')
+    expect(flow.comparison.missing_in_final).toEqual([])
+    expect(flow.comparison.conflicting).toEqual([])
+    expect(flow.metadata).toEqual({
+      status: 'success',
+      extractedMeta: [
+        'FACT_LOCK:人物状态=受伤\nFACT_LOCK:位置=仓库',
+        '【来源覆盖】\nH1-01,H1-02'
+      ]
+    })
+    expect(flow.warnings).toEqual([])
+  })
+
+  it('backfills label drift but refuses body divergence', () => {
+    const authoritativeGeneratorMetadata = {
+      extractedMeta: [
+        'FACT_LOCK:人物状态=受伤\nFACT_LOCK:位置=仓库'
+      ]
+    }
+    const labelDrift = resolveFinalStepMetadataFlow({
+      finalMetadata: { extractedMeta: ['FACT_LOCK:状态=完好'] },
+      authoritativeGeneratorMetadata,
+      finalBody: '他捂住伤口，靠在仓库墙上，左臂受伤。'
+    })
+    expect(labelDrift.comparison.missing_in_final).toHaveLength(2)
+    expect(labelDrift.comparison.missing_in_final).toContain('人物状态=受伤')
+    expect(labelDrift.comparison.missing_in_final).toContain('位置=仓库')
+    expect(labelDrift.comparison.conflicting).toEqual([])
+    expect(labelDrift.comparison.conflictTypes?.人物状态).toBe('label_drift')
+    expect(labelDrift.comparison.conflictTypes?.位置).toBe('label_drift')
+    expect(labelDrift.decision).toBe('backfilled')
+    expect(labelDrift.metadata.extractedMeta?.[0]).toContain('人物状态=受伤')
+    expect(labelDrift.warnings.map(w => w.code)).toContain('body-final-step-metadata-repaired')
+
+    const bodyDivergence = resolveFinalStepMetadataFlow({
+      finalMetadata: { extractedMeta: ['FACT_LOCK:人物状态=完好'] },
+      authoritativeGeneratorMetadata,
+      finalBody: '他伸了个懒腰，状态完全恢复。'
+    })
+    expect(bodyDivergence.comparison.conflictTypes?.人物状态).toBe('body_divergence')
+    expect(bodyDivergence.decision).toBe('divergence')
+    expect(bodyDivergence.metadata.extractedMeta?.[0]).toBe('FACT_LOCK:人物状态=完好')
+    expect(bodyDivergence.warnings.map(w => w.code)).toContain('body-final-step-fact-divergence')
+  })
+
+  it('does not invent an authority when the generator ledger is missing', () => {
+    const flow = resolveFinalStepMetadataFlow({
+      finalMetadata: { extractedMeta: ['FACT_LOCK:人物状态=未知'] },
+      authoritativeGeneratorMetadata: null,
+      finalBody: '正文'
+    })
+
+    expect(flow.decision).toBe('generator_ledger_missing')
+    expect(flow.metadata).toEqual({ extractedMeta: ['FACT_LOCK:人物状态=未知'] })
+    expect(flow.warnings.map(w => w.code)).toContain('generator-ledger-missing')
   })
 })

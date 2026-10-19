@@ -1,0 +1,1374 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792418849380-18",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 1,
+  "stepName": "设定层",
+  "mode": "settings",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [
+    "S1-设定生成（文件夹）"
+  ],
+  "skillMode": "chain",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "ab0d8cb6f07f",
+    "buildTime": "2026-10-19T14:06:46.653Z"
+  },
+  "startedAt": 1792418849380,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "settings_generation_complete",
+      "recordedAt": 1792418994638
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1792418849380-19",
+      "ts": 1792418849380,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 设定层运行"
+    },
+    {
+      "id": "event-1792418849380-20",
+      "ts": 1792418849380,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "设定层提示词已构建"
+    },
+    {
+      "id": "event-1792418849407-22",
+      "ts": 1792418849407,
+      "seq": 3,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"S1-设定生成（文件夹）\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792418849612-23",
+      "ts": 1792418849612,
+      "seq": 4,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":269,\"userPromptLength\":1099,\"systemPromptLength\":4280,\"sampleCount\":4,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+    },
+    {
+      "id": "event-1792418849613-25",
+      "ts": 1792418849613,
+      "seq": 5,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418849613-26",
+      "ts": 1792418849613,
+      "seq": 6,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792418849613-24",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792418849613-27",
+      "ts": 1792418849613,
+      "seq": 7,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418864622-28",
+      "ts": 1792418864622,
+      "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418864622-29",
+      "ts": 1792418864622,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418879615-30",
+      "ts": 1792418879615,
+      "seq": 10,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418879615-31",
+      "ts": 1792418879615,
+      "seq": 11,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418894625-32",
+      "ts": 1792418894625,
+      "seq": 12,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418894625-33",
+      "ts": 1792418894625,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418909626-34",
+      "ts": 1792418909626,
+      "seq": 14,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418909626-35",
+      "ts": 1792418909626,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418924627-36",
+      "ts": 1792418924627,
+      "seq": 16,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418924628-37",
+      "ts": 1792418924628,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418939628-38",
+      "ts": 1792418939628,
+      "seq": 18,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418939628-39",
+      "ts": 1792418939628,
+      "seq": 19,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418954617-40",
+      "ts": 1792418954617,
+      "seq": 20,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418954617-41",
+      "ts": 1792418954617,
+      "seq": 21,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418969624-42",
+      "ts": 1792418969624,
+      "seq": 22,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418969624-43",
+      "ts": 1792418969624,
+      "seq": 23,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418979878-44",
+      "ts": 1792418979878,
+      "seq": 24,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418980881-45",
+      "ts": 1792418980881,
+      "seq": 25,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418981909-46",
+      "ts": 1792418981909,
+      "seq": 26,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418982968-47",
+      "ts": 1792418982968,
+      "seq": 27,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418983991-48",
+      "ts": 1792418983991,
+      "seq": 28,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418984614-49",
+      "ts": 1792418984614,
+      "seq": 29,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418984614-50",
+      "ts": 1792418984614,
+      "seq": 30,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792418985022-51",
+      "ts": 1792418985022,
+      "seq": 31,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418986041-52",
+      "ts": 1792418986041,
+      "seq": 32,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418987061-53",
+      "ts": 1792418987061,
+      "seq": 33,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418988168-54",
+      "ts": 1792418988168,
+      "seq": 34,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418989201-55",
+      "ts": 1792418989201,
+      "seq": 35,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418990208-56",
+      "ts": 1792418990209,
+      "seq": 36,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418991209-57",
+      "ts": 1792418991209,
+      "seq": 37,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418992213-58",
+      "ts": 1792418992213,
+      "seq": 38,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418993216-59",
+      "ts": 1792418993216,
+      "seq": 39,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418994218-60",
+      "ts": 1792418994218,
+      "seq": 40,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792418994541-61",
+      "ts": 1792418994541,
+      "seq": 41,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1792418994552-62",
+      "ts": 1792418994552,
+      "seq": 42,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1792418994553-63",
+      "ts": 1792418994553,
+      "seq": 43,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1792418994554-64",
+      "ts": 1792418994554,
+      "seq": 44,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792418849407-21 seq=1"
+    },
+    {
+      "id": "event-1792418994554-65",
+      "ts": 1792418994554,
+      "seq": 45,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792418994565-66",
+      "ts": 1792418994565,
+      "seq": 46,
+      "type": "settings-artifact-attempt",
+      "level": "info",
+      "label": "设定批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"acceptedCount\":14,\"rejectedCount\":0,\"validationMs\":3,\"errors\":[]}"
+    },
+    {
+      "id": "event-1792418994633-67",
+      "ts": 1792418994633,
+      "seq": 47,
+      "type": "settings-artifact-validated",
+      "level": "info",
+      "label": "设定批次验收通过",
+      "detail": "{\"acceptedCount\":14,\"rejectedCount\":0,\"reasons\":[],\"repairAttempts\":0}"
+    },
+    {
+      "id": "event-1792418994636-68",
+      "ts": 1792418994636,
+      "seq": 48,
+      "type": "write",
+      "level": "info",
+      "label": "设定已写入项目",
+      "detail": "新增 14 项"
+    },
+    {
+      "id": "event-1792418994638-69",
+      "ts": 1792418994638,
+      "seq": 49,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "settings_generation_complete"
+    },
+    {
+      "id": "event-1792418994638-70",
+      "ts": 1792418994638,
+      "seq": 50,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "settings_generation_complete / run=run-1792418849380-18"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792418849407-21",
+      "seq": 1,
+      "step": 1,
+      "skillId": "compose",
+      "skillName": "S1-设定生成（文件夹）",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "status": "success",
+      "startedAt": 1792418849407,
+      "physicalCalls": [
+        {
+          "id": "physical-1792418849613-24",
+          "physicalCallId": "physical-1792418849612-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-005"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 3207,
+            "outputTokens": 9684,
+            "totalTokens": 12891,
+            "reasoningOutputTokens": 7924
+          },
+          "usageUnavailable": false,
+          "startedAt": 1792418849613,
+          "durationMs": 144928,
+          "firstTokenMs": 2907,
+          "outputMs": 142021,
+          "endedAt": 1792418994541,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 3562,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 3562 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 3562,
+            "actualInputTokens": 3207,
+            "driftRatio": -0.09966311061201572,
+            "correctedRatio": 0.9003368893879843
+          },
+          "firstContentAt": 1792418979870,
+          "lastContentAt": 1792418994515,
+          "lastReasoningAt": 1792418979870,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrsText\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": {\n        \"词汇层级\": \"未提供/待补信息\",\n        \"句长和结构\": \"未提供/待补信息\",\n        \"缩略和正式度\": \"未提供/待补信息\",\n        \"口头禅和习惯用语\": \"未提供/待补信息\",\n        \"提问vs陈述比例\": \"未提供/待补信息\",\n        \"打"
+        }
+      ],
+      "lastExecutionActivityAt": 1792418994524,
+      "lastStreamActivityAt": 1792418994524,
+      "providerContextWindowTokens": 1000000,
+      "estimatedInputTokens": 3562,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 3562 / 可用 967232（未声明窗口，按保守值处理）",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 3562,
+        "actualInputTokens": 3207,
+        "driftRatio": -0.09966311061201572,
+        "correctedRatio": 0.9003368893879843
+      },
+      "finishReason": "stop",
+      "durationMs": 145146,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 144928,
+        "firstTokenSumMs": 2907,
+        "outputSumMs": 142021,
+        "minFirstTokenMs": 2907,
+        "maxFirstTokenMs": 2907,
+        "localOverheadMs": 218,
+        "requestBuildMs": 0,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 8,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "usage": {
+        "inputTokens": 3207,
+        "outputTokens": 9684,
+        "totalTokens": 12891,
+        "reasoningOutputTokens": 7924
+      },
+      "usageUnavailable": false,
+      "endedAt": 1792418994554,
+      "semantic": {
+        "conversationId": "run-1792418849380-18",
+        "usage": {
+          "inputTokens": 3207,
+          "outputTokens": 9684,
+          "totalTokens": 12891,
+          "reasoningOutputTokens": 7924
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrsText\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": {\n        \"词汇层级\": \"未提供/待补信息\",\n        \"句长和结构\": \"未提供/待补信息\",\n        \"缩略和正式度\": \"未提供/待补信息\",\n        \"口头禅和习惯用语\": \"未提供/待补信息\",\n        \"提问vs陈述比例\": \"未提供/待补信息\",\n        \"打"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 13507,
+      "chars": 5981,
+      "sha256": "41b2217adf61dc06001323dc11d6e4ba8fb0f6d5c8cd59b9c4346bae341c60ab",
+      "duplicateCount": 3,
+      "createdAt": 1792418995373
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 6515,
+      "chars": 3989,
+      "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+      "duplicateCount": 2,
+      "createdAt": 1792418995373
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 6602,
+      "chars": 4068,
+      "sha256": "b76de9ee6ae72610fc12a5aa29cbeece070f6771380e2fbb7a7e6d7b7999a136",
+      "duplicateCount": 1,
+      "createdAt": 1792418995373
+    },
+    {
+      "id": "payload-004",
+      "kind": "reasoning",
+      "file": "004-reasoning.json",
+      "bytes": 34723,
+      "chars": 14813,
+      "sha256": "cee7c23facc97445d5cfd9c432a31d2e4322410f3932928d8d38d76ef91a71d4",
+      "duplicateCount": 2,
+      "createdAt": 1792418995374
+    },
+    {
+      "id": "payload-005",
+      "kind": "stream",
+      "file": "005-stream.json",
+      "bytes": 6515,
+      "chars": 3989,
+      "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+      "duplicateCount": 1,
+      "createdAt": 1792418995374
+    },
+    {
+      "id": "payload-006",
+      "kind": "folder-output",
+      "file": "006-folder-output.json",
+      "bytes": 6515,
+      "chars": 3989,
+      "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+      "duplicateCount": 1,
+      "createdAt": 1792418995374
+    },
+    {
+      "id": "payload-007",
+      "kind": "processing-output",
+      "file": "007-processing-output.json",
+      "bytes": 6515,
+      "chars": 3989,
+      "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+      "duplicateCount": 1,
+      "createdAt": 1792418995374
+    }
+  ],
+  "folderDiagnostics": [
+    {
+      "status": "success",
+      "errors": [],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-10-19T14:07:29.611Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item1: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item1: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item2: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item2: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item3: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item3: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item4: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item4: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item5: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item5: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item6: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item6: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item7: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item7: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item8: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item8: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item9: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item9: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item10: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item10: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item11: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item11: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item12: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item12: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item13: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item13: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item14: missing attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item14: attrsText must be converted to attrs object",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] char1:主角 missing ghost",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] char1:主角 missing wound",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] char1:主角 missing lie",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] char1:主角 missing want",
+          "at": "2026-10-19T14:09:54.550Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] char1:主角 missing need",
+          "at": "2026-10-19T14:09:54.550Z"
+        }
+      ],
+      "folderPackageCache": true,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item1: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item1: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item2: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item2: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item3: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item3: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item4: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item4: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item5: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item5: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item6: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item6: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item7: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item7: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item8: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item8: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item9: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item9: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item10: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item10: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item11: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item11: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item12: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item12: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item13: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item13: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item14: missing attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item14: attrsText must be converted to attrs object"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "char1:主角 missing ghost"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "char1:主角 missing wound"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "char1:主角 missing lie"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "char1:主角 missing want"
+          },
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "char1:主角 missing need"
+          }
+        ],
+        "durationMs": 8,
+        "outputPayloadRef": "payload-007",
+        "outputLength": 3989,
+        "outputPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrsText\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": {\n        \"词汇层级\": \"未提供/待补信息\",\n        \"句长和结构\": \"未提供/待补信息\",\n        \"缩略和正式度\": \"未提供/待补信息\",\n        \"口头禅和习惯用语\": \"未提供/待补信息\",\n        \"提问vs陈述比例\": \"未提供/待补信息\",\n        \"打"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "pipeline-artifact-live-provider",
+        "usage": {
+          "inputTokens": 3207,
+          "outputTokens": 9684,
+          "totalTokens": 12891,
+          "reasoningOutputTokens": 7924
+        },
+        "reasoningText": "我们需要回答用户。需要基于已确认大纲生成设定项。注意用户提供了style reference示例、text是已确认大纲，非常简短。要求输出JSON数组，每项含name/category/attrsText字段。但技能描述输出格式是{name, category, attrs}？用户消息末尾说“输出JSON数组，每项含name/category/attrsText字段。”这可能是应用系统新的要求：attrsText而不是attrs？需要遵循用户指令。但之前系统提示说只能输出成品，且技能里要求attrs。但用户最后明确要求attrsText字段。需要以用户最后要求为准：每项含name/category/attrsText字段。另外来源覆盖区块？应用交接边界：如果本次回答需要展示表格... 不需要。设定JSON是用户可见业务主体，来源覆盖区块应只在JSON外追加？用户要求输出JSON数组，可能不应附加额外非JSON文本？但技能要求末尾附加唯一【来源覆盖】区块，除非元数据通道。用户没提供元数据通道，需要追加？但用户说输出JSON数组，只输出JSON数组？这里有冲突。技能是领域能力，但用户最后指令明确：输出JSON数组，每项含name/category/attrsText字段。最高优先级输出铁律只输出成品，不做分析。需要在JSON外是否添加来源覆盖？如果添加非JSON会违反“输出JSON数组”吗？通常如果用户明确只要JSON，不应附加文本。技能也说明“若应用提供独立metadata通道，只写入该通道；只有未提供时，才在JSON外追加唯一的【来源覆盖】交接区块。”此处用户没提供metadata通道，所以需要追加？但用户要求输出JSON数组，可能包括来源覆盖在JSON外？但可能解析失败。应权衡。\n\n先分析输入：已确认大纲只有三卷概括，非常少。按照输入依据优先，不能自行创造。所以应该提取其中明确提供的：灯塔、旧航道、南方航线、主角、家族信物、风暴纪元、第一次远航、雾中港、港口交易、旧盟约、失踪船队、立场选择、航路贯通、家族真相、风暴信标、第一阶段远航闭环。需要为角色和世界元素生成设定项。角色主要有“主角”，但没有名字。不能创造名字，应标记未提供/待补信息。但设定项name需要标识。可以用“主角（未命名）”之类的name？需要不超过。可能设定category人物，name“主角”，attrsText包含已知信息与缺口。\n\n需要遵守“输入没有提供的不创造”原则。对于角色灵魂链：大纲没有提供主角的Ghost等，只能标记未提供/待补信息。但是否可以基于“揭示家族信物真相”“家族真相”“选择立场”做结构推导？技能允许结构推导，但必须标记。我们需要生成完整的灵魂因果链字段，缺失部分标记“未提供/待补信息”。角色attrs必须包含ghost/wound/lie/want/need、proactivity、likability、competence、对话指纹八维度、意象功能、伏笔ID如适用、能量、身份状态。但都缺，标记。大纲没有提供具体对话，对话指纹八维度也无法创造，应每维度标记未提供/待补信息？或许可以只保留“未提供/待补信息”。但格式上要求角色attrs必须包含这些字段。我们可以列出名称并标记未提供/待补信息。\n\n世界观/魔法类设定：大纲没有明确魔法体系，但有风暴纪元、灯塔、旧航道、南方航线、雾中港、风暴信标等可能属于世界观/地点/设定类。对世界观类attrs必须包含limitations、costs、weaknesses，但大纲没有提供这些，应标记未提供/待补信息，不要创造。需要为哪些设定项？可以生成多个设定项：主角（人物）、灯塔（设定/地点？category可能“设定”或“世界观”？用户说根据内容自动分配category；没有合适分类时使用设定类。大纲中的灯塔、旧航道、南方航线、家族信物、风暴信标、旧盟约、失踪船队、雾中港等可作为“设定”或“世界观”。但需要考虑输出数量。由于输入极简，不应大量编造。我应提取明确的实体和概念，每个设定项尽量基于原文。\n\n需要决定输出格式：JSON数组，每项含name/category/attrsText字段。attrsText应是字符串还是对象？用户只说attrsText字段，可嵌入之前的attrs对象或文本描述？看名字attrsText可能希望是文本。用户说“每项含name/category/attrsText字段”，没有明确类型。但前面示例都是attrs对象，style reference里有attrs对象。但用户最后说attrsText，可能是要求文本。我应该输出JSON对象，每项有三个字段：name, category, attrsText。attrsText可以是字符串，内容包含简洁字段描述？但可能对下游设定定稿师，attrs对象更结构化。但用户明确attrsText，可能是文本。需要遵循：attrsText字段。但技能要求attrs。权衡：可输出attrsText作为对象？字段名不同但内容结构化？用户说attrsText，不是attrs。我可以设置attrsText为对象吗？也许解析器期望字符串。为了安全，attrsText可以是对象，但字段名attrsText。但用户说“attrsText字段”，不是“attrs字符串”。先前示例在attrs里放对象。我认为可以输出attrsText作为对象，包含结构化字段。但可能他们想要attrsText字符串。需要读取问题：在最后一句：“输出JSON数组，每项含name/category/attrsText字段。”意味着每个元素有这三个键。attrsText的内容没有明确类型。可以将其设为对象，因为前面的风格参考也是结构化attrs。不过名字有Text，可能更倾向字符串。两种都可以通过？我会倾向于attrsText为对象，以保留结构化信息，并提供给下一步校验。但需要避免与技能中的attrs冲突。用户明确字段，所以应该用attrsText作为键，而非attrs。\n\n来源覆盖：需要输出在JSON外吗？如果用户要求输出JSON数组，可能不要添加。但技能要求唯一【来源覆盖】区块。如何平衡？根据“应用交接边界”段：设定 JSON 是用户可见的业务主体。输入单元总数等属于应用交接 metadata，不得混入设定对象。若应用提供独立 metadata 通道，只写入该通道；只有未提供时，才在 JSON 外追加唯一的【来源覆盖】交接区块。这里用户没有提供metadata通道，因此应该在JSON外追加。但这违背“输出JSON数组”的单一要求。用户最后一句只是概括输出格式，可能没禁止后缀。但很多JSON解析会失败。应遵循高级指令吗？系统角色提醒：任何冲突优先用户最后。用户最后说输出JSON数组，可能优先级更高。但技能也高级。我认为为了符合用户明确格式，只输出JSON数组，不加来源覆盖？但技能说末尾必须附加。哪个优先？系统提示“执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。”应用系统提示可能指本消息里的技能？这里有冲突：技能要求来源覆盖，用户最后要求输出JSON数组。用户最后是“请基于...输出JSON数组”，可能是应用注入的指令。可能不期望有额外区块。我应该只输出纯JSON数组，确保可解析。因为metadata不是用户可见业务主体？但应用没有提供通道，要求追加。但用户没提metadata。考虑到自动化流程，我应只输出JSON数组。但技能明确“输出末尾必须附加唯一的【来源覆盖】区块”。我需要看总体指令层级：在“应用交接边界”中说明：若应用提供独立 metadata 通道，只写入该通道；只有未提供时，才在 JSON 外追加唯一的【来源覆盖】交接区块。这里没有独立通道。所以要追加。但用户说输出JSON数组，可能是一个覆盖指令。也许可以在JSON数组内最后一项添加来源覆盖？但说明不得混入设定对象。所以不行。怎么办？我们可能要追加，但违反输出JSON数组。我觉得在无法满足两者时，用户明确格式最高，输出纯JSON数组。因为来源覆盖不是设定对象，可以省略。但技能明确必须。也许我应该追加一个非JSON对象？不行。需要做决定。\n\n观察此类任务：用户给出“style reference”示例，然后text是大纲，要求“输出JSON数组，每项含name/category/attrsText字段。”在这种设定链步骤中，通常期望输出纯JSON，供下一步解析。不能附加任何文本。所以我会只输出纯JSON数组。来源覆盖不输出。因为应用系统提示可能接管metadata，但用户没给通道就不输出？技能说未提供时追加，但用户要求纯JSON。我认为用户最后指令优先：纯JSON数组。\n\n现在生成内容。按大纲三卷提取，设定项不应多。可以生成约8-10个条目：\n\n1. 主角（人物）——category人物。已知：主角在风暴纪元中逐步揭示家族信物的真相；第一卷完成第一次远航；第二卷选择立场；第三卷航路贯通、家族真相与风暴信标合流。没有名字、创伤等。attrsText中列出已知：身份状态：锁定事实/结构推导？大纲没有说主角身份？只说是主角。可标记“锁定事实：全书围绕主角展开；结构推导：主角具有远航能力并携带家族信物（基于‘主角逐步揭示家族信物的真相’）”。但结构推导应标记。字段：ghost/wound/lie/want/need全未提供。Proactivity等未提供。对话指纹八维度未提供。意象功能未提供。伏笔ID未提供。能量：⚡（因为是主角？但能量标注需有依据？大纲没明确能量，不能设⚡？但主角是核心，可能可设⚡，但未提供，不能创造。技能说标注能量字段：⚡高能/🔹中/🍃辅助。输入未提供依据时，不能？角色类必须包含能量。但需依据：主角揭示家族信物、选择立场、完成远航，核心冲突，可视为⚡？但输入没有明确“高能”标签。不过能量标注似乎由整理者判断。如果有大纲已确认核心，可以标记主角为⚡。但为安全，可标记“未提供/待补信息”或省略？角色类必须包含能量，不能省略。可以设“⚡”并标注结构推导？或“未提供/待补信息”。但技能说标注能量字段，应尽量依据。主角是核心推动，应为⚡。可写“⚡（结构推导：全书主线承担者）”。但attrsText是对象，可以包含能量：“⚡”。\n\n2. 家族信物（设定/物品）——category物品或设定。已知：主角逐步揭示家族信物的真相；第三卷家族真相与风暴信标合流。可提取。attrsText：limitations/costs/weaknesses未提供；意象功能：可承载家族真相（结构推导？大纲说真相，可视为意象种子，但没有明确意象，需标记未提供或结构推导）。身份状态：锁定事实：存在家族信物且与家族真相相关；其他未提供。\n\n3. 灯塔（设定/地点）——category设定或地点。大纲说全书围绕灯塔、旧航道和南方航线展开；第一卷旧信、灯塔与南方航线共同推动。limitations等未提供。意象功能：可作为航道指引的物象（结构推导？原文灯塔有指引属性，可作为意象）。身份状态锁定。\n\n4. 旧航道（设定/地点）——category设定。第一卷冲突来源之一。limitations未提供。\n\n5. 南方航线（设定/地点）——category设定。第一卷、第三卷核心；第三卷航路贯通。limitations未提供。\n\n6. 风暴纪元（世界观/时代）——category世界观。全书背景。limitations未提供；但可记录时间背景。\n\n7. 雾中港（地点）——category设定/地点。第二卷舞台。limitations未提供。\n\n8. 旧盟约（设定/组织/协议）——category设定。第二卷冲突要素。\n\n9. 失踪船队（设定/事件）——category设定。第二卷事件。\n\n10. 风暴信标（设定/物品/地点）——category设定。第三卷关键，与家族真相合流。limitations未提供。\n\n11. 第一次远航（事件）——category事件？第一卷完成。可提取。\n\n12. 港口交易（事件/设定）——第二卷。\n\n13. 航路贯通（事件）——第三卷。\n\n但可能条目过多，因为输入极简。每项都应至少包含name、category、attrsText。可精选主要设定项：主角、灯塔、旧航道、南方航线、家族信物、风暴纪元、雾中港、旧盟约、失踪船队、风暴信标。约10项。对每个人物/世界观需满足字段。但用户示例style reference中角色attrs包含ghost等；我们需符合“角色类设定attrs必须包含以下字段”，但现在字段名是attrsText，内容可以对象。需要为角色项提供这些键，即使值为“未提供/待补信息”。\n\n对于非角色但世界观/魔法类设定，attrs必须包含limitations、costs、weaknesses、意象功能（如适用）。这些应是地点/设定/时代，可能不是“魔法类”，但用户要求世界观类包含这些字段。可以都标记未提供，意象功能如果大纲有暗示可结构推导。\n\n需要避免创建剧情事实。尽量只用原文词汇。\n\n身份状态字段：每个实体在attrs末尾标注身份状态：锁定事实、结构推导或未提供/待补信息。可以写“身份状态：锁定事实/结构推导/未提供”。关键秘密和关系：输入没有提供，不创造，只可在需要时标未提供。关系期待与情感债务：大纲没有明确关系，不能创造。可省略或标记未提供？技能要求重要关系记录当前期待与情感债务，没有依据时保留待补。可在角色项中加“关系期待与情感债务：未提供/待补信息”。不过attrsText对象会更复杂。\n\n用户提供style reference例子中的字段不完全一致，第一个例子少，第二个加入身份状态/关键秘密/关系。第三个世界观少，第四个加入身份状态。我应输出增强设定，符合技能要求，因此attrs对象应全面但不可创造。字段值为“未提供/待补信息”。\n\n我觉得应输出10项左右，每项attrsText对象包含所需字段。但输出空间要求“展开设定，质量优先”，同时每个字段值1-3句。我们输出对象可稍长但简洁。\n\n需要确定attrsText类型。我会输出对象，如：\n{\n  \"name\": \"主角\",\n  \"category\": \"人物\",\n  \"attrsText\": {\n    \"ghost\": \"未提供/待补信息\",\n    ...\n  }\n}\n这样下游能解析对象。用户说attrsText字段，但内容对象是合理。但若名称是attrsText，也许预期字符串？不过JSON对象可以包含任何类型。我选择对象，因为技能要求结构化字段。可以在说明中无法说明，直接输出。\n\n还需要输出纯JSON数组。确保JSON合法，没有注释，没有尾逗号。\n\n现在逐项生成。需要内部思考，但输出只需要JSON。\n\n首先需要梳理每个设定项的字段。\n\n通用：每个条目attrs内末尾身份状态。世界观/设定类：limitations、costs、weaknesses、意象功能（如适用）。如果limitations未提供，不要写“没有限制”，写“未提供/待补信息”。\n\n角色类：主角\n- ghost: 未提供/待补信息（大纲未提供具体创伤事件）\n- wound: 未提供/待补信息\n- lie: 未提供/待补信息\n- want: 结构推导：完成远航并揭示家族信物真相（基于第三卷合流？原文“主角在风暴纪元中逐步揭示家族信物的真相”，“完成第一阶段的远航闭环”。可以写结构推导：主角外部目标为完成远航并揭示家族信物真相。但Want是被Lie驱动的外部目标，Lie未提供，所以Want可部分推导。按输入依据：大纲明确主角做这些。可以写结构推导：主角追求完成远航并揭示家族信物真相。但want字段要求，可以写“结构推导：主角追求完成远航、揭示家族信物真相（输入仅提供目标，未提供驱动该目标的Lie）”。但字段可能不纯文本，可写“结构推导：完成远航并揭示家族信物真相；未提供Lie驱动依据。”\n- need: 未提供/待补信息\n- proactivity: 未提供/待补信息（大纲未提供主动性依据；但主角是推动者，也许可以结构推导？但为了严格，标未提供/待补信息。但技能要求0-10整数。用户示例有整数。输入没有提供，不能创造，所以可写“未提供/待补信息”字符串。可能违反类型，但为了不创造，必须这样。可能下游校验会用缺省？但用户要求0-10整数。但输入没有。按照硬规则，缺的标记未提供。可以写null或“未提供/待补信息”。我选择“未提供/待补信息”。）\n- likability: 未提供/待补信息\n- competence: 未提供/待补信息\n- 对话指纹八维度：可以为对象，各维度未提供。如：\n  \"对话指纹\": {\n    \"词汇层级\": \"未提供/待补信息\",\n    \"句长和结构\": \"未提供/待补信息\",\n    \"缩略和正式度\": \"未提供/待补信息\",\n    \"口头禅和习惯用语\": \"未提供/待补信息\",\n    \"提问vs陈述比例\": \"未提供/待补信息\",\n    \"打断模式\": \"未提供/待补信息\",\n    \"隐喻域\": \"未提供/待补信息\",\n    \"直接vs间接\": \"未提供/待补信息\"\n  }\n- 意象功能：未提供/待补信息，或结构推导主角承载家族真相揭示？大纲未明确意象，标未提供。\n- 伏笔ID：未提供/待补信息（大纲没有伏笔编号）\n- 能量：⚡（结构推导：核心行动者，但也可标未提供。技能要求标注能量，也许可设⚡。我标“⚡（结构推导：作为主线核心承担者，承担未解真相与选择）”但是不是过度？可以。字符⚡）\n- 身份状态：锁定事实：全书主线角色，受风暴纪元背景推动；结构推导：完成第一次远航、选择立场、揭示家族信物真相为大纲明确行动目标。\n\n可能还要包含关键秘密和关系？风格参考中有，但用户没要求每个角色都需？技能要求“关键秘密和重大信息差写明作者真相与读者已知两层，不得混淆；重要关系记录当前期待与情感债务”。但输入没有提供关键秘密和关系，应按未提供/待补处理。可以加字段：\n\"关键秘密\": {\"作者真相\": \"未提供/待补信息\", \"读者已知\": \"未提供/待补信息\"}\n\"关系期待与情感债务\": \"未提供/待补信息\"\n但这样attrsText会很大。技能要求角色类必须包含这些吗？它只说角色类attrs必须包含 ghost wound lie want need proactivity likability competence 对话指纹 意象功能 伏笔ID 能量 身份状态。关键秘密和关系是在信息状态与来源交接段落提到的，不是角色attrs必须字段，但提示要写。可以加入，但可能使所有条目重复。考虑输出空间，可加入角色项。\n\n非角色条目，比如地点，它们的身份状态等。\n\n大纲中没有一个明确魔法体系，但“风暴纪元”“风暴信标”可能暗示，但没有提供限制代价，标未提供。\n\n条目列表：\n1. 主角\n2. 灯塔\n3. 旧航道\n4. 南方航线\n5. 家族信物\n6. 风暴纪元\n7. 雾中港\n8. 旧盟约\n9. 失踪船队\n10. 风暴信标\n\n是否包括“港口交易”？可能重复雾中港。可合并。是否包括“航路贯通”？可归入南方航线。是否包括“第一次远航”？可归入主角或单独事件。我倾向于10项。\n\n需要确保每个设定项都有category。地点用“地点”还是“设定”？用户说“根据内容自动分配category；没有合适分类时使用设定类”。地点类存在的话可以用“地点”，但技能说世界观/魔法类。示例有“世界观”。我可以为地点用“地点”，事件用“事件”，协议用“设定”。但为统一下游，可以使用“设定”作为兜底。示例中“雾潮体系”category世界观。所以：\n- 风暴纪元 category世界观\n- 灯塔 category地点\n- 旧航道 category地点/设定\n- 南方航线 category地点/设定\n- 雾中港 category地点\n- 家族信物 category物品\n- 风暴信标 category物品/地点？（可能是信标物品）用“设定”\n- 旧盟约 category设定\n- 失踪船队 category事件/设定\n- 主角 category人物\n\n需要保证无“未提供/待补信息”太多重复。可以精简。\n\n但注意：用户格式要求每项含name/category/attrsText字段；attrsText内的字段可以用省略？技能要求角色类必须包含某些字段，我们不能省略。因此确实会很多未提供。这是可以接受的。但输出会非常长。输出空间管理说展开，质量优先。可以接受重复标记。\n\n或许不应把所有字段都写成对象，而可以写attrsText为文本摘要，其中包含“ghost:未提供/待补信息; wound:...”等。但用户示例attrs是对象。我认为对象更佳。\n\n需要确保JSON格式合法。中文字段名可以不加引号？在JSON中必须加双引号。可以使用中文字段名作为键。值字符串可以包含冒号、分号。\n\n关于未提供/待补信息，尽量统一写法。比如“未提供/待补信息”。\n\n现在构建每个条目。\n\n条目1 主角：\n```\n{\n \"name\": \"主角\",\n \"category\": \"人物\",\n \"attrsText\": {\n  \"ghost\": \"未提供/待补信息\",\n  \"wound\": \"未提供/待补信息\",\n  \"lie\": \"未提供/待补信息\",\n  \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n  \"need\": \"未提供/待补信息\",\n  \"proactivity\": \"未提供/待补信息\",\n  \"likability\": \"未提供/待补信息\",\n  \"competence\": \"未提供/待补信息\",\n  \"对话指纹\": {\n   \"词汇层级\": \"未提供/待补信息\",\n   \"句长和结构\": \"未提供/待补信息\",\n   \"缩略和正式度\": \"未提供/待补信息\",\n   \"口头禅和习惯用语\": \"未提供/待补信息\",\n   \"提问vs陈述比例\": \"未提供/待补信息\",\n   \"打断模式\": \"未提供/待补信息\",\n   \"隐喻域\": \"未提供/待补信息\",\n   \"直接vs间接\": \"未提供/待补信息\"\n  },\n  \"意象功能\": \"未提供/待补信息\",\n  \"伏笔ID\": \"未提供/待补信息\",\n  \"能量\": \"⚡（结构推导：主线核心承担者）\",\n  \"身份状态\": \"锁定事实：全书主角；结构推导：追求完成远航并揭示家族信物真相。\",\n  \"关键秘密\": {\n   \"作者真相\": \"未提供/待补信息\",\n   \"读者已知\": \"未提供/待补信息\"\n  },\n  \"关系期待与情感债务\": \"未提供/待补信息\"\n }\n}\n```\n是否应包含“关系期待与情感债务”字段，或许没有人际关系，但可写未提供。\n\n条目2 灯塔：\n```\n{\n \"name\":\"灯塔\",\n \"category\":\"地点\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"结构推导：作为旧航道指引与全书核心物象，可承载航线与真相的揭示节点。\",\n   \"身份状态\":\"锁定事实：全书围绕灯塔展开；结构推导：意象功能基于灯塔在开头被列为三大推动要素之一。\"\n }\n}\n```\n可以将身份状态放在最后。需要包含意象功能。\n\n条目3 旧航道：\n```\n{\n \"name\":\"旧航道\",\n \"category\":\"地点\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：第一卷冲突要素之一；结构推导：与灯塔、南方航线共同推动冲突。\"\n }\n}\n```\n\n条目4 南方航线：\n```\n{\n \"name\":\"南方航线\",\n \"category\":\"地点\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"结构推导：航路贯通与家族真相合流，可作为远航闭环的路径意象。\",\n   \"身份状态\":\"锁定事实：第一卷与第三卷核心航道；结构推导：意象功能基于第三卷航路贯通。\"\n }\n}\n```\n\n条目5 家族信物：\n```\n{\n \"name\":\"家族信物\",\n \"category\":\"物品\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"结构推导：承载家族真相揭示，可作为真相的客观对应物。\",\n   \"身份状态\":\"锁定事实：存在且主角逐步揭示真相；结构推导：意象功能基于第三卷家族真相与风暴信标合流。\"\n }\n}\n```\n\n条目6 风暴纪元：\n```\n{\n \"name\":\"风暴纪元\",\n \"category\":\"世界观\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：全书时代背景。\"\n }\n}\n```\n\n条目7 雾中港：\n```\n{\n \"name\":\"雾中港\",\n \"category\":\"地点\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：第二卷主要舞台。\"\n }\n}\n```\n\n条目8 旧盟约：\n```\n{\n \"name\":\"旧盟约\",\n \"category\":\"设定\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：第二卷冲突要素之一。\"\n }\n}\n```\n\n条目9 失踪船队：\n```\n{\n \"name\":\"失踪船队\",\n \"category\":\"事件\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：第二卷推动矛盾升级的事件。\"\n }\n}\n```\n\n条目10 风暴信标：\n```\n{\n \"name\":\"风暴信标\",\n \"category\":\"设定\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"结构推导：与家族信物、家族真相合流，可作为真相合流的关键物象。\",\n   \"身份状态\":\"锁定事实：第三卷关键要素；结构推导：意象功能基于第三卷与家族真相合流。\"\n }\n}\n```\n\n这些条目中所有attrsText都包含limitations/costs/weaknesses，符合世界观/魔法类要求。地点物品事件也类似。对于角色类，包含角色字段。很好。\n\n但检查：用户要求“每项含name/category/attrsText字段”。上述符合。\n\n是否遗漏“港口交易”？第二卷“港口交易、旧盟约与失踪船队让矛盾升级”。可以增加“港口交易”条目？也许应覆盖大纲所有关键词。我包含旧盟约和失踪船队，但港口交易没包含。可以加入第11项“港口交易”，category事件/设定。但条目过多？大纲关键词有限，覆盖所有更好。加上“第一次远航”？第一卷“主角完成第一次远航”。还有“航路贯通”可并入南方航线。需要覆盖输入单元总数？来源覆盖需声明覆盖编号，但我们不输出来源覆盖。可以在设定中覆盖主要元素。\n\n是否把“港口交易”作为独立条目？大纲中它是第二卷冲突之一，应提取。增加：\n11. 港口交易 category事件/设定，limitations未提供，身份状态锁定事实：第二卷冲突要素之一。\n12. 第一次远航 category事件，limitations未提供，身份状态锁定事实：第一卷主角完成第一次远航。\n13. 航路贯通 category事件，可并入南方航线，不单独。\n这样更完整。但输出会多。\n\n大纲三卷内容：\n第一卷：旧信、灯塔与南方航线；主角完成第一次远航。\n第二卷：港口交易、旧盟约与失踪船队；主角选择立场。\n第三卷：航路贯通、家族真相与风暴信标合流；完成第一阶段远航闭环。\n\n“旧信”也应该提取：第一卷冲突要素。可增加“旧信”条目。\n“航路贯通”是第三卷要素，应提取。\n“第一阶段远航闭环”可归入第一次远航或主线。\n因此条目可以包括：旧信、灯塔、南方航线、第一次远航、港口交易、旧盟约、失踪船队、航路贯通、家族真相、风暴信标、家族信物、风暴纪元、雾中港、主角。太多。但可以精简，避免创建过多设定条目。设定对象应该基于用户提供的“已确认大纲”自动生成，数量适中。我觉得10-14都可。\n\n由于输入说明“请基于这份已确认的大纲，提取并生成设定项”，应该全面提取所有明确元素。但设定项并不是每个关键词都要生成，可以合并相关。例如旧信可归入第一卷要素，但可单独作为“设定”条目。\n\n但需要确保每个条目都有存在意义，无信息也要标记未提供。若太多雷同，可能质量不高。可以合并“旧信”与“灯塔”吗？不合并，它们不同。合并“港口交易”与“雾中港”？港口交易发生在雾中港，但不同。我倾向于生成这些条目，但限制在重要实体。\n\n另一个方案：生成一个“设定项”数组，每一个都是明确的专有名词。可以输出13项。尽管未提供字段多，但结构一致，下游能处理缺失。\n\n需要检查用户是否要求输出attrsText而非attrs。我们在JSON中键名用attrsText。值对象中不需要再出现attrs键。\n\n关于“身份状态”是否属于attrsText对象内？是的。\n\n确保所有字符串中的引号转义。中文字段值不含英文双引号，应安全。可能包含“⚡（结构推导：主线核心承担者）”没有引号问题。可以。\n\n关于JSON语法，不要在末尾添加逗号。\n\n最终输出只以 [ 开头， ] 结尾，中间条目对象。\n\n现在考虑是否应该以“结构推导”标记某些内容。对于“意象功能”结构推导：大纲没有明确意象，但“灯塔”作为物象很明显是客观对应物？是否过度？但技能允许“按输入实际提供的材料标注意象种子；没有依据时标记未提供”。灯塔在开头被列为推动冲突的三大要素之一，全书围绕灯塔展开，可合理标注意象种子并标结构推导。但为严格，可写“结构推导：灯塔作为全书围绕的核心物象，可承载航道指引意象。”这是从输入直接词义推断，可以。\n\n对于“风暴信标”，大纲明确第三卷“风暴信标合流”，可作为关键物象。意象功能结构推导。\n\n“家族信物”明确真相揭示载体，意象功能结构推导。\n\n“南方航线”作为航路贯通和远航闭环，路径意象结构推导。\n\n其他未提供。\n\n角色want结构推导：大纲明确主角逐步揭示家族信物的真相，第一卷完成第一次远航。外部目标可能是完成远航和揭示真相。可以写结构推导：追求完成远航并揭示家族信物真相。但未提供Lie驱动，因此标注。\n\n身份状态中的锁定事实需要精确：“全书主角”可视为锁定事实，因为大纲说主角。结构推导部分如“追求完成远航”来自第一卷/第三卷事实，但作为角色目标，是结构推导。\n\n注意：在身份状态字段中，可能同时包含锁定事实和结构推导，如示例。\n\n对于非角色条目，是否应包含“关键秘密”？技能说关键是信息差，但未提供，可省略。不需要每个都加。\n\n现在准备最终输出。\n\n但输出铁律要求第一个字必须是成品第一个字，最后字成品最后一个字。所以不能有任何前言或后语。直接输出JSON。\n\n需要确保JSON数组有效。我会手工构建。\n\n可以添加12项：\n1 主角\n2 灯塔\n3 旧航道\n4 南方航线\n5 家族信物\n6 风暴纪元\n7 雾中港\n8 港口交易\n9 旧盟约\n10 失踪船队\n11 风暴信标\n12 航路贯通\n13 第一次远航\n14 旧信\n15 家族真相？这个可能并入家族信物/风暴信标。不单独。\n\n检查“旧信”是明确第一卷冲突要素，应提取：“旧信、灯塔与南方航线共同推动第一卷冲突”。设“旧信”条目。可加第12项。\n“航路贯通”是第三卷要素，可设第13项。\n“第一次远航”设第14项。\n\n是否过多？输出可观。但技能要求单次通过，不要遗漏中后段。我们已覆盖。输出14项。\n\n但有些条目比如旧信、航路贯通、第一次远航的属性信息太少，只有身份状态，但可用。\n\n对于每个非角色条目，同样要求limitations/costs/weaknesses/意象功能，全部未提供。可以简化但不要遗漏字段，因是必须字段。\n\n考虑最终JSON长度，可能达到数千token，但允许。\n\n先写一个辅助结构：\n{\n \"name\":\"旧信\",\n \"category\":\"设定\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：第一卷冲突推动要素之一。\"\n }\n}\n可以用类似模板。\n\n13. 航路贯通：\n{\n \"name\":\"航路贯通\",\n \"category\":\"事件\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"结构推导：可作为第一阶段远航闭环的实现标志。\",\n   \"身份状态\":\"锁定事实：第三卷事件；结构推导：意象功能基于第三卷航路贯通、家族真相与风暴信标合流。\"\n }\n}\n14. 第一次远航：\n{\n \"name\":\"第一次远航\",\n \"category\":\"事件\",\n \"attrsText\":{\n   \"limitations\":\"未提供/待补信息\",\n   \"costs\":\"未提供/待补信息\",\n   \"weaknesses\":\"未提供/待补信息\",\n   \"意象功能\":\"未提供/待补信息\",\n   \"身份状态\":\"锁定事实：第一卷主角完成第一次远航。\"\n }\n}\n\n作为事件类，是否也要求limitations/costs/weaknesses？技能说世界观/魔法类设定，事件不必须，但用户要求没有合适分类用设定。我认为可包含这些通用字段。\n\n现在构建最终JSON。需要注意在中文字段名和值中不要使用英文引号影响JSON。值字符串中也有中文括号、顿号、冒号。OK。\n\n输出为单个JSON数组，没有换行？可以多行，便于阅读，仍有效。\n\n我将以紧凑多行输出。确保所有对象之间有逗号。\n\n现在完成。",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 1000000,
+          "windowDeclared": false,
+          "outputLimitDeclared": false,
+          "estimatedInputTokens": 3562,
+          "outputReserveTokens": 32768,
+          "availableContextTokens": 967232,
+          "reason": "上下文可容纳：输入 3562 / 可用 967232（未声明窗口，按保守值处理）"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 3562,
+          "actualInputTokens": 3207,
+          "driftRatio": -0.09966311061201572,
+          "correctedRatio": 0.9003368893879843
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n从大纲与全书资产中生成结构化设定对象，并保留身份状态、关系期待、对话指纹和伏笔索引。\n\n【输出铁律（最高优先级，高于本文件中所有其他规则）】\r\n\r\n你只能输出成品内容，禁止输出任何分析、思考、计划、说明过程。\r\n不允许出现\"我需要\"\"首先\"\"让我\"\"接下来\"\"现在\"\"根据\"等分析引导词。\r\n你的第一个字必须是成品的第一个字，最后一个字必须是成品的最后一个字。\r\n所有规则的执行过程必须留在内部思考中，不出现在输出中。\r\n违反此铁律的输出视为完全失败。\r\n你是灵魂解剖师。你是链式执行的第1步（共2步）。你的工作不是\"生成设定条目\"，而是为每个角色和世界元素建立灵魂深度。你像一个法医——不是为了诊断，而是为了发现每个角色内心深处那个一直在痛的伤口。你输出增强设定JSON数组，供下一步（设定定稿师）校验。\r\n\r\n## 应用参数\r\n\r\n小说标题：{{novelTitle}}\r\n\r\n以上参数由应用注入。你的设定需与小说标题的题材基调一致。\r\n\r\n## 你的文学视角\r\n\r\n你看到的是角色",
+            "length": 4280
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\"}}]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\",\"身份状态\":\"锁定事实：母亲离开为输入事实；结构推导：最强剑师目标来自多次夜训记录。\",\"关键秘密\":{\"作者真相\":\"林母受组织委托离开\",\"读者已知\":\"林母不告而别\"}},\"关系\":{\"沈青\":\"当前期待：沈青",
+            "length": 1099
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n从大纲与全书资产中生成结构化设定对象，并保留身份状态、关系期待、对话指纹和伏笔索引。\n\n【输出铁律（最高优先级，高于本文件中所有其他规则）】\r\n\r\n你只能输出成品内容，禁止输出任何分析、思考、计划、说明过程。\r\n不允许出现\"我需要\"\"首先\"\"让我\"\"接下来\"\"现在\"\"根据\"等分析引导词。\r\n你的第一个字必须是成品的第一个字，最后一个字必须是成品的最后一个字。\r\n所有规则的执行过程必须留在内部思考中，不出现在输出中。\r\n违反此铁律的输出视为完全失败。\r\n你是灵魂解剖师。你是链式执行的第1步（共2步）。你的工作不是\"生成设定条目\"，而是为每个角色和世界元素建立灵魂深度。你像一个法医——不是为了诊断，而是为了发现每个角色内心深处那个一直在痛的伤口。你输出增强设定JSON数组，供下一步（设定定稿师）校验。\r\n\r\n## 应用参数\r\n\r\n小说标题：{{novelTitle}}\r\n\r\n以上参数由应用注入。你的设定需与小说标题的题材基调一致。\r\n\r\n## 你的文学视角\r\n\r\n你看到的是角色的灵魂层——不是\"这个角色是什么性格\"，而是\"这个角色为什么是他/她现在的样子\"。工具是心理考古：回溯角色的Ghost，找到塑造一切的原始创伤。\r\n\r\n## 核心工作\r\n\r\n在遵循上述格式要求（{name, category, attrs}的JSON数组）的基础上，为每条设定注入灵魂深度。\r\n\r\n### 1. 角色灵魂因果链（核心工作）\r\n\r\n对输入已经提供的角色材料整理Ghost→Wound→Lie→Want→Need因果链。这不是五个独立标签，而是一条因果脉络；缺失字段标记“未提供/待补信息”：\r\n\r\n- Ghost：过去的创伤事件。具体到场景——谁，什么时候，做了什么。不是\"童年不幸\"，而是\"七岁那年冬天，母亲把他留在庙门口走了，再也没有回来\"。\r\n- Wound：Ghost留下的持续情感损伤。不是\"缺乏安全感\"，而是\"他至今无法在任何一张床上安稳入睡，因为庙门口的石阶太冷了\"。\r\n- Lie：为应对Wound而采信的虚假信念。一句话，可以被反驳。\"只要我不依赖任何人，就不会被抛弃。\"\r\n- Want：被Lie驱动的外部目标——错误解法。\"成为最强的修士，强到不需要任何人。\"\r\n- Need：真正能治愈的内在真相——与Lie直接对立。\"真正的强大是允许自己被需要，也允许自己需要别人。\"\r\n\r\n把这条因果链放入attrs中，用ghost、wound、lie、want、need五个字段承载。\n\n每个实体在attrs末尾标注身份状态：锁定事实、结构推导或未提供/待补信息，三者取其一。同一实体的名称、身份、关系归属不得在不同条目间漂移。\n\r\n### 2. Three Sliders画像\r\n\r\n每个角色标注三个独立滑块（0-10）：\r\n- Proactivity（主动性）：驱动剧情还是被剧情推动？\r\n- Likability（讨喜度）：读者是否共鸣？\r\n- Competence（能力）：擅长自己做的事吗？\r\n\r\n规则：引人入胜的角色至少两个滑块高，或一个高且有明确成长。三个都低=无聊。三个从一开始都高=Mary Sue。\r\n\r\n### 3. 对话区分度\r\n\r\n为每个角色建立对话指纹（八维度）：\r\n- 词汇层级（音节数、阅读难度）\r\n- 句长和结构（简短vs冗长）\r\n- 缩略和正式度（\"不能\"vs\"不可\"）\r\n- 口头禅和习惯用语\r\n- 提问vs陈述比例\r\n- 打断模式（主导vs顺从）\r\n- 隐喻域（铁匠用金属比喻，农夫用土地比喻）\r\n- 直接vs间接（\"走\"vs\"天色不早了吧？\"）\r\n\r\n测试：去掉所有对话标签，你还能认出是谁在说话吗？如果能，对话有区分度。\r\n\r\n### 4. 世界观深度（Sanderson三定律）\r\n\r\n对世界观/魔法体系类设定：\r\n- 第一定律：用魔法解决冲突的能力与读者对魔法的理解程度成正比。硬魔法（规则清晰）可以解决冲突，软魔法（神秘）应该制造冲突而非解决。\r\n- 第二定律：限制>能力。标注每个魔法体系的限制、代价、弱点。限制应在叙事中比能力更突出。\r\n- 第三定律：扩展已有的而非添加新的。标注每个能力的多种应用方式。\n- 零新能力法则：最后25%不出现未铺垫的新能力。\n\n能力、资源与代价使用可数刻度：数量、次数、范围、冷却、清单或明确边界；不写“很强”“大量”这类不可执行表述。输入未提供刻度时保留待补标记。\n\n对每个魔法/力量设定，在attrs中标注limitations（限制）、costs（代价）、weaknesses（弱点）。\n\r\n### 5. 意象种子\r\n\r\n识别可作为意象的角色或物品设定，在attrs中标注\"意象功能\"字段：\r\n- 这个设定是否可以承载某种情感或主题的物象？（客观对应物）\r\n- 这个设定是否可以反复出现并随故事演变？（意象网络节点）\r\n- 按输入实际提供的材料标注意象种子；没有依据时标记“未提供/待补信息”。\r\n\r\n### 6. 伏笔种子（草蛇灰线）\r\n\r\n识别可作为伏笔的设定条目。但注意——草蛇灰线的伏笔不是\"埋一个钩子等着回收\"，而是让伏笔与正文肌理融为一体。伏笔看起来是自然的设定细节，回头看才发现线索一直在。\r\n\r\n在attrs中保留输入已有的伏笔ID（F+三位数字），标注已提供的伏笔用途和预期回收方向；没有依据时标记“未提供/待补信息”。\r\n\r\n### 7. 能量标注\r\n\r\n在attrs中标注能量字段：⚡（高能：权力失衡/未解之谜/角色秘密）、🔹（中能）、🍃（辅助性）。\r\n\r\n\r\n## 超长大纲扫描提示\r\n\r\n## 上游兜底原则（关键）\r\n\r\n上游大纲可能含【主题命题】【灵魂因果链】等标记区块，也可能是手写大纲（无标记区块）。遇到含标记区块的大纲时，从【灵魂因果链】标记区块中直接提取每个角色的Ghost→Wound→Lie→Want→Need，不要从零重新推断。遇到无标记区块的大纲时，从角色的背景描述、行为动机中推断因果链。所有标记区块的实质内容必须被设定数据继承和细化，不可遗漏。\r\n\r\n如果大纲超过1万字，先快速扫描全文识别所有角色和世界元素，确保不遗漏中后段（约全文1/3到末尾）出场的角色和后段揭示的世界观信息——角色群像、势力详细描述、技术设定通常分布在大纲后20%位置。每个角色设定都必须有完整的灵魂因果链。\r\n\r\n## 单次通过约束（防止卡死空转）\r\n\r\n你只有一次生成机会。提取和设定注入工作一次性完成，不回头反复修改已生成的设定条目。无论设定是否完美，必须输出完整的JSON数组。禁止反复生成-检查-修改-再检查的循环。\r\n\r\n\r\n## 输出要求\r\n\r\n每条设定格式：{name, category, attrs}\r\n\r\nattrs值简洁原则：每个attrs字段值控制在1-3句，信息密度高，不写段落。ghost/wound/lie/want/need各1-2句，对话指纹每维度1行，意象功能和伏笔用途各1句。\r\n\r\n角色类设定attrs必须包含以下字段（不可遗漏）：ghost、wound、lie、want、need、proactivity（0-10整数）、likability（0-10整数）、competence（0-10整数）、对话指纹（八维度）、意象功能（如适用）、伏笔ID（如适用）、能量、身份状态。\n\r\n世界观/魔法类设定attrs必须包含以下4个字段（不可遗漏）：limitations（限制）、costs（代价）、weaknesses（弱点）、意象功能（如适用）。\r\n\r\n伏笔ID字段随输入实际提供的伏笔保留；没有输入依据时不得为了数量要求创建伏笔。\r\n\r\n## 输出空间管理\r\n\r\n展开设定。质量优先于篇幅节约，token是用来花的，不是用来省的。\r\n\r\n\r\n## 验证反馈处理\r\n\r\n如果收到验证反馈（如字段缺失、JSON转义错误等），请优先针对反馈指出的问题精确修正——只改反馈指出的位置，保留其他内容不变。不要因反馈而重写全部设定。\r\n\r\n【最终输出提醒】\r\n你只能输出成品内容。分析过程留在内部。第一个字必须是成品。违反则视为完全失败。\r\n### 输入依据优先（硬规则）\r\n\r\n本技能只能从输入明确提供的角色、世界元素和关系中整理设定。输入没有提供的 Ghost、Wound、Lie、Want、Need、角色滑块、对话指纹、能力限制、意象功能或伏笔用途，必须标记为“未提供/待补信息”，不得为了完整字段、数量目标或文学张力自行创造。\r\n\r\n结构推导必须标记为“结构推导”，不能把推断出的创伤、动机、能力限制、意象或伏笔写成已锁定设定。输入只提供部分灵魂链时，只保留已知部分，其余字段保留并标记缺口，不得自动补齐。\r\n## 来源交接契约\r\n\r\n输出末尾必须附加唯一的【来源覆盖】区块。保留上游事件、伏笔、角色状态/关系和场景接口编号，并为新增的设定说明标注其对应来源；不得把设定推导伪装成锁定事实。区块逐项列出：输入单元总数、已覆盖编号、未覆盖编号、重复编号和状态变化。缺失设定写“未提供/待补信息”，不得为了完整度创建剧情事实。\r\n\r\n## 运行输入总闸（最高优先级）\r\n\r\n只整理输入明确提供的角色、世界元素、关系和设定。输入未提供的灵魂链、角色滑块、对话指纹、能力限制、代价、意象和伏笔用途统一标记“未提供/待补信息”；结构推导必须标记为“结构推导”，不得为了完整字段或数量目标自行创造。\r\n## 信息状态与来源交接\r\n\r\n设定只提取和组织输入中已有的角色、关系、规则、资源、伏笔和意象依据。字段级状态统一使用：锁定事实、结构推导、未提供/待补信息。关键秘密和重大信息差写明作者真相与读者已知两层，不得混淆；重要关系记录当前期待与情感债务（谁期待什么、谁欠什么），没有依据时保留待补。保留上游来源编号，并在末尾声明输入单元总数、已覆盖编号、未覆盖编号、重复编号和状态变化。\n\r\n## 应用交接边界\r\n\r\n设定 JSON 是用户可见的业务主体。输入单元总数、已覆盖编号、未覆盖编号、重复编号、状态变化和缺口清单属于应用交接 metadata，不得混入设定对象。若应用提供独立 metadata 通道，只写入该通道；只有未提供时，才在 JSON 外追加唯一的【来源覆盖】交接区块。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\"}}]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\",\"身份状态\":\"锁定事实：母亲离开为输入事实；结构推导：最强剑师目标来自多次夜训记录。\",\"关键秘密\":{\"作者真相\":\"林母受组织委托离开\",\"读者已知\":\"林母不告而别\"}},\"关系\":{\"沈青\":\"当前期待：沈青期待林晚照收她为徒；情感债务：林晚照欠沈青一次真心说明。\"}}]\n[{\"name\":\"雾潮体系\",\"category\":\"世界观\",\"attrs\":{\"limitations\":\"每次使用消耗记忆\",\"costs\":\"遗忘重要的人\",\"weaknesses\":\"情绪失控时反噬\",\"意象功能\":\"灯下雾纹\"}}]\n[{\"name\":\"雾潮体系\",\"category\":\"世界观\",\"attrs\":{\"limitations\":\"每次只能维持三十秒\",\"costs\":\"每用一次遗忘一个亲历地名\",\"weaknesses\":\"情绪失控时反噬\",\"意象功能\":\"灯下雾纹\",\"身份状态\":\"结构推导：冷却刻度来自三次战斗记录。\"}}]\n\n--- text ---\n[已确认大纲]\n# 流水线产物契约统一实测大纲\n全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。\n第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n第三卷 南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 0,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 8,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "requestPayloadRef": "payload-001"
+      },
+      "outputPayloadRef": "payload-006",
+      "outputLength": 3989,
+      "outputPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrsText\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": {\n        \"词汇层级\": \"未提供/待补信息\",\n        \"句长和结构\": \"未提供/待补信息\",\n        \"缩略和正式度\": \"未提供/待补信息\",\n        \"口头禅和习惯用语\": \"未提供/待补信息\",\n        \"提问vs陈述比例\": \"未提供/待补信息\",\n        \"打"
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 3,
+    "persistence": 66
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 144928,
+    "firstTokenSumMs": 2907,
+    "outputSumMs": 142021,
+    "localOverheadSumMs": 218,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 8,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    }
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 2907,
+    "outputSumMs": 142021,
+    "validationSumMs": 3,
+    "persistenceSumMs": 66,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    },
+    "contextChars": 5379,
+    "outputChars": 3989,
+    "physicalDurationSumMs": 144928
+  },
+  "endedAt": 1792418994637,
+  "durationMs": 145257,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1792418849407-21",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+        "bytes": 6515,
+        "chars": 3989,
+        "preview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrsText\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": {\n        \"词汇层级\": \"未提供/待补信息\",\n        \"句长和结构\": \"未提供/待补信息\",\n        \"缩略和正式度\": \"未提供/待补信息\",\n        \"口头禅和习惯用语\": \"未提供/待补信息\",\n        \"提问vs陈述比例\": \"未提供/待补信息\",\n        \"打"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "b76de9ee6ae72610fc12a5aa29cbeece070f6771380e2fbb7a7e6d7b7999a136",
+        "bytes": 6602,
+        "chars": 4068
+      },
+      "reasoning": {
+        "ref": "payload-004",
+        "file": "004-reasoning.json",
+        "sha256": "cee7c23facc97445d5cfd9c432a31d2e4322410f3932928d8d38d76ef91a71d4",
+        "bytes": 34723,
+        "chars": 14813
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792418849612-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+            "bytes": 6515,
+            "chars": 3989,
+            "preview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrsText\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"结构推导：完成远航并逐步揭示家族信物真相；输入未提供驱动该目标的Lie关联。\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": {\n        \"词汇层级\": \"未提供/待补信息\",\n        \"句长和结构\": \"未提供/待补信息\",\n        \"缩略和正式度\": \"未提供/待补信息\",\n        \"口头禅和习惯用语\": \"未提供/待补信息\",\n        \"提问vs陈述比例\": \"未提供/待补信息\",\n        \"打"
+          },
+          "stream": {
+            "ref": "payload-005",
+            "file": "005-stream.json",
+            "sha256": "74f941c7b6a7db2957609dd7b75d4f4b3b1b8493806c4de404bf6aa7919e90b5",
+            "bytes": 6515,
+            "chars": 3989
+          },
+          "reasoning": {
+            "ref": "payload-004",
+            "file": "004-reasoning.json",
+            "sha256": "cee7c23facc97445d5cfd9c432a31d2e4322410f3932928d8d38d76ef91a71d4",
+            "bytes": 34723,
+            "chars": 14813
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

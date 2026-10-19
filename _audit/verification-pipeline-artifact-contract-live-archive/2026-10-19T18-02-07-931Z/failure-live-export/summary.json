@@ -1,0 +1,32 @@
+{
+  "exportedAt": "2026-10-19T17:56:25.382Z",
+  "runId": "run-1792432104443-1404",
+  "step": 4,
+  "stepName": "正文层",
+  "status": "running",
+  "apiCalls": 3,
+  "sourceDirectory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-artifact-contract-live-exports\\run-trace-正文层-20261020-014824-deep",
+  "evidenceDirectory": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-pipeline-artifact-contract-live\\failure-live-export\\正文层",
+  "eventTypes": [
+    "started",
+    "context_scope",
+    "memory_context",
+    "prompt-built",
+    "chain-context-slim",
+    "chain-step",
+    "api-start",
+    "deai-prompt-variant",
+    "folder-pass-input",
+    "run-activity",
+    "long-request-in-progress",
+    "physical-call",
+    "folder-diagnostics",
+    "state-transition",
+    "api-success",
+    "processing-report",
+    "chain-handoff",
+    "chain-handoff-delivery",
+    "body-step-acceptance",
+    "final-step-role-unresolved"
+  ]
+}
