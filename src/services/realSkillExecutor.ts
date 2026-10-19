@@ -12,6 +12,7 @@ import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
 import { formatSkillFallback } from './skillRouter'
 import { buildFinalStepFeedback } from './finalStepFeedback'
+import { buildSchemaRetryFeedback } from './schemaRetryFeedback'
 import { validateSkillOutput } from './skillValidation'
 import type {
   RealSkillAgentContext,
@@ -497,28 +498,6 @@ function normalizeTemplate(
 
 function buildValidationErrorReport(errors: string[]): string {
   return errors.slice(0, 10).join('\n')
-}
-
-function buildSchemaRetryFeedback(errors: string[], previousOutput?: string): string {
-  const previousCandidate = previousOutput?.trim()
-  const lines = [
-    '上一次输出未通过校验。具体错误如下：',
-    buildValidationErrorReport(errors),
-  ]
-  if (previousCandidate) {
-    lines.push(
-      '上一版候选输出如下（必须以它为基底，只修正上述错误，保留其余内容）：',
-      '<<<上一版候选输出开始>>>',
-      previousCandidate,
-      '<<<上一版候选输出结束>>>'
-    )
-  }
-  lines.push(
-    previousCandidate
-      ? '请基于上一版候选输出修正上述错误，输出修正后的完整结果，不要重写无关内容，不要输出解释。'
-      : '请修复上述错误，只输出符合 schema 的完整结果，不要输出解释。'
-  )
-  return lines.join('\n')
 }
 
 function buildFinalStepSchemaRetryFeedback(
@@ -1148,9 +1127,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           if (options.finalStepRetry?.role === 'polish') {
             lastFinalStepCandidateBySkill.set(options.skillId || 'default', candidateOutput)
           }
-          schemaRetryFeedback = options.finalStepRetry?.role === 'polish'
-            ? buildFinalStepSchemaRetryFeedback(options, retryErrors)
-            : buildSchemaRetryFeedback(retryErrors, candidateOutput)
+          if (options.finalStepRetry?.role === 'polish') {
+            schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors)
+          } else {
+            const feedback = buildSchemaRetryFeedback({ errors: retryErrors, previousOutput: candidateOutput })
+            schemaRetryFeedback = feedback.feedback
+            options.onSchemaRetryFeedbackComposed?.(feedback)
+          }
           timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
           errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过 postProcess 校验：${report}`)
           diagnostics.push(diagnostic(
@@ -1210,9 +1193,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         if (options.finalStepRetry?.role === 'polish') {
           lastFinalStepCandidateBySkill.set(options.skillId || 'default', candidateOutput)
         }
-        schemaRetryFeedback = options.finalStepRetry?.role === 'polish'
-          ? buildFinalStepSchemaRetryFeedback(options, validation.errors)
-          : buildSchemaRetryFeedback(validation.errors, candidateOutput)
+        if (options.finalStepRetry?.role === 'polish') {
+          schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, validation.errors)
+        } else {
+          const feedback = buildSchemaRetryFeedback({ errors: validation.errors, previousOutput: candidateOutput })
+          schemaRetryFeedback = feedback.feedback
+          options.onSchemaRetryFeedbackComposed?.(feedback)
+        }
         timingLedger.schemaRetryCount = Math.max(0, attempt - 1)
         errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过校验：${report}`)
         diagnostics.push(diagnostic('warning', 'schema-validation-failed', `尝试 ${attempt}/${RETRY_LIMIT}：${report}`))

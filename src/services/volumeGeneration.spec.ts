@@ -31,7 +31,7 @@ describe('buildVolumePrompt', () => {
       existingVolumes: [{ name: '第一卷', outline: '开局' }, { name: '第二卷', outline: '扩张' }]
     })
     expect(prompt).toContain('已生成2卷')
-    expect(prompt).toContain('上一卷为：第二卷 - 扩张')
+    expect(prompt).toContain('上一卷锚点为：第二卷 - 扩张')
     expect(prompt).toContain('请只生成第3卷的卷纲')
   })
 
@@ -66,7 +66,7 @@ describe('buildVolumePrompt', () => {
     })
     expect(prompt).toContain('[已生成卷数]\n1')
     expect(prompt).toContain('[剩余待分配字数]\n4000000字')
-    expect(prompt).toContain('已生成1卷，上一卷为')
+    expect(prompt).toContain('已生成1卷，上一卷锚点为')
     expect(prompt).not.toContain('[卷纲计划冲突]')
   })
 
@@ -84,6 +84,34 @@ describe('buildVolumePrompt', () => {
   it('does not render an empty style block', () => {
     const prompt = buildVolumePrompt({ ...base, mode: 'single', styleContext: '' })
     expect(prompt).not.toContain('[风格与节奏]')
+  })
+
+  it('keeps the direct JSON protocol for direct requests', () => {
+    const prompt = buildVolumePrompt({ ...base, mode: 'single' })
+    expect(prompt).toContain('输出JSON数组（正好1项）')
+  })
+
+  it('does not emit the direct JSON protocol for folder chains', () => {
+    const prompt = buildVolumePrompt({
+      ...base,
+      mode: 'continue',
+      outputProtocol: 'folder-chain',
+      existingVolumes: [{ name: '第一卷', summary: '风暴起点' }]
+    })
+    expect(prompt).toContain('上一卷锚点为：第一卷 - 风暴起点')
+    expect(prompt).toContain('输出协议由当前 SKILL 模板决定')
+    expect(prompt).not.toContain('输出JSON数组')
+  })
+
+  it('bounds the previous-volume anchor when no summary exists', () => {
+    const longOutline = '重'.repeat(300)
+    const prompt = buildVolumePrompt({
+      ...base,
+      mode: 'continue',
+      existingVolumes: [{ name: '第一卷', outline: longOutline }]
+    })
+    expect(prompt).toContain('上一卷锚点为：第一卷 - ' + '重'.repeat(240) + '……')
+    expect(prompt).not.toContain(longOutline)
   })
 })
 

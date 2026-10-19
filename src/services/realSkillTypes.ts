@@ -217,6 +217,7 @@ export interface RealSkillExecuteOptions {
     deaiFindings?: Array<{ code?: string; label?: string; message?: string }>
   }
   onFinalStepFeedbackComposed?: (result: import('./finalStepFeedback').FinalStepFeedbackResult) => void
+  onSchemaRetryFeedbackComposed?: (result: import('./schemaRetryFeedback').SchemaRetryFeedbackResult) => void
   stream?: boolean
   signal?: AbortSignal
   timeoutMs?: number

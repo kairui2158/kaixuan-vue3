@@ -20,6 +20,7 @@ export interface VolumePromptInput {
   allocatedSum: number
   existingVolumes: ExistingVolumeRef[]
   styleContext?: string
+  outputProtocol?: 'direct-json' | 'folder-chain'
 }
 
 export function hasVolumeContent(volume: ExistingVolumeRef): boolean {
@@ -27,7 +28,12 @@ export function hasVolumeContent(volume: ExistingVolumeRef): boolean {
 }
 
 function volumeRefText(vol: ExistingVolumeRef): string {
-  return (vol.name || '未命名卷') + ' - ' + (vol.outline || vol.summary || '')
+  const name = String(vol.name || '').trim() || '未命名卷'
+  const summary = String(vol.summary || '').trim()
+  if (summary) return name + ' - ' + summary
+  const outline = String(vol.outline || '').replace(/\s+/g, ' ').trim()
+  if (outline) return name + ' - ' + (outline.length > 240 ? outline.slice(0, 240) + '……' : outline)
+  return name
 }
 
 export function buildVolumeOutlineScaffold(outlineText: string): string {
@@ -75,21 +81,26 @@ function promptHeader(input: VolumePromptInput): string {
 export function buildVolumePrompt(input: VolumePromptInput): string {
   const existingCount = input.existingVolumes.length
   const header = promptHeader(input)
+  const isFolderChain = input.outputProtocol === 'folder-chain'
+  const directJsonProtocol = '输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数）'
+  const folderChainProtocol = '输出协议由当前 SKILL 模板决定，应用侧仅提供任务边界与事实约束'
   if (input.mode === 'single') {
     if (existingCount === 0) {
-      return header + '\n\n当前还没有任何卷纲。请只生成第1卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），不得生成其他卷。'
+      return header + '\n\n当前还没有任何卷纲。请只生成第1卷的卷纲。' + (isFolderChain ? folderChainProtocol : directJsonProtocol + '，不得生成其他卷。')
     }
     const lastVol = input.existingVolumes[existingCount - 1]
-    return header + '\n\n已生成' + existingCount + '卷，上一卷为：' + volumeRefText(lastVol) + '。请只生成第' + (existingCount + 1) + '卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数）。'
+    return header + '\n\n已生成' + existingCount + '卷，上一卷锚点为：' + volumeRefText(lastVol) + '。请只生成第' + (existingCount + 1) + '卷的卷纲。' + (isFolderChain ? folderChainProtocol : directJsonProtocol + '。')
   }
   if (input.mode === 'continue') {
     if (existingCount === 0) {
-      return header + '\n\n当前还没有任何卷纲。请只生成第1卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），不得生成其他卷。'
+      return header + '\n\n当前还没有任何卷纲。请只生成第1卷的卷纲。' + (isFolderChain ? folderChainProtocol : directJsonProtocol + '，不得生成其他卷。')
     }
     const lastVol = input.existingVolumes[existingCount - 1]
-    return header + '\n\n已生成' + existingCount + '卷，上一卷为：' + volumeRefText(lastVol) + '。请只生成第' + (existingCount + 1) + '卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），不得生成其他卷。'
+    return header + '\n\n已生成' + existingCount + '卷，上一卷锚点为：' + volumeRefText(lastVol) + '。请只生成第' + (existingCount + 1) + '卷的卷纲。' + (isFolderChain ? folderChainProtocol : directJsonProtocol + '，不得生成其他卷。')
   }
-  return header + '\n\n请生成' + input.effectiveVolumes + '卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。'
+  return header + '\n\n请生成' + input.effectiveVolumes + '卷的卷纲。' + (isFolderChain
+    ? folderChainProtocol
+    : '输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。')
 }
 
 export function clampGeneratedVolumes(

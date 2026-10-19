@@ -68,9 +68,9 @@ const FOLDER_CHAIN_TASK_BOUNDARY_NOTE = '本步骤只处理当前卷任务；输
  */
 function stripLegacyVolumeJsonProtocol(prompt: string): { prompt: string; stripped: boolean } {
   const directProtocolPatterns = [
-    /(?:当前还没有任何卷纲。)?请只生成第\d+卷的卷纲。输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数），(?:不得生成其他卷。)?/g,
-    /已生成\d+卷，上一卷为：[^\n]*。请只生成第\d+卷的卷纲。输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数）。/g,
-    /请生成\d+卷的卷纲。输出JSON数组，每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。/g
+    /(?:当前还没有任何卷纲。)?请只生成第\d+卷的卷纲。(?:输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数），不得生成其他卷。|输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数）。|输出协议由当前 SKILL 模板决定，应用侧仅提供任务边界与事实约束)/g,
+    /已生成\d+卷，上一卷(?:锚点)?为：[\s\S]*?。请只生成第\d+卷的卷纲。(?:输出JSON数组（正好1项），每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数）。|输出协议由当前 SKILL 模板决定，应用侧仅提供任务边界与事实约束)/g,
+    /请生成\d+卷的卷纲。(?:输出JSON数组，每项含name\/outline\/summary\/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。|输出协议由当前 SKILL 模板决定，应用侧仅提供任务边界与事实约束)/g
   ]
   let next = prompt
   for (const pattern of directProtocolPatterns) {

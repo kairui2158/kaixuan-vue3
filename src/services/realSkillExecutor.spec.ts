@@ -693,10 +693,11 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     ])
     const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
     expect(retrySystemPrompt).toContain('缺少核心章节')
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('【结构化重试反馈】')
+    expect(retrySystemPrompt).toContain('候选输出有界摘要')
     expect(retrySystemPrompt).toContain('输出')
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出结束>>>')
-    expect(retrySystemPrompt).toContain('请基于上一版候选输出修正上述错误')
+    expect(retrySystemPrompt).not.toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).not.toContain('请基于上一版候选输出修正上述错误')
   })
 
   it('keeps blocking postProcess exhaustion terminal after candidate-preserving retries', async () => {
@@ -723,7 +724,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     for (let index = 1; index < callAi.mock.calls.length; index += 1) {
       const systemPrompt = callAi.mock.calls[index]![0].messages[0]?.content || ''
       expect(systemPrompt).toContain('缺少核心章节')
-      expect(systemPrompt).toContain('<<<上一版候选输出开始>>>')
+      expect(systemPrompt).toContain('【结构化重试反馈】')
+      expect(systemPrompt).not.toContain('<<<上一版候选输出开始>>>')
     }
   })
 
@@ -1203,7 +1205,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(firstPass?.messages[1]?.content).toContain('原文')
     const schemaRetry = result.apiMeta?.attemptRequestMessages?.[1]
     expect(schemaRetry).toMatchObject({ passIndex: 0, attempt: 2 })
-    expect(schemaRetry?.messages[0]?.content).toContain('上一次输出未通过校验')
+    expect(schemaRetry?.messages[0]?.content).toContain('【结构化重试反馈】')
     const secondPass = result.apiMeta?.attemptRequestMessages?.[2]
     expect(secondPass).toMatchObject({ passIndex: 1, attempt: 1 })
     expect(secondPass?.messages[1]?.content).toContain('第一步输出')
@@ -1271,12 +1273,12 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(result.output).toBe(JSON.stringify({ output: '修复后的输出' }))
     expect(callAi).toHaveBeenCalledTimes(2)
     const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
-    expect(retrySystemPrompt).toContain('上一次输出未通过校验')
+    expect(retrySystemPrompt).toContain('【结构化重试反馈】')
     expect(retrySystemPrompt).toContain('$.output 缺少必填字段')
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('候选输出定位锚点')
+    expect(retrySystemPrompt).not.toContain('<<<上一版候选输出开始>>>')
     expect(retrySystemPrompt).toContain('{"wrong": true}')
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出结束>>>')
-    expect(retrySystemPrompt).toContain('请基于上一版候选输出修正上述错误')
+    expect(retrySystemPrompt).toContain('完整全文已抑制')
   })
 
   it('keeps validation feedback on every schema retry attempt', async () => {
@@ -1300,11 +1302,11 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(callAi).toHaveBeenCalledTimes(3)
     for (let index = 1; index < callAi.mock.calls.length; index += 1) {
       const systemPrompt = callAi.mock.calls[index]![0].messages[0]?.content || ''
-      expect(systemPrompt).toContain('上一次输出未通过校验')
+      expect(systemPrompt).toContain('【结构化重试反馈】')
       expect(systemPrompt).toContain('$.output 缺少必填字段')
-      expect(systemPrompt).toContain('<<<上一版候选输出开始>>>')
+      expect(systemPrompt).not.toContain('<<<上一版候选输出开始>>>')
       expect(systemPrompt).toContain('{"wrong": true}')
-      expect(systemPrompt).toContain('<<<上一版候选输出结束>>>')
+      expect(systemPrompt).toContain('候选输出有界摘要')
     }
   })
 
@@ -1379,8 +1381,9 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
     expect(result.status).toBe('success')
     const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('【结构化重试反馈】')
     expect(retrySystemPrompt).toContain(candidateOutput)
+    expect(retrySystemPrompt).not.toContain('<<<上一版候选输出开始>>>')
     expect(retrySystemPrompt).not.toContain('终步重试协议')
   })
 
@@ -1404,10 +1407,10 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(callAi).toHaveBeenCalledTimes(2)
     const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
     expect(retrySystemPrompt).toContain('缺少 output 字段')
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).toContain('【结构化重试反馈】')
     expect(retrySystemPrompt).toContain('{"wrong": true}')
-    expect(retrySystemPrompt).toContain('<<<上一版候选输出结束>>>')
-    expect(retrySystemPrompt).toContain('请基于上一版候选输出修正上述错误')
+    expect(retrySystemPrompt).not.toContain('<<<上一版候选输出开始>>>')
+    expect(retrySystemPrompt).not.toContain('请基于上一版候选输出修正上述错误')
   })
 
   it('emits retry attempts through the real-skill step event', async () => {

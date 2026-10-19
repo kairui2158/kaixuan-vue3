@@ -164,6 +164,29 @@ describe('buildVolumeBatchPrompt', () => {
     expect(audit.legacyJsonProtocolStripped).toBe(false)
   })
 
+  it('strips folder-chain protocol sentences even when the volume anchor spans lines', () => {
+    const basePrompt = [
+      '[大纲]\n第一卷 风暴起点：主角完成第一次远航。',
+      '[已生成卷数]\n1',
+      '已生成1卷，上一卷锚点为：第一卷 - 多行\n卷纲事实第二行。请只生成第2卷的卷纲。输出协议由当前 SKILL 模板决定，应用侧仅提供任务边界与事实约束'
+    ].join('\n\n')
+    const { prompt, audit } = buildVolumeBatchPromptWithAudit({
+      contract: { ...contract, mode: 'single', expectedCount: 1, existingCount: 1 },
+      repair: false,
+      missingStart: 2,
+      missingCount: 1,
+      basePrompt,
+      historyContext: '[已生成卷事实清单]\n第1卷《第一卷》',
+      requestPolicy: 'single-volume',
+      outputProtocol: 'folder-chain'
+    })
+
+    expect(audit.legacyJsonProtocolStripped).toBe(true)
+    expect(prompt).toContain('多行\n卷纲事实第二行')
+    expect(prompt).toContain('本次只生成第2卷')
+    expect(prompt).not.toMatch(/请只生成第2卷的卷纲。输出协议由当前/)
+  })
+
   it('suppresses history context already present in the base prompt and reports the audit', () => {
     const historyContext = '[已生成卷事实清单]\n第1卷《第一卷》'
     const basePrompt = `[大纲] 全书大纲\n\n${historyContext}`

@@ -1044,3 +1044,13 @@
 - 诚实边界：live 为 `deepseek-v4-pro` 单一供应商形态；1500 字结构下限与降 AI 约束冲突属 SKILL 层缺口，应用不放宽阈值；其他供应商与未来输出形态登记 `untested`。
 - 经验回写：升级 v8.16；G2.9 补终步角色与反馈单源契约，G1.19 补验证器预算随执行形态迁移契约。
 - 封装：版本升级 3.99.0；live 证据保留于 `_audit/verification-pipeline-artifact-contract-live/`，历史失败现场归档于 `verification-pipeline-artifact-contract-live-archive/`。
+
+# 2026-10-20 卷纲层历史问题修复与 schema retry 反馈收口
+
+- 文件：[_audit/DEV_LOG_2026-10-20_volume-retry-feedback-closure.md](_audit/DEV_LOG_2026-10-20_volume-retry-feedback-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-20_volume-retry-feedback-closure.md](_audit/TASK_LEDGERS/2026-10-20_volume-retry-feedback-closure.md)
+- 范围：非终步 schema retry 反馈单源化且禁携候选全文、`schema-retry-feedback-composed` 观测事件、卷纲 folder/direct 输出协议分流、续卷上下文 summary + 240 字符锚点、旧 JSON 协议新旧句式剥离。
+- 验证：定向 4 files / 96 tests、全量 178 files / 2055 tests、type-check、build:vue 全部通过。
+- 诚实边界：新反馈未做 Electron + 真实 API live 复跑，登记 `untested`；`chainHandoff.reason` 属 SKILL 层元数据缺口；reasoning per-step 配置化仍为登记项。
+- 经验裁决：保持 v8.16，不升 v8.17；本轮是既有 G2.9/G0.10/G1.19 门禁的执行收口，无新纪律缺陷。
+- 封装：升级 3.100.0；安装包 `dist/神意助手-Setup-3.100.0.exe`，231,551,270 bytes，SHA256 `7339303075759fcf68eccd1dc5985b729c21ee8959cd07ccf19bab23fcc304ab`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-100-0/packaging-evidence.json`；3.97.0 旧安装包与 blockmap 已清理。

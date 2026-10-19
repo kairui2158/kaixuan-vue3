@@ -2226,6 +2226,21 @@ async function callValidatedSkill(
         signal: pipelineStore.getGenerationSignal(),
         timeoutMs,
         finalStepRetry: finalStepRetryParam,
+        onSchemaRetryFeedbackComposed: (result) => {
+          if (!traceRunId) return
+          runTraceStore.addEvent(traceRunId, {
+            type: 'schema-retry-feedback-composed',
+            level: 'info',
+            label: `结构化重试反馈已单源合成：${template.name || template.id}`,
+            detail: JSON.stringify({
+              candidateChars: result.candidateChars,
+              feedbackChars: result.feedbackChars,
+              anchorCount: result.anchorCount,
+              previewChars: result.previewChars,
+              suppressedCandidateChars: result.suppressedCandidateChars
+            })
+          })
+        },
         onFinalStepFeedbackComposed: (result) => {
           if (!traceRunId) return
           runTraceStore.addEvent(traceRunId, {
@@ -4180,6 +4195,7 @@ async function genVolumes(mode: string) {
     const expectedVolumeCount = mode === "auto"
       ? Math.max(0, effectiveVolumes - existingCount)
       : 1
+    const volumeRequestIsFolderChain = getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath)
     const volumeContract: VolumeGenerationContract = {
       mode: mode as VolumeGenerationContract["mode"],
       expectedCount: expectedVolumeCount,
@@ -4207,7 +4223,8 @@ async function genVolumes(mode: string) {
       totalWords,
       allocatedSum: volumePlan.allocatedWords,
       existingVolumes: previousVolumes,
-      styleContext: getVolumeStyleContext()
+      styleContext: getVolumeStyleContext(),
+      outputProtocol: volumeRequestIsFolderChain ? "folder-chain" : "direct-json"
     })
     const basePrompt = prompt
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
@@ -4217,8 +4234,8 @@ async function genVolumes(mode: string) {
       basePrompt,
       historyContext: volumeHistoryContext,
       callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, undefined, "你是卷纲生成专家。基于大纲和设定生成卷纲。"),
-      requestPolicy: getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath) ? "single-volume" : "batch",
-      outputProtocol: getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath) ? "folder-chain" : "direct-json",
+      requestPolicy: volumeRequestIsFolderChain ? "single-volume" : "batch",
+      outputProtocol: volumeRequestIsFolderChain ? "folder-chain" : "direct-json",
       shouldContinue: () => !pipelineStore.isGenerationCanceled(),
       onPromptBuilt: (requestPrompt, promptAudit) => {
         if (!promptAudit.duplicateHistoryContextSuppressed && !promptAudit.progressFactsSynced) return
