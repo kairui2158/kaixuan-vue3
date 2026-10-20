@@ -37,6 +37,18 @@ export interface SettingsLayerProjectionResult {
   trimmedReasons: string[]
 }
 
+export const SETTINGS_PROJECTION_BUDGETS: Partial<Record<SettingsProjectionLayer, number>> = {
+  volume: 1200,
+  chapter: 1500,
+  body: 1800
+}
+
+const BUDGET_TRIM_PRIORITY: Partial<Record<SettingsProjectionLayer, SemanticSettingCategory[]>> = {
+  volume: ['other', 'item', 'event', 'scene', 'faction', 'style', 'world', 'character'],
+  chapter: ['other', 'item', 'event', 'style', 'scene', 'faction', 'world', 'character'],
+  body: ['other', 'item', 'event', 'scene', 'faction', 'style', 'world', 'character']
+}
+
 const CATEGORY_RULES: Array<{ semantic: SemanticSettingCategory; keywords: string[] }> = [
   { semantic: 'character', keywords: ['人物', '角色', 'character'] },
   { semantic: 'scene', keywords: ['场景', '地点', '空间', 'scene'] },
@@ -46,6 +58,13 @@ const CATEGORY_RULES: Array<{ semantic: SemanticSettingCategory; keywords: strin
   { semantic: 'event', keywords: ['事件'] },
   { semantic: 'style', keywords: ['风格', '基调', '节奏', 'style'] }
 ]
+
+function semanticForValue(value: string): SemanticSettingCategory | null {
+  for (const rule of CATEGORY_RULES) {
+    if (rule.keywords.some(keyword => value.includes(keyword))) return rule.semantic
+  }
+  return null
+}
 
 const LAYER_CONFIG: Record<SettingsProjectionLayer, {
   header: string
@@ -133,11 +152,9 @@ export function normalizeSemanticCategory(
   name = '',
   text = ''
 ): SemanticSettingCategory {
-  const value = `${category} ${name} ${text}`.toLowerCase()
-  for (const rule of CATEGORY_RULES) {
-    if (rule.keywords.some(keyword => value.includes(keyword))) return rule.semantic
-  }
-  return 'other'
+  const explicit = semanticForValue(String(category || '').toLowerCase())
+  if (explicit) return explicit
+  return semanticForValue(`${name} ${text}`.toLowerCase()) || 'other'
 }
 
 function itemKeywords(item: SemanticSettingsItem): string[] {
@@ -168,6 +185,7 @@ export function buildSettingsLayerProjection(
   const warnings: string[] = []
   const includedReasons: string[] = []
   const excludedReasons: string[] = []
+  const trimmedReasons: string[] = []
   const query = String(context.query || '').trim()
 
   let selected = items
@@ -199,11 +217,9 @@ export function buildSettingsLayerProjection(
     }
   }
 
-  const categoryDistribution: Record<string, number> = {}
   const grouped = new Map<SemanticSettingCategory, string[]>()
   for (const item of selected) {
     const semantic = normalizeSemanticCategory(item.category, item.name, item.text)
-    categoryDistribution[semantic] = (categoryDistribution[semantic] || 0) + 1
     if (semantic === 'other') {
       warnings.push(`unrecognized_settings_category:${item.category || 'unknown'}`)
     }
@@ -220,19 +236,48 @@ export function buildSettingsLayerProjection(
     }))
     .filter(block => block.lines.length > 0)
 
+  let trimmableBlocks = blocks
+  const budget = SETTINGS_PROJECTION_BUDGETS[layer]
+  if (budget != null) {
+    const priorities = BUDGET_TRIM_PRIORITY[layer] || []
+    const headerSize = [config.header, ...config.instructions].join('\n').length + 1
+    const projectedSize = () => headerSize + trimmableBlocks
+      .reduce((sum, block) => sum + block.label.length + 1 + block.lines.join('\n').length + 1, 0)
+    while (projectedSize() > budget) {
+      const target = priorities.find(priority => {
+        const block = trimmableBlocks.find(item => item.semanticCategory === priority)
+        return block && block.lines.length > 0
+      })
+      const block = target
+        ? trimmableBlocks.find(item => item.semanticCategory === target)
+        : trimmableBlocks.find(item => item.lines.length > 0)
+      if (!block) break
+      const dropped = block.lines.pop()
+      if (dropped) trimmedReasons.push(`layer_budget_trim:${block.semanticCategory}:${dropped.slice(0, 60)}`)
+      if (!block.lines.length) {
+        trimmableBlocks = trimmableBlocks.filter(item => item !== block)
+      }
+    }
+  }
+
   const text = [
     config.header,
     ...config.instructions,
-    ...blocks.map(block => `${block.label}\n${block.lines.join('\n')}`)
+    ...trimmableBlocks.map(block => `${block.label}\n${block.lines.join('\n')}`)
   ].join('\n')
+
+  const categoryDistribution: Record<string, number> = {}
+  for (const block of trimmableBlocks) {
+    categoryDistribution[block.semanticCategory] = block.lines.length
+  }
 
   return {
     text,
-    blocks,
+    blocks: trimmableBlocks,
     categoryDistribution,
     warnings,
     includedReasons,
     excludedReasons,
-    trimmedReasons: []
+    trimmedReasons
   }
 }

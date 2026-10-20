@@ -1,5 +1,5 @@
 {
-  "id": "run-1792498459156-21",
+  "id": "run-1792508270098-22",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 3,
@@ -16,30 +16,30 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "4c92f350de0b",
-    "buildTime": "2026-10-20T12:10:19.595Z"
+    "commit": "ab7b5aa6ca59",
+    "buildTime": "2026-10-20T14:53:07.548Z"
   },
-  "startedAt": 1792498459156,
+  "startedAt": 1792508270098,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "chapters_generation_complete",
-      "recordedAt": 1792498459199
+      "recordedAt": 1792508270224
     }
   ],
   "events": [
     {
-      "id": "event-1792498459156-22",
-      "ts": 1792498459156,
+      "id": "event-1792508270098-23",
+      "ts": 1792508270098,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 章节层运行"
     },
     {
-      "id": "event-1792498459162-23",
-      "ts": 1792498459162,
+      "id": "event-1792508270123-24",
+      "ts": 1792508270123,
       "seq": 2,
       "type": "prompt-built",
       "level": "info",
@@ -47,27 +47,36 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"totalChapters\":4,\"wordsPerChapter\":3500,\"resumeCount\":1}"
     },
     {
-      "id": "event-1792498459162-24",
-      "ts": 1792498459162,
+      "id": "event-1792508270124-25",
+      "ts": 1792508270124,
       "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "warn",
+      "label": "风格语义已仲裁：存在设定卡与风格档案冲突",
+      "detail": "{\"layer\":\"chapter\",\"sources\":{\"profileStyle\":true,\"settingsStyle\":true},\"profileHash\":\"8d10321a\",\"settingsHash\":\"a57df29d\",\"duplicateLineCount\":0,\"conflictLineCount\":1,\"settingsProjectionHash\":\"4ed56d8e\"}"
+    },
+    {
+      "id": "event-1792508270126-26",
+      "ts": 1792508270126,
+      "seq": 4,
       "type": "settings-projection-composed",
       "level": "info",
       "label": "设定锁定投影已组装",
-      "detail": "{\"layer\":\"chapter\",\"policyVersion\":2,\"lockedCount\":2,\"draftExcludedCount\":0,\"projectionChars\":111,\"contentHash\":\"ce47e533\",\"categoryDistribution\":{\"character\":2},\"includedReasons\":[\"locked:王芳\",\"locked:林舟\"],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+      "detail": "{\"layer\":\"chapter\",\"policyVersion\":2,\"lockedCount\":64,\"draftExcludedCount\":0,\"projectionChars\":1480,\"contentHash\":\"4ed56d8e\",\"categoryDistribution\":{\"character\":2,\"item\":27,\"style\":2},\"includedReasons\":[\"locked:王芳\",\"locked:林舟\",\"locked:人物基调\",\"locked:主题基调\",\"locked:灯塔备件01\",\"locked:灯塔备件02\",\"locked:灯塔备件03\",\"locked:灯塔备件04\",\"locked:灯塔备件05\",\"locked:灯塔备件06\",\"locked:灯塔备件07\",\"locked:灯塔备件08\",\"locked:灯塔备件09\",\"locked:灯塔备件10\",\"locked:灯塔备件11\",\"locked:灯塔备件12\",\"locked:灯塔备件13\",\"locked:灯塔备件14\",\"locked:灯塔备件15\",\"locked:灯塔备件16\",\"locked:灯塔备件17\",\"locked:灯塔备件18\",\"locked:灯塔备件19\",\"locked:灯塔备件20\",\"locked:灯塔备件21\",\"locked:灯塔备件22\",\"locked:灯塔备件23\",\"locked:灯塔备件24\",\"locked:灯塔备件25\",\"locked:灯塔备件26\",\"locked:灯塔备件27\",\"locked:灯塔备件28\",\"locked:灯塔备件29\",\"locked:灯塔备件30\",\"locked:灯塔备件31\",\"locked:灯塔备件32\",\"locked:灯塔备件33\",\"locked:灯塔备件34\",\"locked:灯塔备件35\",\"locked:灯塔备件36\",\"locked:灯塔备件37\",\"locked:灯塔备件38\",\"locked:灯塔备件39\",\"locked:灯塔备件40\",\"locked:灯塔备件41\",\"locked:灯塔备件42\",\"locked:灯塔备件43\",\"locked:灯塔备件44\",\"locked:灯塔备件45\",\"locked:灯塔备件46\",\"locked:灯塔备件47\",\"locked:灯塔备件48\",\"locked:灯塔备件49\",\"locked:灯塔备件50\",\"locked:灯塔备件51\",\"locked:灯塔备件52\",\"locked:灯塔备件53\",\"locked:灯塔备件54\",\"locked:灯塔备件55\",\"locked:灯塔备件56\",\"locked:灯塔备件57\",\"locked:灯塔备件58\",\"locked:灯塔备件59\",\"locked:灯塔备件60\"],\"excludedReasons\":[],\"trimmedReasons\":[\"layer_budget_trim:item:物品 - 灯塔备件60 - 编号60的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件59 - 编号59的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件58 - 编号58的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件57 - 编号57的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件56 - 编号56的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件55 - 编号55的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件54 - 编号54的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件53 - 编号53的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件52 - 编号52的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件51 - 编号51的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件50 - 编号50的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件49 - 编号49的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件48 - 编号48的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件47 - 编号47的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件46 - 编号46的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件45 - 编号45的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件44 - 编号44的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件43 - 编号43的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件42 - 编号42的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件41 - 编号41的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件40 - 编号40的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件39 - 编号39的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件38 - 编号38的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件37 - 编号37的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件36 - 编号36的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件35 - 编号35的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件34 - 编号34的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件33 - 编号33的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件32 - 编号32的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件31 - 编号31的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件30 - 编号30的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件29 - 编号29的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件28 - 编号28的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\"],\"warnings\":[]}"
     },
     {
-      "id": "event-1792498459165-26",
-      "ts": 1792498459165,
-      "seq": 4,
+      "id": "event-1792508270133-28",
+      "ts": 1792508270133,
+      "seq": 5,
       "type": "api-start",
       "level": "info",
       "label": "第 1 次 API 调用开始",
       "detail": "{\"skillName\":\"compose\",\"model\":\"settings-lock-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792498459165-28",
-      "ts": 1792498459165,
-      "seq": 5,
+      "id": "event-1792508270133-30",
+      "ts": 1792508270133,
+      "seq": 6,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -78,41 +87,41 @@
       }
     },
     {
-      "id": "event-1792498459165-29",
-      "ts": 1792498459165,
-      "seq": 6,
+      "id": "event-1792508270134-31",
+      "ts": 1792508270134,
+      "seq": 7,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792498459165-27",
+        "physicalCallId": "physical-1792508270133-29",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792498459165-30",
-      "ts": 1792498459165,
-      "seq": 7,
+      "id": "event-1792508270134-32",
+      "ts": 1792508270134,
+      "seq": 8,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / compose / settings-lock-model"
     },
     {
-      "id": "event-1792498459173-31",
-      "ts": 1792498459173,
-      "seq": 8,
+      "id": "event-1792508270148-33",
+      "ts": 1792508270148,
+      "seq": 9,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / compose / settings-lock-model / stop"
     },
     {
-      "id": "event-1792498459173-32",
-      "ts": 1792498459173,
-      "seq": 9,
+      "id": "event-1792508270149-34",
+      "ts": 1792508270149,
+      "seq": 10,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -123,9 +132,9 @@
       }
     },
     {
-      "id": "event-1792498459174-33",
-      "ts": 1792498459174,
-      "seq": 10,
+      "id": "event-1792508270149-35",
+      "ts": 1792508270149,
+      "seq": 11,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -136,63 +145,63 @@
       }
     },
     {
-      "id": "event-1792498459174-34",
-      "ts": 1792498459174,
-      "seq": 11,
+      "id": "event-1792508270149-36",
+      "ts": 1792508270149,
+      "seq": 12,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792498459165-25 seq=1"
+      "detail": "apiCall=api-1792508270133-27 seq=1"
     },
     {
-      "id": "event-1792498459174-35",
-      "ts": 1792498459174,
-      "seq": 12,
+      "id": "event-1792508270149-37",
+      "ts": 1792508270149,
+      "seq": 13,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / settings-lock-model"
     },
     {
-      "id": "event-1792498459176-36",
-      "ts": 1792498459176,
-      "seq": 13,
+      "id": "event-1792508270156-38",
+      "ts": 1792508270156,
+      "seq": 14,
       "type": "chapter-batch-attempt",
       "level": "info",
       "label": "章节批次验收",
       "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":3,\"acceptedCount\":3,\"missingStart\":2,\"missingCount\":3,\"validationMs\":0,\"errors\":[]}"
     },
     {
-      "id": "event-1792498459190-37",
-      "ts": 1792498459190,
-      "seq": 14,
+      "id": "event-1792508270205-39",
+      "ts": 1792508270205,
+      "seq": 15,
       "type": "chapter-batch-validated",
       "level": "info",
       "label": "章节批次验收通过",
       "detail": "{\"batchIndex\":1,\"expectedStart\":2,\"expectedEnd\":4,\"requestedCount\":3,\"actualCount\":3,\"repairAttempts\":0,\"status\":\"complete\"}"
     },
     {
-      "id": "event-1792498459199-38",
-      "ts": 1792498459199,
-      "seq": 15,
+      "id": "event-1792508270224-40",
+      "ts": 1792508270224,
+      "seq": 16,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "chapters_generation_complete"
     },
     {
-      "id": "event-1792498459199-39",
-      "ts": 1792498459199,
-      "seq": 16,
+      "id": "event-1792508270224-41",
+      "ts": 1792508270224,
+      "seq": 17,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "chapters_generation_complete / run=run-1792498459156-21"
+      "detail": "chapters_generation_complete / run=run-1792508270098-22"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792498459165-25",
+      "id": "api-1792508270133-27",
       "seq": 1,
       "step": 3,
       "skillId": "compose",
@@ -209,18 +218,18 @@
         },
         {
           "role": "user",
-          "content": "[全书大纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[章节规划约束]\n章节切分、剧情点、人物出场和场景选择必须遵守以下锁定设定。\n章节规划不得违背世界规则，不得提前释放终局信息。\n[出场人物约束]\n人物 - 王芳 - 幽默，风趣，话痨\n人物 - 林舟 - 沉默，冷静，行动派\n\n[卷纲]\n第一卷 雨夜 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[本卷总章数]\n4\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 纸条》\n\n[上一章事实]\n第1章《第1章 纸条》\n雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n生成第2章到第4章，共3章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为3。"
+          "content": "[全书大纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[章节规划约束]\n章节切分、剧情点、人物出场和场景选择必须遵守以下锁定设定。\n章节规划不得违背世界规则，不得提前释放终局信息。\n[出场人物约束]\n人物 - 王芳 - 幽默，风趣，话痨\n人物 - 林舟 - 沉默，冷静，行动派\n[章节物品]\n物品 - 灯塔备件01 - 编号1的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件02 - 编号2的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件03 - 编号3的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件04 - 编号4的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件05 - 编号5的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件06 - 编号6的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件07 - 编号7的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件08 - 编号8的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件09 - 编号9的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件10 - 编号10的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件11 - 编号11的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件12 - 编号12的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件13 - 编号13的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件14 - 编号14的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件15 - 编号15的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件16 - 编号16的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件17 - 编号17的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件18 - 编号18的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件19 - 编号19的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件20 - 编号20的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件21 - 编号21的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件22 - 编号22的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件23 - 编号23的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件24 - 编号24的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件25 - 编号25的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件26 - 编号26的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件27 - 编号27的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n\n[卷纲]\n第一卷 雨夜 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[风格与节奏]\n[风格指令]\n核心气质：冷峻、克制\n风格标签：都市悬疑\n一句话定位：冷雨夜中的克制叙事，幽默只允许短暂破冰。\n风格标签：冷峻，克制\n节奏参数：中速，高张力\n风格 - 人物基调 - 幽默，话痨（主题基调；若与上方风格指令冲突，以风格指令为准）\n风格 - 主题基调 - 都市夜感，信息密度高\n优先级：风格档案指令优先；下方主题基调仅补充人物与剧情表达，不得覆盖风格档案。\n\n[本卷总章数]\n4\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 纸条》\n\n[上一章事实]\n第1章《第1章 纸条》\n雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n生成第2章到第4章，共3章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为3。\n\n[相关记忆]\n[工作区上下文]\n相关记忆（来源=memory，版本=v-6432229a）：\n当前相关人物与实体：\n- 王芳（别名：芳姐）；状态：重伤；冷静寡言\n\n- 王芳（别名：芳姐）；状态：重伤；冷静寡言"
         }
       ],
       "responseText": "[{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}]",
       "streamText": "[{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}][{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}]",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792498459165,
+      "startedAt": 1792508270133,
       "physicalCalls": [
         {
-          "id": "physical-1792498459165-27",
-          "physicalCallId": "physical-1792498459165-0",
+          "id": "physical-1792508270133-29",
+          "physicalCallId": "physical-1792508270133-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -231,7 +240,7 @@
             },
             {
               "role": "user",
-              "content": "[全书大纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[章节规划约束]\n章节切分、剧情点、人物出场和场景选择必须遵守以下锁定设定。\n章节规划不得违背世界规则，不得提前释放终局信息。\n[出场人物约束]\n人物 - 王芳 - 幽默，风趣，话痨\n人物 - 林舟 - 沉默，冷静，行动派\n\n[卷纲]\n第一卷 雨夜 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[本卷总章数]\n4\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 纸条》\n\n[上一章事实]\n第1章《第1章 纸条》\n雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n生成第2章到第4章，共3章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为3。"
+              "content": "[全书大纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[章节规划约束]\n章节切分、剧情点、人物出场和场景选择必须遵守以下锁定设定。\n章节规划不得违背世界规则，不得提前释放终局信息。\n[出场人物约束]\n人物 - 王芳 - 幽默，风趣，话痨\n人物 - 林舟 - 沉默，冷静，行动派\n[章节物品]\n物品 - 灯塔备件01 - 编号1的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件02 - 编号2的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件03 - 编号3的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件04 - 编号4的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件05 - 编号5的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件06 - 编号6的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件07 - 编号7的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件08 - 编号8的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件09 - 编号9的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件10 - 编号10的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件11 - 编号11的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件12 - 编号12的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件13 - 编号13的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件14 - 编号14的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件15 - 编号15的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件16 - 编号16的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件17 - 编号17的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件18 - 编号18的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件19 - 编号19的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件20 - 编号20的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件21 - 编号21的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件22 - 编号22的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件23 - 编号23的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件24 - 编号24的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件25 - 编号25的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件26 - 编号26的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n物品 - 灯塔备件27 - 编号27的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\n\n[卷纲]\n第一卷 雨夜 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[风格与节奏]\n[风格指令]\n核心气质：冷峻、克制\n风格标签：都市悬疑\n一句话定位：冷雨夜中的克制叙事，幽默只允许短暂破冰。\n风格标签：冷峻，克制\n节奏参数：中速，高张力\n风格 - 人物基调 - 幽默，话痨（主题基调；若与上方风格指令冲突，以风格指令为准）\n风格 - 主题基调 - 都市夜感，信息密度高\n优先级：风格档案指令优先；下方主题基调仅补充人物与剧情表达，不得覆盖风格档案。\n\n[本卷总章数]\n4\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 纸条》\n\n[上一章事实]\n第1章《第1章 纸条》\n雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n生成第2章到第4章，共3章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为3。\n\n[相关记忆]\n[工作区上下文]\n相关记忆（来源=memory，版本=v-6432229a）：\n当前相关人物与实体：\n- 王芳（别名：芳姐）；状态：重伤；冷静寡言\n\n- 王芳（别名：芳姐）；状态：重伤；冷静寡言"
             }
           ],
           "responseText": "[{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}]",
@@ -244,43 +253,43 @@
             "totalTokens": 36
           },
           "usageUnavailable": false,
-          "startedAt": 1792498459165,
-          "durationMs": 8,
-          "firstTokenMs": 5,
-          "outputMs": 3,
-          "endedAt": 1792498459173,
+          "startedAt": 1792508270133,
+          "durationMs": 15,
+          "firstTokenMs": 11,
+          "outputMs": 4,
+          "endedAt": 1792508270148,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
           "providerContextWindowTokens": 128000,
-          "estimatedInputTokens": 140,
+          "estimatedInputTokens": 657,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 140 / 可用 119808",
+          "contextBudgetReason": "上下文可容纳：输入 657 / 可用 119808",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 140,
+            "estimatedInputTokens": 657,
             "actualInputTokens": 12,
-            "driftRatio": -0.9142857142857143,
-            "correctedRatio": 0.08571428571428572
+            "driftRatio": -0.9817351598173516,
+            "correctedRatio": 0.0182648401826484
           },
-          "firstContentAt": 1792498459170,
-          "lastContentAt": 1792498459170,
+          "firstContentAt": 1792508270144,
+          "lastContentAt": 1792508270144,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792498459174,
-      "lastStreamActivityAt": 1792498459174,
+      "lastExecutionActivityAt": 1792508270149,
+      "lastStreamActivityAt": 1792508270149,
       "finishReason": "stop",
-      "durationMs": 6,
+      "durationMs": 14,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 8,
-        "firstTokenSumMs": 5,
-        "outputSumMs": 3,
-        "minFirstTokenMs": 5,
-        "maxFirstTokenMs": 5,
-        "localOverheadMs": -2
+        "physicalDurationSumMs": 15,
+        "firstTokenSumMs": 11,
+        "outputSumMs": 4,
+        "minFirstTokenMs": 11,
+        "maxFirstTokenMs": 11,
+        "localOverheadMs": -1
       },
       "usage": {
         "inputTokens": 12,
@@ -288,9 +297,9 @@
         "totalTokens": 36
       },
       "usageUnavailable": false,
-      "endedAt": 1792498459174,
+      "endedAt": 1792508270149,
       "semantic": {
-        "conversationId": "run-1792498459156-21",
+        "conversationId": "run-1792508270098-22",
         "usage": {
           "inputTokens": 12,
           "outputTokens": 24,
@@ -305,17 +314,17 @@
   "payloads": [],
   "stepPhaseTiming": {
     "validation": 0,
-    "persistence": 14
+    "persistence": 47
   },
-  "dirName": "run-trace-章节层-20261020-201419",
+  "dirName": "run-trace-章节层-20261020-225750",
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 8,
-    "firstTokenSumMs": 5,
-    "outputSumMs": 3,
-    "localOverheadSumMs": -2,
+    "physicalDurationSumMs": 15,
+    "firstTokenSumMs": 11,
+    "outputSumMs": 4,
+    "localOverheadSumMs": -1,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -328,15 +337,15 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 5,
-    "outputSumMs": 3,
+    "firstTokenSumMs": 11,
+    "outputSumMs": 4,
     "validationSumMs": 0,
-    "persistenceSumMs": 14,
+    "persistenceSumMs": 47,
     "repeatedPromptBlocks": {},
-    "contextChars": 465,
+    "contextChars": 2085,
     "outputChars": 247,
-    "physicalDurationSumMs": 8
+    "physicalDurationSumMs": 15
   },
-  "endedAt": 1792498459199,
-  "durationMs": 43
+  "endedAt": 1792508270224,
+  "durationMs": 126
 }

@@ -26,10 +26,17 @@ const PROJECT_ID = 'settings-lock-projection'
 const VOLUME_ID = 'vol-settings-lock'
 const CHAPTER_ID = 'ch-settings-lock'
 const CATEGORY = '人物'
+const STYLE_CATEGORY = '风格'
+const ITEM_CATEGORY = '物品'
 const LEGACY_NAME = '王芳'
 const LEGACY_CONTENT = '幽默，风趣，话痨'
 const DRAFT_NAME = '林舟'
 const DRAFT_CONTENT = '沉默，冷静，行动派'
+const CONFLICT_STYLE_NAME = '人物基调'
+const CONFLICT_STYLE_CONTENT = '幽默，话痨'
+const SUPPORT_STYLE_NAME = '主题基调'
+const SUPPORT_STYLE_CONTENT = '都市夜感，信息密度高'
+const OVERFLOW_ITEM_COUNT = 60
 
 const VOLUME_OUTLINE = [
   '## 剧情单元 H1-01 灯塔',
@@ -41,6 +48,29 @@ const VOLUME_OUTLINE = [
 const BODY_PARAGRAPH = '王芳把纸条压进灯座，顺手又开了三个玩笑。她的声音先于潮水抵达，塔灯在她的语句之间亮了一次又一次。风暴还没有停，可灯塔底层已经被她说成了一个热闹的房间。她一边核对信标的闪烁，一边把纸条上的每个字都念出声音来，仿佛沉默会被浪头偷走。'
 const BODY_REPLY = Array.from({ length: 30 }, (_, index) => `${index + 1}. ${BODY_PARAGRAPH}`).join('\n\n')
 const HOME_REPLY = '已按当前锁定设定讨论：王芳的说话方式保持幽默、风趣、话痨。'
+
+const STYLE_PROFILE = {
+  profileVersion: 2,
+  styleTags: '冷峻，克制',
+  pacingParams: '中速，高张力',
+  pacingParamsObj: {
+    speed: '中速',
+    tension: 4,
+    density: '密集',
+    perspective: '第三人称',
+    tone: '冷峻',
+  },
+  customStyleTags: [],
+  aiPacingSnapshot: null,
+  locked: true,
+  lockedAt: Date.parse('2026-10-20T08:00:00Z'),
+  source: 'manual',
+  positioning: {
+    coreTemperament: ['冷峻', '克制'],
+    genreTags: ['都市悬疑'],
+    oneLinePositioning: '冷雨夜中的克制叙事，幽默只允许短暂破冰。',
+  },
+}
 
 function parseChineseRange(text, label) {
   const patterns = Array.isArray(label)
@@ -277,7 +307,37 @@ async function connectPage(browser) {
 
 async function seedApplication(page, provider) {
   await page.evaluate(async seed => {
-    const { baseUrl, projectId, volumeId, chapterId, volumeOutline } = seed
+    const {
+      baseUrl,
+      projectId,
+      volumeId,
+      chapterId,
+      volumeOutline,
+      category,
+      styleCategory,
+      itemCategory,
+      legacyName,
+      legacyContent,
+      draftName,
+      draftContent,
+      conflictStyleName,
+      conflictStyleContent,
+      supportStyleName,
+      supportStyleContent,
+      overflowItemCount,
+      styleProfile,
+      wangFangMemory,
+    } = seed
+    const overflowItems = Array.from({ length: overflowItemCount }, (_, index) => ({
+      id: `set-overflow-item-${index + 1}`,
+      name: `灯塔备件${String(index + 1).padStart(2, '0')}`,
+      category: itemCategory,
+      content: `编号${index + 1}的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。`,
+      attrs: { desc: `编号${index + 1}的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。` },
+      status: 'locked',
+      lockedAt: Date.parse('2026-10-20T08:10:00Z'),
+      isBound: true,
+    }))
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', {
       providers: [{
@@ -308,6 +368,7 @@ async function seedApplication(page, provider) {
       chaptersConfirmed: true,
       settingsGenerated: true,
       settings: [],
+      styleProfile,
       volumes: [{
         id: volumeId,
         name: '第一卷 雨夜',
@@ -334,28 +395,69 @@ async function seedApplication(page, provider) {
       },
       settingBindings: {},
       settingsCollection: {
-        categories: [seed.category],
+        categories: [category, styleCategory, itemCategory],
         items: {
-          [seed.category]: [
+          [category]: [
             {
               id: 'set-legacy-wangfang',
-              name: seed.legacyName,
-              category: seed.category,
-              content: seed.legacyContent,
-              attrs: { desc: seed.legacyContent },
+              name: legacyName,
+              category,
+              content: legacyContent,
+              attrs: { desc: legacyContent },
               isBound: true,
             },
             {
               id: 'set-draft-linzhou',
-              name: seed.draftName,
-              category: seed.category,
-              content: seed.draftContent,
-              attrs: { desc: seed.draftContent },
+              name: draftName,
+              category,
+              content: draftContent,
+              attrs: { desc: draftContent },
             },
           ],
+          [styleCategory]: [
+            {
+              id: 'set-style-conflict',
+              name: conflictStyleName,
+              category: styleCategory,
+              content: conflictStyleContent,
+              attrs: { desc: conflictStyleContent },
+              status: 'locked',
+              lockedAt: Date.parse('2026-10-20T08:11:00Z'),
+              isBound: true,
+            },
+            {
+              id: 'set-style-support',
+              name: supportStyleName,
+              category: styleCategory,
+              content: supportStyleContent,
+              attrs: { desc: supportStyleContent },
+              status: 'locked',
+              lockedAt: Date.parse('2026-10-20T08:12:00Z'),
+              isBound: true,
+            },
+          ],
+          [itemCategory]: overflowItems,
         },
       },
-      memories: {},
+      memories: {
+        version: 1,
+        entities: [wangFangMemory],
+        relations: [],
+        events: [],
+        world: [],
+        foreshadowing: [],
+        meta: {
+          extractionCount: 1,
+          lastExtractedAt: '2026-10-20T08:20:00Z',
+          lastFullRebuildAt: null,
+          pendingCount: 0,
+          totals: { entities: 1, relations: 0, events: 0, world: 0, foreshadowing: 0 },
+        },
+        history: [],
+        categories: ['情节', '人物', '世界观', '伏笔'],
+        items: [],
+        sourceVersions: [],
+      },
       memoryBlacklist: [],
       aiNaming: null,
       outlineChat: [],
@@ -378,10 +480,40 @@ async function seedApplication(page, provider) {
     chapterId: CHAPTER_ID,
     volumeOutline: VOLUME_OUTLINE,
     category: CATEGORY,
+    styleCategory: STYLE_CATEGORY,
+    itemCategory: ITEM_CATEGORY,
     legacyName: LEGACY_NAME,
     legacyContent: LEGACY_CONTENT,
     draftName: DRAFT_NAME,
     draftContent: DRAFT_CONTENT,
+    conflictStyleName: CONFLICT_STYLE_NAME,
+    conflictStyleContent: CONFLICT_STYLE_CONTENT,
+    supportStyleName: SUPPORT_STYLE_NAME,
+    supportStyleContent: SUPPORT_STYLE_CONTENT,
+    overflowItemCount: OVERFLOW_ITEM_COUNT,
+    styleProfile: STYLE_PROFILE,
+    wangFangMemory: {
+      id: 'ent-wangfang-memory',
+      name: LEGACY_NAME,
+      type: 'character',
+      aliases: ['芳姐'],
+      firstAppearance: '',
+      lastAppearance: '',
+      appearances: [],
+      description: '冷静寡言',
+      personality: '',
+      appearance: '',
+      background: '',
+      status: '重伤',
+      possessions: [],
+      skills: [],
+      relationships: [],
+      notes: '',
+      lockedFields: [],
+      evidence: [],
+      createdAt: '2026-10-20T08:20:00Z',
+      updatedAt: '2026-10-20T08:20:00Z',
+    },
   })
   await page.reload({ waitUntil: 'domcontentloaded' })
   await page.waitForSelector('#app', { timeout: 20_000 })
@@ -445,6 +577,60 @@ function parseDetail(value) {
 
 function projectionEvents(run) {
   return (run?.events || []).filter(event => event.type === 'settings-projection-composed')
+}
+
+function styleSemanticsEvents(run) {
+  return (run?.events || []).filter(event => event.type === 'style-semantics-merged')
+}
+
+function contextConflictEvents(run) {
+  return (run?.events || []).filter(event => event.type === 'context-conflict-detected')
+}
+
+function occurrences(text, needle) {
+  return String(text || '').split(needle).length - 1
+}
+
+function assertSingleArbitratedStyleBlock(prompt, layer) {
+  assert.equal(occurrences(prompt, '[风格指令]'), 1,
+    `${layer} prompt has exactly one arbitrated style block, got ${occurrences(prompt, '[风格指令]')}`)
+  assert(prompt.includes('优先级：风格档案指令优先'),
+    `${layer} prompt declares the style profile priority`)
+  assert(prompt.includes('一句话定位：冷雨夜中的克制叙事'),
+    `${layer} prompt carries the locked v2 style profile positioning`)
+  assert(prompt.includes('风格 - 人物基调 - 幽默，话痨（主题基调；若与上方风格指令冲突，以风格指令为准）'),
+    `${layer} prompt keeps the conflicting settings style as bounded theme tone`)
+  assert(prompt.includes('风格 - 主题基调 - 都市夜感，信息密度高'),
+    `${layer} prompt keeps the non-conflicting settings style line`)
+  assert(!prompt.includes('[卷级风格]'), `${layer} prompt strips the old volume style block`)
+  assert(!prompt.includes('[章节节奏]'), `${layer} prompt strips the old chapter style block`)
+  assert(!prompt.includes('[表达风格]'), `${layer} prompt strips the old body style block`)
+}
+
+function assertStyleSemanticsTrace(run, layer) {
+  const events = styleSemanticsEvents(run)
+  assert(events.length >= 1, `${layer} trace records style-semantics-merged, got ${events.length}`)
+  const detail = parseDetail(events[events.length - 1].detail)
+  assert.equal(detail.layer, layer, `${layer} style trace records the layer`)
+  assert.deepEqual(detail.sources, { profileStyle: true, settingsStyle: true },
+    `${layer} style trace records both style sources`)
+  assert(/^[0-9a-f]{8}$/.test(String(detail.profileHash)), `${layer} style trace records profile hash`)
+  assert(/^[0-9a-f]{8}$/.test(String(detail.settingsHash)), `${layer} style trace records settings hash`)
+  assert(/^[0-9a-f]{8}$/.test(String(detail.settingsProjectionHash)), `${layer} style trace records projection hash`)
+  assert(detail.conflictLineCount >= 1, `${layer} style trace detects the profile/settings conflict`)
+  assert.equal(events[events.length - 1].level, 'warn', `${layer} conflict style trace is a warning`)
+}
+
+function assertBudgetTrim(run, prompt, layer, droppedNeedle, keptNeedle) {
+  const events = projectionEvents(run)
+  assert(events.length >= 1, `${layer} trace records projection event`)
+  const projection = parseDetail(events[events.length - 1].detail)
+  assert(projection.trimmedReasons.length >= 1,
+    `${layer} projection records budget trims, got ${JSON.stringify(projection.trimmedReasons)}`)
+  assert(projection.trimmedReasons[0].startsWith('layer_budget_trim:'),
+    `${layer} budget trim reason uses the stable prefix`)
+  assert(!prompt.includes(droppedNeedle), `${layer} prompt drops a low-priority line under budget`)
+  assert(prompt.includes(keptNeedle), `${layer} prompt keeps the character line under budget`)
 }
 
 function batchAttemptEvents(run, type) {
@@ -737,6 +923,10 @@ async function main() {
     assert(volumeRun, 'volume run trace exists')
     assert(volumeRequests.length >= 1, `volume request reaches provider, got ${volumeRequests.length}`)
     const volumePrompt = requestText(volumeRequests[0])
+    await archiveScenario('volume-layer', {
+      'trace-run.json': volumeRun,
+      'provider-requests.json': volumeRequests,
+    })
     assertSuccessfulVolumeRun(volumeRun)
     assert(volumePrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       `volume prompt carries locked Wang Fang projection: ${volumePrompt.slice(-600)}`)
@@ -745,14 +935,25 @@ async function main() {
     assert(volumePrompt.includes('[设定规划约束]'), 'volume prompt uses the planning semantics marker')
     assert(volumePrompt.includes('[人物规划约束]'), 'volume prompt groups character constraints')
     assert(!volumePrompt.includes('[正文执行约束]'), 'volume prompt does not carry body execution semantics')
+    assertSingleArbitratedStyleBlock(volumePrompt, 'volume')
+    assertStyleSemanticsTrace(volumeRun, 'volume')
+    assertBudgetTrim(volumeRun, volumePrompt, 'volume',
+      '灯塔备件60', '人物 - 王芳 - 幽默，风趣，话痨')
     let volumeEvents = projectionEvents(volumeRun)
     assert(volumeEvents.length >= 1, `volume trace records projection event, got ${volumeEvents.length}`)
     let volumeProjection = parseDetail(volumeEvents[0].detail)
     assert.equal(volumeProjection.layer, 'volume', 'volume projection layer is recorded')
     assert.equal(volumeProjection.policyVersion, 2, 'volume projection records the policy version')
-    assert.equal(volumeProjection.lockedCount, 2, 'volume projection counts two locked settings')
+    assert.equal(volumeProjection.lockedCount, 64, 'volume projection counts every locked setting before trimming')
     assert.equal(volumeProjection.draftExcludedCount, 0, 'volume projection excludes no draft after batch lock')
-    assert.deepEqual(volumeProjection.categoryDistribution, { character: 2 }, 'volume projection records category distribution')
+    const volumeProjectionPromptSection = volumePrompt.split(/\n\n\[风格与节奏\]/)[0]
+    const volumeDistributionFromPrompt = {
+      character: volumeProjectionPromptSection.split(/\r?\n/).filter(line => /^人物 - .+ - /.test(line)).length,
+      item: volumeProjectionPromptSection.split(/\r?\n/).filter(line => /^物品 - .+ - /.test(line)).length,
+      style: 2,
+    }
+    assert.deepStrictEqual(volumeProjection.categoryDistribution, volumeDistributionFromPrompt,
+      `volume distribution matches the post-trim prompt: ${JSON.stringify(volumeProjection.categoryDistribution)}`)
     assert(volumeProjection.projectionChars > 0, 'volume projection records character count')
     assert(/^[0-9a-f]{8}$/.test(String(volumeProjection.contentHash)), 'volume projection records FNV hash')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-volume-generated.png'), fullPage: false })
@@ -771,6 +972,10 @@ async function main() {
     assert(chapterRun, 'chapter run trace exists')
     assert(chapterRequests.length >= 1, `chapter request reaches provider, got ${chapterRequests.length}`)
     const chapterPrompt = requestText(chapterRequests[0])
+    await archiveScenario('chapter-layer', {
+      'trace-run.json': chapterRun,
+      'provider-requests.json': chapterRequests,
+    })
     assertSuccessfulChapterRun(chapterRun)
     assert(chapterPrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       'chapter prompt carries locked Wang Fang projection')
@@ -779,12 +984,16 @@ async function main() {
     assert(chapterPrompt.includes('[章节规划约束]'), 'chapter prompt uses the chapter planning semantics marker')
     assert(chapterPrompt.includes('[出场人物约束]'), 'chapter prompt groups character constraints')
     assert(!chapterPrompt.includes('[设定规划约束]'), 'chapter prompt does not carry volume planning semantics')
+    assertSingleArbitratedStyleBlock(chapterPrompt, 'chapter')
+    assertStyleSemanticsTrace(chapterRun, 'chapter')
+    assertBudgetTrim(chapterRun, chapterPrompt, 'chapter',
+      '灯塔备件60', '人物 - 王芳 - 幽默，风趣，话痨')
     const chapterEvents = projectionEvents(chapterRun)
     assert(chapterEvents.length >= 1, `chapter trace records projection event, got ${chapterEvents.length}`)
     const chapterProjection = parseDetail(chapterEvents[0].detail)
     assert.equal(chapterProjection.layer, 'chapter', 'chapter projection layer is recorded')
     assert.equal(chapterProjection.policyVersion, 2, 'chapter projection records the policy version')
-    assert.equal(chapterProjection.lockedCount, 2, 'chapter projection counts two locked settings')
+    assert.equal(chapterProjection.lockedCount, 64, 'chapter projection counts every locked setting before trimming')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-chapters-generated.png'), fullPage: false })
     await archiveScenario('chapter-layer', {
       'trace-run.json': chapterRun,
@@ -808,6 +1017,10 @@ async function main() {
     assert(bodyRun, 'body run trace exists')
     assert(bodyRequests.length >= 1, `body request reaches provider, got ${bodyRequests.length}`)
     const bodyPrompt = requestText(bodyRequests[0])
+    await archiveScenario('body-layer', {
+      'trace-run.json': bodyRun,
+      'provider-requests.json': bodyRequests,
+    })
     assertSuccessfulBodyRun(bodyRun)
     assert(bodyPrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       'body prompt carries locked Wang Fang projection')
@@ -815,12 +1028,27 @@ async function main() {
     assert(bodyPrompt.includes('[正文执行约束]'), 'body prompt uses the execution semantics marker')
     assert(bodyPrompt.includes('[人物口吻与行为]'), 'body prompt groups character voice constraints')
     assert(!bodyPrompt.includes('[设定规划约束]'), 'body prompt does not carry volume planning semantics')
+    assertSingleArbitratedStyleBlock(bodyPrompt, 'body')
+    assertStyleSemanticsTrace(bodyRun, 'body')
+    assertBudgetTrim(bodyRun, bodyPrompt, 'body',
+      '灯塔备件60', '人物 - 王芳 - 幽默，风趣，话痨')
+    const bodyConflictEvents = contextConflictEvents(bodyRun)
+    assert(bodyConflictEvents.length >= 1, `body trace records context conflict, got ${bodyConflictEvents.length}`)
+    const bodyConflict = parseDetail(bodyConflictEvents[bodyConflictEvents.length - 1].detail)
+    assert.equal(bodyConflict.conflictCount, 1, 'body conflict detail counts one Wang Fang conflict')
+    assert.equal(bodyConflict.conflicts[0].entityName, LEGACY_NAME, 'body conflict identifies Wang Fang')
+    assert.equal(bodyConflictEvents[bodyConflictEvents.length - 1].level, 'warn', 'body conflict trace is a warning')
+    assert(bodyPrompt.includes('[相关记忆]'), 'body prompt still injects retrieved memory')
+    assert(bodyPrompt.includes('已被锁定设定覆盖：- 王芳（别名：芳姐）'),
+      'body prompt marks the conflicting memory as overridden')
+    assert(bodyPrompt.includes('[上下文优先级]'), 'body prompt appends the context priority note')
+    assert(bodyPrompt.includes('冷静寡言'), 'body prompt keeps the original memory evidence')
     const bodyEvents = projectionEvents(bodyRun)
     assert(bodyEvents.length >= 1, `body trace records projection event, got ${bodyEvents.length}`)
     const bodyProjection = parseDetail(bodyEvents[0].detail)
     assert.equal(bodyProjection.layer, 'body', 'body projection layer is recorded')
     assert.equal(bodyProjection.policyVersion, 2, 'body projection records the policy version')
-    assert.equal(bodyProjection.lockedCount, 1, 'body projection counts one locked setting')
+    assert.equal(bodyProjection.lockedCount, 63, 'body projection counts every locked setting before trimming')
     assert.equal(bodyProjection.draftExcludedCount, 1, 'body projection excludes draft Lin Zhou')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-body-generated.png'), fullPage: false })
     await archiveScenario('body-layer', {
@@ -857,6 +1085,7 @@ async function main() {
       'home prompt carries locked Wang Fang projection')
     assert(!homePrompt.includes('林舟'), 'home prompt excludes draft Lin Zhou')
     assert(!homePrompt.includes('[正文执行约束]'), 'home prompt does not carry pipeline execution semantics')
+    assert(!homePrompt.includes('[相关物品]'), 'home projection query keeps unrelated overflow items out')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-home-projection.png'), fullPage: false })
     await archiveScenario('home-layer', {
       'trace-run.json': homeRun,
@@ -892,9 +1121,44 @@ async function main() {
       assertions: {
         schemaMigration: { from: 3, to: 4, legacyIsBoundBecomesLocked: true, draftStaysDraft: true },
         lockLifecycle: { singleLock: true, singleUnlock: true, batchLock: true },
-        volumeProjection: { lockedCount: 2, draftExcludedCount: 0, marker: '[设定规划约束]', policyVersion: 2 },
-        chapterProjection: { lockedCount: 2, draftExcludedCount: 0, marker: '[章节规划约束]', policyVersion: 2 },
-        bodyProjection: { lockedCount: 1, draftExcludedCount: 1, marker: '[正文执行约束]', policyVersion: 2 },
+        styleArbitration: {
+          singleBlockPerLayer: true,
+          profilePriority: true,
+          conflictKeptAsThemeTone: true,
+          oldStyleLabelsRemoved: true,
+          traceWarnOnConflict: true,
+        },
+        volumeProjection: {
+          lockedCount: 64,
+          draftExcludedCount: 0,
+          marker: '[设定规划约束]',
+          policyVersion: 2,
+          budgetTrimmed: true,
+          characterLineKept: true,
+        },
+        chapterProjection: {
+          lockedCount: 64,
+          draftExcludedCount: 0,
+          marker: '[章节规划约束]',
+          policyVersion: 2,
+          budgetTrimmed: true,
+          characterLineKept: true,
+        },
+        bodyProjection: {
+          lockedCount: 63,
+          draftExcludedCount: 1,
+          marker: '[正文执行约束]',
+          policyVersion: 2,
+          budgetTrimmed: true,
+          characterLineKept: true,
+        },
+        memoryConflictPriority: {
+          conflictDetected: true,
+          memoryKept: true,
+          overridePrefixApplied: true,
+          priorityNoteAppended: true,
+          traceWarn: true,
+        },
         homeProjection: { marker: '[当前上下文设定]', includesWangFang: true, excludesDraftLinZhou: true },
       },
       heartbeatFrames,

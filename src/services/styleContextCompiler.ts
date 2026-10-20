@@ -141,7 +141,7 @@ function shouldInclude(target: StyleContextTarget, section: string): boolean {
   }
   if (target === 'settings') return ['定位', '场景写法'].includes(section)
   if (target === 'volume') return ['定位', '正向规则'].includes(section)
-  if (target === 'chapter') return ['声口', '句式模式', '日更规则'].includes(section)
+  if (target === 'chapter') return ['定位', '声口', '句式模式', '日更规则'].includes(section)
   return ['定位', '声口', '句式模式', '场景写法', '日更规则', '警戒线'].includes(section)
 }
 

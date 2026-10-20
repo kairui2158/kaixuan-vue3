@@ -1,4 +1,5 @@
-{"at":"2026-10-20T12:14:17.389Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":31576,"frame":1}
-{"at":"2026-10-20T12:14:18.392Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":31576,"frame":2}
-{"at":"2026-10-20T12:14:19.397Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":31576,"frame":3}
-{"at":"2026-10-20T12:14:20.406Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":31576,"frame":4}
+{"at":"2026-10-20T14:57:47.805Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":3320,"frame":1}
+{"at":"2026-10-20T14:57:48.833Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":3320,"frame":2}
+{"at":"2026-10-20T14:57:49.922Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":3320,"frame":3}
+{"at":"2026-10-20T14:57:50.924Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":3320,"frame":4}
+{"at":"2026-10-20T14:57:51.992Z","running":[{"id":"run-1792508271939-70","source":"home","stepName":"主页共创","events":5,"apiCalls":0}],"pipelineStatus":"done","isGenerating":false,"electronPid":3320,"frame":5}

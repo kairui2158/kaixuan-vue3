@@ -203,6 +203,7 @@ import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
 import { getLockedSettingsForLayer } from '../../services/settingsProjection'
+import { characterLinesForLayer } from '../../services/settingsCharacterContext'
 import { conversationContextService, resolveEffectiveModelContextWindow } from '../../services/conversationContextService'
 import {
   buildSnapshot,
@@ -3330,14 +3331,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         }
       }
       const sc3 = projectStore.getSettingsCollection()
-      if (sc3 && sc3.categories) {
-        const charNames: string[] = []
-        for (const item of getLockedSettingsForLayer('body', sc3).items) {
-          if (!String(item.category).includes('人物')) continue
-          charNames.push(item.name + '（' + item.text + '）')
-        }
-        chatCtx.characters = charNames.join('；')
-      }
+      chatCtx.characters = characterLinesForLayer('body', sc3).join('；')
       // Editor content is injected below as "主创作上下文" with priority over reference outline
     }
     if (!chatCtx.editorContent && editorStore.activeTab) {

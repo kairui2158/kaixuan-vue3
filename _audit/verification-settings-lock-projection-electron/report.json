@@ -1,14 +1,14 @@
 {
   "schema": "shenyi.settings-lock-projection.electron",
   "version": 1,
-  "generatedAt": "2026-10-20T12:14:20.949Z",
+  "generatedAt": "2026-10-20T14:57:52.721Z",
   "script": "verify-settings-lock-projection-electron.mjs",
   "projectId": "settings-lock-projection",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "4c92f350de0b",
-    "buildTime": "2026-10-20T12:10:19.595Z"
+    "commit": "ab7b5aa6ca59",
+    "buildTime": "2026-10-20T14:53:07.548Z"
   },
   "hardRules": {
     "visibleElectron": true,
@@ -29,23 +29,43 @@
       "singleUnlock": true,
       "batchLock": true
     },
+    "styleArbitration": {
+      "singleBlockPerLayer": true,
+      "profilePriority": true,
+      "conflictKeptAsThemeTone": true,
+      "oldStyleLabelsRemoved": true,
+      "traceWarnOnConflict": true
+    },
     "volumeProjection": {
-      "lockedCount": 2,
+      "lockedCount": 64,
       "draftExcludedCount": 0,
       "marker": "[设定规划约束]",
-      "policyVersion": 2
+      "policyVersion": 2,
+      "budgetTrimmed": true,
+      "characterLineKept": true
     },
     "chapterProjection": {
-      "lockedCount": 2,
+      "lockedCount": 64,
       "draftExcludedCount": 0,
       "marker": "[章节规划约束]",
-      "policyVersion": 2
+      "policyVersion": 2,
+      "budgetTrimmed": true,
+      "characterLineKept": true
     },
     "bodyProjection": {
-      "lockedCount": 1,
+      "lockedCount": 63,
       "draftExcludedCount": 1,
       "marker": "[正文执行约束]",
-      "policyVersion": 2
+      "policyVersion": 2,
+      "budgetTrimmed": true,
+      "characterLineKept": true
+    },
+    "memoryConflictPriority": {
+      "conflictDetected": true,
+      "memoryKept": true,
+      "overridePrefixApplied": true,
+      "priorityNoteAppended": true,
+      "traceWarn": true
     },
     "homeProjection": {
       "marker": "[当前上下文设定]",
@@ -53,6 +73,6 @@
       "excludesDraftLinZhou": true
     }
   },
-  "heartbeatFrames": 4,
-  "heartbeatDurationMs": 3560
+  "heartbeatFrames": 5,
+  "heartbeatDurationMs": 4916
 }

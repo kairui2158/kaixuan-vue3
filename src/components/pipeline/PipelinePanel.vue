@@ -787,6 +787,21 @@ import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
 import { buildSettingsProjectionTraceEvent, getLockedSettingsForLayer } from "../../services/settingsProjection"
+import {
+  arbitratePipelineStyle,
+  buildStyleSemanticsTraceEvent,
+  settingsStyleLines,
+  withoutSettingsStyleText,
+  type StyleArbiterLayer
+} from "../../services/pipelineStyleArbiter"
+import { characterContextForStep } from "../../services/settingsCharacterContext"
+import {
+  applyLockedSettingsPriority,
+  appendPriorityNote,
+  buildContextConflictTraceEvent,
+  contextConflictScopeForLayer,
+  detectContextConflicts
+} from "../../services/contextConflictDetector"
 import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
 import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords } from "../../services/bodyArtifactContract"
@@ -2476,10 +2491,7 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
   const chIdx = selectedCh ? Math.max(0, chs.indexOf(selectedCh)) : -1
   const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
   const __sc = projectStore.getSettingsCollection()
-  const characters = getLockedSettingsForLayer('body', __sc).items
-    .filter(item => String(item.category).includes("人物"))
-    .map(item => item.name + "（" + item.text + "）")
-    .join("；")
+  const characters = characterContextForStep(step, __sc)
   const volumePlan = buildVolumePlanIntegrity({
     plannedVolumeCount: Math.max(1, Number(volumeCount.value) || 1),
     totalWords: Math.max(0, Math.round(bookWordCount.value * 10000)),
@@ -2527,22 +2539,39 @@ function resolveSkillTemplate(template: string, context: Record<string, any>): s
 }
 
 
-function getStyleContext(): string {
+function getSettingsGenerationStyleContext(): string {
   const style = pipelineStyleProfileEffective.value
   if (!style.injected) return ""
   return compileStyleContext("settings", style).text
 }
 
 function getVolumeStyleContext(): string {
-  return compileStyleContext("volume", pipelineStyleProfileEffective.value).text
+  const projection = getLockedSettingsForLayer('volume', projectStore.getSettingsCollection())
+  return compileArbitratedStyleContext('volume', projection)
 }
 
 function getChapterStyleContext(): string {
-  return compileStyleContext("chapter", pipelineStyleProfileEffective.value).text
+  const projection = getLockedSettingsForLayer('chapter', projectStore.getSettingsCollection())
+  return compileArbitratedStyleContext('chapter', projection)
 }
 
 function getBodyStyleContext(): string {
-  return compileStyleContext("body", pipelineStyleProfileEffective.value).text
+  const projection = getLockedSettingsForLayer('body', projectStore.getSettingsCollection())
+  return compileArbitratedStyleContext('body', projection)
+}
+
+function compileArbitratedStyleContext(layer: StyleArbiterLayer, projection: ReturnType<typeof getLockedSettingsForLayer>): string {
+  const profileStyleText = compileStyleContext(layer, pipelineStyleProfileEffective.value).text
+  const result = arbitratePipelineStyle({
+    layer,
+    profileStyleText,
+    settingsStyleLines: settingsStyleLines(projection),
+    profile: pipelineStyleProfileEffective.value
+  })
+  if (runTraceStore.currentRunId) {
+    runTraceStore.addEvent(runTraceStore.currentRunId, buildStyleSemanticsTraceEvent(layer, result, projection))
+  }
+  return result.text
 }
 
 async function analyzeOutline() {
@@ -3991,7 +4020,7 @@ async function genSettings() {
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定")
   try {
     trace.addEvent({ type: "prompt-built", level: "info", label: "设定层提示词已构建" })
-    const styleContext = getStyleContext()
+    const styleContext = getSettingsGenerationStyleContext()
     const prompt = "[已确认大纲]\n" + projectStore.pipelineOutlineText
       + (styleContext ? "\n\n[创作风格]\n" + styleContext : "")
       + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
@@ -4130,7 +4159,7 @@ async function genVolumes(mode: string) {
   try {
     const sc = projectStore.getSettingsCollection()
     const settingsProjection = getLockedSettingsForLayer('volume', sc)
-    const settingsText = settingsProjection.text
+    const settingsText = withoutSettingsStyleText(settingsProjection)
     trace.addEvent(buildSettingsProjectionTraceEvent('volume', settingsProjection))
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = previousVolumes.length
@@ -4418,7 +4447,7 @@ async function genChapters(mode: ChapterGenerationMode) {
     }
   const scForChapters = projectStore.getSettingsCollection()
     const settingsProjectionForChapters = getLockedSettingsForLayer('chapter', scForChapters)
-    const settingsTextForChapters = settingsProjectionForChapters.text
+    const settingsTextForChapters = withoutSettingsStyleText(settingsProjectionForChapters)
     trace.addEvent(buildSettingsProjectionTraceEvent('chapter', settingsProjectionForChapters))
   const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
   try {
@@ -4691,6 +4720,14 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         trimmed: memoryRetrieval.trimmed
       })
     })
+    const memoryText = memoryTextFromRetrieval(memoryRetrieval, 2000)
+    const conflictScope = contextConflictScopeForLayer('body')
+    const contextConflicts = memoryText && conflictScope.enabled
+      ? detectContextConflicts(settingsProjection, projectStore.memories)
+      : []
+    const priorityResult = applyLockedSettingsPriority(memoryText, contextConflicts)
+    const contextConflictEvent = buildContextConflictTraceEvent(contextConflicts)
+    if (contextConflictEvent) trace.addEvent(contextConflictEvent)
     const executionPackage = createChapterExecutionPackage({
       projectId: projectStore.currentProjectId,
       volume: vol,
@@ -4699,10 +4736,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       chapterIndex,
       outlineContent: projectStore.pipelineOutlineText,
       contextScope,
-      settings: settingsProjection.text ? [settingsProjection.text] : [],
+      settings: withoutSettingsStyleText(settingsProjection) ? [withoutSettingsStyleText(settingsProjection)] : [],
       styleContext: styleCtx,
       pacingContext: pacingCtx,
-      memoryContext: memoryTextFromRetrieval(memoryRetrieval, 2000),
+      memoryContext: priorityResult.memoryText,
       prevChapterSummary,
       sourceRefs: [
         projectStore.outlineLocked ? "outline:locked" : "outline:working",
@@ -4711,7 +4748,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       ]
     })
     ch.chapterExecutionPackage = executionPackage
-    const prompt = buildChapterExecutionPrompt(executionPackage)
+    const prompt = appendPriorityNote(
+      buildChapterExecutionPrompt(executionPackage),
+      priorityResult.priorityNote
+    )
     trace.addEvent({
       type: "prompt-built",
       level: "info",

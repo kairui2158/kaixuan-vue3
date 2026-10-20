@@ -56,6 +56,7 @@ describe('styleContextCompiler', () => {
 
   it('uses layer-specific sections for V2 profiles', () => {
     const chapter = compileStyleContext('chapter', v2Profile())
+    expect(chapter.text).toContain('一句话定位：用干净动作推进更大世界')
     expect(chapter.text).toContain('[声口]')
     expect(chapter.text).toContain('[句式模式]')
     expect(chapter.text).not.toContain('[场景写法]')
