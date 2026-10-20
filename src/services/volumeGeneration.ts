@@ -64,7 +64,7 @@ function promptHeader(input: VolumePromptInput): string {
   })
   return (
     '[大纲]\n' + input.outlineText +
-    '\n\n[设定]\n' + input.settingsText +
+    '\n\n' + (input.settingsText || '[设定规划约束]\n（暂无设定）') +
     (input.styleContext ? '\n\n[风格与节奏]\n' + input.styleContext : '') +
     '\n\n[卷数]\n' + input.effectiveVolumes +
     '\n\n[已生成卷数]\n' + plan.generatedVolumeCount +

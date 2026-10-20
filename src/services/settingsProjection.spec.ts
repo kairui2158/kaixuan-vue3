@@ -21,9 +21,17 @@ const collection = {
 }
 
 describe('settings projection', () => {
-  it('projects only locked cards for volume, chapter, and body layers', () => {
+  it('projects only locked cards with a distinct semantic header for each layer', () => {
+    const headers = {
+      volume: '[设定规划约束]',
+      chapter: '[章节规划约束]',
+      body: '[正文执行约束]'
+    } as const
     for (const layer of ['volume', 'chapter', 'body'] as const) {
       const projection = getLockedSettingsForLayer(layer, collection)
+      expect(projection.text.startsWith(headers[layer])).toBe(true)
+      expect(projection.blocks.length).toBeGreaterThan(0)
+      expect(projection.categoryDistribution).toEqual({ character: 1, scene: 2 })
       expect(projection.text).toContain('人物 - 王芳 - 幽默，风趣，话痨')
       expect(projection.text).toContain('场景 - 旧宅 - desc: 雨夜; 氛围: 压抑')
       expect(projection.text).not.toContain('林舟')
@@ -48,11 +56,30 @@ describe('settings projection', () => {
     expect(event.type).toBe('settings-projection-composed')
     expect(JSON.parse(event.detail)).toEqual({
       layer: 'volume',
+      policyVersion: 2,
       lockedCount: 3,
       draftExcludedCount: 1,
       projectionChars: projection.characterCount,
-      contentHash: projection.contentHash
+      contentHash: projection.contentHash,
+      categoryDistribution: { character: 1, scene: 2 },
+      includedReasons: ['locked:王芳', 'locked:旧宅', 'locked:码头'],
+      excludedReasons: [],
+      trimmedReasons: [],
+      warnings: []
     })
+  })
+
+  it('filters homepage context by query and falls back conservatively', () => {
+    const matched = getLockedSettingsForLayer('home', collection, { query: '王芳这章怎么说话' })
+    expect(matched.text.startsWith('[当前上下文设定]')).toBe(true)
+    expect(matched.text).toContain('人物 - 王芳 - 幽默，风趣，话痨')
+    expect(matched.text).not.toContain('旧宅')
+    expect(matched.excludedReasons).toContain('query_no_match:旧宅')
+
+    const fallback = getLockedSettingsForLayer('home', collection, { query: '完全无关的问题' })
+    expect(fallback.text).toContain('人物 - 王芳 - 幽默，风趣，话痨')
+    expect(fallback.text).toContain('场景 - 旧宅')
+    expect(fallback.warnings).toContain('home_projection_no_query_match_fallback_all_locked')
   })
 
   it('rejects unknown layers and handles empty collections', () => {

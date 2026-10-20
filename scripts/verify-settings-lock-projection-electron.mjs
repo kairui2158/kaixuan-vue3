@@ -165,10 +165,11 @@ function startProvider() {
       let reply = BODY_REPLY
       const isVolumePrompt = userText.includes('[大纲]') || userText.includes('[全书大纲]')
       const isChapterPrompt = userText.includes('[卷纲]')
-      if (isVolumePrompt && !isChapterPrompt && userText.includes('[设定]')) reply = buildVolumeReply(userText)
+      if (isVolumePrompt && !isChapterPrompt
+        && (userText.includes('[设定规划约束]') || userText.includes('[设定]'))) reply = buildVolumeReply(userText)
       else if (isChapterPrompt) reply = buildChapterReply(userText)
       else if (userText.includes('王芳在这章应该怎么说话？')
-        && (systemText.includes('当前上下文锁定设定') || userText.includes('人物 - 王芳'))) reply = HOME_REPLY
+        && (systemText.includes('[当前上下文设定]') || userText.includes('人物 - 王芳'))) reply = HOME_REPLY
       if (isIntentClassifier) {
         reply = JSON.stringify({ intent: 'discuss', confidence: 0.98, reason: '设定锁定投影按讨论语义分类' })
       }
@@ -446,6 +447,37 @@ function projectionEvents(run) {
   return (run?.events || []).filter(event => event.type === 'settings-projection-composed')
 }
 
+function batchAttemptEvents(run, type) {
+  return (run?.events || []).filter(event => event.type === type)
+}
+
+function assertSuccessfulVolumeRun(run) {
+  assert.equal(run?.status, 'success', `volume run must finish successfully, got ${run?.status}`)
+  const attempts = batchAttemptEvents(run, 'volume-batch-attempt').map(event => parseDetail(event.detail))
+  assert(attempts.length >= 1, `volume run records batch acceptance, got ${attempts.length}`)
+  const final = attempts[attempts.length - 1]
+  assert.equal(final.status, 'complete', `volume batch acceptance must complete, got ${JSON.stringify(final)}`)
+  assert.equal(final.acceptedCount, final.requestedCount,
+    `volume batch must accept every requested volume, got ${JSON.stringify(final)}`)
+}
+
+function assertSuccessfulChapterRun(run) {
+  assert.equal(run?.status, 'success', `chapter run must finish successfully, got ${run?.status}`)
+  const attempts = batchAttemptEvents(run, 'chapter-batch-attempt').map(event => parseDetail(event.detail))
+  assert(attempts.length >= 1, `chapter run records batch acceptance, got ${attempts.length}`)
+  const final = attempts[attempts.length - 1]
+  assert.equal(final.status, 'complete', `chapter batch acceptance must complete, got ${JSON.stringify(final)}`)
+  assert.equal(final.acceptedCount, final.requestedCount,
+    `chapter batch must accept every requested chapter, got ${JSON.stringify(final)}`)
+}
+
+function assertSuccessfulBodyRun(run) {
+  assert.equal(run?.status, 'success', `body run must finish successfully, got ${run?.status}`)
+  const acceptance = parseDetail((run?.events || []).find(event => event.type === 'body-step-acceptance')?.detail)
+  assert(acceptance?.decision === 'accept' && acceptance?.contractErrors?.length === 0,
+    `body step acceptance must pass, got ${JSON.stringify(acceptance)}`)
+}
+
 function startHeartbeat(page, electronPid) {
   let stopped = false
   const startedAtMs = Date.now()
@@ -568,11 +600,15 @@ async function archiveScenario(name, data) {
 }
 
 async function dumpHomeDiagnostics(page, provider) {
-  const snapshot = await page.evaluate(() => {
-    const chat = window.__pinia?._s?.get('chat')
-    const runTrace = window.__pinia?._s?.get('runTrace')
-    return {
-      chat: {
+    const snapshot = await page.evaluate(() => {
+      const chat = window.__pinia?._s?.get('chat')
+      const runTrace = window.__pinia?._s?.get('runTrace')
+      const homeRuns = (runTrace?.runs || []).filter(run => run?.source === 'home')
+      const runtimeErrorEvents = homeRuns.flatMap(run =>
+        (run?.events || []).filter(event => event?.type === 'turn-runtime-error'))
+      return {
+        runtimeErrorEvents,
+        chat: {
         activeSessionId: chat?.activeSessionId ?? null,
         activeSession: chat?.activeSession ?? null,
         activeMessages: chat?.activeMessages ?? [],
@@ -701,17 +737,22 @@ async function main() {
     assert(volumeRun, 'volume run trace exists')
     assert(volumeRequests.length >= 1, `volume request reaches provider, got ${volumeRequests.length}`)
     const volumePrompt = requestText(volumeRequests[0])
+    assertSuccessfulVolumeRun(volumeRun)
     assert(volumePrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       `volume prompt carries locked Wang Fang projection: ${volumePrompt.slice(-600)}`)
     assert(volumePrompt.includes('人物 - 林舟 - 沉默，冷静，行动派'),
       'volume prompt carries locked Lin Zhou projection')
-    assert(volumePrompt.includes('[设定]'), 'volume prompt uses the [设定] marker')
+    assert(volumePrompt.includes('[设定规划约束]'), 'volume prompt uses the planning semantics marker')
+    assert(volumePrompt.includes('[人物规划约束]'), 'volume prompt groups character constraints')
+    assert(!volumePrompt.includes('[正文执行约束]'), 'volume prompt does not carry body execution semantics')
     let volumeEvents = projectionEvents(volumeRun)
     assert(volumeEvents.length >= 1, `volume trace records projection event, got ${volumeEvents.length}`)
     let volumeProjection = parseDetail(volumeEvents[0].detail)
     assert.equal(volumeProjection.layer, 'volume', 'volume projection layer is recorded')
+    assert.equal(volumeProjection.policyVersion, 2, 'volume projection records the policy version')
     assert.equal(volumeProjection.lockedCount, 2, 'volume projection counts two locked settings')
     assert.equal(volumeProjection.draftExcludedCount, 0, 'volume projection excludes no draft after batch lock')
+    assert.deepEqual(volumeProjection.categoryDistribution, { character: 2 }, 'volume projection records category distribution')
     assert(volumeProjection.projectionChars > 0, 'volume projection records character count')
     assert(/^[0-9a-f]{8}$/.test(String(volumeProjection.contentHash)), 'volume projection records FNV hash')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-volume-generated.png'), fullPage: false })
@@ -730,15 +771,19 @@ async function main() {
     assert(chapterRun, 'chapter run trace exists')
     assert(chapterRequests.length >= 1, `chapter request reaches provider, got ${chapterRequests.length}`)
     const chapterPrompt = requestText(chapterRequests[0])
+    assertSuccessfulChapterRun(chapterRun)
     assert(chapterPrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       'chapter prompt carries locked Wang Fang projection')
     assert(chapterPrompt.includes('人物 - 林舟 - 沉默，冷静，行动派'),
       'chapter prompt carries locked Lin Zhou projection')
-    assert(chapterPrompt.includes('[设定]'), 'chapter prompt uses the [设定] marker')
+    assert(chapterPrompt.includes('[章节规划约束]'), 'chapter prompt uses the chapter planning semantics marker')
+    assert(chapterPrompt.includes('[出场人物约束]'), 'chapter prompt groups character constraints')
+    assert(!chapterPrompt.includes('[设定规划约束]'), 'chapter prompt does not carry volume planning semantics')
     const chapterEvents = projectionEvents(chapterRun)
     assert(chapterEvents.length >= 1, `chapter trace records projection event, got ${chapterEvents.length}`)
     const chapterProjection = parseDetail(chapterEvents[0].detail)
     assert.equal(chapterProjection.layer, 'chapter', 'chapter projection layer is recorded')
+    assert.equal(chapterProjection.policyVersion, 2, 'chapter projection records the policy version')
     assert.equal(chapterProjection.lockedCount, 2, 'chapter projection counts two locked settings')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-chapters-generated.png'), fullPage: false })
     await archiveScenario('chapter-layer', {
@@ -763,13 +808,18 @@ async function main() {
     assert(bodyRun, 'body run trace exists')
     assert(bodyRequests.length >= 1, `body request reaches provider, got ${bodyRequests.length}`)
     const bodyPrompt = requestText(bodyRequests[0])
+    assertSuccessfulBodyRun(bodyRun)
     assert(bodyPrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       'body prompt carries locked Wang Fang projection')
     assert(!bodyPrompt.includes('林舟'), 'body prompt excludes draft Lin Zhou')
+    assert(bodyPrompt.includes('[正文执行约束]'), 'body prompt uses the execution semantics marker')
+    assert(bodyPrompt.includes('[人物口吻与行为]'), 'body prompt groups character voice constraints')
+    assert(!bodyPrompt.includes('[设定规划约束]'), 'body prompt does not carry volume planning semantics')
     const bodyEvents = projectionEvents(bodyRun)
     assert(bodyEvents.length >= 1, `body trace records projection event, got ${bodyEvents.length}`)
     const bodyProjection = parseDetail(bodyEvents[0].detail)
     assert.equal(bodyProjection.layer, 'body', 'body projection layer is recorded')
+    assert.equal(bodyProjection.policyVersion, 2, 'body projection records the policy version')
     assert.equal(bodyProjection.lockedCount, 1, 'body projection counts one locked setting')
     assert.equal(bodyProjection.draftExcludedCount, 1, 'body projection excludes draft Lin Zhou')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-body-generated.png'), fullPage: false })
@@ -796,11 +846,17 @@ async function main() {
     const homeRun = await latestRun(page, 'home', '主页共创')
     const homeRequests = provider.requests()
     assert(homeRun, 'home run trace exists')
-    assert(homeRequests.length >= 1, `home request reaches provider, got ${homeRequests.length}`)
+    if (homeRequests.length < 1) {
+      const diagnostics = await dumpHomeDiagnostics(page, provider)
+      assert(false,
+        `home request reaches provider, got ${homeRequests.length}; diagnostics written to ${path.basename(EVIDENCE_ROOT)}${path.sep}home-diagnostics.json; generation=${JSON.stringify({ status: diagnostics.chat.generationStatus, message: diagnostics.chat.generationMessage })}; activeMessages=${JSON.stringify(diagnostics.chat.activeMessages.map(item => ({ role: item?.role, content: String(item?.content || '').slice(0, 160) })))}; homeEvents=${JSON.stringify((diagnostics.runTrace.runs.find(run => run?.source === 'home')?.events || []).map(event => ({ type: event?.type, level: event?.level, label: event?.label })))}`)
+    }
     const homePrompt = requestText(homeRequests[0])
+    assert(homePrompt.includes('[当前上下文设定]'), 'home prompt uses the co-creation semantics marker')
     assert(homePrompt.includes('人物 - 王芳 - 幽默，风趣，话痨'),
       'home prompt carries locked Wang Fang projection')
     assert(!homePrompt.includes('林舟'), 'home prompt excludes draft Lin Zhou')
+    assert(!homePrompt.includes('[正文执行约束]'), 'home prompt does not carry pipeline execution semantics')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'ui-home-projection.png'), fullPage: false })
     await archiveScenario('home-layer', {
       'trace-run.json': homeRun,
@@ -836,10 +892,10 @@ async function main() {
       assertions: {
         schemaMigration: { from: 3, to: 4, legacyIsBoundBecomesLocked: true, draftStaysDraft: true },
         lockLifecycle: { singleLock: true, singleUnlock: true, batchLock: true },
-        volumeProjection: { lockedCount: 2, draftExcludedCount: 0, marker: '[设定]' },
-        chapterProjection: { lockedCount: 2, draftExcludedCount: 0, marker: '[设定]' },
-        bodyProjection: { lockedCount: 1, draftExcludedCount: 1 },
-        homeProjection: { includesWangFang: true, excludesDraftLinZhou: true },
+        volumeProjection: { lockedCount: 2, draftExcludedCount: 0, marker: '[设定规划约束]', policyVersion: 2 },
+        chapterProjection: { lockedCount: 2, draftExcludedCount: 0, marker: '[章节规划约束]', policyVersion: 2 },
+        bodyProjection: { lockedCount: 1, draftExcludedCount: 1, marker: '[正文执行约束]', policyVersion: 2 },
+        homeProjection: { marker: '[当前上下文设定]', includesWangFang: true, excludesDraftLinZhou: true },
       },
       heartbeatFrames,
       heartbeatDurationMs,

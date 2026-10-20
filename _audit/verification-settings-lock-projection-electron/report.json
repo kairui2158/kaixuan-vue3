@@ -1,14 +1,14 @@
 {
   "schema": "shenyi.settings-lock-projection.electron",
   "version": 1,
-  "generatedAt": "2026-10-20T09:54:33.218Z",
+  "generatedAt": "2026-10-20T12:14:20.949Z",
   "script": "verify-settings-lock-projection-electron.mjs",
   "projectId": "settings-lock-projection",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "4ecfe341a58e",
-    "buildTime": "2026-10-20T09:54:05.145Z"
+    "commit": "4c92f350de0b",
+    "buildTime": "2026-10-20T12:10:19.595Z"
   },
   "hardRules": {
     "visibleElectron": true,
@@ -32,22 +32,27 @@
     "volumeProjection": {
       "lockedCount": 2,
       "draftExcludedCount": 0,
-      "marker": "[设定]"
+      "marker": "[设定规划约束]",
+      "policyVersion": 2
     },
     "chapterProjection": {
       "lockedCount": 2,
       "draftExcludedCount": 0,
-      "marker": "[设定]"
+      "marker": "[章节规划约束]",
+      "policyVersion": 2
     },
     "bodyProjection": {
       "lockedCount": 1,
-      "draftExcludedCount": 1
+      "draftExcludedCount": 1,
+      "marker": "[正文执行约束]",
+      "policyVersion": 2
     },
     "homeProjection": {
+      "marker": "[当前上下文设定]",
       "includesWangFang": true,
       "excludesDraftLinZhou": true
     }
   },
   "heartbeatFrames": 4,
-  "heartbeatDurationMs": 3401
+  "heartbeatDurationMs": 3560
 }

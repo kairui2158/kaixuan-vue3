@@ -1,6 +1,12 @@
 import type { RunTraceEventLevel } from '../stores/runTrace'
+import {
+  SETTINGS_PROJECTION_POLICY_VERSION,
+  assertSettingsProjectionLayer,
+  buildSettingsLayerProjection,
+  type SettingsProjectionContext
+} from './settingsLayerSemantics'
 
-export type SettingsProjectionLayer = 'volume' | 'chapter' | 'body'
+export type SettingsProjectionLayer = 'volume' | 'chapter' | 'body' | 'home'
 export type SettingsProjectionStatus = 'draft' | 'locked'
 
 export interface SettingsProjectionItem {
@@ -9,6 +15,8 @@ export interface SettingsProjectionItem {
   category?: string
   content?: unknown
   attrs?: Record<string, unknown>
+  keywords?: unknown
+  triggerKeywords?: unknown
   status?: unknown
   isBound?: unknown
   boundTo?: unknown
@@ -16,7 +24,14 @@ export interface SettingsProjectionItem {
 
 export interface SettingsProjection {
   text: string
-  items: Array<{ category: string; name: string; text: string }>
+  items: Array<{ category: string; name: string; text: string; keywords: string[] }>
+  blocks: Array<{ semanticCategory: string; label: string; lines: string[] }>
+  categoryDistribution: Record<string, number>
+  warnings: string[]
+  includedReasons: string[]
+  excludedReasons: string[]
+  trimmedReasons: string[]
+  policyVersion: number
   lockedCount: number
   draftCount: number
   characterCount: number
@@ -52,11 +67,10 @@ export function fnv1a32Hash(value: string): string {
 
 export function getLockedSettingsForLayer(
   layer: SettingsProjectionLayer,
-  collection: { categories?: unknown; items?: unknown }
+  collection: { categories?: unknown; items?: unknown },
+  context: SettingsProjectionContext = {}
 ): SettingsProjection {
-  if (layer !== 'volume' && layer !== 'chapter' && layer !== 'body') {
-    throw new Error(`Unsupported settings projection layer: ${layer}`)
-  }
+  assertSettingsProjectionLayer(layer)
   const categories = Array.isArray(collection?.categories) ? collection.categories.map(String) : []
   const itemsByCategory = collection?.items && typeof collection.items === 'object'
     ? collection.items as Record<string, unknown>
@@ -76,19 +90,22 @@ export function getLockedSettingsForLayer(
       }
       const text = itemText(item)
       if (!text) continue
-      projected.push({ category, name: String(item.name), text })
+      const keywords = [
+        ...(Array.isArray(item.triggerKeywords) ? item.triggerKeywords : []),
+        ...(Array.isArray(item.keywords) ? item.keywords : [])
+      ].map(keyword => String(keyword || '').trim()).filter(Boolean)
+      projected.push({ category, name: String(item.name), text, keywords })
     }
   }
-  const text = projected
-    .map(item => `${item.category} - ${item.name} - ${item.text}`)
-    .join('\n')
+  const semantic = buildSettingsLayerProjection(layer, projected, context)
   return {
-    text,
+    ...semantic,
+    policyVersion: SETTINGS_PROJECTION_POLICY_VERSION,
     items: projected,
     lockedCount: projected.length,
     draftCount,
-    characterCount: text.length,
-    contentHash: fnv1a32Hash(text)
+    characterCount: semantic.text.length,
+    contentHash: fnv1a32Hash(semantic.text)
   }
 }
 
@@ -102,10 +119,16 @@ export function buildSettingsProjectionTraceEvent(
     label: '设定锁定投影已组装',
     detail: JSON.stringify({
       layer,
+      policyVersion: projection.policyVersion,
       lockedCount: projection.lockedCount,
       draftExcludedCount: projection.draftCount,
       projectionChars: projection.characterCount,
-      contentHash: projection.contentHash
+      contentHash: projection.contentHash,
+      categoryDistribution: projection.categoryDistribution,
+      includedReasons: projection.includedReasons,
+      excludedReasons: projection.excludedReasons,
+      trimmedReasons: projection.trimmedReasons,
+      warnings: projection.warnings
     })
   }
 }

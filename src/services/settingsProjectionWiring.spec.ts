@@ -25,8 +25,14 @@ describe('settings lock projection wiring', () => {
   })
 
   it('uses the locked projection in the homepage chat context', () => {
-    expect(chatSource).toContain('getLockedSettingsForLayer')
+    expect(chatSource).toContain("getLockedSettingsForLayer('home'")
+    expect(chatSource).not.toContain('触发匹配的设定条目')
     expect(chatSource).not.toContain('isBound')
+  })
+
+  it('takes a local snapshot before traversing homepage chat history', () => {
+    expect(chatSource).toContain('const currentMessages = messages.value')
+    expect(chatSource).not.toMatch(/messages\.value\[[^\]]+\]/)
   })
 
   it('keeps card locking as the only settings truth in the pipeline UI', () => {

@@ -1,12 +1,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { formatUpstreamMetadata } from './chainExecution'
 import { buildFinalStepFeedback } from './finalStepFeedback'
 import { resolveFinalStepMetadataFlow } from './stepArtifactAcceptance'
 import { parseGenerationResult } from './generationResult'
 
-const TRACE_ROOT = 'C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-正文层-20261018-133836-standard'
+const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url))
+const TRACE_ROOT = path.join(REPO_ROOT, '_audit', 'verification-final-step-metadata-replay')
 const TRACE_PATH = path.join(TRACE_ROOT, 'run-trace.json')
 
 function eventDetail(trace: Record<string, unknown>, type: string): Record<string, unknown> {

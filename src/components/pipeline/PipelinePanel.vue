@@ -4456,7 +4456,7 @@ async function genChapters(mode: ChapterGenerationMode) {
       const historyFacts = buildChapterHistoryFacts(collected)
       const historyContext = renderChapterHistoryContext(historyFacts)
       const basePrompt = "[全书大纲]\n" + projectStore.pipelineOutlineText
-        + "\n\n[设定]\n" + (settingsTextForChapters || "（暂无设定）")
+        + "\n\n" + (settingsTextForChapters || "[章节规划约束]\n（暂无设定）")
         + "\n\n[卷纲]\n" + vol.name + " - " + volOutline
         + (styleCtxForChapters ? "\n\n[风格与节奏]\n" + styleCtxForChapters : "")
         + "\n\n[本卷总章数]\n" + totalChapters
@@ -4699,7 +4699,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       chapterIndex,
       outlineContent: projectStore.pipelineOutlineText,
       contextScope,
-      settings: settingsProjection.items.map(item => `${item.category} - ${item.name} - ${item.text}`),
+      settings: settingsProjection.text ? [settingsProjection.text] : [],
       styleContext: styleCtx,
       pacingContext: pacingCtx,
       memoryContext: memoryTextFromRetrieval(memoryRetrieval, 2000),

@@ -1063,3 +1063,12 @@
 - 验证：全量 180 files / 2065 tests、type-check、build:vue 全部通过；真实 Electron UI PASSED，覆盖迁移、单锁/解锁/批量锁、卷纲/章节/正文生成、首页对话投影。
 - 诚实边界：本地 OpenAI-compatible provider，非外部 live 矩阵；卷纲 `isBound` 业务语义保留；问题二未开工。
 - 封装：未升版、未打包，等待问题一用户验收。
+
+# 2026-10-20 设定层分层语义约束（问题二）
+
+- 文件：[_audit/DEV_LOG_2026-10-20_settings-layer-semantics.md](_audit/DEV_LOG_2026-10-20_settings-layer-semantics.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-20_settings-layer-semantics-plan.md](_audit/TASK_LEDGERS/2026-10-20_settings-layer-semantics-plan.md)
+- 方案：[_audit/PROPOSAL_2026-10-20_settings-layer-semantics.md](_audit/PROPOSAL_2026-10-20_settings-layer-semantics.md)
+- 范围：四层设定语义单源（卷纲规划、章节规划、正文执行、首页共创）、触发词旁路删除、trace 分类分布与入选/排除原因、正文接线分叉修复、首页消息快照崩溃修复、终步回放证据仓库化。
+- 验证：定向投影/接线/回放测试通过，回放 4/4；全量 180 files / 2067 tests、type-check、build:vue 全部通过；真实 Electron UI 最终轮 PASSED（schema 3→4、锁/解锁/批量锁、四层语义块、草稿排除、心跳 4 帧）。
+- 诚实边界：本地 OpenAI-compatible provider，非外部 live 矩阵；首页相关性为名称/关键词匹配；预算裁剪链路未触发；版本保持 3.100.0，未升版、未打包，等待问题二用户验收。

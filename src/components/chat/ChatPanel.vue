@@ -202,7 +202,7 @@ import { LONG_DOCUMENT_ACTIVE_TIMEOUT_MS } from '../../services/stateWatchdog'
 import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
-import { getLockedSettingsForLayer, settingsProjectionStatus } from '../../services/settingsProjection'
+import { getLockedSettingsForLayer } from '../../services/settingsProjection'
 import { conversationContextService, resolveEffectiveModelContextWindow } from '../../services/conversationContextService'
 import {
   buildSnapshot,
@@ -3241,45 +3241,18 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       if (toolText) systemParts.push('可用工具（调用格式：@工具名 {参数JSON}）：\n' + toolText)
     }
 
+    const currentMessages = messages.value
     const sc = projectStore.getSettingsCollection()
-    const settingsProjection = getLockedSettingsForLayer('body', sc)
-    if (settingsProjection.text) {
-      systemParts.push('当前上下文锁定设定：\n' + settingsProjection.text)
-    }
-
     const recentUserMsgs: string[] = []
-    for (let i = messages.value.length - 1; i >= 0 && recentUserMsgs.length < 3; i--) {
-      if (messages.value[i].role === 'user') recentUserMsgs.push((messages.value[i].content || '').toLowerCase())
+    for (let i = currentMessages.length - 1; i >= 0 && recentUserMsgs.length < 3; i--) {
+      const msg = currentMessages[i]
+      if (msg?.role === 'user') recentUserMsgs.push((msg.content || '').toLowerCase())
     }
-    if (recentUserMsgs.length > 0) {
-      const combined = recentUserMsgs.join(' ')
-      const matched: any[] = []
-      const sc2 = projectStore.getSettingsCollection()
-      if (sc2 && sc2.categories) {
-        for (const cat of sc2.categories) {
-          const items = sc2.items[cat] || []
-          for (const item of items) {
-            if (settingsProjectionStatus(item) !== 'locked') continue
-            const tkw = item.triggerKeywords || item.keywords || []
-            for (let k = 0; k < tkw.length; k++) {
-              if (tkw[k] && combined.indexOf(tkw[k].toLowerCase()) >= 0) {
-                matched.push(item)
-                break
-              }
-            }
-          }
-        }
-      }
-      if (matched.length > 0) {
-        let trigText = '触发匹配的设定条目：'
-        matched.forEach(mi => {
-          trigText += '\n【' + (mi.name || '') + '】(' + (mi.category || '') + ')'
-          const attrs = mi.attrs || {}
-          Object.keys(attrs).forEach(k => { trigText += '\n  ' + k + ': ' + attrs[k] })
-          if (mi.triggerKeywords) trigText += '\n  触发词: ' + mi.triggerKeywords.join(', ')
-        })
-        systemParts.push(trigText)
-      }
+    const settingsProjection = getLockedSettingsForLayer('home', sc, {
+      query: [text, ...recentUserMsgs].join(' ')
+    })
+    if (settingsProjection.text) {
+      systemParts.push(settingsProjection.text)
     }
 
     const activeTabForCtx = editorStore.activeTab
@@ -3301,9 +3274,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       wordsPerVolume: '',
       wordsPerChapter: ''
     }
-    for (let mi = messages.value.length - 1; mi >= 0; mi--) {
-      const mc = messages.value[mi]
-      if (mc.role === 'assistant' && mc.content && (mc.content as string).indexOf('请求失败') !== 0) {
+    for (let mi = currentMessages.length - 1; mi >= 0; mi--) {
+      const mc = currentMessages[mi]
+      if (mc?.role === 'assistant' && mc.content && (mc.content as string).indexOf('请求失败') !== 0) {
         chatCtx.prevResponse = mc.content
         break
       }
@@ -3601,7 +3574,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       // false success terminal state.
       if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_user')
     } else if (response) {
-      if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
+      const currentMessages = messages.value
+      const lastMessage = currentMessages[currentMessages.length - 1]
+      if (currentMessages.length === 0 || lastMessage?.role !== 'assistant') {
         chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
       }
     }
@@ -3622,7 +3597,8 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       const tip = consecutiveNoEditCount.value >= 3
         ? '连续多次未识别编辑指令。如需 AI 直接修改内容，请明确指示，例如「请重写第三段」或「在开头插入一段环境描写」。'
         : '本次回复未包含编辑操作。如需修改内容，请明确告诉 AI 要改什么。'
-      const lastMsg = messages.value[messages.value.length - 1]
+      const currentMessages = messages.value
+      const lastMsg = currentMessages[currentMessages.length - 1]
       if (lastMsg?.role === 'assistant') {
         chatStore.updateMessageContent(lastMsg.id, lastMsg.content + '\n\n---\n\n**提示：** ' + tip, chatStore.activeSessionId || undefined)
       }
@@ -3727,10 +3703,12 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
          }
        })
      }
-     if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
-       chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
-     } else if (response) {
-       chatStore.updateMessageContent(messages.value[messages.value.length - 1].id, response, chatStore.activeSessionId || undefined)
+     const currentMessages = messages.value
+     const lastMessage = currentMessages[currentMessages.length - 1]
+     if (currentMessages.length === 0 || lastMessage?.role !== 'assistant') {
+      chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
+    } else if (response && lastMessage) {
+      chatStore.updateMessageContent(lastMessage.id, response, chatStore.activeSessionId || undefined)
      }
     finishHomeRun(
       homeAgentTerminalStatus ?? 'success',
@@ -3746,14 +3724,23 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
      chatStore.setGenerationState('canceled', '已取消生成')
      finishHomeRun('canceled', '用户取消生成', undefined, 'user_cancel')
    } else {
-     const homeFailureMessage = homeSupervisorReason === 'stuck_timeout'
-       ? 'AI 请求无进展，已自动中止。请缩小问题范围、分段处理，或稍后重试。'
-       : homeSupervisorReason === 'hard_deadline'
-         ? '本轮工具任务超过总时间上限，已自动中止。请把长文档任务拆分为多轮处理。'
-         : homeSupervisorReason === 'repeated_tool_error'
-           ? '同一工具连续失败，已自动中止。请检查模型是否支持当前工具参数。'
-           : (e?.message || String(e))
-     closeActiveHomeApiCall('failed', homeFailureMessage)
+    const homeFailureMessage = homeSupervisorReason === 'stuck_timeout'
+      ? 'AI 请求无进展，已自动中止。请缩小问题范围、分段处理，或稍后重试。'
+      : homeSupervisorReason === 'hard_deadline'
+        ? '本轮工具任务超过总时间上限，已自动中止。请把长文档任务拆分为多轮处理。'
+        : homeSupervisorReason === 'repeated_tool_error'
+          ? '同一工具连续失败，已自动中止。请检查模型是否支持当前工具参数。'
+          : (e?.message || String(e))
+    const runtimeErrorStack = e instanceof Error ? e.stack : undefined
+    if (runtimeErrorStack) {
+      addHomeTraceEvent({
+        type: 'turn-runtime-error',
+        level: 'error',
+        label: '本轮运行时异常栈',
+        detail: runtimeErrorStack.slice(0, 20000),
+      })
+    }
+    closeActiveHomeApiCall('failed', homeFailureMessage)
      finishHomeTraceSession('failed', homeFailureMessage)
      removeEmptyAssistantMessage()
      lastFailedText.value = text
@@ -4723,8 +4710,9 @@ async function regenerateMessage(index: number) {
     await appConfirm.alert('正在生成中，请等待当前回复完成后再重生成')
     return
   }
-  const user = messages.value[index - 1]
-  const assistant = messages.value[index]
+  const currentMessages = messages.value
+  const user = currentMessages[index - 1]
+  const assistant = currentMessages[index]
   if (!user || user.role !== 'user' || !assistant || assistant.role !== 'assistant') {
     await appConfirm.alert('未找到这条回复对应的原始请求，无法重生成')
     return

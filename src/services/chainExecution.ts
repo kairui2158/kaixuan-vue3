@@ -47,7 +47,7 @@ const UPSTREAM_METADATA_HEADER = "--- 上一步结构化交接 ---"
 const FINAL_STEP_METADATA_HEADER = "--- 上一步结构化交接（终步账本） ---"
 const UPSTREAM_METADATA_MARKER = /【(?:来源覆盖|状态变化|交接清单|交接状态|正文交接|输出末尾元数据)】/g
 const OUTLINE_HEADER = "[大纲]"
-const OUTLINE_END_HEADERS = ["[设定]", "[绑定设定]", "[卷数]"]
+const OUTLINE_END_HEADERS = ["[设定]", "[绑定设定]", "[设定规划约束]", "[章节规划约束]", "[正文执行约束]", "[卷数]"]
 
 export function formatMemoryPrompt(memoryContext: unknown): string {
   const text = memoryContext == null ? "" : String(memoryContext).trim()

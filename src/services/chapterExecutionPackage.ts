@@ -155,7 +155,7 @@ export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage): strin
     : ""
   return outlineBlock
     + forbidden
-    + "\n\n[设定摘要]\n" + settings + style
+    + "\n\n" + (settings || "[正文执行约束]\n（暂无设定）") + style
     + "\n\n[当前卷概要]\n" + pkg.volume.name + " - " + pkg.volume.outline
     + prevChapter
     + "\n\n[当前章节剧情点]\n" + pkg.chapter.title + " - " + pkg.chapter.plot
