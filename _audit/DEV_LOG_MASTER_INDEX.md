@@ -1054,3 +1054,12 @@
 - 诚实边界：新反馈未做 Electron + 真实 API live 复跑，登记 `untested`；`chainHandoff.reason` 属 SKILL 层元数据缺口；reasoning per-step 配置化仍为登记项。
 - 经验裁决：保持 v8.16，不升 v8.17；本轮是既有 G2.9/G0.10/G1.19 门禁的执行收口，无新纪律缺陷。
 - 封装：升级 3.100.0；安装包 `dist/神意助手-Setup-3.100.0.exe`，231,551,270 bytes，SHA256 `7339303075759fcf68eccd1dc5985b729c21ee8959cd07ccf19bab23fcc304ab`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-100-0/packaging-evidence.json`；3.97.0 旧安装包与 blockmap 已清理。
+
+# 2026-10-20 设定卡片锁定状态单源化（问题一）
+
+- 文件：[_audit/DEV_LOG_2026-10-20_settings-lock-projection.md](_audit/DEV_LOG_2026-10-20_settings-lock-projection.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-20_settings-lock-projection.md](_audit/TASK_LEDGERS/2026-10-20_settings-lock-projection.md)
+- 范围：设定卡片 `status: draft | locked` 单源、schema 3→4 迁移、四层锁定投影、旧 `[绑定设定]` 重复通道删除、`settings-projection-composed` trace。
+- 验证：全量 180 files / 2065 tests、type-check、build:vue 全部通过；真实 Electron UI PASSED，覆盖迁移、单锁/解锁/批量锁、卷纲/章节/正文生成、首页对话投影。
+- 诚实边界：本地 OpenAI-compatible provider，非外部 live 矩阵；卷纲 `isBound` 业务语义保留；问题二未开工。
+- 封装：未升版、未打包，等待问题一用户验收。

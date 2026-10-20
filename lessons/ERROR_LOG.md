@@ -113,3 +113,86 @@
 - 修复方案：停止复杂内联命令，使用一次性 `_audit/p6_cleanup.cjs`，以绝对路径、工作区边界检查完成备份和删除；执行后删除该临时脚本。
 - 修复验证结果：两张 P6 临时截图均输出 `[OK] ... backed up and removed`；`test_evidence` 中不再有 `p6_*` 截图；业务源码未被清理。
 - 是否闭环：已修复。
+## 2026-10-20｜设定锁定投影｜Electron 预检断言使用被压缩的源码符号
+- 错误描述：真实 Electron 验证在启动前失败，提示 renderer bundle 缺少 `getLockedSettingsForLayer`。实际 bundle 已包含 `settings-projection-composed` 与投影实现，说明新代码已经进入构建产物。
+- 根因分析：Vite/Rollup 构建会压缩并重命名函数标识符，验证脚本用未压缩源码符号做断言；这是脚本断言缺陷，不是应用实现缺陷。新鲜度检查本应断言稳定产物特征而不是可被压缩的源码名。
+- 修复方案：预检断言改为同时检查稳定的 `settings-projection-composed` 事件类型和用户可见的 `设定锁定投影已组装` 标签，并继续保留旧通道 `[绑定设定]` 的反向断言。
+- 修复验证结果：`node scripts/verify-settings-lock-projection-electron.mjs` 输出 `===== SETTINGS LOCK PROJECTION ELECTRON PASSED =====`；`report.json` 记录 `homeProjection.includesWangFang=true`、`excludesDraftLinZhou=true`，首页 assistant 回复落入 `activeMessages`，`home-layer/provider-requests.json` 保留完整请求体。
+- 是否闭环：已修复。
+
+## 2026-10-20｜设定锁定投影｜旧通道反向断言误伤旧输出解析器
+- 错误描述：修正第一个预检后，脚本再次失败，提示 bundle 仍包含 `[绑定设定]`。
+- 根因分析：`src/services/chainExecution.ts:50` 保留 `[绑定设定]` 是为了截断旧 SKILL 输出回显，不是提示词注入通道；真正禁止的是 `绑定设定：` 这类重复 prompt 通道。反向断言粒度过粗，把合法兼容解析器当成了旧路径。
+- 修复方案：反向断言从 `[绑定设定]` 收窄为 `绑定设定：`，继续禁止旧注入通道，同时允许旧输出解析兼容存在。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜种子数据让“全卷生成”期望数归零
+- 错误描述：真实 UI 运行到卷纲层时，应用提示“无效卷纲契约：期望卷数必须大于 0”，mock provider 收到 0 次请求。迁移、锁定、解锁、批量锁定截图和心跳均已产生，说明前半段真实 UI 操作是有效的。
+- 根因分析：种子项目预置了 1 个已有卷，并把 `pipelineConfig.volumeCount` 设为 1。`genVolumes('auto')` 的契约是 `expectedCount = max(0, effectiveVolumes - existingCount)`，因此期望数合法地变成 0。验证脚本没有复现用户在 UI 中设置计划卷数大于已有卷数的动作，也没有先移除占位卷；这是测试设计缺陷，不是本任务投影链路缺陷。
+- 修复方案：在打开卷纲层后，通过真实 DOM 把 `#pl-volume-count` 设置为 2，让“全卷生成”仍需生成 1 卷；继续用真实按钮触发生成，不注入结果。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜mock 供应商端口未复现真实 chat 端点
+- 错误描述：卷纲层点击后进入生成，但批次最终为 0 卷；章节层同样只出现请求后得到 0 章，并触发标题历史重复告警。心跳显示状态在推进，不是 UI 卡死。
+- 根因分析：验证脚本把 mock baseUrl 指向服务器根路径。应用对 `openai-compatible` 供应商会按协议补 `/v1/chat/completions`，而本地 mock 只监听根路径，未按请求路径区分意图，也无法证明请求到达的是生成端点。测试环境与真实供应商协议形态不一致，属于脚本设计缺陷。
+- 修复方案：mock 服务器按真实路径 `/v1/chat/completions` 返回 OpenAI 兼容响应；provider 仍保持 `openai-compatible`，让 UI、供应商协议解析和 API 调用走同一条真实链路。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜mock 回复缺少批次契约必填字段
+- 错误描述：改为 `/v1/chat/completions` 后请求到达了真实生成链路，卷纲请求体里也完整出现王芳和林舟的锁定投影；但批次最终仍为 0 卷，并按修复策略重试多次。
+- 根因分析：当前卷纲契约要求每项包含 `readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk`。mock 回复仍是最早的 4 字段 JSON，验收器合法拒绝；同时 mock 卷名与既有卷相同，触发“不得重复已有卷名”。章节 mock 同理与历史标题重复。这仍是测试夹具不满足真实契约的问题，不是投影链路缺陷。
+- 修复方案：mock 回复补齐卷纲契约字段，卷名改为不重复的第二卷；章节标题改为“第2章 航行图”，并保持剧情内容能体现王芳的话痨风格。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜真实 UI 揭示批次夹具仍不满足输出契约
+- 错误描述：卷纲 mock 已补字段并改名后，请求正常到达 provider，但仍被验收器拒绝；章节层则从 0 章推进到 1 章后被判定“标题与历史重复”。
+- 根因分析：这不是锁定投影缺陷。真实 UI 比单测更能暴露夹具与真实批次契约的差距：卷纲生成被 orchestrator 以“返回产物不完整”拒绝，章节批次的“缺失第2章到第4章”与 mock 固定返回“第2章”无法一一对应。验证脚本使用静态 mock 承担动态批次生成场景，是脚本设计不足。
+- 修复方案：mock 改为按请求内容动态生成：从“补充生成第X卷到第Y卷”提取区间并生成对应卷；从“缺失第X章到第Y章”提取区间并生成对应章节；保证每轮名称不重复。保持真实 UI 点击与真实 API 请求不变。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜mock 意图识别未对齐真实批次指令
+- 错误描述：动态 mock 改造后，卷纲层仍 4 次 `api-success` 却 `acceptedCount: 0`；章节层首轮只接受 1 章，重试阶段反复报“章节标题与历史重复：第2章 航行图”。读取 `provider-requests.json` 证实：卷纲真实用户提示使用 `[大纲]` 标记，脚本只识别 `[全书大纲]`；章节首轮使用“生成第2章到第4章”，重试使用“补充生成第3章到第4章”，脚本却只解析“缺失第X章到第Y章”。
+- 根因分析：mock 的意图分支是按旧样例硬编码的，没有以真实 trace 中的请求文本为准；它把卷纲请求判成普通正文请求，把章节区间回退成固定“第2章 航行图”。这是验证夹具协议漂移，不是设定投影或批次验收器缺陷。
+- 修复方案：mock 以 `[大纲]` / `[全书大纲]` 两种真实标记识别卷纲；章节区间解析同时覆盖“生成第X章到第Y章”“补充生成第X章到第Y章”“缺失第X章到第Y章”。修复后必须重跑真实 Electron UI 验证。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜跨步骤后未恢复设定面板可见性
+- 错误描述：章节层批次失败后，脚本直接查找设定卡片中的“解锁林舟”按钮并超时；按钮存在但当前停留在章节步骤，设定列表不可见。
+- 根因分析：`clickSettingButton()` 假定设定步骤始终可见，没有在跨步骤操作后先导航回设定层。自动化脚本缺少 UI 状态收束，容易被误判为应用卡死。
+- 修复方案：跨步骤需要操作设定卡片时，先真实点击第 2 步并等待 `#pl-bound-settings-list` 可见，再执行锁定/解锁按钮点击。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜全屏流水线状态下重复点击侧栏按钮
+- 错误描述：章节层完成后，脚本准备回到设定层解锁林舟时超时；`#btn-pipeline` 可见且可点，但点击被全屏 `#pipeline-panel` 的 `.pl-header` 拦截。
+- 根因分析：`openPipelineSettings()` 无条件点击侧栏按钮；而面板已经处于打开状态时，侧栏按钮位于全屏遮罩之下。脚本缺少“面板已打开则只切换步骤”的状态分支，这是自动化导航缺陷，不是应用卡死。
+- 修复方案：先检查 `#pipeline-panel` 是否可见；已打开时直接切换到设定步骤，未打开时才点击 `#btn-pipeline`。后续退出流水线也改为真实点击 `#btn-close-pl`。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜mock 正文与首页回复不满足真实契约
+- 错误描述：卷纲、章节、正文三层的投影均已进入真实请求；卷纲与章节批次通过。但正文 mock 仅 29 字，被应用正确判定“不低于2100字”失败并触发 2 次修复。随后首页对话等待 150 秒超时；心跳显示 `home` run 已建立且有 1 次 API 调用，但聊天消息没有 assistant 内容。
+- 根因分析：正文夹具没有满足目标字数契约；首页 mock 依赖 system 文本 `当前上下文锁定设定`，但真实首页请求是把该段拼进多模态/多段 system 内容，且普通回答回复了散文，意图分类器返回 `discuss` 后应用没有把该内容作为用户可见 assistant 消息落盘。验证脚本把夹具缺陷与应用状态混在一起等待。
+- 修复方案：正文 mock 生成不低于 2100 字的合格正文；首页 mock 按用户问题 `王芳在这章应该怎么说话？` 与锁定设定共同识别，返回直接讨论回复。保留真实 DOM 输入、真实按钮发送与真实 API 请求。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜关闭按钮在窗口内不可点击
+- 错误描述：卷纲、章节、正文全部 `done` 后，脚本等待 `#btn-close-pl` 超时；按钮在 DOM 中，但当前窗口尺寸下没有进入可点击区域。
+- 根因分析：验证脚本使用固定 ID 定位关闭按钮，却没有考虑全屏面板头部操作按钮过多时的可见性/滚动约束。自动化脚本又把不可点击当成不存在。
+- 修复方案：关闭动作改用组件模板中真实的 `@click.self` 遮罩关闭语义，点击 `#pipeline-panel` 的左上空白遮罩区域，并等待面板 detached。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。
+
+## 2026-10-20｜设定锁定投影｜首页断言读取了不存在的 chat.messages 字段
+- 错误描述：首页请求已到达本地 provider，心跳显示 `home` run 建立、`apiCalls: 1`，但验证脚本等待 assistant 消息 150 秒超时，且 `home-layer/` 证据未生成。
+- 根因分析：`useChatStore` 是 setup store，只导出 `activeSessionId/activeSession/activeMessages/currentContext` 等字段，没有 `messages` 兼容字段。脚本断言读取 `chat.messages`，条件永远不可能满足；这是验证脚本对 Pinia 状态结构的误读，不是应用吞掉回复。此前未在超时时保存会话与 run 现场，导致只能靠代码推断。
+- 修复方案：首页断言改为读取 `chat.activeMessages`；新增 `dumpHomeDiagnostics()`，超时前把 active session、activeMessages、generation 状态、currentContext、runTrace 汇总和 provider 请求写入 `home-diagnostics.json`，确保后续失败不再只有心跳摘要。
+- 修复验证结果：待重跑 `node scripts/verify-settings-lock-projection-electron.mjs`。
+- 是否闭环：待修复。

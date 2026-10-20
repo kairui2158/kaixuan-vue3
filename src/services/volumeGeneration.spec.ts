@@ -9,7 +9,6 @@ import {
 const base = {
   outlineText: 'OUTLINE',
   settingsText: 'SETTINGS',
-  boundText: 'BOUND',
   effectiveVolumes: 5,
   totalWords: 5_000_000,
   allocatedSum: 1_000_000,

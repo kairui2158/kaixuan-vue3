@@ -121,13 +121,13 @@
                     :key="cat"
                     type="button"
                     class="pl-sc-cat-item"
-                    :class="{ active: selectedSettingCategory === cat, confirmed: isCategoryConfirmed(cat) }"
+                    :class="{ active: selectedSettingCategory === cat, confirmed: isCategoryLocked(cat) }"
                     role="tab"
                     :aria-selected="selectedSettingCategory === cat"
                     @click="selectedSettingCategory = cat"
                   >
                     <span class="pl-sc-cat-label">{{ cat }}</span>
-                    <AppIcon v-if="isCategoryConfirmed(cat)" name="check" class="pl-sc-cat-check" aria-hidden="true" />
+                    <AppIcon v-if="isCategoryLocked(cat)" name="check" class="pl-sc-cat-check" aria-hidden="true" />
                     <button v-else-if="cat !== '设定类'" type="button" class="pl-sc-cat-delete" aria-label="删除分类" @click.stop="deleteCategory(cat)"><AppIcon name="x" /></button>
                   </button>
                   <button id="btn-pl-add-cat" type="button" class="pl-sc-add-cat" data-tooltip="新增分类" @click="showAddCategory = true">+ 新增分类</button>
@@ -164,10 +164,10 @@
                         <button
                           type="button"
                           class="btn-sm"
-                          :class="s.isBound ? 'btn-primary' : 'btn-secondary'"
-                          @click.stop="toggleItemBinding(s)"
+                          :class="s.status === 'locked' ? 'btn-primary' : 'btn-secondary'"
+                          @click.stop="toggleSettingLock(s)"
                         >
-                          {{ s.isBound ? '解除绑定' : '绑定' }}
+                          {{ s.status === 'locked' ? '解锁' : '锁定' }}
                         </button>
                         <button
                           type="button"
@@ -192,8 +192,8 @@
 
                   <div class="pl-sc-category-actions">
                     <button type="button" class="btn-secondary" @click="openAddSettingModalForCategory">+ 该类新增</button>
-                    <button type="button" class="btn-secondary" @click="bindCategorySettings">一键绑定到全局</button>
-                    <button type="button" class="btn-primary" @click="confirmSettingCategory">{{ isCategoryConfirmed(selectedSettingCategory) ? '已完成' : '确认该类' }}</button>
+                    <button type="button" class="btn-secondary" @click="lockCategorySettings">锁定本类全部</button>
+                    <button type="button" class="btn-primary" @click="lockCategorySettings">{{ isCategoryLocked(selectedSettingCategory) ? '已完成' : '锁定该类' }}</button>
                   </div>
                 </section>
               </div>
@@ -786,6 +786,7 @@ import { reviewVolumeContractSemantics } from "../../services/contractReview"
 import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
+import { buildSettingsProjectionTraceEvent, getLockedSettingsForLayer } from "../../services/settingsProjection"
 import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
 import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords } from "../../services/bodyArtifactContract"
@@ -901,7 +902,6 @@ const showAddCategory = ref(false)
 const newCategoryName = ref("")
 const selectedSettingCategory = ref("")
 const selectedSettingId = ref("")
-const confirmedSettingCategories = ref<string[]>([])
 const settingsGenerationLogs = ref<string[]>([])
 const activeGenerationFeedbackStep = ref<1 | 2 | 3 | 4 | null>(null)
 const settingsGenerationFeedbackVisible = computed(() =>
@@ -1495,8 +1495,10 @@ function addCategory() {
   selectedSettingCategory.value = name
 }
 
-function isCategoryConfirmed(category: string) {
-  return confirmedSettingCategories.value.includes(category)
+function isCategoryLocked(category: string) {
+  const sc = projectStore.getSettingsCollection()
+  const items = sc.items[category] || []
+  return items.length > 0 && items.every((item: any) => item.status === 'locked')
 }
 
 function saveSettingItem(item: any) {
@@ -1552,28 +1554,19 @@ function openAddSettingModalForCategory() {
   newSettingCategory.value = category
 }
 
-function bindCategorySettings() {
+function lockCategorySettings() {
   const category = selectedSettingCategory.value
   if (!category) return
   const sc = projectStore.getSettingsCollection()
   const items = sc.items[category] || []
   for (const item of items) {
-    item.isBound = true
-    item.boundTo = Array.isArray(item.boundTo) && item.boundTo.length > 0 ? item.boundTo : ["pipeline"]
+    item.status = 'locked'
+    item.lockedAt = Date.now()
     item.updatedAt = Date.now()
   }
   projectStore.saveProject()
 }
 
-function confirmSettingCategory() {
-  const category = selectedSettingCategory.value
-  if (!category) return
-  if (!confirmedSettingCategories.value.includes(category)) {
-    confirmedSettingCategories.value.push(category)
-  }
-  projectStore.settingsGenerated = true
-  projectStore.saveProject()
-}
 
 function deleteCategory(cat: string) {
   const sc = projectStore.getSettingsCollection()
@@ -2482,18 +2475,11 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     : (getBodyChapterByVisibleIndex(contextVolumeIndex, bodyChapterIndex.value).chapter || getVisibleChaptersForVolume(contextVolumeIndex)[0] || null)
   const chIdx = selectedCh ? Math.max(0, chs.indexOf(selectedCh)) : -1
   const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
-  const characterSettings: any[] = []
   const __sc = projectStore.getSettingsCollection()
-  for (const __cat of __sc.categories) {
-    const __items = __sc.items[__cat] || []
-    characterSettings.push(...__items.filter((s: any) => String(__cat || "").includes("人物")))
-  }
-  const characters = characterSettings.map((s: any) => {
-    const attrs = s.attrs && typeof s.attrs === "object"
-      ? Object.keys(s.attrs).map((k: string) => k + ": " + String(s.attrs[k] ?? "")).join("; ")
-      : String(s.attrsText || "")
-    return (s.name || "") + (attrs ? "（" + attrs + "）" : "")
-  }).join("；")
+  const characters = getLockedSettingsForLayer('body', __sc).items
+    .filter(item => String(item.category).includes("人物"))
+    .map(item => item.name + "（" + item.text + "）")
+    .join("；")
   const volumePlan = buildVolumePlanIntegrity({
     plannedVolumeCount: Math.max(1, Number(volumeCount.value) || 1),
     totalWords: Math.max(0, Math.round(bookWordCount.value * 10000)),
@@ -2540,40 +2526,6 @@ function resolveSkillTemplate(template: string, context: Record<string, any>): s
   return template
 }
 
-function getBoundSettingsText(): string {
-  const bindings: Record<string, string[]> = {}
-  const __sc2 = projectStore.getSettingsCollection()
-  for (const __cat of __sc2.categories) {
-    const __items = __sc2.items[__cat] || []
-    for (const __item of __items) {
-      if (__item.isBound && __item.name) {
-        bindings[__item.name] = __item.boundTo || []
-      }
-    }
-  }
-  const lines: string[] = []
-  const seen = new Set<string>()
-  for (const bKey of Object.keys(bindings)) {
-    if (seen.has(bKey)) continue
-    seen.add(bKey)
-    const __sc3 = projectStore.getSettingsCollection()
-      let s: any = null
-      for (const __cat of __sc3.categories) {
-        const __items = __sc3.items[__cat] || []
-        s = __items.find((x: any) => x.name === bKey)
-        if (s) break
-      }
-    if (!s) continue
-    const attrs =
-      s.attrs && typeof s.attrs === "object"
-        ? Object.keys(s.attrs)
-            .map((k) => k + ": " + String(s.attrs[k] ?? ""))
-            .join("; ")
-        : String(s.attrsText || "")
-    lines.push((s.category || "其他") + " - " + s.name + (attrs ? " (" + attrs + ")" : ""))
-  }
-  return lines.join("\n")
-}
 
 function getStyleContext(): string {
   const style = pipelineStyleProfileEffective.value
@@ -3992,8 +3944,8 @@ function confirmAddSetting() {
     category: cat,
     content: newSettingAttrs.value,
     attrs: { desc: newSettingAttrs.value },
-    isBound: false,
-    boundTo: [],
+    status: 'draft',
+    lockedAt: null,
     createdAt: Date.now(),
     updatedAt: Date.now()
   })
@@ -4005,14 +3957,11 @@ function cancelAddSetting() {
   showAddSettingModal.value = false
 }
 
-function toggleItemBinding(item: any) {
+function toggleSettingLock(item: any) {
   if (!item) return
-  item.isBound = !item.isBound
-  if (item.isBound && (!item.boundTo || item.boundTo.length === 0)) {
-    item.boundTo = ['pipeline']
-  } else if (!item.isBound) {
-    item.boundTo = []
-  }
+  item.status = item.status === 'locked' ? 'draft' : 'locked'
+  item.lockedAt = item.status === 'locked' ? Date.now() : null
+  item.updatedAt = Date.now()
   projectStore.saveProject()
 }
 
@@ -4089,8 +4038,8 @@ async function genSettings() {
           category: cat,
           content: (item.attrsText || (item.attrs ? JSON.stringify(item.attrs) : "")),
           attrs: item.attrs || { desc: (item.attrsText || "") },
-          isBound: false,
-          boundTo: [],
+          status: 'draft',
+          lockedAt: null,
           createdAt: Date.now(),
           updatedAt: Date.now()
         })
@@ -4180,13 +4129,9 @@ async function genVolumes(mode: string) {
   let volumeArtifactDelivered = false
   try {
     const sc = projectStore.getSettingsCollection()
-    const allItems: any[] = []
-    for (const cat of sc.categories) {
-      const items = sc.items[cat] || []
-      allItems.push(...items)
-    }
-    const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
-    const boundText = getBoundSettingsText()
+    const settingsProjection = getLockedSettingsForLayer('volume', sc)
+    const settingsText = settingsProjection.text
+    trace.addEvent(buildSettingsProjectionTraceEvent('volume', settingsProjection))
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = previousVolumes.length
     const totalWords = Math.max(0, Math.round(bookWordCount.value * 10000))
@@ -4218,7 +4163,6 @@ async function genVolumes(mode: string) {
       mode: mode as VolumeGenerateMode,
       outlineText: projectStore.pipelineOutlineText,
       settingsText,
-      boundText,
       effectiveVolumes,
       totalWords,
       allocatedSum: volumePlan.allocatedWords,
@@ -4472,14 +4416,10 @@ async function genChapters(mode: ChapterGenerationMode) {
     if (styleCtxForChapters) {
       chapterGenerationLogs.value.push("已注入风格与节奏上下文")
     }
-    const scForChapters = projectStore.getSettingsCollection()
-    const allSettings: any[] = []
-    for (const cat of scForChapters.categories) {
-      const items = scForChapters.items[cat] || []
-      allSettings.push(...items)
-    }
-    const settingsTextForChapters = allSettings.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
-    const boundSettingsTextForChapters = getBoundSettingsText()
+  const scForChapters = projectStore.getSettingsCollection()
+    const settingsProjectionForChapters = getLockedSettingsForLayer('chapter', scForChapters)
+    const settingsTextForChapters = settingsProjectionForChapters.text
+    trace.addEvent(buildSettingsProjectionTraceEvent('chapter', settingsProjectionForChapters))
   const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
   try {
     const planned = planChapterGeneration({ mode, generatedCount: collected.length, totalChapters, batchSize: batch })
@@ -4517,7 +4457,6 @@ async function genChapters(mode: ChapterGenerationMode) {
       const historyContext = renderChapterHistoryContext(historyFacts)
       const basePrompt = "[全书大纲]\n" + projectStore.pipelineOutlineText
         + "\n\n[设定]\n" + (settingsTextForChapters || "（暂无设定）")
-        + (boundSettingsTextForChapters ? "\n\n[绑定设定]\n" + boundSettingsTextForChapters : "")
         + "\n\n[卷纲]\n" + vol.name + " - " + volOutline
         + (styleCtxForChapters ? "\n\n[风格与节奏]\n" + styleCtxForChapters : "")
         + "\n\n[本卷总章数]\n" + totalChapters
@@ -4667,16 +4606,11 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   try {
     bodyGenerationLogs.value.push("正在构建章节执行包…")
     const sc = projectStore.getSettingsCollection()
-    const allItems: any[] = []
-    for (const cat of sc.categories) {
-      const items = sc.items[cat] || []
-      allItems.push(...items)
-    }
-    bodyGenerationLogs.value.push("已加载设定 " + allItems.length + " 项，准备调用 API")
+    const settingsProjection = getLockedSettingsForLayer('body', sc)
+    trace.addEvent(buildSettingsProjectionTraceEvent('body', settingsProjection))
+    bodyGenerationLogs.value.push("已加载锁定设定 " + settingsProjection.lockedCount + " 项，准备调用 API")
     bodyGenerationLogs.value.push("降AI方法论已注入（17条生成约束，仅正文层生效）")
     pipelineStore.updateProgress(20, "API 生成正文中（已注入降AI约束）")
-    const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
-    const boundText = getBoundSettingsText()
     const styleCtx = getBodyStyleContext()
     const pacingCtx = pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.pacingParams : ""
     const bodyVolId = volId ?? (vol.id || vol.name)
@@ -4765,8 +4699,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       chapterIndex,
       outlineContent: projectStore.pipelineOutlineText,
       contextScope,
-      settings: allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)),
-      boundSettings: boundText,
+      settings: settingsProjection.items.map(item => `${item.category} - ${item.name} - ${item.text}`),
       styleContext: styleCtx,
       pacingContext: pacingCtx,
       memoryContext: memoryTextFromRetrieval(memoryRetrieval, 2000),

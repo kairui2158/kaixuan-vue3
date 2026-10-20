@@ -1,0 +1,351 @@
+{
+  "id": "run-1792490070831-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "settings-lock-projection",
+  "projectName": "设定锁定投影真实UI实测",
+  "providerId": "settings-lock-provider",
+  "providerName": "Settings Lock Provider",
+  "model": "settings-lock-model",
+  "skillNames": [],
+  "skillMode": "compose",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "4ecfe341a58e",
+    "buildTime": "2026-10-20T09:54:05.145Z"
+  },
+  "startedAt": 1792490070831,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "all_volumes_generation_complete",
+      "recordedAt": 1792490070907
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1792490070832-2",
+      "ts": 1792490070832,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1792490070832-3",
+      "ts": 1792490070832,
+      "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"volume\",\"lockedCount\":2,\"draftExcludedCount\":0,\"projectionChars\":38,\"contentHash\":\"0e70301d\"}"
+    },
+    {
+      "id": "event-1792490070833-4",
+      "ts": 1792490070833,
+      "seq": 3,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":88000,\"remainingVolumes\":1,\"currentVolumeBudget\":88000,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1792490070856-6",
+      "ts": 1792490070856,
+      "seq": 4,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"settings-lock-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792490070858-8",
+      "ts": 1792490070858,
+      "seq": 5,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1792490070858-9",
+      "ts": 1792490070858,
+      "seq": 6,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792490070858-7",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792490070859-10",
+      "ts": 1792490070859,
+      "seq": 7,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / settings-lock-model"
+    },
+    {
+      "id": "event-1792490070885-11",
+      "ts": 1792490070885,
+      "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / settings-lock-model / stop"
+    },
+    {
+      "id": "event-1792490070885-12",
+      "ts": 1792490070885,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792490070887-13",
+      "ts": 1792490070887,
+      "seq": 10,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1792490070888-14",
+      "ts": 1792490070888,
+      "seq": 11,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792490070856-5 seq=1"
+    },
+    {
+      "id": "event-1792490070888-15",
+      "ts": 1792490070888,
+      "seq": 12,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / settings-lock-model"
+    },
+    {
+      "id": "event-1792490070890-16",
+      "ts": 1792490070890,
+      "seq": 13,
+      "type": "volume-batch-attempt",
+      "level": "info",
+      "label": "卷纲批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":0,\"errors\":[]}"
+    },
+    {
+      "id": "event-1792490070906-17",
+      "ts": 1792490070906,
+      "seq": 14,
+      "type": "volume-batch-validated",
+      "level": "info",
+      "label": "卷纲批次验收通过",
+      "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1792490070906-18",
+      "ts": 1792490070906,
+      "seq": 15,
+      "type": "write",
+      "level": "info",
+      "label": "卷纲已写入项目",
+      "detail": "写入 1 卷"
+    },
+    {
+      "id": "event-1792490070907-19",
+      "ts": 1792490070907,
+      "seq": 16,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "all_volumes_generation_complete"
+    },
+    {
+      "id": "event-1792490070907-20",
+      "ts": 1792490070907,
+      "seq": 17,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "all_volumes_generation_complete / run=run-1792490070831-1"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792490070856-5",
+      "seq": 1,
+      "step": 2,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "settings-lock-provider",
+      "providerName": "Settings Lock Provider",
+      "model": "settings-lock-model",
+      "temperature": 0.1,
+      "maxTokens": 8192,
+      "requestMessages": [
+        {
+          "role": "system",
+          "content": "你是专业小说创作助手。"
+        },
+        {
+          "role": "user",
+          "content": "[大纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[设定]\n人物 - 王芳 - 幽默，风趣，话痨\n人物 - 林舟 - 沉默，冷静，行动派\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n100000字\n\n[已生成卷事实清单]\n第1卷《第一卷 雨夜》\n分配字数：12000\n摘要：雨夜中的灯塔纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+        }
+      ],
+      "responseText": "[{\"name\":\"第二卷 灯塔之后\",\"outline\":\"风暴过后，王芳把灯塔里的第2条线索拼进航行图。\",\"summary\":\"王芳揭开纸条背后的第2段航线。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到王芳用幽默化解紧张，并确认航线。\",\"mainPlotLine\":\"灯塔线索指向南方渔港。\",\"unlockMilestone\":\"航行图第2段完整展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+      "streamText": "[{\"name\":\"第二卷 灯塔之后\",\"outline\":\"风暴过后，王芳把灯塔里的第2条线索拼进航行图。\",\"summary\":\"王芳揭开纸条背后的第2段航线。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到王芳用幽默化解紧张，并确认航线。\",\"mainPlotLine\":\"灯塔线索指向南方渔港。\",\"unlockMilestone\":\"航行图第2段完整展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}][{\"name\":\"第二卷 灯塔之后\",\"outline\":\"风暴过后，王芳把灯塔里的第2条线索拼进航行图。\",\"summary\":\"王芳揭开纸条背后的第2段航线。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到王芳用幽默化解紧张，并确认航线。\",\"mainPlotLine\":\"灯塔线索指向南方渔港。\",\"unlockMilestone\":\"航行图第2段完整展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+      "reasoningText": "",
+      "status": "success",
+      "startedAt": 1792490070856,
+      "physicalCalls": [
+        {
+          "id": "physical-1792490070858-7",
+          "physicalCallId": "physical-1792490070857-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "你是专业小说创作助手。"
+            },
+            {
+              "role": "user",
+              "content": "[大纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。\n\n[设定]\n人物 - 王芳 - 幽默，风趣，话痨\n人物 - 林舟 - 沉默，冷静，行动派\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n100000字\n\n[已生成卷事实清单]\n第1卷《第一卷 雨夜》\n分配字数：12000\n摘要：雨夜中的灯塔纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+            }
+          ],
+          "responseText": "[{\"name\":\"第二卷 灯塔之后\",\"outline\":\"风暴过后，王芳把灯塔里的第2条线索拼进航行图。\",\"summary\":\"王芳揭开纸条背后的第2段航线。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到王芳用幽默化解紧张，并确认航线。\",\"mainPlotLine\":\"灯塔线索指向南方渔港。\",\"unlockMilestone\":\"航行图第2段完整展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+          "streamText": "[{\"name\":\"第二卷 灯塔之后\",\"outline\":\"风暴过后，王芳把灯塔里的第2条线索拼进航行图。\",\"summary\":\"王芳揭开纸条背后的第2段航线。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到王芳用幽默化解紧张，并确认航线。\",\"mainPlotLine\":\"灯塔线索指向南方渔港。\",\"unlockMilestone\":\"航行图第2段完整展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+          "reasoningText": "",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 12,
+            "outputTokens": 24,
+            "totalTokens": 36
+          },
+          "usageUnavailable": false,
+          "startedAt": 1792490070858,
+          "durationMs": 28,
+          "firstTokenMs": 25,
+          "outputMs": 3,
+          "endedAt": 1792490070885,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": 8192,
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 222,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 222 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 222,
+            "actualInputTokens": 12,
+            "driftRatio": -0.9459459459459459,
+            "correctedRatio": 0.05405405405405406
+          },
+          "firstContentAt": 1792490070882,
+          "lastContentAt": 1792490070882,
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1792490070886,
+      "lastStreamActivityAt": 1792490070886,
+      "finishReason": "stop",
+      "durationMs": 26,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 28,
+        "firstTokenSumMs": 25,
+        "outputSumMs": 3,
+        "minFirstTokenMs": 25,
+        "maxFirstTokenMs": 25,
+        "localOverheadMs": -2
+      },
+      "usage": {
+        "inputTokens": 12,
+        "outputTokens": 24,
+        "totalTokens": 36
+      },
+      "usageUnavailable": false,
+      "endedAt": 1792490070887,
+      "semantic": {
+        "conversationId": "run-1792490070831-1",
+        "usage": {
+          "inputTokens": 12,
+          "outputTokens": 24,
+          "totalTokens": 36
+        }
+      }
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "stepPhaseTiming": {
+    "validation": 0,
+    "persistence": 15
+  },
+  "dirName": "run-trace-卷纲层-20261020-175430",
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 28,
+    "firstTokenSumMs": 25,
+    "outputSumMs": 3,
+    "localOverheadSumMs": -2,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 25,
+    "outputSumMs": 3,
+    "validationSumMs": 0,
+    "persistenceSumMs": 15,
+    "repeatedPromptBlocks": {},
+    "contextChars": 604,
+    "outputChars": 267,
+    "physicalDurationSumMs": 28
+  },
+  "endedAt": 1792490070907,
+  "durationMs": 76
+}

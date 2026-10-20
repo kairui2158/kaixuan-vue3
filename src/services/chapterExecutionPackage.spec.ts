@@ -11,7 +11,6 @@ describe("chapter execution package", () => {
       chapterIndex: 2,
       outlineContent: "全书大纲",
       settings: ["角色 - 林舟"],
-      boundSettings: "场景 - 旧宅",
       styleContext: "克制",
       pacingContext: "三段递进",
       memoryContext: "已埋下纸条伏笔",
@@ -26,7 +25,6 @@ describe("chapter execution package", () => {
       chapter: { id: "c1", index: 2, title: "雨夜", plot: "发现纸条", summary: "发现纸条", wordCount: 3000 },
       outlineContent: "全书大纲",
       settings: ["角色 - 林舟"],
-      boundSettings: "场景 - 旧宅",
       styleContext: "克制",
       pacingContext: "三段递进",
       memoryContext: "已埋下纸条伏笔",
@@ -57,7 +55,6 @@ describe("chapter execution package", () => {
       chapter: { title: "雨夜", plot: "发现纸条" },
       outlineContent: "全书大纲",
       settings: ["角色 - 林舟"],
-      boundSettings: "旧宅",
       styleContext: "克制",
       memoryContext: "纸条伏笔",
       contextScope: {

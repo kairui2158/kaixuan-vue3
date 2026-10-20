@@ -1,0 +1,53 @@
+{
+  "schema": "shenyi.settings-lock-projection.electron",
+  "version": 1,
+  "generatedAt": "2026-10-20T09:54:33.218Z",
+  "script": "verify-settings-lock-projection-electron.mjs",
+  "projectId": "settings-lock-projection",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "4ecfe341a58e",
+    "buildTime": "2026-10-20T09:54:05.145Z"
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realDomClicks": "#pl-bound-settings-list .pl-setting-card button / .pl-sc-category-actions button",
+    "storageUsedOnlyForSeedData": true,
+    "providerRequestsPersisted": true,
+    "noInjectionImpersonation": true
+  },
+  "assertions": {
+    "schemaMigration": {
+      "from": 3,
+      "to": 4,
+      "legacyIsBoundBecomesLocked": true,
+      "draftStaysDraft": true
+    },
+    "lockLifecycle": {
+      "singleLock": true,
+      "singleUnlock": true,
+      "batchLock": true
+    },
+    "volumeProjection": {
+      "lockedCount": 2,
+      "draftExcludedCount": 0,
+      "marker": "[设定]"
+    },
+    "chapterProjection": {
+      "lockedCount": 2,
+      "draftExcludedCount": 0,
+      "marker": "[设定]"
+    },
+    "bodyProjection": {
+      "lockedCount": 1,
+      "draftExcludedCount": 1
+    },
+    "homeProjection": {
+      "includesWangFang": true,
+      "excludesDraftLinZhou": true
+    }
+  },
+  "heartbeatFrames": 4,
+  "heartbeatDurationMs": 3401
+}

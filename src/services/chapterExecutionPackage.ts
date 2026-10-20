@@ -33,7 +33,6 @@ export interface ChapterExecutionPackage {
   }
   outlineContent: string
   settings: string[]
-  boundSettings: string
   styleContext: string
   pacingContext: string
   memoryContext: string
@@ -50,7 +49,6 @@ export interface ChapterExecutionPackageInput {
   outlineContent?: unknown
   contextScope?: unknown
   settings?: unknown[]
-  boundSettings?: unknown
   styleContext?: unknown
   pacingContext?: unknown
   memoryContext?: unknown
@@ -131,7 +129,6 @@ export function createChapterExecutionPackage(input: ChapterExecutionPackageInpu
     },
     outlineContent: text(input.outlineContent),
     settings: list(input.settings),
-    boundSettings: text(input.boundSettings),
     styleContext: text(input.styleContext),
     pacingContext: text(input.pacingContext),
     memoryContext: text(input.memoryContext),
@@ -145,7 +142,6 @@ export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage): strin
     throw new Error("正文上下文闭包为空，禁止回退全书大纲")
   }
   const settings = pkg.settings.join("\n")
-  const bound = pkg.boundSettings ? "\n\n[绑定设定]\n" + pkg.boundSettings : ""
   const style = pkg.styleContext || pkg.pacingContext
     ? "\n\n[风格与节奏分析]\n" + [pkg.styleContext, pkg.pacingContext].filter(Boolean).join("\n")
     : ""
@@ -159,7 +155,7 @@ export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage): strin
     : ""
   return outlineBlock
     + forbidden
-    + "\n\n[设定摘要]\n" + settings + bound + style
+    + "\n\n[设定摘要]\n" + settings + style
     + "\n\n[当前卷概要]\n" + pkg.volume.name + " - " + pkg.volume.outline
     + prevChapter
     + "\n\n[当前章节剧情点]\n" + pkg.chapter.title + " - " + pkg.chapter.plot

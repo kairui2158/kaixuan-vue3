@@ -33,7 +33,7 @@ function toPlain(value: unknown): unknown {
 }
 
 // P0-2: 项目数据版本号 + 链式迁移
-const CURRENT_SCHEMA_VERSION = 3
+const CURRENT_SCHEMA_VERSION = 4
 
 function migrateProjectData(data: any): any {
   let v = data.schemaVersion || 0
@@ -54,6 +54,21 @@ function migrateProjectData(data: any): any {
     if (!Array.isArray(data.memories.sourceVersions)) data.memories.sourceVersions = []
     data.memories = normalizeMemories(data.memories)
     v = 3
+  }
+  if (v < 4) {
+    if (data.settingsCollection && data.settingsCollection.items && typeof data.settingsCollection.items === 'object') {
+      for (const category of Object.keys(data.settingsCollection.items)) {
+        const items = data.settingsCollection.items[category]
+        if (!Array.isArray(items)) continue
+        for (const item of items) {
+          if (!item || typeof item !== 'object') continue
+          const wasBound = item.status === 'locked' || item.isBound === true || (Array.isArray(item.boundTo) && item.boundTo.length > 0)
+          item.status = wasBound ? 'locked' : 'draft'
+          item.lockedAt = wasBound ? (Number(item.lockedAt) || Date.now()) : null
+        }
+      }
+    }
+    v = 4
   }
   data = migrateVolumeIds(data)
   data.schemaVersion = v
@@ -524,9 +539,9 @@ export const useProjectStore = defineStore('project', () => {
   const settings = ref<any[]>([])
   const volumes = ref<any[]>([])
   const chapters = ref<Record<string, any[]>>({})
-  const projectList = ref<any[]>([])
-  const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
-  const settingBindings = ref<Record<string, string[]>>({})
+ const projectList = ref<any[]>([])
+ const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
+ const schemaVersion = ref(CURRENT_SCHEMA_VERSION)
   const pipelineConfig = ref<{ volumeCount: number; volumeWords: number; chapterWords: number }>({ volumeCount: 3, volumeWords: 100000, chapterWords: 3500 })
   const memories = ref<MemoryData>(createDefaultMemories())
   const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
@@ -702,6 +717,7 @@ export const useProjectStore = defineStore('project', () => {
     resetProjectState()
     if (data) {
       data = migrateProjectData(data)
+      schemaVersion.value = Number(data.schemaVersion) || CURRENT_SCHEMA_VERSION
     projectName.value = readProjectName(data)
      outlineText.value = data.outlineText || ''
      outlineLocked.value = data.outlineLocked || false
@@ -721,15 +737,14 @@ export const useProjectStore = defineStore('project', () => {
     volumes.value = (data.volumes || []).map((vol: any) => {
       return vol
     })
-     chapters.value = data.chapters || {}
-     settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
-     settingBindings.value = data.settingBindings || {}
+    chapters.value = data.chapters || {}
+    settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
     memories.value = normalizeMemories(data.memories)
     memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
     aiNaming.value = normalizeAiNaming(data.aiNaming)
     styleProfile.value = normalizeStyleProfile(data.styleProfile)
      outlineChat.value = data.outlineChat || []
-     editorBookmarks.value = Array.isArray(data.editorBookmarks)
+    editorBookmarks.value = Array.isArray(data.editorBookmarks)
        ? data.editorBookmarks.filter((item: any) => item && typeof item.id === 'string' && typeof item.documentId === 'string')
        : []
      const rawMemories = data.memories || {}
@@ -740,9 +755,11 @@ export const useProjectStore = defineStore('project', () => {
      if (needsMemoryUpgrade) {
        saveProject()
      }
-     if (!data.projectName && projectName.value) {
-       saveProject()
-     }
+    if (!data.projectName && projectName.value) {
+      saveProject()
+    }
+    } else {
+      schemaVersion.value = CURRENT_SCHEMA_VERSION
     }
   }
 
@@ -771,8 +788,7 @@ export const useProjectStore = defineStore('project', () => {
       settings: toPlain(settings.value),
       volumes: toPlain(volumes.value),
       chapters: toPlain(chapters.value),
-      settingBindings: toPlain(settingBindings.value),
-      settingsCollection: toPlain(settingsCollection.value),
+     settingsCollection: toPlain(settingsCollection.value),
       memories: toPlain(memories.value),
       memoryBlacklist: toPlain(memoryBlacklist.value),
      aiNaming: toPlain(aiNaming.value),
@@ -1412,8 +1428,8 @@ export const useProjectStore = defineStore('project', () => {
           category: cat,
           content: contentMig,
           attrs: attrsMig,
-          isBound: !!s.isBound || (s.settingBindings && s.settingBindings.length > 0) || false,
-          boundTo: (s.boundTo && s.boundTo.length) ? s.boundTo : (s.isBound ? ['pipeline'] : []),
+          status: (s.isBound === true || (Array.isArray(s.settingBindings) && s.settingBindings.length > 0)) ? 'locked' : 'draft',
+          lockedAt: (s.isBound === true || (Array.isArray(s.settingBindings) && s.settingBindings.length > 0)) ? Date.now() : null,
           createdAt: Date.now(),
           updatedAt: Date.now()
         })
@@ -1430,8 +1446,11 @@ export const useProjectStore = defineStore('project', () => {
       const arr = settingsCollection.value.items[cat] || []
       for (const it of arr) {
         if (it.category !== cat) it.category = cat
-        if (it.isBound === undefined) it.isBound = false
-        if (!it.boundTo) it.boundTo = []
+        if (it.status !== 'draft' && it.status !== 'locked') {
+          it.status = it.isBound === true ? 'locked' : 'draft'
+        }
+        if (it.status === 'locked' && !it.lockedAt) it.lockedAt = Date.now()
+        if (it.status !== 'locked') it.lockedAt = null
       }
     }
     migrateSettingsToCollection()
@@ -1463,8 +1482,8 @@ export const useProjectStore = defineStore('project', () => {
         attrs: item.attrs && typeof item.attrs === 'object' && !Array.isArray(item.attrs)
           ? item.attrs
           : { '描述': item.attrsText || item.content || '' },
-        isBound: false,
-        boundTo: [],
+        status: 'draft',
+        lockedAt: null,
         createdAt: Date.now(),
         updatedAt: Date.now()
       })
@@ -1489,7 +1508,7 @@ export const useProjectStore = defineStore('project', () => {
     volumes.value = []
     chapters.value = {}
     settingsCollection.value = { categories: [], items: {} }
-    settingBindings.value = {}
+    schemaVersion.value = CURRENT_SCHEMA_VERSION
     pipelineConfig.value = { volumeCount: 3, volumeWords: 100000, chapterWords: 3500 }
     memories.value = createDefaultMemories()
     memoryBlacklist.value = []
@@ -1497,6 +1516,7 @@ export const useProjectStore = defineStore('project', () => {
     styleProfile.value = createDefaultStyleProfile()
     outlineChat.value = []
     editorBookmarks.value = []
+    schemaVersion.value = CURRENT_SCHEMA_VERSION
   }
 
   function clearCurrent() {
@@ -1582,7 +1602,7 @@ export const useProjectStore = defineStore('project', () => {
     syncTreeToPipeline, refreshTree, setVolumes, setChapters, updateVolume,
     confirmVolumes() { volumesConfirmed.value = true; saveProject() },
     confirmChapters() { chaptersConfirmed.value = true; saveProject() },
-    settingsCollection, getSettingsCollection, ensureSettingsCollection, appendSettingsToCollection, settingBindings,
+    schemaVersion, settingsCollection, getSettingsCollection, ensureSettingsCollection, appendSettingsToCollection,
     pipelineConfig,
     memories, addMemoryCategory, addMemory, updateMemory, deleteMemory,
     addEntity, updateEntity, deleteEntity, mergeEntities, lockEntityField, unlockEntityField,

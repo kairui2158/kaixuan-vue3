@@ -202,6 +202,7 @@ import { LONG_DOCUMENT_ACTIVE_TIMEOUT_MS } from '../../services/stateWatchdog'
 import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
+import { getLockedSettingsForLayer, settingsProjectionStatus } from '../../services/settingsProjection'
 import { conversationContextService, resolveEffectiveModelContextWindow } from '../../services/conversationContextService'
 import {
   buildSnapshot,
@@ -3241,21 +3242,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     }
 
     const sc = projectStore.getSettingsCollection()
-    if (sc && sc.categories && sc.categories.length > 0) {
-      let setText = '当前上下文设定：'
-      for (const cat of sc.categories) {
-        const items = sc.items[cat] || []
-        for (const item of items) {
-          if (item.isBound) {
-            setText += '\n【' + (item.name || '') + '】(' + (item.category || cat || '通用') + ')'
-            const attrs = item.attrs || {}
-            Object.keys(attrs).forEach(k => { setText += '\n  ' + k + ': ' + attrs[k] })
-          }
-        }
-      }
-      if (setText !== '当前上下文设定：') {
-        systemParts.push(setText)
-      }
+    const settingsProjection = getLockedSettingsForLayer('body', sc)
+    if (settingsProjection.text) {
+      systemParts.push('当前上下文锁定设定：\n' + settingsProjection.text)
     }
 
     const recentUserMsgs: string[] = []
@@ -3270,6 +3259,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         for (const cat of sc2.categories) {
           const items = sc2.items[cat] || []
           for (const item of items) {
+            if (settingsProjectionStatus(item) !== 'locked') continue
             const tkw = item.triggerKeywords || item.keywords || []
             for (let k = 0; k < tkw.length; k++) {
               if (tkw[k] && combined.indexOf(tkw[k].toLowerCase()) >= 0) {
@@ -3369,16 +3359,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       const sc3 = projectStore.getSettingsCollection()
       if (sc3 && sc3.categories) {
         const charNames: string[] = []
-        for (const cat of sc3.categories) {
-          const items = sc3.items[cat] || []
-          for (const item of items) {
-            if (String(item.category || cat).includes('人物')) {
-              const attrsStr = item.attrs && typeof item.attrs === 'object'
-                ? Object.keys(item.attrs).map((k: string) => k + ': ' + String(item.attrs[k] ?? '')).join('; ')
-                : String(item.content || '')
-              charNames.push((item.name || '') + (attrsStr ? '（' + attrsStr + '）' : ''))
-            }
-          }
+        for (const item of getLockedSettingsForLayer('body', sc3).items) {
+          if (!String(item.category).includes('人物')) continue
+          charNames.push(item.name + '（' + item.text + '）')
         }
         chatCtx.characters = charNames.join('；')
       }

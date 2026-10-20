@@ -4488,8 +4488,8 @@ function parseDecomposedSettings(raw: string | null) {
       category: cat,
       content: item.content || '',
       attrs: item.attrs || { 描述: item.content || '' },
-      isBound: false,
-      boundTo: [],
+      status: 'draft',
+      lockedAt: null,
       createdAt: Date.now(),
       updatedAt: Date.now()
     })

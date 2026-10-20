@@ -257,3 +257,39 @@ describe('project store style profile', () => {
     expect(store.styleProfileEffective.injected).toBe(false)
   })
 })
+
+describe('project store settings lock migration', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    storageWrite.mockClear()
+    storageRead.mockClear()
+    vi.stubGlobal('window', {
+      electronAPI: { storageWrite, storageRead, storageRemove, storageList },
+    })
+  })
+
+  it('migrates legacy isBound settings to locked status at schema version 4', async () => {
+    const store = useProjectStore()
+    store.currentProjectId = 'test-settings-migration'
+    storageRead.mockResolvedValueOnce({
+      schemaVersion: 3,
+      projectName: '设定迁移',
+      settingsCollection: {
+        categories: ['人物'],
+        items: {
+          人物: [
+            { id: 's1', name: '王芳', category: '人物', content: '话痨', isBound: true, boundTo: ['pipeline'] },
+            { id: 's2', name: '林舟', category: '人物', content: '冷静', isBound: false, boundTo: [] }
+          ]
+        }
+      }
+    })
+
+    await store.loadProject('test-settings-migration')
+
+    const collection = store.getSettingsCollection()
+    expect(collection.items['人物'][0]).toMatchObject({ status: 'locked', lockedAt: expect.any(Number) })
+    expect(collection.items['人物'][1]).toMatchObject({ status: 'draft', lockedAt: null })
+    expect(store.schemaVersion).toBe(4)
+  })
+})
