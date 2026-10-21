@@ -3059,6 +3059,14 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
+  if (step === 4 && !currentBodyChainContract.value && templates.length > 1) {
+    recordBodyChainConfigurationError(
+      runTraceStore.currentRunId,
+      'body-chain-contract-missing',
+      { totalSteps: templates.length }
+    )
+    throw new Error('正文链缺少契约：多步正文链必须在生成前提供正文契约')
+  }
   await hydrateFolderTemplates(templates, step)
   const mode = getStepSkillMode(step)
   const skillNames = templates.map((t) => t.name).filter(Boolean);
@@ -3558,6 +3566,17 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         }
         const isFinalBodyStep = bodyStepContext && si === templates.length - 1
         if (isFinalBodyStep) {
+          if (!authoritativeGeneratorMetadata && templates.length > 1) {
+            recordBodyChainConfigurationError(
+              runTraceStore.currentRunId,
+              'body-generator-ledger-missing',
+              {
+                totalSteps: templates.length,
+                stepIndex: si
+              }
+            )
+            throw new Error('正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付')
+          }
           const finalGeneration = parseGenerationResult(stepOutput)
           const finalStepFlow = resolveFinalStepMetadataFlow({
             finalMetadata: finalGeneration.metadata,
@@ -3975,6 +3994,22 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     result = artifactFlow.downstreamPayload || ''
   }
   return result
+}
+
+function recordBodyChainConfigurationError(
+  runId: string | null,
+  type: 'body-chain-contract-missing' | 'body-generator-ledger-missing',
+  detail: Record<string, unknown>
+) {
+  if (!runId) return
+  runTraceStore.addEvent(runId, {
+    type,
+    level: 'error',
+    label: type === 'body-chain-contract-missing'
+      ? '正文链缺少契约，已终止'
+      : '正文生成步账本缺失，已终止',
+    detail: JSON.stringify(detail)
+  })
 }
 
 function openAddSettingModal() {
@@ -4860,6 +4895,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         }
         bodyAttemptMetadataState.authoritativeGeneratorMetadata = null
         bodyAttemptMetadataState.finalStepFlow = null
+        const bodyChainTotalSteps = getStepSkillTemplates(4).length
+        if (bodyChainTotalSteps > 1 && !bodyChainContract) {
+          throw new Error('正文链缺少契约：多步正文链必须在生成前提供正文契约')
+        }
         return runStepSkills(
           4,
           requestPrompt,
@@ -4875,7 +4914,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
                 label: '正文生成步骤无法唯一识别',
                 detail: JSON.stringify({
                   reason: 'generator_not_identified',
-                  totalSteps: getStepSkillTemplates(4).length
+                  totalSteps: bodyChainTotalSteps
                 })
               })
             }

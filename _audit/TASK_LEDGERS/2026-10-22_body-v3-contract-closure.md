@@ -56,11 +56,17 @@
 - 验证：`npm run type-check` → exit 0。
 - 验证：`npm run test:services` → 188 files / 2124 tests passed。
 - 作者反证：历史 trace 回放证明受控合并不吞 `status/sourceRefs/coveredItems/【来源覆盖】`，同时清除 `无法核对` 占位并回填 3500/2800 契约；后处理失败不再能以 `complete` 状态交付。
+- Phase 4 RED：`npm run test:services -- src/services/ownerBreakpointClosureWiring.spec.ts` → 1 failed，断言字面量与真实机制不匹配（helper 用 `type` 参数，且实现使用 `templates.length/bodyChainTotalSteps`）。
+- Phase 4 语义收窄：终步 generator 账本 guard 补 `templates.length > 1`。该 guard 位于 `mode === "chain" && templates.length > 1` 循环内，单步 compose 走 `composeArtifactContext` 自建 generator 验收，不被强制多步账本语义误伤。
+- Phase 4 验证：`npm run test:services -- src/services/ownerBreakpointClosureWiring.spec.ts` → 10 tests passed。
+- Phase 4 验证：`npm run type-check` → exit 0。
+- Phase 4 验证：`npm run test:services` → 188 files / 2125 tests passed。
+- Phase 5 对账：`schemaRetryFeedback.ts/spec.ts` 已由 `4ecfe341` 落地；测试断言 `not.toContain(candidate)`、无 `<<<上一版候选输出开始>>>`，并输出锚点/有界预览/抑制字符数。本分支不重复改动，只修正台账状态。
 
 ## 7. 缺口清单
 
 - Phase 1-3 已完成并全量验证。
-- Phase 4（无契约静默放行与 generator ledger 正文终步阻断语义）待开工。
-- Phase 5（schema retry 反馈不携带候选全文）待开工。
+- Phase 4（无契约静默放行与 generator ledger 正文终步阻断语义）已实现并全量验证，待提交。
+- Phase 5（schema retry 反馈不携带候选全文）已由历史提交 `4ecfe341` 完成，本轮经全量测试确认未回归。
 - Phase 6（降AI提示词与 SKILL 分权）待开工。
 - Phase 7（真实 trace 双语义回放 + Electron UI 硬门禁）待开工。
