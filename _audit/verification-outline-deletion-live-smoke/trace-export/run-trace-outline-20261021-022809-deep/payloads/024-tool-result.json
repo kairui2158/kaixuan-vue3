@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 197,
+    "volumeCount": 0,
+    "chapterCount": 0,
+    "sectionCount": 0,
+    "reorderTopLevelIds": [
+      "heading-1-ilcnzy"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "degradedReason": null,
+    "mapText": "大纲结构地图：卷 0，章 0，节 0，总计 197 字\n解析模式：标准标题层级\n- [heading-1-ilcnzy] 星潮旧港 (0-197, 190字)\n  - [paragraph-gap-2] 内容块 2 (7-8, 1字)\n  - [heading-2-1inqdja] 第一章 灯下旧约 (8-67, 47字)\n  - [heading-2-o53r8y] 第二章 雨夜追踪 (67-148, 69字)\n  - [heading-2-i285th] 第三章 潮汐之后 (148-197, 37字)",
+    "structureIdentity": "structure-xhrlvk",
+    "totalLines": 7,
+    "offset": 0,
+    "limit": 160,
+    "hasMore": false,
+    "next_steps": [
+      "用节点 id 调用 outline.read_range 读取局部全文",
+      "用 outline.search 查找关键词所在节点"
+    ]
+  }
+}

@@ -10,6 +10,7 @@ import type { CallAiParams, CallAiResult, PhysicalCallEvent } from './aiService'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import { createEditorTools, ToolGateway } from './editorTools'
 import { createEditorTargetSnapshot } from './editorTarget'
+import { createToolRunBudget } from './toolRunBudget'
 
 const plan: AgentOrchestratorPlan = {
   goal: '整理长文档',
@@ -37,12 +38,14 @@ describe('AgentOrchestrator state machine', () => {
   }
 
   it('completes when round verdict says complete', async () => {
+    const callAi = vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult)
     const runtime: AgentOrchestratorRuntime = {
-      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      callAi,
     }
     const agent = new AgentOrchestrator({ plan, runtime })
     const result = await agent.run(runInput)
     expect(result.status).toBe('completed')
+    expect(runtime.callAi).toHaveBeenCalledTimes(1)
     expect(result.text).toBe('已完成整理')
     expect(agent.getEvents().some(event => event.type === 'state' && event.label.includes('completed'))).toBe(true)
   })
@@ -209,6 +212,39 @@ describe('AgentOrchestrator state machine', () => {
     expect(result.status).toBe('completed')
     expect(result.reason).toBe('completion criteria satisfied')
     expect(runtime.callAi).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses the supplied live tool budget instead of rebuilding a second budget', async () => {
+    const content = '第一段：旧句。'
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '在文末追加一段总结',
+      content,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('direct')
+    const liveBudget = createToolRunBudget({ plan: executionPlan })
+    liveBudget.recordToolCall('read')
+
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      evaluateRound: () => ({ progress: true, complete: true, reason: 'budget identity test' }),
+      document: {
+        content,
+        operationType: 'targeted-edit',
+        executionPlan,
+      },
+      toolRunBudgetInstance: liveBudget,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+    const snapshot = agent.getSnapshot()
+
+    expect(result.status).toBe('completed')
+    expect(snapshot.maxPhysicalRequests).toBe(52)
+    expect(snapshot.toolRunBudget?.readToolCalls).toBe(1)
+    expect(liveBudget.snapshot().readToolCalls).toBe(1)
   })
 
   it('does not complete a write task when only part of the planned writes succeed', async () => {

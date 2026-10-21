@@ -11,8 +11,8 @@ import type { EditorTargetSnapshot } from './editorTarget'
 describe('getReadCapChars', () => {
   it('uses the shared provider/model read-cap policy', () => {
     expect(getReadCapChars({ contextWindowTokens: 1_000_000 }, 'unknown-model')).toBe(20_000)
-    expect(getReadCapChars({ contextWindowTokens: 'not-a-number' }, 'unknown-model')).toBe(12_000)
-    expect(getReadCapChars(undefined, 'unknown-model')).toBe(12_000)
+    expect(getReadCapChars({ contextWindowTokens: 'not-a-number' }, 'unknown-model')).toBe(20_000)
+    expect(getReadCapChars(undefined, 'unknown-model')).toBe(20_000)
   })
 })
 
@@ -94,10 +94,10 @@ describe('buildContextPack', () => {
     const pack = buildContextPack(target)
 
     expect(pack?.workspace).toBe('outline')
-    expect(pack?.mode).toBe('packed')
-    expect(pack?.content).toContain('[大纲结构地图]')
-    expect(pack?.content).toContain('[当前焦点全文]')
-    expect(pack?.content).toContain('第一')
+    expect(pack?.mode).toBe('full')
+    expect(pack?.pipeline.windowDeclared).toBe(false)
+    expect(pack?.pipeline.availableContextTokens).toBeNull()
+    expect(pack?.content).toContain('第一卷 起势')
   })
 
   it('keeps short main documents full and packs long ones', () => {

@@ -27,11 +27,11 @@ const BATCH_SIZE = 5
 const SKILL_ROOT = path.resolve('D:/codex/玄武规划SKILL/L4-章节层')
 const SKILL_FOLDERS = ['l4-s1', 'l4-s2', 'l4-s3', 'l4-s4']
 const CREDENTIAL_PROFILE = path.join(ROOT, '_data', 'outline-lock-override-live-replay-profile')
-const STEP_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_STEP_TIMEOUT_MS || 10 * 60_000)
-const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_GLOBAL_TIMEOUT_MS || 2 * 60 * 60_000)
+const STEP_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_STEP_TIMEOUT_MS || 45 * 60_000)
+const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_GLOBAL_TIMEOUT_MS || 3 * 60 * 60_000)
 const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_HEARTBEAT_INTERVAL_MS || 10_000)
-const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_STALLED_TIMEOUT_MS || 3 * 60_000)
-const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_DEAD_TIMEOUT_MS || 10 * 60_000)
+const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_STALLED_TIMEOUT_MS || 5 * 60_000)
+const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_DEAD_TIMEOUT_MS || 15 * 60_000)
 const KEEP_PROFILE = process.env.SHENYI_CHAPTER_CONTRACT_KEEP_PROFILE === '1'
 const { safeStorage } = require('electron')
 
@@ -64,6 +64,7 @@ function assertFreshRendererBuild() {
     }
   }
   collectSources(path.join(ROOT, 'src'))
+  collectSources(path.join(ROOT, 'electron'))
   const newestSourceMs = Math.max(...sourceFiles.map(file => fs.statSync(file).mtimeMs))
   const staleBundles = bundleNames.filter(name =>
     fs.statSync(path.join(ROOT, 'dist-renderer', name)).mtimeMs < newestSourceMs)
@@ -342,6 +343,17 @@ function currentRunSnapshot(page) {
       isGenerating: Boolean(pipeline?.isGenerating),
       chapterCount: (project?.chapters?.['vol-live-contract'] || []).length,
       lastLog: (window.__pinia?._s?.get('executionLog')?.logs || []).at(-1)?.message || null,
+      callActivity: [...(store?.runs || [])]
+        .filter(item => item.source === 'pipeline' && item.step === 3)
+        .sort((a, b) => b.startedAt - a.startedAt)[0]
+        ?.apiCalls.map(call => ({
+          status: call.status,
+          durationMs: call.durationMs || null,
+          responseChars: String(call.responseText || call.streamText || '').length,
+          reasoningChars: String(call.reasoningText || '').length,
+          lastStreamActivityAgoMs: call.lastStreamActivityAt ? Date.now() - call.lastStreamActivityAt : null,
+          lastExecutionActivityAgoMs: call.lastExecutionActivityAt ? Date.now() - call.lastExecutionActivityAt : null
+        })) || [],
     }
   })
 }
@@ -475,7 +487,7 @@ function collectPayloadStrings(value, output = []) {
 }
 
 function assertExportedRun({ run, payloads }) {
-  assert.equal(run.schemaVersion, 16, 'exported run uses runTrace schema v16')
+  assert.equal(run.schemaVersion, 19, 'exported run uses the current runTrace schema v19')
   assert.equal(run.status, 'success', 'chapter-layer run ends in success')
   assert.equal(run.step, 3, 'run is the chapter-layer pipeline run')
   const validated = (run.events || []).filter(event => event.type === 'chapter-batch-validated')
@@ -517,6 +529,124 @@ function assertExportedRun({ run, payloads }) {
   }
 
   assert(run.step === 3, 'run keeps the chapter-layer step identity')
+
+  const parseEventDetail = event => {
+    try { return JSON.parse(String(event.detail || '{}')) } catch { return {} }
+  }
+  const countArbitration = (run.events || []).find(event => event.type === 'chapter-count-arbitration')
+  assert(countArbitration, 'chapter-count arbitration decision is present in the live trace')
+  const countContract = parseEventDetail(countArbitration)
+  assert.equal(countContract.totalChapters, TOTAL_CHAPTERS,
+    `chapter count uses one contract source, got total=${countContract.totalChapters}`)
+  assert(['volume_outline_declared', 'configured_chapter_count', 'word_estimate']
+    .includes(countContract.source), `chapter count source is valid: ${countContract.source}`)
+  assert.equal(countContract.wordEstimatedCount, TOTAL_CHAPTERS,
+    'word estimate agrees with the contract count in this seeded scenario')
+  assert(!countContract.conflict,
+    `seeded chapter count has no conflict, got: ${countContract.message}`)
+  assert.equal(countContract.source, 'configured_chapter_count',
+    `seeded scenario prefers the configured chapter count, got ${countContract.source}`)
+  assert(!((run.events || []).some(event => event.type === 'chapter-count-arbitration-failed')),
+    'chapter count arbitration does not fail during the live run')
+
+  const slimDecisions = (run.events || [])
+    .filter(event => event.type === 'chain-context-slim')
+    .map(event => parseEventDetail(event))
+  const nonPrimarySlim = slimDecisions.filter(item => item.isPrimaryConsumer === false)
+  assert(nonPrimarySlim.length > 0, 'non-primary chain hops emit context-slim decisions')
+  for (const decision of nonPrimarySlim) {
+    if (decision.reason === 'scaffold_not_smaller') {
+      assert.equal(decision.finalPromptLength, decision.originalPromptLength,
+        `non-primary hop keeps the original prompt when the scaffold is larger (${decision.originalPromptLength} -> ${decision.scaffoldCandidateLength})`)
+      assert(Number.isFinite(decision.scaffoldCandidateLength) &&
+        decision.scaffoldCandidateLength > decision.originalPromptLength,
+        `scaffold_not_smaller records the real rejected candidate length, got ${decision.scaffoldCandidateLength}`)
+      assert(decision.outlineOriginalLength > 0,
+        `non-primary hop locates the bounded outline block, got ${decision.outlineOriginalLength}`)
+      assert(decision.requiresFullUpstream === true,
+        'L4 folder skills keep their full-upstream declaration in trace')
+      continue
+    }
+    assert(!['primary_consumer', 'outline_block_absent', 'declared_full_context_no_outline']
+      .includes(decision.reason),
+      `non-primary hop cannot bypass outline slimming, reason=${decision.reason}`)
+    assert(decision.originalPromptLength > decision.finalPromptLength,
+      `non-primary hop prompt shrinks: ${decision.originalPromptLength} -> ${decision.finalPromptLength}`)
+    assert(decision.outlineOriginalLength > 0,
+      `non-primary hop locates the bounded outline block, got ${decision.outlineOriginalLength}`)
+    assert(decision.requiresFullUpstream === true,
+      'L4 folder skills keep their full-upstream declaration in trace')
+    assert(['declared_full_context_slimmed', 'slimmed'].includes(decision.reason),
+      `non-primary hop uses the new contract reason, got ${decision.reason}`)
+  }
+  const perStepRequestChars = requestCharsByStep(run)
+  assert.equal(perStepRequestChars.length, SKILL_FOLDERS.length,
+    `chapter chain contains four step requests, got ${perStepRequestChars.length}`)
+  assert(perStepRequestChars[0] > perStepRequestChars[1],
+    `primary hop keeps the largest prompt (${perStepRequestChars[0]}), later hop is slimmer (${perStepRequestChars[1]})`)
+  assert(perStepRequestChars[1] > 20_000,
+    `second hop keeps batch/history/upstream assets after outline slimming, got ${perStepRequestChars[1]}`)
+
+  const modelFallbacks = (run.events || []).filter(event => event.type === 'agent-model-fallback')
+  assert(modelFallbacks.length > 0,
+    'empty agent model fallback is explicitly traced on the chapter-layer chain')
+  for (const event of modelFallbacks) {
+    const detail = parseEventDetail(event)
+    assert.equal(detail.step, 3, `fallback event belongs to the chapter layer, got ${detail.step}`)
+    assert.equal(detail.fallbackModel, MODEL, `fallback model is the configured live model: ${detail.fallbackModel}`)
+    assert.equal(detail.fallbackSource, 'provider.selectedModel', `fallback source is explicit: ${detail.fallbackSource}`)
+  }
+
+  const payloadRefs = run.payloads || []
+  assert(payloadRefs.length > 0, 'deep export declares payload refs')
+  for (const ref of payloadRefs) {
+    assert.ok(ref.artifactRole === 'final' || ref.artifactRole === 'intermediate',
+      `payload ${ref.id || ref.file} exposes artifactRole, got ${ref.artifactRole}`)
+    assert(Number(ref.chars) > 0, `payload ${ref.id || ref.file} exposes a positive char count`)
+  }
+  const requestRefs = payloadRefs.filter(ref => ref.kind === 'request')
+  assert(requestRefs.some(ref => ref.artifactRole === 'final'),
+    'at least one request payload is marked final')
+  assert(requestRefs.some(ref => ref.artifactRole === 'intermediate'),
+    'intermediate request payloads are retained with role markers')
+  const stepRequestRoleMap = requestRefs
+    .filter(ref => ref.artifactRole === 'intermediate')
+    .map(ref => path.basename(ref.file || ''))
+  assert(stepRequestRoleMap.length > 0, 'intermediate request refs are exported')
+}
+
+function requestCharsByStep(run) {
+  const chains = []
+  const queue = [...(run.apiCalls || [])]
+  while (queue.length > 0) {
+    const call = queue.shift()
+    const userText = (call.requestMessages || [])
+      .filter(message => message.role === 'user')
+      .map(message => String(message.content || ''))
+      .join('\n')
+    const systemText = (call.requestMessages || [])
+      .filter(message => message.role === 'system')
+      .map(message => String(message.content || ''))
+      .join('\n')
+    const chainMarker = userText.match(/chain step\s*([0-9]+)\s*\/\s*([0-9]+)/i)
+      || systemText.match(/chain step\s*([0-9]+)\s*\/\s*([0-9]+)/i)
+    if (chainMarker) {
+      const index = Number(chainMarker[1]) - 1
+      chains[index] = Math.max(chains[index] || 0, userText.length)
+    }
+    for (const physical of call.physicalCalls || []) {
+      const physicalText = (physical.requestMessages || [])
+        .filter(message => message.role === 'user')
+        .map(message => String(message.content || ''))
+        .join('\n')
+      const physicalMarker = physicalText.match(/chain step\s*([0-9]+)\s*\/\s*([0-9]+)/i)
+      if (physicalMarker) {
+        const index = Number(physicalMarker[1]) - 1
+        chains[index] = Math.max(chains[index] || 0, physicalText.length)
+      }
+    }
+  }
+  return chains
 }
 
 async function captureEvidence(page, exported, exportedRun, completionSnapshot) {
@@ -587,7 +717,16 @@ async function main() {
     await selectChapterSkillsThroughUi(page, skills)
     heartbeat = startHeartbeat(page, electronProcess.pid)
     await page.click('#btn-pl-autogen-chapters')
+    const onTimeout = setTimeout(() => {
+      exportRunningTraceForTimeout(page).then(exported => {
+        console.log(`[TIMEOUT TRACE] exported incomplete live trace to ${exported.result?.path}`)
+      }).catch(error => {
+        console.error(`[TIMEOUT TRACE] export failed: ${error?.message || error}`)
+      })
+    }, STEP_TIMEOUT_MS - 30_000)
+    onTimeout.unref()
     const completion = await waitForChapterCompletion(page)
+    clearTimeout(onTimeout)
     assert.equal(completion.chapterCount, TOTAL_CHAPTERS, 'project contains 12 generated chapters')
     assert.equal(completion.validatedBatches, 3, 'three chapter batches are validated in the live UI trace')
     assert(!completion.isGenerating, 'generation is no longer running')
@@ -609,6 +748,15 @@ async function main() {
       await removeDir(PROFILE)
       await removeDir(EXPORT_ROOT)
     }
+}
+
+async function exportRunningTraceForTimeout(page) {
+  const exported = await exportLatestRun(page)
+  const directory = exported.result?.path
+  if (directory) {
+    fs.cpSync(directory, path.join(EVIDENCE_ROOT, 'timeout-trace'), { recursive: true })
+  }
+  return exported
 }
 
 async function archivePreviousEvidence() {

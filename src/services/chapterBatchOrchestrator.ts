@@ -13,6 +13,7 @@ export interface ChapterBatchAttempt {
   missingStart: number
   missingCount: number
   errors: string[]
+  warnings: string[]
   /** Observability only; validation timing never changes retry decisions. */
   validationMs?: number
 }
@@ -142,6 +143,7 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
         acceptedCount: accepted.length,
         missingStart,
         missingCount,
+        warnings: [],
         errors: [message]
       }, input.onAttempt)
       throw error
@@ -183,8 +185,9 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
         acceptedCount: accepted.length,
         missingStart,
         missingCount,
-        validationMs,
-        errors: validation.errors
+      validationMs,
+      errors: validation.errors,
+      warnings: validation.warnings
       }
       recordAttempt(attempts, completeAttempt, input.onAttempt)
       return { status: 'complete', chapters: accepted, attempts, errors: [] }
@@ -200,7 +203,8 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
       acceptedCount: accepted.length,
       missingStart: currentMissingStart,
       missingCount: currentMissingCount,
-      errors: validationErrors
+      errors: validationErrors,
+      warnings: []
     }, input.onAttempt)
 
     if (repairAttempt >= maxRepairs) break

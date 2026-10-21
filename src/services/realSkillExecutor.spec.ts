@@ -75,6 +75,7 @@ describe('realSkillExecutor single pass', () => {
 
     expect(counts).toEqual({
       '[已生成卷事实清单]': 2,
+      '[全书大纲]': 0,
       '[大纲]': 2,
       '[style reference]': 1,
       '[上一步 SKILL 完整输出]': 0
@@ -99,6 +100,7 @@ describe('realSkillExecutor single pass', () => {
     expect(result.status).toBe('success')
     expect(result.apiMeta?.timingLedger?.repeatedPromptBlocks).toEqual({
       '[已生成卷事实清单]': 2,
+      '[全书大纲]': 0,
       '[大纲]': 2,
       '[style reference]': 1,
       '[上一步 SKILL 完整输出]': 0

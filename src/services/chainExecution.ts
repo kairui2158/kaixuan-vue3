@@ -1,4 +1,9 @@
 import { buildVolumeOutlineScaffold } from './volumeGeneration'
+import {
+  locatePromptBlock,
+  FULL_OUTLINE_BLOCK_END_HEADERS,
+  FULL_OUTLINE_BLOCK_HEADERS,
+} from './promptBlockProtocol'
 
 export interface ChainPromptInput {
   initialPrompt: string
@@ -9,6 +14,7 @@ export interface ChainPromptInput {
   delivery?: 'template_variable' | 'context_block' | 'inline_block'
   upstreamMetadata?: Record<string, unknown> | null
   metadataMode?: 'summary' | 'final_step_ledger'
+  chainStepMark?: string
 }
 
 export interface ChainUpstreamPromptInput {
@@ -22,7 +28,14 @@ export interface ChainUpstreamPromptResult {
   slimmed: boolean
   originalLength: number
   outlineLength: number
-  reason: 'primary_consumer' | 'declared_full_context' | 'outline_block_absent' | 'slimmed'
+  scaffoldCandidateLength?: number
+  reason:
+    | 'primary_consumer'
+    | 'declared_full_context_slimmed'
+    | 'scaffold_not_smaller'
+    | 'declared_full_context_no_outline'
+    | 'outline_block_absent'
+    | 'slimmed'
 }
 
 export interface BodyContractStepInput {
@@ -46,8 +59,6 @@ const PREVIOUS_OUTPUT_HEADER = "--- 上一步 SKILL 完整输出 ---"
 const UPSTREAM_METADATA_HEADER = "--- 上一步结构化交接 ---"
 const FINAL_STEP_METADATA_HEADER = "--- 上一步结构化交接（终步账本） ---"
 const UPSTREAM_METADATA_MARKER = /【(?:来源覆盖|状态变化|交接清单|交接状态|正文交接|输出末尾元数据)】/g
-const OUTLINE_HEADER = "[大纲]"
-const OUTLINE_END_HEADERS = ["[设定]", "[绑定设定]", "[设定规划约束]", "[章节规划约束]", "[正文执行约束]", "[卷数]"]
 
 export function formatMemoryPrompt(memoryContext: unknown): string {
   const text = memoryContext == null ? "" : String(memoryContext).trim()
@@ -92,6 +103,10 @@ export function dedupeChainIntermediateOutput(output: string): string {
 /** Builds the user message passed to one chain skill. */
 export function buildChainSkillPrompt(input: ChainPromptInput): string {
   if (input.isFirst) return input.initialPrompt
+  const chainStepMark = input.chainStepMark || ''
+  if (chainStepMark && input.initialPrompt && !input.initialPrompt.includes(chainStepMark)) {
+    return chainStepMark + '\n\n' + buildChainSkillPrompt({ ...input, chainStepMark: undefined })
+  }
   const delivery = input.delivery ||
     (input.templateOwnsPreviousOutput ? 'template_variable' : 'context_block')
   const ownerNote = delivery === 'template_variable'
@@ -226,31 +241,34 @@ export function slimChainUpstreamPrompt(input: ChainUpstreamPromptInput): ChainU
   }
   if (!prompt) return result
   if (input.isPrimaryConsumer) return result
-  if (input.requiresFullUpstream) {
-    return { ...result, reason: 'declared_full_context' }
+  const block = locatePromptBlock(prompt, FULL_OUTLINE_BLOCK_HEADERS, FULL_OUTLINE_BLOCK_END_HEADERS)
+  const noOutlineReason = input.requiresFullUpstream
+    ? 'declared_full_context_no_outline'
+    : 'outline_block_absent'
+  if (!block) return { ...result, reason: noOutlineReason }
+  if (!block.content) {
+    return { ...result, reason: noOutlineReason }
   }
 
-  const headerStart = prompt.indexOf(OUTLINE_HEADER)
-  if (headerStart < 0) return { ...result, reason: 'outline_block_absent' }
-  const contentStart = headerStart + OUTLINE_HEADER.length
-  let end = -1
-  for (const nextHeader of OUTLINE_END_HEADERS) {
-    const index = prompt.indexOf(nextHeader, contentStart)
-    if (index >= 0 && (end < 0 || index < end)) end = index
+  const scaffold = buildVolumeOutlineScaffold(block.content)
+  const scaffoldPrompt =
+    prompt.slice(0, block.start) + block.header + '\n' + scaffold + prompt.slice(block.end)
+  if (scaffoldPrompt.length >= prompt.length) {
+    return {
+      prompt,
+      slimmed: false,
+      originalLength: prompt.length,
+      outlineLength: block.content.length,
+      reason: 'scaffold_not_smaller',
+      scaffoldCandidateLength: scaffoldPrompt.length,
+    }
   }
-  if (end < 0) return { ...result, reason: 'outline_block_absent' }
-  const outline = prompt.slice(contentStart, end).trim()
-  result.outlineLength = outline.length
-  if (!outline) return { ...result, reason: 'outline_block_absent' }
-
-  const scaffold = buildVolumeOutlineScaffold(outline)
-  const replaced = prompt.slice(0, headerStart) + OUTLINE_HEADER + '\n' + scaffold + prompt.slice(end)
   return {
-    prompt: replaced,
+    prompt: scaffoldPrompt,
     slimmed: true,
     originalLength: prompt.length,
-    outlineLength: outline.length,
-    reason: 'slimmed',
+    outlineLength: block.content.length,
+    reason: input.requiresFullUpstream ? 'declared_full_context_slimmed' : 'slimmed',
   }
 }
 

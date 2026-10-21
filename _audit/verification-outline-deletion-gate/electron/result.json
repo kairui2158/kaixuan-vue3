@@ -1,9 +1,9 @@
 {
   "schema": "shenyi.outline-deletion-confirmation.electron.full-replay",
   "version": 2,
-  "generatedAt": "2026-10-05T04:54:28.427Z",
-  "electronPid": 68980,
-  "traceRoot": "C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-outline-20260926-212218-deep",
+  "generatedAt": "2026-10-20T18:10:04.841Z",
+  "electronPid": 15936,
+  "traceRoot": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-deletion-gate\\client-turn6-trace",
   "testDocumentPath": "C:/Users/凯瑞/Desktop/测试/《绿潮》大纲总纲.md",
   "replayedTurnId": "turn-1790429963268-209",
   "physicalRequests": 21,

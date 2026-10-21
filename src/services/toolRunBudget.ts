@@ -36,6 +36,8 @@ const PHYSICAL_REQUESTS_PER_WRITE = 3
 const CONTROL_CALL_CEILING = 16
 const DIRECT_READ_CEILING = 12
 const DIRECT_WRITE_CEILING = 12
+const DIRECT_WRITE_READ_CEILING = 36
+const DIRECT_WRITE_CONVERGENCE_BUFFER = 4
 
 const CONTROL_TOOL_NAMES = new Set([
   'agent.plan',
@@ -57,6 +59,9 @@ export function createToolRunBudget(input: ToolRunBudgetInput) {
   const readOnlyOperation = operation === 'discussion' || operation === 'analyze'
   const proseOutputPlan = plan?.mode === 'single-pass'
     || plan?.mode === 'final-draft'
+  const directWritePlan = plan?.mode === 'direct'
+    && !readOnlyOperation
+    && !proseOutputPlan
   const plannedWriteCount = input.plannedWriteCount
     ?? (plan && !readOnlyOperation
       ? (proseOutputPlan
@@ -69,6 +74,8 @@ export function createToolRunBudget(input: ToolRunBudgetInput) {
   const maxReadToolCalls = input.maxReadToolCalls
     ?? (proseOutputPlan
       ? 0
+      : directWritePlan
+        ? DIRECT_WRITE_READ_CEILING
       : readBudgetRequired
         ? 24
         : DIRECT_READ_CEILING)
@@ -79,6 +86,8 @@ export function createToolRunBudget(input: ToolRunBudgetInput) {
   const maxPhysicalRequests = input.maxPhysicalRequests
     ?? (proseOutputPlan
       ? 4
+      : directWritePlan
+        ? Math.min(128, DIRECT_WRITE_READ_CEILING + DIRECT_WRITE_CEILING + DIRECT_WRITE_CONVERGENCE_BUFFER)
       : readBudgetRequired
         ? Math.min(128, Math.max(24, plannedWriteCount * PHYSICAL_REQUESTS_PER_WRITE))
         : 12)

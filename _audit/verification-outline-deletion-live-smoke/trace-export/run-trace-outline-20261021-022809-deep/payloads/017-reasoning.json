@@ -1,0 +1,38 @@
+The structure shows chapters. I need to delete the second chapter "第二章 雨夜追踪" (heading-2-o53r8y) which covers range 67-148. But wait, the content includes the title "第二章 雨夜追踪" plus content. Let me read the actual full text to know exactly what to delete.
+
+Actually the injected full text is:
+# 星潮旧港
+
+## 第一章 灯下旧约
+
+林昭把船票压在灯下，纸面上的潮痕像一张缩小的海图。
+她说自己明早出发，却没有说要去多久。
+
+## 第二章 雨夜追踪
+
+雨水把码头洗成一面黑镜。
+林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。
+她在拐角处停下，听见他们低声争论一个旧船名。
+
+## 第三章 潮汐之后
+
+天亮时，码头只剩涨潮的声音。
+旧船名没有再出现，林昭却记住了那个发音。
+
+I need to delete "第二章 雨夜追踪" title and its content paragraphs. The chapter heading covers 67-148. Let me read the range to confirm exact text including blank lines.
+
+I need to use editor.write? But the target is the outline. There's no "outline.write" tool. Hmm. The tools available include editor.write but that's for editor. The outline tools are read-only (outline.get_structure, read_range, search, get_summary).
+
+Wait, the user says "直接写入大纲" (directly write to the outline). But there's no outline write tool available. Let me check the available tools again:
+
+Editor tools: editor.get_state, editor.document_map, editor.read_range, editor.search, editor.locate, editor.write, editor.reveal, editor.multi_get_state, editor.global_search, editor.workspace_summary.
+
+Outline tools: outline.get_structure, outline.read_range, outline.search, outline.get_summary.
+
+There's no outline write/edit tool. But the workspace context says "当前编辑区（来源=active_tab）：大纲编辑器" - the active tab is the outline editor. And the outline ContextPack is what's being edited.
+
+Hmm, but the editor tools operate on "当前编辑目标" (current edit target). The editor.write writes to "当前编辑器". The question is whether the current editor target is the outline.
+
+Let me check editor.get_state to see the current edit target.
+
+Actually, the "当前编辑区（来源=active_tab）：大纲编辑器" suggests the active tab is the outline editor. So editor.write might write to the outline. Let me check editor.get_state and editor.document_map.

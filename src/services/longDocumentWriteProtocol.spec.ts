@@ -127,7 +127,7 @@ describe('longDocumentWriteProtocol', () => {
       mode: 'direct',
       operation: 'targeted_edit',
       segments: makePlan(80).segments,
-    })).toBe(12)
+    })).toBe(52)
   })
 
   it('keeps compound restructure and cleanup executable instead of a dead-end plan', () => {

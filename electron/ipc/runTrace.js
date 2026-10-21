@@ -174,29 +174,33 @@ function promptIdentityContent(prompt) {
 
 function collectPayloads(run) {
   var payloads = []
-  var add = function(kind, value) {
+  var add = function(kind, value, artifactRole) {
     if (value === undefined || value === null || value === '') return
-    payloads.push({ kind: kind, value: value })
+    payloads.push({ kind: kind, value: value, artifactRole: artifactRole || inferArtifactRole(kind) })
   }
   ;(run.apiCalls || []).forEach(function(call) {
-    add('request', call.requestMessages)
-    add('tool-delta', call.toolRequestDeltas)
-    add('response', call.responseText)
-    add('stream', call.streamText)
-    add('reasoning', call.reasoningText)
+    // Chain and batch traces have many valid calls. Only calls explicitly
+    // marked final (typically the completed chain's last logical call) own the
+    // final role; every other request remains an intermediate chain artifact.
+    var isFinalCall = isFinalApiCall(call, run)
+    add('request', call.requestMessages, isFinalCall ? 'final' : 'intermediate')
+    add('tool-delta', call.toolRequestDeltas, 'intermediate')
+    add('response', call.responseText, isFinalCall ? 'final' : 'intermediate')
+    add('stream', call.streamText, isFinalCall ? 'final' : 'intermediate')
+    add('reasoning', call.reasoningText, 'intermediate')
     ;(call.physicalCalls || []).forEach(function(physical) {
-      add('request', physical.requestMessages)
-      add('response', physical.responseText)
-      add('stream', physical.streamText)
-      add('reasoning', physical.reasoningText)
+      add('request', physical.requestMessages, isFinalCall ? 'final' : 'intermediate')
+      add('response', physical.responseText, isFinalCall ? 'final' : 'intermediate')
+      add('stream', physical.streamText, isFinalCall ? 'final' : 'intermediate')
+      add('reasoning', physical.reasoningText, 'intermediate')
     })
     ;(call.toolCalls || []).forEach(function(tool) {
       add('tool-input', tool.input)
       add('tool-result', tool.result)
     })
   })
-  ;(run.promptSnapshots || []).forEach(function(snapshot) {
-    add('prompt', snapshot)
+  ;(run.promptSnapshots || []).forEach(function(snapshot, index) {
+    add('prompt', snapshot, index === (run.promptSnapshots || []).length - 1 ? 'final' : 'intermediate')
   })
   ;(run.processingReports || []).forEach(function(report) {
     add('processing-input', report.inputPreview)
@@ -218,12 +222,24 @@ function collectPayloads(run) {
   return payloads
 }
 
+function isFinalApiCall(call, run) {
+  if (call && call.isFinal !== undefined) return call.isFinal === true
+  return (run && run.status) === 'success'
+    && Array.isArray(run.apiCalls)
+    && run.apiCalls.length > 0
+    && call === run.apiCalls[run.apiCalls.length - 1]
+}
+
 function payloadIdentity(kind, value) {
   if (kind === 'agent-event') return 'inline:' + agentEventIdentity(value)
   var content = kind === 'prompt' ? promptIdentityContent(value) : payloadContent(kind, value)
   var text = typeof content === 'string' ? content : JSON.stringify(content, null, 2)
   if (text === undefined) text = ''
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex')
+}
+
+function inferArtifactRole(kind) {
+  return kind === 'response' || kind === 'prompt' ? 'final' : 'intermediate'
 }
 
 function agentEventIdentity(value) {
@@ -240,6 +256,7 @@ function deduplicatePayloads(payloads) {
     if (existing) {
       existing.duplicateCount += 1
       item.duplicateOf = existing.id
+      if (item.artifactRole === 'final') existing.artifactRole = 'final'
       return
     }
     item.id = 'payload-' + String(unique.length + 1).padStart(3, '0')
@@ -387,6 +404,7 @@ function buildRunWithPayloadRefs(run) {
       chars: text.length,
       sha256: payloadIdentity(item.kind, item.value),
       duplicateCount: item.duplicateCount,
+      artifactRole: item.artifactRole || inferArtifactRole(item.kind),
       createdAt: Date.now()
     }
   })
@@ -396,7 +414,12 @@ function buildRunWithPayloadRefs(run) {
   return {
     run: builtRun,
     payloads: deduplicated.unique.map(function(item) {
-      return { kind: item.kind, value: payloadContent(item.kind, item.value), duplicateCount: item.duplicateCount }
+      return {
+        kind: item.kind,
+        value: payloadContent(item.kind, item.value),
+        duplicateCount: item.duplicateCount,
+        artifactRole: item.artifactRole || inferArtifactRole(item.kind)
+      }
     }),
     refs: refs
   }

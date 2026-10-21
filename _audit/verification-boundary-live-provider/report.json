@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.boundary.live-provider",
   "version": 1,
-  "generatedAt": "2026-10-17T08:32:47.598Z",
+  "generatedAt": "2026-10-20T18:22:28.488Z",
   "status": "blocked_external_credentials",
   "attempts": [
     {
@@ -10,11 +10,11 @@
       "baseUrl": "https://openapi.cloud-ai.cn/v1",
       "model": "deepseek-v4-pro",
       "ok": false,
-      "durationMs": 246,
+      "durationMs": 193,
       "statusCode": 401,
       "textPreview": null,
       "finishReason": null,
-      "error": "Invalid token (request id: 202610170832473296835198268d9d6vac8awHJ)",
+      "error": "Invalid token (request id: 202610201822283193962328268d9d6O0smSYOd)",
       "apiKey": "***MASKED***"
     },
     {
@@ -23,11 +23,11 @@
       "baseUrl": "https://api.deepseek.com",
       "model": "deepseek-v4-pro",
       "ok": false,
-      "durationMs": 256,
+      "durationMs": 139,
       "statusCode": 401,
       "textPreview": null,
       "finishReason": null,
-      "error": "Authentication Fails, Your api key: ****9Wbd is invalid (request_id: 75a71c17-26b3-45f0-b7e5-3dd5aca605b9)",
+      "error": "Authentication Fails, Your api key: ****pGQb is invalid (request_id: 1a0a7234-8000-4ff5-81e5-ef74cd379764)",
       "apiKey": "***MASKED***"
     }
   ],

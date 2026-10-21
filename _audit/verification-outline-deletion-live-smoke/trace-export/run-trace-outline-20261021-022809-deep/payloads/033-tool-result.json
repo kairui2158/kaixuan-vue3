@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "data": {
+    "workspace": "outline",
+    "targetId": "outline",
+    "label": "大纲编辑器",
+    "contentLength": 197,
+    "contentPreview": "# 星潮旧港\n\n## 第一章 灯下旧约\n\n林昭把船票压在灯下，纸面上的潮痕像一张缩小的海图。\n她说自己明早出发，却没有说要去多久。\n\n## 第二章 雨夜追踪\n\n雨水把码头洗成一面黑镜。\n林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。\n她在拐角处停下，听见他们低声争论一个旧船名。\n\n## 第三章 潮汐之后\n\n天亮时，码头只剩涨潮的声音。\n旧船名没有再出现，林昭却记住了那个发音。\n",
+    "contentVersion": 2,
+    "selectionStart": 197,
+    "selectionEnd": 197,
+    "hasSelection": false,
+    "selectedTextPreview": ""
+  }
+}

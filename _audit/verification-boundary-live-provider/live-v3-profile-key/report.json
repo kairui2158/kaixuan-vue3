@@ -1,0 +1,33 @@
+{
+  "schema": "shenyi.boundary.live-provider",
+  "version": 1,
+  "generatedAt": "2026-10-20T18:22:58.356Z",
+  "status": "verified",
+  "attempts": [
+    {
+      "providerId": "api-direct-write-live-v3-provider",
+      "providerName": "API Direct Write Live V3",
+      "baseUrl": "https://openapi.cloud-ai.cn/v1",
+      "model": "deepseek-v4-pro",
+      "ok": true,
+      "durationMs": 2225,
+      "statusCode": 200,
+      "textPreview": "ok",
+      "finishReason": "stop",
+      "error": null,
+      "apiKey": "***MASKED***"
+    }
+  ],
+  "live": {
+    "providerId": "api-direct-write-live-v3-provider",
+    "providerName": "API Direct Write Live V3",
+    "baseUrl": "https://openapi.cloud-ai.cn/v1",
+    "selectedModel": "deepseek-v4-pro",
+    "apiKey": "***MASKED***"
+  },
+  "coverage": {
+    "testedLiveProviders": 1,
+    "otherConfiguredProviders": 0,
+    "others": []
+  }
+}

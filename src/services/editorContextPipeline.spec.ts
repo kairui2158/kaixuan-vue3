@@ -54,7 +54,7 @@ describe('buildEditorContextPipeline', () => {
     expect(result.validation.reason).toBe('full-mode-no-window-check')
   })
 
-  it('records unknown windows instead of guessing a provider limit', () => {
+  it('records unknown main-editor windows without declaring provider capability', () => {
     const result = buildEditorContextPipeline({
       target: longTarget(),
       provider: null,
@@ -64,6 +64,7 @@ describe('buildEditorContextPipeline', () => {
 
     expect(result.windowDeclared).toBe(false)
     expect(result.availableContextTokens).toBeNull()
+    expect(result.mode).toBe('packed')
     expect(result.validation.valid).toBe(true)
     expect(result.validation.reason).toBe('unknown-window-skipped')
   })
@@ -105,24 +106,48 @@ describe('buildEditorContextPipeline', () => {
     expect(result.validation.reason).toBe('missing-editor-read-guidance')
   })
 
-  it('preserves the packed outline structure pack when no window can be resolved', () => {
+  it('downgrades oversized outlines to the packed pack when the unknown planning window cannot fit them', () => {
+    const oversizedOutline = '雨'.repeat(1_900_000)
     const result = buildEditorContextPipeline({
       target: buildMainSnapshot({
         workspace: 'outline',
         targetId: 'outline',
         label: '大纲编辑器',
-        content: '第一卷 起势\n少年离开旧城。',
+        content: oversizedOutline,
+        selectionStart: 0,
+        selectionEnd: 0,
+      }, 'project-1'),
+      provider: null,
+      model: 'no-window-model',
+      maxOutputTokens: 32_768,
+    })
+
+    expect(result.workspace).toBe('outline')
+    expect(result.mode).toBe('packed')
+    expect(result.windowDeclared).toBe(false)
+    expect(result.availableContextTokens).toBeNull()
+    expect(result.content).toContain('[大纲结构地图]')
+    expect(result.content).toContain('[当前焦点全文]')
+  })
+
+  it('injects a normal-sized outline as full context even when no window is declared', () => {
+    const result = buildEditorContextPipeline({
+      target: buildMainSnapshot({
+        workspace: 'outline',
+        targetId: 'outline',
+        label: '大纲编辑器',
+        content: '# 第一卷 起势\n\n少年离开旧城。',
         selectionStart: 0,
         selectionEnd: 2,
       }, 'project-1'),
       provider: null,
       model: 'no-window-model',
+      maxOutputTokens: 32_768,
     })
 
-    expect(result.workspace).toBe('outline')
-    expect(result.mode).toBe('packed')
-    expect(result.content).toContain('[大纲结构地图]')
-    expect(result.content).toContain('[当前焦点全文]')
+    expect(result.mode).toBe('full')
+    expect(result.content).toContain('[当前全文已注入]')
+    expect(result.content).toContain('少年离开旧城。')
   })
 
   it('injects the whole outline as full context when the declared window fits', () => {

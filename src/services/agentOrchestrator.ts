@@ -16,6 +16,7 @@ import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import {
   createToolRunBudget,
   type ToolRunBudgetSnapshot,
+  type ToolRunBudget,
 } from './toolRunBudget'
 
 export type AgentOrchestratorStatus =
@@ -144,6 +145,7 @@ export interface AgentOrchestratorRuntime {
   maxNoProgressRounds?: number
   maxPhysicalRequests?: number
   toolRunBudget?: ToolRunBudgetSnapshot
+  toolRunBudgetInstance?: ToolRunBudget
   idleTimeoutMs?: number
 }
 
@@ -409,18 +411,19 @@ export class AgentOrchestrator {
     this.taskId = input.taskId || `agent-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     this.plan = input.plan
     this.runtime = input.runtime
-    this.maxPhysicalRequests = input.runtime.toolRunBudget?.maxPhysicalRequests
-      ?? this.normalizeMaxPhysicalRequests(input.runtime.maxPhysicalRequests)
-    this.toolRunBudget = createToolRunBudget({
-      plan: input.runtime.document?.executionPlan ?? null,
-      operation: input.runtime.document?.executionPlan?.operation,
-      maxPhysicalRequests: this.maxPhysicalRequests,
-      ...(input.runtime.toolRunBudget ? {
-        maxReadToolCalls: input.runtime.toolRunBudget.maxReadToolCalls,
-        reservedWriteToolCalls: input.runtime.toolRunBudget.reservedWriteToolCalls,
-        plannedWriteCount: input.runtime.toolRunBudget.plannedWriteCount,
-      } : {}),
-    })
+    this.toolRunBudget = input.runtime.toolRunBudgetInstance
+      ?? createToolRunBudget({
+        plan: input.runtime.document?.executionPlan ?? null,
+        operation: input.runtime.document?.executionPlan?.operation,
+        maxPhysicalRequests: input.runtime.toolRunBudget?.maxPhysicalRequests
+          ?? this.normalizeMaxPhysicalRequests(input.runtime.maxPhysicalRequests),
+        ...(input.runtime.toolRunBudget ? {
+          maxReadToolCalls: input.runtime.toolRunBudget.maxReadToolCalls,
+          reservedWriteToolCalls: input.runtime.toolRunBudget.reservedWriteToolCalls,
+          plannedWriteCount: input.runtime.toolRunBudget.plannedWriteCount,
+        } : {}),
+      })
+    this.maxPhysicalRequests = this.toolRunBudget.snapshot().maxPhysicalRequests
     this.sanitizedSkillGuidance = sanitizeSkillGuidance(input.runtime.skillGuidance)
     if (input.runtime.skillGuidance !== undefined) {
       this.emit({

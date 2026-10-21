@@ -1,0 +1,21 @@
+The user wants me to delete Chapter 2 "雨夜追踪" and all its content from the outline, and directly write to the outline. Let me first understand the current state of the outline.
+
+The outline content is:
+# 星潮旧港
+
+## 第一章 灯下旧约
+林昭把船票压在灯下，纸面上的潮痕像一张缩小的海图。
+她说自己明早出发，却没有说要去多久。
+
+## 第二章 雨夜追踪
+雨水把码头洗成一面黑镜。
+林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。
+她在拐角处停下，听见他们低声争论一个旧船名。
+
+## 第三章 潮汐之后
+天亮时，码头只剩涨潮的声音。
+旧船名没有再出现，林昭却记住了那个发音。
+
+I need to delete chapter 2. Let me first read the outline structure to understand the exact nodes and ranges.
+
+Let me call outline.get_structure to understand the structure.

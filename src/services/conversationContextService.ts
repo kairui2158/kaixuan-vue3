@@ -47,8 +47,8 @@ export interface ContextBuildInput extends ContextRef {
   previousSkillOutput?: string
   /** 允许调用点提供尚未落盘的即时工作区状态。 */
   workspaceState?: Partial<ContextWorkspaceState>
-  /** 旧项目聊天记录的只读兼容入口，仅在新会话尚不存在时使用。 */
-  legacyMessages?: ContextMessage[]
+  /** 当前调用点尚未落盘的即时上下文消息，仅在新会话尚不存在时使用。 */
+  immediateContextMessages?: ContextMessage[]
   /** 上一轮工具调用的 compact 审计；由调用方在写入完成后登记。 */
   toolAudit?: unknown
 }
@@ -728,8 +728,8 @@ export class ConversationContextService {
       this.readSession(ref)
     ])
     const memories = memoryText(project.memories)
-    const legacy = !session && Array.isArray(input.legacyMessages)
-      ? input.legacyMessages.filter(message => {
+    const immediate = !session && Array.isArray(input.immediateContextMessages)
+      ? input.immediateContextMessages.filter(message => {
         return message
           && (message.role === 'user' || message.role === 'assistant')
           && typeof message.content === 'string'
@@ -737,7 +737,7 @@ export class ConversationContextService {
       }).map(message => ({ ...message }))
       : []
     const workspaceState = input.workspaceState || {}
-    const sessionMessages = clone(session?.messages || legacy)
+    const sessionMessages = clone(session?.messages || immediate)
     const neutralization: ContextHistoryNeutralization = {
       neutralizedMessageCount: 0,
       markers: {},

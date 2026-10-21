@@ -11,6 +11,7 @@ import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './gene
 import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
 import { formatSkillFallback } from './skillRouter'
+import { REPEATED_PROMPT_BLOCK_MARKERS } from './promptBlockProtocol'
 import { buildFinalStepFeedback } from './finalStepFeedback'
 import { buildSchemaRetryFeedback } from './schemaRetryFeedback'
 import { validateSkillOutput } from './skillValidation'
@@ -38,13 +39,6 @@ const DIRECT_OUTPUT_SUFFIX = [
   '跳过所有内部思考、分析过程和推理说明，不输出任何标签。',
   '从回复第一个字符开始直接输出最终正文内容。'
 ].join('\n')
-
-const REPEATED_PROMPT_BLOCK_MARKERS = [
-  '[已生成卷事实清单]',
-  '[大纲]',
-  '[style reference]',
-  '[上一步 SKILL 完整输出]'
-] as const
 
 export type RealSkillPassInputMode = 'original' | 'previous'
 

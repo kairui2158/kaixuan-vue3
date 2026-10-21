@@ -68,16 +68,16 @@ describe('resolveEditorReadCapChars', () => {
     })).toBe(12_000)
   })
 
-  it('falls back to the model window, then to 32768', () => {
+  it('falls back to the model window, then to the unknown-window planning budget', () => {
     expect(resolveEditorReadCapChars({ modelContextWindow: 200_000 })).toBe(12_000)
     expect(resolveEditorReadCapChars({ modelContextWindow: 1_000_000 })).toBe(20_000)
-    expect(resolveEditorReadCapChars({})).toBe(12_000)
+    expect(resolveEditorReadCapChars({})).toBe(20_000)
   })
 
   it('keeps the document-map read page available for narrow model windows', () => {
     expect(resolveEditorReadCapChars({ modelContextWindow: 32_768 })).toBe(12_000)
-    expect(resolveEditorReadCapChars({ providerContextWindowTokens: 0 })).toBe(12_000)
-    expect(resolveEditorReadCapChars({ providerContextWindowTokens: 'not-a-number' })).toBe(12_000)
+    expect(resolveEditorReadCapChars({ providerContextWindowTokens: 0 })).toBe(20_000)
+    expect(resolveEditorReadCapChars({ providerContextWindowTokens: 'not-a-number' })).toBe(20_000)
     expect(resolveEditorReadCapChars({ modelContextWindow: 8_192 })).toBe(12_000)
   })
 })

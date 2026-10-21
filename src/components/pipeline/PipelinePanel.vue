@@ -778,7 +778,7 @@ import { compileStyleContext } from "../../services/styleContextCompiler"
 import { buildStyleTemplateVariables } from "../../services/styleTemplateContext"
 import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services/volumePlanIntegrity"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
-import { buildChapterHistoryFacts, renderChapterHistoryContext, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
+import { buildChapterHistoryFacts, renderChapterHistoryContext, resolveChapterCountContract, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
 import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
 import { planChapterGeneration, type ChapterGenerationMode } from "../../services/chapterBatchPlanning"
 import { buildVolumeHistoryFacts, extractVolumeContractSemantics, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
@@ -2204,7 +2204,7 @@ async function callValidatedSkill(
           agentName: agentConfig?.name || agentId || undefined,
           providerId: fallbackProviderId || undefined,
           providerName: providerStore.getProvider(fallbackProviderId)?.name,
-          model: agentConfig?.model || activeProviderModel(),
+          model: resolveStepProviderModel(step, agentConfig as any),
           requestMessages: [{ role: 'user', content: prompt }],
           deaiPromptVariant: systemPromptSuffix ? deaiVariant : undefined
         })
@@ -2471,6 +2471,30 @@ function activeProviderModel(): string {
   const agentConfig = getStepAgentConfig(0)
   const provider = providerStore.getProvider(agentConfig?.provider || "") || providerStore.preferredGenerateProvider
   return agentConfig?.model || provider?.selectedModel || provider?.models?.[0] || ''
+}
+
+function resolveStepProviderModel(step: number, agentConfig: { model?: unknown; provider?: unknown; name?: unknown; id?: unknown } | null | undefined): string {
+  const provider = providerStore.getProvider(String(agentConfig?.provider || providerStore.preferredGenerateProvider?.id || "")) || providerStore.preferredGenerateProvider
+  const selectedModel = provider?.selectedModel || provider?.models?.[0] || ''
+  const agentModel = String(agentConfig?.model || '').trim()
+  if (agentModel) return agentModel
+  const runId = runTraceStore.currentRunId
+  if (runId) {
+    runTraceStore.addEvent(runId, {
+      type: 'agent-model-fallback',
+      level: 'warn',
+      label: `Agent 模型未显式配置，已回退供应商默认模型`,
+      detail: JSON.stringify({
+        step,
+        agentId: agentConfig?.id || undefined,
+        agentName: agentConfig?.name || undefined,
+        configuredModel: agentConfig?.model ?? null,
+        fallbackModel: selectedModel,
+        fallbackSource: provider?.selectedModel ? 'provider.selectedModel' : 'provider.models[0]'
+      })
+    })
+  }
+  return selectedModel
 }
 
 function getStepSkillMode(step: number): string {
@@ -2888,7 +2912,7 @@ async function callApiWithAgentVariant(step: number, skillTemplate: string, prom
   const provider = providerStore.getProvider(agentConfig?.provider || "")
   const preferredProvider = providerStore.preferredGenerateProvider
   const activeProvider = provider || preferredProvider
-  const model = agentConfig?.model || activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
+  const model = resolveStepProviderModel(step, agentConfig as any)
   const temperature = agentConfig?.temperature ?? activeProvider?.temperature ?? 0.7
   const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || null
  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
@@ -3178,6 +3202,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             declaredFullUpstream: templateMeta?.chainHandoff?.requiresFullUpstreamContext === true,
             originalPromptLength: upstreamPrompt.originalLength,
             finalPromptLength: upstreamPrompt.prompt.length,
+            scaffoldCandidateLength: upstreamPrompt.scaffoldCandidateLength,
             outlineOriginalLength: upstreamPrompt.outlineLength
           })
         })
@@ -3258,7 +3283,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         templateOwnsPreviousOutput,
         delivery,
         upstreamMetadata: si === 0 ? null : upstreamStepMetadata,
-        metadataMode: finalStepMetadataMode
+        metadataMode: finalStepMetadataMode,
+        chainStepMark: `chain step ${si + 1}/${templates.length}`
       })
       const previousOutput = si === 0 ? "" : previousResolution.output
       const ctxForSkill = {
@@ -4386,8 +4412,26 @@ async function genChapters(mode: ChapterGenerationMode) {
   const volumeSkillNames = getStepSkillTemplates(3).map(t => t.name).filter(Boolean)
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
-  const totalChapters = Number(vol.chapterCount) || Math.ceil((Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0) / wordsPerChapter)
+  const chapterCountContract = resolveChapterCountContract({
+    volumeName: String(vol.name || '未命名卷'),
+    volumeOutline: vol.outline || vol.summary || '',
+    configuredChapterCount: Number(vol.chapterCount) || 0,
+    allocatedWords: Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0,
+    wordsPerChapter
+  })
+  const totalChapters = chapterCountContract.totalChapters
   const projectId = projectStore.currentProjectId
+  if (!totalChapters) {
+    trace.addEvent({
+      type: "chapter-count-arbitration-failed",
+      level: "error",
+      label: "章节口径仲裁失败，已阻止生成",
+      detail: JSON.stringify(chapterCountContract)
+    })
+    chapterGenerationLogs.value.push("无法开始生成：" + chapterCountContract.message)
+    pipelineStore.failGeneration(chapterCountContract.message)
+    return
+  }
   const savedBreakpoint = await pipelineStore.refreshBreakpoint()
   const matchingBreakpoint = savedBreakpoint && savedBreakpoint.kind === 'chapters'
     && savedBreakpoint.projectId === projectId
@@ -4436,6 +4480,12 @@ async function genChapters(mode: ChapterGenerationMode) {
       level: "info",
       label: "章节层执行参数已构建",
       detail: JSON.stringify({ volume: vol.name, totalChapters, wordsPerChapter, resumeCount })
+    })
+    trace.addEvent({
+      type: "chapter-count-arbitration",
+      level: chapterCountContract.conflict ? "warn" : "info",
+      label: "章节口径单源仲裁",
+      detail: JSON.stringify(chapterCountContract)
     })
     const volOutline = vol.outline || vol.summary || ""
     if (!volOutline.trim()) {
@@ -4509,6 +4559,14 @@ async function genChapters(mode: ChapterGenerationMode) {
             label: "章节批次验收",
             detail: JSON.stringify(attempt)
           })
+          if (attempt.warnings?.length) {
+            trace.addEvent({
+              type: "chapter-content-duplicate",
+              level: "warn",
+              label: "章节剧情概要重复告警",
+              detail: JSON.stringify({ warnings: attempt.warnings })
+            })
+          }
         }
       })
       if (batchResult.status !== 'complete') {

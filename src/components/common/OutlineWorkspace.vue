@@ -380,7 +380,6 @@ import {
   type PlainDialogueIntentDetailed,
 } from '../../services/chainIntentRouter'
 import {
-  buildOutlineDeletionTargetSignature,
   buildOutlineDeletionCommandHash,
   createOutlineDeletionContract,
   isOutlineDeletionAffirmativeInput,
@@ -431,6 +430,9 @@ import { saveContinuation, loadContinuation, removeContinuation } from '../../se
 import { logEditorEdit, logEditorPresentation } from '../../services/editorEditDiagnostics'
 import type { EditorEditCommand } from '../../services/editorEditProtocol'
 import { validateOutlineIntegrity } from '../../services/outlineIntegrity'
+import {
+  resolveOutlineDeletionAuthorization,
+} from '../../services/outlineDeletionAuthorization'
 import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, toDialogueBatchEvent, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
 import { applyAcceptedItems, planEditorEditBatch } from '../../services/editorEditBatch'
@@ -2264,21 +2266,24 @@ async function applyOutlineDirectWrite(input: {
   const authorization = authorizationTurnId
     ? outlineDeletionContract.getPending(authorizationTurnId)
     : null
-  const authorizationMatches = authorization?.status === 'granted'
-    && authorization.targetSignature === buildOutlineDeletionTargetSignature(input.commands)
-    && authorization.commandHash === buildOutlineDeletionCommandHash(input.commands)
-  const workflowDeletionAuthorized = isWorkflowDeletionAuthorization(input.writeAuthorization)
-    && input.batchDetail?.invariantResult === 'planned-deletion-only'
-    && input.batchDetail.expectedChange === 'remove_duplicate'
+  const deletionAuthorization = resolveOutlineDeletionAuthorization({
+    commands: input.commands,
+    authorizationTurnId,
+    getPendingConfirmation: turnId => outlineDeletionContract.getPending(turnId),
+    writeAuthorization: input.writeAuthorization,
+    batchDetail: input.batchDetail,
+    original: input.original,
+    next: input.next,
+  })
+  const authorizationMatches = deletionAuthorization.channel === 'user-confirmation'
+  const workflowDeletionAuthorized = deletionAuthorization.channel === 'workflow-contract'
   const integrity = validateOutlineIntegrity(input.original, input.next, {
     validateDocumentBody: isWholeDocumentReplacement,
     allowWholeDocumentRewrite: isWholeDocumentReplacement
       && input.writeAuthorization?.mode === 'single-pass',
     allowAuthorizedDeletion: authorizationMatches || workflowDeletionAuthorized,
-    ...(authorizationMatches
-      ? { authorizedDeletedLength: authorization.expectedDeletedLength }
-      : workflowDeletionAuthorized
-        ? { authorizedDeletedLength: Math.max(0, input.original.length - input.next.length) }
+      ...(deletionAuthorization.authorized
+        ? { authorizedDeletedLength: deletionAuthorization.authorizedDeletedLength }
         : {}),
   })
   if (!integrity.ok) {
@@ -2437,7 +2442,17 @@ async function applyOutlineDirectWrite(input: {
         targetSignature: authorization!.targetSignature,
         commandHash: authorization!.commandHash,
         expectedDeletedLength: authorization!.expectedDeletedLength,
+        execution: 'authorized-replay',
+        commandCount: input.commands.length,
+        originalChars: input.original.length,
+        nextChars: input.next.length,
+        removedChars: Math.max(0, input.original.length - input.next.length),
       }),
+      payload: {
+        execution: 'authorized-replay',
+        commandCount: input.commands.length,
+        removedChars: Math.max(0, input.original.length - input.next.length),
+      },
       turnId: authorization!.turnId,
     })
     pendingOutlineDeletionReplay.value = null
@@ -2860,19 +2875,6 @@ function buildOutlineExecutionPlanForRequest(options: {
   }
 }
 
-
-function isWorkflowDeletionAuthorization(
-  writeAuthorization: unknown,
-): writeAuthorization is DialogueWriteAuthorization {
-  if (!writeAuthorization || typeof writeAuthorization !== 'object') return false
-  const authorization = writeAuthorization as Partial<DialogueWriteAuthorization>
-  return authorization.source === 'long-document-workflow'
-    && (authorization.intent === 'edit' || authorization.intent === 'generate')
-    && authorization.operation !== undefined
-    && authorization.operation !== 'discussion'
-    && authorization.mode !== undefined
-    && authorization.mode !== 'final-draft'
-}
 
 function buildOutlineSkillGuidance(): string {
   return selectedWorkspaceSkills.value
@@ -3870,7 +3872,7 @@ function rollbackOutlineBatch(messageIndex: number) {
       durationMs: 0,
       detail: '批次应用后大纲内容已变化，拒绝自动回滚'
     })
-    void appConfirm.alert('大纲内容在批次应用后已有修改，请使用对比预览手动处理')
+    void appConfirm.alert('大纲内容在批次应用后已有修改，请打开运行记录查看失败批次差异，或撤销后重试该批次')
     return
   }
   const undoContent = findEditorBatchUndoContent(editorStore.listUndoContentsForTab('outline'), record)
@@ -5723,7 +5725,7 @@ async function askPlainAi(
         settings: projectStore.settingsCollection,
         memories: JSON.stringify(projectStore.memories || {})
       },
-      legacyMessages: getOutlineContextMessages(requestText)
+      immediateContextMessages: getOutlineContextMessages(requestText)
     })
     void conversationContextService.buildDialogueContextBlocks(
       contextBundle,
@@ -5790,6 +5792,9 @@ async function askPlainAi(
       idleTimeoutMs: isLongDocumentRequest ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
       toolRunBudget: outlineExecutionPlan || !useOutlineEditTaskPlan
         ? outlineToolRunBudget.snapshot()
+        : undefined,
+      toolRunBudgetInstance: outlineExecutionPlan || !useOutlineEditTaskPlan
+        ? outlineToolRunBudget
         : undefined,
       getContextRemaining: () => ({
         contextWindowTokens: outlineProviderWindowDeclared ? outlineProviderWindow : null,
@@ -5889,8 +5894,7 @@ async function askPlainAi(
       },
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
-        maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations
-          || calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan),
+        maxToolIterations: calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan),
         toolRunBudget: outlineToolRunBudget,
           intent: plainIntent,
           permissionDecision: outlinePermissionDecision,
@@ -6236,7 +6240,7 @@ async function askPlainAi(
               },
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
-          maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 12,
+          maxToolIterations: calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan),
           toolRunBudget: outlineToolRunBudget,
                 intent: plainIntent,
                 permissionDecision: outlinePermissionDecision,

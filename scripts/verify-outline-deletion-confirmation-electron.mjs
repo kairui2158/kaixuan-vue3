@@ -6,9 +6,10 @@ import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
 
 const ROOT = process.cwd()
-const TRACE_ROOT = process.env.SHENYI_OUTLINE_TRACE_ROOT
-  ? path.resolve(process.env.SHENYI_OUTLINE_TRACE_ROOT)
-  : 'C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-outline-20260926-212218-deep'
+const TRACE_ROOT = path.resolve(
+  process.env.SHENYI_OUTLINE_TRACE_ROOT
+    || path.join(ROOT, '_audit', 'verification-outline-deletion-gate', 'client-turn6-trace'),
+)
 const ELECTRON_EXE = process.env.SHENYI_OUTLINE_DELETION_ELECTRON
   ? path.resolve(process.env.SHENYI_OUTLINE_DELETION_ELECTRON)
   : path.join(ROOT, 'node_modules', 'electron', 'dist', 'electron.exe')
@@ -45,7 +46,49 @@ const clientToolCalls = clientApiCall.toolCalls.map(tool => ({
   errorCode: tool.errorCode || null,
   startedAt: tool.startedAt,
   input: loadPayload(tool.input.__payload.id, 'tool-input'),
+  resultPayloadId: tool.result?.__payload?.id || null,
 }))
+
+// Client turn 6 was recorded against positional section ids. The outline
+// structure contract has since moved to semantic ids, so replay migrates the
+// historical ids by their recorded title and expected range. The mapping is
+// explicit instead of accepting both id schemes, which would silently keep the
+// deprecated protocol alive.
+const semanticSectionIdMigration = new Map([
+  ['heading-16801', {
+    title: '数据板的局限',
+    range: { start: 16801, end: 17356 },
+    id: 'heading-2-z4sxm8',
+  }],
+  ['heading-17356', {
+    title: '菌膜外套：有限资源的临时通行方案',
+    range: { start: 17356, end: 18104 },
+    id: 'heading-2-10q4nra',
+  }],
+  ['heading-18104', {
+    title: '菌膜外套与共存补丁的关系',
+    range: { start: 18104, end: 22619 },
+    id: 'heading-2-28do6r',
+  }],
+])
+for (const tool of clientToolCalls) {
+  if (tool.name !== 'editor.read_range') continue
+  const input = tool.input
+  const migration = typeof input.sectionId === 'string'
+    ? semanticSectionIdMigration.get(input.sectionId)
+    : null
+  if (!migration) continue
+  const resultPayloadId = tool.resultPayloadId
+  assert.ok(resultPayloadId, `historical read ${tool.toolCallId} references its tool-result payload`)
+  const result = loadPayload(resultPayloadId, 'tool-result')
+  const section = result?.data?.section
+  assert.ok(section, `historical read ${tool.toolCallId} has a tool-result section`)
+  assert.equal(section.id, input.sectionId, 'historical read references its recorded positional id')
+  assert.equal(section.title, migration.title, 'historical read title anchors the semantic id migration')
+  assert.equal(result?.data?.range?.start, migration.range.start, 'historical read range anchors the semantic id migration')
+  assert.equal(result?.data?.range?.end, migration.range.end, 'historical read range anchors the semantic id migration')
+  input.sectionId = migration.id
+}
 
 // Rebuild the exact 21-request conversation shape from physical call
 // boundaries. A response's tools execute after it finishes and before the
@@ -505,14 +548,10 @@ function assertReplayedTrace(run) {
 
 async function raiseVisibleToolIterationLimit(page) {
   // The customer's provider emitted 21 physical requests in one turn. The
-  // product policy currently allows 12 iterations for direct-tool-intensive
-  // dialogue, so an exact customer replay needs the test profile to opt into
-  // the historical sequence length. Production behavior remains unchanged.
-    const raised = await page.evaluate(() => {
-      window.__outlineDeletionReplayMaxToolIterations = 21
-      return true
-    })
-  assert(raised, 'renderer is ready to receive replay policy override')
+  // current iteration capacity is derived from the execution-plan budget, so
+  // the replay must not inject a global production escape hatch.
+  const rendererReady = await page.evaluate(() => Boolean(window.__pinia?._s?.get('runTrace')))
+  assert(rendererReady, 'renderer is ready for derived-budget replay verification')
 }
 
 async function logLatestApiCalls(page) {
@@ -652,6 +691,8 @@ const summary = {
     console.log(`[PASS] report saved: ${reportPath}`)
   } finally {
     replayMode = false
+    await removeDir(PROFILE)
+    console.log('[CLEANUP] removed verification profile')
     if (browser) await browser.close().catch(() => undefined)
     if (electronProcess && !electronProcess.killed) {
       electronProcess.kill()

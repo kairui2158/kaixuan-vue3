@@ -140,6 +140,7 @@ export function resolveLocalTransformOperations(
   operation: LongDocumentExecutionOperation,
   requestText: string,
 ): DocumentTransformOperation[] | null {
+  if (LOCAL_TRANSFORM_SEMANTIC_NEGATIVE_PATTERN.test(requestText)) return null
   if (operation === 'normalize') {
     if (NORMALIZE_HEADING_PATTERN.test(requestText)) return null
     const operations: DocumentTransformOperation[] = []
@@ -201,6 +202,7 @@ export function canExecuteLocalTransform(input: {
 }
 
 const RESTRUCTURE_PATTERN = /(重排|排序|重新整理排序|整理排序|统一编号|统一格式|调整顺序)/
+const LOCAL_TRANSFORM_SEMANTIC_NEGATIVE_PATTERN = /(语义|剧情|逻辑|情感|主题|人物|重要性|优先级|重新梳理|优化结构|更通顺|更合理|表达|叙述|故事线|伏笔|节奏|氛围|语气)/
 const RESTRUCTURE_ALIAS_PATTERN = /(重构|重新组织|Word文档|word文档|WORD文档)/
 const WORD_FORMAT_RESTRUCTURE_PATTERN = /(?:Word|word|WORD)文档(?:的)?(?:形式|格式|样式|排版|结构)/
 const NORMALIZE_PATTERN = /(标点|格式整理|整理.*格式|符号|排版|空行|空白行|编号.*统一|统一.*编号|编号.*一致|一致.*编号)/

@@ -563,6 +563,7 @@ export interface RunTracePayloadRef {
   chars: number
   sha256: string
   createdAt: number
+  artifactRole?: 'final' | 'intermediate'
 }
 
 export interface RunTraceApiResponseRef {

@@ -12,6 +12,14 @@ const ELECTRON_EXE = process.env.SHENYI_BOUNDARY_ELECTRON
 const CDP_PORT = Number(process.env.SHENYI_BOUNDARY_CDP_PORT || 9385)
 const PROFILE = path.join(ROOT, '_data', 'boundary-live-profile')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-boundary-live-provider')
+const LIVE_PROVIDER_PATH = process.env.SHENYI_BOUNDARY_PROVIDER_PATH
+  ? path.resolve(process.env.SHENYI_BOUNDARY_PROVIDER_PATH)
+  : 'C:/Users/凯瑞/Documents/神意助手数据/wa_providers.json'
+const LIVE_PROVIDER_IDS = (process.env.SHENYI_BOUNDARY_PROVIDER_IDS || '')
+  .split(',').map(id => id.trim()).filter(Boolean)
+const EVIDENCE_DIR = process.env.SHENYI_BOUNDARY_EVIDENCE_ROOT
+  ? path.resolve(process.env.SHENYI_BOUNDARY_EVIDENCE_ROOT)
+  : EVIDENCE_ROOT
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const DATA_DIR = path.join(PROFILE, 'documents-data')
 
@@ -71,17 +79,18 @@ function closeElectron(app) {
 }
 
 async function main() {
-  const liveProviderPath = 'C:/Users/凯瑞/Documents/神意助手数据/wa_providers.json'
+  const liveProviderPath = LIVE_PROVIDER_PATH
   assert(fs.existsSync(liveProviderPath), 'application live provider config exists')
   const providerConfig = JSON.parse(fs.readFileSync(liveProviderPath, 'utf8'))
   const providers = Array.isArray(providerConfig) ? providerConfig : providerConfig.providers || []
   const live = providers.filter(provider => provider.apiKey && provider.baseUrl && provider.enabled !== false)
+    .filter(provider => LIVE_PROVIDER_IDS.length === 0 || LIVE_PROVIDER_IDS.includes(provider.id))
   assert(live.length >= 1, 'at least one configured live provider has credentials')
   const candidates = live.slice(0, 2)
   assert(candidates.length >= 1, 'at least one candidate provider is available')
 
-  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
-  fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
+  fs.rmSync(EVIDENCE_DIR, { recursive: true, force: true })
+  fs.mkdirSync(EVIDENCE_DIR, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
 
   const electronProcess = startElectron()
@@ -183,7 +192,7 @@ async function main() {
       })),
     }
     if (!successfulAttempt) {
-      const blockedPath = path.join(EVIDENCE_ROOT, 'report.json')
+      const blockedPath = path.join(EVIDENCE_DIR, 'report.json')
       fs.writeFileSync(blockedPath, `${JSON.stringify({
         ...baseReport,
         coverage: {
@@ -226,7 +235,7 @@ async function main() {
         })),
       },
     }
-    const reportPath = path.join(EVIDENCE_ROOT, 'report.json')
+    const reportPath = path.join(EVIDENCE_DIR, 'report.json')
     fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
     console.log(JSON.stringify(report, null, 2))
     console.log(`[PASS] live provider evidence written: ${reportPath}`)

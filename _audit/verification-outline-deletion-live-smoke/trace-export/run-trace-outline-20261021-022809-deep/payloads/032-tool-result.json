@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "heading_deletion_requires_user_confirmation",
+    "message": "本次删除会减少大纲标题，需要用户授权后才能执行。请停止调用工具并说明“等待用户授权删除”；用户授权后应用会重放本批次。删除目标：## 第二章 雨夜追踪。授权前原文不会被修改。",
+    "retryable": true
+  }
+}

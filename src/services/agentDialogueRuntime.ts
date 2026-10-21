@@ -8,6 +8,7 @@ import type { AgentOrchestratorSnapshot } from './agentOrchestrator'
 import type { AgentOrchestratorEvent } from './agentOrchestrator'
 import type { AgentOrchestratorPlan } from './agentOrchestrator'
 import type { ToolRunBudgetSnapshot } from './toolRunBudget'
+import type { ToolRunBudget } from './toolRunBudget'
 
 export interface AgentDialogueRuntimeEntry {
   source: RunTraceSource
@@ -26,6 +27,7 @@ export interface AgentDialogueRuntimeEntry {
   idleTimeoutMs?: number
   maxPhysicalRequests?: number
   toolRunBudget?: ToolRunBudgetSnapshot
+  toolRunBudgetInstance?: ToolRunBudget
   getContextRemaining?: (input: { messages: CallAiParams['messages'] }) => {
     contextWindowTokens?: number | null
     maxOutputTokens?: number | null
@@ -177,6 +179,7 @@ export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
           idleTimeoutMs: entry.idleTimeoutMs,
           maxPhysicalRequests: entry.maxPhysicalRequests,
           toolRunBudget: entry.toolRunBudget,
+          toolRunBudgetInstance: entry.toolRunBudgetInstance,
         },
       })
       return await orchestrator.run(request)

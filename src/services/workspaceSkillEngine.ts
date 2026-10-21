@@ -947,7 +947,7 @@ async function callWorkspaceSkill(
         ? {}
         : { previousSkillOutput: contextOptions.previousSkillOutput }),
       workspaceState: adapter.getWorkspaceState(),
-      legacyMessages:
+      immediateContextMessages:
         contextOptions.includeHistory === false
           ? []
           : adapter.getLegacyMessages(contextOptions.requestText),
@@ -1126,7 +1126,7 @@ async function callWorkspaceSkill(
       ? {}
       : { previousSkillOutput: contextOptions.previousSkillOutput }),
     workspaceState: adapter.getWorkspaceState(),
-    legacyMessages:
+    immediateContextMessages:
       contextOptions.includeHistory === false
         ? []
         : adapter.getLegacyMessages(contextOptions.requestText),

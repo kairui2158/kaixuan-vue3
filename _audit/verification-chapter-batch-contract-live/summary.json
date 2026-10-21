@@ -1,0 +1,122 @@
+{
+  "schema": "shenyi.chapter-batch-contract.electron-live",
+  "version": 1,
+  "generatedAt": "2026-10-21T13:52:37.163Z",
+  "script": "verify-chapter-batch-contract-electron.mjs",
+  "model": "deepseek-v4-pro",
+  "baseUrl": "https://openapi.cloud-ai.cn/v1",
+  "projectId": "chapter-batch-contract-live",
+  "totalChapters": 12,
+  "expectedBatches": [
+    {
+      "start": 1,
+      "end": 5,
+      "requestedCount": 5
+    },
+    {
+      "start": 6,
+      "end": 10,
+      "requestedCount": 5
+    },
+    {
+      "start": 11,
+      "end": 12,
+      "requestedCount": 2
+    }
+  ],
+  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\chapter-batch-contract-live-exports\\run-trace-章节层-20261021-212059-deep",
+  "runId": "run-1792588859055-1",
+  "status": "success",
+  "chapterCount": 12,
+  "validatedBatches": [
+    {
+      "batchIndex": 0,
+      "expectedStart": 1,
+      "expectedEnd": 5,
+      "requestedCount": 5,
+      "actualCount": 5,
+      "repairAttempts": 0,
+      "status": "complete"
+    },
+    {
+      "batchIndex": 1,
+      "expectedStart": 6,
+      "expectedEnd": 10,
+      "requestedCount": 5,
+      "actualCount": 5,
+      "repairAttempts": 0,
+      "status": "complete"
+    },
+    {
+      "batchIndex": 2,
+      "expectedStart": 11,
+      "expectedEnd": 12,
+      "requestedCount": 2,
+      "actualCount": 2,
+      "repairAttempts": 0,
+      "status": "complete"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792588859118-10",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792588978296-61",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792589129281-185",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792589283127-352",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792589463332-472",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792589595209-556",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792589839274-673",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792590056491-852",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792590286724-984",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792590411425-1040",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792590544468-1121",
+      "status": "success",
+      "toolCallCount": 0
+    },
+    {
+      "id": "api-1792590629256-1200",
+      "status": "success",
+      "toolCallCount": 0
+    }
+  ]
+}

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   buildChapterHistoryFacts,
   renderChapterHistoryContext,
+  extractDeclaredChapterCount,
+  resolveChapterCountContract,
   validateChapterBatch,
   validateChapterGenerationLedger,
   type ChapterBatchContract
@@ -66,11 +68,11 @@ describe('buildChapterHistoryFacts', () => {
 
 describe('validateChapterBatch', () => {
   it('accepts a complete batch', () => {
-    const chapters = Array.from({ length: 5 }, (_, index) => chapter(`第${index + 1}章标题`))
+    const chapters = Array.from({ length: 5 }, (_, index) => chapter(`第${index + 1}章标题`, `第${index + 1}章剧情`))
 
     const result = validateChapterBatch(chapters, contract(), new Set())
 
-    expect(result).toEqual({ valid: true, errors: [], missingCount: 0 })
+    expect(result).toEqual({ valid: true, errors: [], warnings: [], missingCount: 0 })
   })
 
   it('rejects a short batch and reports the missing count', () => {
@@ -123,6 +125,73 @@ describe('validateChapterBatch', () => {
 
     expect(result.valid).toBe(false)
     expect(result.errors).toContain('章节标题重复：「重复标题」')
+  })
+
+  it('reports completely duplicated plot content as a non-blocking warning', () => {
+    const chapters = [
+      chapter('第一章标题', '主角进入遗迹并取得信物'),
+      chapter('第二章标题', '主角进入遗迹并取得信物'),
+      chapter('第三章标题'),
+      chapter('第四章标题'),
+      chapter('第五章标题')
+    ]
+
+    const result = validateChapterBatch(chapters, contract(), new Set())
+
+    expect(result.valid).toBe(true)
+    expect(result.warnings).toContain('章节「第一章标题」与「第二章标题」剧情概要完全重复')
+  })
+})
+
+describe('chapter count contract', () => {
+  it('extracts a chapter declaration from volume outline prose', () => {
+    expect(extractDeclaredChapterCount('本卷定稿承载90章。')).toBe(90)
+    expect(extractDeclaredChapterCount('本卷规划共计 120 章')).toBe(120)
+    expect(extractDeclaredChapterCount('普通卷纲，没有章数声明')).toBe(0)
+  })
+
+  it('lets the volume declaration override configured and estimated counts', () => {
+    const result = resolveChapterCountContract({
+      volumeName: '第一卷',
+      volumeOutline: '本卷定稿承载90章',
+      configuredChapterCount: 143,
+      allocatedWords: 500500,
+      wordsPerChapter: 3500
+    })
+
+    expect(result.totalChapters).toBe(90)
+    expect(result.source).toBe('volume_outline_declared')
+    expect(result.conflict).toBe(true)
+    expect(result.message).toContain('卷纲声明90章')
+    expect(result.message).toContain('应用配置为143章')
+  })
+
+  it('falls back to configured count and then word estimate', () => {
+    expect(resolveChapterCountContract({
+      volumeName: '第二卷',
+      volumeOutline: '没有章数声明',
+      configuredChapterCount: 30,
+      allocatedWords: 100000,
+      wordsPerChapter: 3500
+    })).toMatchObject({ totalChapters: 30, source: 'configured_chapter_count', conflict: false })
+
+    expect(resolveChapterCountContract({
+      volumeName: '第三卷',
+      volumeOutline: '',
+      configuredChapterCount: 0,
+      allocatedWords: 7000,
+      wordsPerChapter: 3500
+    })).toMatchObject({ totalChapters: 2, source: 'word_estimate', conflict: false })
+  })
+
+  it('reports an unusable count contract instead of inventing zero', () => {
+    expect(resolveChapterCountContract({
+      volumeName: '第四卷',
+      volumeOutline: '',
+      configuredChapterCount: 0,
+      allocatedWords: 0,
+      wordsPerChapter: 0
+    })).toMatchObject({ totalChapters: 0, conflict: true })
   })
 })
 

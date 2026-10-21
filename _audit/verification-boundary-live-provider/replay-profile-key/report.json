@@ -1,0 +1,33 @@
+{
+  "schema": "shenyi.boundary.live-provider",
+  "version": 1,
+  "generatedAt": "2026-10-20T18:22:59.555Z",
+  "status": "verified",
+  "attempts": [
+    {
+      "providerId": "outline-deletion-live-replay-provider",
+      "providerName": "Outline Deletion Live Replay",
+      "baseUrl": "https://openapi.cloud-ai.cn/v1",
+      "model": "deepseek-v4-pro",
+      "ok": true,
+      "durationMs": 3425,
+      "statusCode": 200,
+      "textPreview": "ok",
+      "finishReason": "stop",
+      "error": null,
+      "apiKey": "***MASKED***"
+    }
+  ],
+  "live": {
+    "providerId": "outline-deletion-live-replay-provider",
+    "providerName": "Outline Deletion Live Replay",
+    "baseUrl": "https://openapi.cloud-ai.cn/v1",
+    "selectedModel": "deepseek-v4-pro",
+    "apiKey": "***MASKED***"
+  },
+  "coverage": {
+    "testedLiveProviders": 1,
+    "otherConfiguredProviders": 0,
+    "others": []
+  }
+}

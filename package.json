@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.101.0",
+  "version": "3.102.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "verify:intent-embedding-node": "node scripts/verify-intent-embedding-node.mjs",
     "verify:intent-embedding-electron": "node scripts/verify-intent-embedding-electron.mjs",
     "verify:provider-wire-electron": "node scripts/verify-api-direct-write-provider-wire-electron.mjs",
+    "verify:chapter-batch-contract-electron": "npm run build:vue && node scripts/verify-chapter-batch-contract-electron.mjs",
     "verify:postprocess-ui-electron": "npm run build:vue && node scripts/verify-postprocess-terminal-ui-electron.mjs",
     "verify:production-wiring": "depcruise src --config .dependency-cruiser.cjs"
   },

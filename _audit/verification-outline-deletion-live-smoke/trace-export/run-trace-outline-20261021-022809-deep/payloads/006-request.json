@@ -1,0 +1,26 @@
+[
+  {
+    "role": "system",
+    "content": "你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。\n\n本轮实际可调用的工具：editor.get_state(read)、editor.document_map(read)、editor.read_range(read)、editor.search(read)、editor.locate(read)、editor.write(write)、editor.reveal(read)、editor.multi_get_state(read)、editor.global_search(read)、editor.workspace_summary(read)、outline.get_structure(read)、outline.read_range(read)、outline.search(read)、outline.get_summary(read)。\n\n本轮工具面包含 editor.write(write)。"
+  },
+  {
+    "role": "system",
+    "content": "[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-be1df8b2）：\n[当前全文已注入]\n# 星潮旧港\n\n## 第一章 灯下旧约\n\n林昭把船票压在灯下，纸面上的潮痕像一张缩小的海图。\n她说自己明早出发，却没有说要去多久。\n\n## 第二章 雨夜追踪\n\n雨水把码头洗成一面黑镜。\n林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。\n她在拐角处停下，听见他们低声争论一个旧船名。\n\n## 第三章 潮汐之后\n\n天亮时，码头只剩涨潮的声音。\n旧船名没有再出现，林昭却记住了那个发音。\n\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],\"items\":{}}\n\n相关记忆（来源=memory，版本=v-dcf7f95a）：\n{\"version\":1,\"entities\":[],\"relations\":[],\"events\":[],\"world\":[],\"foreshadowing\":[],\"meta\":{\"extractionCount\":0,\"lastExtractedAt\":null,\"lastFullRebuildAt\":null,\"pendingCount\":0,\"stateRevision\":1,\"totals\":{\"entities\":0,\"relations\":0,\"events\":0,\"world\":0,\"foreshadowing\":0}},\"history\":[],\"categories\":[\"情节\",\"人物\",\"世界观\",\"伏笔\"],\"items\":[],\"sourceVersions\":[]}\n\n当前编辑区（来源=active_tab）：大纲编辑器"
+  },
+  {
+    "role": "user",
+    "content": "用户请求: 请删除第二章“雨夜追踪”以及这一章的全部内容，并直接写入大纲。不要只给建议，不要输出整理后的全文。"
+  },
+  {
+    "role": "assistant",
+    "content": ""
+  },
+  {
+    "role": "tool",
+    "content": "{\"ok\":true,\"data\":{\"totalChars\":197,\"volumeCount\":0,\"chapterCount\":0,\"sectionCount\":0,\"reorderTopLevelIds\":[\"heading-1-ilcnzy\"],\"reorderScope\":\"top-level\",\"degraded\":false,\"degradedReason\":null,\"mapText\":\"大纲结构地图：卷 0，章 0，节 0，总计 197 字\\n解析模式：标准标题层级\\n- [heading-1-ilcnzy] 星潮旧港 (0-197, 190字)\\n  - [paragraph-gap-2] 内容块 2 (7-8, 1字)\\n  - [heading-2-1inqdja] 第一章 灯下旧约 (8-67, 47字)\\n  - [heading-2-o53r8y] 第二章 雨夜追踪 (67-148, 69字)\\n  - [heading-2-i285th] 第三章 潮汐之后 (148-197, 37字)\",\"structureIdentity\":\"structure-xhrlvk\",\"totalLines\":7,\"offset\":0,\"limit\":160,\"hasMore\":false,\"next_steps\":[\"用节点 id 调用 outline.read_range 读取局部全文\",\"用 outline.search 查找关键词所在节点\"]}}"
+  },
+  {
+    "role": "tool",
+    "content": "{\"ok\":false,\"error\":{\"code\":\"node_not_found\",\"message\":\"节点不存在：root\"},\"data\":{\"candidates\":[]}}"
+  }
+]

@@ -16,7 +16,26 @@ export interface ChapterHistoryFacts {
 export interface ChapterBatchValidation {
   valid: boolean
   errors: string[]
+  warnings: string[]
   missingCount: number
+}
+
+export interface ChapterCountContractInput {
+  volumeName: string
+  volumeOutline?: string
+  configuredChapterCount?: unknown
+  allocatedWords?: unknown
+  wordsPerChapter?: unknown
+}
+
+export interface ChapterCountContract {
+  totalChapters: number
+  source: 'volume_outline_declared' | 'configured_chapter_count' | 'word_estimate'
+  configuredChapterCount: number
+  wordEstimatedCount: number
+  declaredChapterCount: number
+  conflict: boolean
+  message: string
 }
 
 export interface ChapterLedgerValidation {
@@ -31,6 +50,68 @@ function text(value: unknown): string {
 function normalizePositiveInteger(value: unknown): number {
   const num = Number(value)
   return Number.isInteger(num) && num > 0 ? num : 0
+}
+
+/** Extracts the volume's own chapter declaration, e.g. "本卷定稿承载90章". */
+export function extractDeclaredChapterCount(volumeOutline: unknown): number {
+  const outline = text(volumeOutline)
+  if (!outline) return 0
+  const match = outline.match(/(?:承载|共|规划|定稿)[^。\n]{0,24}?(\d{1,4})\s*章/)
+  return match ? normalizePositiveInteger(match[1]) : 0
+}
+
+export function resolveChapterCountContract(input: ChapterCountContractInput): ChapterCountContract {
+  const configured = normalizePositiveInteger(input.configuredChapterCount)
+  const declared = extractDeclaredChapterCount(input.volumeOutline)
+  const allocated = Math.max(0, Math.round(Number(input.allocatedWords) || 0))
+  const wordsPerChapter = normalizePositiveInteger(input.wordsPerChapter)
+  const estimated = wordsPerChapter > 0 ? Math.ceil(allocated / wordsPerChapter) : 0
+
+  if (declared > 0) {
+    const conflict = configured > 0 && configured !== declared
+    return {
+      totalChapters: declared,
+      source: 'volume_outline_declared',
+      configuredChapterCount: configured,
+      wordEstimatedCount: estimated,
+      declaredChapterCount: declared,
+      conflict,
+      message: conflict
+        ? `卷「${input.volumeName}」卷纲声明${declared}章，应用配置为${configured}章；以卷纲声明为准`
+        : `卷「${input.volumeName}」按卷纲声明确认${declared}章`
+    }
+  }
+  if (configured > 0) {
+    return {
+      totalChapters: configured,
+      source: 'configured_chapter_count',
+      configuredChapterCount: configured,
+      wordEstimatedCount: estimated,
+      declaredChapterCount: 0,
+      conflict: false,
+      message: `卷「${input.volumeName}」未声明章数，按应用配置${configured}章执行`
+    }
+  }
+  if (estimated > 0) {
+    return {
+      totalChapters: estimated,
+      source: 'word_estimate',
+      configuredChapterCount: configured,
+      wordEstimatedCount: estimated,
+      declaredChapterCount: 0,
+      conflict: false,
+      message: `卷「${input.volumeName}」未声明章数，按${allocated}字/每章${wordsPerChapter}字推算${estimated}章`
+    }
+  }
+  return {
+    totalChapters: 0,
+    source: 'word_estimate',
+    configuredChapterCount: configured,
+    wordEstimatedCount: estimated,
+    declaredChapterCount: 0,
+    conflict: true,
+    message: `卷「${input.volumeName}」没有可用章数口径：卷纲未声明、应用未配置、字数推算不可用`
+  }
 }
 
 export function buildChapterHistoryFacts(chapters: unknown[]): ChapterHistoryFacts {
@@ -97,9 +178,25 @@ export function validateChapterBatch(
     }
   })
 
+  const normalizedPlots = new Map<string, string>()
+  const warnings: string[] = []
+  list.forEach((chapter) => {
+    const plot = text((chapter as any)?.plot) || text((chapter as any)?.summary)
+    const normalized = plot.replace(/\s+/g, '')
+    if (!normalized) return
+    const title = text((chapter as any)?.title) || '?'
+    const existingTitle = normalizedPlots.get(normalized)
+    if (existingTitle) {
+      warnings.push(`章节「${existingTitle}」与「${title}」剧情概要完全重复`)
+    } else {
+      normalizedPlots.set(normalized, title)
+    }
+  })
+
   return {
     valid: errors.length === 0,
     errors,
+    warnings,
     missingCount: Math.max(0, contract.requestedCount - list.length)
   }
 }

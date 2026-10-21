@@ -65,6 +65,28 @@ describe('buildLongDocumentExecutionPlan', () => {
     ])
   })
 
+  it('keeps semantic restructuring requests on the model path', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '按剧情重要性重新梳理结构，重排章节顺序',
+      content: '# 第2节 二节\n\n二节正文\n\n# 第1节 一节\n\n一节正文',
+    }))
+
+    expect(plan.operation).toBe('restructure')
+    expect(plan.mode).not.toBe('local-transform')
+    expect(plan.localTransformOperations).toBeNull()
+  })
+
+  it('keeps semantic normalize requests on the model path', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '整理标点，让语气和逻辑更通顺',
+      content: '# 第1节 一节\n\n一节正文,',
+    }))
+
+    expect(plan.operation).toBe('normalize')
+    expect(plan.mode).not.toBe('local-transform')
+    expect(plan.localTransformOperations).toBeNull()
+  })
+
   it('keeps semantic rewrite on the model path', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '全文重写，把故事改成悲剧结局',
@@ -210,7 +232,7 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.finalDraft).toBe(false)
     expect(plan.finalDraftPlan).toBeNull()
     expect(plan.segments[0].writeStrategy).toBe('replace_match')
-    expect(plan.estimatedPhysicalRequests).toBe(12)
+    expect(plan.estimatedPhysicalRequests).toBe(52)
   })
 
   it('plans normalize work as segmented EditTask commands instead of final-draft generation', () => {
@@ -262,6 +284,7 @@ describe('buildLongDocumentExecutionPlan', () => {
       commandLimit: 10,
     }])
     expect(plan.invariants).toEqual(['planned-deletion-only'])
+    expect(plan.estimatedPhysicalRequests).toBe(24)
   })
 
   it('does not treat a normalize instruction that merely mentions duplicates as deletion work', () => {

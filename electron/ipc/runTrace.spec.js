@@ -7,6 +7,119 @@ import path from 'node:path'
 const { buildRunWithPayloadRefs, deduplicatePayloads, listRunDirectories, readRunDirectory, setDataDir, uniqueExportFile, verifyApiResponseIndex } = await import('./runTrace')
 
 describe('run trace payload deduplication', () => {
+  it('marks payload roles for multi-call and multi-physical-request traces', () => {
+    const run = {
+      status: 'success',
+      apiCalls: [
+        {
+          requestMessages: [{ role: 'user', content: 'S1 请求' }],
+          responseText: 'S1 输出',
+          physicalCalls: [
+            { requestMessages: [{ role: 'user', content: 'S1 物理请求' }] },
+            { requestMessages: [{ role: 'user', content: 'S1 重试物理请求' }] }
+          ]
+        },
+        {
+          requestMessages: [{ role: 'user', content: 'S2 请求' }],
+          responseText: 'S2 输出'
+        }
+      ]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    const roles = built.payloads.map(item => ({ kind: item.kind, role: item.artifactRole }))
+
+    expect(roles).toContainEqual({ kind: 'request', role: 'intermediate' })
+    expect(roles).toContainEqual({ kind: 'response', role: 'intermediate' })
+    expect(roles).toContainEqual({ kind: 'request', role: 'final' })
+    expect(roles).toContainEqual({ kind: 'response', role: 'final' })
+    expect(built.payloads.filter(item => item.kind === 'request' && item.artifactRole === 'final')).toHaveLength(1)
+    expect(built.payloads.filter(item => item.kind === 'response' && item.artifactRole === 'final')).toHaveLength(1)
+    expect(built.payloads.every(item => item.artifactRole === 'final' || item.artifactRole === 'intermediate')).toBe(true)
+    expect(built.refs.every(ref => ref.artifactRole === 'final' || ref.artifactRole === 'intermediate')).toBe(true)
+  })
+
+  it('marks duplicated payloads as final when any owner is final', () => {
+    const run = {
+      status: 'success',
+      apiCalls: [
+        {
+          requestMessages: [{ role: 'user', content: 'same request' }],
+          responseText: 'first response'
+        },
+        {
+          requestMessages: [{ role: 'user', content: 'same request' }],
+          responseText: 'final response'
+        }
+      ]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    const requestRef = built.refs.find(ref => ref.kind === 'request')
+
+    expect(requestRef.duplicateCount).toBe(2)
+    expect(requestRef.artifactRole).toBe('final')
+    expect(built.payloads.find(item => item.kind === 'request').artifactRole).toBe('final')
+  })
+
+  it('keeps running chain requests intermediate even when diagnostics repeat the last request', () => {
+    const request = [
+      { role: 'system', content: 'S'.repeat(1200) },
+      { role: 'user', content: 'U'.repeat(1200) }
+    ]
+    const run = {
+      status: 'running',
+      apiCalls: [
+        { requestMessages: [{ role: 'user', content: 'S1 请求' }] },
+        { requestMessages: [{ role: 'user', content: 'S2 请求' }] },
+        { requestMessages: request }
+      ],
+      folderDiagnostics: [
+        { status: 'success', output: 'S3 输出', apiMeta: { requestMessages: request } }
+      ]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    const requestRefs = built.refs.filter(ref => ref.kind === 'request')
+
+    expect(requestRefs.every(ref => ref.artifactRole === 'intermediate')).toBe(true)
+    expect(requestRefs.find(ref => ref.chars === JSON.stringify(request, null, 2).length)?.duplicateCount).toBe(2)
+  })
+
+  it('does not promote every single-physical-call request to final', () => {
+    const run = {
+      status: 'success',
+      apiCalls: [
+        {
+          requestMessages: [{ role: 'user', content: 'B1 S1 请求' }],
+          responseText: 'B1 S1 输出',
+          physicalCalls: [
+            { requestMessages: [{ role: 'user', content: 'B1 S1 请求' }], responseText: 'B1 S1 输出' }
+          ]
+        },
+        {
+          requestMessages: [{ role: 'user', content: 'B3 S4 请求' }],
+          responseText: 'B3 S4 输出',
+          physicalCalls: [
+            { requestMessages: [{ role: 'user', content: 'B3 S4 请求' }], responseText: 'B3 S4 输出' }
+          ]
+        }
+      ]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    const requestRefs = built.refs.filter(ref => ref.kind === 'request')
+    const responseRefs = built.refs.filter(ref => ref.kind === 'response')
+
+    expect(requestRefs).toHaveLength(2)
+    expect(responseRefs).toHaveLength(2)
+    expect(requestRefs.filter(ref => ref.artifactRole === 'intermediate')).toHaveLength(1)
+    expect(requestRefs.filter(ref => ref.artifactRole === 'final')).toHaveLength(1)
+    expect(responseRefs.filter(ref => ref.artifactRole === 'intermediate')).toHaveLength(1)
+    expect(responseRefs.filter(ref => ref.artifactRole === 'final')).toHaveLength(1)
+    expect(requestRefs.every(ref => ref.duplicateCount === 2)).toBe(true)
+  })
+
   it('deduplicates identical logical and physical payloads', () => {
     const request = [{ role: 'user', content: '卷纲执行包' }]
     const response = 'S1 输出'

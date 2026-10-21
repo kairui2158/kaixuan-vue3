@@ -1,0 +1,26 @@
+{
+  "schema": "shenyi.boundary.live-provider",
+  "version": 1,
+  "generatedAt": "2026-10-20T18:22:41.939Z",
+  "status": "blocked_external_credentials",
+  "attempts": [
+    {
+      "providerId": "prov-1788245641267",
+      "providerName": "新供应商",
+      "baseUrl": "https://tbtk.asia/v1",
+      "model": "deepseek-v4-pro",
+      "ok": false,
+      "durationMs": 319,
+      "statusCode": 401,
+      "textPreview": null,
+      "finishReason": null,
+      "error": "Invalid token (request id: 202610201822417905828008268d9d63i0OfWBZ)",
+      "apiKey": "***MASKED***"
+    }
+  ],
+  "coverage": {
+    "testedLiveProviders": 1,
+    "otherConfiguredProviders": 0,
+    "others": []
+  }
+}

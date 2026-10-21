@@ -1,4 +1,5 @@
 import {
+  CONTEXT_BUDGET_DEFAULTS,
   estimateInputTokens,
   resolveContextWindowTokens,
   resolvePlanningInputBudget,
@@ -107,9 +108,11 @@ export function buildEditorContextPipeline(input: {
   const estimatedDocumentTokens = estimateInputTokens(input.target.content)
   const requestedMode = input.target.workspace === 'outline'
     ? (() => {
-      if (windowTokens == null) return 'packed' as const
+      const planningWindow = windowTokens == null
+        ? CONTEXT_BUDGET_DEFAULTS.unknownWindowTokens
+        : windowTokens
       const availableForOutline = resolvePlanningInputBudget({
-        contextWindowTokens: windowTokens,
+        contextWindowTokens: planningWindow,
         maxOutputTokens: input.maxOutputTokens,
       })
       return estimatedDocumentTokens <= availableForOutline
@@ -134,9 +137,11 @@ export function buildEditorContextPipeline(input: {
   // assemble: only the target itself is currently a first-class context source.
   // Future sources enter here, keeping mode selection and validation unchanged.
   const maxFocusChars = (() => {
-    if (windowTokens == null) return null
+    const planningWindow = windowTokens == null
+      ? CONTEXT_BUDGET_DEFAULTS.unknownWindowTokens
+      : windowTokens
     const availableContextTokensForPack = resolvePlanningInputBudget({
-      contextWindowTokens: windowTokens,
+      contextWindowTokens: planningWindow,
       maxOutputTokens: input.maxOutputTokens,
     })
     if (availableContextTokensForPack <= 0) return 0

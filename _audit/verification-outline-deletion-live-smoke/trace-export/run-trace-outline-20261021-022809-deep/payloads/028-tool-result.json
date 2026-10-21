@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "data": {
+    "node": {
+      "id": "heading-1-ilcnzy",
+      "title": "星潮旧港",
+      "kind": "heading",
+      "level": 1,
+      "path": ""
+    },
+    "rangeStart": 60,
+    "rangeEnd": 155,
+    "readStart": 60,
+    "readEnd": 155,
+    "offset": 0,
+    "limit": 4000,
+    "content": "要去多久。\n\n## 第二章 雨夜追踪\n\n雨水把码头洗成一面黑镜。\n林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。\n她在拐角处停下，听见他们低声争论一个旧船名。\n\n## 第三章 ",
+    "rangeChars": 95,
+    "readChars": 95,
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取全文回答或提案，不要凭摘要推测细节"
+    ],
+    "readLedgerKey": "outline:outline.read_range:outline:range=60-155:0:4000"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 197,
+    "estimatedTokens": 101,
+    "sectionCount": 5,
+    "reorderTopLevelIds": [
+      "heading-1-ilcnzy"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "sections": [
+      {
+        "id": "heading-1-ilcnzy",
+        "title": "星潮旧港",
+        "kind": "heading",
+        "level": 1,
+        "start": 0,
+        "end": 197,
+        "charCount": 190,
+        "summaryHead": "# 星潮旧港 ## 第一章 灯下旧约 林昭把船票压在灯下，纸面上的潮痕像一张缩小的海图。 她说自己明早出发，却没有说要去多久。 ## 第二章 雨夜追踪 雨水把码头洗成一面黑镜。 林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。 "
+      },
+      {
+        "id": "paragraph-gap-2",
+        "title": "内容块 2",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 7,
+        "end": 8,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-2-1inqdja",
+        "title": "第一章 灯下旧约",
+        "kind": "heading",
+        "level": 2,
+        "start": 8,
+        "end": 67,
+        "charCount": 47,
+        "summaryHead": "林昭把船票压在灯下，纸面上的潮痕像一张缩小的海图。\n她说自己明早出发，却没有说要去多久。"
+      },
+      {
+        "id": "heading-2-o53r8y",
+        "title": "第二章 雨夜追踪",
+        "kind": "heading",
+        "level": 2,
+        "start": 67,
+        "end": 148,
+        "charCount": 69,
+        "summaryHead": "雨水把码头洗成一面黑镜。\n林昭沿着缆绳走向仓库，身后有两个人始终保持着不远不近的距离。\n她在拐角处停下，听见他们低声争论一个旧船名。"
+      },
+      {
+        "id": "heading-2-i285th",
+        "title": "第三章 潮汐之后",
+        "kind": "heading",
+        "level": 2,
+        "start": 148,
+        "end": 197,
+        "charCount": 37,
+        "summaryHead": "天亮时，码头只剩涨潮的声音。\n旧船名没有再出现，林昭却记住了那个发音。"
+      }
+    ],
+    "structureIdentity": "structure:standard:heading-1-ilcnzy|paragraph-gap-2|heading-2-1inqdja|heading-2-o53r8y|heading-2-i285th:fnv1a32_21c0769d",
+    "offset": 0,
+    "limit": 120,
+    "hasMore": false,
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 或 cursor 分段读取全文"
+    ]
+  }
+}

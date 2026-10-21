@@ -1072,3 +1072,23 @@
 - 范围：四层设定语义单源（卷纲规划、章节规划、正文执行、首页共创）、触发词旁路删除、trace 分类分布与入选/排除原因、正文接线分叉修复、首页消息快照崩溃修复、终步回放证据仓库化。
 - 验证：定向投影/接线/回放测试通过，回放 4/4；全量 180 files / 2067 tests、type-check、build:vue 全部通过；真实 Electron UI 最终轮 PASSED（schema 3→4、锁/解锁/批量锁、四层语义块、草稿排除、心跳 4 帧）。
 - 诚实边界：本地 OpenAI-compatible provider，非外部 live 矩阵；首页相关性为名称/关键词匹配；预算裁剪链路未触发；版本保持 3.100.0，未升版、未打包，等待问题二用户验收。
+
+# 2026-10-21 大纲编辑器回头看收口
+
+- 文件：[_audit/DEV_LOG_2026-10-21_outline-editor-lookback-closure.md](_audit/DEV_LOG_2026-10-21_outline-editor-lookback-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-21_outline-editor-lookback-closure.md](_audit/TASK_LEDGERS/2026-10-21_outline-editor-lookback-closure.md)
+- 范围：direct 写任务预算按执行形态派生、live 预算实例单源、大纲删除授权单源、回放后门删除、旧位置型 sectionId 回放迁移与负向断言、未知窗口共享预算、语义负向模式。
+- 验证：`build:vue`、真实 Electron 回放、全量 187 files / 2103 tests、`type-check` 全部通过；授权后删除 1,566 字，拒绝后保留 74,841 字，3 个历史 `write_only_mode` locate 失败在新语义下转为 success。
+- 诚实边界：本地 OpenAI-compatible provider，非外部 live 矩阵；版本保持 3.101.0，未升版、未封装，等待用户审核。
+- 经验回写：升级 v8.17，新增 G1.20 预算派生与回放锚点契约。
+- [2026-10-21 大纲删除外部 live smoke](./DEV_LOG_2026-10-21_outline-deletion-live-smoke.md)：默认供应商 401 后，继续复核应用内历史验证 profile KEY，确认可用并直接复用；真实 Electron + 真实 API live 通过，授权回放事件补齐 `execution: "authorized-replay"` 观测。
+- 封装：升级 3.102.0；安装包 `dist/神意助手-Setup-3.102.0.exe`，231,554,396 bytes，SHA256 `d6601aa52e169607860ae37886d9dbe986ff86801989c7d4f76a04a76f0a441a`；打包后真实启动核验 PASSED（rendererFiles=81、electronAPI methods=77），证据 `_audit/verification-packaging-3-102-0/packaging-evidence.json`；3.100.0、3.101.0 旧安装包与 blockmap 已清理，dist 仅保留最新交付。
+
+# 2026-10-21 章节层上下文与契约修复
+
+- 文件：[_audit/DEV_LOG_2026-10-21_chapter-layer-context-contract.md](_audit/DEV_LOG_2026-10-21_chapter-layer-context-contract.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-21_chapter-layer-context-contract-repair.md](_audit/TASK_LEDGERS/2026-10-21_chapter-layer-context-contract-repair.md)
+- 范围：prompt block 协议单源、非首跳全书大纲瘦身、章节数单源仲裁、plot 重复 warning、Agent model 回退观测、导出 payload `artifactRole`、live/replay 验证器强化。
+- 验证：真实 Electron + 真实 API live 通过（12 章、3 批 complete、12 API success、0 修复）；回放 `RESULT: ACCEPTED (6 checks)`；`type-check` 通过；全量 187 files / 2114 tests 通过。
+- 诚实边界：未复刻 7.5 万字同规模长文，登记 `untested`；单一供应商 deepseek-v4-pro；`scaffold_not_smaller` 在短 prompt 中为保守路径，真实压缩幅度需长文采样。
+- 封装：未升版、未打包，版本保持 3.102.0，等待用户裁决。

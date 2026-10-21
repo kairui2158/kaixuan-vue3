@@ -1,3 +1,5 @@
+import { CONTEXT_BUDGET_DEFAULTS } from './contextBudget'
+
 export const EDITOR_CONTEXT_FULL_CONTENT_MAX_CHARS = 12_000
 export const EDITOR_CONTEXT_EDGE_CHARS = 600
 
@@ -49,10 +51,13 @@ export function resolveEditorReadCapChars(input: {
   providerContextWindowTokens?: number | string | null
   modelContextWindow?: number
 }): number {
+  const knownWindow = Number.isFinite(input.modelContextWindow) && Number(input.modelContextWindow) > 0
   const providerWindow = Number(input.providerContextWindowTokens)
   const contextWindow = Number.isFinite(providerWindow) && providerWindow > 0
     ? Math.floor(providerWindow)
-    : input.modelContextWindow || 32_768
+    : knownWindow
+      ? Math.floor(Number(input.modelContextWindow))
+      : CONTEXT_BUDGET_DEFAULTS.unknownWindowTokens
   // Keep the minimum aligned with editorDocumentMap's default read page.
   // A pure percentage would make 32k models fall below the 1000-char floor.
   return Math.max(EDITOR_CONTEXT_FULL_CONTENT_MAX_CHARS, Math.floor(contextWindow * 0.02))

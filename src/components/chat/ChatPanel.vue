@@ -3915,7 +3915,7 @@ async function callApi(
    projectId: projId,
    workspace: 'main',
    purpose: 'generate',
-   legacyMessages: getChatContextMessages(userText),
+   immediateContextMessages: getChatContextMessages(userText),
    toolAudit: lastHomeToolAudit,
    workspaceState: {
      editorContent: requestTarget.content,
@@ -5068,7 +5068,7 @@ function rollbackEditorBatch(message: ChatMessage) {
       durationMs: 0,
       detail: '批次应用后编辑器内容已变化，拒绝自动回滚'
     })
-    void appConfirm.alert('编辑器内容在批次应用后已有修改，请使用对比预览手动处理')
+    void appConfirm.alert('编辑器内容在批次应用后已有修改，请打开运行记录查看失败批次差异，或撤销后重试该批次')
     return
   }
   const undoContent = findEditorBatchUndoContent(editorStore.listUndoContentsForTab(record.targetId), record)

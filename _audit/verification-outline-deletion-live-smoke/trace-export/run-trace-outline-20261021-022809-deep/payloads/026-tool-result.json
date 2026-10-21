@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "error": {
+    "code": "node_not_found",
+    "message": "节点不存在：root"
+  },
+  "data": {
+    "candidates": []
+  }
+}

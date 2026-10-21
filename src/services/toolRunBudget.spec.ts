@@ -170,4 +170,41 @@ describe('toolRunBudget', () => {
       reservedWriteToolCalls: 12,
     })
   })
+
+  it('derives a bounded direct write budget from the execution shape instead of legacy direct defaults', () => {
+    const budget = createToolRunBudget({
+      plan: {
+        mode: 'direct' as const,
+        operation: 'targeted_edit' as const,
+        segments: [{
+          segmentId: 'targeted-edit',
+          range: { startLine: 0, endLine: 74_841 },
+          readStrategy: 'full' as const,
+          writeStrategy: 'replace_match' as const,
+          expectedChange: 'rewrite' as const,
+          commandLimit: 10,
+        }],
+      },
+    })
+    const snapshot = budget.snapshot()
+
+    expect(snapshot.plannedWriteCount).toBe(0)
+    expect(snapshot.maxReadToolCalls).toBe(36)
+    expect(snapshot.reservedWriteToolCalls).toBe(12)
+    expect(snapshot.maxPhysicalRequests).toBe(52)
+    expect(budget.canStartPhysicalRequest('read')).toBe(true)
+
+    for (let index = 0; index < 34; index += 1) {
+      expect(budget.recordToolCall('read')).toBe(true)
+    }
+    for (let index = 0; index < 7; index += 1) {
+      expect(budget.recordToolCall('write')).toBe(true)
+    }
+    expect(budget.snapshot()).toMatchObject({
+      readToolCalls: 34,
+      writeToolCalls: 7,
+      exhaustedClasses: [],
+    })
+    expect(budget.canStartPhysicalRequest('read')).toBe(true)
+  })
 })

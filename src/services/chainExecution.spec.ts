@@ -370,8 +370,44 @@ describe("body chain execution contract", () => {
       isPrimaryConsumer: false,
       requiresFullUpstream: true
     })
-    expect(declared.slimmed).toBe(false)
-    expect(declared.prompt).toBe(prompt)
+    expect(declared.slimmed).toBe(true)
+    expect(declared.reason).toBe("declared_full_context_slimmed")
+    expect(declared.prompt).toContain("- 第一卷 起点")
+    expect(declared.prompt).not.toContain("细节".repeat(20))
+
+    const fullOutlinePrompt = prompt.replace("[大纲]", "[全书大纲]")
+    const fullOutlineResult = slimChainUpstreamPrompt({
+      prompt: fullOutlinePrompt,
+      isPrimaryConsumer: false,
+      requiresFullUpstream: true
+    })
+    expect(fullOutlineResult.slimmed).toBe(true)
+    expect(fullOutlineResult.prompt).toContain("[全书大纲]")
+    expect(fullOutlineResult.prompt).not.toContain("细节".repeat(20))
+  })
+
+  it("does not expand a prompt when the outline scaffold is larger", () => {
+    const prompt = [
+      "任务：规划章节",
+      "[大纲]",
+      "第一卷 起点",
+      "主角查访旧案。",
+      "",
+      "[设定]",
+      "主角 - 冷静、执拗"
+    ].join("\n")
+
+    const result = slimChainUpstreamPrompt({
+      prompt,
+      isPrimaryConsumer: false,
+      requiresFullUpstream: true
+    })
+
+    expect(result.slimmed).toBe(false)
+    expect(result.reason).toBe("scaffold_not_smaller")
+    expect(result.prompt).toBe(prompt)
+    expect(result.scaffoldCandidateLength).toBeGreaterThan(prompt.length)
+    expect(result.prompt.length).toBe(result.originalLength)
   })
 
   it("leaves prompts without a bounded outline block untouched", () => {
@@ -384,5 +420,46 @@ describe("body chain execution contract", () => {
       outlineLength: 0,
       reason: "outline_block_absent"
     })
+  })
+
+  it("keeps volume assets and later chain context while slimming only the full outline", () => {
+    const prompt = [
+      "任务：规划章节",
+      "[全书大纲]",
+      "第一卷 起点",
+      "主角查访旧案，发现关键证人。" + "细节".repeat(100),
+      "",
+      "[卷纲]",
+      "第一卷 第一阶段",
+      "证人出现在渡口，主角必须先取回旧案卷宗。",
+      "",
+      "[风格与节奏]",
+      "快节奏、强悬念、少解释。",
+      "",
+      "[本卷总章数]",
+      "12",
+      "",
+      "[单章字数]",
+      "3500",
+      "",
+      "[已生成章节标题清单]",
+      "第1章《旧案回声》"
+    ].join("\n")
+
+    const result = slimChainUpstreamPrompt({
+      prompt,
+      isPrimaryConsumer: false,
+      requiresFullUpstream: true
+    })
+
+    expect(result.slimmed).toBe(true)
+    expect(result.reason).toBe("declared_full_context_slimmed")
+    expect(result.prompt).toContain("[全书大纲]")
+    expect(result.prompt).not.toContain("细节".repeat(20))
+    expect(result.prompt).toContain("证人出现在渡口")
+    expect(result.prompt).toContain("快节奏、强悬念、少解释。")
+    expect(result.prompt).toContain("12")
+    expect(result.prompt).toContain("3500")
+    expect(result.prompt).toContain("第1章《旧案回声》")
   })
 })
