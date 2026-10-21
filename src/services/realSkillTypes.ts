@@ -161,6 +161,8 @@ export interface RealSkillExecutionResult {
       /** Marker-block occurrence counts in the final user prompt; observability only. */
       repeatedPromptBlocks?: Record<string, number>
     }
+    /** Candidate ledger position retained by the executor when schema retries are exhausted. */
+    retainedCandidateIndex?: number
   }
 }
 

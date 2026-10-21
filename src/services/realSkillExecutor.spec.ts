@@ -733,6 +733,48 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     }
   })
 
+  it('retains the best failed candidate after retries are exhausted', async () => {
+    const outputs = [
+      '{"facts": []}',
+      '{}'
+    ]
+    let callIndex = 0
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: outputs[Math.min(callIndex++, outputs.length - 1)] ?? '{}'
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        schema: {
+          type: 'object',
+          required: ['facts', 'state', 'events'],
+          properties: {
+            facts: { type: 'array' },
+            state: { type: 'string' },
+            events: { type: 'array' }
+          }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      validateOutputSchema: false
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(3)
+    expect(result.status).toBe('degraded')
+    expect(result.output).toBe(outputs[0])
+    expect(result.diagnostics.some(item =>
+      item.code === 'schema-validation-best-candidate-retained' &&
+      item.message.includes('第 1/3 次候选')
+    )).toBe(true)
+  })
+
   it('accepts advisory postProcess warnings without downgrading a valid output', async () => {
     const callAi = vi.fn(async () => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)

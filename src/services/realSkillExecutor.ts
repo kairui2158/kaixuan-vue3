@@ -498,9 +498,10 @@ function buildValidationErrorReport(errors: string[]): string {
 function buildFinalStepSchemaRetryFeedback(
   options: RealSkillExecuteOptions,
   errors: string[],
+  candidate: string,
 ): string {
   const deaiFindings = options.finalStepRetry?.role === 'polish'
-    ? collectFinalStepDeaiFindings(lastFinalStepCandidateBySkill.get(options.skillId || 'default') || '')
+    ? collectFinalStepDeaiFindings(candidate)
     : undefined
   const result = buildFinalStepFeedback({
     errors,
@@ -510,8 +511,6 @@ function buildFinalStepSchemaRetryFeedback(
   options.onFinalStepFeedbackComposed?.(result)
   return result.feedback
 }
-
-const lastFinalStepCandidateBySkill = new Map<string, string>()
 
 function collectFinalStepDeaiFindings(candidate: string): Array<{ code: string; label: string; message: string }> {
   if (!candidate.trim()) return []
@@ -784,6 +783,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   }
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
   const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
+  let retainedCandidateIndex = 0
 
   function captureRequestMessages(
     messages: Array<{ role: string; content: string }>,
@@ -823,7 +823,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         'SKILL 声明 requiresFullUpstreamContext，但上游上下文为空，已按 previous-only 口径继续'
       ))
     }
-    let lastAttempt: { output: string; validation: { valid: boolean; errors: string[] } } | null = null
+    const candidateLedger: Array<{ output: string; validation: { valid: boolean; errors: string[] }; attempt: number }> = []
     let schemaRetryFeedback: string | undefined
 
     for (let attempt = 1; attempt <= RETRY_LIMIT; attempt += 1) {
@@ -1118,12 +1118,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             .map(issue => issue.message)
           const retryErrors = blockingErrors.length > 0 ? blockingErrors : ['postProcess 返回阻断性问题']
           const report = buildValidationErrorReport(retryErrors)
-          lastAttempt = { output: candidateOutput, validation: { valid: false, errors: retryErrors } }
+          candidateLedger.push({
+            output: candidateOutput,
+            validation: { valid: false, errors: retryErrors },
+            attempt
+          })
           if (options.finalStepRetry?.role === 'polish') {
-            lastFinalStepCandidateBySkill.set(options.skillId || 'default', candidateOutput)
-          }
-          if (options.finalStepRetry?.role === 'polish') {
-            schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors)
+            schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors, candidateOutput)
           } else {
             const feedback = buildSchemaRetryFeedback({ errors: retryErrors, previousOutput: candidateOutput })
             schemaRetryFeedback = feedback.feedback
@@ -1146,7 +1147,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           continue
         }
         if (!validation.valid && options.validateOutputSchema) {
-          lastAttempt = { output: candidateOutput, validation: { valid: true, errors: [] } }
+          candidateLedger.push({
+            output: candidateOutput,
+            validation: { valid: true, errors: [] },
+            attempt
+          })
           diagnostics.push(diagnostic(
             'warning',
             'schema-contract-warning',
@@ -1162,7 +1167,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           }
           break
         }
-        lastAttempt = { output: candidateOutput, validation }
+        candidateLedger.push({ output: candidateOutput, validation, attempt })
 
         if (validation.valid) {
           output = candidateOutput
@@ -1186,10 +1191,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
 
         const report = buildValidationErrorReport(validation.errors)
         if (options.finalStepRetry?.role === 'polish') {
-          lastFinalStepCandidateBySkill.set(options.skillId || 'default', candidateOutput)
-        }
-        if (options.finalStepRetry?.role === 'polish') {
-          schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, validation.errors)
+          schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, validation.errors, candidateOutput)
         } else {
           const feedback = buildSchemaRetryFeedback({ errors: validation.errors, previousOutput: candidateOutput })
           schemaRetryFeedback = feedback.feedback
@@ -1241,17 +1243,39 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       }
     }
 
-    if (!lastAttempt || !lastAttempt.validation.valid) {
+    const retainedCandidate = candidateLedger.length
+      ? candidateLedger.reduce((best, current) => {
+          if (!best) return current
+          if (best.validation.valid !== current.validation.valid) {
+            return best.validation.valid ? best : current
+          }
+          if (best.validation.errors.length !== current.validation.errors.length) {
+            return best.validation.errors.length <= current.validation.errors.length ? best : current
+          }
+          return best.attempt <= current.attempt ? best : current
+        })
+      : null
+    retainedCandidateIndex = retainedCandidate
+      ? candidateLedger.findIndex(item => item === retainedCandidate) + 1
+      : 0
+    if (!retainedCandidate || !retainedCandidate.validation.valid) {
       if (isMultiPass) {
         dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed' })
       } else {
         dispatchStepEvent({ skillId: pkg.id, index: passIndex, total: passList.length, status: 'failed', attempts: RETRY_LIMIT })
       }
       errors.push(`输出未通过校验，已达最大尝试次数 ${RETRY_LIMIT}`)
+      if (retainedCandidate && candidateLedger.length > 1) {
+        diagnostics.push(diagnostic(
+          'warning',
+          'schema-validation-best-candidate-retained',
+          `重试耗尽后保留第 ${retainedCandidate.attempt}/${RETRY_LIMIT} 次候选（${retainedCandidate.validation.errors.length} 项失败）`
+        ))
+      }
       diagnostics.push(diagnostic('error', 'schema-validation-exhausted', '输出未通过校验，已达最大尝试次数'))
       return {
         status: 'degraded',
-        output: lastAttempt?.output || '',
+        output: retainedCandidate?.output || '',
         errors,
         diagnostics,
         folderPackageCache: loaded.folderPackageCache === true,
@@ -1271,7 +1295,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           toolResults,
           toolRequestDeltas,
           toolAudit,
-          timingLedger: { ...timingLedger }
+          timingLedger: { ...timingLedger },
+          retainedCandidateIndex
         }
       }
     }
@@ -1306,7 +1331,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       toolResults,
       toolRequestDeltas,
       toolAudit,
-      timingLedger: { ...timingLedger }
+      timingLedger: { ...timingLedger },
+      retainedCandidateIndex
     }
   }
 }

@@ -173,15 +173,12 @@ function buildPrompt(input: {
     return [
       input.basePrompt,
       '',
-      '上一版正文未通过验收，请只做定点扩写或压缩修复。',
-      `上一版正文字数：${input.previousWordCount}，目标字数：${input.targetWords}`,
+      '上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。',
+      `上一版正文字数：${input.previousWordCount}，目标字数：${input.targetWords}；旧稿全文不进入本次请求。`,
       '错误如下：',
       ...(input.errors || []).map(error => `- ${error}`),
       '',
-      '【上一版正文】',
-      input.previousBody,
-      '',
-      '要求：保留上一版可用情节、人物和文风；禁止整篇重写；只输出修复后的完整正文。'
+      '要求：由正文生成步重新输出完整正文，再进入打磨步；只输出修复后的完整正文。'
     ].join('\n')
   }
   return [

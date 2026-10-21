@@ -1109,3 +1109,12 @@
 - 验证：真实可见 Electron UI + 本地 OpenAI-compatible provider 三场景通过（A 拒绝 4 请求、B 成功 5 请求、C 无账本 4 请求且 S3 未调用）；定向 5 files / 68 tests、降AI/终步反馈 3 files / 9 tests、全量 188 files / 2126 tests、type-check 全部通过。
 - 诚实边界：非外部 live 供应商矩阵；版本保持 3.102.0，未升版、未封装。
 - 经验回写：升级 v8.19，G1.5 补入门时序证据契约，G1.17 补入副作用断言面契约。
+
+# 2026-10-22 正文候选账本与修复反馈协议
+
+- 文件：[_audit/DEV_LOG_2026-10-22_body-candidate-ledger-repair-protocol.md](_audit/DEV_LOG_2026-10-22_body-candidate-ledger-repair-protocol.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-22_body-candidate-ledger-repair-protocol.md](_audit/TASK_LEDGERS/2026-10-22_body-candidate-ledger-repair-protocol.md)
+- 范围：schema retry 候选账本与最优失败候选保留、终步候选跨任务泄漏清零、targeted repair 旧稿全文回传清零、attempt/trace 反馈审计、runId 归属单源化。
+- 验证：定向 3 files / 170 tests、Electron targeted repair 2 物理请求通过；全量、type-check、build:vue、封装核验见 DEV_LOG 收尾验证。
+- 诚实边界：本地 OpenAI-compatible provider，非外部 live 供应商矩阵；最优候选只按契约质量排序，不评估文学质量。
+- 经验回写：升级 v8.20，G2.9 补候选账本契约，G1.17 补 runId 单源契约。

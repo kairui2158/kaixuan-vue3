@@ -3024,4 +3024,58 @@ describe('runTrace store', () => {
     store.appendFolderDiagnostics(runId, { status: 'failed', diagnostics: [] })
     expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('failed')
   })
+
+  it('records and resets body feedback audits on the active pipeline run', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      step: 4,
+      stepName: '正文层',
+      mode: 'chain',
+      skillNames: ['S1', 'S2', 'S3']
+    })
+
+    store.recordBodyFeedbackAudit({
+      schema: {
+        candidateChars: 12000,
+        feedbackChars: 800,
+        anchorCount: 3,
+        previewChars: 240,
+        suppressedCandidateChars: 11200
+      }
+    })
+    store.recordBodyFeedbackAudit({
+      finalStep: {
+        sourceCounts: { errors: 2, anchors: 3 },
+        length: 640
+      }
+    })
+
+    const audits = store.getBodyFeedbackAudits(runId)
+    expect(audits).toEqual([
+      {
+        schema: {
+          candidateChars: 12000,
+          feedbackChars: 800,
+          anchorCount: 3,
+          previewChars: 240,
+          suppressedCandidateChars: 11200
+        },
+        finalStep: null
+      },
+      {
+        schema: null,
+        finalStep: {
+          sourceCounts: { errors: 2, anchors: 3 },
+          length: 640
+        }
+      }
+    ])
+
+    const run = store.getRun(runId)!
+    expect(run.events.filter(event => event.type === 'body-feedback-audit')).toHaveLength(2)
+    expect(JSON.stringify(store.exportRunToJson(run))).toContain('body-feedback-audit')
+
+    store.resetBodyFeedbackAudits(runId)
+    expect(store.getBodyFeedbackAudits(runId)).toEqual([])
+  })
 })

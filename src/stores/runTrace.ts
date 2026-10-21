@@ -880,6 +880,20 @@ function nextId(prefix: string) {
   return `${prefix}-${Date.now()}-${idSeed}`
 }
 
+export interface BodyFeedbackAuditRecord {
+  schema?: null | {
+    candidateChars: number
+    feedbackChars: number
+    anchorCount: number
+    previewChars: number
+    suppressedCandidateChars: number
+  }
+  finalStep?: null | {
+    sourceCounts: Record<string, number>
+    length: number
+  }
+}
+
 function formatTime(ts?: number) {
   if (!ts) return '-'
   const d = new Date(ts)
@@ -924,6 +938,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   const editTaskPlannedBatchIds = new Set<string>()
   const lastStreamActivityEventAtByCallId = new Map<string, number>()
   const lastToolArgumentActivityEventAtByCallId = new Map<string, number>()
+  const bodyFeedbackAuditsByRunId = ref<Record<string, BodyFeedbackAuditRecord[]>>({})
 
   function resetRunActivityDeduplication(runId: string) {
     reportedLongRequestPhysicalIds.delete(runId)
@@ -952,6 +967,59 @@ export const useRunTraceStore = defineStore('runTrace', () => {
 
   function getRun(id: string) {
     return runs.value.find(run => run.id === id) || null
+  }
+
+  function recordBodyFeedbackAudit(record: BodyFeedbackAuditRecord) {
+    const runId = currentRunIdBySource.value.pipeline
+    if (!runId) return
+    const audits = bodyFeedbackAuditsByRunId.value[runId] || []
+    audits.push({
+      schema: record.schema ?? null,
+      finalStep: record.finalStep ?? null
+    })
+    bodyFeedbackAuditsByRunId.value[runId] = audits
+    const schemaAudit = record.schema
+    const finalStepAudit = record.finalStep
+    if (schemaAudit) {
+      addEvent(runId, {
+        type: 'body-feedback-audit',
+        level: 'info',
+        label: '正文修复反馈审计：候选全文已抑制',
+        detail: JSON.stringify({
+          channel: 'schema',
+          candidateChars: schemaAudit.candidateChars,
+          feedbackChars: schemaAudit.feedbackChars,
+          anchorCount: schemaAudit.anchorCount,
+          previewChars: schemaAudit.previewChars,
+          suppressedCandidateChars: schemaAudit.suppressedCandidateChars
+        })
+      })
+    }
+    if (finalStepAudit) {
+      addEvent(runId, {
+        type: 'body-feedback-audit',
+        level: 'info',
+        label: '正文修复反馈审计：终步反馈单源合成',
+        detail: JSON.stringify({
+          channel: 'final_step',
+          sourceCounts: finalStepAudit.sourceCounts,
+          feedbackChars: finalStepAudit.length
+        })
+      })
+    }
+  }
+
+  function resetBodyFeedbackAudits(runId: string) {
+    if (bodyFeedbackAuditsByRunId.value[runId]?.length) {
+      bodyFeedbackAuditsByRunId.value[runId] = []
+    }
+  }
+
+  function getBodyFeedbackAudits(runId: string): BodyFeedbackAuditRecord[] {
+    return (bodyFeedbackAuditsByRunId.value[runId] || []).map(audit => ({
+      schema: audit.schema ? { ...audit.schema } : null,
+      finalStep: audit.finalStep ? { ...audit.finalStep } : null
+    }))
   }
 
   function abandonRunningRun(source: RunTraceSource = 'pipeline') {
@@ -2846,6 +2914,9 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     recordStepPhaseTiming,
     recordStepObservation,
     addEvent,
+    recordBodyFeedbackAudit,
+    resetBodyFeedbackAudits,
+    getBodyFeedbackAudits,
     startApiCall,
     appendPhysicalCall,
     appendToolCall,

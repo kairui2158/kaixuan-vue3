@@ -458,8 +458,11 @@ async function main() {
       `heartbeat cadence is continuous for ${heartbeatDuration}ms, got ${heartbeatFrames} frames`)
     const repairRequest = JSON.parse(provider.requests()[1].bodyText)
     const repairPrompt = repairRequest.messages.find(message => message.role === 'user')?.content || ''
-    assert(repairPrompt.includes('【上一版正文】'), 'targeted repair carries the previous body')
-    assert(repairPrompt.includes(SHORT_BODY), 'targeted repair prompt contains the failed body')
+    assert(!repairPrompt.includes('【上一版正文】'), 'targeted repair must not carry the previous-body full-text block')
+    assert(!repairPrompt.includes(SHORT_BODY), 'targeted repair must not inject the failed body full text')
+    assert(!repairPrompt.includes('禁止整篇重写'), 'old targeted-repair wording is not reused')
+    assert(repairPrompt.includes('旧稿全文不进入本次请求'), 'targeted repair declares full-text suppression')
+    assert(repairPrompt.includes('上游权威产物重新生成正文'), 'targeted repair regenerates from authoritative upstream artifacts')
     assert(repairPrompt.includes('目标字数：3000'), 'targeted repair carries the target word count')
 
     const lockedSnapshot = await page.evaluate(() => ({

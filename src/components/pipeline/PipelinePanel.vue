@@ -2033,6 +2033,24 @@ function buildFinalStepUpstreamAnchors(upstreamOutput: string): string[] {
     .slice(0, 3)
 }
 
+interface BodyFeedbackAuditState {
+  schema: null | {
+    candidateChars: number
+    feedbackChars: number
+    anchorCount: number
+    previewChars: number
+    suppressedCandidateChars: number
+  }
+  finalStep: null | {
+    sourceCounts: Record<string, number>
+    length: number
+  }
+}
+
+function createBodyFeedbackAuditState(): BodyFeedbackAuditState {
+  return { schema: null, finalStep: null }
+}
+
 function buildFinalStepEchoRetryFeedback(
   finalStepRetry: {
     role: 'generator' | 'polish'
@@ -2166,7 +2184,8 @@ async function callValidatedSkill(
         timingLedger: apiMeta?.timingLedger
       })
     }
-    let route: Awaited<ReturnType<typeof routeSkill>>
+  let route: Awaited<ReturnType<typeof routeSkill>>
+  const bodyFeedbackAudit = createBodyFeedbackAuditState()
     try {
       const probe = await loadRealSkill(template.skill.folderPath)
       if (!probe.package) {
@@ -2235,6 +2254,13 @@ async function callValidatedSkill(
         timeoutMs,
         finalStepRetry: finalStepRetryParam,
         onSchemaRetryFeedbackComposed: (result) => {
+          bodyFeedbackAudit.schema = {
+            candidateChars: result.candidateChars,
+            feedbackChars: result.feedbackChars,
+            anchorCount: result.anchorCount,
+            previewChars: result.previewChars,
+            suppressedCandidateChars: result.suppressedCandidateChars
+          }
           if (!traceRunId) return
           runTraceStore.addEvent(traceRunId, {
             type: 'schema-retry-feedback-composed',
@@ -2250,6 +2276,10 @@ async function callValidatedSkill(
           })
         },
         onFinalStepFeedbackComposed: (result) => {
+          bodyFeedbackAudit.finalStep = {
+            sourceCounts: { ...result.sourceCounts },
+            length: result.length
+          }
           if (!traceRunId) return
           runTraceStore.addEvent(traceRunId, {
             type: 'final-step-feedback-composed',
@@ -2348,6 +2378,12 @@ async function callValidatedSkill(
     if (route.mode === "folder" && route.folderResult) {
       const folderStatus = route.folderResult.status
       lastFolderSkillDiagnostics.value = route.folderResult
+      if (bodyFeedbackAudit.schema || bodyFeedbackAudit.finalStep) {
+        runTraceStore.recordBodyFeedbackAudit({
+          schema: bodyFeedbackAudit.schema,
+          finalStep: bodyFeedbackAudit.finalStep
+        })
+      }
       if (traceRunId) {
         runTraceStore.appendFolderDiagnostics(traceRunId, {
           ...route.folderResult,
@@ -4877,6 +4913,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const rememberBodyStepOutputs = (outputs: ChainBreakpointStepOutput[]) => {
       previousBodyStepOutputs = outputs
     }
+    let currentBodyRunId: string | null = null
     let bodyArtifact = await generateBodyArtifact({
       contract: bodyChainContract,
       basePrompt: prompt,
@@ -4884,16 +4921,18 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       generatorDeclaredRole: generatorStep.role,
       finalStepRole: 'polish',
       totalSteps: getStepSkillTemplates(4).length,
-      callBodyApi: (requestPrompt, context) => {
-        if (context.chapterId !== generationTargetSnapshot.chapterId) {
-          return Promise.reject(new Error('正文目标已变化，本次生成终止'))
-        }
-        const runId = trace.runId || runTraceStore.getRunId('pipeline')
-        const runAtStart = runId ? runTraceStore.getRun(runId) : null
-        const apiCallsAtStart = runAtStart?.apiCalls.length ?? 0
-        const eventsAtStart = runAtStart?.events.length ?? 0
-        resetBodyStepAcceptance()
-        const executionPlan = {
+        callBodyApi: (requestPrompt, context) => {
+          const bodyRunId = trace.runId || runTraceStore.getRunId('pipeline')
+          currentBodyRunId = bodyRunId
+          const bodyApiStarted = bodyRunId ? runTraceStore.getRun(bodyRunId) : null
+          const bodyApiCallsAtStart = bodyApiStarted?.apiCalls.length ?? 0
+          const bodyApiEventsAtStart = bodyApiStarted?.events.length ?? 0
+          if (context.chapterId !== generationTargetSnapshot.chapterId) {
+            return Promise.reject(new Error('正文目标已变化，本次生成终止'))
+          }
+          if (bodyRunId) runTraceStore.resetBodyFeedbackAudits(bodyRunId)
+          resetBodyStepAcceptance()
+          const executionPlan = {
           ...context.executionPlan,
           upstreamStepOutputs: previousBodyStepOutputs,
           onStepOutputs: rememberBodyStepOutputs,
@@ -4932,12 +4971,12 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             }
             throw new Error('正文生成步骤无法唯一识别，禁止向所有步骤注入正文契约')
           }
-          const runAfter = runId ? runTraceStore.getRun(runId) : null
+          const runAfter = bodyRunId ? runTraceStore.getRun(bodyRunId) : null
           const physicalRequests = Math.max(
             0,
-            (runAfter?.apiCalls.length ?? apiCallsAtStart) - apiCallsAtStart
+            (runAfter?.apiCalls.length ?? bodyApiCallsAtStart) - bodyApiCallsAtStart
           )
-          const resumedFromBreakpoint = (runAfter?.events.slice(eventsAtStart) || [])
+          const resumedFromBreakpoint = (runAfter?.events.slice(bodyApiEventsAtStart) || [])
             .some(event => event.type === 'chain-handoff-resume')
           return {
             text,
@@ -4970,6 +5009,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             bodyPreview: (attempt.body || '').slice(0, 200),
             requestFingerprint: attempt.metadata?.requestFingerprint,
             generatorStepIndex: currentBodyGeneratorStepIndex.value,
+            feedbackAudits: currentBodyRunId ? runTraceStore.getBodyFeedbackAudits(currentBodyRunId) : [],
             stepAcceptanceDecisions: currentBodyStepAcceptance.value.map(item => ({
               stepIndex: item.stepIndex,
               callerStatus: item.callerStatus,

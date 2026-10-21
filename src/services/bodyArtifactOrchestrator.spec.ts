@@ -109,12 +109,13 @@ describe('generateBodyArtifact', () => {
 
   it('repairs a non-empty draft with a targeted repair request', async () => {
     const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
+    const firstDraft = '旧稿唯一标记ABC'
     const result = await generateBodyArtifact({
       contract,
       basePrompt: '生成第1章正文',
       callBodyApi: async (prompt, context) => {
         calls.push({ prompt, context })
-        return calls.length === 1 ? '短' : '这是一段合格的正文。'
+        return calls.length === 1 ? firstDraft : '这是一段合格的正文。'
       }
     })
 
@@ -122,12 +123,15 @@ describe('generateBodyArtifact', () => {
     expect(calls).toHaveLength(2)
     expect(calls[0].context?.repairScope).toBe('none')
     expect(calls[1].context?.repairScope).toBe('targeted')
-    expect(calls[1].context?.previousBody).toBe('短')
-    expect(calls[1].context?.errors).toContain('正文过短：1字，要求不低于8字')
+    expect(calls[1].context?.previousBody).toBe(firstDraft)
+    expect(calls[1].context?.errors).toContain('正文过短：7字，要求不低于8字')
     expect(calls[1].context?.targetWords).toBe(10)
-    expect(calls[1].prompt).toContain('上一版正文')
-    expect(calls[1].prompt).toContain('只做定点扩写或压缩修复')
+    expect(calls[1].prompt).toContain('上一版正文未通过验收')
+    expect(calls[1].prompt).toContain('旧稿全文不进入本次请求')
+    expect(calls[1].prompt).toContain('上游权威产物重新生成正文')
     expect(calls[1].prompt).not.toContain('重新生成完整正文')
+    expect(calls[1].prompt).not.toContain(firstDraft)
+    expect(calls[1].prompt).not.toContain('【上一版正文】')
     expect(result.attempts[0].repairScope).toBe('none')
     expect(result.attempts[1].repairScope).toBe('targeted')
   })
@@ -186,16 +190,19 @@ describe('generateBodyArtifact', () => {
 
   it('does not regress to full-chain wording in targeted repair', async () => {
     const prompts: string[] = []
+    const firstDraft = '旧稿唯一标记XYZ'
     await generateBodyArtifact({
       contract,
       basePrompt: '生成第1章正文',
       callBodyApi: async prompt => {
         prompts.push(prompt)
-        return prompts.length === 1 ? '短' : '这是一段合格的正文。'
+        return prompts.length === 1 ? firstDraft : '这是一段合格的正文。'
       }
     })
 
-    expect(prompts[1]).toContain('禁止整篇重写')
+    expect(prompts[1]).not.toContain('禁止整篇重写')
+    expect(prompts[1]).not.toContain('【上一版正文】')
+    expect(prompts[1]).not.toContain(firstDraft)
     expect(prompts[1]).toContain('只输出修复后的完整正文')
   })
 
