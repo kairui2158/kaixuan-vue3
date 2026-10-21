@@ -28,6 +28,24 @@ describe('acceptWorkspaceArtifact', () => {
     expect(result.outlineIntegrity).toBeNull()
   })
 
+  it('rejects a degraded no-contract run instead of treating output as valid', () => {
+    const result = acceptWorkspaceArtifact({
+      rawOutput: '降级候选输出',
+      callerStatus: 'degraded',
+      degradedErrors: ['模型额度失败'],
+      contract: null,
+    })
+
+    expect(result).toMatchObject({
+      decision: 'reject',
+      reason: 'no_contract_degraded',
+      terminalStatus: 'degraded',
+      terminalReason: 'artifact_no_contract_degraded',
+      downstreamPayload: null,
+    })
+    expect(result.errors).toEqual(['模型额度失败', '降级输出未声明工作区产物契约，无法验收'])
+  })
+
   it('rejects a degraded body draft below the contract floor', () => {
     const result = acceptWorkspaceArtifact({
       rawOutput: '短稿',

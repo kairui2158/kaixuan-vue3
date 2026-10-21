@@ -312,38 +312,44 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
         }
 
         if (result.status === 'degraded') {
-          if (!result.output.trim()) {
-            transition('failed', '降级输出为空')
-            stack.pop()
-            return {
-              status: 'BLOCKED',
-              output: '',
-              steps,
-              diagnostics: [...diagnostics, ...result.diagnostics],
-              errors: result.errors,
-              apiMeta: lastApiMeta
-            }
-          }
           const acceptance = acceptStepArtifact({
             rawOutput: result.output,
             contract: null,
             callerStatus: 'degraded',
             degradedErrors: result.errors
           })
-          transition('done', '降级输出保留')
-          diagnostics.push(diagnostic(
-            'warning',
-            'step-degraded-with-output',
-            `${child.id} 未通过校验但保留了可用输出，链路按降级完成继续`
-          ))
-          diagnostics.push(diagnostic(
-            'warning',
-            'step-artifact-no-contract',
-            `${child.id} 无产物契约，验收门按 no_contract 保留原始输出`
-          ))
-          currentInput = acceptance.downstreamPayload ?? ''
-          output = acceptance.downstreamPayload ?? ''
-          break
+          if (acceptance.decision === 'reject') {
+            transition('failed', '降级输出无契约，验收拒绝')
+            stack.pop()
+            return {
+              status: 'BLOCKED',
+              output: '',
+              steps,
+              diagnostics: [
+                ...diagnostics,
+                ...result.diagnostics,
+                diagnostic(
+                  'error',
+                  `step-artifact-${acceptance.reason}`,
+                  acceptance.errors.join('；') || '降级输出未通过产物验收'
+                )
+              ],
+              errors: [...result.errors, ...acceptance.errors],
+              apiMeta: lastApiMeta
+            }
+          }
+          // no_contract + degraded is rejected above. Reaching here without a
+          // decision is a programming error; never fall back to a pass rule.
+          transition('failed', '产物验收返回未知决策')
+          stack.pop()
+          return {
+            status: 'BLOCKED',
+            output: '',
+            steps,
+            diagnostics: [...diagnostics, ...result.diagnostics],
+            errors: [...result.errors, '产物验收返回未知决策'],
+            apiMeta: lastApiMeta
+          }
         }
 
         const afterResult = await executeParentScript(parent.script, 'afterStep', {

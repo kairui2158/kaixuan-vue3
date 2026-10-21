@@ -48,6 +48,21 @@ describe('acceptStepArtifact', () => {
     expect(result.metadata).toEqual({})
   })
 
+  it('rejects a degraded step without a contract even when output is non-empty', () => {
+    const result = acceptStepArtifact({
+      rawOutput: '降级候选输出',
+      contract: null,
+      callerStatus: 'degraded',
+      degradedErrors: ['模型结构化输出失败']
+    })
+
+    expect(result.decision).toBe('reject')
+    expect(result.reason).toBe('no_contract_degraded')
+    expect(result.downstreamPayload).toBeNull()
+    expect(result.errors).toEqual(['模型结构化输出失败', '降级输出未声明产物契约，无法验收'])
+    expect(result.metadata).toEqual({})
+  })
+
   it('accepts a contract step only on the extracted final body', () => {
     const raw = JSON.stringify({
       body: '正文'.repeat(1200),

@@ -274,7 +274,7 @@ describe('skillOrchestrator composite', () => {
     expect(result.errors[0]).toContain('composite 嵌套超过')
   })
 
-  it('continues with DONE_WITH_CONCERNS when a degraded step keeps usable output', async () => {
+  it('blocks a degraded step even when its candidate output is non-empty', async () => {
     const callAi = vi.fn(async (request: any) => {
       if (request.messages?.[0]?.content?.includes('child-a')) return { text: '降级可用输出' }
       return { text: '后续步骤输出' }
@@ -309,14 +309,17 @@ describe('skillOrchestrator composite', () => {
       budget: budget()
     })
 
-    expect(result.status).toBe('DONE_WITH_CONCERNS')
-    expect(result.output).toBe('后续步骤输出')
-    expect(result.steps.map(step => step.status)).toEqual(['done', 'done'])
-    expect(result.diagnostics.some(item => item.code === 'step-degraded-with-output')).toBe(true)
+    expect(result.status).toBe('BLOCKED')
+    expect(result.output).toBe('')
+    expect(result.steps.map(step => step.status)).toEqual(['failed'])
+    expect(result.errors.join('\n')).toContain('降级输出未声明产物契约，无法验收')
     expect(result.diagnostics.some(item =>
-      item.code === 'step-artifact-no-contract'
-      && item.message.includes('no_contract')
+      item.message.includes('降级输出未声明产物契约')
+      && item.type === 'error'
     )).toBe(true)
+    expect(result.diagnostics.some(item => item.code === 'step-degraded-with-output')).toBe(false)
+    expect(result.diagnostics.some(item => item.code === 'step-artifact-no-contract')).toBe(false)
+    expect(result.diagnostics.some(item => item.message.includes('保留原始输出'))).toBe(false)
   })
 
   it('blocks a degraded step when no usable output remains', async () => {

@@ -627,7 +627,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     })
   })
 
-  it('keeps a non-final chain schema failure as a warning without retries', async () => {
+  it('keeps a non-final chain schema failure as a degraded result without retries', async () => {
     const callAi = vi.fn(async () => ({ text: 'S1 中间输出' }))
     getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
@@ -652,10 +652,12 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     })
 
     expect(callAi).toHaveBeenCalledTimes(1)
-    expect(result.status).toBe('success')
+    expect(result.status).toBe('degraded')
     expect(result.output).toBe('S1 中间输出')
     expect(result.diagnostics.some(item => item.code === 'schema-contract-warning')).toBe(true)
     expect(result.diagnostics.some(item => item.code === 'schema-validation-exhausted')).toBe(false)
+    expect(result.diagnostics.some(item => item.code === 'schema-contract-warning' && item.message.includes('交由产物契约门裁决'))).toBe(true)
+    expect(result.errors).toEqual([])
   })
 
   it('retries blocking postProcess issues with the previous candidate and recovers', async () => {

@@ -28,7 +28,7 @@ export type WorkspaceArtifactTerminalStatus =
 
 export interface WorkspaceArtifactAcceptanceResult {
   decision: 'accept' | 'reject'
-  reason: 'no_contract' | 'contract_valid' | 'contract_failed' | 'caller_failed'
+  reason: 'no_contract' | 'no_contract_degraded' | 'contract_valid' | 'contract_failed' | 'caller_failed'
   callerStatus: 'success' | 'degraded' | 'failed' | 'blocked'
   stepArtifact: StepArtifactAcceptanceResult | null
   outlineIntegrity: OutlineIntegrityReport | null
@@ -164,13 +164,34 @@ export function acceptWorkspaceArtifact(input: {
   const callerStatus = input.callerStatus || 'success'
   const degradedErrors = (input.degradedErrors || []).filter(Boolean)
   if (!input.contract) {
+    if (callerStatus === 'degraded') {
+      return {
+        decision: 'reject',
+        reason: 'no_contract_degraded',
+        callerStatus,
+        stepArtifact: null,
+        outlineIntegrity: null,
+        terminalStatus: 'degraded',
+        terminalReason: 'artifact_no_contract_degraded',
+        downstreamPayload: null,
+        errors: [...degradedErrors, '降级输出未声明工作区产物契约，无法验收'],
+        warnings: [],
+        traceDetail: {
+          contractKind: 'none',
+          decision: 'reject',
+          reason: 'no_contract_degraded',
+          callerStatus,
+          degradedErrors,
+        },
+      }
+    }
     return {
       decision: 'accept',
       reason: 'no_contract',
       callerStatus,
       stepArtifact: null,
       outlineIntegrity: null,
-      terminalStatus: callerStatus === 'degraded' ? 'success_with_warnings' : 'success',
+      terminalStatus: 'success',
       terminalReason: 'artifact_no_contract',
       downstreamPayload: rawOutput,
       errors: [],

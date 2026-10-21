@@ -18,7 +18,7 @@ export interface StepArtifactAcceptanceInput {
 
 export interface StepArtifactAcceptanceResult {
   decision: 'accept' | 'reject'
-  reason: 'no_contract' | 'contract_valid' | 'contract_failed' | 'caller_failed'
+  reason: 'no_contract' | 'no_contract_degraded' | 'contract_valid' | 'contract_failed' | 'caller_failed'
   callerStatus: StepArtifactCallerStatus
   stepIndex?: number
   extractedBody: string
@@ -89,7 +89,7 @@ export interface StepArtifactFlowResult {
     contractErrors: string[]
   }
   failure: {
-    reason: 'degraded_plus_contract_failure' | 'contract_failure' | 'caller_failed'
+    reason: 'degraded_plus_contract_failure' | 'contract_failure' | 'caller_failed' | 'no_contract_degraded'
     message: string
   } | null
 }
@@ -144,7 +144,9 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
   const failureReason: FailureReason = rejected
     ? result.reason === 'caller_failed'
       ? 'caller_failed'
-      : result.callerStatus === 'degraded'
+      : result.reason === 'no_contract_degraded'
+        ? 'no_contract_degraded'
+        : result.callerStatus === 'degraded'
         ? 'degraded_plus_contract_failure'
         : 'contract_failure'
     : 'contract_failure'
@@ -331,6 +333,22 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
 
   if (!input.contract) {
     const noContractGeneration = parseGenerationResult(rawOutput)
+    if (input.callerStatus === 'degraded') {
+      const degradedErrors = (input.degradedErrors || []).filter(Boolean)
+      return {
+        decision: 'reject',
+        reason: 'no_contract_degraded',
+        callerStatus: input.callerStatus,
+        extractedBody: '',
+        metadata: noContractGeneration.metadata,
+        rawWordCount,
+        extractedWordCount: 0,
+        metadataDelta: rawWordCount,
+        validation: null,
+        downstreamPayload: null,
+        errors: [...degradedErrors, '降级输出未声明产物契约，无法验收']
+      }
+    }
     return {
       decision: 'accept',
       reason: 'no_contract',

@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-17
+更新日期：2026-10-22
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1092,3 +1092,11 @@
 - 验证：真实 Electron + 真实 API live 通过（12 章、3 批 complete、12 API success、0 修复）；回放 `RESULT: ACCEPTED (6 checks)`；`type-check` 通过；全量 187 files / 2114 tests 通过。
 - 诚实边界：未复刻 7.5 万字同规模长文，登记 `untested`；单一供应商 deepseek-v4-pro；`scaffold_not_smaller` 在短 prompt 中为保守路径，真实压缩幅度需长文采样。
 - 封装：未升版、未打包，版本保持 3.102.0，等待用户裁决。
+
+# 2026-10-22 降级语义清零
+
+- 文件：[_audit/DEV_LOG_2026-10-22_degraded-semantic-closure.md](_audit/DEV_LOG_2026-10-22_degraded-semantic-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-22_degraded-semantic-closure.md](_audit/TASK_LEDGERS/2026-10-22_degraded-semantic-closure.md)
+- 范围：`no_contract + degraded` 双验收门统一拒收、skillOrchestrator 旧放行分支删除、`schema-contract-warning` 归入降级 warning 集合、G0.10 补“门禁语义升级必须反查存量测试与包装层”条款。
+- 验证：全量 187 files / 2116 tests、`type-check` 通过；`step-degraded-with-output` / `step-artifact-no-contract` 生产源码 0 命中，仅测试负向断言保留。
+- 诚实边界：未做 Electron + 真实 API live 复跑，登记 `untested`；未升版、未打包，等待用户裁决。

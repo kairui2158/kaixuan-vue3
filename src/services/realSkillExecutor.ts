@@ -145,6 +145,7 @@ const OUTPUT_DEGRADING_WARNING_CODES = new Set([
   'script-hook-failed',
   'script-hook-exception',
   'hook-result-ignored',
+  'schema-contract-warning',
   'schema-validation-exhausted'
 ])
 
@@ -1149,7 +1150,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           diagnostics.push(diagnostic(
             'warning',
             'schema-contract-warning',
-            `非末步结构化契约未满足：${buildValidationErrorReport(validation.errors)}（已保留输出，不阻断 chain）`
+            `非末步结构化契约未满足：${buildValidationErrorReport(validation.errors)}（保留候选输出，执行器状态降级，交由产物契约门裁决）`
           ))
           output = candidateOutput
           finishReason = result.finishReason
