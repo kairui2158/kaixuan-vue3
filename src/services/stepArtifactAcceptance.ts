@@ -244,7 +244,7 @@ export function resolveFinalStepMetadataFlow(
     }
   }
 
-  const authoritative = extractFactLockEntries(input.authoritativeGeneratorMetadata)
+    const authoritative = extractFactLockEntries(input.authoritativeGeneratorMetadata)
   const final = extractFactLockEntries(input.finalMetadata)
   const matched: string[] = []
   const missingInFinal: string[] = []
@@ -284,9 +284,55 @@ export function resolveFinalStepMetadataFlow(
 
   let metadata = finalMetadata
   if (!hasDivergence && (missingInFinal.length || conflicting.length)) {
+    const stripFinalFactLock = (section: string): string => {
+      const keptLines: string[] = []
+      let inFactBlock = false
+      for (const rawLine of section.split(/\r?\n/)) {
+        const line = rawLine.trim()
+        if (inFactBlock) {
+          const isTailFact = line
+            && !RESERVED_FACT_LOCK_TAIL_KEYS.has(line.split(/[:：]/, 1)[0].trim())
+            && /^([^：:=\n]{1,32})\s*[:：]\s*(.+)$/.test(line)
+          if (isTailFact) continue
+          inFactBlock = false
+        }
+        if (/^\s*FACT_LOCK\s*[:：]\s*$/.test(line)) {
+          inFactBlock = true
+          continue
+        }
+        if (/^\s*FACT_LOCK[:：][^=\n]+=/.test(line)) continue
+        keptLines.push(rawLine)
+      }
+      return keptLines.join('\n')
+    }
     const repairedSections: string[] = []
+    for (const section of Array.isArray(finalMetadata.extractedMeta) ? finalMetadata.extractedMeta : []) {
+      const repaired = stripFinalFactLock(String(section))
+      if (repaired.trim()) repairedSections.push(repaired)
+    }
+    const authoritativeSourceText = (input.authoritativeGeneratorMetadata?.extractedMeta || [])
+      .join('\n')
+    const authoritativeContractNumbers = {
+      targetWords: Number(authoritativeSourceText.match(/目标字数[：:]([^\n]+)/)?.[1] || ''),
+      minimumWords: Number(authoritativeSourceText.match(/生成下限[：:]([^\n]+)/)?.[1] || '')
+    }
+    for (const contractField of ['targetWords', 'minimumWords'] as const) {
+      const authoritativeValue = authoritativeContractNumbers[contractField]
+      if (!Number.isFinite(authoritativeValue) || authoritativeValue <= 0) continue
+      ;(metadata as Record<string, unknown>)[contractField] = authoritativeValue
+      const staleLabel = contractField === 'targetWords' ? '目标字数' : '生成下限'
+      const replaced = repairedSections.map(section =>
+        String(section).replace(
+          new RegExp(`^${staleLabel}[：:].*$`, 'm'),
+          `${staleLabel}：${authoritativeValue}`
+        )
+      )
+      repairedSections.length = 0
+      repairedSections.push(...replaced)
+    }
     for (const [key, value] of authoritative) {
-      repairedSections.push(`FACT_LOCK:${key}=${value}`)
+      const entry = `FACT_LOCK:${key}=${value}`
+      if (!repairedSections.includes(entry)) repairedSections.push(entry)
     }
     metadata = {
       ...finalMetadata,

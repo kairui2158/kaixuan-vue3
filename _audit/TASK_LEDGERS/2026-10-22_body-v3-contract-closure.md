@@ -47,8 +47,20 @@
 - 验证：`npm run test:services -- src/services/bodyArtifactOrchestrator.spec.ts` → 21 tests passed。
 - 清零扫描：`rg -F "不低于2100字"`、`rg -F "要求不低于6字"`、`Select-String 'target \* 0\.6','default 60%'` 生产源码均 0 命中；`chainExecution.spec.ts:290` 的 2100 仅作为负向断言保留。
 - 执行纪律自检：Phase 1 实现先于 RED 测试落地一次，随后用真实旧测试取得 RED 证据并补单源测试；多轮工具调用携带空可选参数导致 shell 路径错误，已改为最小调用块并登记为本轮自盲区证据。
+- Phase 2 RED：`npm run test:services -- src/services/finalStepMetadataReplay.spec.ts` → 1 failed，历史回放证明受控合并后 `无法核对` 占位残留。
+- Phase 2 根因：终步 FACT_LOCK 存在行式 `FACT_LOCK:Key=Value` 与块式 `FACT_LOCK:` 后跟 `Key: Value` 两种合法形态；`目标字数/生成下限` 是字数契约字段而非事实锁，旧整段替换碰巧清掉了它们。受控合并改为：剥离全部终步 FACT_LOCK 事实（含占位与标签漂移），从 S2 权威账本重放；同时从 S2 账本文本回填 `targetWords/minimumWords` 并改写标签行，其他元数据原样保留。
+- Phase 2 RED：`recordBodyArtifactPostProcess` 失败后仍保留 `complete`，证明后处理失败可伪装为有效 attempt。
+- Phase 2 修复：后处理 `success: false` 时 attempt 状态改为 `execution_invalid`，错误去重保留；不伪造成功。
+- Phase 3 RED：`ownerBreakpointClosureWiring.spec.ts` 先断言 `body-post-process-contract-rejected` 事件，初始 0 命中。
+- Phase 3 修复：`runProseHardSignalNet`、`legacy-auto` 清洗、`deep-fix` 三条改写路径全部复用 `validateBodyArtifact(finalBody, bodyChainContract)`；失败时记录 attempt、写 `body-post-process-contract-rejected` trace，并阻断交付。
+- 验证：`npm run type-check` → exit 0。
+- 验证：`npm run test:services` → 188 files / 2124 tests passed。
+- 作者反证：历史 trace 回放证明受控合并不吞 `status/sourceRefs/coveredItems/【来源覆盖】`，同时清除 `无法核对` 占位并回填 3500/2800 契约；后处理失败不再能以 `complete` 状态交付。
 
 ## 7. 缺口清单
 
-- Phase 1 已完成；Phase 2-7 未开工。
-- Phase 1 全量服务测试曾为 187/188、2119/2120，唯一失败为旧 6 字断言；修复后仅重跑该文件通过，尚未重跑全量。
+- Phase 1-3 已完成并全量验证。
+- Phase 4（无契约静默放行与 generator ledger 正文终步阻断语义）待开工。
+- Phase 5（schema retry 反馈不携带候选全文）待开工。
+- Phase 6（降AI提示词与 SKILL 分权）待开工。
+- Phase 7（真实 trace 双语义回放 + Electron UI 硬门禁）待开工。

@@ -382,4 +382,43 @@ describe('recordBodyArtifactPostProcess', () => {
       wordCount: 0,
     })).toEqual([])
   })
+
+  it('keeps post-process word counts above the prose contract floor', () => {
+    const context = {
+      attemptId: attempt.attemptId,
+      stage: 'deai' as const,
+      processor: 'deai-hard-rules',
+      success: true,
+      wordCount: 8,
+    }
+    const result = recordBodyArtifactPostProcess([{
+      ...attempt,
+      wordCount: 10,
+      body: '正文正文正文正文'
+    }], context)
+
+    expect(result[0].metadata?.postProcesses).toEqual([{
+      ...context,
+      errors: undefined
+    }])
+    expect(result[0].wordCount).toBe(10)
+  })
+
+  it('marks failed post-process attempts as invalid and keeps the contract error', () => {
+    const result = recordBodyArtifactPostProcess([{
+      ...attempt,
+      wordCount: 10
+    }], {
+      attemptId: attempt.attemptId,
+      stage: 'deai',
+      processor: 'deai-hard-rules',
+      success: false,
+      wordCount: 0,
+      errors: ['降AI后处理失败']
+    })
+
+    expect(result[0].status).toBe('execution_invalid')
+    expect(result[0].errors).toContain('降AI后处理失败')
+    expect(result[0].repairScope).toBe('post_process')
+  })
 })

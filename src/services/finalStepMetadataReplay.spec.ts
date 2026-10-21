@@ -77,6 +77,10 @@ describe('final-step metadata accident replay (20261018-133836)', () => {
     expect(flow.decision).toBe('backfilled')
     expect(flow.warnings.map(item => item.code)).toContain('body-final-step-metadata-repaired')
     const authoritativeText = (authoritativeGeneratorMetadata.extractedMeta || []).join('\n')
+    const authoritativeContract = {
+      targetWords: 3500,
+      minimumWords: 2800
+    }
     const expectedEntries = [
       '人物状态', '位置', '伤势', '持有物', '时间点', '关键数字', '新增事实', '钩子兑现状态',
     ].map(key => {
@@ -84,6 +88,10 @@ describe('final-step metadata accident replay (20261018-133836)', () => {
       return `FACT_LOCK:${key}=${String(match?.[1] || '').trim()}`
     })
     const repairedText = (flow.metadata.extractedMeta || []).join('\n')
+    expect(flow.metadata.targetWords).toBe(authoritativeContract.targetWords)
+    expect(flow.metadata.minimumWords).toBe(authoritativeContract.minimumWords)
+    expect(repairedText).not.toContain('目标字数：无法核对')
+    expect(repairedText).not.toContain('生成下限：无法核对')
     expect(repairedText).not.toContain('无法核对')
     for (const entry of expectedEntries) {
       expect(repairedText).toContain(entry)

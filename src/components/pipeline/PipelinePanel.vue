@@ -804,7 +804,7 @@ import {
 } from "../../services/contextConflictDetector"
 import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
 import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
-import { countBodyWords } from "../../services/bodyArtifactContract"
+import { countBodyWords, validateBodyArtifact } from "../../services/bodyArtifactContract"
 import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
 import {
   makeStepArtifactEnvelope,
@@ -4965,6 +4965,36 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     finalBody = await runProseHardSignalNet(finalBody, trace.runId!, {
       finishReason: latestBodyFinishReason(trace.runId!)
     })
+    const postProcessContractValidation = validateBodyArtifact(finalBody, bodyChainContract)
+    if (!postProcessContractValidation.valid) {
+      bodyArtifact = {
+        ...bodyArtifact,
+        attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+          attemptId: postProcessAttemptId,
+          stage: 'hard_signal',
+          processor: 'prose-hard-signal-net',
+          success: false,
+          wordCount: postProcessContractValidation.wordCount,
+          errors: postProcessContractValidation.errors
+        })
+      }
+      if (trace.runId) {
+        runTraceStore.addEvent(trace.runId, {
+          type: 'body-post-process-contract-rejected',
+          level: 'error',
+          label: '正文后处理输出未通过契约验收',
+          detail: JSON.stringify({
+            stage: 'hard_signal',
+            wordCount: postProcessContractValidation.wordCount,
+            targetWords: bodyChainContract.targetWords,
+            errors: postProcessContractValidation.errors
+          })
+        })
+      }
+      pipelineStore.failGeneration(`正文后处理输出未通过契约验收：${postProcessContractValidation.errors.join('；')}`)
+      bodyGenerationLogs.value.push('后处理契约校验失败，禁止交付改写后的正文')
+      return
+    }
     bodyArtifact = {
       ...bodyArtifact,
       attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
@@ -5008,6 +5038,32 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
               (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
             )
             finalBody = deaiResult.text
+            const deaiContractValidation = validateBodyArtifact(finalBody, bodyChainContract)
+            if (!deaiContractValidation.valid) {
+              bodyArtifact = {
+                ...bodyArtifact,
+                attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+                  attemptId: postProcessAttemptId,
+                  stage: 'deai',
+                  processor: 'deai-hard-rules',
+                  success: false,
+                  wordCount: deaiContractValidation.wordCount,
+                  errors: deaiContractValidation.errors
+                })
+              }
+              runTraceStore.addEvent(trace.runId!, {
+                type: 'body-post-process-contract-rejected',
+                level: 'error',
+                label: '正文后处理输出未通过契约验收',
+                detail: JSON.stringify({
+                  stage: 'deai',
+                  wordCount: deaiContractValidation.wordCount,
+                  targetWords: bodyChainContract.targetWords,
+                  errors: deaiContractValidation.errors
+                })
+              })
+              throw new Error(`降AI清洗后正文未通过契约验收：${deaiContractValidation.errors.join('；')}`)
+            }
             bodyArtifact = {
               ...bodyArtifact,
               attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
@@ -5092,6 +5148,33 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             bodyGenerationLogs.value.push("降AI深度修复执行中（最小编辑 + 保护片段回对 + 完整性门禁）…")
             pipelineStore.updateProgress(94, "降AI深度修复中")
             finalBody = await runBodyMinimalEdit(finalBody, report, trace.runId!)
+            const deepFixValidation = validateBodyArtifact(finalBody, bodyChainContract)
+            if (!deepFixValidation.valid) {
+              const deepFixError = `降AI深度修复后正文未通过契约验收：${deepFixValidation.errors.join('；')}`
+              bodyArtifact = {
+                ...bodyArtifact,
+                attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
+                  attemptId: postProcessAttemptId,
+                  stage: 'deai',
+                  processor: 'deai-deep-fix',
+                  success: false,
+                  wordCount: deepFixValidation.wordCount,
+                  errors: deepFixValidation.errors
+                })
+              }
+              runTraceStore.addEvent(trace.runId!, {
+                type: 'body-post-process-contract-rejected',
+                level: 'error',
+                label: '正文后处理输出未通过契约验收',
+                detail: JSON.stringify({
+                  stage: 'deai-deep-fix',
+                  wordCount: deepFixValidation.wordCount,
+                  targetWords: bodyChainContract.targetWords,
+                  errors: deepFixValidation.errors
+                })
+              })
+              throw new Error(deepFixError)
+            }
             bodyArtifact = {
               ...bodyArtifact,
               attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {

@@ -54,4 +54,9 @@ describe('owner breakpoint lifecycle closure wiring', () => {
     expect(source).toContain('const upstreamSource = executionPlan.upstreamStepOutputs?.length')
     expect(source).toContain('? executionPlan.upstreamStepOutputs')
   })
+
+  it('revalidates post-processed body output against the same contract gate', () => {
+    expect(source).toContain('postProcessContractValidation')
+    expect(source).toContain("type: 'body-post-process-contract-rejected'")
+  })
 })

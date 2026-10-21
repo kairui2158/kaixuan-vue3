@@ -225,6 +225,33 @@ describe('acceptStepArtifact', () => {
     expect(bodyDivergence.warnings.map(w => w.code)).toContain('body-final-step-fact-divergence')
   })
 
+  it('backfills only FACT_LOCK entries and preserves other final metadata', () => {
+    const flow = resolveFinalStepMetadataFlow({
+      finalMetadata: {
+        status: 'success',
+        sourceRefs: ['H1-01', 'H1-02'],
+        coveredItems: ['hook-01'],
+        extractedMeta: [
+          'FACT_LOCK:状态=完好\n【来源覆盖】\nH1-01,H1-02'
+        ]
+      },
+      authoritativeGeneratorMetadata: {
+        extractedMeta: ['FACT_LOCK:人物状态=受伤\nFACT_LOCK:位置=仓库']
+      },
+      finalBody: '他捂住伤口，靠在仓库墙上，左臂受伤。'
+    })
+
+    expect(flow.decision).toBe('backfilled')
+    expect(flow.metadata.status).toBe('success')
+    expect(flow.metadata.sourceRefs).toEqual(['H1-01', 'H1-02'])
+    expect(flow.metadata.coveredItems).toEqual(['hook-01'])
+    const factEntries = (flow.metadata.extractedMeta || []).join('\n')
+    expect(factEntries).toContain('FACT_LOCK:人物状态=受伤')
+    expect(factEntries).toContain('FACT_LOCK:位置=仓库')
+    expect(factEntries).toContain('【来源覆盖】')
+    expect(factEntries).toContain('H1-01,H1-02')
+  })
+
   it('does not invent an authority when the generator ledger is missing', () => {
     const flow = resolveFinalStepMetadataFlow({
       finalMetadata: { extractedMeta: ['FACT_LOCK:人物状态=未知'] },

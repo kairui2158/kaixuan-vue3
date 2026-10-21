@@ -99,11 +99,15 @@ export function recordBodyArtifactPostProcess(
   const base = attempts[attempts.length - 1]
   if (!base) return attempts
   const errors = [...(base.errors || []), ...(context.errors || [])]
+  const nextStatus: BodyArtifactAttempt['status'] = context.success
+    ? base.status
+    : 'execution_invalid'
   return [
     ...attempts.slice(0, -1),
     {
       ...base,
       repairScope: 'post_process',
+      status: nextStatus,
       errors: [...new Set(errors)],
       metadata: {
         ...(base.metadata || {}),
