@@ -67,4 +67,12 @@ describe('owner breakpoint lifecycle closure wiring', () => {
     expect(source).toContain('if (bodyChainTotalSteps > 1 && !bodyChainContract)')
     expect(source).toContain('if (!authoritativeGeneratorMetadata && templates.length > 1)')
   })
+
+  it('blocks a non-generator body terminal step before dispatch when the ledger is missing', () => {
+    expect(source).toContain('const requiresGeneratorLedgerBeforeDispatch = Boolean(isFinalBodyStep && !isGeneratorStep && templates.length > 1)')
+    expect(source.indexOf('const requiresGeneratorLedgerBeforeDispatch'))
+      .toBeGreaterThan(source.indexOf('const generatorPromptSuffix ='))
+    expect(source.indexOf('const resolvedTemplate = resolveSkillTemplate'))
+      .toBeGreaterThan(source.indexOf('const requiresGeneratorLedgerBeforeDispatch'))
+  })
 })

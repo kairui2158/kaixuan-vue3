@@ -1100,3 +1100,12 @@
 - 范围：`no_contract + degraded` 双验收门统一拒收、skillOrchestrator 旧放行分支删除、`schema-contract-warning` 归入降级 warning 集合、G0.10 补“门禁语义升级必须反查存量测试与包装层”条款。
 - 验证：全量 187 files / 2116 tests、`type-check` 通过；`step-degraded-with-output` / `step-artifact-no-contract` 生产源码 0 命中，仅测试负向断言保留。
 - 诚实边界：未做 Electron + 真实 API live 复跑，登记 `untested`；未升版、未打包，等待用户裁决。
+
+# 2026-10-22 正文层 V3 契约收口
+
+- 文件：[_audit/DEV_LOG_2026-10-22_body-v3-contract-closure.md](_audit/DEV_LOG_2026-10-22_body-v3-contract-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-22_body-v3-contract-closure.md](_audit/TASK_LEDGERS/2026-10-22_body-v3-contract-closure.md)
+- 范围：正文 V3 契约 Phase 4-7 收口；generator 账本守卫前移到终步派发前，80% 下限 Electron 夹具迁移，新增无账本终态场景与“不覆盖上一有效正文”断言；Phase 5/6 历史完成状态对账。
+- 验证：真实可见 Electron UI + 本地 OpenAI-compatible provider 三场景通过（A 拒绝 4 请求、B 成功 5 请求、C 无账本 4 请求且 S3 未调用）；定向 5 files / 68 tests、降AI/终步反馈 3 files / 9 tests、全量 188 files / 2126 tests、type-check 全部通过。
+- 诚实边界：非外部 live 供应商矩阵；版本保持 3.102.0，未升版、未封装。
+- 经验回写：升级 v8.19，G1.5 补入门时序证据契约，G1.17 补入副作用断言面契约。

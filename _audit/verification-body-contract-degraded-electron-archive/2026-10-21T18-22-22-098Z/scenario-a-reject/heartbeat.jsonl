@@ -1,0 +1,2 @@
+{"at":"2026-10-21T18:19:06.790Z","runId":null,"runStatus":null,"events":0,"apiCalls":0,"runningApiCalls":0,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"bodyLength":0,"electronPid":4784,"frame":1}
+{"at":"2026-10-21T18:19:07.828Z","runId":"run-1792606747777-1","runStatus":"running","events":6,"apiCalls":0,"runningApiCalls":0,"lastEventType":"prompt-built","progress":20,"status":"API 生成正文中（已注入降AI约束）","isGenerating":true,"bodyLength":0,"electronPid":4784,"frame":2}

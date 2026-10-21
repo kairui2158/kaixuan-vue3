@@ -3332,6 +3332,19 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       const generatorPromptSuffix = isGeneratorStep && bodyStepContext?.targetWords
         ? bodyGeneratorContractSentence(bodyStepContext.targetWords)
         : ''
+      const isFinalBodyStep = bodyStepContext && si === templates.length - 1
+      const requiresGeneratorLedgerBeforeDispatch = Boolean(isFinalBodyStep && !isGeneratorStep && templates.length > 1)
+      if (requiresGeneratorLedgerBeforeDispatch && !authoritativeGeneratorMetadata) {
+        recordBodyChainConfigurationError(
+          runTraceStore.currentRunId,
+          'body-generator-ledger-missing',
+          {
+            totalSteps: templates.length,
+            stepIndex: si
+          }
+        )
+        throw new Error('正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付')
+      }
       const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       if (si > 0 && runTraceStore.currentRunId) {
         const fullReason = templateMeta?.chainHandoff?.reason?.trim() || ""
@@ -3564,7 +3577,6 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             authoritativeGeneratorMetadata = artifactFlow.metadata
           }
         }
-        const isFinalBodyStep = bodyStepContext && si === templates.length - 1
         if (isFinalBodyStep) {
           if (!authoritativeGeneratorMetadata && templates.length > 1) {
             recordBodyChainConfigurationError(

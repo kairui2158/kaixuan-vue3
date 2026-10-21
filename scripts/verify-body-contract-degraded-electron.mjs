@@ -14,6 +14,7 @@ const CDP_PORT = Number(process.env.SHENYI_BODY_CONTRACT_CDP_PORT || 9381)
 const PROFILE = path.join(ROOT, '_data', 'body-contract-degraded-profile')
 const DATA_DIR = path.join(PROFILE, 'documents-data')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-body-contract-degraded-electron')
+const EVIDENCE_ARCHIVE_ROOT = path.join(ROOT, '_audit', 'verification-body-contract-degraded-electron-archive')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const HEARTBEAT_PATH = path.join(EVIDENCE_ROOT, 'heartbeat.jsonl')
 const SKILL_ROOT = path.join(ROOT, '_data', 'body-contract-degraded-skills')
@@ -22,14 +23,15 @@ const STEP_TIMEOUT_MS = Number(process.env.SHENYI_BODY_CONTRACT_STEP_TIMEOUT_MS 
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_BODY_CONTRACT_STALLED_TIMEOUT_MS || 20_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_BODY_CONTRACT_DEAD_TIMEOUT_MS || 45_000)
 const KEEP_PROFILE = process.env.SHENYI_BODY_CONTRACT_KEEP_PROFILE === '1'
+let activeProvider = null
 
 const PROJECT_ID = 'body-contract-degraded-gate'
 const VOLUME_ID = 'vol-body-contract-degraded'
 const CHAPTER_ID = 'ch-body-contract-degraded'
 const TARGET_WORDS = 3500
-const MIN_WORDS = Math.round(TARGET_WORDS * 0.6)
+const MIN_WORDS = Math.round(TARGET_WORDS * 0.8)
 const SKILL_IDS = ['BODY-GATE-S1', 'BODY-GATE-S2', 'BODY-GATE-S3']
-const UPSTREAM_METADATA_HEADER = '--- 上一步结构化交接 ---'
+const UPSTREAM_METADATA_HEADER = '--- 上一步结构化交接（终步账本） ---'
 
 const VOLUME_OUTLINE = [
   '## 剧情单元 H1-01 雨夜',
@@ -60,14 +62,12 @@ function metadataEnvelope(body) {
   ].join('\n')
 }
 
-const S2_REJECT_OUTPUT = metadataEnvelope([
-  bodyText(82),
-  '潮水继续上涨，灯芯记录保持沉默。',
-].join('\n'))
-const S2_ACCEPT_OUTPUT = metadataEnvelope(bodyText(110))
+const S2_REJECT_OUTPUT = metadataEnvelope(bodyText(82))
+const S2_ACCEPT_OUTPUT = metadataEnvelope(bodyText(140))
+const S2_LEDGER_MISSING_OUTPUT = bodyText(140)
 const S3_OUTPUT = [
   '林照将纸条压进灯座，潮声第一次完全盖住他的呼吸。',
-  ...Array.from({ length: 109 }, (_, index) =>
+  ...Array.from({ length: 139 }, (_, index) =>
     `林照把纸条压进灯座，潮声第${index + 2}次盖住他的呼吸。`),
 ].join('\n')
 
@@ -83,6 +83,16 @@ async function removeDir(target) {
     } catch {}
     await sleep(300)
   }
+}
+
+function archivePreviousEvidence() {
+  if (!fs.existsSync(EVIDENCE_ROOT)) return null
+  fs.mkdirSync(EVIDENCE_ARCHIVE_ROOT, { recursive: true })
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const target = path.join(EVIDENCE_ARCHIVE_ROOT, timestamp)
+  fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
+  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  return target
 }
 
 function assertFreshRendererBuild() {
@@ -113,7 +123,7 @@ function assertFreshRendererBuild() {
   assert(bundleText.includes('degraded_plus_contract_failure'),
     'renderer bundle contains the degraded-plus-contract rejection reason')
   assert(bundleText.includes(UPSTREAM_METADATA_HEADER),
-    'renderer bundle contains the structured upstream metadata handoff marker')
+    'renderer bundle contains the final-step ledger handoff marker')
   assert(bundleText.includes('totalChars=') && bundleText.includes('[metadata-section]'),
     'renderer bundle contains the controlled metadata summary implementation')
   assert(bundleText.includes('schema_retry'),
@@ -303,13 +313,15 @@ function startProvider() {
   })
   return new Promise(resolve => {
     server.listen(0, '127.0.0.1', () => {
-      resolve({
+      const provider = {
         port: server.address().port,
         requests: () => requests.map(item => ({ ...item })),
         reset: () => { requests.length = 0 },
         enqueue: response => { queue.push(response) },
         close: () => new Promise(done => server.close(() => done())),
-      })
+      }
+      activeProvider = provider
+      resolve(provider)
     })
   })
 }
@@ -508,6 +520,17 @@ function startHeartbeat(page, electronPid) {
 }
 
 async function runBodyThroughUi(page) {
+  const previousClose = page.locator('.pl-gen-bar-close')
+  if (await previousClose.count()) {
+    await previousClose.first().click()
+    await page.waitForSelector('.pl-gen-bar-close', { state: 'detached', timeout: 10_000 })
+  }
+  if (!await page.locator('#pipeline-panel').count()) {
+    await page.click('#btn-pipeline')
+    await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+  }
+  await page.locator('#pl-steps .pl-step').nth(4).click()
+  await page.waitForSelector('#pl-step-5-content', { state: 'visible', timeout: 20_000 })
   await page.click('#btn-pl-gen-body')
   let lastSignature = null
   let lastProgressAt = Date.now()
@@ -636,7 +659,7 @@ async function archiveEvidence(name, run, providerRequests, heartbeat, screensho
 }
 
 async function runRejectScenario(page, provider) {
-  console.log('\n[SCENARIO A] degraded + extracted body 1654 words must reject before S3')
+  console.log('\n[SCENARIO A] degraded + extracted body 1640 words must reject before S3')
   provider.reset()
   provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -660,13 +683,13 @@ async function runRejectScenario(page, provider) {
   assert.equal(acceptance.callerStatus, 'degraded', 'scenario A records degraded caller status')
   assert.equal(acceptance.decision, 'reject', 'scenario A rejects the artifact')
   assert.equal(acceptance.reason, 'contract_failed', 'scenario A rejects on the extracted-face contract')
-  assert.equal(acceptance.extractedWordCount, 1654, 'scenario A measures the extracted face')
+  assert.equal(acceptance.extractedWordCount, 1640, 'scenario A measures the extracted face')
   assert.ok(acceptance.rawWordCount > acceptance.extractedWordCount + 1000,
     `scenario A proves the raw face was materially longer: ${JSON.stringify(acceptance)}`)
   assert.equal(acceptance.contract.minWords, MIN_WORDS, 'scenario A carries the unchanged contract threshold')
   assert.ok(acceptance.degradedErrors.some(item => item.includes('NEW_FACT')),
     `scenario A retains degraded diagnostics: ${JSON.stringify(acceptance.degradedErrors)}`)
-  assert.ok(acceptance.contractErrors.some(item => item.includes('1654') && item.includes(String(MIN_WORDS))),
+  assert.ok(acceptance.contractErrors.some(item => item.includes('1640') && item.includes(String(MIN_WORDS))),
     `scenario A carries the concrete contract error: ${JSON.stringify(acceptance.contractErrors)}`)
 
   assert.equal(rejectedEvents.length, 1, `scenario A records the downstream rejection event once, got ${rejectedEvents.length}`)
@@ -683,7 +706,7 @@ async function runRejectScenario(page, provider) {
     decision: 'reject',
     reason: 'contract_failed',
     rawWordCount: acceptance.rawWordCount,
-    extractedWordCount: 1654,
+    extractedWordCount: 1640,
     errors: acceptance.degradedErrors.concat(acceptance.contractErrors),
   }], `scenario A attempt ledger matches the step decision: ${JSON.stringify(attempt.stepAcceptanceDecisions)}`)
   assert.deepEqual(attempt.degradedSteps, [{
@@ -710,7 +733,7 @@ async function runRejectScenario(page, provider) {
 }
 
 async function runAcceptScenario(page, provider) {
-  console.log('\n[SCENARIO B] degraded + extracted body 2200 words accepts, extracts, then runs S3')
+  console.log('\n[SCENARIO B] degraded + extracted body 2800 words accepts, extracts, then runs S3')
   provider.reset()
   provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -734,7 +757,7 @@ async function runAcceptScenario(page, provider) {
   assert.equal(acceptance.callerStatus, 'degraded', 'scenario B preserves the degraded warning')
   assert.equal(acceptance.decision, 'accept', 'scenario B accepts a contract-valid degraded artifact')
   assert.equal(acceptance.reason, 'contract_valid', 'scenario B accepts because the extracted face is valid')
-  assert.equal(acceptance.extractedWordCount, 2200, 'scenario B measures the extracted face')
+  assert.equal(acceptance.extractedWordCount, 2800, 'scenario B measures the extracted face')
   assert.ok(acceptance.metadataDelta > 1000, 'scenario B quantifies removed handoff metadata')
   assert.ok(acceptance.degradedErrors.length > 0, 'scenario B retains the degraded diagnostics')
   assert.equal(rejectedEvents.length, 0, 'scenario B does not emit a rejection event')
@@ -751,23 +774,76 @@ async function runAcceptScenario(page, provider) {
   const s3Request = requests[4]
   const s3Prompt = userText(s3Request.messages)
   assert(s3Prompt.includes(UPSTREAM_METADATA_HEADER),
-    'S3 request receives the structured upstream metadata handoff')
-  assert(s3Prompt.includes('extractedMeta: count='),
-    'S3 structured handoff summarizes the extracted metadata envelope')
+    'S3 request receives the final-step ledger handoff')
+  assert(s3Prompt.includes('extractedMeta[0]:'),
+    'S3 final-step ledger includes the authoritative generator metadata')
+  assert(s3Prompt.includes('ledger_limit:'),
+    'S3 final-step ledger declares its bounded truncation rules')
   assertRequestDoesNotContain(s3Request.messages, '【正文交接】', 'S3 request')
-  assert(s3Prompt.includes(bodyText(110).split('\n')[0]),
+  assert(s3Prompt.includes(bodyText(140).split('\n')[0]),
     'S3 request receives the extracted body, not the raw degraded output')
   assert(!s3Prompt.includes('目标约3500字'), 'S3 request does not carry the generator word contract')
   assert(!body.includes('【正文交接】'), 'scenario B persists extracted prose only')
-  assert(body.includes('潮声第110次'), 'scenario B persists the polished body')
+  assert(body.includes('潮声第140次'), 'scenario B persists the polished body')
   await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'scenario-b-success.png'), fullPage: false })
   await archiveEvidence('scenario-b-accept', run, requests, 1, ['scenario-b-success.png'])
   return { state, run, requests }
 }
 
+async function runLedgerMissingScenario(page, provider) {
+  console.log('\n[SCENARIO C] generator without body handoff metadata must terminate at the ledger gate')
+  provider.reset()
+  provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    provider.enqueue({ body: S2_LEDGER_MISSING_OUTPUT, finishReason: 'stop' })
+  }
+  const baseline = await currentRun(page)
+  const baselineBody = baseline.body
+
+  const state = await runBodyThroughUi(page)
+  const { run, body } = await currentRun(page)
+  const requests = provider.requests()
+  const acceptanceEvents = eventsByType(run, 'body-step-acceptance')
+  const ledgerMissingEvents = eventsByType(run, 'body-generator-ledger-missing')
+  const attemptEvents = eventsByType(run, 'body-artifact-attempt')
+
+  assert.equal(state.runStatus, 'failed', `scenario C run fails, got ${state.runStatus}`)
+  assert.equal(state.isGenerating, false, 'scenario C releases the generation lock')
+  assert.equal(acceptanceEvents.length, 1,
+    `scenario C still validates the generator body first, got ${acceptanceEvents.length}`)
+  const acceptance = parseDetail(acceptanceEvents[0].detail)
+  assert.equal(acceptance.stepIndex, 1, 'scenario C acceptance belongs to S2')
+  assert.equal(acceptance.decision, 'accept', 'scenario C validates the prose face before the ledger gate')
+  assert.equal(acceptance.extractedWordCount, 2800, 'scenario C meets the 80 percent prose floor')
+  assert.deepEqual(acceptance.metadata, {},
+    `scenario C proves the generator produced no metadata ledger: ${JSON.stringify(acceptance.metadata)}`)
+  assert.equal(ledgerMissingEvents.length, 1,
+    `scenario C records the configuration terminal once, got ${ledgerMissingEvents.length}`)
+  const ledgerEvent = parseDetail(ledgerMissingEvents[0].detail)
+  assert.equal(ledgerEvent.totalSteps, 3, 'scenario C identifies the three-step chain')
+  assert.equal(ledgerEvent.stepIndex, 2, 'scenario C fails at the terminal step')
+  assert.equal(attemptEvents.length, 1, 'scenario C records one terminal attempt')
+  const attempt = parseDetail(attemptEvents[0].detail)
+  assert.equal(attempt.status, 'error', 'scenario C attempt is terminal')
+  assert.ok(attempt.errors.some(error => error.includes('正文生成步账本缺失')),
+    `scenario C carries the user-readable root cause: ${JSON.stringify(attempt.errors)}`)
+
+  assert.equal(requests.length, 4,
+    `scenario C uses S1 once and S2 three times; S3 must not run, got ${requests.length}`)
+  assertS2SchemaRetryLedger(run, 4)
+  assert.equal(body, baselineBody,
+    'scenario C leaves the chapter body unchanged; a failed ledger-free run must not overwrite the previous artifact')
+  assert.equal(run.id === baseline.run?.id, false,
+    'scenario C produces a new run instead of reusing the baseline run')
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'scenario-c-ledger-missing.png'), fullPage: false })
+  await archiveEvidence('scenario-c-ledger-missing', run, requests, 1, ['scenario-c-ledger-missing.png'])
+  return { state, run, requests }
+}
+
 async function main() {
   const diskManifest = assertFreshRendererBuild()
-  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  const archivedEvidence = archivePreviousEvidence()
+  if (archivedEvidence) console.log(`[EVIDENCE ARCHIVED] ${archivedEvidence}`)
   fs.rmSync(HEARTBEAT_PATH, { force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
@@ -807,6 +883,7 @@ async function main() {
 
     const scenarioA = await runRejectScenario(page, provider)
     const scenarioB = await runAcceptScenario(page, provider)
+    const scenarioC = await runLedgerMissingScenario(page, provider)
     const heartbeatFrames = heartbeat.frameCount()
     const heartbeatDuration = heartbeat.durationMs()
     assert(heartbeatFrames >= 1, `heartbeat records the run, got ${heartbeatFrames} frames`)
@@ -838,18 +915,27 @@ async function main() {
           status: scenarioA.state.runStatus,
           runId: scenarioA.run?.id,
           requestCount: scenarioA.requests.length,
-          extractedWordCount: 1654,
+          extractedWordCount: 1640,
           rejectReason: 'degraded_plus_contract_failure',
         },
         'accept-and-extract': {
           status: scenarioB.state.runStatus,
           runId: scenarioB.run?.id,
           requestCount: scenarioB.requests.length,
-          extractedWordCount: 2200,
+          extractedWordCount: 2800,
       s3ReceivesExtractedFace: true,
-      s3ReceivesStructuredHandoff: true,
-      s2SchemaRetryPhases: 2,
-      timingLedgerConsistency: 'call/run/step same-source sums',
+          s3ReceivesStructuredHandoff: true,
+          s2SchemaRetryPhases: 2,
+          timingLedgerConsistency: 'call/run/step same-source sums',
+        },
+        'ledger-missing-terminal': {
+          status: scenarioC.state.runStatus,
+          runId: scenarioC.run?.id,
+          requestCount: scenarioC.requests.length,
+          extractedWordCount: 2800,
+          terminalEvent: 'body-generator-ledger-missing',
+          terminalStepCalled: false,
+          bodyPersisted: false,
         },
       },
       heartbeatFrames,
@@ -871,5 +957,15 @@ async function main() {
 
 main().catch(error => {
   console.error('[FAIL]', error)
+  try {
+    if (activeProvider) {
+      fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-provider-requests.json'),
+        JSON.stringify(activeProvider.requests(), null, 2), 'utf8')
+      console.log(`[FAIL EVIDENCE] ${path.join(EVIDENCE_ROOT, 'failure-provider-requests.json')}`)
+    }
+  } catch (evidenceError) {
+    console.error('[FAIL EVIDENCE ERROR]', evidenceError)
+  }
   process.exitCode = 1
 })

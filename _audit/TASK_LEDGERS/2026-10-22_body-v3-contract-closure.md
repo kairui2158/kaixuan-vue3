@@ -62,11 +62,20 @@
 - Phase 4 验证：`npm run type-check` → exit 0。
 - Phase 4 验证：`npm run test:services` → 188 files / 2125 tests passed。
 - Phase 5 对账：`schemaRetryFeedback.ts/spec.ts` 已由 `4ecfe341` 落地；测试断言 `not.toContain(candidate)`、无 `<<<上一版候选输出开始>>>`，并输出锚点/有界预览/抑制字符数。本分支不重复改动，只修正台账状态。
+- Phase 6 对账：降AI分层注入已由历史提交 `407c1bb9` 落地，`de-ai.js` 按 S1/S2/S3 分派 `METHODOLOGY/CREATIVE/POLISH` 三种变体；终步反馈不携带旧候选全文已由 `46a33770` 落地。本轮只做回归验证，不重复改动。
+- Phase 6 验证（2026-10-22 复跑）：`npm run test:services -- src/services/de-ai.spec.ts src/services/deaiChainVariantIntegration.spec.ts src/services/finalStepFeedback.spec.ts` → 3 files / 9 tests passed。
+- Phase 7 修正记录：曾按“S3 wiring 缺陷”改动，复核后被证伪并回滚；真实缺陷是 generator 账本守卫只放在 S3 输出之后，导致无账本链路先支付一次 S3 物理请求再丢弃产物。
+- Phase 7 修复：`PipelinePanel.vue` 在终步派发前检查 `isFinalBodyStep && !isGeneratorStep && templates.length > 1 && !authoritativeGeneratorMetadata`，命中即写 `body-generator-ledger-missing` 并抛出“正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付”；保留输出后守卫作为兜底，若终步自身就是 generator，仍允许调用并由输出后门验收其账本。
+- Phase 7 测试：`ownerBreakpointClosureWiring.spec.ts` 新增 wiring 断言，证明派发前守卫位于 `generatorPromptSuffix` 之后、`resolveSkillTemplate` 之前。
+- Phase 7 验证器迁移：正文下限从 60% 迁移到 80%（3500/2800）；场景 B 基线在编辑器留下 3393 字正文，因此场景 C 改为断言“失败运行不得覆盖上一有效正文”，即 body 与 baseline 完全相等且 run id 是新值，不再误用“编辑器为空”口径。
+- Phase 7 真实 Electron 验证（2026-10-22 02:22，可见窗口、真实 UI 下拉选择三个 folder SKILL、本地 OpenAI-compatible provider）：`node scripts/verify-body-contract-degraded-electron.mjs` → `===== BODY CONTRACT DEGRADED GATE ELECTRON PASSED =====`。场景 A：failed，4 次物理请求，S2 1640 字在 S3 前被拒；场景 B：success，5 次物理请求，正文 3393 字，S3 收到 `extractedMeta[0]:` 与 `ledger_limit:`；场景 C：failed，4 次物理请求，S3 未调用，`body-generator-ledger-missing` 恰 1 次，上一有效正文保持 3393 字不变。
+- Phase 7 回归：`npm run test:services -- src/services/ownerBreakpointClosureWiring.spec.ts src/services/finalStepMetadataWiring.spec.ts src/services/finalStepMetadataReplay.spec.ts src/services/chainExecution.spec.ts src/services/bodyArtifactOrchestrator.spec.ts` → 5 files / 68 tests passed；`npm run type-check` → exit 0；`npm run test:services` → 188 files / 2126 tests passed。
 
 ## 7. 缺口清单
 
 - Phase 1-3 已完成并全量验证。
-- Phase 4（无契约静默放行与 generator ledger 正文终步阻断语义）已实现并全量验证，待提交。
+- Phase 4（无契约静默放行与 generator ledger 正文终步阻断语义）已实现并全量验证，本轮提交收口。
 - Phase 5（schema retry 反馈不携带候选全文）已由历史提交 `4ecfe341` 完成，本轮经全量测试确认未回归。
-- Phase 6（降AI提示词与 SKILL 分权）待开工。
-- Phase 7（真实 trace 双语义回放 + Electron UI 硬门禁）待开工。
+- Phase 6（降AI提示词与 SKILL 分权）已由历史提交 `407c1bb9`、`46a33770` 完成，本轮定向复跑 3 files / 9 tests 与全量 2126 tests 确认未回归。
+- Phase 7（真实 Electron UI 硬门禁）已完成；“真实 trace 双语义回放”由本轮 A/B/C 三个 UI 场景替代验证：A 证明降级+契约失败在 S3 前拒绝，B 证明契约有效降级可提取并进入 S3，C 证明无权威账本时终步不派发且不覆盖旧正文。未使用外部 live 供应商，边界如实登记。
+- 剩余动作：更新 DEV_LOG、主索引、经验文件 v8.19，清理归档证据后提交。
