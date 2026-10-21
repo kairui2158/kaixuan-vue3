@@ -1118,3 +1118,11 @@
 - 验证：定向 3 files / 170 tests、Electron targeted repair 2 物理请求通过；全量、type-check、build:vue、封装核验见 DEV_LOG 收尾验证。
 - 诚实边界：本地 OpenAI-compatible provider，非外部 live 供应商矩阵；最优候选只按契约质量排序，不评估文学质量。
 - 经验回写：升级 v8.20，G2.9 补候选账本契约，G1.17 补 runId 单源契约。
+
+# 2026-10-22 经验文件 v9 去旧纳新
+
+- 文件：[_audit/DEV_LOG_2026-10-22_experience-file-v9.md](_audit/DEV_LOG_2026-10-22_experience-file-v9.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-22_experience-file-v9-restructure.md](_audit/TASK_LEDGERS/2026-10-22_experience-file-v9-restructure.md)
+- 范围：经验文件内部版本 v8.20 → v9.0.0；文件名 `_v7.md` → `_v9.md`；删除头部版本流水账；修复使用路由重复编号；迁移 STACK 与历史架构文档的活跃规则指针。
+- 验证：`_audit` 经验文件唯一；活跃指针 `_v7` 命中 0，历史记录保留；`git diff --check` 无 whitespace error；无生产代码变更，应用版本保持 3.103.0。
+- 经验回写：仅元信息升级，门禁语义与编号不变；v8.0-v8.20 入库细节由本索引与 Git 历史追溯。
