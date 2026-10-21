@@ -123,7 +123,7 @@ describe('generateBodyArtifact', () => {
     expect(calls[0].context?.repairScope).toBe('none')
     expect(calls[1].context?.repairScope).toBe('targeted')
     expect(calls[1].context?.previousBody).toBe('短')
-    expect(calls[1].context?.errors).toContain('正文过短：1字，要求不低于6字')
+    expect(calls[1].context?.errors).toContain('正文过短：1字，要求不低于8字')
     expect(calls[1].context?.targetWords).toBe(10)
     expect(calls[1].prompt).toContain('上一版正文')
     expect(calls[1].prompt).toContain('只做定点扩写或压缩修复')

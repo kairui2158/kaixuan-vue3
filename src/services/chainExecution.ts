@@ -47,10 +47,8 @@ export interface BodyContractStepInput {
 
 /** The prose word contract belongs to the generator step, not the base package. */
 export function bodyGeneratorContractSentence(targetWords: unknown): string {
-  const target = Math.max(0, Math.round(Number(targetWords) || 0))
-  if (!target) return ''
-  const min = Math.max(1, Math.round(target * 0.6))
-  const max = Math.round(target * 2)
+  if (!Number(targetWords)) return ''
+  const { targetWords: target, minWords: min, maxWords: max } = resolveProseWordContract({ targetWords })
   return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。只输出正文本身。`
 }
 
@@ -418,3 +416,4 @@ export function resolveFinalStepRole(input: {
   }
   return { role: null, mode: 'summary', reason: 'unresolved', generatorStepIndex: distinctGeneratorIndexes.length === 1 ? distinctGeneratorIndexes[0] : null }
 }
+import { resolveProseWordContract } from './proseWordContract'

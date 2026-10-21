@@ -64,11 +64,11 @@ describe('step artifact flow matrix', () => {
     failureReason?: 'caller_failed' | 'degraded_plus_contract_failure' | 'contract_failure'
   }
   const matrix: MatrixCase[] = [
-    { status: 'success', bodyWords: 2200, expected: 'accept', downstream: true },
+    { status: 'success', bodyWords: 2800, expected: 'accept', downstream: true },
     { status: 'success', bodyWords: 1654, expected: 'reject', downstream: false },
-    { status: 'degraded', bodyWords: 2200, expected: 'accept', downstream: true },
+    { status: 'degraded', bodyWords: 2800, expected: 'accept', downstream: true },
     { status: 'degraded', bodyWords: 1654, expected: 'reject', downstream: false },
-    { status: 'failed', bodyWords: 2200, expected: 'reject', downstream: false, failureReason: 'caller_failed' }
+    { status: 'failed', bodyWords: 2800, expected: 'reject', downstream: false, failureReason: 'caller_failed' }
   ]
 
   for (const item of matrix) {
@@ -118,7 +118,7 @@ describe('step artifact flow matrix', () => {
 
     expect(result.failure).toEqual({
       reason: 'degraded_plus_contract_failure',
-      message: '正文生成步骤验收失败（degraded_plus_contract_failure）：正文交接缺少NEW_FACT；正文过短：1654字，要求不低于2100字'
+      message: '正文生成步骤验收失败（degraded_plus_contract_failure）：正文交接缺少NEW_FACT；正文过短：1654字，要求不低于2800字'
     })
   })
 

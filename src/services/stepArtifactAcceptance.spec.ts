@@ -64,8 +64,9 @@ describe('acceptStepArtifact', () => {
   })
 
   it('accepts a contract step only on the extracted final body', () => {
+    const body = '正文'.repeat(2800)
     const raw = JSON.stringify({
-      body: '正文'.repeat(1200),
+      body,
       metadata: { status: 'success' }
     })
     const result = acceptStepArtifact({
@@ -76,10 +77,22 @@ describe('acceptStepArtifact', () => {
 
     expect(result.decision).toBe('accept')
     expect(result.reason).toBe('contract_valid')
-    expect(result.extractedBody).toBe('正文'.repeat(1200))
+    expect(result.extractedBody).toBe(body)
     expect(result.metadata).toEqual({ status: 'success' })
     expect(result.downstreamPayload).toBe(result.extractedBody)
     expect(result.validation?.valid).toBe(true)
+  })
+
+  it('rejects the legacy 60% floor under the unified prose contract', () => {
+    const result = acceptStepArtifact({
+      rawOutput: JSON.stringify({ body: '正文'.repeat(1050), metadata: {} }),
+      contract,
+      callerStatus: 'success'
+    })
+
+    expect(result.decision).toBe('reject')
+    expect(result.reason).toBe('contract_failed')
+    expect(result.errors).toEqual(['正文过短：2100字，要求不低于2800字'])
   })
 
   it('rejects a degraded step whose extracted body fails the contract', () => {
@@ -100,7 +113,7 @@ describe('acceptStepArtifact', () => {
     expect(result.metadata.extractedMeta?.length).toBeGreaterThan(0)
     expect(result.errors).toEqual([
       '正文交接缺少NEW_FACT',
-      '正文过短：1654字，要求不低于2100字'
+      '正文过短：1654字，要求不低于2800字'
     ])
   })
 
@@ -113,11 +126,11 @@ describe('acceptStepArtifact', () => {
 
     expect(result.decision).toBe('reject')
     expect(result.reason).toBe('contract_failed')
-    expect(result.errors).toEqual(['正文过短：100字，要求不低于2100字'])
+    expect(result.errors).toEqual(['正文过短：100字，要求不低于2800字'])
   })
 
   it('accepts degraded output only when the contract passes and sends the extracted body downstream', () => {
-    const raw = metadataHeavyRaw(2200, 1300)
+    const raw = metadataHeavyRaw(2800, 1300)
     const result = acceptStepArtifact({
       rawOutput: raw,
       contract,
@@ -127,7 +140,7 @@ describe('acceptStepArtifact', () => {
 
     expect(result.decision).toBe('accept')
     expect(result.reason).toBe('contract_valid')
-    expect(result.extractedWordCount).toBe(2200)
+    expect(result.extractedWordCount).toBe(2800)
     expect(result.downstreamPayload).toBe(result.extractedBody)
     expect(result.downstreamPayload).not.toContain('【正文交接】')
     expect(result.errors).toEqual(['降级原因'])

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   countBodyWords,
   isBodyArtifactContractInput,
+  resolveProseWordContract,
   validateBodyArtifact
 } from './bodyArtifactContract'
 
@@ -25,12 +26,23 @@ describe('validateBodyArtifact', () => {
     expect(result.errors).toEqual(['正文为空'])
   })
 
-  it('accepts the default 60% to 200% range', () => {
+  it('accepts the default 80% to 200% range', () => {
     const contract = { chapterId: 'ch-1', targetWords: 100 }
-    expect(validateBodyArtifact('字'.repeat(59), contract).status).toBe('too_short')
-    expect(validateBodyArtifact('字'.repeat(60), contract).status).toBe('valid')
+    expect(validateBodyArtifact('字'.repeat(79), contract).status).toBe('too_short')
+    expect(validateBodyArtifact('字'.repeat(80), contract).status).toBe('valid')
     expect(validateBodyArtifact('字'.repeat(200), contract).status).toBe('valid')
     expect(validateBodyArtifact('字'.repeat(201), contract).status).toBe('too_long')
+  })
+
+  it('keeps the prose prompt and validator on one contract source', () => {
+    const contract = resolveProseWordContract({ targetWords: 3500 })
+    expect(contract).toEqual({
+      targetWords: 3500,
+      minRatio: 0.8,
+      maxRatio: 2,
+      minWords: 2800,
+      maxWords: 7000
+    })
   })
 
   it('supports explicit ratio overrides', () => {

@@ -41,20 +41,11 @@ export function isBodyArtifactContractInput(value: unknown): value is BodyArtifa
   )
 }
 
-function ratio(value: unknown, fallback: number): number {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
-}
-
 export function validateBodyArtifact(
   body: unknown,
   contract: BodyArtifactContract
 ): BodyArtifactValidation {
-  const target = Math.max(1, Math.round(Number(contract.targetWords) || 1))
-  const minRatio = ratio(contract.minRatio, 0.6)
-  const maxRatio = ratio(contract.maxRatio, 2)
-  const minWords = Math.max(1, Math.round(target * minRatio))
-  const maxWords = Math.round(target * maxRatio)
+  const { targetWords: target, minWords, maxWords } = resolveProseWordContract(contract)
   const wordCount = countBodyWords(body)
 
   if (wordCount === 0) {
@@ -100,3 +91,6 @@ export function validateBodyArtifact(
     errors: []
   }
 }
+
+export { resolveProseWordContract }
+import { resolveProseWordContract } from './proseWordContract'
