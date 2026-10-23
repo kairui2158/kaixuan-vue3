@@ -63,6 +63,15 @@ describe('pipeline breakpoint storage isolation', () => {
     })
   })
 
+  it('reads a fully-qualified storage key without double-prefixing it', async () => {
+    const store = usePipelineStore()
+    storage.set('wa_pipeline_breakpoint_owner_pipeline:project-1:step-2', chainBreakpoint)
+
+    expect(await store.refreshBreakpointFromStorageKey(
+      'wa_pipeline_breakpoint_owner_pipeline:project-1:step-2'
+    )).toMatchObject({ ownerKey: 'pipeline:project-1:step-2' })
+  })
+
   it('keeps chapter batch breakpoints in the shared pipeline slot', async () => {
     const store = usePipelineStore()
     await store.saveBreakpoint(chapterBreakpoint)
@@ -99,5 +108,45 @@ describe('pipeline breakpoint storage isolation', () => {
     expect(storage.get('wa_pipeline_breakpoint_owner_pipeline:project-1:step-2')).toMatchObject({
       ownerKey: 'pipeline:project-1:step-2',
     })
+  })
+})
+
+describe('pipeline run cancellation', () => {
+  const storage = new Map<string, unknown>()
+
+  beforeEach(() => {
+    storage.clear()
+    setActivePinia(createPinia())
+    vi.stubGlobal('window', {
+      electronAPI: {
+        storageRead: vi.fn(async (key: string) => storage.get(key) ?? null),
+        storageWrite: vi.fn(async (key: string, value: unknown) => {
+          storage.set(key, value)
+          return true
+        }),
+        storageRemove: vi.fn(async (key: string) => {
+          storage.delete(key)
+          return true
+        }),
+      },
+    })
+  })
+
+  it('cancels a queued run and does not activate it after the running run finishes', () => {
+    const store = usePipelineStore()
+    const runningRunId = store.startGeneration('chapters', 'volume-1')
+    const queuedRunId = store.startGeneration('chapters', 'volume-1')
+
+    expect(store.getRunStatus(queuedRunId)).toBe('queued')
+
+    store.cancelGeneration(queuedRunId)
+
+    expect(store.getRunStatus(queuedRunId)).toBe('canceled')
+    expect(store.getGenerationSignal(queuedRunId)?.aborted).toBe(true)
+
+    store.finishGeneration(runningRunId)
+
+    expect(store.getRunStatus(queuedRunId)).toBe('canceled')
+    expect(store.getRunStatus(runningRunId)).toBe('succeeded')
   })
 })

@@ -399,7 +399,7 @@ async function main() {
       return {
         currentStep: pipeline?.currentStep,
         isGenerating: pipeline?.isGenerating,
-        generationStatus: pipeline?.generationStatus,
+        activeRunStatus: pipeline?.activeBodyRun?.status || null,
         volumeId: volId,
         chapterCount: (p.chapters[volId] || []).length,
         chapters: (p.chapters[volId] || []).map(c => ({ id: c.id, title: c.title, bodyGenerated: c.bodyGenerated, bodyLength: (c.body || '').length, bodyPreview: (c.body || '').slice(0, 80) })),

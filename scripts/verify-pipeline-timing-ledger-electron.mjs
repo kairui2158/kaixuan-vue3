@@ -332,8 +332,9 @@ function currentRunSnapshot(page) {
       runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
       failedApiCalls: (run?.apiCalls || []).filter(call => call.status === 'failed').length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeVolumesRun?.progress ?? null,
+      status: pipeline?.activeVolumesRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeVolumesRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       volumeCount: (project?.volumes || []).length,
       lastLog: (window.__pinia?._s?.get('executionLog')?.logs || []).at(-1)?.message || null,
@@ -432,30 +433,40 @@ function readExportedRun(exported) {
   return { directory, run }
 }
 
-function copyFileRobust(source, destination) {
+async function copyFileRobust(source, destination) {
   fs.mkdirSync(path.dirname(destination), { recursive: true })
-  try {
-    fs.copyFileSync(source, destination)
-  } catch {
-    // Windows CopyFile can reject a metadata/ACL transient even when bytes are
-    // copyable. Evidence capture must never depend on that platform edge case.
-    fs.writeFileSync(destination, fs.readFileSync(source))
+  let lastError = null
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      try {
+        fs.copyFileSync(source, destination)
+      } catch {
+        // Windows CopyFile can reject a transient metadata/ACL error even when
+        // the bytes are readable. Fall back to an explicit byte stream copy.
+        fs.writeFileSync(destination, fs.readFileSync(source))
+      }
+      assert.equal(
+        fs.statSync(destination).size,
+        fs.statSync(source).size,
+        `evidence copy preserves file size: ${source}`,
+      )
+      return
+    } catch (error) {
+      lastError = error
+      await sleep(250)
+    }
   }
-  assert.equal(
-    fs.statSync(destination).size,
-    fs.statSync(source).size,
-    `evidence copy preserves file size: ${source}`,
-  )
+  throw lastError
 }
 
-function copyExportEvidence(directory, targetDir) {
+async function copyExportEvidence(directory, targetDir) {
   fs.mkdirSync(targetDir, { recursive: true })
-  copyFileRobust(path.join(directory, 'run-trace.json'), path.join(targetDir, 'run-trace.json'))
+  await copyFileRobust(path.join(directory, 'run-trace.json'), path.join(targetDir, 'run-trace.json'))
   const payloadRoot = path.join(directory, 'payloads')
   if (!fs.existsSync(payloadRoot)) return
   for (const entry of fs.readdirSync(payloadRoot, { withFileTypes: true })) {
     if (!entry.isFile()) throw new Error(`unexpected payload entry: ${path.join(payloadRoot, entry.name)}`)
-    copyFileRobust(path.join(payloadRoot, entry.name), path.join(targetDir, 'payloads', entry.name))
+    await copyFileRobust(path.join(payloadRoot, entry.name), path.join(targetDir, 'payloads', entry.name))
   }
 }
 
@@ -530,8 +541,23 @@ function assertNoActiveStreamTimeoutRestart(run) {
   const physicalCalls = (run.apiCalls || []).flatMap(call => call.physicalCalls || [])
   assert(physicalCalls.length > 0, 'volume run records physical requests')
   for (const physical of physicalCalls) {
-    assert.equal(physical.heartbeat, true,
-      `physical call ${physical.physicalCallId} reports heartbeat`)
+    // Heartbeat is a running-state progress signal, emitted every 15s while a
+    // physical request is in flight. A fast success/failure can legitimately
+    // finish before the first interval fires; requiring heartbeat=true on every
+    // terminal record turns that normal race into a false verifier failure.
+    // A long silent request must still prove the renderer loop stayed alive.
+    const durationMs = Number(physical.durationMs || 0)
+    assert(physical.heartbeat !== true || physical.status === 'success' || physical.status === 'failed',
+      `physical call ${physical.physicalCallId} records heartbeat only after observing it`)
+    if (
+      physical.status === 'success'
+      && durationMs >= 16_000
+      && physical.firstTokenMs === undefined
+      && physical.lastReasoningAt === undefined
+    ) {
+      assert.equal(physical.heartbeat, true,
+        `silent physical call ${physical.physicalCallId} longer than one heartbeat interval reports heartbeat`)
+    }
     if (physical.phase !== 'heartbeat_retry') continue
     assert.equal(physical.status, 'success',
       `heartbeat retry ${physical.physicalCallId} succeeds instead of timing out an active stream, got ${physical.status}`)
@@ -541,10 +567,43 @@ function assertNoActiveStreamTimeoutRestart(run) {
 
   // The pre-fix signature was a failed ~600s physical call with streaming output,
   // followed by a full retry. Neither shape may pass this verifier anymore.
+  // Reasoning-only streams are a different, task-layer semantic stall: they are
+  // classified explicitly and must be followed by the one-shot thinking-disabled
+  // retry rather than a generic timeout retry.
   const timeoutFailures = physicalCalls.filter(physical =>
-    physical.status === 'failed' && Number(physical.durationMs || 0) >= 590_000)
+    physical.status === 'failed'
+    && Number(physical.durationMs || 0) >= 590_000
+    && physical.interruptionCode !== 'reasoning_only_stalled')
   assert.equal(timeoutFailures.length, 0,
     `no active stream is cut by the 600s total timeout, got ${JSON.stringify(timeoutFailures)}`)
+
+  for (const stalled of physicalCalls.filter(physical =>
+    physical.status === 'failed' && physical.interruptionCode === 'reasoning_only_stalled')) {
+    assert.equal(stalled.phase, 'normal',
+      `reasoning-only stall ${stalled.physicalCallId} occurs on the original request, got ${stalled.phase}`)
+    assert(Number.isFinite(Number(stalled.bodyAbsentMs)) && Number(stalled.bodyAbsentMs) >= 590_000,
+      `reasoning-only stall ${stalled.physicalCallId} records bodyAbsentMs, got ${stalled.bodyAbsentMs}`)
+    assert(stalled.firstContentAt === undefined,
+      `reasoning-only stall ${stalled.physicalCallId} never received body content`)
+    assert(Number.isFinite(Number(stalled.lastReasoningAt)),
+      `reasoning-only stall ${stalled.physicalCallId} records reasoning liveness`)
+    // Semantic retries are siblings under the same API call: physical-...-0 is
+    // the failed original and physical-...-1 is the retry. Their prefixes are
+    // not equal, so matching by physicalCallId would always miss the pair.
+    const stalledParent = (run.apiCalls || []).find(call =>
+      (call.physicalCalls || []).some(physical => physical === stalled))
+    assert(stalledParent,
+      `reasoning-only stall ${stalled.physicalCallId} has a parent API call`)
+    const retry = (stalledParent.physicalCalls || []).find(physical =>
+      physical.seq === 2
+      && physical.status === 'success'
+      && physical.retryStrategy === 'thinking_disabled')
+    assert(retry,
+      `reasoning-only stall ${stalled.physicalCallId} is followed by one thinking_disabled retry`)
+    assert.equal((stalledParent.physicalCalls || []).filter(physical =>
+      physical.seq === 2).length, 1,
+      `reasoning-only stall ${stalled.physicalCallId} has exactly one semantic retry`)
+  }
 }
 
 function parseEventDetail(detail) {
@@ -661,7 +720,7 @@ async function main() {
       const failureExport = await exportLatestRun(page)
       const { directory, run } = readExportedRun(failureExport)
       const failureDir = path.join(EVIDENCE_ROOT, 'live-export', 'volume')
-      copyExportEvidence(directory, failureDir)
+      await copyExportEvidence(directory, failureDir)
       fs.writeFileSync(path.join(EVIDENCE_ROOT, 'terminal-status.json'), JSON.stringify({
         schema: 'shenyi.pipeline-timing-ledger.terminal-status',
         version: 1,
@@ -691,7 +750,7 @@ async function main() {
     const analysis = analyzeTiming(run)
 
     const targetDir = path.join(EVIDENCE_ROOT, 'live-export', 'volume')
-    copyExportEvidence(directory, targetDir)
+    await copyExportEvidence(directory, targetDir)
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'timing-analysis.md'), analysis.text, 'utf8')
     await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'final-state.png'), fullPage: false })
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'summary.json'), JSON.stringify({

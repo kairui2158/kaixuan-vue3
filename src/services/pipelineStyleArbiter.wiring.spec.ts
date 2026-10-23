@@ -51,7 +51,7 @@ describe('pipeline style arbiter wiring', () => {
   it('keeps the three pipeline consumers wired to the arbiter and stripped projection text', () => {
     const source = readFileSync(join(process.cwd(), 'src/components/pipeline/PipelinePanel.vue'), 'utf8')
     for (const layer of ['Volume', 'Chapter', 'Body']) {
-      expect(source).toContain(`function get${layer}StyleContext()`)
+      expect(source).toContain(`function get${layer}StyleContext(traceRunId?: string | null)`)
     }
     expect(source).toContain('compileArbitratedStyleContext')
     expect(source).toContain('withoutSettingsStyleText(settingsProjection)')
@@ -61,8 +61,8 @@ describe('pipeline style arbiter wiring', () => {
 
   it('keeps settings generation on the profile-only style path', () => {
     const source = readFileSync(join(process.cwd(), 'src/components/pipeline/PipelinePanel.vue'), 'utf8')
-    expect(source).toContain('function getSettingsGenerationStyleContext()')
-    expect(source).toContain('getSettingsGenerationStyleContext()')
+    expect(source).toContain('function getSettingsGenerationStyleContext(traceRunId?: string | null)')
+    expect(source).toContain('getSettingsGenerationStyleContext(trace.runId)')
     expect(source).not.toContain('function getStyleContext()')
   })
 })

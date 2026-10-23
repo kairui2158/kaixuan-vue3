@@ -41,9 +41,30 @@ const VOLUME_OUTLINE = [
 ].join('\n')
 
 const S1_BODY = 'S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。'
-const S2_VALID_BODY = Array.from({ length: 90 }, (_, index) =>
+const S2_BODY_TEXT = Array.from({ length: 130 }, (_, index) =>
   `林照把纸条放进灯座，潮声第${index + 1}次盖住他的呼吸。`).join('\n')
-const S3_POLISHED_BODY = S2_VALID_BODY
+const S2_VALID_BODY = [
+  S2_BODY_TEXT,
+  '【正文交接】',
+  'FACT_LOCK:人物状态=警觉',
+  'FACT_LOCK:位置=灯塔底层',
+  'FACT_LOCK:关键道具=纸条',
+  'NEW_FACT:纸条日期与灯芯维护记录不一致',
+  '【正文交接结束】',
+].join('\n')
+const S3_BODY_TEXT = Array.from({ length: 130 }, (_, index) =>
+  index === 0
+    ? `林照将纸条压进灯座，潮声第${index + 1}次盖住他的呼吸。`
+    : `林照把纸条放进灯座，潮声第${index + 1}次盖住他的呼吸。`).join('\n')
+const S3_POLISHED_BODY = [
+  S3_BODY_TEXT,
+  '【正文交接】',
+  'FACT_LOCK:人物状态=警觉',
+  'FACT_LOCK:位置=灯塔底层',
+  'FACT_LOCK:关键道具=纸条',
+  'NEW_FACT:纸条日期与灯芯维护记录不一致',
+  '【正文交接结束】',
+].join('\n')
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -378,8 +399,9 @@ function snapshot(page) {
       lastEventType: (run?.events || []).at(-1)?.type || null,
       eventCount: (run?.events || []).length,
       apiCallCount: (run?.apiCalls || []).length,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      status: pipeline?.activeBodyRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       skillIds: (skill?.skills || []).map(item => item.id),
       pipelineSkills: skill?.pipelineSkills || null,
@@ -441,7 +463,7 @@ async function runBodyThroughUi(page) {
     return Boolean(select && select.options.length > 0)
   }, null, { timeout: 20_000 })
   await chapterSelect.selectOption({ index: 0 })
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
 
   let lastSignature = null
   let lastProgressAt = Date.now()
@@ -556,7 +578,7 @@ function parseDetail(value) {
 }
 
 async function runScenario(provider, scenario) {
-  const scenarioOwnerKey = `pipeline:${LEGACY_PROJECT_ID}:step-4`
+  const scenarioOwnerKey = `pipeline:${LEGACY_PROJECT_ID}:step-4:chapter-${CHAPTER_ID}`
   const scenarioOwnerStorageKey = `wa_pipeline_breakpoint_owner_${scenarioOwnerKey}`
   const injectRemoveKey = scenario.name === 'v6' ? scenarioOwnerStorageKey : null
     const electronProcess = startElectron(injectRemoveKey)
@@ -672,9 +694,11 @@ async function runScenario(provider, scenario) {
       assert.equal(state.runStatus, 'failed',
         `V7 degraded body must still fail the generation contract, got ${state.runStatus}`)
       assert.equal(scenarioRequests.length, 4,
-        `V7 runs S1 plus three schema-failed folder attempts, got ${scenarioRequests.length}`)
-      const contractEvent = events.find(item => item.type === 'body-chain-contract-failed')
-      assert(contractEvent, 'V7 length contract is still enforced after degraded output')
+        `V7 runs S1 plus three schema-failed folder attempts before contract termination, got ${scenarioRequests.length}`)
+      const rejectedEvent = events.find(item => item.type === 'body-generator-step-rejected')
+      assert(rejectedEvent, 'V7 records the degraded generator rejection')
+      assert.equal(parseDetail(rejectedEvent.detail).reason, 'degraded_plus_contract_failure',
+        `V7 labels the failure as degraded_plus_contract_failure, got ${rejectedEvent.detail}`)
       assert(!body.includes('degraded but usable short body'),
         'V7 degraded raw output is not persisted as chapter body')
     }
@@ -746,7 +770,7 @@ async function main() {
       })),
       hardRules: {
         visibleElectron: true,
-        realUiOperation: '#btn-pipeline / #pl-steps .pl-step:nth(5) / #pl-context-summary selects / #btn-pl-gen-body',
+        realUiOperation: '#btn-pipeline / #pl-steps .pl-step:nth(5) / #pl-context-summary selects / #btn-primary-gen-body',
         storageFailureInjectionOnly: true,
         noSkillInjection: true,
         localMockProvider: true,

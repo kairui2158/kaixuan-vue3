@@ -4,7 +4,7 @@ import { resolvePipelineRunOutcome } from './pipelineRunOutcome'
 describe('resolvePipelineRunOutcome', () => {
   it('keeps a successful final artifact successful despite intermediate degraded calls', () => {
     const outcome = resolvePipelineRunOutcome({
-      generationStatus: '',
+      runStatus: '',
       apiCalls: [
         { status: 'success' },
         { status: 'degraded' },
@@ -22,7 +22,7 @@ describe('resolvePipelineRunOutcome', () => {
 
   it('does not let intermediate degraded calls mask a failed final artifact', () => {
     const outcome = resolvePipelineRunOutcome({
-      generationStatus: '',
+      runStatus: '',
       apiCalls: [{ status: 'degraded' }],
       folderStatus: null,
       finalArtifactAccepted: false
@@ -34,7 +34,7 @@ describe('resolvePipelineRunOutcome', () => {
 
   it('keeps failure priority above artifact acceptance', () => {
     const outcome = resolvePipelineRunOutcome({
-      generationStatus: 'failed: 写入失败',
+      runStatus: 'failed: 写入失败',
       apiCalls: [{ status: 'success' }],
       folderStatus: null,
       finalArtifactAccepted: true
@@ -46,7 +46,7 @@ describe('resolvePipelineRunOutcome', () => {
 
   it('keeps a hard_signal_unresolved body degraded even after artifact acceptance', () => {
     const outcome = resolvePipelineRunOutcome({
-      generationStatus: '',
+      runStatus: '',
       apiCalls: [{ status: 'success' }],
       folderStatus: null,
       finalArtifactAccepted: true,
@@ -59,7 +59,7 @@ describe('resolvePipelineRunOutcome', () => {
 
   it('does not let hard_signal_unresolved mask a real failure', () => {
     const outcome = resolvePipelineRunOutcome({
-      generationStatus: 'failed: 写入失败',
+      runStatus: 'failed: 写入失败',
       apiCalls: [{ status: 'success' }],
       folderStatus: null,
       finalArtifactAccepted: true,
@@ -71,13 +71,13 @@ describe('resolvePipelineRunOutcome', () => {
 
   it('preserves canceled and blocked semantics', () => {
     expect(resolvePipelineRunOutcome({
-      generationStatus: 'canceled',
+      runStatus: 'canceled',
       apiCalls: [{ status: 'success' }],
       finalArtifactAccepted: true
     }).status).toBe('canceled')
 
     expect(resolvePipelineRunOutcome({
-      generationStatus: '',
+      runStatus: '',
       apiCalls: [{ status: 'blocked' }],
       finalArtifactAccepted: true
     }).status).toBe('blocked')
@@ -85,7 +85,7 @@ describe('resolvePipelineRunOutcome', () => {
 
   it('returns success when no run evidence reports a problem', () => {
     const outcome = resolvePipelineRunOutcome({
-      generationStatus: '',
+      runStatus: '',
       apiCalls: [{ status: 'success' }],
       folderStatus: null,
       finalArtifactAccepted: true

@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import StyleProfileCard from './StyleProfileCard.vue'
@@ -199,7 +201,7 @@ describe('StyleProfileCard', () => {
     expect((wrapper.vm as unknown as { analysisRunning: boolean }).analysisRunning).toBe(false)
   })
 
-  it('records style card events without stealing the active run', async () => {
+  it('keeps style card events isolated from an active chat run', async () => {
     const runTraceStore = useRunTraceStore()
     const runningId = runTraceStore.startRun({
       source: 'outline',
@@ -217,11 +219,12 @@ describe('StyleProfileCard', () => {
       detail: { action: 'test' },
     })
 
-    expect(runTraceStore.currentRunIdBySource.outline).toBe(runningId)
     const run = runTraceStore.getRun(runningId)
     expect(run?.status).toBe('running')
-    const event = run?.events.find(item => item.type === 'style-benchmark-import')
-    expect(event?.label).toBe('测试事件')
+    expect(run?.events.some(item => item.type === 'style-benchmark-import')).toBe(false)
+    const importRuns = runTraceStore.runs.filter(item => item.mode === 'style-benchmark-import')
+    expect(importRuns).toHaveLength(1)
+    expect(importRuns[0].events.some(item => item.type === 'style-benchmark-import')).toBe(true)
   })
 
   it('creates an isolated import trace run when no outline run is active', async () => {
@@ -240,5 +243,11 @@ describe('StyleProfileCard', () => {
     expect(importRuns[0].sessionKind).toBe('task')
     expect(importRuns[0].events.some(event => event.type === 'style-benchmark-import')).toBe(true)
     expect(importRuns[0].status).toBe('success')
+  })
+
+  it('never reads the source current-run pointer while recording events', () => {
+    const source = readFileSync(join(process.cwd(), 'src/components/common/StyleProfileCard.vue'), 'utf8')
+    expect(source).not.toContain('runTraceStore.getRunId')
+    expect(source).not.toContain('currentRunIdBySource')
   })
 })

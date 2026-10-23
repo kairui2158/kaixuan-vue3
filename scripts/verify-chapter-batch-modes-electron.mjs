@@ -246,7 +246,8 @@ function snapshot(page) {
     return {
       chapterCount: chapters.filter(chapter => chapter?.pipelineGenerated === true).length,
       isGenerating: Boolean(pipeline?.isGenerating),
-      status: pipeline?.generationStatus || null,
+      status: pipeline?.activeChaptersRun?.statusText || null,
+      runStatus: pipeline?.activeChaptersRun?.status || null,
       breakpoint: pipeline?.breakpoint || null,
     }
   })
@@ -286,7 +287,7 @@ async function waitForCancelBoundary(page, beforeCount) {
     } else if (Date.now() - lastChange >= DEAD_TIMEOUT_MS) {
       throw new Error(`cancel path is dead: ${JSON.stringify(lastSnapshot)}`)
     }
-    if (!state.isGenerating && state.status === 'canceled') return state
+    if (!state.isGenerating && state.runStatus === 'canceled') return state
     await sleep(300)
   }
   throw new Error(`cancel did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
@@ -340,7 +341,7 @@ async function main() {
       assert.notEqual(run.id, previousRunId, `round ${round} creates a fresh run trace`)
       previousRunId = run.id
       assert.equal(state.chapterCount, round * BATCH_SIZE, `round ${round} chapter count`)
-      assert.equal(state.status, 'done', `round ${round} ends successfully`)
+      assert.equal(state.runStatus, 'success', `round ${round} ends successfully`)
       assert.equal(run?.status, 'success', `round ${round} trace status`)
       const finishReason = run?.stateHistory?.at(-1)?.reason
       assert.equal(finishReason, round === 3 ? 'chapters_generation_complete' : 'chapters_batch_complete', `round ${round} finish reason`)
@@ -382,7 +383,7 @@ async function main() {
     })
     assert(completedRun?.id, 'final continuation creates a run trace')
     assert.notEqual(completedRun.id, previousRunId, 'final continuation creates a fresh run trace')
-    assert.equal(completedState.status, 'done', 'final continuation ends successfully')
+    assert.equal(completedState.runStatus, 'success', 'final continuation ends successfully')
     assert.equal(completedState.chapterCount, TOTAL_CHAPTERS, 'final continuation completes the volume')
     assert.equal(completedRun?.status, 'success', 'final continuation trace status')
     assert.equal(completedRun?.stateHistory?.at(-1)?.reason, 'chapters_generation_complete', 'final continuation records full completion')

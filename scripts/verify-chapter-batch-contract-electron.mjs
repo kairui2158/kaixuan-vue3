@@ -338,8 +338,9 @@ function currentRunSnapshot(page) {
       runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
       validatedBatches: (run?.events || []).filter(event => event.type === 'chapter-batch-validated').length,
       attemptEvents: (run?.events || []).filter(event => event.type === 'chapter-batch-attempt').length,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeChaptersRun?.progress ?? null,
+      status: pipeline?.activeChaptersRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeChaptersRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       chapterCount: (project?.chapters?.['vol-live-contract'] || []).length,
       lastLog: (window.__pinia?._s?.get('executionLog')?.logs || []).at(-1)?.message || null,
@@ -448,7 +449,7 @@ function readExportedRun(exported) {
   return { directory, run, payloads }
 }
 
-async function archiveLiveEvidence({ directory, payloads, exported }) {
+async function archiveLiveEvidence({ directory, run, payloads, exported }) {
   const evidenceDir = path.join(EVIDENCE_ROOT, 'live-export')
   await removeDir(evidenceDir)
   fs.mkdirSync(evidenceDir, { recursive: true })
@@ -471,8 +472,21 @@ async function archiveLiveEvidence({ directory, payloads, exported }) {
   }
   assert(matchedPayloads.length >= 2,
     `both history-bearing batch payloads are archived, got ${matchedPayloads.length}`)
+  const payloadEvidenceDir = path.join(evidenceDir, 'payloads')
+  fs.mkdirSync(payloadEvidenceDir, { recursive: true })
+  const archivedRequests = []
+  for (const [name, payload] of Object.entries(payloads)) {
+    fs.copyFileSync(path.join(directory, 'payloads', name), path.join(payloadEvidenceDir, name))
+    archivedRequests.push(name)
+  }
+  assert.equal(archivedRequests.length, TOTAL_CHAPTERS,
+    `all 12 request payload originals are archived, got ${archivedRequests.length}`)
+  const requestMetrics = requestMessagesByStep(run, payloads)
+    .map(item => ({ callId: item.callId, step: item.step, chars: item.chars }))
+  fs.writeFileSync(path.join(evidenceDir, 'request-metrics.json'),
+    JSON.stringify({ runId: exported.runId, requests: requestMetrics }, null, 2), 'utf8')
   fs.writeFileSync(path.join(evidenceDir, 'README.md'),
-    `# Chapter batch contract live evidence\n\nArchived from ${directory}\n\n- run-trace.json: full deep trace\n- *.history.json: request-level history blocks for B2/B3\n`, 'utf8')
+    `# Chapter batch contract live evidence\n\nArchived from ${directory}\n\n- run-trace.json: full deep trace\n- payloads/*-request.json: all request payload originals for later forensic audits\n- request-metrics.json: request char counts mapped from the chain-step event timeline\n- *.history.json: request-level history blocks for B2/B3\n`, 'utf8')
 }
 
 function collectPayloadStrings(value, output = []) {
@@ -579,13 +593,22 @@ function assertExportedRun({ run, payloads }) {
     assert(['declared_full_context_slimmed', 'slimmed'].includes(decision.reason),
       `non-primary hop uses the new contract reason, got ${decision.reason}`)
   }
-  const perStepRequestChars = requestCharsByStep(run)
-  assert.equal(perStepRequestChars.length, SKILL_FOLDERS.length,
-    `chapter chain contains four step requests, got ${perStepRequestChars.length}`)
-  assert(perStepRequestChars[0] > perStepRequestChars[1],
-    `primary hop keeps the largest prompt (${perStepRequestChars[0]}), later hop is slimmer (${perStepRequestChars[1]})`)
-  assert(perStepRequestChars[1] > 20_000,
-    `second hop keeps batch/history/upstream assets after outline slimming, got ${perStepRequestChars[1]}`)
+  const requestMetrics = requestMessagesByStep(run, payloads)
+  assert.equal(requestMetrics.length, run.apiCalls?.length || 0,
+    `every logical API call maps to a chain-step request, got ${requestMetrics.length}`)
+  assert.equal(requestMetrics.length, SKILL_FOLDERS.length * 3,
+    `three batches each produce four step requests, got ${requestMetrics.length}`)
+  assert.deepEqual([...new Set(requestMetrics.map(item => item.stepTotal))], [SKILL_FOLDERS.length],
+    `all calls belong to a four-step chapter chain, got ${JSON.stringify(requestMetrics.map(item => item.stepTotal))}`)
+  for (let index = 0; index < SKILL_FOLDERS.length; index += 1) {
+    const stepRequests = requestMetrics.filter(item => item.step === index)
+    assert.equal(stepRequests.length, 3,
+      `step ${index + 1} has one request per batch, got ${stepRequests.length}`)
+    for (const item of stepRequests) {
+      assert(Number.isFinite(item.chars) && item.chars > 0,
+        `step ${index + 1} request ${item.callId} has a non-empty request payload, got ${item.chars}`)
+    }
+  }
 
   const modelFallbacks = (run.events || []).filter(event => event.type === 'agent-model-fallback')
   assert(modelFallbacks.length > 0,
@@ -615,38 +638,45 @@ function assertExportedRun({ run, payloads }) {
   assert(stepRequestRoleMap.length > 0, 'intermediate request refs are exported')
 }
 
-function requestCharsByStep(run) {
-  const chains = []
-  const queue = [...(run.apiCalls || [])]
-  while (queue.length > 0) {
-    const call = queue.shift()
-    const userText = (call.requestMessages || [])
-      .filter(message => message.role === 'user')
-      .map(message => String(message.content || ''))
-      .join('\n')
-    const systemText = (call.requestMessages || [])
-      .filter(message => message.role === 'system')
-      .map(message => String(message.content || ''))
-      .join('\n')
-    const chainMarker = userText.match(/chain step\s*([0-9]+)\s*\/\s*([0-9]+)/i)
-      || systemText.match(/chain step\s*([0-9]+)\s*\/\s*([0-9]+)/i)
-    if (chainMarker) {
-      const index = Number(chainMarker[1]) - 1
-      chains[index] = Math.max(chains[index] || 0, userText.length)
-    }
-    for (const physical of call.physicalCalls || []) {
-      const physicalText = (physical.requestMessages || [])
-        .filter(message => message.role === 'user')
-        .map(message => String(message.content || ''))
-        .join('\n')
-      const physicalMarker = physicalText.match(/chain step\s*([0-9]+)\s*\/\s*([0-9]+)/i)
-      if (physicalMarker) {
-        const index = Number(physicalMarker[1]) - 1
-        chains[index] = Math.max(chains[index] || 0, physicalText.length)
-      }
-    }
+function requestMessagesByStep(run, payloads) {
+  const payloadFilesById = new Map()
+  for (const ref of run.payloads || []) {
+    if (!ref?.id || !ref.file) continue
+    const payload = payloads[ref.file]
+    if (Array.isArray(payload)) payloadFilesById.set(ref.id, payload)
   }
-  return chains
+  const hydrateMessages = value => {
+    const payloadId = value?.__payload?.id
+    if (payloadId) {
+      assert(payloadFilesById.has(payloadId),
+        `request payload ${payloadId} is declared and exported`)
+      return payloadFilesById.get(payloadId)
+    }
+    return Array.isArray(value) ? value : []
+  }
+  const chainTimeline = (run.events || [])
+    .filter(event => event.type === 'chain-step')
+    .map(event => {
+      const match = String(event.label || '').match(/链式步骤\s*([0-9]+)\s*\/\s*([0-9]+)/)
+      if (!match) return null
+      return { ts: event.ts, step: Number(match[1]) - 1, stepTotal: Number(match[2]) }
+    })
+    .filter(Boolean)
+  assert(chainTimeline.length > 0, 'live trace exposes chain-step timeline events')
+  return (run.apiCalls || []).map(call => {
+    const activeStep = [...chainTimeline].reverse()
+      .find(event => event.ts <= call.startedAt)
+    assert(activeStep, `API call ${call.id} maps to an active chain-step event`)
+    const text = hydrateMessages(call.requestMessages)
+      .map(message => String(message.content || ''))
+      .join('\n')
+    return {
+      callId: call.id,
+      step: activeStep.step,
+      stepTotal: activeStep.stepTotal,
+      chars: text.length,
+    }
+  })
 }
 
 async function captureEvidence(page, exported, exportedRun, completionSnapshot) {
@@ -733,7 +763,7 @@ async function main() {
 
     const exported = await exportLatestRun(page)
     const { run, payloads } = readExportedRun(exported)
-    await archiveLiveEvidence({ directory: exported.result.path, payloads, exported })
+    await archiveLiveEvidence({ directory: exported.result.path, run, payloads, exported })
     await captureEvidence(page, exported, run, completion)
     assertExportedRun({ run, payloads })
     console.log(`[EXPORT] ${exported.result.path}`)

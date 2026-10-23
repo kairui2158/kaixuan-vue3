@@ -55,6 +55,11 @@ describe('owner breakpoint lifecycle closure wiring', () => {
     expect(source).toContain('? executionPlan.upstreamStepOutputs')
   })
 
+  it('emits breakpoint resume observability for failed checkpoints, not only saved handoffs', () => {
+    expect(source).toContain('if (!executionPlan?.disableBreakpointReplay && resumePoint.resumed) {')
+    expect(source).toContain("type: 'chain-handoff-resume'")
+  })
+
   it('revalidates post-processed body output against the same contract gate', () => {
     expect(source).toContain('postProcessContractValidation')
     expect(source).toContain("type: 'body-post-process-contract-rejected'")

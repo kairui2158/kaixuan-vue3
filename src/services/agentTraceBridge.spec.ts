@@ -33,7 +33,7 @@ const snapshot: AgentOrchestratorSnapshot = {
 }
 
 describe('agentTraceBridge', () => {
-  it('backfills live execution settlement on the current running api call', () => {
+  it('backfills live execution settlement on the explicit run api call', () => {
     const pinia = createPinia()
     const store = useRunTraceStore(pinia)
     const runId = store.startRun({ source: 'home', mode: 'direct', projectId: 'p1' })
@@ -41,7 +41,7 @@ describe('agentTraceBridge', () => {
       source: 'home',
       requestMessages: [{ role: 'user', content: '整理全文' }],
     })
-    const bridge = createAgentTraceBridge({ pinia, source: 'home' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'home', runId })
 
     bridge.attach()({
       type: 'state',
@@ -71,7 +71,7 @@ describe('agentTraceBridge', () => {
       requestMessages: [{ role: 'user', content: '整理全文' }],
     })
     store.finishApiCall(runId, callId, { status: 'success', responseText: '完成' })
-    const bridge = createAgentTraceBridge({ pinia, source: 'outline' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'outline', runId })
 
     bridge.attach()({
       type: 'state',
@@ -88,7 +88,7 @@ describe('agentTraceBridge', () => {
     const pinia = createPinia()
     const store = useRunTraceStore(pinia)
     const runId = store.startRun({ source: 'outline', mode: 'direct', projectId: 'p1' })
-    const bridge = createAgentTraceBridge({ pinia, source: 'outline' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'outline', runId })
     const handler = bridge.attach()
 
     const event: AgentOrchestratorEvent = {
@@ -113,18 +113,21 @@ describe('agentTraceBridge', () => {
     const pinia = createPinia()
     useRunTraceStore(pinia)
     const bridge = createAgentTraceBridge({ pinia, source: 'home' })
-    expect(() => bridge.attach()({
+    const handler = bridge.attach()
+    expect(() => handler({
       type: 'state',
       level: 'info',
       label: '任务状态：running',
     }, snapshot)).not.toThrow()
+    const store = useRunTraceStore(pinia)
+    expect(store.sortedRuns).toHaveLength(0)
   })
 
   it('maps tool conflict events to the agent trace event type', () => {
     const pinia = createPinia()
     const store = useRunTraceStore(pinia)
     const runId = store.startRun({ source: 'home', mode: 'direct', projectId: 'p1' })
-    const bridge = createAgentTraceBridge({ pinia, source: 'home' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'home', runId })
 
     bridge.attach()({
       type: 'tool_conflict',
@@ -144,7 +147,7 @@ describe('agentTraceBridge', () => {
     const pinia = createPinia()
     const store = useRunTraceStore(pinia)
     const runId = store.startRun({ source: 'outline', mode: 'agent', projectId: 'p1' })
-    const bridge = createAgentTraceBridge({ pinia, source: 'outline' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'outline', runId })
     const stalledSnapshot: AgentOrchestratorSnapshot = {
       ...snapshot,
       status: 'stalled',

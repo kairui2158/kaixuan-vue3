@@ -385,13 +385,13 @@ try {
     return {
       totalSettings,
       settingsGenerated: project?.settingsGenerated,
-      pipelineStatus: window.__pinia?.state?.value?.pipeline?.generationStatus,
+      pipelineRunStatus: window.__pinia?.state?.value?.pipeline?.activeSettingsRun?.status || null,
       bodyText: (document.body.textContent || '').slice(-1000)
     }
   })
   assert(
     settingsResult.totalSettings > 0,
-    `pipeline settings generation completes with expected result (settings=${settingsResult.totalSettings}, status=${settingsResult.pipelineStatus})`
+    `pipeline settings generation completes with expected result (settings=${settingsResult.totalSettings}, status=${settingsResult.pipelineRunStatus})`
   )
   await page.waitForTimeout(600)
   const pipelineRequests = requests.filter(item => item.mode === 'pipeline')

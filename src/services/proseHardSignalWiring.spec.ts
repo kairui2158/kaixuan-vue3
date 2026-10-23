@@ -16,7 +16,7 @@ describe('prose hard signal wiring', () => {
 
   it('uses a bounded local repair window instead of resending the full body', () => {
     expect(pipelineSource).toContain('buildHardSignalRepairWindow')
-    expect(pipelineSource).toContain('runHardSignalRepair(current, scan, traceRunId, attempt)')
+    expect(pipelineSource).toContain('runHardSignalRepair(current, scan, traceRunId, attempt, bodyRunId)')
     expect(pipelineSource).not.toContain('runHardSignalRepair(finalBody, scan, traceRunId, attempt)')
   })
 
@@ -31,7 +31,7 @@ describe('prose hard signal wiring', () => {
   })
 
   it('feeds the latest successful body finish reason into the first hard signal scan', () => {
-    const scanCall = pipelineSource.indexOf('runProseHardSignalNet(finalBody, trace.runId!,')
+    const scanCall = pipelineSource.indexOf('runProseHardSignalNet(finalBody, trace.runId!, bodyRunId,')
     const finishReasonSource = pipelineSource.indexOf('latestBodyFinishReason(trace.runId!)')
 
     expect(scanCall).toBeGreaterThan(-1)
@@ -46,7 +46,7 @@ describe('prose hard signal wiring', () => {
     const repairFunction = pipelineSource.indexOf('async function runHardSignalRepair(')
     const providerGuard = pipelineSource.indexOf("if (finding.origin === 'provider')", repairFunction)
     const unresolvedTerminal = pipelineSource.indexOf('hard_signal_unresolved')
-    const repairCall = pipelineSource.indexOf('runHardSignalRepair(current, scan, traceRunId, attempt)')
+    const repairCall = pipelineSource.indexOf('runHardSignalRepair(current, scan, traceRunId, attempt, bodyRunId)')
 
     expect(repairFunction).toBeGreaterThan(-1)
     expect(providerGuard).toBeGreaterThan(repairFunction)

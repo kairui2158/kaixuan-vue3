@@ -685,7 +685,7 @@ function startHeartbeat(page, electronPid) {
           return {
             at: new Date().toISOString(),
             running,
-            pipelineStatus: pipeline?.generationStatus || null,
+            pipelineStatus: pipeline?.activeSettingsRun?.statusText || null,
             isGenerating: Boolean(pipeline?.isGenerating),
           }
         })
@@ -729,8 +729,9 @@ async function waitForPipelineIdle(page, label) {
       const pipeline = window.__pinia?._s?.get('pipeline')
       return {
         isGenerating: Boolean(pipeline?.isGenerating),
-        status: pipeline?.generationStatus || null,
-        progress: pipeline?.generationProgress ?? null,
+        status: pipeline?.activeSettingsRun?.statusText || null,
+        progress: pipeline?.activeSettingsRun?.progress ?? null,
+        pipelineRunStatus: pipeline?.activeSettingsRun?.status || null,
       }
     })
     const signature = JSON.stringify(state)
@@ -1010,7 +1011,7 @@ async function main() {
     await page.locator('#pl-steps .pl-step').nth(4).click()
     await page.waitForSelector('#pl-step-5-content', { state: 'visible' })
     provider.reset()
-    await page.click('#btn-pl-gen-body')
+    await page.click('#btn-primary-gen-body')
     await waitForPipelineIdle(page, 'body-generation')
     const bodyRun = await latestRun(page, 'pipeline', '正文层')
     const bodyRequests = provider.requests()

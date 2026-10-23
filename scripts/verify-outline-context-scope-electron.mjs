@@ -58,7 +58,7 @@ const SCOPED_MISSING_UNIT_OUTLINE = [
   '- 黎明后，主角离开旧城。'
 ].join('\n')
 const BODY_SENTENCE = '雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。'
-const BODY_TEXT = Array.from({ length: 80 }, () => BODY_SENTENCE).join('')
+const BODY_TEXT = Array.from({ length: 120 }, () => BODY_SENTENCE).join('')
 const BODY_RESPONSE = JSON.stringify({ body: BODY_TEXT })
 
 function sleep(ms) {
@@ -301,8 +301,9 @@ function snapshot(page) {
       runStatus: run?.status || null,
       eventCount: (run?.events || []).length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      status: pipeline?.activeBodyRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       lastBodyLog,
     }
@@ -340,7 +341,7 @@ async function runBodyThroughUi(page) {
     return Boolean(select && select.options.length > 0)
   }, null, { timeout: 20_000 })
   await chapterSelect.selectOption({ index: 0 })
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
 
   let lastSignature = null
   let lastProgressAt = Date.now()

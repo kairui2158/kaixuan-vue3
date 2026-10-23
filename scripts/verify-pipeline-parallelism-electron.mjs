@@ -1,0 +1,1669 @@
+import fs from 'node:fs'
+import http from 'node:http'
+import path from 'node:path'
+import { createHash } from 'node:crypto'
+import { execFileSync, spawn } from 'node:child_process'
+import assert from 'node:assert/strict'
+import { chromium } from 'playwright'
+
+const ROOT = path.resolve(process.cwd())
+const SCRIPT_NAME = 'verify-pipeline-parallelism-electron.mjs'
+const ELECTRON_EXE = process.env.SHENYI_PARALLELISM_ELECTRON
+  ? path.resolve(process.env.SHENYI_PARALLELISM_ELECTRON)
+  : path.join(ROOT, 'node_modules', 'electron', 'dist', 'electron.exe')
+const CDP_PORT = Number(process.env.SHENYI_PARALLELISM_CDP_PORT || 9369)
+const LIVE_MODE = process.env.SHENYI_PARALLELISM_LIVE === '1'
+const PROFILE = path.join(ROOT, '_data', 'pipeline-parallelism-profile')
+const DATA_DIR = path.join(PROFILE, 'documents-data')
+const EXPORT_ROOT = path.join(ROOT, '_data', 'pipeline-parallelism-exports')
+const EVIDENCE_ROOT = LIVE_MODE
+  ? path.join(ROOT, '_audit', 'verification-pipeline-parallelism-live-supplier')
+  : path.join(ROOT, '_audit', 'verification-pipeline-parallelism-live')
+const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
+const HEARTBEAT_PATH = path.join(EVIDENCE_ROOT, 'heartbeat.jsonl')
+const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_GLOBAL_TIMEOUT_MS
+  || (LIVE_MODE ? 30 * 60_000 : 15 * 60_000))
+const STEP_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_STEP_TIMEOUT_MS
+  || (LIVE_MODE ? 15 * 60_000 : 8 * 60_000))
+const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_PARALLELISM_HEARTBEAT_INTERVAL_MS || 5000)
+const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_STALLED_TIMEOUT_MS || 30_000)
+const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_DEAD_TIMEOUT_MS || 60_000)
+const KEEP_PROFILE = process.env.SHENYI_PARALLELISM_KEEP_PROFILE === '1'
+const REAL_PROVIDER_CONFIG_PATH = process.env.SHENYI_PARALLELISM_PROVIDER_CONFIG
+  ? path.resolve(process.env.SHENYI_PARALLELISM_PROVIDER_CONFIG)
+  : path.join(process.env.USERPROFILE || '', 'Documents', '神意助手数据', 'wa_providers.json')
+const LIVE_PROVIDER_NAME = process.env.SHENYI_PARALLELISM_LIVE_PROVIDER || '新供应商'
+const LIVE_MODEL_NAME = process.env.SHENYI_PARALLELISM_LIVE_MODEL || 'deepseek-v4-pro'
+
+const PROJECT_ID = 'pipeline-parallelism-live'
+const VOLUME_ID = 'vol-parallelism'
+const CHAPTER_ID = 'ch-parallelism-1'
+const SKILL_ROOT = path.join(ROOT, '_data', 'pipeline-parallelism-skills')
+const SKILL_IDS = ['PARALLELISM-S1', 'PARALLELISM-S2', 'PARALLELISM-S3']
+const BODY_SENTENCES = [
+  '雨点在灯塔玻璃上排成细密的鼓点。',
+  '王芳把纸条压进灯座，指尖停了半秒。',
+  '红色信标每闪一次，她就把呼吸放慢一拍。',
+  '楼梯下的海水声像有人在翻旧账。',
+  '她把玩笑说给风暴听，风暴没有回嘴。',
+  '纸条上的字迹被潮气咬出一圈毛边。',
+  '她数到第三次红闪，才敢承认自己在怕。',
+  '灯光把她的影子钉在潮湿的墙上。',
+  '远处的货船鸣笛，声音被雨压得很低。',
+  '她想起南方航线，又想起一个没兑现的约定。',
+  '手指抚过灯座裂纹时，纸条轻轻颤了一下。',
+  '她把恐惧折成话多的样子，好让自己站住。',
+]
+
+function buildBodyReply(requestIndex) {
+  const buildParagraph = index => {
+    const start = (index * 3) % BODY_SENTENCES.length
+    const sentenceCount = 3 + (index % 2)
+    const sentences = Array.from({ length: sentenceCount },
+      (_, offset) => BODY_SENTENCES[(start + offset) % BODY_SENTENCES.length])
+    return `${index + 1}. ${sentences.join('')}`
+  }
+  const body = Array.from({ length: 70 }, (_, index) => buildParagraph(index))
+    .join('\n\n')
+    .concat('\n\n', [
+      `生成轮次标记：parallelism-${requestIndex + 1}`,
+      '【正文交接】',
+      'FACT_LOCK:人物状态=王芳发现纸条并确认三次红色闪烁',
+      'FACT_LOCK:位置=灯塔底层',
+      'FACT_LOCK:持有物=纸条',
+      '【正文交接结束】',
+      '【来源覆盖】',
+      'H1-01',
+      '【来源覆盖结束】',
+    ].join('\n\n'))
+  return body
+}
+
+const OUTLINE = [
+  '# 三层并行真实UI实测',
+  '## 剧情单元 H1-01 灯塔纸条',
+  '> 作用域：单元级 H1-01',
+  '章节范围：第 1 章',
+  '- 雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。',
+  '第一卷 灯塔航线：纸条、信标与南方航线共同推动第一卷冲突。',
+].join('\n')
+
+function writeChainSkills() {
+  fs.rmSync(SKILL_ROOT, { recursive: true, force: true })
+  const definitions = [
+    {
+      id: SKILL_IDS[0],
+      name: 'P1 骨架',
+      folder: 'parallelism-s1',
+      template: '输出本章节的写作骨架，不要输出正文。',
+    },
+    {
+      id: SKILL_IDS[1],
+      name: 'P2 生成',
+      folder: 'parallelism-s2',
+      template: [
+        '输出本章节完整正文。',
+        '字数契约：目标约3500字，必须不低于2800字，不得超过7000字。',
+        '结构自查：至少写70个自然段，每段50-80字；每段都要落在场景、动作、对话、感官细节或心理中的一个具体面上，禁止用说明性总结替代正文。',
+        '交付自查：输出前逐段计数，若不足70段或总字数低于2800，继续扩展场景与动作，直到达标后才允许输出【正文交接】块。',
+        '输出结束后另起一行输出【正文交接】块，并在其中逐行输出FACT_LOCK。',
+      ].join('\n'),
+    },
+    {
+      id: SKILL_IDS[2],
+      name: 'P3 打磨',
+      folder: 'parallelism-s3',
+      template: '只打磨表达，不改变事实；保留全文长度，禁止压缩或概括，输出完整正文。',
+    },
+  ]
+  for (const definition of definitions) {
+    const folderPath = path.join(SKILL_ROOT, definition.folder)
+    fs.mkdirSync(folderPath, { recursive: true })
+    fs.writeFileSync(path.join(folderPath, 'SKILL.md'), [
+      '---',
+      'schema: shenyi.skill',
+      'version: 1',
+      `id: ${definition.id}`,
+      `name: ${definition.name}`,
+      '---',
+      'Created and removed by the pipeline-parallelism Electron verifier.',
+      '',
+    ].join('\n'), 'utf8')
+    fs.writeFileSync(path.join(folderPath, 'template.md'), definition.template, 'utf8')
+    fs.writeFileSync(path.join(folderPath, 'meta.json'), JSON.stringify({}, null, 2), 'utf8')
+    fs.writeFileSync(path.join(folderPath, 'script.js'),
+      'exports.preProcess = function (payload) { return { input: payload.input } }', 'utf8')
+  }
+}
+
+function chainSkillRecords() {
+  const names = ['P1 骨架', 'P2 生成', 'P3 打磨']
+  return SKILL_IDS.map((sourceId, index) => ({
+    id: `folder:${sourceId}`,
+    sourceId,
+    name: names[index],
+    description: 'pipeline parallelism Electron verification skill',
+    format: 'folder',
+    source: 'external',
+    category: 'folder',
+    folderPath: path.join(SKILL_ROOT, `parallelism-s${index + 1}`),
+    executionMode: 'chain',
+    outputFormat: 'text',
+    sourcePath: path.join(SKILL_ROOT, `parallelism-s${index + 1}`, 'SKILL.md'),
+    samples: '',
+    validationRules: [],
+    splitSize: 1000,
+    injectMode: 'system_prefix',
+    bindTarget: 'project',
+    linkedSkillIds: [],
+    customVars: {},
+    inputSchema: '',
+    outputSchema: '',
+    retryPolicy: '',
+    intents: ['generate'],
+  }))
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function removeDir(target) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true })
+      return
+    } catch {}
+    await sleep(300)
+  }
+}
+
+function assertFreshRendererBuild() {
+  const rendererIndex = path.join(ROOT, 'dist-renderer', 'index.html')
+  assert(fs.existsSync(rendererIndex), 'dist-renderer/index.html exists; run npm run build:vue first')
+  const indexHtml = fs.readFileSync(rendererIndex, 'utf8')
+  const bundleNames = [...indexHtml.matchAll(/assets\/[^"']+\.js/g)].map(match => match[0])
+  assert(bundleNames.length > 0, 'renderer index references at least one JS bundle')
+  const sourceFiles = []
+  const collectSources = dir => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) collectSources(full)
+      else if (/\.(ts|vue|js|mjs|css)$/.test(entry.name)) sourceFiles.push(full)
+    }
+  }
+  collectSources(path.join(ROOT, 'src'))
+  const newestSourceMs = Math.max(...sourceFiles.map(file => fs.statSync(file).mtimeMs))
+  const staleBundles = bundleNames.filter(name =>
+    fs.statSync(path.join(ROOT, 'dist-renderer', name)).mtimeMs < newestSourceMs)
+  assert.equal(staleBundles.length, 0,
+    `renderer build is stale; rebuild with npm run build:vue. Stale bundles: ${staleBundles.join(', ')}`)
+  const bundleText = bundleNames.map(name =>
+    fs.readFileSync(path.join(ROOT, 'dist-renderer', name), 'utf8')).join('\n')
+  assert(bundleText.includes('provider-queue'), 'renderer bundle contains provider-queue trace events')
+  assert(bundleText.includes('__SHENYI_PERFORMANCE_MONITOR__'),
+    'renderer bundle installs the performance monitor read surface')
+  assert(bundleText.includes('activeChaptersRun'), 'renderer bundle keeps per-layer chapter run readers')
+  assert(bundleText.includes('activeBodyRun'), 'renderer bundle keeps per-layer body run readers')
+}
+
+function buildVolumeReply() {
+  return JSON.stringify([{
+    name: '第二卷 航线之后',
+    outline: '王芳把灯塔纸条拼进航行图，南方航线逐步显形。',
+    summary: '纸条指向南方渔港。',
+    allocatedWords: 12000,
+    readerExpectations: '看到航线从线索变成行动。',
+    mainPlotLine: '灯塔纸条推动南方航线。',
+    unlockMilestone: '航行图第二段展开。',
+    forbiddenFinalCards: [],
+    contractRisk: 'contract_safe',
+  }])
+}
+
+function buildChapterReply() {
+  return JSON.stringify([{
+    title: '第2章 航行图',
+    plot: '王芳拼出航行图，并用三个玩笑压住风暴里的沉默。',
+    summary: '王芳确认航线。',
+  }])
+}
+
+function classifyRequest(parsed) {
+  const messages = parsed.messages || []
+  const userText = messages
+    .filter(message => message?.role === 'user')
+    .map(message => String(message.content || ''))
+    .join('\n')
+  // Anchors are the current production prompt headers, not step names.
+  // Keeping them aligned prevents a canceled request from being attributed
+  // to the wrong layer and hiding a real physical request from assertions.
+  if (userText.includes('[卷纲]\n') || userText.includes('[本卷总章数]')) return 'chapters'
+  if (userText.includes('[大纲]\n') || userText.includes('[全书大纲]\n')) return 'volumes'
+  return 'body'
+}
+
+function requestPromptPreview(parsed) {
+  return (parsed.messages || [])
+    .filter(message => message?.role === 'user')
+    .map(message => String(message.content || ''))
+    .join('\n')
+    .slice(0, 500)
+}
+
+function readLiveProviderConfig() {
+  assert(LIVE_MODE, 'readLiveProviderConfig only runs in live mode')
+  assert(fs.existsSync(REAL_PROVIDER_CONFIG_PATH),
+    `live provider config exists: ${REAL_PROVIDER_CONFIG_PATH}`)
+  const config = JSON.parse(fs.readFileSync(REAL_PROVIDER_CONFIG_PATH, 'utf8'))
+  const providers = Array.isArray(config.providers) ? config.providers : []
+  const selected = providers.find(item => item.name === LIVE_PROVIDER_NAME)
+    || providers.find(item => item.id === config.generateProvider)
+  assert(selected, `configured real provider found: ${LIVE_PROVIDER_NAME}`)
+  assert.equal(selected.providerType, 'openai-compatible',
+    `live provider is openai-compatible, got ${selected.providerType}`)
+  assert(String(selected.apiKey || '').length > 20,
+    'live provider key is present; the verifier never logs its value')
+  const liveKeyState = String(selected.apiKey || '').startsWith('enc:')
+    ? 'encrypted'
+    : 'plaintext'
+  return {
+    ...config,
+    providers: [{
+      ...selected,
+      name: LIVE_PROVIDER_NAME === selected.name
+        ? selected.name
+        : `${LIVE_PROVIDER_NAME} (${selected.name})`,
+    }],
+    generateProvider: selected.id,
+    verifyProvider: null,
+    detectProvider: null,
+    __liveKeyState: liveKeyState,
+  }
+}
+
+function startProvider() {
+  const requests = []
+  const failures = []
+  let providerPort = 0
+  const activeIntervals = []
+  const server = http.createServer((request, response) => {
+    const url = new URL(request.url || '/', `http://127.0.0.1:${providerPort}`)
+    if (request.method !== 'POST' || url.pathname !== '/v1/chat/completions') {
+      response.writeHead(404, { 'content-type': 'application/json; charset=utf-8' })
+      response.end(JSON.stringify({ error: { message: `unexpected path: ${request.method} ${url.pathname}` } }))
+      return
+    }
+    let bodyText = ''
+    request.on('data', chunk => { bodyText += chunk })
+    request.on('end', () => {
+      const parsed = (() => { try { return JSON.parse(bodyText) } catch { return {} } })()
+      const kind = classifyRequest(parsed)
+      const startedAt = performance.now()
+      const userText = (parsed.messages || [])
+        .filter(message => message?.role === 'user')
+        .map(message => String(message.content || ''))
+        .join('\n')
+      // A terminal failure must stay terminal. 500-class errors are retried
+      // by the production transport, so injecting one here can make the run
+      // succeed again and never create the breakpoint we are trying to test.
+      const failureMatchesStep = failureStep => {
+        if (failureStep == null) return true
+        if (failureStep === 1) return !userText.includes('chain step ')
+        return userText.includes(`chain step ${failureStep}/`)
+      }
+      const failureIndex = failures.findIndex(item =>
+        (!item.kind || item.kind === kind) && failureMatchesStep(item.step))
+      const failure = failureIndex >= 0 ? failures.splice(failureIndex, 1)[0] : null
+      if (failure) {
+        const failedAt = performance.now()
+        requests.push({
+          at: new Date().toISOString(),
+          kind,
+          model: parsed.model || null,
+          wantsStream: parsed.stream === true,
+          promptPreview: requestPromptPreview(parsed),
+          messageChars: (parsed.messages || [])
+            .map(message => String(message.content || '').length)
+            .reduce((sum, value) => sum + value, 0),
+          startedAt,
+          endedAt: failedAt,
+          durationMs: failedAt - startedAt,
+          failed: true,
+          failure: failure.failure,
+        })
+        response.writeHead(failure.status || 500, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({
+          error: {
+            type: failure.failure,
+            code: failure.failure,
+            message: failure.message || `injected ${failure.failure} failure`,
+          },
+        }))
+        return
+      }
+      // Fixed durations keep the three-run overlap window deterministic;
+      // random durations can let chapters finish before body starts.
+      const durationMs = kind === 'chapters' ? 16_000
+        : kind === 'volumes' ? 10_000
+        : 8_000
+      const requestRecord = {
+        at: new Date().toISOString(),
+        kind,
+        model: parsed.model || null,
+        wantsStream: parsed.stream === true,
+        messageChars: (parsed.messages || [])
+            .map(message => String(message.content || '').length)
+            .reduce((sum, value) => sum + value, 0),
+        promptPreview: requestPromptPreview(parsed),
+        startedAt,
+        endedAt: null,
+        durationMs: null,
+        canceled: false,
+      }
+      requests.push(requestRecord)
+      const bodyRequestIndex = requests.filter(item => item.kind === 'body').length
+      const reply = kind === 'volumes' ? buildVolumeReply()
+        : kind === 'chapters' ? buildChapterReply()
+        : buildBodyReply(bodyRequestIndex)
+      const finish = () => {
+        requestRecord.endedAt = performance.now()
+        requestRecord.durationMs = requestRecord.endedAt - startedAt
+        const index = activeIntervals.indexOf(timer)
+        if (index >= 0) activeIntervals.splice(index, 1)
+        if (parsed.stream === true) {
+          response.writeHead(200, {
+            'content-type': 'text/event-stream; charset=utf-8',
+            'cache-control': 'no-cache',
+            connection: 'keep-alive',
+          })
+          response.write(`data: ${JSON.stringify({
+            choices: [{ delta: { role: 'assistant', content: reply } }],
+          })}\n\n`)
+          response.write(`data: ${JSON.stringify({
+            choices: [{ delta: {}, finish_reason: 'stop' }],
+            usage: { prompt_tokens: 20, completion_tokens: 40, total_tokens: 60 },
+          })}\n\n`)
+          response.write('data: [DONE]\n\n')
+          response.end()
+          return
+        }
+        response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({
+          choices: [{ finish_reason: 'stop', message: { role: 'assistant', content: reply } }],
+        }))
+      }
+      const timer = setTimeout(finish, durationMs)
+      activeIntervals.push(timer)
+      const recordCanceledClose = () => {
+        if (requestRecord.endedAt !== null) return
+        requestRecord.endedAt = performance.now()
+        requestRecord.durationMs = requestRecord.endedAt - startedAt
+        requestRecord.canceled = true
+        clearTimeout(timer)
+        const intervalIndex = activeIntervals.indexOf(timer)
+        if (intervalIndex >= 0) activeIntervals.splice(intervalIndex, 1)
+      }
+      response.on('close', () => {
+        if (!response.writableEnded) recordCanceledClose()
+      })
+    })
+  })
+  return new Promise(resolve => {
+    server.listen(0, '127.0.0.1', () => {
+      providerPort = server.address().port
+      resolve({
+        port: providerPort,
+        requests: () => requests.map(item => ({ ...item })),
+        enqueueFailure: (failure) => { failures.push(failure) },
+        pendingFailures: () => failures.length,
+        close: () => new Promise(done => {
+          activeIntervals.forEach(timer => clearTimeout(timer))
+          server.close(() => done())
+        }),
+      })
+    })
+  })
+}
+
+function startElectron() {
+  const child = spawn(ELECTRON_EXE, [
+    '.',
+    `--remote-debugging-port=${CDP_PORT}`,
+    '--remote-allow-origins=*',
+    `--user-data-dir=${PROFILE}`,
+  ], {
+    cwd: ROOT,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: {
+      ...process.env,
+      SHENYI_ALLOW_TEST_ISOLATION: '1',
+      SHENYI_DATA_DIR: DATA_DIR,
+      SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'),
+      SHENYI_TEST_RUN_TRACE_EXPORT: EXPORT_ROOT,
+    },
+    windowsHide: false,
+  })
+  console.log(`[VISIBLE ELECTRON] pid=${child.pid}`)
+  child.stdout.on('data', chunk => {
+    const text = `[ELECTRON] ${chunk}`
+    process.stdout.write(text)
+    fs.appendFileSync(RUN_LOG_PATH, text, 'utf8')
+  })
+  child.stderr.on('data', chunk => {
+    const text = `[ELECTRON STDERR] ${chunk}`
+    process.stderr.write(text)
+    fs.appendFileSync(RUN_LOG_PATH, text, 'utf8')
+  })
+  child.on('close', (code, signal) => {
+    const text = `[ELECTRON CLOSE] code=${code} signal=${signal}\n`
+    process.stdout.write(text)
+    fs.appendFileSync(RUN_LOG_PATH, text, 'utf8')
+  })
+  return child
+}
+
+async function waitForCdp() {
+  const deadline = Date.now() + 30_000
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${CDP_PORT}/json/version`)
+      if (response.ok) return true
+    } catch {}
+    await sleep(500)
+  }
+  return false
+}
+
+function closeElectron(app) {
+  if (!app || app.exitCode !== null) return
+  try { execFileSync('taskkill', ['/PID', String(app.pid), '/T', '/F'], { stdio: 'ignore' }) } catch {}
+}
+
+async function connectPage(browser) {
+  let page = null
+  for (let attempt = 0; attempt < 24 && !page; attempt++) {
+    page = browser.contexts()
+      .flatMap(context => context.pages())
+      .find(item => !item.url().startsWith('devtools://')) || null
+    if (!page) await sleep(500)
+  }
+  assert(page, 'renderer page reachable')
+  return page
+}
+
+async function seedApplication(page, provider) {
+  await page.evaluate(async ({ providers, projectId, volumeId, chapterId, outline, skills }) => {
+    await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
+    await window.electronAPI.storageWrite('wa_providers', providers)
+    await window.electronAPI.storageWrite(`wa_project_${projectId}`, {
+      schemaVersion: 3,
+      projectName: '三层并行真实UI实测',
+      outlineText: outline,
+      outlineLocked: true,
+      outlineLockedText: outline,
+      bookWordCount: 12,
+      volumesConfirmed: true,
+      pipelineConfig: { volumeCount: 2, volumeWords: 12000, chapterWords: 3500 },
+      chaptersConfirmed: true,
+      settingsGenerated: true,
+      settings: [],
+      styleProfile: null,
+      volumes: [{
+        id: volumeId,
+        name: '第一卷 灯塔航线',
+        index: 0,
+        outline: outline,
+        summary: '纸条与信标推动第一卷冲突。',
+        allocatedWords: 12000,
+        suggestedWords: 12000,
+        wordsPerChapter: 3500,
+        chapterCount: 2,
+        confirmed: true,
+        locked: true,
+        isBound: true,
+        bodyGenerated: false,
+      }],
+      chapters: {
+        [volumeId]: [
+          {
+            id: chapterId,
+            title: '第1章 纸条',
+            index: 0,
+            plot: '雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。',
+            summary: '王芳发现纸条。',
+            confirmed: true,
+            pipelineGenerated: true,
+            unitId: 'H1-01',
+          },
+        ],
+      },
+      settingBindings: {},
+      settingsCollection: { categories: [], items: {} },
+      memories: {},
+      memoryBlacklist: [],
+      aiNaming: null,
+      outlineChat: [],
+      chat: [],
+      editorTabs: [],
+    })
+    await window.electronAPI.storageWrite('wa_skills', { skills, pipelineSkills: [], deAiSkills: [] })
+    await window.electronAPI.storageWrite('wa_pipeline_step_config', {
+      agents: { 0: '', 1: '', 2: '', 3: '', 4: '' },
+      skills: { 0: [], 1: [], 2: [], 3: [], 4: [] },
+      modes: { 0: 'compose', 1: 'compose', 2: 'compose', 3: 'compose', 4: 'compose' },
+      skillAgents: {},
+    })
+    await window.electronAPI.storageWrite('wa_deAiConfig', { hardruleEnabled: false, hardRuleMode: 'detect-report' })
+    await window.electronAPI.storageRemove('wa_pipeline_breakpoint')
+  }, {
+    providers: provider ? {
+      providers: [{
+        id: 'parallelism-provider',
+        name: 'Pipeline Parallelism Provider',
+        baseUrl: `http://127.0.0.1:${provider.port}`,
+        apiKey: 'local-test-key',
+        models: ['parallelism-model'],
+        selectedModel: 'parallelism-model',
+        temperature: 0.1,
+        maxTokens: 8192,
+        contextWindowTokens: 128000,
+        purpose: ['generate'],
+        providerType: 'openai-compatible',
+        streamMode: true,
+      }],
+      generateProvider: 'parallelism-provider',
+    } : readLiveProviderConfig(),
+    projectId: PROJECT_ID,
+    volumeId: VOLUME_ID,
+    chapterId: CHAPTER_ID,
+    outline: OUTLINE,
+    skills: chainSkillRecords(),
+  })
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  await page.waitForSelector('#app', { timeout: 20_000 })
+  await sleep(1500)
+  if (provider) {
+    await page.evaluate(() => document.querySelector('.project-modal-content .btn-close')?.click())
+    await sleep(400)
+  } else {
+    await selectLiveProviderThroughUi(page)
+    await sleep(400)
+  }
+}
+
+async function selectLiveProviderThroughUi(page) {
+  const expectedModel = LIVE_MODEL_NAME
+  await page.evaluate(() => {
+    document.querySelector('.project-modal-content .btn-close')?.click()
+    document.querySelector('.modal-overlay .btn-close')?.click()
+    document.querySelector('.project-modal .btn-close')?.click()
+  })
+  await sleep(600)
+  await page.click('#btn-settings')
+  await page.waitForSelector('#provider-list-view', { timeout: 20_000 })
+  const card = page.locator('#provider-list-view .provider-card')
+    .filter({ hasText: LIVE_PROVIDER_NAME })
+    .first()
+  assert(await card.count() === 1,
+    `live provider card is visible in settings: ${LIVE_PROVIDER_NAME}`)
+  // The middle of the card is the actions row, and that row stops click
+  // propagation. Clicking the card center therefore never enters edit mode.
+  const editButton = card.locator('.provider-card-actions button.btn-sm.btn-secondary').first()
+  assert(await editButton.count() === 1,
+    `live provider edit button is visible: ${LIVE_PROVIDER_NAME}`)
+  await editButton.click()
+  await page.waitForSelector('#provider-edit-view', { timeout: 20_000 })
+  const modelSelect = page.locator('#provider-edit-view .model-select-row select').first()
+  await modelSelect.selectOption(expectedModel)
+  await page.click('#provider-edit-view .form-actions .btn-primary')
+  await page.waitForSelector('#provider-list-view', { timeout: 20_000 })
+  const persisted = await page.evaluate(() => {
+    const store = window.__pinia?._s?.get('provider')
+    const selected = (store?.providers || []).find(item => item.id === store?.generateProvider)
+    const apiKey = String(selected?.apiKey || '')
+    const apiKeyState = !apiKey ? 'missing'
+      : apiKey.startsWith('enc:') ? 'encrypted'
+      : 'decrypted'
+    return {
+      providerId: selected?.id || null,
+      providerName: selected?.name || null,
+      selectedModel: selected?.selectedModel || null,
+      purpose: selected?.purpose || null,
+      apiKeyState,
+      manualDecryptState: null,
+    }
+  })
+  if (persisted.apiKeyState === 'encrypted') {
+    persisted.manualDecryptState = await page.evaluate(async () => {
+      const store = window.__pinia?._s?.get('provider')
+      const selected = (store?.providers || []).find(item => item.id === store?.generateProvider)
+      const apiKey = String(selected?.apiKey || '')
+      if (!apiKey.startsWith('enc:')) return 'decrypted'
+      try {
+        const decrypted = String(await window.electronAPI.decrypt(apiKey))
+        return !decrypted || decrypted.startsWith('enc:') ? 'failed' : 'decrypted'
+      } catch {
+        return 'threw'
+      }
+    })
+  }
+  assert.equal(persisted.providerName, LIVE_PROVIDER_NAME,
+    `live provider selected through real UI, got ${persisted.providerName}`)
+  assert.equal(persisted.selectedModel, expectedModel,
+    `live model selected through real UI, got ${persisted.selectedModel}`)
+  assert((persisted.purpose || []).includes('generate'),
+    'live provider keeps the generate purpose')
+  assert.equal(persisted.apiKeyState, 'decrypted',
+    `live provider key state is decrypted, got ${persisted.apiKeyState}; manual decrypt ${persisted.manualDecryptState} (value intentionally not reported)`)
+  // saveAndExit() returns to the provider list, so there is no back button to
+  // click here. Close the settings modal directly before leaving this helper.
+  await page.click('#btn-close-settings')
+  return persisted
+}
+
+function layerSnapshot(page) {
+  return page.evaluate(({ volumeId, chapterId }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const project = window.__pinia?._s?.get('project')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const volumeRun = pipeline?.activeVolumesRun || null
+    const chapterRun = pipeline?.activeChaptersRun || null
+    const bodyRun = pipeline?.activeBodyRun || null
+    const chapterRuns = (pipeline?.runs || []).filter(run => run.layer === 'chapters')
+    const chapterRunByTarget = chapterRuns.findLast(run => run.target === volumeId) || null
+    const chapterRunByChapter = chapterRuns.findLast(run => run.target === chapterId) || null
+    const bodyRuns = (pipeline?.runs || []).filter(run => run.layer === 'body')
+    const bodyRunByTarget = bodyRuns.findLast(run => run.target === chapterId) || null
+    return {
+      at: Date.now(),
+      volumes: volumeRun ? { runId: volumeRun.runId, status: volumeRun.status, progress: volumeRun.progress, statusText: volumeRun.statusText } : null,
+      chapters: (chapterRunByTarget || chapterRun || null) ? {
+        runId: (chapterRunByTarget || chapterRun).runId,
+        status: (chapterRunByTarget || chapterRun).status,
+        progress: (chapterRunByTarget || chapterRun).progress,
+        statusText: (chapterRunByTarget || chapterRun).statusText,
+      } : null,
+      body: (bodyRunByTarget || bodyRun) ? {
+        runId: (bodyRunByTarget || bodyRun).runId,
+        status: (bodyRunByTarget || bodyRun).status,
+        progress: (bodyRunByTarget || bodyRun).progress,
+        statusText: (bodyRunByTarget || bodyRun).statusText,
+      } : null,
+      allRuns: (pipeline?.runs || []).map(run => ({
+        runId: run.runId,
+        layer: run.layer,
+        target: run.target,
+        status: run.status,
+        progress: run.progress,
+      })),
+      chapterCount: (project?.chapters?.[volumeId] || []).length,
+      traceRuns: (trace?.runs || []).map(run => ({
+        id: run.id,
+        pipelineRunId: run.pipelineRunId || null,
+        step: run.step,
+        status: run.status,
+        apiCalls: (run.apiCalls || []).length,
+        providerQueueEvents: (run.events || []).filter(event => event.type === 'provider-queue').length,
+      })),
+    }
+  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
+}
+
+function startHeartbeat(page, electronPid) {
+  let stopped = false
+  const timer = setInterval(async () => {
+    if (stopped) return
+    try {
+      const state = await layerSnapshot(page)
+      state.electronPid = electronPid
+      fs.appendFileSync(HEARTBEAT_PATH, `${JSON.stringify(state)}\n`, 'utf8')
+    } catch (error) {
+      fs.appendFileSync(HEARTBEAT_PATH,
+        `${JSON.stringify({ at: new Date().toISOString(), error: String(error?.message || error) })}\n`, 'utf8')
+    }
+  }, HEARTBEAT_INTERVAL_MS)
+  return {
+    stop() {
+      stopped = true
+      clearInterval(timer)
+    },
+  }
+}
+
+async function waitForThreeActiveRuns(page) {
+  const deadline = Date.now() + 30_000
+  let last = null
+  while (Date.now() < deadline) {
+    last = await layerSnapshot(page)
+    const activeRuns = ['volumes', 'chapters', 'body']
+      .map(layer => last.allRuns.find(run => run.layer === layer && run.status === 'running'))
+    if (activeRuns.every(Boolean)) {
+      return last
+    }
+    await sleep(250)
+  }
+  throw new Error(`three pipeline layers never became concurrently active: ${JSON.stringify(last)}`)
+}
+
+function assertConcurrentUiState(snapshot) {
+  const layers = ['volumes', 'chapters', 'body']
+  const activeRuns = layers.map(layer =>
+    snapshot.allRuns.find(run => run.layer === layer && run.status === 'running'))
+  assert(activeRuns.every(Boolean), `all three layers report active runs: ${JSON.stringify(snapshot)}`)
+  const runIds = activeRuns.map(run => run.runId)
+  assert.equal(new Set(runIds).size, 3, 'the three active run ids are distinct')
+  activeRuns.forEach(run => assert(run.progress > 0,
+    `${run.layer} progress is visible while all three run, got ${run.progress}`))
+  const volumeRun = activeRuns.find(run => run.layer === 'volumes')
+  assert.equal(volumeRun.target, 'all', `volume run target stays 'all': ${volumeRun.target}`)
+}
+
+async function cancelChaptersRun(page, chaptersRunId) {
+  const selector = `button[data-cancel-run-id="${chaptersRunId}"]`
+  await page.waitForSelector(selector, { timeout: 20_000 })
+  const clickedAt = Date.now()
+  await page.click(selector)
+  const deadline = clickedAt + 10_000
+  let last = null
+  while (Date.now() < deadline) {
+    last = await layerSnapshot(page)
+    if (last.chapters?.status === 'canceled') return { clickToCanceledMs: Date.now() - clickedAt }
+    await sleep(100)
+  }
+  throw new Error(`chapter run did not reach canceled state: ${JSON.stringify(last)}`)
+}
+
+async function waitForTerminalStates(page, expected) {
+  let lastSignature = null
+  let lastProgressAt = Date.now()
+  let lastSnapshot = null
+  const deadline = Date.now() + STEP_TIMEOUT_MS
+  while (Date.now() < deadline) {
+    const snapshot = await layerSnapshot(page)
+    const signature = JSON.stringify(snapshot)
+    if (signature !== lastSignature) {
+      lastSignature = signature
+      lastProgressAt = Date.now()
+      lastSnapshot = snapshot
+    } else if (Date.now() - lastProgressAt >= DEAD_TIMEOUT_MS) {
+      throw new Error(`pipeline runs made no progress for ${DEAD_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+    } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
+      console.warn(`[STALL WARNING] no progress for ${Date.now() - lastProgressAt}ms: ${JSON.stringify(lastSnapshot)}`)
+    }
+    const layerStatus = layer =>
+      snapshot.allRuns.find(run => run.layer === layer)?.status
+    if (layerStatus('volumes') === expected.volumes
+      && layerStatus('chapters') === expected.chapters
+      && layerStatus('body') === expected.body) {
+      return snapshot
+    }
+    await sleep(1000)
+  }
+  throw new Error(`pipeline runs did not reach expected terminal states: ${JSON.stringify(lastSnapshot)}`)
+}
+
+function assertProviderRequests(requests) {
+  assert(requests.length >= 3, `at least three mock physical requests execute, got ${requests.length}`)
+  assert(new Set(requests.map(item => item.kind)).size === 3,
+    `all three layers issue physical requests, got ${[...new Set(requests.map(item => item.kind))].join(',')}`)
+  const points = requests.flatMap(item => [
+    { at: item.startedAt, kind: item.kind, edge: 'start' },
+    { at: item.endedAt, kind: item.kind, edge: 'end' },
+  ]).sort((a, b) => a.at - b.at)
+  let active = 0
+  let maxConcurrency = 0
+  for (const point of points) {
+    active += point.edge === 'start' ? 1 : -1
+    maxConcurrency = Math.max(maxConcurrency, active)
+  }
+  assert(maxConcurrency >= 2,
+    `real request overlap is observed, max concurrency=${maxConcurrency}`)
+  assert(maxConcurrency <= 2,
+    `same-provider concurrency never exceeds 2, max concurrency=${maxConcurrency}`)
+  const canceledRequests = requests.filter(item => item.canceled)
+  assert(canceledRequests.length >= 1,
+    `user cancellation closes at least one physical provider request, got ${canceledRequests.length}`)
+  assert(canceledRequests.every(item => (item.durationMs || 0) < 5_000),
+    `canceled physical requests close promptly, got ${JSON.stringify(canceledRequests)}`)
+  const overlappedPairs = []
+  for (let i = 0; i < requests.length; i += 1) {
+    for (let j = i + 1; j < requests.length; j += 1) {
+      const a = requests[i]
+      const b = requests[j]
+      if (a.endedAt === null || b.endedAt === null) continue
+      if (Math.max(a.startedAt, b.startedAt) < Math.min(a.endedAt, b.endedAt)) {
+        overlappedPairs.push([a.kind, b.kind])
+      }
+    }
+  }
+  assert(overlappedPairs.length > 0,
+    `at least one overlapping provider request pair exists, got ${JSON.stringify(overlappedPairs)}`)
+  return {
+    requestCount: requests.length,
+    byKind: requests.reduce((acc, item) => {
+      acc[item.kind] = (acc[item.kind] || 0) + 1
+      return acc
+    }, {}),
+    maxConcurrency,
+    overlappedPairs,
+    requestDurations: requests.map(item => ({ kind: item.kind, durationMs: item.durationMs })),
+  }
+}
+
+async function collectLiveApiCalls(page) {
+  return page.evaluate(({ volumeId, chapterId }) => {
+    const trace = window.__pinia?._s?.get('runTrace')
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const layerByTarget = new Map()
+    for (const run of pipeline?.runs || []) {
+      if (!layerByTarget.has(run.runId)) layerByTarget.set(run.runId, run.layer)
+    }
+    const calls = []
+    for (const run of trace?.runs || []) {
+      for (const call of run.apiCalls || []) {
+        for (const physical of call.physicalCalls || []) {
+          calls.push({
+            traceRunId: run.id,
+            pipelineRunId: run.pipelineRunId || null,
+            layer: layerByTarget.get(run.pipelineRunId) || null,
+            status: physical.status,
+            startedAt: physical.startedAt,
+            endedAt: physical.endedAt ?? null,
+            durationMs: physical.durationMs ?? null,
+            error: physical.error || call.error || null,
+          })
+        }
+      }
+    }
+    return {
+      volumeId,
+      chapterId,
+      calls: calls.sort((a, b) => a.startedAt - b.startedAt),
+    }
+  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
+}
+
+async function preserveFailedExports() {
+  if (!fs.existsSync(EXPORT_ROOT)) return null
+  const destination = path.join(EVIDENCE_ROOT, 'failed-exports')
+  await fs.promises.cp(EXPORT_ROOT, destination, { recursive: true, force: true })
+  return destination
+}
+
+function assertLiveProviderMetrics(liveCalls) {
+  const calls = liveCalls.calls || []
+  assert(calls.length >= 3, `live supplier serves at least three physical calls, got ${calls.length}`)
+  assert(new Set(calls.map(item => item.layer)).size === 3,
+    `all three layers own live physical calls, got ${[...new Set(calls.map(item => item.layer))].join(',')}`)
+  const active = calls.filter(item => item.status === 'success')
+  assert(active.length >= 3, `at least three live calls succeed, got ${active.length}`)
+  const points = active.flatMap(item => [
+    { at: item.startedAt, edge: 'start' },
+    { at: item.endedAt || item.startedAt, edge: 'end' },
+  ]).sort((a, b) => a.at - b.at)
+  let concurrency = 0
+  let maxConcurrency = 0
+  for (const point of points) {
+    concurrency += point.edge === 'start' ? 1 : -1
+    maxConcurrency = Math.max(maxConcurrency, concurrency)
+  }
+  assert(maxConcurrency >= 2,
+    `live supplier request overlap is observed, max concurrency=${maxConcurrency}`)
+  assert(maxConcurrency <= 2,
+    `live same-provider concurrency stays at the configured cap, got ${maxConcurrency}`)
+  const overlappedPairs = []
+  for (let i = 0; i < active.length; i += 1) {
+    for (let j = i + 1; j < active.length; j += 1) {
+      const a = active[i]
+      const b = active[j]
+      if (a.endedAt == null || b.endedAt == null) continue
+      if (Math.max(a.startedAt, b.startedAt) < Math.min(a.endedAt, b.endedAt)) {
+        overlappedPairs.push([a.layer, b.layer])
+      }
+    }
+  }
+  assert(overlappedPairs.length > 0,
+    `live supplier has at least one overlapping request pair, got ${JSON.stringify(overlappedPairs)}`)
+  return {
+    requestCount: calls.length,
+    successCount: active.length,
+    maxConcurrency,
+    overlappedPairs,
+    byLayer: calls.reduce((acc, item) => {
+      acc[item.layer || 'unknown'] = (acc[item.layer || 'unknown'] || 0) + 1
+      return acc
+    }, {}),
+    durations: calls.map(item => ({
+      layer: item.layer,
+      status: item.status,
+      durationMs: item.durationMs,
+    })),
+  }
+}
+
+async function readPerformanceSnapshot(page) {
+  const snapshot = await page.evaluate(() => {
+    const surface = window.__SHENYI_PERFORMANCE_MONITOR__
+    if (!surface?.getSnapshot) return null
+    return surface.getSnapshot()
+  })
+  assert(snapshot, 'performance monitor read surface is installed and returns a snapshot')
+  return snapshot
+}
+
+async function exportLayerRun(page, step) {
+  const exported = await page.evaluate(async ({ exportRoot, step: wantedStep }) => {
+    const store = window.__pinia?._s?.get('runTrace')
+    const run = [...(store?.runs || [])]
+      .filter(item => item.source === 'pipeline' && item.step === wantedStep)
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    if (!run) return { runId: null, result: null }
+    const result = await window.electronAPI.runTraceExport({
+      schema: 'shenyi.run-trace',
+      version: 2,
+      run: store.exportRunToJson(run),
+      mode: 'deep',
+      payloadDirectoryHint: exportRoot,
+    })
+    return { runId: run.id, result }
+  }, { exportRoot: EXPORT_ROOT, step })
+  assert(exported?.runId, `pipeline run trace exists for step ${step}`)
+  assert(exported.result?.success,
+    `deep export succeeds for step ${step}: ${exported.result?.error || 'unknown error'}`)
+  const run = JSON.parse(fs.readFileSync(path.join(exported.result.path, 'run-trace.json'), 'utf8'))
+  return { runId: exported.runId, directory: exported.result.path, run }
+}
+
+async function exportFailureTraceDiagnostics(page) {
+  const diagnostics = {
+    at: new Date().toISOString(),
+    exports: [],
+    error: null,
+  }
+  try {
+    const exports = await page.evaluate(async ({ exportRoot }) => {
+      const store = window.__pinia?._s?.get('runTrace')
+      const runs = [...(store?.runs || [])]
+        .filter(item => item.source === 'pipeline')
+        .sort((a, b) => a.startedAt - b.startedAt)
+      const results = []
+      for (const run of runs) {
+        try {
+          const result = await window.electronAPI.runTraceExport({
+            schema: 'shenyi.run-trace',
+            version: 2,
+            run: store.exportRunToJson(run),
+            mode: 'deep',
+            payloadDirectoryHint: exportRoot,
+          })
+          results.push({
+            runId: run.id,
+            step: run.step,
+            status: run.status,
+            eventTypes: (run.events || []).map(event => event.type),
+            decisionEvents: (run.events || [])
+              .filter(event => [
+                'body-step-acceptance',
+                'body-generator-step-rejected',
+                'body-artifact-attempt',
+                'failed',
+              ].includes(event.type))
+              .map(event => ({
+                type: event.type,
+                at: event.at,
+                detail: (() => {
+                  try { return JSON.parse(String(event.detail || '{}')) } catch { return String(event.detail || '') }
+                })(),
+              })),
+            apiCalls: (run.apiCalls || []).map(call => ({
+              status: call.status,
+              skillName: call.skillName,
+              error: call.error,
+              physicalCalls: (call.physicalCalls || []).map(physical => ({
+                status: physical.status,
+                durationMs: physical.durationMs ?? null,
+                error: physical.error || null,
+              })),
+            })),
+            exportSuccess: Boolean(result?.success),
+            exportPath: result?.path || null,
+            exportError: result?.error || null,
+          })
+        } catch (error) {
+          results.push({
+            runId: run.id,
+            step: run.step,
+            status: run.status,
+            exportSuccess: false,
+            exportError: String(error?.message || error),
+          })
+        }
+      }
+      return results
+    }, { exportRoot: EXPORT_ROOT })
+    diagnostics.exports = exports
+  } catch (error) {
+    diagnostics.error = String(error?.stack || error?.message || error)
+  }
+  fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-trace-diagnostics.json'),
+    JSON.stringify(diagnostics, null, 2), 'utf8')
+  return diagnostics
+}
+
+function assertExportedTrace({ step, run, expectedStatus }) {
+  const stepName = step === 2 ? 'volume' : step === 3 ? 'chapter' : 'body'
+  assert.equal(run.step, step, `${stepName} trace keeps its layer step identity`)
+  assert.equal(run.status, expectedStatus,
+    `${stepName} trace terminal status is ${expectedStatus}, got ${run.status}`)
+  assert((run.apiCalls || []).every(call => call.status !== 'running'),
+    `${stepName} trace has no running API calls after completion`)
+  assert((run.turns || []).every(turn => turn.status !== 'running'),
+    `${stepName} trace has no running turns after completion`)
+  if (expectedStatus === 'success') {
+    assert((run.apiCalls || []).length > 0, `${stepName} success trace contains API calls`)
+  }
+}
+
+function assertProviderQueueEvidence({ volumeRun, bodyRun }) {
+  for (const [label, run] of [['volume', volumeRun], ['body', bodyRun]]) {
+    const queueEvents = (run.events || []).filter(event => event.type === 'provider-queue')
+    assert(queueEvents.length > 0,
+      `${label} trace records provider-queue events; provider scheduler observability is live`)
+    for (const event of queueEvents) {
+      const detail = (() => {
+        try { return JSON.parse(String(event.detail || '{}')) } catch { return {} }
+      })()
+      assert(['queued', 'started', 'canceled'].includes(detail.status),
+        `${label} provider-queue event has a valid status, got ${detail.status}`)
+    }
+  }
+}
+
+async function selectPipelineStep(page, stepIndex) {
+  await page.locator('#pl-steps .pl-step').nth(stepIndex).click()
+  await page.waitForSelector(`#pl-step-${stepIndex + 1}-content`, { state: 'visible' })
+}
+
+async function selectBodyChainSkillsThroughUi(page) {
+  const skills = chainSkillRecords()
+  await page.selectOption('#pl-s5-mode', 'chain')
+  const existingCount = await page.locator('#pl-s5-skills-list .pl-skill-chip').count()
+  for (let index = existingCount - 1; index >= 0; index -= 1) {
+    await page.locator('#pl-s5-skills-list .pl-skill-chip').nth(index)
+      .locator('.pl-chip-close').click()
+  }
+  for (const skill of skills) {
+    await page.selectOption('#pl-s5-skill', skill.id)
+    await page.click('#pl-s5-add-skill')
+    await page.waitForFunction(({ skillId, skillName, expectedCount }) => {
+      const chips = [...document.querySelectorAll('#pl-s5-skills-list .pl-skill-chip')]
+      return chips.length === expectedCount
+        && chips.some(chip => (chip.textContent || '').includes(skillId)
+          || (chip.textContent || '').includes(skillName))
+    }, {
+      skillId: skill.id,
+      skillName: skill.name,
+      expectedCount: skills.indexOf(skill) + 1,
+    }, { timeout: 10_000, polling: 250 })
+    console.log(`[SKILL UI SELECTED] ${skill.id} (${skill.name})`)
+  }
+  const selected = await page.evaluate(() =>
+    [...document.querySelectorAll('#pl-s5-skills-list .pl-skill-chip')]
+      .map(chip => (chip.textContent || '').trim()))
+  assert.equal(selected.length, skills.length,
+    `all body SKILLs are selected through #pl-s5-skill; got ${JSON.stringify(selected)}`)
+  return skills.map(skill => skill.id)
+}
+
+function sha256(text) {
+  return createHash('sha256').update(String(text || ''), 'utf8').digest('hex')
+}
+
+async function readBodyArtifact(page) {
+  const body = await page.evaluate(({ volumeId, chapterId }) => {
+    const project = window.__pinia?._s?.get('project')
+    const chapter = (project?.chapters?.[volumeId] || []).find(item => item.id === chapterId)
+    return chapter?.body ?? null
+  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
+  assert(typeof body === 'string' && body.length > 0,
+    `body artifact exists before successful-terminal reentry, got ${typeof body}`)
+  return body
+}
+
+async function runSuccessfulTerminalReentry(page, previousBodyRunId, previousBodyHash) {
+  const previousBody = await readBodyArtifact(page)
+  const previousBodySnapshot = {
+    previousBodyRunId,
+    previousBodyHash,
+    previousBodyPreview: String(previousBody || '').slice(0, 2000),
+    previousBodyChars: String(previousBody || '').length,
+  }
+  const before = await layerSnapshot(page)
+  assert.equal(before.body?.status, 'succeeded',
+    `body is in successful terminal state before reentry, got ${before.body?.status}`)
+  // A successful body generation auto-inserts into the editor, and the editor
+  // handoff intentionally closes the pipeline panel. Reopen it through the
+  // same sidebar button a user would click before re-entering the layer.
+  await page.click('#btn-pipeline')
+  await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+  await selectPipelineStep(page, 4)
+  try {
+    await page.click('#btn-primary-gen-body')
+  } catch (error) {
+    const failureShot = path.join(EVIDENCE_ROOT, 'reentry-button-failure.png')
+    await page.screenshot({ path: failureShot, fullPage: true }).catch(() => {})
+    const diagnostics = await page.evaluate(() => {
+      const button = document.querySelector('#btn-primary-gen-body')
+      const closeButtons = [...document.querySelectorAll('.pl-gen-bar-close')]
+      const rect = button?.getBoundingClientRect()
+      const centerX = rect ? rect.left + rect.width / 2 : -1
+      const centerY = rect ? rect.top + rect.height / 2 : -1
+      const hit = rect ? document.elementFromPoint(centerX, centerY) : null
+      return {
+        url: window.location.href,
+        buttonExists: Boolean(button),
+        buttonDisabled: button?.disabled ?? null,
+        buttonRect: rect ? {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        } : null,
+        hitTag: hit?.tagName ?? null,
+        hitId: hit?.id ?? null,
+        hitClass: hit?.getAttribute('class') ?? null,
+        closeButtonCount: closeButtons.length,
+        bodyTextStart: document.body.innerText.slice(0, 1000),
+      }
+    }).catch(error => ({ evaluateError: String(error) }))
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'reentry-button-diagnostics.json'),
+      JSON.stringify(diagnostics, null, 2), 'utf8')
+    throw error
+  }
+  const deadline = Date.now() + STEP_TIMEOUT_MS
+  let snapshot = null
+  while (Date.now() < deadline) {
+    snapshot = await layerSnapshot(page)
+    if (snapshot.body?.runId !== previousBodyRunId
+      && snapshot.body?.status !== 'running'
+      && snapshot.body?.status !== 'queued') break
+    await sleep(1000)
+  }
+  assert(snapshot?.body?.runId && snapshot.body.runId !== previousBodyRunId,
+    `body terminal-state reentry creates a new run id, got ${snapshot?.body?.runId}`)
+  assert.equal(snapshot.body.status, 'succeeded',
+    `body terminal-state reentry run succeeds, got ${snapshot.body.status}`)
+  const newBody = await readBodyArtifact(page)
+  const newBodyHash = sha256(newBody)
+  fs.writeFileSync(path.join(EVIDENCE_ROOT, 'reentry-body-artifact-diagnostics.json'), JSON.stringify({
+    ...previousBodySnapshot,
+    previousBodyRunId,
+    newBodyRunId: snapshot.body.runId,
+    newBodyStatus: snapshot.body.status,
+    newBodyHash,
+    newBodyPreview: String(newBody || '').slice(0, 2000),
+    newBodyChars: String(newBody || '').length,
+    bodyRuns: (snapshot.allRuns || [])
+      .filter(run => run.layer === 'body')
+      .map(run => ({
+        runId: run.runId,
+        target: run.target,
+        status: run.status,
+        progress: run.progress,
+      })),
+    traceRuns: snapshot.traceRuns,
+  }, null, 2), 'utf8')
+  assert(newBodyHash !== previousBodyHash,
+    'successful-terminal reentry writes a new body artifact; the old hash must not masquerade as new output')
+  return {
+    newBodyRunId: snapshot.body.runId,
+    newBodyHash,
+    newBodyChars: newBody.length,
+  }
+}
+
+async function waitForBodyTerminalState(page, { excludeRunIds = [], expectedStatus, timeoutMs }) {
+  const deadline = Date.now() + (timeoutMs || STEP_TIMEOUT_MS)
+  let last = null
+  while (Date.now() < deadline) {
+    last = await layerSnapshot(page)
+    const candidate = (last.allRuns || [])
+      .filter(run => run.layer === 'body' && !excludeRunIds.includes(run.runId))
+      .find(run => run.status === expectedStatus)
+    if (candidate) {
+      return { run: candidate, snapshot: last }
+    }
+    if ((last.allRuns || []).some(run =>
+      run.layer === 'body' && !excludeRunIds.includes(run.runId) && run.status === 'failed')) {
+      break
+    }
+    await sleep(500)
+  }
+  throw new Error(`body run did not reach ${expectedStatus}: ${JSON.stringify(last?.allRuns?.filter(run => run.layer === 'body'))}`)
+}
+
+async function readLatestBodyRunEvents(page, runId) {
+  return page.evaluate(({ wantedRunId }) => {
+    const trace = window.__pinia?._s?.get('runTrace')
+    const run = [...(trace?.runs || [])].find(item => item.pipelineRunId === wantedRunId)
+    return {
+      events: (run?.events || []).map(event => ({
+        type: event.type,
+        level: event.level,
+        detail: String(event.detail || '').slice(0, 500),
+      })),
+      apiCallCount: (run?.apiCalls || []).length,
+      status: run?.status || null,
+    }
+  }, { wantedRunId: runId })
+}
+
+async function startBodyReentry(page) {
+  const before = await layerSnapshot(page)
+  const previousBodyRunId = (before.allRuns || [])
+    .filter(run => run.layer === 'body')
+    .findLast(run => run.status === 'failed' || run.status === 'succeeded')?.runId || null
+  assert(previousBodyRunId?.startsWith('pipeline-run-'),
+    `previous body run id is a pipeline run id, got ${previousBodyRunId}`)
+  await page.click('#btn-primary-gen-body')
+  return { previousBodyRunId }
+}
+
+async function reopenPipelineBodyPanel(page) {
+  const panelAlreadyOpen = await page.locator('#pipeline-panel').isVisible()
+  if (!panelAlreadyOpen) {
+    await page.click('#btn-pipeline')
+  }
+  await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+  await selectPipelineStep(page, 4)
+}
+
+async function runBreakpointReentry(page, provider) {
+  // The chain is now real: S1 succeeds, S2 fails once, and the failure
+  // checkpoint must be resumed by the next real UI generation click.
+  const requestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  provider.enqueueFailure({
+    kind: 'body',
+    step: 2,
+    status: 401,
+    failure: 'terminal_auth_error',
+    message: 'injected S2 terminal auth failure',
+  })
+  const knownBodyRunIds = (await layerSnapshot(page)).allRuns
+    .filter(run => run.layer === 'body')
+    .map(run => run.runId)
+  await reopenPipelineBodyPanel(page)
+  await page.click('#btn-primary-gen-body')
+  const failed = await waitForBodyTerminalState(page, {
+    excludeRunIds: knownBodyRunIds,
+    expectedStatus: 'failed',
+    timeoutMs: STEP_TIMEOUT_MS,
+  })
+  const failedRunEvents = await readLatestBodyRunEvents(page, failed.run.runId)
+  const requestsAfterFailure = provider.requests().filter(item => item.kind === 'body').length
+  assert(requestsAfterFailure > requestsBefore,
+    `failed breakpoint attempt issues a real physical request (${requestsBefore} -> ${requestsAfterFailure})`)
+  assert((failedRunEvents.events || []).some(event => event.type === 'failed' || event.type === 'error'),
+    `failed breakpoint run records its failure trace event`)
+  assert((failedRunEvents.events || []).some(event => event.type === 'api-failed'),
+    `failed breakpoint run records its API failure trace event`)
+
+  const resumeRequestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  await reopenPipelineBodyPanel(page)
+  await page.click('#btn-primary-gen-body')
+  const resumed = await waitForBodyTerminalState(page, {
+    excludeRunIds: [...knownBodyRunIds, failed.run.runId],
+    expectedStatus: 'succeeded',
+    timeoutMs: STEP_TIMEOUT_MS,
+  })
+  assert(resumed.run.runId !== failed.run.runId,
+    `breakpoint reentry creates a new run id (${failed.run.runId} -> ${resumed.run.runId})`)
+  const resumedRunEvents = await readLatestBodyRunEvents(page, resumed.run.runId)
+  const resumeRequestsAfter = provider.requests().filter(item => item.kind === 'body').length
+  assert(resumeRequestsAfter > resumeRequestsBefore,
+    `breakpoint reentry issues new physical requests (${resumeRequestsBefore} -> ${resumeRequestsAfter})`)
+  assert((resumedRunEvents.events || []).some(event => event.type === 'chain-handoff-resume'),
+    `breakpoint reentry records chain-handoff-resume; got ${JSON.stringify(resumedRunEvents.events.map(event => event.type))}`)
+  assert.equal(resumedRunEvents.status, 'success',
+    `breakpoint reentry trace succeeds, got ${resumedRunEvents.status}`)
+  const newBody = await readBodyArtifact(page)
+  assert(newBody.length > 0, 'breakpoint reentry delivers a body artifact')
+  return {
+    failedRunId: failed.run.runId,
+    resumedRunId: resumed.run.runId,
+    failedPhysicalRequests: requestsAfterFailure - requestsBefore,
+    resumedPhysicalRequests: resumeRequestsAfter - resumeRequestsBefore,
+    resumedEventTypes: resumedRunEvents.events.map(event => event.type),
+    finalBodyChars: newBody.length,
+  }
+}
+
+async function runFailedTerminalReentry(page, provider) {
+  const requestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  const knownBodyRunIds = (await layerSnapshot(page)).allRuns
+    .filter(run => run.layer === 'body')
+    .map(run => run.runId)
+  provider.enqueueFailure({
+    kind: 'body',
+    status: 401,
+    failure: 'terminal_auth_error',
+    message: 'injected terminal provider failure',
+  })
+  await reopenPipelineBodyPanel(page)
+  await page.click('#btn-primary-gen-body')
+  const failed = await waitForBodyTerminalState(page, {
+    excludeRunIds: knownBodyRunIds,
+    expectedStatus: 'failed',
+    timeoutMs: STEP_TIMEOUT_MS,
+  })
+  const failedRunId = failed.run.runId
+  const requestsAfterFailure = provider.requests().filter(item => item.kind === 'body').length
+  assert(requestsAfterFailure > requestsBefore,
+    `failed terminal attempt issues a real physical request (${requestsBefore} -> ${requestsAfterFailure})`)
+
+  const reentryRequestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  await reopenPipelineBodyPanel(page)
+  await page.click('#btn-primary-gen-body')
+  const succeeded = await waitForBodyTerminalState(page, {
+    excludeRunIds: [...knownBodyRunIds, failedRunId],
+    expectedStatus: 'succeeded',
+    timeoutMs: STEP_TIMEOUT_MS,
+  })
+  assert(succeeded.run.runId !== failedRunId,
+    `failed-terminal reentry creates a new run id (${failedRunId} -> ${succeeded.run.runId})`)
+  const reentryRequestsAfter = provider.requests().filter(item => item.kind === 'body').length
+  assert(reentryRequestsAfter > reentryRequestsBefore,
+    `failed-terminal reentry issues new physical requests (${reentryRequestsBefore} -> ${reentryRequestsAfter})`)
+  const reentryRunEvents = await readLatestBodyRunEvents(page, succeeded.run.runId)
+  assert.equal(reentryRunEvents.status, 'success',
+    `failed-terminal reentry trace succeeds, got ${reentryRunEvents.status}`)
+  assert(!(reentryRunEvents.events || []).some(event => event.type === 'chain-completed-checkpoint-rejected'),
+    `failed-terminal reentry is not blocked by a completed-chain checkpoint`)
+  const newBody = await readBodyArtifact(page)
+  assert(newBody.length > 0, 'failed-terminal reentry delivers a body artifact')
+  return {
+    failedRunId,
+    reentryRunId: succeeded.run.runId,
+    failedPhysicalRequests: requestsAfterFailure - requestsBefore,
+    reentryPhysicalRequests: reentryRequestsAfter - reentryRequestsBefore,
+    finalBodyChars: newBody.length,
+  }
+}
+
+function assertNoProviderKeyLeak({ report, exportedTraceDirectories }) {
+  const encConfig = LIVE_MODE ? readLiveProviderConfig() : null
+  const encryptedKeys = encConfig ? encConfig.providers.map(item => String(item.apiKey || '')) : []
+  const files = [
+    { name: 'report.json', text: JSON.stringify(report || {}) },
+    { name: 'electron-run.log', text: fs.existsSync(RUN_LOG_PATH) ? fs.readFileSync(RUN_LOG_PATH, 'utf8') : '' },
+    { name: 'heartbeat.jsonl', text: fs.existsSync(HEARTBEAT_PATH) ? fs.readFileSync(HEARTBEAT_PATH, 'utf8') : '' },
+    ...exportedTraceDirectories.map(directory => {
+      const tracePath = path.join(directory, 'run-trace.json')
+      return {
+        name: path.relative(ROOT, tracePath),
+        text: fs.existsSync(tracePath) ? fs.readFileSync(tracePath, 'utf8') : '',
+      }
+    }),
+  ]
+  const findings = []
+  for (const file of files) {
+    for (const key of encryptedKeys) {
+      if (key && file.text.includes(key)) findings.push(`${file.name}: encrypted provider key`)
+    }
+    if (/(sk-[A-Za-z0-9_-]{12,}|Bearer\s+[A-Za-z0-9._-]{12,})/.test(file.text)) {
+      findings.push(`${file.name}: plaintext provider key pattern`)
+    }
+  }
+  assert.equal(findings.length, 0, `live evidence contains no provider key material: ${findings.join('; ')}`)
+  return {
+    checkedFiles: files.map(file => file.name),
+    checkedEncryptedKeyCount: encryptedKeys.length,
+    plaintextPatternFound: false,
+  }
+}
+
+async function collectSummary(page) {
+  return page.evaluate(({ volumeId, chapterId }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const project = window.__pinia?._s?.get('project')
+    const chapter = (project?.chapters?.[volumeId] || []).find(item => item.id === chapterId)
+    return {
+      runs: (pipeline?.runs || []).map(run => ({
+        runId: run.runId,
+        layer: run.layer,
+        target: run.target,
+        status: run.status,
+        progress: run.progress,
+      })),
+      chapterBodyChars: String(chapter?.body || '').length,
+      volumeCount: (project?.volumes || []).length,
+      chapterCount: (project?.chapters?.[volumeId] || []).length,
+    }
+  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
+}
+
+async function main() {
+  console.log(`[${SCRIPT_NAME}] start`)
+  console.log(`[MODE] ${LIVE_MODE ? 'live-supplier' : 'mock-provider'}`)
+  fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
+  fs.writeFileSync(RUN_LOG_PATH, '', 'utf8')
+  fs.writeFileSync(HEARTBEAT_PATH, '', 'utf8')
+  assertFreshRendererBuild()
+  await removeDir(PROFILE)
+  await removeDir(EXPORT_ROOT)
+  fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
+  fs.mkdirSync(EXPORT_ROOT, { recursive: true })
+
+  const provider = LIVE_MODE ? null : await startProvider()
+  if (provider) console.log(`[PROVIDER] http://127.0.0.1:${provider.port}`)
+  const app = startElectron()
+  const timeout = setTimeout(() => {
+    console.error(`[FATAL] global timeout ${GLOBAL_TIMEOUT_MS}ms`)
+    closeElectron(app)
+    process.exit(1)
+  }, GLOBAL_TIMEOUT_MS)
+  let browser = null
+  let page = null
+  let heartbeat = null
+  let exitCode = 0
+  try {
+    assert(await waitForCdp(), 'Electron CDP becomes reachable')
+    browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`)
+    page = await connectPage(browser)
+    heartbeat = startHeartbeat(page, app.pid)
+    await seedApplication(page, provider)
+    writeChainSkills()
+
+    await page.click('#btn-pipeline')
+    await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+
+    await selectPipelineStep(page, 4)
+    const selectedBodySkillIds = await selectBodyChainSkillsThroughUi(page)
+    assert.equal(selectedBodySkillIds.length, 3,
+      `body chain has three real folder skills selected through UI, got ${selectedBodySkillIds.length}`)
+
+    await selectPipelineStep(page, 2)
+    await page.click('#btn-pl-gen-volumes')
+    await selectPipelineStep(page, 3)
+    await page.click('#btn-pl-gen-chapters')
+    await selectPipelineStep(page, 4)
+    await page.click('#btn-primary-gen-body')
+
+    const concurrentSnapshot = await waitForThreeActiveRuns(page)
+    assertConcurrentUiState(concurrentSnapshot)
+    console.log('[PARALLEL] three layers are concurrently active with distinct run ids')
+
+    const chaptersRunId = concurrentSnapshot.chapters.runId
+    const cancelTiming = await cancelChaptersRun(page, chaptersRunId)
+    assert(cancelTiming.clickToCanceledMs <= 10_000,
+      `chapter cancellation is immediate enough, took ${cancelTiming.clickToCanceledMs}ms`)
+    console.log(`[CANCEL] chapters canceled in ${cancelTiming.clickToCanceledMs}ms; other layers continue`)
+
+    const terminalSnapshot = await waitForTerminalStates(page, {
+      volumes: 'succeeded',
+      chapters: 'canceled',
+      body: 'succeeded',
+    })
+    const summaryAfterTerminal = await collectSummary(page)
+    assert(summaryAfterTerminal.volumeCount >= 2,
+      `volume generation appends the seeded second volume, got ${summaryAfterTerminal.volumeCount}`)
+    assert(terminalSnapshot.body?.status === 'succeeded', 'body run survives chapter cancellation')
+
+    const performance = await readPerformanceSnapshot(page)
+    assert.equal(performance.freezeCount, 0,
+      `no main-thread freeze above ${performance.thresholds.freezeThresholdMs}ms`)
+    assert.equal(performance.slowClickFeedbackCount, 0,
+      `all run-start clicks report feedback within ${performance.thresholds.clickFeedbackBudgetMs}ms`)
+    if (performance.longTaskCount > 0) {
+      console.warn(`[PERF WARNING] long tasks observed: ${performance.longTaskCount}`)
+    }
+
+    let providerMetrics = null
+    if (provider) {
+      providerMetrics = assertProviderRequests(provider.requests())
+      console.log(`[PROVIDER] requests=${providerMetrics.requestCount} maxConcurrency=${providerMetrics.maxConcurrency}`)
+    }
+
+    const volumeRun = await exportLayerRun(page, 2)
+    const chapterRun = await exportLayerRun(page, 3)
+    const bodyRun = await exportLayerRun(page, 4)
+    assertExportedTrace({ step: 2, run: volumeRun.run, expectedStatus: 'success' })
+    assertExportedTrace({ step: 3, run: chapterRun.run, expectedStatus: 'canceled' })
+    assertExportedTrace({ step: 4, run: bodyRun.run, expectedStatus: 'success' })
+    assertProviderQueueEvidence({ volumeRun: volumeRun.run, bodyRun: bodyRun.run })
+
+    const bodyRequestsBefore = provider
+      ? provider.requests().filter(item => item.kind === 'body').length
+      : (await collectLiveApiCalls(page)).calls.filter(item => item.layer === 'body').length
+    const previousBodyArtifact = await readBodyArtifact(page)
+    const previousBodyHash = sha256(previousBodyArtifact)
+    const previousBodyRunId = terminalSnapshot.body?.runId
+    assert(previousBodyRunId?.startsWith('pipeline-run-'),
+      `previous body run id is a pipeline run id, got ${previousBodyRunId}`)
+    const reentry = await runSuccessfulTerminalReentry(page, previousBodyRunId, previousBodyHash)
+    const bodyRequestsAfter = provider
+      ? provider.requests().filter(item => item.kind === 'body').length
+      : (await collectLiveApiCalls(page)).calls.filter(item => item.layer === 'body').length
+    assert(bodyRequestsAfter > bodyRequestsBefore,
+      `successful-terminal reentry issues a new physical body request (${bodyRequestsBefore} -> ${bodyRequestsAfter})`)
+    assert(reentry.newBodyRunId !== previousBodyRunId,
+      'successful-terminal reentry creates a new body run id')
+
+    const breakpointReentry = provider ? await runBreakpointReentry(page, provider) : null
+    if (breakpointReentry) {
+      console.log(`[BREAKPOINT] failed=${breakpointReentry.failedRunId} resumed=${breakpointReentry.resumedRunId} requests=${breakpointReentry.failedPhysicalRequests}/${breakpointReentry.resumedPhysicalRequests}`)
+    }
+
+    const failedTerminalReentry = provider ? await runFailedTerminalReentry(page, provider) : null
+    if (failedTerminalReentry) {
+      console.log(`[FAILED-REENTRY] failed=${failedTerminalReentry.failedRunId} resumed=${failedTerminalReentry.reentryRunId} requests=${failedTerminalReentry.failedPhysicalRequests}/${failedTerminalReentry.reentryPhysicalRequests}`)
+    }
+
+    const liveCalls = provider ? null : await collectLiveApiCalls(page)
+    if (liveCalls) {
+      providerMetrics = assertLiveProviderMetrics(liveCalls)
+      console.log(`[LIVE PROVIDER] requests=${providerMetrics.requestCount} maxConcurrency=${providerMetrics.maxConcurrency}`)
+    }
+    const keyLeakCheck = LIVE_MODE
+      ? assertNoProviderKeyLeak({
+        report: { providerMetrics },
+        exportedTraceDirectories: [volumeRun.directory, chapterRun.directory, bodyRun.directory],
+      })
+      : null
+
+    const summary = await collectSummary(page)
+    const report = {
+      script: SCRIPT_NAME,
+      at: new Date().toISOString(),
+      result: 'PASS',
+      concurrentSnapshot,
+      cancelTiming,
+      terminalSnapshot,
+      providerMetrics,
+      performance,
+      traces: {
+        volume: { runId: volumeRun.runId, directory: volumeRun.directory, status: volumeRun.run.status },
+        chapter: { runId: chapterRun.runId, directory: chapterRun.directory, status: chapterRun.run.status },
+        body: { runId: bodyRun.runId, directory: bodyRun.directory, status: bodyRun.run.status },
+      },
+      reentry: {
+        previousBodyRunId,
+        newBodyRunId: reentry.newBodyRunId,
+        previousBodyHash,
+        newBodyHash: reentry.newBodyHash,
+        newBodyChars: reentry.newBodyChars,
+        bodyPhysicalRequests: { before: bodyRequestsBefore, after: bodyRequestsAfter },
+      },
+      breakpointReentry,
+      failedTerminalReentry,
+      keyLeakCheck,
+      mode: LIVE_MODE ? 'live-supplier' : 'mock-provider',
+      summary,
+      coverage: {
+        freshStart: true,
+        successfulTerminalReentry: true,
+        canceledRunIsolation: true,
+        breakpointReentry: Boolean(breakpointReentry),
+        failedTerminalReentry: Boolean(failedTerminalReentry),
+        note: LIVE_MODE
+          ? 'live 供应商矩阵覆盖真实 UI 启动、三层并发、取消隔离、成功终态再入；断点/失败终态再入由 mock 报告保留为可注入故障的互补证据。'
+          : '四格再入均在真实 UI 点击与真实物理请求路径触发。',
+      },
+    }
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'report.json'), JSON.stringify(report, null, 2), 'utf8')
+    if (provider) {
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
+        JSON.stringify(provider.requests(), null, 2), 'utf8')
+    }
+    if (liveCalls) {
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
+        JSON.stringify(liveCalls, null, 2), 'utf8')
+    }
+    await removeDir(EXPORT_ROOT)
+    console.log(`[PASS] ${JSON.stringify({ ...report, performance: undefined }, null, 2)}`)
+  } catch (error) {
+    exitCode = 1
+    let traceDiagnostics = null
+    let preservedExports = null
+    let liveFailureRequests = null
+    try {
+      traceDiagnostics = await exportFailureTraceDiagnostics(page)
+      if (LIVE_MODE && page) liveFailureRequests = await collectLiveApiCalls(page)
+      preservedExports = await preserveFailedExports()
+    } catch (diagnosticError) {
+      traceDiagnostics = { error: String(diagnosticError?.message || diagnosticError) }
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-trace-diagnostics.json'),
+        JSON.stringify(traceDiagnostics, null, 2), 'utf8')
+    }
+    const failure = {
+      script: SCRIPT_NAME,
+      at: new Date().toISOString(),
+      result: 'FAIL',
+      error: String(error?.stack || error?.message || error),
+      traceDiagnostics,
+      mode: LIVE_MODE ? 'live-supplier' : 'mock-provider',
+      preservedExports,
+    }
+    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'report.json'), JSON.stringify(failure, null, 2), 'utf8')
+    if (provider) {
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
+        JSON.stringify(provider.requests(), null, 2), 'utf8')
+    }
+    if (liveFailureRequests) {
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
+        JSON.stringify(liveFailureRequests, null, 2), 'utf8')
+    }
+    console.error(`[FAIL] ${failure.error}`)
+  } finally {
+    clearTimeout(timeout)
+    heartbeat?.stop()
+    await browser.close().catch(() => {})
+    closeElectron(app)
+    await provider?.close()
+    if (!KEEP_PROFILE) await removeDir(PROFILE)
+  }
+  process.exit(exitCode)
+}
+
+await main()

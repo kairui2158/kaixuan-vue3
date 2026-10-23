@@ -182,6 +182,7 @@ describe('skillRouter composite mapping', () => {
         input: '输入',
         budget: budget(),
         systemPromptSuffix: '降AI约束',
+        userPromptSuffix: '终步重试协议',
         baseTemplateOverride: 'compose合并模板',
         resolvedTemplate: 'chain解析后模板',
         activeEditTask: { id: 'task-1', status: 'awaiting_batch' } as any
@@ -191,6 +192,7 @@ describe('skillRouter composite mapping', () => {
     expect(result.mode).toBe('folder')
     expect(executeRealSkillMock).toHaveBeenCalledWith(expect.objectContaining({
       systemPromptSuffix: '降AI约束',
+      userPromptSuffix: '终步重试协议',
       baseTemplateOverride: 'compose合并模板',
       resolvedTemplate: 'chain解析后模板',
       activeEditTask: { id: 'task-1', status: 'awaiting_batch' }

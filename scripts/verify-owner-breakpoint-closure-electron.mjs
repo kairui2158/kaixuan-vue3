@@ -22,6 +22,22 @@ const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_OWNER_BREAKPOINT_STALLED_TI
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_OWNER_BREAKPOINT_DEAD_TIMEOUT_MS || 45_000)
 const KEEP_PROFILE = process.env.SHENYI_OWNER_BREAKPOINT_KEEP_PROFILE === '1'
 
+function assertIsolatedStorage() {
+  const canonicalDataDir = path.join(
+    process.env.USERPROFILE || process.env.HOME || '',
+    'Documents',
+    '神意助手数据'
+  )
+  // The canonical directory may legitimately contain real user checkpoints.
+  // This verifier must only reject checkpoints whose owner identity belongs to its synthetic project.
+  const breakpointFiles = fs.existsSync(canonicalDataDir)
+    ? fs.readdirSync(canonicalDataDir).filter(name =>
+      name.startsWith('wa_pipeline_breakpoint_owner_') && name.includes(PROJECT_ID))
+    : []
+  assert.equal(breakpointFiles.length, 0,
+    `test isolation is not clean: canonical storage contains ${breakpointFiles.length} owner breakpoint files`)
+}
+
 const PROJECT_ID = 'owner-breakpoint-closure'
 const VOLUME_ID = 'volume-owner-breakpoint'
 const CHAPTER_ID = 'chapter-owner-breakpoint-1'
@@ -47,13 +63,31 @@ const S1_BODY = [
   '他把线索写在袖口，等待雨声掩护下一步行动。',
 ].join('\n')
 const S2_SHORT_BODY = '雨夜短稿。'
-const S2_VALID_BODY = Array.from({ length: 100 }, (_, index) =>
+const S2_BODY_TEXT = Array.from({ length: 130 }, (_, index) =>
   `林照把纸条放进灯座，潮声第${index + 1}次盖住他的呼吸。`).join('\n')
+const S2_VALID_BODY = [
+  S2_BODY_TEXT,
+  '【正文交接】',
+  'FACT_LOCK:人物状态=警觉',
+  'FACT_LOCK:位置=灯塔底层',
+  'FACT_LOCK:关键道具=纸条',
+  'NEW_FACT:纸条日期与灯芯维护记录不一致',
+  '【正文交接结束】',
+].join('\n')
 const S3_SHORT_BODY = '终稿短文。'
-const S3_POLISHED_BODY = Array.from({ length: 100 }, (_, index) =>
+const S3_BODY_TEXT = Array.from({ length: 130 }, (_, index) =>
   index === 0
     ? `林照将纸条压进灯座，潮声第${index + 1}次盖住他的呼吸。`
     : `林照把纸条放进灯座，潮声第${index + 1}次盖住他的呼吸。`).join('\n')
+const S3_POLISHED_BODY = [
+  S3_BODY_TEXT,
+  '【正文交接】',
+  'FACT_LOCK:人物状态=警觉',
+  'FACT_LOCK:位置=灯塔底层',
+  'FACT_LOCK:关键道具=纸条',
+  'NEW_FACT:纸条日期与灯芯维护记录不一致',
+  '【正文交接结束】',
+].join('\n')
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -327,12 +361,12 @@ async function seedApplication(page, provider) {
     })
     await window.electronAPI.storageWrite('wa_deAiConfig', { hardruleEnabled: false, hardRuleMode: 'detect-report' })
     await window.electronAPI.storageRemove('wa_pipeline_breakpoint')
-    await window.electronAPI.storageWrite(`wa_pipeline_breakpoint_owner_${ownerKey}`, {
+    await window.electronAPI.storageWrite(`wa_pipeline_breakpoint_owner_${ownerKey}:chapter-${chapterId}`, {
       kind: 'chain',
       status: 'completed',
       step: 4,
       projectId,
-      ownerKey,
+      ownerKey: `${ownerKey}:chapter-${chapterId}`,
       skillIndex: 2,
       skillId: skillIds[2],
       skillSequence: skillIds,
@@ -375,8 +409,9 @@ function snapshot(page) {
       runId: run?.id || null,
       runStatus: run?.status || null,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      status: pipeline?.activeBodyRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
     }
   })
@@ -435,7 +470,7 @@ async function runBodyThroughUi(page) {
     return Boolean(select && select.options.length > 0)
   }, null, { timeout: 20_000 })
   await chapterSelect.selectOption({ index: 0 })
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
 
   let lastSignature = null
   let lastProgressAt = Date.now()
@@ -483,6 +518,7 @@ async function currentRun(page) {
 
 async function main() {
   const diskManifest = assertFreshRendererBuild()
+  assertIsolatedStorage()
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
@@ -557,7 +593,7 @@ async function main() {
     })
     assert.deepEqual(attemptLedger, [
       { repairAttempt: 0, repairScope: 'none', status: 'too_short', wordCount: 4, requestCount: 3 },
-      { repairAttempt: 1, repairScope: 'targeted', status: 'complete', wordCount: 2000, requestCount: 2 }
+      { repairAttempt: 1, repairScope: 'targeted', status: 'complete', wordCount: 2600, requestCount: 2 }
     ], `body attempt ledger must prove one failed fresh chain and one targeted repair: ${JSON.stringify(attemptLedger)}`)
 
     const runtimeFingerprint = run?.runtimeFingerprint

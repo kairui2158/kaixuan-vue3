@@ -279,8 +279,9 @@ function snapshot(page) {
       runId: run?.id || null,
       runStatus: run?.status || null,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
+      status: pipeline?.activeBodyRun?.statusText || null,
       isGenerating: Boolean(pipeline?.isGenerating),
     }
   })
@@ -327,7 +328,7 @@ async function uiLockSnapshot(page) {
   return page.evaluate(() => ({
     volumeSelect: Boolean(document.querySelector('#pl-context-summary select')?.disabled),
     chapterSelect: Boolean(document.querySelectorAll('#pl-context-summary select')[1]?.disabled),
-    generateButton: Boolean(document.querySelector('#btn-pl-gen-body')?.disabled),
+    generateButton: Boolean(document.querySelector('#btn-primary-gen-body')?.disabled),
   }))
 }
 
@@ -347,7 +348,7 @@ async function runBodyThroughUi(page) {
     return Boolean(select && select.options.length > 0)
   }, null, { timeout: 20_000 })
   await chapterSelect.selectOption({ index: 0 })
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
 
   let lastSignature = null
   let lastProgressAt = Date.now()
@@ -468,7 +469,7 @@ async function main() {
     const lockedSnapshot = await page.evaluate(() => ({
       volumeSelect: Boolean(document.querySelector('#pl-context-summary select')?.disabled),
       chapterSelect: Boolean(document.querySelectorAll('#pl-context-summary select')[1]?.disabled),
-      generateButton: Boolean(document.querySelector('#btn-pl-gen-body')?.disabled),
+      generateButton: Boolean(document.querySelector('#btn-primary-gen-body')?.disabled),
     }))
     assert.equal(lockedSnapshot.volumeSelect, false, 'volume selector unlocks after generation')
     assert.equal(lockedSnapshot.chapterSelect, false, 'chapter selector unlocks after generation')

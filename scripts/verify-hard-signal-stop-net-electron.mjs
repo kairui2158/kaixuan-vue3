@@ -298,8 +298,9 @@ function snapshot(page) {
       runStatus: run?.status || null,
       hardSignalEvents: (run?.events || []).filter(event => event.type === 'hard_signal_scan').length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      status: pipeline?.activeBodyRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       lastBodyLog,
     }
@@ -337,7 +338,7 @@ async function runBodyThroughUi(page) {
     return Boolean(select && select.options.length > 0)
   }, null, { timeout: 20_000 })
   await chapterSelect.selectOption({ index: 0 })
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
 
   let lastSignature = null
   let lastProgressAt = Date.now()

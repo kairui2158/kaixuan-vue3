@@ -232,7 +232,7 @@ async function main() {
         const runTrace = pinia._s.get('runTrace')
         const editor = pinia._s.get('editor')
         return {
-          currentRunId: runTrace.getRunId('outline') || runTrace.getLastRunId('outline') || null,
+          currentRunId: runTrace.getRunId('outline'),
           undoCount: editor.listUndoTransactionsForTab('outline').length,
           canUndo: editor.canUndoTab('outline'),
           canRedo: editor.canRedoTab('outline'),

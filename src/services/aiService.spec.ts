@@ -998,6 +998,9 @@ describe('createAiService.callAi', () => {
       onChunk: () => {},
       onPhysicalCall: (event: any) => physicalEvents.push(event),
     });
+    // The provider slot acquire is asynchronous even on the fast path, and
+    // callAi has async setup work before dispatching the main-process stream.
+    for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
     const assertion = expect(request).resolves.toMatchObject({ text: 'recovered' });
     await vi.advanceTimersByTimeAsync(3 * 60_000);
     await vi.advanceTimersByTimeAsync(2_000);
@@ -1511,6 +1514,24 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('refuses to send a provider request while the stored key is still encrypted', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const encryptedProvider = {
+      ...runtimeProvider,
+      apiKey: 'enc:' + Buffer.from('stale-dpapi-ciphertext').toString('base64'),
+    };
+    const service = createAiService(runtimeStore(encryptedProvider));
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      stream: false, retry: false,
+    })).rejects.toMatchObject({
+      message: expect.stringContaining('API Key 解密失败'),
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it('rejects an HTTP 200 provider quota error body as terminal auth failure', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       error: { message: 'Insufficient balance, please recharge your quota.' },
@@ -1626,6 +1647,153 @@ describe('createAiService.callAi', () => {
       stream: false, retry: false,
     })).resolves.toMatchObject({ text: content });
     vi.unstubAllGlobals();
+  });
+
+  it('queues same-provider physical calls behind the provider concurrency limit', async () => {
+    const gates = Array.from({ length: 3 }, () => {
+      let resolve!: () => void;
+      const promise = new Promise<void>(resolvePromise => {
+        resolve = resolvePromise;
+      });
+      return { resolve, promise };
+    });
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit): Promise<Response> => {
+      const index = fetchMock.mock.calls.length - 1;
+      const gate = gates[index] ?? { promise: Promise.resolve() };
+      return gate.promise.then(() => new Response(JSON.stringify({
+        choices: [{ message: { content: `result-${index + 1}` }, finish_reason: 'stop' }],
+        usage: { prompt_tokens: 10, completion_tokens: 1, total_tokens: 11 },
+      }), { status: 200 }));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const queueEvents: Array<{ status: string; providerId: string; position?: number; waiting?: number }> = [];
+
+    const requests = ['one', 'two', 'three'].map((content, index) => service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content }],
+      stream: false,
+      retry: false,
+      timeoutMs: null,
+      onProviderQueue: event => queueEvents.push({ ...event }),
+      toolPolicy: index === 0
+        ? {
+          toolRunBudget: createToolRunBudget({
+            operation: 'direct',
+            maxPhysicalRequests: 1,
+            maxReadToolCalls: 0,
+            reservedWriteToolCalls: 0,
+          }),
+        }
+        : undefined,
+    }));
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    gates[0].resolve();
+    await expect(requests[0]).resolves.toMatchObject({ text: 'result-1' });
+    await vi.waitFor(() => {
+      expect(queueEvents).toEqual(expect.arrayContaining([
+        expect.objectContaining({ status: 'started', providerId: 'runtime' }),
+        expect.objectContaining({ status: 'started', providerId: 'runtime' }),
+        expect.objectContaining({ status: 'queued', providerId: 'runtime', position: 1, waiting: 1 }),
+      ]));
+    });
+
+    gates[1].resolve();
+    await expect(requests[1]).resolves.toMatchObject({ text: 'result-2' });
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    gates[2].resolve();
+    await expect(requests[2]).resolves.toMatchObject({ text: 'result-3' });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('cancels a provider-queued request before it dispatches and without spending its safety net', async () => {
+    let resolveFirstGate!: () => void;
+    const firstGate = {
+      promise: new Promise<void>(resolvePromise => {
+        resolveFirstGate = resolvePromise;
+      }),
+      resolve: () => resolveFirstGate(),
+    };
+    const firstResponse = new Response(JSON.stringify({
+      choices: [{ message: { content: 'first' }, finish_reason: 'stop' }],
+      usage: { prompt_tokens: 10, completion_tokens: 1, total_tokens: 11 },
+    }), { status: 200 });
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit): Promise<Response> =>
+      Promise.resolve(firstResponse).then(() => firstGate.promise).then(() => firstResponse));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const queueEvents: Array<{ status: string; providerId: string }> = [];
+    const budget = createToolRunBudget({
+      operation: 'direct',
+      maxPhysicalRequests: 1,
+      maxReadToolCalls: 0,
+      reservedWriteToolCalls: 0,
+    });
+
+    const controller = new AbortController();
+    let resolveSecondGate!: () => void;
+    const secondGate = {
+      promise: new Promise<void>(resolvePromise => {
+        resolveSecondGate = resolvePromise;
+      }),
+      resolve: () => resolveSecondGate(),
+    };
+    const fetchUrls: string[] = [];
+    const secondGateResolved = secondGate.promise.then(() => {
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: 'active-second' }, finish_reason: 'stop' }],
+        usage: { prompt_tokens: 10, completion_tokens: 1, total_tokens: 11 },
+      }), { status: 200 });
+    });
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const shouldUseSecondGate = fetchUrls.push(String(input)) === 2;
+      return shouldUseSecondGate
+        ? secondGateResolved
+        : Promise.resolve(firstResponse).then(() => firstGate.promise).then(() => firstResponse);
+    });
+    const requests = [
+      service.callAi({
+        purpose: 'generate',
+        messages: [{ role: 'user', content: 'first' }],
+        stream: false,
+        retry: false,
+        timeoutMs: null,
+      }),
+      service.callAi({
+        purpose: 'generate',
+        messages: [{ role: 'user', content: 'placeholder-active' }],
+        stream: false,
+        retry: false,
+        timeoutMs: null,
+      }),
+      service.callAi({
+        purpose: 'generate',
+        messages: [{ role: 'user', content: 'second' }],
+        stream: false,
+        retry: false,
+        timeoutMs: null,
+        signal: controller.signal,
+        onProviderQueue: event => queueEvents.push({ ...event }),
+        toolPolicy: {
+          toolRunBudget: budget,
+        },
+      }),
+    ];
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(queueEvents).toEqual(expect.arrayContaining([
+      expect.objectContaining({ status: 'queued', providerId: 'runtime', position: 1, waiting: 1 }),
+    ]));
+    expect(budget.snapshot()).toMatchObject({ physicalRequests: 0 });
+
+    controller.abort();
+    await expect(requests[2]).rejects.toMatchObject({ kind: 'canceled' });
+    firstGate.resolve();
+    await expect(requests[0]).resolves.toMatchObject({ text: 'first' });
+    secondGate.resolve();
+    await expect(requests[1]).resolves.toMatchObject({ text: 'active-second' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(budget.snapshot()).toMatchObject({ physicalRequests: 0 });
   });
 
   it('classifies main-process HTTP auth failures without retrying', async () => {
@@ -1874,6 +2042,9 @@ describe('createAiService.callAi', () => {
       onChunk: () => {},
       onPhysicalCall: (event: any) => physicalEvents.push(event),
     });
+    // The provider slot acquire is asynchronous even on the fast path, and
+    // callAi has async setup work before dispatching the main-process stream.
+    for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
     const assertion = expect(request).resolves.toMatchObject({ text: 'recovered' });
     expect(emitMainNetEvent).toBeTruthy();
     const emit = emitMainNetEvent!;
@@ -4184,7 +4355,9 @@ describe('createAiService.callAi tools', () => {
       cancelSignal: userCancelController.signal,
       retry: false,
     })).rejects.toMatchObject({ kind: 'canceled' });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    // User cancellation was already active, so the provider scheduler must
+    // stop the request before even the first physical dispatch.
+    expect(fetchMock).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
 
@@ -4548,11 +4721,17 @@ describe('createAiService.callAi tools', () => {
         message: { role: 'assistant', content: '写入完成' },
       }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    const fetchMock = vi.fn()
-      .mockImplementationOnce(async () => toolResponse())
-      .mockImplementationOnce(async () => finalResponse())
-      .mockImplementationOnce(async () => toolResponse())
-      .mockImplementationOnce(async () => finalResponse());
+    const requestCounts = new Map<string, number>()
+    const fetchMock = vi.fn(async (_url: string, options: RequestInit) => {
+      const body = JSON.parse(String(options.body)) as {
+        messages: Array<{ role: string; content: string }>
+      }
+      const userMessage = [...body.messages].reverse().find(message => message.role === 'user')
+      const requestKey = userMessage?.content || 'unknown'
+      const count = requestCounts.get(requestKey) || 0
+      requestCounts.set(requestKey, count + 1)
+      return count === 0 ? toolResponse() : finalResponse()
+    });
     vi.stubGlobal('fetch', fetchMock);
     const firstBudget = createToolRunBudget({
       maxPhysicalRequests: 2,
@@ -4570,30 +4749,32 @@ describe('createAiService.callAi tools', () => {
     })
     const service = createAiService(runtimeStore());
 
-    const first = await service.callAi({
-      purpose: 'generate',
-      messages: [{ role: 'user', content: '写入第一轮' }],
-      tools: [writeTool],
-      stream: false,
-      retry: false,
-      toolPolicy: {
-        maxToolIterations: 2,
-        intent: 'edit',
-        toolRunBudget: firstBudget,
-      },
-    });
-    const second = await service.callAi({
-      purpose: 'generate',
-      messages: [{ role: 'user', content: '继续明确写入' }],
-      tools: [writeTool],
-      stream: false,
-      retry: false,
-      toolPolicy: {
-        maxToolIterations: 2,
-        intent: 'edit',
-        toolRunBudget: secondBudget,
-      },
-    });
+    const [first, second] = await Promise.all([
+      service.callAi({
+        purpose: 'generate',
+        messages: [{ role: 'user', content: '写入第一轮' }],
+        tools: [writeTool],
+        stream: false,
+        retry: false,
+        toolPolicy: {
+          maxToolIterations: 2,
+          intent: 'edit',
+          toolRunBudget: firstBudget,
+        },
+      }),
+      service.callAi({
+        purpose: 'generate',
+        messages: [{ role: 'user', content: '继续明确写入' }],
+        tools: [writeTool],
+        stream: false,
+        retry: false,
+        toolPolicy: {
+          maxToolIterations: 2,
+          intent: 'edit',
+          toolRunBudget: secondBudget,
+        },
+      }),
+    ]);
 
     expect(first.text).toBe('写入完成')
     expect(firstBudget.snapshot()).toMatchObject({ physicalRequests: 2, writeToolCalls: 1 })

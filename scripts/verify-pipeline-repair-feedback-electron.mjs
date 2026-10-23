@@ -32,6 +32,12 @@ const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_DEAD_TIMEOUT_M
 const KEEP_PROFILE = process.env.SHENYI_REPAIR_FEEDBACK_KEEP_PROFILE === '1'
 const { safeStorage } = require('electron')
 
+const ECHO_S2_CANONICAL_PARAGRAPH =
+  '周砚把防水袋压在左胸，指腹确认名单折角没有移动。海风从灯塔侧门刮进石缝，他把三次红色闪烁的间隔记进航海日志，又将南方航线的接头暗号写在页脚。手电光在码头东侧扫过时，他屏住呼吸，沿着湿滑石阶退进阴影。'
+const ECHO_S2_CANONICAL_BODY = Array.from({ length: 20 }, (_, index) =>
+  `${ECHO_S2_CANONICAL_PARAGRAPH}（第${index + 1}段。）`
+).join('\n\n')
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -102,8 +108,8 @@ function writeLiveSkills() {
     template: [
       '# 职责',
       '',
-      '逐字复述 input 中【终步回显样例】之后的内容。',
-      '不要修改、概括或省略任何字符，也不要输出其他说明。',
+      '逐字复述 input 中【终步回显样例】标记之后、【终步重试协议】标记之前的全部内容。',
+      '保留【终步重试协议】要求，但输出内容只包含上述正文，不要修改、概括或省略任何正文字符。',
       '',
       '',
     ].join('\n'),
@@ -113,13 +119,76 @@ function writeLiveSkills() {
       "  if (typeof value !== 'string') return {}",
       "  const header = '--- 上一步 SKILL 完整输出 ---'",
       "  const index = value.indexOf(header)",
-      "  const echoed = index >= 0 ? value.slice(index + header.length) : value",
-      "  return { input: '[终步回显样例]\\n' + echoed.trim() }",
+      "  const rawEchoed = index >= 0 ? value.slice(index + header.length) : value",
+      "  const appFeedback = value.slice(Math.max(0, value.lastIndexOf('【终步重试协议】')))",
+      "  const feedbackIndex = rawEchoed.indexOf('【终步重试协议】')",
+      "  const echoed = feedbackIndex >= 0 ? rawEchoed.slice(0, feedbackIndex) : rawEchoed",
+      "  const ledgerMarker = echoed.indexOf('--- 上一步结构化交接')",
+      "  const body = ledgerMarker >= 0 ? echoed.slice(0, ledgerMarker) : echoed",
+      "  const keepFeedback = value.includes('终步回显校验失败') && appFeedback.includes('终步回显校验失败')",
+      "  return { input: '[终步回显样例]\\n' + body.trim() + (keepFeedback ? '\\n\\n' + appFeedback : '') }",
       '}',
     ].join('\n'),
   }
 
-  for (const skill of [schemaSkill, echoSkill]) {
+  // The production kaixuan-s2 is intentionally prompt-driven and can omit its
+  // handoff on this deliberately small fixture input. That omission is a valid
+  // degraded outcome, but it prevents the terminal echo-repair path from being
+  // exercised. This dedicated S2 fixture keeps a real live model call while
+  // guaranteeing the generator ledger required by the app's terminal gate.
+  const echoS2Skill = {
+    id: 'REPAIR-ECHO-S2-LIVE',
+    name: 'S-Live-EchoRepairGenerator',
+    folder: 'repair-echo-s2-live',
+    template: [
+      '# 职责',
+      '',
+      '将系统提示内【定稿正文样本】逐字复制为输出正文。',
+      '不得改写、概括、增删、替换或重新创作正文内容，也不得输出任何解释。',
+      '正文输出完成后另起一行输出【正文交接】区块。',
+      '正文结束后必须另起一行输出【正文交接】区块，并包含下列字段：',
+      '章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用、目标字数、生成下限、场景总数、FACT_LOCK、NEW_FACT。',
+      '【正文交接】中固定写：目标字数：2000；生成下限：1600。字数指令以这两行为准，正文本身按 2400-2800 字施工。',
+      `【定稿正文样本】\n${ECHO_S2_CANONICAL_BODY}`,
+      '',
+    ].join('\n'),
+    script: [
+      'exports.postProcess = function (payload) {',
+      "  const output = typeof payload === 'string' ? payload : (payload && (payload.output || payload.text)) || ''",
+      "  if (!output.trim()) return { output, valid: false, errors: ['输出为空'] }",
+      "  const marker = '【正文交接】'",
+      "  let normalized = output",
+      "  const first = output.indexOf(marker)",
+      "  if (first >= 0) normalized = output.slice(0, first + marker.length)",
+      "    + output.slice(first + marker.length).split(marker).join('\\n' + marker)",
+      "  if (!normalized.includes(marker)) normalized = normalized.trimEnd() + '\\n' + [",
+      "    marker,",
+      "    '章节：灯塔信标',",
+      "    'POV：周砚',",
+      "    '已完成场景：3',",
+      "    '未完成场景：无',",
+      "    '来源覆盖状态：全部覆盖',",
+      "    '角色状态变化：周砚确认信标并取得沉船名单',",
+      "    '章末状态：等待清晨渔船',",
+      "    '下一章必须使用：南方航线接头暗号',",
+      "    '目标字数：2000',",
+      "    '生成下限：1600',",
+      "    '场景总数：3',",
+      "    'FACT_LOCK：人物状态=警觉；位置=灯塔；目标=南方航线',",
+      "    'NEW_FACT：无',",
+      "  ].join('\\n')",
+      "  const candidate = normalized.slice(0, normalized.indexOf(marker) >= 0 ? normalized.indexOf(marker) : undefined)",
+      "  const canonical = " + JSON.stringify(ECHO_S2_CANONICAL_BODY),
+      "  const repaired = candidate.includes(canonical.slice(0, 60))",
+      "    ? candidate.replace(candidate.slice(candidate.indexOf(canonical.slice(0, 60))), canonical)",
+      "    : canonical",
+      "  normalized = repaired + '\\n' + normalized.slice(normalized.indexOf(marker) >= 0 ? normalized.indexOf(marker) : 0)",
+      "  return { output: normalized, valid: true }",
+      '}',
+    ].join('\n'),
+  }
+
+  for (const skill of [schemaSkill, echoSkill, echoS2Skill]) {
     const dir = path.join(LIVE_SKILL_ROOT, skill.folder)
     fs.mkdirSync(dir, { recursive: true })
     fs.writeFileSync(path.join(dir, 'SKILL.md'), [
@@ -136,9 +205,18 @@ function writeLiveSkills() {
     fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ sampleCount: 0 }, null, 2), 'utf8')
     if (skill.schema) fs.writeFileSync(path.join(dir, 'schema.json'), JSON.stringify(skill.schema, null, 2), 'utf8')
     if (skill.script) fs.writeFileSync(path.join(dir, 'script.js'), skill.script, 'utf8')
+    if (skill.id === 'REPAIR-ECHO-S2-LIVE') {
+      fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({
+        sampleCount: 0,
+        chainHandoff: {
+          requiresFullUpstreamContext: true,
+          reason: 'Echo verification generator needs full upstream text to produce a stable ledger.',
+        },
+      }, null, 2), 'utf8')
+    }
   }
 
-  return [schemaSkill, echoSkill]
+  return [schemaSkill, echoSkill, echoS2Skill]
 }
 
 function loadSkillFolder({ root, folder, description }) {
@@ -311,7 +389,7 @@ async function seedApplication(page, apiKey, skills) {
       outlineLockedText: outline,
       bookWordCount: 1000,
       volumesConfirmed: true,
-      pipelineConfig: { volumeCount: 1, volumeWords: 1200, chapterWords: 1200 },
+      pipelineConfig: { volumeCount: 1, volumeWords: 2000, chapterWords: 2000 },
       chaptersConfirmed: true,
       settingsGenerated: true,
       settings: [],
@@ -322,7 +400,7 @@ async function seedApplication(page, apiKey, skills) {
         summary: '灯塔信标与南方航线构成第一卷冲突。',
         allocatedWords: 1000,
         suggestedWords: 1000,
-        wordsPerChapter: 1200,
+        wordsPerChapter: 2000,
         chapterCount: 1,
         confirmed: true,
         locked: true,
@@ -423,8 +501,9 @@ function currentRunSnapshot(page) {
       apiCalls: (run?.apiCalls || []).length,
       runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      status: pipeline?.activeBodyRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       bodyLength: ((project?.chapters?.['vol-repair-feedback-live'] || [])[0]?.body || '').length,
       lastLog: (window.__pinia?._s?.get('executionLog')?.logs || []).at(-1)?.message || null,
@@ -478,6 +557,9 @@ async function waitForBodyCompletion(page) {
     }
     if (snapshot.runStatus === 'failed' || snapshot.status?.startsWith('failed:')) {
       throw new Error(`body generation failed: ${snapshot.status} / ${snapshot.runStatus}`)
+    }
+    if (snapshot.runStatus === 'canceled' || snapshot.pipelineRunStatus === 'canceled') {
+      throw new Error(`body generation was canceled: ${snapshot.status} / ${snapshot.runStatus}`)
     }
     return snapshot
   }
@@ -627,7 +709,7 @@ function assertBaselineRun({ tracePath, run, payloads }) {
     const repairTexts = (run.apiCalls || [])
       .flatMap(call => physicalCallsOf(call))
       .map(physical => userText(requestMessagesOf(tracePath, physical.requestMessages)))
-    assert(repairTexts.some(text => text.includes('[修复反馈] 上一步输出与本步输出高度重复')),
+    assert(repairTexts.some(text => text.includes('【终步重试协议】') && text.includes('终步回显校验失败')),
       'baseline echo repair is backed by a physical retry request carrying concrete feedback')
     assert(!(run.apiCalls || []).some(call => physicalCallsOf(call).length > 3),
       'baseline echo repair does not loop into unlimited retries')
@@ -670,12 +752,18 @@ function assertSchemaRetryRun({ tracePath, run }) {
     `schema failure causes a retry request, got ${calls.length} physical calls`)
   const firstSystem = systemText(requestMessagesOf(tracePath, calls[0].requestMessages))
   const retrySystem = systemText(requestMessagesOf(tracePath, calls[1].requestMessages))
-  assert(!firstSystem.includes('上一次输出未通过校验'),
-    'first schema request does not contain stale feedback')
-  assert(retrySystem.includes('上一次输出未通过校验'),
-    'schema retry request contains concrete failure feedback')
-  assert(retrySystem.includes('repair_marker'),
-    'schema retry feedback names the missing required field')
+  assert(!firstSystem.includes('【终步重试协议】'),
+    'first schema request does not contain retry feedback')
+  assert(retrySystem.includes('【终步重试协议】'),
+    'schema retry request carries the structured retry feedback contract')
+  assert(retrySystem.includes('$.repair_marker 缺少必填字段'),
+    'schema retry feedback names the missing required field with a JSON pointer')
+  assert(retrySystem.includes('四、上游权威锚点'),
+    'schema retry feedback carries bounded upstream anchors for repair')
+  assert(retrySystem.includes('不携带候选输出全文'),
+    'schema retry feedback explicitly suppresses the full failed candidate')
+  assert(!retrySystem.includes('--- 上一步 SKILL 完整输出 ---'),
+    'schema retry feedback does not confuse the upstream block with the failed candidate')
   assert(retrySystem.length > firstSystem.length,
     'retry request is materially different, not a bare duplicate')
   const passInputs = eventsByType(run, 'folder-pass-input').map(event => parseDetail(event.detail))
@@ -698,7 +786,7 @@ function assertEchoRepairRun({ tracePath, run }) {
   const repairTexts = repairCalls
     .flatMap(item => item.physical.map(physical =>
       userText(requestMessagesOf(tracePath, physical.requestMessages))))
-    .filter(text => text.includes('[修复反馈] 上一步输出与本步输出高度重复'))
+    .filter(text => text.includes('【终步重试协议】') && text.includes('终步回显校验失败'))
   assert(repairTexts.length >= 1,
     'echo repair retry carries the concrete repair feedback')
   assert(!(run.apiCalls || []).some(call => physicalCallsOf(call).length > 3),
@@ -727,8 +815,28 @@ async function archiveRunEvidence({ directory, run, scenario }) {
 async function runScenario(page, name, skills) {
   console.log(`\n[SCENARIO] ${name}`)
   await selectBodySkillsThroughUi(page, skills.map(item => item.skill))
-  await page.click('#btn-pl-gen-body')
-  const completion = await waitForBodyCompletion(page)
+  await page.click('#btn-primary-gen-body')
+  let completion
+  try {
+    completion = await waitForBodyCompletion(page)
+  } catch (error) {
+    // A failed live run still owns request payloads and diagnostic events; export
+    // them before the process exits so the failure is diagnosable from evidence.
+    console.error(`[FAIL EXPORT] ${name} failed, exporting failure evidence: ${error?.message || error}`)
+    try {
+      const failedExport = await exportLatestRun(page)
+      const { directory, run } = readExportedRun(failedExport)
+      await archiveRunEvidence({ directory, run, scenario: `${name}-failed` })
+      console.error(`[FAIL EXPORT] failure trace archived: ${path.join(EVIDENCE_ROOT, 'live-export', `${name}-failed`)}`)
+    } catch (exportError) {
+      console.error(`[FAIL EXPORT] trace export failed: ${exportError?.message || exportError}`)
+    }
+    await page.screenshot({
+      path: path.join(EVIDENCE_ROOT, `${name}-failure-state.png`),
+      fullPage: false,
+    }).catch(() => {})
+    throw error
+  }
   assert(!completion.isGenerating, `${name} generation is no longer running`)
   const exported = await exportLatestRun(page)
   const { directory, run, payloads } = readExportedRun(exported)
@@ -767,6 +875,9 @@ async function archivePreviousEvidence() {
 
 async function main() {
   assertFreshRendererBuild()
+  const onlyScenario = process.env.SCENARIO ? process.env.SCENARIO.trim().toLowerCase() : ''
+  assert(['', 'baseline', 'schema-retry', 'echo-repair'].includes(onlyScenario),
+    `SCENARIO must be empty, baseline, schema-retry, or echo-repair; got ${JSON.stringify(onlyScenario)}`)
   await archivePreviousEvidence()
   await removeDir(PROFILE)
   await removeDir(EXPORT_ROOT)
@@ -816,26 +927,38 @@ async function main() {
       folder: 'repair-echo-live',
       description: 'live echo-repair verification skill',
     })
+    const echoS2Skill = loadSkillFolder({
+      root: LIVE_SKILL_ROOT,
+      folder: 'repair-echo-s2-live',
+      description: 'live echo-repair generator verification skill',
+    })
 
     await seedApplication(page, apiKey, [
       ...bodySkills,
       schemaSkill.skill,
       echoSkill.skill,
+      echoS2Skill.skill,
     ].map(item => item.skill || item))
 
     heartbeat = startHeartbeat(page, electronProcess.pid)
 
-    evidence.push(await runScenario(page, 'baseline', bodySkills))
-    evidence.push(await runScenario(page, 'schema-retry', [
-      bodySkills[0],
-      bodySkills[1],
-      schemaSkill,
-    ]))
-    evidence.push(await runScenario(page, 'echo-repair', [
-      bodySkills[0],
-      bodySkills[1],
-      echoSkill,
-    ]))
+    if (!onlyScenario || onlyScenario === 'baseline') {
+      evidence.push(await runScenario(page, 'baseline', bodySkills))
+    }
+    if (!onlyScenario || onlyScenario === 'schema-retry') {
+      evidence.push(await runScenario(page, 'schema-retry', [
+        bodySkills[0],
+        bodySkills[1],
+        schemaSkill,
+      ]))
+    }
+    if (!onlyScenario || onlyScenario === 'echo-repair') {
+      evidence.push(await runScenario(page, 'echo-repair', [
+        bodySkills[0],
+        echoS2Skill,
+        echoSkill,
+      ]))
+    }
 
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'summary.json'), JSON.stringify({
       schema: 'shenyi.pipeline-repair-feedback.electron-live',

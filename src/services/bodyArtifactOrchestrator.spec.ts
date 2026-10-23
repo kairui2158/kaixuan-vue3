@@ -230,6 +230,22 @@ describe('generateBodyArtifact', () => {
 })
 
 describe('planBodyArtifactExecution', () => {
+  it('allows the first attempt to consume a same-owner failed breakpoint', () => {
+    expect(planBodyArtifactExecution({
+      repairScope: 'none',
+      generatorStepIndex: 1,
+      generatorDeclaredRole: 'generator',
+      finalStepRole: 'polish',
+      totalSteps: 3
+    })).toMatchObject({
+      topology: 'fresh_chain',
+      startIndex: 0,
+      targetRole: 'chain_start',
+      reuseArtifacts: false,
+      disableBreakpointReplay: false
+    })
+  })
+
   it('plans targeted repair from the declared generator step', () => {
     expect(planBodyArtifactExecution({
       repairScope: 'targeted',
@@ -322,7 +338,7 @@ describe('planBodyArtifactExecution', () => {
     expect(contexts[0]?.executionPlan).toMatchObject({
       topology: 'fresh_chain',
       startIndex: 0,
-      disableBreakpointReplay: true
+      disableBreakpointReplay: false
     })
     expect(contexts[1]?.executionPlan).toMatchObject({
       topology: 'generator_step',

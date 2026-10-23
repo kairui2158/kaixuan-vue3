@@ -287,7 +287,7 @@ async function runVolumeGenerationThroughUi(page) {
         runStatus: run?.status || null,
         apiCallCount: (run?.apiCalls || []).length,
         eventCount: (run?.events || []).length,
-        status: pipeline?.generationStatus || null,
+        status: pipeline?.activeVolumesRun?.statusText || null,
         isGenerating: Boolean(pipeline?.isGenerating),
         bodyText: (document.body.textContent || ''),
         logText: (document.querySelector('#pl-volume-api-log')?.textContent || ''),

@@ -37,6 +37,50 @@ describe('project store saveProject coalescing', () => {
     const projectWrites = storageWrite.mock.calls.filter(c => c[0].includes('project_test-coalesce'))
     expect(projectWrites.length).toBe(1)
   })
+
+  it('runs another save after an in-flight save finishes', async () => {
+    let releaseFirstWrite!: (value: boolean) => void
+    const firstWrite = new Promise<boolean>(resolve => {
+      releaseFirstWrite = resolve
+    })
+    storageWrite.mockImplementationOnce(async () => firstWrite)
+
+    const store = useProjectStore()
+    store.currentProjectId = 'test-save-chain'
+    store.projectName = '第一版'
+
+    const firstSave = store.saveProject()
+    // Wait until the first physical write is actually suspended, so the next
+    // mutation happens after its state snapshot instead of inside the coalescing window.
+    await Promise.resolve()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    store.setVolumes([{ id: 'vol-2', name: '第二版卷' }])
+    const secondSave = store.saveProject()
+
+    releaseFirstWrite(true)
+    await Promise.all([firstSave, secondSave])
+    await new Promise(resolve => setTimeout(resolve, 20))
+
+    const projectWrites = storageWrite.mock.calls.filter(c => c[0].includes('project_test-save-chain'))
+    expect(projectWrites.length).toBeGreaterThanOrEqual(2)
+    expect(projectWrites.at(-1)?.[1]).toMatchObject({ volumes: [{ id: 'vol-2', name: '第二版卷' }] })
+  })
+
+  it('keeps the queue usable after a failed save', async () => {
+    storageWrite.mockImplementationOnce(async () => false)
+
+    const store = useProjectStore()
+    store.currentProjectId = 'test-save-failure'
+    store.projectName = '失败后恢复'
+
+    const failedSave = await store.saveProject()
+    expect(failedSave).toMatchObject({ ok: false, failedKeys: ['project'] })
+
+    storageWrite.mockClear()
+    const recoveredSave = await store.saveProject()
+    expect(recoveredSave).toMatchObject({ ok: true, failedKeys: [] })
+    expect(storageWrite).toHaveBeenCalled()
+  })
 })
 
 describe('project store recordSourceVersion', () => {

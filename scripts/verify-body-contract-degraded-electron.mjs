@@ -474,8 +474,9 @@ function currentRunSnapshot(page) {
       apiCalls: (run?.apiCalls || []).length,
       runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: pipeline?.activeBodyRun?.progress ?? null,
+      status: pipeline?.activeBodyRun?.statusText || null,
+      pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       bodyLength: String(chapter?.body || '').length,
     }
@@ -531,7 +532,7 @@ async function runBodyThroughUi(page) {
   }
   await page.locator('#pl-steps .pl-step').nth(4).click()
   await page.waitForSelector('#pl-step-5-content', { state: 'visible', timeout: 20_000 })
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
   let lastSignature = null
   let lastProgressAt = Date.now()
   let lastSnapshot = null

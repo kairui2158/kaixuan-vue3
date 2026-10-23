@@ -70,6 +70,7 @@ function createHooks() {
     recordPhysicalCall: (callId, event) => {
       calls.push({ id: callId, label: `physical:${event.phase}` })
     },
+    recordProviderQueue: () => {},
     appendStream: text => {
       streams.push({ id: `call-${callSequence}`, text })
     },

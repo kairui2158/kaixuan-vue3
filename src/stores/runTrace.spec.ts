@@ -114,13 +114,12 @@ describe('runTrace store', () => {
     expect(exported.stateHistory?.some(item => item.reason === 'export_snapshot_synthesized_from_last_turn')).toBe(false)
   })
 
-  it('marks an abandoned running run as failed before starting a new one', () => {
+  it('keeps same-source runs running when a new task starts', () => {
     const store = useRunTraceStore()
     const first = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
     const second = store.startRun({ step: 3, stepName: '章节层', mode: 'batch', skillNames: [] })
 
-    expect(store.getRun(first)?.status).toBe('failed')
-    expect(store.getRun(first)?.error).toContain('未正常结束')
+    expect(store.getRun(first)?.status).toBe('running')
     expect(store.getRun(second)?.status).toBe('running')
   })
 
@@ -180,15 +179,44 @@ describe('runTrace store', () => {
     expect(store.getRun(home)?.status).toBe('running')
   })
 
-  it('abandons stale runs only in the same source', () => {
+  it('keeps concurrent same-source runs isolated without auto-abandoning the first', () => {
     const store = useRunTraceStore()
     const firstPipeline = store.startRun({ source: 'pipeline', step: 1, stepName: '设定层', mode: 'single', skillNames: [] })
     const outline = store.startRun({ source: 'outline', stepName: '大纲共创', mode: 'chat', skillNames: [] })
     const secondPipeline = store.startRun({ source: 'pipeline', step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
 
-    expect(store.getRun(firstPipeline)?.status).toBe('failed')
+    expect(store.getRun(firstPipeline)?.status).toBe('running')
     expect(store.getRun(outline)?.status).toBe('running')
     expect(store.getRun(secondPipeline)?.status).toBe('running')
+  })
+
+  it('keeps a provider quota soft failure scoped to the failing run', () => {
+    const store = useRunTraceStore()
+    const failing = store.startRun({ source: 'pipeline', step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
+    const unaffected = store.startRun({ source: 'pipeline', step: 3, stepName: '章节层', mode: 'batch', skillNames: [] })
+    const failingCall = store.startApiCall(failing, {
+      step: 2,
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+    })
+    const unaffectedCall = store.startApiCall(unaffected, {
+      step: 3,
+      requestMessages: [{ role: 'user', content: '生成章节' }],
+    })
+
+    store.finishApiCall(failing, failingCall, {
+      status: 'failed',
+      error: 'quota_exhausted：供应商返回软错误，未产生正文',
+      finishReason: 'provider_quota_exhausted',
+    })
+    store.finishRun(failing, 'failed')
+
+    expect(store.getRun(failing)?.status).toBe('failed')
+    expect(store.getRun(failing)?.events.some(event =>
+      event.type === 'api-failed' && event.detail?.includes('quota_exhausted')
+    )).toBe(true)
+    expect(store.getRun(unaffected)?.status).toBe('running')
+    expect(store.getRun(unaffected)?.events.some(event => event.type === 'api-failed')).toBe(false)
+    expect(store.getApiCallId('pipeline')).toBe(unaffectedCall)
   })
 
   it('marks unmounted source runs failed without breaking other sources', () => {
@@ -200,6 +228,31 @@ describe('runTrace store', () => {
 
     expect(store.getRun(outline)?.status).toBe('failed')
     expect(store.getRun(home)?.status).toBe('running')
+  })
+
+  it('cancels running trace runs and waits for their save queues during shutdown', async () => {
+    const runTraceSave = vi.fn(async (_payload: unknown) => ({ success: true, dirName: 'app-shutdown-run' }))
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { electronAPI: { runTraceSave } }
+    })
+    const store = useRunTraceStore()
+    const pipelineRunId = store.startRun({ source: 'pipeline', step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
+    const outlineRunId = store.startRun({ source: 'outline', stepName: '大纲共创', mode: 'chat', skillNames: [] })
+    const pipelineCallId = store.startApiCall(pipelineRunId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+    })
+
+    const result = await store.shutdownAndFlush({ reason: '应用关闭，任务已取消' })
+
+    expect(result.canceledRunIds).toEqual([outlineRunId, pipelineRunId])
+    expect(result.errors).toEqual([])
+    expect(store.getRun(pipelineRunId)?.status).toBe('canceled')
+    expect(store.getRun(outlineRunId)?.status).toBe('canceled')
+    expect(store.getRun(pipelineRunId)?.apiCalls[0]?.id).toBe(pipelineCallId)
+    expect(store.getRun(pipelineRunId)?.apiCalls[0]?.status).toBe('canceled')
+    expect(store.getRun(pipelineRunId)?.stateHistory?.at(-1)?.reason).toContain('应用关闭，任务已取消')
+    expect(runTraceSave).toHaveBeenCalled()
   })
 
   it('records complete api calls and stream text without truncation', () => {
@@ -2176,6 +2229,89 @@ describe('runTrace store', () => {
     vi.useRealTimers()
   })
 
+  describe('single-run trace memory bounds', () => {
+    it('bounds one call stream in memory while retaining exact totals and truncation evidence', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ streamMemoryChars: 64 })
+      const runId = store.startRun({ step: 3, stepName: '正文层', mode: 'chain', skillNames: ['S1'] })
+      const callId = store.startApiCall(runId, {
+        step: 3,
+        skillId: 'S1',
+        requestMessages: [{ role: 'user', content: '生成长文正文' }]
+      })
+
+      store.appendStream(runId, callId, '甲'.repeat(60))
+
+      const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)!
+      expect(call.streamText).toHaveLength(60)
+      expect(call.streamText).toBe('甲'.repeat(60))
+      expect(call.responseText).toBe(call.streamText)
+      expect(call.streamTotalChars).toBe(60)
+      expect(call.streamTruncated).toBeUndefined()
+
+      store.appendStream(runId, callId, '乙'.repeat(40))
+      store.appendStream(runId, callId, '丙'.repeat(140))
+
+      const bounded = store.getRun(runId)?.apiCalls.find(item => item.id === callId)!
+      expect(bounded.streamText).toHaveLength(64)
+      expect(bounded.streamText).toBe('丙'.repeat(64))
+      expect(bounded.streamTotalChars).toBe(240)
+      expect(bounded.streamTruncated).toBe(true)
+      expect(bounded.streamTruncatedChars).toBe(176)
+      expect(store.getRun(runId)?.events.some(event =>
+        event.type === 'trace-stream-compacted'
+        && event.level === 'warn'
+        && event.detail?.includes('chars=100')
+      )).toBe(true)
+      store.setMemoryLimits(previous)
+    })
+
+    it('bounds cumulative streams without regrowing memory and keeps response fallback stable', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ streamMemoryChars: 100 })
+      const runId = store.startRun({ source: 'outline', stepName: '大纲共创', mode: 'chat', sessionKind: 'chat', skillNames: [] })
+      const callId = store.startApiCall(runId, {
+        source: 'outline',
+        requestMessages: [{ role: 'user', content: '重排整篇大纲' }]
+      })
+
+      store.appendCumulativeStream(runId, callId, 'A'.repeat(100))
+      store.appendCumulativeStream(runId, callId, 'A'.repeat(100) + 'B'.repeat(200))
+
+      const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)!
+      expect(call.streamText).toHaveLength(100)
+      expect(call.streamTotalChars).toBe(300)
+      expect(call.streamTruncated).toBe(true)
+      expect(call.streamTruncatedChars).toBe(200)
+      expect(call.responseText).toBe(call.streamText)
+      expect(call.responseText).not.toBe('A'.repeat(100) + 'B'.repeat(200))
+      store.setMemoryLimits(previous)
+    })
+
+    it('bounds events per run, evicting old info first and preserving diagnostics', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ maxEvents: 128 })
+      const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'batch', skillNames: [] })
+
+      store.addEvent(runId, { type: 'diagnostic-keep', level: 'error', label: '早期错误' })
+      for (let i = 0; i < 140; i++) {
+        store.addEvent(runId, { type: 'noise-' + i, level: 'info', label: '噪声' + i })
+      }
+      store.addEvent(runId, { type: 'terminal-diagnostics', level: 'warn', label: '终态告警' })
+
+      const run = store.getRun(runId)!
+      expect(run.events.length).toBeLessThanOrEqual(129)
+      expect(run.events.some(event => event.type === 'diagnostic-keep')).toBe(true)
+      expect(run.events.some(event => event.type === 'terminal-diagnostics')).toBe(true)
+      expect(run.events.filter(event => event.type?.startsWith('noise-')).length).toBeLessThanOrEqual(127)
+      expect(run.eventLedger?.totalEvents).toBe(144)
+      expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThanOrEqual(13)
+      expect(run.events.some(event => event.type === 'trace-events-compacted')).toBe(true)
+      const seqs = run.events.map(event => event.seq).filter((seq): seq is number => typeof seq === 'number')
+      expect(seqs).toEqual([...seqs].sort((a, b) => a - b))
+      store.setMemoryLimits(previous)
+    })
+  })
   it('throttles stream activity events while preserving the full stream response', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-09T00:00:00Z'))
@@ -2704,7 +2840,7 @@ describe('runTrace store', () => {
     consoleError.mockRestore()
   })
 
-  it('restores only terminal persisted runs without hijacking active pointers', async () => {
+  it('restores terminal runs and marks persisted active runs interrupted without hijacking pointers', async () => {
     const terminal = {
       id: 'run-restored-terminal',
       source: 'pipeline',
@@ -2726,7 +2862,7 @@ describe('runTrace store', () => {
         : []
     }))
     const runTraceRead = vi.fn(async (payload: { dirName: string }) => ({
-      success: payload.dirName === 'run-terminal',
+      success: true,
       run: payload.dirName === 'run-terminal' ? terminal : running
     }))
     Object.defineProperty(globalThis, 'window', {
@@ -2738,12 +2874,14 @@ describe('runTrace store', () => {
     const activeRunId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
     const result = await store.restorePersistedRuns()
 
-    expect(result).toEqual({ restored: 1, skipped: 1 })
-    expect(runTraceRead).toHaveBeenCalledTimes(1)
-    expect(runTraceRead).toHaveBeenCalledWith({ source: 'pipeline', dirName: 'run-terminal' })
+    expect(result).toEqual({ restored: 2, skipped: 0 })
+    expect(runTraceRead).toHaveBeenCalledTimes(2)
     const restored = store.getRun('run-restored-terminal')
     expect(restored?.dirName).toBe('run-terminal')
-    expect(store.getRun('run-restored-running')).toBeNull()
+    const interrupted = store.getRun('run-restored-running')
+    expect(interrupted?.status).toBe('interrupted')
+    expect(interrupted?.endedAt).toBeTypeOf('number')
+    expect(interrupted?.events.some(event => event.type === 'run-startup-interrupted')).toBe(true)
     expect(store.getRunId('pipeline')).toBe(activeRunId)
     expect(store.getLastRunId('pipeline')).toBe(activeRunId)
   })
@@ -3011,6 +3149,39 @@ describe('runTrace store', () => {
     expect(event?.turnId).toBe(turnId)
     expect(store.exportRunToText(run)).toContain('AI 批次applied')
     expect(JSON.stringify(store.exportRunToJson(run))).toContain('batch_event')
+  })
+
+  it('drops source events after a run reaches a terminal state', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      skillNames: [],
+      sessionKind: 'chat'
+    })
+    store.startTurn(runId, { userRequest: '修改第一卷' })
+    store.finishRun(runId, 'failed')
+
+    store.addBatchEvent('outline', {
+      version: 1,
+      batchId: 'late-batch',
+      workspace: 'outline',
+      targetId: 'outline',
+      status: 'applied',
+      commandCount: 2,
+      reason: '迟到事件',
+      occurredAt: Date.now()
+    })
+    store.addSourceEvent('outline', {
+      type: 'batch_event',
+      level: 'warn',
+      label: '迟到来源事件'
+    })
+
+    const run = store.getRun(runId)!
+    expect(run.events.some(item => item.batchEvent?.batchId === 'late-batch')).toBe(false)
+    expect(run.events.some(item => item.label === '迟到来源事件')).toBe(false)
   })
 
   it('exports folder diagnostics status for run-level aggregation', () => {

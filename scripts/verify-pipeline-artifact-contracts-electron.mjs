@@ -35,7 +35,7 @@ const { safeStorage } = require('electron')
 function bodyGeneratorContractSentence(targetWords) {
   const target = Number(targetWords)
   if (!Number.isFinite(target) || target <= 0) return ''
-  const min = Math.round(target * 0.6)
+  const min = Math.round(target * 0.8)
   const max = target * 2
   return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。只输出正文本身。`
 }
@@ -347,6 +347,16 @@ function currentRunSnapshot(page, expectedStep) {
     const store = window.__pinia?._s?.get('runTrace')
     const pipeline = window.__pinia?._s?.get('pipeline')
     const project = window.__pinia?._s?.get('project')
+    const layerByStep = { 0: 'outline', 1: 'settings', 2: 'volumes', 3: 'chapters', 4: 'body' }
+    const activeLayerRun = stepNumber === 1
+      ? pipeline?.activeSettingsRun
+      : stepNumber === 2
+        ? pipeline?.activeVolumesRun
+        : stepNumber === 3
+          ? pipeline?.activeChaptersRun
+          : stepNumber === 4
+            ? pipeline?.activeBodyRun
+            : null
     const run = [...(store?.runs || [])]
       .filter(item => item.source === 'pipeline' && item.step === stepNumber)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
@@ -407,8 +417,9 @@ function currentRunSnapshot(page, expectedStep) {
       lastProgressAtMs: eventProgressAt || null,
       apiCalls: apiCalls.length,
       runningApiCalls: apiCalls.filter(call => call.status === 'running').length,
-      progress: pipeline?.generationProgress ?? null,
-      status: pipeline?.generationStatus || null,
+      progress: activeLayerRun?.progress ?? null,
+      status: activeLayerRun?.statusText || null,
+      pipelineRunStatus: activeLayerRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       settingsGenerated: Boolean(project?.settingsGenerated),
       volumeCount: (project?.volumes || []).length,
@@ -717,7 +728,7 @@ async function generateBodyThroughUi(page) {
   await volumeSelect.selectOption({ index: 0 })
   await page.locator('#pl-context-summary select').nth(1).selectOption({ index: 0 })
   await sleep(400)
-  await page.click('#btn-pl-gen-body')
+  await page.click('#btn-primary-gen-body')
   return await waitForLayerCompletion(page, {
     step: 4,
     // The live body chain runs three real API steps (S1/S2/S3), and S2 may
@@ -986,15 +997,17 @@ function assertBodyRun({ run, payloads }) {
   assert.equal(run.step, 4, 'body run belongs to step 4')
   const validated = parseEvents(run, 'body-artifact-validated')
   assert.equal(validated.length, 1, `one body validation event exists, got ${validated.length}`)
-  assert(validated[0].wordCount >= 720, `body word count passes the 60% lower bound, got ${validated[0].wordCount}`)
-  assert(validated[0].wordCount <= 2400, `body word count passes the 200% upper bound, got ${validated[0].wordCount}`)
-  assert(validated[0].ratio >= 0.6, `body ratio passes the lower bound, got ${validated[0].ratio}`)
-  assert.equal(validated[0].status, 'complete', 'body artifact is complete')
-  assert(parseEvents(run, 'body-artifact-attempt').length >= 1,
-    'body attempt evidence is recorded')
   const targetWords = Number(validated[0].targetWords)
   assert(Number.isFinite(targetWords) && targetWords > 0,
     `body validation records a usable target-word contract, got ${validated[0].targetWords}`)
+  const expectedBodyMinWords = Math.round(targetWords * 0.8)
+  assert(validated[0].wordCount >= expectedBodyMinWords,
+    `body word count passes the 80% lower bound, got ${validated[0].wordCount}`)
+  assert(validated[0].wordCount <= 2400, `body word count passes the 200% upper bound, got ${validated[0].wordCount}`)
+  assert(validated[0].ratio >= 0.8, `body ratio passes the lower bound, got ${validated[0].ratio}`)
+  assert.equal(validated[0].status, 'complete', 'body artifact is complete')
+  assert(parseEvents(run, 'body-artifact-attempt').length >= 1,
+    'body attempt evidence is recorded')
   const targetContract = bodyGeneratorContractSentence(targetWords)
   const prompt = Object.values(payloads)
     .flatMap(payload => collectPayloadStrings(payload))

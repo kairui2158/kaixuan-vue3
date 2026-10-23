@@ -129,7 +129,9 @@ describe('realSkillExecutor single pass', () => {
       sampleCount: 2,
       isRetry: true,
       declaredFullUpstream: true,
-      appliedFullUpstream: true
+      appliedFullUpstream: true,
+      traceRunId: null,
+      traceCallId: null
     })
   })
 
@@ -195,6 +197,35 @@ describe('realSkillExecutor single pass', () => {
       ?.find(message => message.role === 'user')?.content || ''
     expect(secondPassUserPrompt).not.toContain('[declared upstream context]')
     expect(secondPassUserPrompt).not.toContain('上游设定：北境雪城')
+  })
+
+  it('keeps app-owned final-step retry feedback in the folder user prompt', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        meta: {
+          executionMode: 'multi-pass',
+          passes: [{ name: '唯一一步' }]
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      userPromptSuffix: '【终步重试协议】\n终步回显校验失败：输出与上一步高度重复。'
+    })
+
+    expect(result.status).toBe('success')
+    const userPrompt = result.apiMeta?.requestMessages
+      ?.find(message => message.role === 'user')?.content || ''
+    expect(userPrompt).toContain('原文')
+    expect(userPrompt).toContain('【终步重试协议】')
+    expect(userPrompt).toContain('终步回显校验失败')
   })
 
   it('warns and keeps previous-only input when declared upstream context is empty', async () => {
