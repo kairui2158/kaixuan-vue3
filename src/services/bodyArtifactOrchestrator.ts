@@ -156,7 +156,7 @@ export function planBodyArtifactExecution(input: {
     startIndex: 0,
     targetRole: 'chain_start',
     reuseArtifacts: false,
-    disableBreakpointReplay: true
+    disableBreakpointReplay: input.repairScope !== 'none'
   }
 }
 

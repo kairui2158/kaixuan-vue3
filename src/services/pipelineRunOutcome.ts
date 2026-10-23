@@ -5,7 +5,7 @@ export interface PipelineApiCallLike {
 }
 
 export interface ResolvePipelineRunOutcomeInput {
-  generationStatus?: string | null
+  runStatus?: string | null
   apiCalls?: PipelineApiCallLike[] | null
   folderStatus?: RunTraceStatus | null
   finalArtifactAccepted?: boolean
@@ -21,19 +21,19 @@ export interface PipelineRunOutcome {
 export function resolvePipelineRunOutcome(
   input: ResolvePipelineRunOutcomeInput
 ): PipelineRunOutcome {
-  const generationStatus = input.generationStatus || ''
+  const runStatus = input.runStatus || ''
   const apiCalls = Array.isArray(input.apiCalls) ? input.apiCalls : []
   const degradedApiCalls = apiCalls.filter(call => call?.status === 'degraded').length
   const hasCallStatus = (status: string) =>
     apiCalls.some(call => call?.status === status)
 
-  if (generationStatus === 'canceled' || hasCallStatus('canceled')) {
+  if (runStatus === 'canceled' || hasCallStatus('canceled')) {
     return { status: 'canceled', recoveredFromDegraded: false, degradedApiCalls }
   }
-  if (generationStatus.startsWith('failed') || hasCallStatus('failed')) {
+  if (runStatus.startsWith('failed') || hasCallStatus('failed')) {
     return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls }
   }
-  if (generationStatus.startsWith('blocked') || hasCallStatus('blocked')) {
+  if (runStatus.startsWith('blocked') || hasCallStatus('blocked')) {
     return { status: 'blocked', recoveredFromDegraded: false, degradedApiCalls }
   }
   if (input.hardSignalUnresolved) {

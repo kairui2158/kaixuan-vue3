@@ -66,6 +66,8 @@ export function buildFolderPassInputMeasurement(input: {
   isRetry: boolean
   declaredFullUpstream: boolean
   appliedFullUpstream: boolean
+  traceRunId?: string | null
+  traceCallId?: string | null
 }) {
   return {
     passIndex: input.passIndex,
@@ -76,7 +78,9 @@ export function buildFolderPassInputMeasurement(input: {
     sampleCount: input.sampleCount,
     isRetry: input.isRetry,
     declaredFullUpstream: input.declaredFullUpstream,
-    appliedFullUpstream: input.appliedFullUpstream
+    appliedFullUpstream: input.appliedFullUpstream,
+    traceRunId: input.traceRunId || null,
+    traceCallId: input.traceCallId || null
   }
 }
 
@@ -410,13 +414,15 @@ function buildFolderPassUserPrompt(input: {
   chainUpstreamContext?: string
   requiresFullUpstreamContext: boolean
   isPreviousInput: boolean
+  userPromptSuffix?: string
 }): string {
   const upstream = input.chainUpstreamContext?.trim()
-  if (!input.requiresFullUpstreamContext || !input.isPreviousInput || !upstream) {
-    return buildUserPrompt(input.input, input.samples)
-  }
   const base = buildUserPrompt(input.input, input.samples)
-  return `[declared upstream context]\n${upstream}\n\n--- current input ---\n${base}`
+  const body = input.requiresFullUpstreamContext && input.isPreviousInput && upstream
+    ? `[declared upstream context]\n${upstream}\n\n--- current input ---\n${base}`
+    : base
+  const suffix = input.userPromptSuffix?.trim()
+  return suffix ? `${body}\n\n${suffix}` : body
 }
 
 function normalizePasses(value: unknown): Array<{ name?: string; input?: 'original' | 'previous' }> {
@@ -873,7 +879,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           samples: selectedSamples,
           chainUpstreamContext,
           requiresFullUpstreamContext: declaredFullUpstream,
-          isPreviousInput
+          isPreviousInput,
+          userPromptSuffix: options.userPromptSuffix
         })
         timingLedger.repeatedPromptBlocks = countRepeatedPromptBlocks(userPrompt)
         const messages = options.messageBuilder
@@ -891,7 +898,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           appliedFullUpstream: declaredFullUpstream && isPreviousInput && Boolean(chainUpstreamContext),
           systemPrompt: effectiveSystemPrompt,
           sampleCount: selectedSamples.length,
-          isRetry: attempt > 1
+          isRetry: attempt > 1,
+          traceRunId: options.traceRunId,
+          traceCallId: options.traceCallId
         })
         try {
           window.dispatchEvent(new CustomEvent('real-skill:folder-pass-input', { detail: passMeasurement }))
@@ -938,6 +947,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           onChunk: options.onChunk,
           onReasoning: options.onReasoning,
           onPhysicalCall: options.onPhysicalCall as any,
+          onProviderQueue: options.onProviderQueue,
           retry: true,
           model: agent?.model || undefined,
           temperature: attempt === RETRY_LIMIT

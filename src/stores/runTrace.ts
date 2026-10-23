@@ -16,6 +16,7 @@ export type RunTraceStatus =
   | 'failed'
   | 'canceled'
   | 'blocked'
+  | 'interrupted'
   | 'partially_applied'
   | 'failed_after_write'
   | 'success_with_warnings'
@@ -188,6 +189,10 @@ export interface RunTraceApiCall {
   timingLedger?: RunTraceTimingLedger
   status: RunTraceStatus
   error?: string
+  /** Total streamed chars ever received; streamText may be a bounded tail preview. */
+  streamTotalChars?: number
+  streamTruncated?: boolean
+  streamTruncatedChars?: number
   compatibilityMode?: 'json-protocol'
   compatibilityWrite?: boolean
   toolsDowngraded?: boolean | 'json-protocol'
@@ -422,6 +427,8 @@ export interface RunTrace {
   step?: number
   stepName?: string
   mode: string
+  /** Application-level run id (pipeline registry domain), never a trace run id. */
+  pipelineRunId?: string
   projectId?: string
   projectName?: string
   providerId?: string
@@ -449,6 +456,13 @@ export interface RunTrace {
   payloads?: RunTracePayloadRef[]
   apiResponseIndex?: RunTraceApiResponseIndexEntry[]
   payloadIntegrityWarnings?: string[]
+  /** Exact event accounting for compacted runs; events are a bounded recent window. */
+  eventLedger?: {
+    totalEvents: number
+    droppedInfoEvents: number
+    droppedWarnEvents: number
+    droppedErrorEvents: number
+  }
   dirName?: string
   currentTurnId?: string
   sessionKind?: 'task' | 'chat'
@@ -622,6 +636,8 @@ export interface StartRunInput {
   step?: number
   stepName?: string
   mode: string
+  /** Application-level run id (pipeline registry domain), never a trace run id. */
+  pipelineRunId?: string
   projectId?: string
   projectName?: string
   providerId?: string
@@ -652,7 +668,7 @@ export function folderDiagnosticsStatus(diagnostics: RunTraceFolderDiagnostic[])
 
 function traceStatusLevel(status: RunTraceStatus): 'info' | 'warn' | 'error' {
   if (status === 'success') return 'info'
-  if (status === 'degraded' || status === 'blocked' || status === 'partially_applied' || status === 'success_with_warnings') return 'warn'
+  if (status === 'degraded' || status === 'blocked' || status === 'interrupted' || status === 'partially_applied' || status === 'success_with_warnings') return 'warn'
   return 'error'
 }
 
@@ -661,6 +677,7 @@ function traceStatusLabel(status: RunTraceStatus): string {
   if (status === 'degraded') return '完成（降级）'
   if (status === 'blocked') return '已阻断，等待恢复'
   if (status === 'canceled') return '取消'
+  if (status === 'interrupted') return '启动中断，需恢复'
   if (status === 'partially_applied') return '完成（部分写入）'
   if (status === 'success_with_warnings') return '完成（带警告）'
   if (status === 'failed_after_write') return '失败（写入后失败）'
@@ -911,6 +928,13 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   const saveRunQueuesById = new Map<string, Promise<unknown>>()
   const pendingStreamSaveTimersByRunId = new Map<string, ReturnType<typeof setTimeout>>()
   const STREAM_SAVE_INTERVAL_MS = 5000
+  // Bounded renderer memory for a single run. requestMessages are already
+  // memory-mapped by aiService; stream events and one run's event list are the
+  // remaining unbounded growth paths. Payload export keeps full artifacts on disk.
+  let runTraceStreamMemoryChars = 2_000_000
+  let runTraceMaxEvents = 128
+  const lastMaxEventSeqByRunId = new Map<string, number>()
+  const streamCompactionEventReportedByRunId = new Set<string>()
   const currentRunIdBySource = ref<Record<RunTraceSource, string | null>>({
     pipeline: null,
     outline: null,
@@ -1089,6 +1113,39 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
   }
 
+  async function shutdownAndFlush(options: { reason?: string; timeoutMs?: number } = {}) {
+    const reason = options.reason || '应用关闭，运行已取消'
+    // runs is newest-first. Cancelling newest first keeps the returned order
+    // aligned with the registry's run list users already see.
+    const activeRuns = runs.value.filter(run => run.status === 'running')
+    const canceledRunIds: string[] = []
+    const errors: string[] = []
+    const pendingSaves: Promise<unknown>[] = []
+    for (const run of activeRuns) {
+      cancelRunningApiCalls(run.id, reason)
+      finishRun(run.id, 'canceled', reason, 'app_shutdown')
+      canceledRunIds.push(run.id)
+      const queuedSave = saveRunQueuesById.get(run.id)
+      if (queuedSave) pendingSaves.push(queuedSave)
+    }
+    const timeoutMs = options.timeoutMs ?? 3000
+    if (pendingSaves.length > 0) {
+      try {
+        await Promise.race([
+          Promise.allSettled(pendingSaves).then(() => undefined),
+          new Promise<void>(resolve => {
+            const timer = setTimeout(resolve, timeoutMs)
+            ;(timer as unknown as { unref?: () => void }).unref?.()
+          }),
+        ])
+      } catch (error) {
+        // Trace persistence is observability only; shutdown still continues.
+        errors.push(error instanceof Error ? error.message : String(error))
+      }
+    }
+    return { canceledRunIds, errors }
+  }
+
   function failRunningApiCalls(runId: string, reason?: string) {
     const run = getRun(runId)
     if (!run) return
@@ -1133,7 +1190,6 @@ export const useRunTraceStore = defineStore('runTrace', () => {
 
   function startRun(input: StartRunInput) {
     const source = normalizeSource(input.source)
-    if (input.sessionKind !== 'chat') abandonRunningRun(source)
     const run: RunTrace = {
       id: nextId('run'),
       source,
@@ -1148,6 +1204,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       model: input.model,
       skillNames: input.skillNames?.slice() || [],
       skillMode: input.skillMode,
+      pipelineRunId: input.pipelineRunId,
       target: input.target ? { ...input.target } : undefined,
       context: input.context ? { ...input.context } : undefined,
       status: 'running',
@@ -1427,10 +1484,57 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     return true
   }
 
+  function ensureEventLedger(run: RunTrace) {
+    if (!run.eventLedger) {
+      run.eventLedger = {
+        totalEvents: run.events.length,
+        droppedInfoEvents: 0,
+        droppedWarnEvents: 0,
+        droppedErrorEvents: 0
+      }
+    }
+    return run.eventLedger
+  }
+
+  function evictExcessEvents(run: RunTrace) {
+    if (run.events.length <= runTraceMaxEvents) return
+    const protectedCount = run.events.filter(event => event.level !== 'info').length
+    if (protectedCount >= runTraceMaxEvents - 1) return
+    const evictableInfoCount = run.events.length - protectedCount
+    const evictInfoCount = Math.min(
+      evictableInfoCount,
+      run.events.length - (runTraceMaxEvents - 1)
+    )
+    if (evictInfoCount <= 0) return
+    const ledger = ensureEventLedger(run)
+    let remainingEvictions = evictInfoCount
+    run.events = run.events.filter(event => {
+      if (remainingEvictions <= 0 || event.level !== 'info') return true
+      remainingEvictions -= 1
+      ledger.droppedInfoEvents += 1
+      return false
+    })
+  }
+
+  function reportEventCompactionOnce(run: RunTrace, droppedInfoEvents: number) {
+    if (droppedInfoEvents <= 0) return
+    const alreadyReported = run.events.some(event => event.type === 'trace-events-compacted')
+    if (alreadyReported) return
+    addEvent(run.id, {
+      type: 'trace-events-compacted',
+      level: 'warn',
+      label: '运行记录事件已压缩',
+      detail: `droppedInfo=${droppedInfoEvents} kept=${run.events.length}`,
+      payload: { droppedInfoEvents, keptEvents: run.events.length }
+    })
+  }
+
   function addEvent(runId: string, event: Omit<RunTraceEvent, 'id' | 'ts'>) {
     const run = getRun(runId)
     if (!run) return
-    const seq = run.events.reduce((max, item) => Math.max(max, item.seq || 0), 0) + 1
+    const seq = Math.max(lastMaxEventSeqByRunId.get(runId) || 0,
+      run.events.reduce((max, item) => Math.max(max, item.seq || 0), 0)) + 1
+    lastMaxEventSeqByRunId.set(runId, seq)
     const { turnId: explicitTurnId, ...rest } = event
     run.events.push({
       id: nextId('event'),
@@ -1440,14 +1544,41 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       // exporter removed that transient pointer mid-stream, the latest running
       // turn is the only semantically valid owner.
       turnId: explicitTurnId
-        || run.currentTurnId
-        || (run.sessionKind === 'chat'
-          ? [...(run.turns || [])].reverse().find(turn => turn.status === 'running')?.id
-          : undefined),
-      ...rest,
+        ?? run.currentTurnId
+        ?? [...(run.turns || [])].reverse().find(turn => turn.status === 'running')?.id,
+      ...rest
     })
+    const ledgerExisted = Boolean(run.eventLedger)
+    const ledger = ensureEventLedger(run)
+    if (ledgerExisted) ledger.totalEvents += 1
+    const droppedBefore = ledger.droppedInfoEvents
+    evictExcessEvents(run)
+    reportEventCompactionOnce(run, ledger.droppedInfoEvents - droppedBefore)
   }
 
+  function setMemoryLimits(limits: { streamMemoryChars?: number; maxEvents?: number }) {
+    const previous = {
+      streamMemoryChars: runTraceStreamMemoryChars,
+      maxEvents: runTraceMaxEvents
+    }
+    if (typeof limits.streamMemoryChars === 'number'
+      && Number.isFinite(limits.streamMemoryChars)
+      && limits.streamMemoryChars > 0) {
+      runTraceStreamMemoryChars = Math.floor(limits.streamMemoryChars)
+    }
+    if (typeof limits.maxEvents === 'number'
+      && Number.isFinite(limits.maxEvents)
+      && limits.maxEvents > 0) {
+      runTraceMaxEvents = Math.floor(limits.maxEvents)
+    }
+    runs.value.forEach(run => {
+      const ledger = ensureEventLedger(run)
+      const droppedBefore = ledger.droppedInfoEvents
+      evictExcessEvents(run)
+      reportEventCompactionOnce(run, ledger.droppedInfoEvents - droppedBefore)
+    })
+    return previous
+  }
   function addAgentEvent(runId: string, event: Omit<RunTraceEvent, 'id' | 'ts'> & { payload?: unknown }) {
     addEvent(runId, event)
   }
@@ -1974,8 +2105,30 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
     const previousStreamText = call.streamText
     call.streamText += text
+    const streamTotalChars = (call.streamTotalChars ?? previousStreamText.length) + text.length
+    call.streamTotalChars = streamTotalChars
+    if (call.streamText.length > runTraceStreamMemoryChars) {
+      call.streamText = call.streamText.slice(call.streamText.length - runTraceStreamMemoryChars)
+      call.streamTruncated = true
+      call.streamTruncatedChars = streamTotalChars - call.streamText.length
+      const run = getRun(runId)
+      if (run && !streamCompactionEventReportedByRunId.has(runId)) {
+        streamCompactionEventReportedByRunId.add(runId)
+        addEvent(runId, {
+          type: 'trace-stream-compacted',
+          level: 'warn',
+          label: '运行记录流式内容已压缩',
+          detail: `chars=${streamTotalChars} kept=${call.streamText.length}`,
+          payload: { chars: streamTotalChars, keptChars: call.streamText.length }
+        })
+      }
+    } else {
+      call.streamTruncated = undefined
+      call.streamTruncatedChars = undefined
+    }
     const responseWasStreamFallback = !String(call.responseText || '').trim()
       || (call.responseText === previousStreamText && call.streamText.startsWith(call.responseText))
+      || (call.streamTruncated === true && call.responseText === previousStreamText)
     if (responseWasStreamFallback) call.responseText = call.streamText
     call.lastStreamActivityAt = Date.now()
     call.lastExecutionActivityAt = call.lastStreamActivityAt
@@ -1987,7 +2140,6 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     // pre-delta response while the in-memory export already has the reply.
     if (call.status !== 'running' && run) void saveRunToDisk(run)
   }
-
   /** Reasoning callbacks are delta-only; the store accumulates the final text. */
   function appendReasoning(runId: string, callId: string, deltaText: string) {
     const call = getRun(runId)?.apiCalls.find(item => item.id === callId)
@@ -2371,6 +2523,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     if (index >= 0) {
       clearStateWatchdogForRun(id)
       flushStreamSave(id)
+      lastMaxEventSeqByRunId.delete(id)
+      streamCompactionEventReportedByRunId.delete(id)
       const [removed] = runs.value.splice(index, 1)
       removeRunDirectory(removed)
     }
@@ -2386,6 +2540,12 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     for (const runId of [...stateWatchdogByRunId.keys()]) clearStateWatchdogForRun(runId)
     for (const runId of [...pendingStreamSaveTimersByRunId.keys()]) flushStreamSave(runId)
     runs.value = []
+    lastMaxEventSeqByRunId.clear()
+    streamCompactionEventReportedByRunId.clear()
+    removed.forEach(item => {
+      lastMaxEventSeqByRunId.delete(item.id)
+      streamCompactionEventReportedByRunId.delete(item.id)
+    })
     removed.forEach(removeRunDirectory)
     currentRunIdBySource.value = { pipeline: null, outline: null, home: null, eval: null, infra: null }
     currentApiCallIdBySource.value = { pipeline: null, outline: null, home: null, eval: null, infra: null }
@@ -2394,14 +2554,30 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   }
 
   function addSourceEvent(source: RunTraceSource, event: Omit<RunTraceEvent, 'id' | 'ts'>) {
-    const runId = currentRunIdBySource.value[source] || lastRunIdBySource.value[source]
-    if (!runId) return
+    const runId = currentRunIdBySource.value[source]
+    if (!runId) {
+      console.warn('[runTrace] dropped source event without an active run', { source, type: event.type })
+      return
+    }
+    const run = runId ? getRun(runId) : null
+    if (run?.status !== 'running') {
+      console.warn('[runTrace] dropped source event without an active run', { source, type: event.type })
+      return
+    }
     addEvent(runId, event)
   }
 
   function addBatchEvent(source: RunTraceSource, batchEvent: DialogueBatchEvent) {
-    const runId = currentRunIdBySource.value[source] || lastRunIdBySource.value[source]
-    if (!runId) return
+    const runId = currentRunIdBySource.value[source]
+    if (!runId) {
+      console.warn('[runTrace] dropped batch event without an active run', { source, batchId: batchEvent.batchId })
+      return
+    }
+    const run = runId ? getRun(runId) : null
+    if (run?.status !== 'running') {
+      console.warn('[runTrace] dropped batch event without an active run', { source, batchId: batchEvent.batchId })
+      return
+    }
     addEvent(runId, {
       type: 'batch_event',
       level: batchEvent.status === 'pending' || batchEvent.status === 'applied' ? 'info' : 'warn',
@@ -2622,6 +2798,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     'degraded',
     'failed',
     'canceled',
+    'interrupted',
     'partially_applied',
     'failed_after_write',
     'success_with_warnings'
@@ -2667,16 +2844,37 @@ export const useRunTraceStore = defineStore('runTrace', () => {
         if (!listed?.success || !Array.isArray(listed.runs)) continue
         for (const item of listed.runs) {
           if (restoredBySource[source] >= maxRuns) break
-          if (!item?.dirName || item.status === 'running' || item.status === 'blocked') {
+          if (!item?.dirName) {
             skipped += 1
             continue
           }
           const read = await window.electronAPI!.runTraceRead({ source, dirName: item.dirName })
-          if (!read?.success || !isValidRestoredRun(read.run)) {
+          if (!read?.success) {
             skipped += 1
             continue
           }
-          const run = read.run as RunTrace
+          const run = read.run as RunTrace | null
+          if (run && (run.status === 'running' || run.status === 'blocked')) {
+            // Restarted processes cannot own the persisted run's controllers.
+            // Keep its evidence visible and make the non-terminal state explicit.
+            run.status = 'interrupted'
+            run.endedAt = run.endedAt ?? Date.now()
+            run.events = [
+              ...(run.events || []),
+              {
+                id: `${run.id}-startup-interrupted`,
+                ts: Date.now(),
+                level: 'warn',
+                type: 'run-startup-interrupted',
+                label: '应用重启，运行已中断',
+                detail: '恢复的运行记录处于非终态；已标记为中断，需用户重新发起或选择恢复流程。'
+              }
+            ]
+          }
+          if (!isValidRestoredRun(run)) {
+            skipped += 1
+            continue
+          }
           run.dirName = item.dirName
           runDirNameById.set(run.id, item.dirName)
           if (insertRestoredRun(run)) restoredBySource[source] += 1
@@ -2895,6 +3093,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     currentRunId,
     currentApiCallId,
     maxRuns,
+    setMemoryLimits,
     getRun,
     getLastRunId,
     abandonRunningRun,
@@ -2936,6 +3135,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     finishApiCall,
     cancelRunningApiCalls,
     failRunningApiCalls,
+    shutdownAndFlush,
     finishRun,
     startAwaitingUser,
     isAwaitingUser,

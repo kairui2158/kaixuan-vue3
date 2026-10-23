@@ -418,6 +418,7 @@ import {
   getAiService,
   type CallAiParams,
   type PhysicalCallEvent,
+  type ProviderQueueEvent,
 } from '../../services/aiService'
 import { extractJsonCandidates } from '../../services/jsonExtraction'
 import { createIntentLlmFallback } from '../../services/intentLlmFallback'
@@ -1646,6 +1647,7 @@ function outlineFinalDraftTraceHooks() {
     startApiCall: startOutlineApiCall,
     finishApiCall: finishOutlineApiCall,
     recordPhysicalCall: recordOutlinePhysicalCall,
+    recordProviderQueue: recordOutlineProviderQueue,
     appendStream: (text: string) => appendOutlineStream(text, true),
     appendReasoning: (callId: string | undefined, text: string | undefined) => {
       if (text) appendOutlineReasoning(text)
@@ -1905,6 +1907,21 @@ function recordOutlinePhysicalCall(callId: string | undefined, event: PhysicalCa
         error: event.error,
       })
   }
+}
+
+function recordOutlineProviderQueue(callId: string | undefined, event: ProviderQueueEvent) {
+  if (!outlineRunTraceId) return
+  runTraceStore.addEvent(outlineRunTraceId, {
+    type: 'provider-queue',
+    level: 'info',
+    label: event.status === 'queued'
+      ? `等待供应商槽位：第 ${event.position ?? 1}/${event.waiting ?? 1} 位`
+      : event.status === 'started'
+        ? '已获得供应商槽位'
+        : '排队取消',
+    detail: JSON.stringify(event),
+    turnId: callId || undefined,
+  })
 }
 
 function recordOutlineToolCall(callId: string | undefined, event: {
@@ -2696,6 +2713,7 @@ async function handleStyleAnalysisRequest(event: Event) {
           outputMs: event.outputMs,
         })
       },
+      onProviderQueue: event => recordOutlineProviderQueue(apiCallId, event),
       meta: { source: 'OutlineWorkspace.style-analysis' },
     })
     if (apiCallId) {
@@ -2964,7 +2982,7 @@ const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => (
     if (!call) return null
     return {
       status: call.status,
-      streamLength: call.streamText.length,
+      streamLength: call.streamTotalChars ?? call.streamText.length,
       lastStreamActivityAt: call.lastStreamActivityAt,
       lastExecutionActivityAt: call.lastExecutionActivityAt,
       lastToolArgumentProgressAt: call.lastToolArgumentProgressAt,
@@ -5778,6 +5796,7 @@ async function askPlainAi(
     })
     const agentRuntime = createAgentDialogueRuntime({
       source: 'outline',
+      runId: outlineRunTraceId,
       taskId: `outline-direct-${traceApiCallId || Date.now().toString(36)}`,
       goal: requestText.slice(0, 200) || '完成本轮大纲直接对话',
       document: {
@@ -5888,11 +5907,12 @@ async function askPlainAi(
           runTraceStore.reportToolArgumentProgress(outlineRunTraceId, traceApiCallId, progress)
         }
       },
-      onPhysicalCall: (event) => {
-        recordOutlinePhysicalCall(traceApiCallId, event)
-        if (physicalCallReportsProgress(event)) toolRunSupervisor.reportProgress()
-      },
-      toolPolicy: tools ? {
+    onPhysicalCall: (event) => {
+      recordOutlinePhysicalCall(traceApiCallId, event)
+      if (physicalCallReportsProgress(event)) toolRunSupervisor.reportProgress()
+    },
+    onProviderQueue: event => recordOutlineProviderQueue(traceApiCallId, event),
+    toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
         maxToolIterations: calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan),
         toolRunBudget: outlineToolRunBudget,
@@ -6580,6 +6600,7 @@ async function continueOutlineMessage(index: number) {
     const result = await continueSnapshot(aiService, snapshot, {
       signal: generationController.signal,
       onPhysicalCall: event => recordOutlinePhysicalCall(traceApiCallId, event),
+      onProviderQueue: event => recordOutlineProviderQueue(traceApiCallId, event),
       onChunk: (text: string) => {
         streamingContent.value = snapshot.accumulatedText + text
         appendOutlineStream(text, true)

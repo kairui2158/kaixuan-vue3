@@ -18,6 +18,8 @@ export interface RoutedSkill {
 
 export interface SkillRouteOptions {
   input: string
+  traceRunId?: string | null
+  traceCallId?: string | null
   chainUpstreamContext?: string
   agent?: RealSkillAgentContext | null
   purpose?: 'rewrite' | 'verify' | 'generate'
@@ -32,12 +34,14 @@ export interface SkillRouteOptions {
   onChunk?: (text: string) => void
   onReasoning?: (text: string) => void
   onPhysicalCall?: (event: import('./aiService').PhysicalCallEvent) => void
+  onProviderQueue?: (event: import('./providerScheduler').ProviderQueueEvent) => void
   onGenerationEvent?: RealSkillExecuteOptions['onGenerationEvent']
   onRequestBuilt?: (messages: Array<{ role: string; content: string }>) => void
   onFolderLoaded?: (pkg: RealSkillPackage) => void
   messageBuilder?: (systemPrompt: string, userPrompt: string) => Array<{ role: string; content: string }>
   toolContext?: RealSkillExecuteOptions['toolContext']
   systemPromptSuffix?: string
+  userPromptSuffix?: string
   agentSource?: 'user-binding' | 'step-default' | 'none'
   baseTemplateOverride?: string
   resolvedTemplate?: string
@@ -161,6 +165,8 @@ export async function routeSkill(
   const executeOptions = {
     folderPath: skill.folderPath,
     input: options.input,
+    traceRunId: options.traceRunId,
+    traceCallId: options.traceCallId,
     chainUpstreamContext: options.chainUpstreamContext,
     toolContext: options.toolContext,
     agent: options.agent,
@@ -175,10 +181,12 @@ export async function routeSkill(
     onChunk: options.onChunk,
     onReasoning: options.onReasoning,
     onPhysicalCall: options.onPhysicalCall,
+    onProviderQueue: options.onProviderQueue,
     onGenerationEvent: options.onGenerationEvent,
     onRequestBuilt: options.onRequestBuilt,
     messageBuilder: options.messageBuilder,
     systemPromptSuffix: options.systemPromptSuffix,
+    userPromptSuffix: options.userPromptSuffix,
     baseTemplateOverride: options.baseTemplateOverride,
     resolvedTemplate: options.resolvedTemplate,
     templateVariables: options.templateVariables,

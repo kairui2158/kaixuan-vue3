@@ -85,10 +85,16 @@ import {
   type ToolRunBudget,
   type ToolRunBudgetClass,
 } from './toolRunBudget'
+import {
+  createProviderScheduler,
+  ProviderSchedulerCanceledError,
+  type ProviderQueueEvent,
+} from './providerScheduler'
 
 // ── Types (carried from Step 2 interface) ──────────────────────────
 
 export type ProviderPurpose = 'generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video'
+export type { ProviderQueueEvent } from './providerScheduler'
 
 export interface AiServiceError {
   kind: 'network' | 'timeout' | 'http' | 'json' | 'auth' | 'canceled'
@@ -97,6 +103,8 @@ export interface AiServiceError {
   purpose?: ProviderPurpose
   statusCode?: number
   providerErrorSummary?: string
+  retryable?: boolean
+  softError?: boolean
 }
 
 export class AiServiceErrorImpl extends Error implements AiServiceError {
@@ -105,6 +113,8 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
   purpose?: ProviderPurpose
   statusCode?: number
   providerErrorSummary?: string
+  retryable?: boolean
+  softError?: boolean
   constructor(params: AiServiceError) {
     super(params.message)
     this.name = 'AiServiceError'
@@ -113,6 +123,8 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
     this.purpose = params.purpose
     this.statusCode = params.statusCode
     this.providerErrorSummary = params.providerErrorSummary
+    this.retryable = params.retryable
+    this.softError = params.softError
   }
 }
 
@@ -211,6 +223,8 @@ export interface CallAiParams {
   physicalPhase?: PhysicalCallEvent['phase']
   /** @internal Wraps the caller's onChunk to capture per-request stream deltas. */
   onPhysicalCall?: (event: PhysicalCallEvent) => void
+  /** Provider-slot queue observability; fires before a physical request starts. */
+  onProviderQueue?: (event: ProviderQueueEvent) => void
   meta?: {
     source?: string
     projectId?: string
@@ -1186,6 +1200,8 @@ function throwProviderSoftError(
     purpose,
     statusCode: 402,
     providerErrorSummary: summary || JSON.stringify(raw).slice(0, 500),
+    retryable: false,
+    softError: true,
   })
 }
 
@@ -2275,14 +2291,47 @@ export function createAiService(
 ): AiService {
   const log = logger || null
   const compatibilityWriteGuards = new Map<string, RepeatedWriteGuard>()
-  let activeToolRunBudget: ToolRunBudget | undefined
+  const providerScheduler = createProviderScheduler()
 
   async function _rawCall(
     provider: ProviderLike,
     params: CallAiParams,
-    timeoutMs: number | null
+    timeoutMs: number | null,
+    explicitToolRunBudget?: ToolRunBudget
+  ) {
+    let slot: Awaited<ReturnType<typeof providerScheduler.acquire>>
+    try {
+      slot = await providerScheduler.acquire({
+        providerId: provider.id,
+        signal: params.cancelSignal ?? params.signal,
+        onEvent: params.onProviderQueue,
+      })
+    } catch (error) {
+      if (error instanceof ProviderSchedulerCanceledError) {
+        throw new AiServiceErrorImpl({
+          kind: 'canceled',
+          message: '用户取消：请求仍在等待供应商槽位',
+          providerId: provider.id,
+          purpose: params.purpose,
+        })
+      }
+      throw error
+    }
+    try {
+      return await _rawCallWithSlot(provider, params, timeoutMs, explicitToolRunBudget)
+    } finally {
+      slot.release()
+    }
+  }
+
+  async function _rawCallWithSlot(
+    provider: ProviderLike,
+    params: CallAiParams,
+    timeoutMs: number | null,
+    explicitToolRunBudget?: ToolRunBudget
   ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string; raw?: any; maxTokens?: number | null; modelCapability?: ModelCapability }> {
-    if (activeToolRunBudget && !activeToolRunBudget.canStartPhysicalRequest('read')) {
+    const requestToolRunBudget = explicitToolRunBudget ?? params.toolPolicy?.toolRunBudget
+    if (requestToolRunBudget && !requestToolRunBudget.canStartPhysicalRequest('read')) {
       throw new AiServiceErrorImpl({
         kind: 'network',
         message: '任务级物理请求安全网已达到，已阻止本次供应商外呼',
@@ -2293,7 +2342,7 @@ export function createAiService(
     // Count at dispatch, not completion. The live panel must show a request
     // as consumed while it is in flight, and failed calls still spend the
     // transport safety net.
-    activeToolRunBudget?.recordPhysicalRequest()
+    requestToolRunBudget?.recordPhysicalRequest()
     const model = resolveModel(provider, params.model)
     const providerType = normalizeProviderType(provider.providerType)
     const headers = buildProviderHeaders(providerType, provider.apiKey)
@@ -2456,14 +2505,8 @@ export function createAiService(
    */
   async function callAi(params: CallAiParams): Promise<CallAiResult> {
     const prepared = resolveFinalDraftToolSurface(params)
-    const previousToolRunBudget = activeToolRunBudget
-    activeToolRunBudget = prepared.toolPolicy?.toolRunBudget
-    try {
-      if (!prepared.tools || prepared.tools.length === 0) return await callAiWithoutTools(prepared)
-      return await callAiWithToolFallback(prepared)
-    } finally {
-      activeToolRunBudget = previousToolRunBudget
-    }
+    if (!prepared.tools || prepared.tools.length === 0) return await callAiWithoutTools(prepared)
+    return await callAiWithToolFallback(prepared)
   }
 
   async function callAiWithTools(params: CallAiParams): Promise<CallAiResult> {
@@ -3607,7 +3650,7 @@ export function createAiService(
       const isClientError = error?.statusCode === 400 || error?.statusCode === 422
       const requestedTools = Boolean(params.tools?.length)
       const toolsRejected = requestedTools && (Boolean(error?.providerErrorSummary?.includes('tools unsupported')) || error?.message?.includes('tools unsupported'))
-      if (!isClientError || !requestedTools || params.signal?.aborted || !toolsRejected) throw error
+      if (!isClientError || !requestedTools || (params.signal?.aborted || params.cancelSignal?.aborted) || !toolsRejected) throw error
 
       params.onPhysicalCall?.({
         phase: 'downgrade_initial',
@@ -3707,6 +3750,7 @@ export function createAiService(
   async function callAiWithoutTools(params: CallAiParams): Promise<CallAiResult> {
     const startTime = Date.now()
     const requestedTools = Boolean(params.tools?.length)
+    const toolRunBudget = params.toolPolicy?.toolRunBudget
     const { provider, providerId } = resolveProvider(providerStore, params.purpose, params.providerId)
     const providerType = normalizeProviderType(provider.providerType)
     // Default stream: true for generate/rewrite, including tool rounds. The native
@@ -3908,7 +3952,7 @@ export function createAiService(
             }
             reportPhysical(attempt, 'running', undefined, undefined, undefined, true)
           }, PHYSICAL_HEARTBEAT_INTERVAL_MS)
-          const result = await _rawCall(provider, params, timeoutMs)
+          const result = await _rawCall(provider, params, timeoutMs, toolRunBudget)
           stopPhysicalHeartbeat()
           if (toolStreamGuard) {
             const tailText = toolStreamGuard.flush()
@@ -3917,7 +3961,7 @@ export function createAiService(
         lastResp = result
         let finalText = filterThinkingTags(result.text)
         if (params.jsonMode) {
-          finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs).then(r => r.text))
+          finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs, toolRunBudget).then(r => r.text))
         }
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
@@ -3950,7 +3994,7 @@ export function createAiService(
       } catch (e: any) {
         if (streamBuffer.length > 0 || reasoningBuffer.length > 0) sawStreamOutput = true
         // Canceled by user?
-        if (params.signal?.aborted) {
+        if (params.signal?.aborted || params.cancelSignal?.aborted) {
           return throwCanceled()
         }
         // A reasoning-only stream is a semantic stall, not a transport fault.
@@ -4064,6 +4108,14 @@ export function createAiService(
           reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
           break
         }
+        // Provider soft errors are terminal: a quota response never becomes
+        // valid through another physical request.
+        if ((e as any)?.softError === true) {
+          lastErr = e as AiServiceErrorImpl
+          stopPhysicalHeartbeat()
+          reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
+          break
+        }
         // Timeout?
         if (e.name === 'TimeoutError' || e.name === 'AbortError') {
           lastErr = new AiServiceErrorImpl({ kind: 'timeout', message: '请求超时', providerId, purpose: params.purpose })
@@ -4114,6 +4166,12 @@ export function createAiService(
             break
           }
           const providerMessage = await httpError.providerSummary
+          if ((e as any)?.softError === true) {
+            lastErr = e as AiServiceErrorImpl
+            stopPhysicalHeartbeat()
+            reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
+            break
+          }
           stopPhysicalHeartbeat()
           reportPhysical(attempt, 'failed', undefined, `${status}: ${providerMessage || httpErrorMessage(status, '')}`)
           if (!getSlowStreamSawOutput() && doRetry && (status === 429 || status === 502 || status === 503) && attempt < maxRetries) {
@@ -4241,10 +4299,10 @@ export function createAiService(
           streamBuffer = ''
           reasoningBuffer = ''
           currentPhysicalAttempt = hbAttempt
-          const result = await _rawCall(provider, hbParams, timeoutMs)
+          const result = await _rawCall(provider, hbParams, timeoutMs, toolRunBudget)
           let finalText = filterThinkingTags(result.text)
           if (params.jsonMode) {
-            finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs).then(r => r.text))
+            finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs, toolRunBudget).then(r => r.text))
           }
           const durationMs = Date.now() - startTime
           const _hbModel = resolveModel(provider, params.model)

@@ -175,6 +175,7 @@ import { useAiTaskStore } from '../../stores/aiTaskStore'
 import {
   getAiService,
   type PhysicalCallEvent,
+  type ProviderQueueEvent,
 } from '../../services/aiService'
 import { extractJsonCandidates } from '../../services/jsonExtraction'
 import { createIntentLlmFallback } from '../../services/intentLlmFallback'
@@ -958,6 +959,21 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
   })
 }
 
+function recordHomeProviderQueue(callId: string | undefined, event: ProviderQueueEvent) {
+  if (!homeRunTraceId) return
+  runTraceStore.addEvent(homeRunTraceId, {
+    type: 'provider-queue',
+    level: 'info',
+    label: event.status === 'queued'
+      ? `等待供应商槽位：第 ${event.position ?? 1}/${event.waiting ?? 1} 位`
+      : event.status === 'started'
+        ? '已获得供应商槽位'
+        : '排队取消',
+    detail: JSON.stringify(event),
+    turnId: callId || undefined,
+  })
+}
+
   function recordHomeToolCall(callId: string | undefined, event: {
   toolName: string
   toolCallId?: string
@@ -1052,7 +1068,7 @@ const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => (
     if (!call) return null
     return {
       status: call.status,
-      streamLength: call.streamText.length,
+      streamLength: call.streamTotalChars ?? call.streamText.length,
       lastStreamActivityAt: call.lastStreamActivityAt,
       lastExecutionActivityAt: call.lastExecutionActivityAt,
       lastToolArgumentProgressAt: call.lastToolArgumentProgressAt,
@@ -1113,6 +1129,7 @@ function homeFinalDraftTraceHooks() {
     startApiCall: startHomeApiCall,
     finishApiCall: finishHomeApiCall,
     recordPhysicalCall: recordHomePhysicalCall,
+    recordProviderQueue: recordHomeProviderQueue,
     appendStream: (text: string) => appendHomeStream(text, true),
     appendReasoning: appendHomeReasoning,
     addEvent: addHomeTraceEvent,
@@ -4042,6 +4059,7 @@ async function callApi(
     })
     const agentRuntime = createAgentDialogueRuntime({
       source: 'home',
+      runId: homeRunTraceId,
       taskId: `home-direct-${traceApiCallId || Date.now().toString(36)}`,
       goal: engineInput.slice(0, 200) || '完成本轮主页直接对话',
       document: {
@@ -4119,6 +4137,7 @@ async function callApi(
       recordHomePhysicalCall(traceApiCallId, event)
       if (physicalCallReportsProgress(event)) homeToolRunSupervisor?.reportProgress()
     },
+    onProviderQueue: event => recordHomeProviderQueue(traceApiCallId, event),
     onStreamToolProgress: progress => {
       homeToolRunSupervisor?.reportProgress()
       if (homeRunTraceId && traceApiCallId) {
@@ -4357,6 +4376,7 @@ async function callApi(
       onPhysicalCall: (event) => {
         recordHomePhysicalCall(traceApiCallId, event)
       },
+      onProviderQueue: event => recordHomeProviderQueue(traceApiCallId, event),
       onReasoning: (text: string) => {
         appendHomeReasoning(traceApiCallId, text)
       },
@@ -4646,6 +4666,7 @@ async function continueMessage(message: any) {
     const result = await continueSnapshot(await getAiService(), snapshot, {
       signal: activeAbortController?.signal,
       onPhysicalCall: event => recordHomePhysicalCall(traceApiCallId, event),
+      onProviderQueue: event => recordHomeProviderQueue(traceApiCallId, event),
       onReasoning: (text: string) => {
         appendHomeReasoning(traceApiCallId, text)
       },

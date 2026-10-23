@@ -178,6 +178,10 @@ export interface RealSkillAgentContext {
 export interface RealSkillExecuteOptions {
   folderPath: string
   input: string
+  /** Explicit trace ownership for observability events; never resolved from global current pointers. */
+  traceRunId?: string | null
+  /** Current API call identity for pass-input measurements; set by the pipeline caller. */
+  traceCallId?: string | null
   /** Declared upstream chain context; used only when SKILL meta declares requiresFullUpstreamContext. */
   chainUpstreamContext?: string
   /** Editor target identity for tool execution; must match the active write target. */
@@ -190,6 +194,8 @@ export interface RealSkillExecuteOptions {
   agent?: RealSkillAgentContext | null
   /** App-level prompt appended after the folder template (for example body-layer DEAI rules). */
   systemPromptSuffix?: string
+  /** App-owned retry feedback appended to the user prompt, never authored by SKILL guidance. */
+  userPromptSuffix?: string
   /** Actual authorized tool surface for this step; declared in the system prompt. */
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   /** Active edit-task state used to declare restored write permission consistently. */
@@ -227,6 +233,8 @@ export interface RealSkillExecuteOptions {
     /** Reasoning stream, delta-only; callers accumulate it for progress UI. */
     onReasoning?: (text: string) => void
   onPhysicalCall?: (event: import('./aiService').PhysicalCallEvent) => void
+  /** Provider-slot queue events; observability only, never execution authority. */
+  onProviderQueue?: (event: import('./providerScheduler').ProviderQueueEvent) => void
   /** Fires when an API response is classified unusable and before/after direct-output retry. */
   onGenerationEvent?: (event: {
     type: 'generation-invalid' | 'direct-retry-start' | 'direct-retry-finished'

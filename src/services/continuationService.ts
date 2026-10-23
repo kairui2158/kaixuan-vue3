@@ -1,4 +1,5 @@
 import type { AiService, CallAiResult } from './aiService'
+import type { ProviderQueueEvent } from './providerScheduler'
 import { mergeContinuationText, type ContinuationSnapshot } from './continuation'
 
 export function buildContinuationMessages(snapshot: ContinuationSnapshot, maxContextChars = 12000) {
@@ -18,6 +19,7 @@ export async function continueSnapshot(
     onChunk?: (text: string) => void
     onReasoning?: (text: string) => void
     onPhysicalCall?: (event: Parameters<NonNullable<Parameters<AiService['callAi']>[0]['onPhysicalCall']>>[0]) => void
+    onProviderQueue?: (event: ProviderQueueEvent) => void
   } = {}
 ): Promise<CallAiResult & { text: string }> {
   const result = await service.callAi({
@@ -29,7 +31,8 @@ export async function continueSnapshot(
     meta: { source: 'continuation.continueSnapshot', step: snapshot.currentStep, skillId: snapshot.skillIds[0], agentId: snapshot.agentIds[0] },
     onChunk: options.onChunk,
     onReasoning: options.onReasoning,
-    onPhysicalCall: options.onPhysicalCall
+    onPhysicalCall: options.onPhysicalCall,
+    onProviderQueue: options.onProviderQueue
   })
   return { ...result, text: mergeContinuationText(snapshot.accumulatedText, result.text) }
 }

@@ -11,6 +11,7 @@ import type {
   CallAiParams,
   CallAiResult,
   PhysicalCallEvent,
+  ProviderQueueEvent,
 } from './aiService'
 import { type ApiCallBudget, createApiCallBudget } from './apiCallBudget'
 import {
@@ -365,6 +366,7 @@ export type WorkspaceSkillEngineCallbacks = {
   onSkillSkipped?: (skillIndex: number, skillId: string, reason: string) => void
   onRoutingEvent?: (event: ChainRoutingEvent) => void
   onPhysicalCall?: (skillId: string, callId: string, event: PhysicalCallEvent) => void
+  onProviderQueue?: (skillId: string, callId: string, event: ProviderQueueEvent) => void
   onGenerationEvent?: (
     skillId: string,
     event: Parameters<NonNullable<RealSkillExecuteOptions['onGenerationEvent']>>[0],
@@ -987,6 +989,10 @@ async function callWorkspaceSkill(
         const callId = activeSkillCallIds.get(input)?.get(template.id) || ''
         if (callId) input.callbacks?.onPhysicalCall?.(template.id, callId, event)
       },
+      onProviderQueue: (event) => {
+        const callId = activeSkillCallIds.get(input)?.get(template.id) || ''
+        if (callId) input.callbacks?.onProviderQueue?.(template.id, callId, event)
+      },
       onGenerationEvent: (event) => {
         input.callbacks?.onGenerationEvent?.(template.id, event)
       },
@@ -1186,6 +1192,10 @@ async function callWorkspaceSkill(
         onPhysicalCall: (event) => {
           const callId = activeSkillCallIds.get(input)?.get(template.id) || ''
           if (callId) input.callbacks?.onPhysicalCall?.(template.id, callId, event)
+        },
+        onProviderQueue: (event) => {
+          const callId = activeSkillCallIds.get(input)?.get(template.id) || ''
+          if (callId) input.callbacks?.onProviderQueue?.(template.id, callId, event)
         },
       retry: true,
       ...(toolSurface.tools?.length

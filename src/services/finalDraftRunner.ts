@@ -12,6 +12,7 @@ import {
   type FinalDraftTask,
 } from './finalDraftService'
 import type { AiService, CallAiParams, CallAiResult, PhysicalCallEvent } from './aiService'
+import type { ProviderQueueEvent } from './providerScheduler'
 import type { RunTraceMessage, RunTraceStatus } from '../stores/runTrace'
 import { createFinalDraftThroughputTracker } from './finalDraftTelemetry'
 import {
@@ -61,6 +62,7 @@ export interface FinalDraftTraceHooks {
     maxTokens?: number | null
   }): void
   recordPhysicalCall(callId: string | undefined, event: PhysicalCallEvent): void
+  recordProviderQueue(callId: string | undefined, event: ProviderQueueEvent): void
   appendStream(text: string): void
   appendReasoning(callId: string | undefined, text: string | undefined): void
   addEvent(event: { type: string; label: string; level?: 'info' | 'warn' | 'error'; detail?: string; payload?: unknown }): void
@@ -364,6 +366,7 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
         })
       },
       onPhysicalCall: event => hooks.recordPhysicalCall(activeCallId.current, event),
+      onProviderQueue: event => hooks.recordProviderQueue(activeCallId.current, event),
     })
   } finally {
     heartbeat.stop()
@@ -614,6 +617,7 @@ function wrapAiService(
           ...request,
           providerId: request.providerId || providerId,
           onPhysicalCall: event => hooks.recordPhysicalCall(callId, event),
+          onProviderQueue: event => hooks.recordProviderQueue(callId, event),
           onChunk: request.onChunk,
           onReasoning: text => {
             hooks.appendReasoning(callId, text)
@@ -892,6 +896,7 @@ export async function retryFinalDraftSegmentTask(
           })
         },
         onPhysicalCall: event => hooks.recordPhysicalCall(activeCallId.current, event),
+        onProviderQueue: event => hooks.recordProviderQueue(activeCallId.current, event),
       },
     )
   } finally {
@@ -1037,6 +1042,7 @@ export async function resumeFinalDraftTask(
         })
       },
       onPhysicalCall: event => hooks.recordPhysicalCall(activeCallId.current, event),
+      onProviderQueue: event => hooks.recordProviderQueue(activeCallId.current, event),
     })
   } finally {
     heartbeat.stop()

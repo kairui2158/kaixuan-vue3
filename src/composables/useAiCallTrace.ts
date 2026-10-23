@@ -22,6 +22,8 @@ export interface UseAiCallTraceOptions {
   skillNames?: string[]
   skillMode?: string
   timeoutHint?: RunTrace['timeoutHint']
+  /** Application-level run id in the pipeline registry domain. */
+  pipelineRunId?: string
   target?: RunTrace['target']
   context?: RunTrace['context']
 }
@@ -107,6 +109,7 @@ export function useAiCallTrace(options: UseAiCallTraceOptions): AiCallContext {
       model: options.model,
       skillNames: options.skillNames,
       skillMode: options.skillMode,
+      pipelineRunId: options.pipelineRunId,
       timeoutHint: options.timeoutHint,
       target: options.target,
       context: options.context

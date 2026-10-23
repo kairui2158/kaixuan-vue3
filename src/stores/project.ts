@@ -763,10 +763,18 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
- let saveQueue: Promise<{ ok: boolean; failedKeys: string[] }> | null = null
- let saveQueued = false
+ const saveQueueTail: {
+   pending: boolean
+   promise: Promise<{ ok: boolean; failedKeys: string[] }>
+  } = {
+    pending: false,
+    promise: Promise.resolve({ ok: true, failedKeys: [] }),
+  }
  // P1-4: dirty 标记，避免无变更时重复写盘
  const dirtyFields = ref(false)
+ // Synchronous callers coalesce into the same drain request; mutations that
+ // land after that request snapshots state force one more physical write.
+ let saveRequestSeq = 0
  // P3-8: 项目 store 独立自动保存
  let projectAutoSaveTimer: ReturnType<typeof setInterval> | null = null
 
@@ -824,27 +832,29 @@ export const useProjectStore = defineStore('project', () => {
   }
 
  function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
-  dirtyFields.value = true
-  if (!saveQueue) {
-     saveQueue = new Promise(resolve => {
-       if (saveQueued) return
-       saveQueued = true
-       queueMicrotask(async () => {
-         saveQueued = false
-         if (dirtyFields.value && currentProjectId.value) {
-           const result = await persistProject()
-           dirtyFields.value = false
-           saveQueue = null
-           resolve(result)
-         } else {
-           dirtyFields.value = false
-           saveQueue = null
-          resolve({ ok: true, failedKeys: [] })
-        }
-       })
-     })
+   const requestSeq = ++saveRequestSeq
+   dirtyFields.value = true
+   if (saveQueueTail.pending) {
+     return saveQueueTail.promise
    }
-   return saveQueue
+   saveQueueTail.pending = true
+   const tail = (async () => {
+     // Yield once so all synchronous saveProject calls join this drain.
+     await Promise.resolve()
+     let lastResult: { ok: boolean; failedKeys: string[] } = { ok: true, failedKeys: [] }
+     while (dirtyFields.value && currentProjectId.value) {
+       const snapshotSeq = requestSeq
+       dirtyFields.value = false
+       lastResult = await persistProject()
+       if (!lastResult.ok || saveRequestSeq === snapshotSeq) break
+     }
+     return lastResult
+   })()
+   saveQueueTail.promise = tail
+   void tail.finally(() => {
+     if (saveQueueTail.promise === tail) saveQueueTail.pending = false
+   })
+   return tail
  }
 
   function appendOutlineChat(msg: any) {

@@ -76,21 +76,38 @@ export function resolveProvider(
   providerId?: string
 ): ResolvedProvider {
   const explicit = findProviderById(store, providerId)
-  if (explicit) return { provider: explicit, providerId: explicit.id }
+  if (explicit) {
+    assertUsableProviderCredential(explicit)
+    return { provider: explicit, providerId: explicit.id }
+  }
 
   // 1. Try purpose-specific provider
   const p = getterForPurpose(store, purpose)
-  if (p) return { provider: p, providerId: p.id }
+  if (p) {
+    assertUsableProviderCredential(p)
+    return { provider: p, providerId: p.id }
+  }
 
   // 2. Fallback: generate purpose can also use generateProvider
   if (purpose === 'rewrite') {
     const gp = store.getGenerateProvider()
-    if (gp) return { provider: gp, providerId: gp.id }
+    if (gp) {
+      assertUsableProviderCredential(gp)
+      return { provider: gp, providerId: gp.id }
+    }
   }
 
   // 3. No provider — throw clear error, do NOT silently use generate
   const label = PURPOSE_LABELS[purpose] || purpose
   throw new Error('未配置' + label + '用途供应商，请在设置中添加并启用')
+}
+
+function assertUsableProviderCredential(provider: ProviderLike): void {
+  if (String(provider?.apiKey || '').startsWith('enc:')) {
+    throw new Error(
+      'API Key 解密失败：该供应商密钥仍是加密态，可能来自旧设备或旧系统环境。请在设置中重新保存 API Key 后再发起请求。'
+    )
+  }
 }
 
 /**

@@ -544,20 +544,6 @@ function recordStyleCardTraceEvent(event: {
   detail: Record<string, unknown>
   level?: 'info' | 'warn' | 'error'
 }) {
-  const activeRun = runTraceStore.currentRunIdBySource[props.host]
-    ? runTraceStore.getRun(runTraceStore.currentRunIdBySource[props.host]!)
-    : null
-  if (activeRun?.status === 'running') {
-    isolatedImportRunId = null
-    runTraceStore.addEvent(activeRun.id, {
-      type: event.type,
-      level: event.level || 'info',
-      label: event.label,
-      detail: JSON.stringify(event.detail),
-      payload: event.detail,
-    })
-    return
-  }
   if (!isolatedImportRunId) {
     isolatedImportRunId = runTraceStore.startRun({
       source: props.host,

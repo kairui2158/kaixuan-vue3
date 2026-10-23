@@ -166,6 +166,7 @@ export interface FinalDraftGenerationOptions {
   onReasoning?: (text: string) => void
   onUsage?: (usage: unknown) => void
   onPhysicalCall?: CallAiParams['onPhysicalCall']
+  onProviderQueue?: CallAiParams['onProviderQueue']
   onTaskChange?: (task: FinalDraftTask) => void
   onTaskEvent?: (task: FinalDraftTask, event: FinalDraftEvent) => void
   /** When true, a restored partial segment continues from accumulatedText instead of restarting. */
@@ -1360,6 +1361,7 @@ async function requestFinalDraft(
     onReasoning: options.onReasoning,
     onUsage: options.onUsage,
     onPhysicalCall: options.onPhysicalCall,
+    onProviderQueue: options.onProviderQueue,
   })
 }
 

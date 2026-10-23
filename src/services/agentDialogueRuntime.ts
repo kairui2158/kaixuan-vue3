@@ -12,6 +12,7 @@ import type { ToolRunBudget } from './toolRunBudget'
 
 export interface AgentDialogueRuntimeEntry {
   source: RunTraceSource
+  runId?: string | null
   pinia?: Parameters<typeof createAgentTraceBridge>[0]['pinia']
   taskId: string
   goal: string
@@ -136,7 +137,7 @@ function deriveAgentPlan(input: {
 }
 
 export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
-  const bridge = createAgentTraceBridge({ source: entry.source, pinia: entry.pinia })
+  const bridge = createAgentTraceBridge({ source: entry.source, pinia: entry.pinia, runId: entry.runId ?? null })
   const persistState = async (snapshot: AgentOrchestratorSnapshot) => {
     if (entry.persistState) {
       try {

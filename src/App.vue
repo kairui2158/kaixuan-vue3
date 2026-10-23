@@ -71,6 +71,8 @@ import { useSkillStore } from './stores/skill'
 import { usePipelineStore } from './stores/pipeline'
 import { useEditorStore } from './stores/editor'
 import { useRunTraceStore } from './stores/runTrace'
+import { appPerformanceMonitor, installPerformanceMonitorReadSurface } from './services/performanceMonitor'
+import { shutdownApplication } from './services/appShutdown'
 import SidebarNav from './components/sidebar/SidebarNav.vue'
 import ChapterTree from './components/sidebar/ChapterTree.vue'
 import EditorPanel from './components/editor/EditorPanel.vue'
@@ -230,6 +232,7 @@ function handleAiNamingInsert(e: Event) {
 }
 
 const appMainRef = ref<HTMLElement | null>(null)
+let performanceWatchdogTimer: ReturnType<typeof setInterval> | null = null
 const {
   widths: resizerWidths,
   dragging: isResizing,
@@ -242,6 +245,9 @@ const {
 ])
 
 onMounted(async () => {
+  appPerformanceMonitor.start()
+  installPerformanceMonitorReadSurface()
+  performanceWatchdogTimer = setInterval(() => appPerformanceMonitor.tick(), 500)
   // Fire all independent store loads in parallel for startup speed
   await Promise.all([
     settingsStore.loadSettings(),
@@ -305,6 +311,11 @@ if (typeof window !== 'undefined' && (window as any).electronAPI?.onRendererReco
   })
 }
 onUnmounted(() => {
+  appPerformanceMonitor.stop()
+  if (performanceWatchdogTimer) {
+    clearInterval(performanceWatchdogTimer)
+    performanceWatchdogTimer = null
+  }
   window.removeEventListener('generate-body', handleGenerateBody)
   window.removeEventListener('insert-text', handleInsertText)
   window.removeEventListener('show-skill-binding', handleSkillBinding)
@@ -320,8 +331,16 @@ onUnmounted(() => {
   watch(activePanel, (v) => {
    breadcrumbItems.value = v && labels[v] ? [labels[v]] : []
  }, { immediate: true })
+  let appShutdownStarted = false
   const reportIntegrityBeforeClose = () => {
     try { runTraceStore.checkStateIntegrityBeforeClose() } catch (e) {}
+    if (appShutdownStarted) return
+    appShutdownStarted = true
+    void shutdownApplication({
+      pipelineStore,
+      runTraceStore,
+      projectStore,
+    }, { reason: '应用关闭，任务已取消' })
   }
   window.addEventListener('beforeunload', reportIntegrityBeforeClose)
   window.addEventListener('pagehide', reportIntegrityBeforeClose)

@@ -25,8 +25,15 @@ export function createAgentTraceBridge(input: AgentTraceBridgeInput) {
     attach(): (event: AgentOrchestratorEvent, snapshot: AgentOrchestratorSnapshot) => void {
       return (event, snapshot) => {
         const store = useRunTraceStore(input.pinia)
-        const targetRunId = runId || store.currentRunIdBySource?.[input.source]
-        if (!targetRunId) return
+        const targetRunId = runId
+        if (!targetRunId) {
+          console.warn(`[agent-trace-bridge] dropped event without explicit runId: source=${input.source}`)
+          return
+        }
+        if (!store.getRun(targetRunId)) {
+          console.warn(`[agent-trace-bridge] dropped event for unknown runId: source=${input.source} runId=${targetRunId}`)
+          return
+        }
         const callId = store.getApiCallId(input.source)
         const budget = snapshot.toolRunBudget
         const executionKey = budget

@@ -757,6 +757,7 @@ export class AgentOrchestrator {
         try {
         const callerOnToolCall = input.toolPolicy?.onToolCall
         const callerOnPhysicalCall = input.onPhysicalCall
+        const callerOnProviderQueue = input.onProviderQueue
         const callerOnStreamToolProgress = input.onStreamToolProgress
         const callerOnChunk = input.onChunk
         const callerOnReasoning = input.onReasoning
@@ -800,6 +801,7 @@ export class AgentOrchestrator {
             if (event.status === 'running') supervisor.reportProgress()
             callerOnPhysicalCall?.(event)
           },
+          onProviderQueue: callerOnProviderQueue,
           onChunk: text => {
             if (text) supervisor.reportProgress()
             callerOnChunk?.(text)
