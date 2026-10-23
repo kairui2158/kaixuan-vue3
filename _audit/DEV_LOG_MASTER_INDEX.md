@@ -1152,4 +1152,4 @@
 - 范围：P0-1 四格再入矩阵闭环、P0-5 StyleProfileCard current 指针清零、P1-6 取消全部单源化、P1-7 排队原因 UI/trace 同源、P1-10 pipeline 旧全局态清零、P2-11 3.104.0 封装与清理。
 - 验证：mock 故障注入矩阵 coverage 五项全 true；live 内置 key 供应商矩阵 PASS；31 项定向测试、`vue-tsc`、`build:vue`、`build` 全部通过；3.104.0 真实 packaged Electron 启动核验 PASSED。
 - 封装：3.104.0；安装包 `dist/神意助手-Setup-3.104.0.exe`，231,562,775 bytes，SHA256 `8ce409b0e017dc3b3fd45088681f7dc81a2e8403c479124bdabd6c38ea601929`；rendererFiles=81、electronAPI methods=77；3.103 旧安装包/脚本/证据与临时日志已清理，dist 仅保留最新交付。
-- 诚实边界：mock 矩阵负责断点恢复与失败终态再入故障注入，live 矩阵负责真实供应商并发；git 分类提交与最终工作区状态见台账 P2-12，提交完成前不宣称仓库收口。
+- 诚实边界：mock 矩阵负责断点恢复与失败终态再入故障注入，live 矩阵负责真实供应商并发；git 已按功能源码、测试验证、3.104.0 版本、审计证据四类提交（`0c77681a`、`e8274e0f`、`bbfa13ba`、`10d7d661`），提交后 `git status --short` 为空，仓库与工作区收口。

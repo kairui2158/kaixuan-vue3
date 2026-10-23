@@ -381,6 +381,13 @@ node scripts/verify-packaging-3-104-0.mjs
 | P1-7 | 已完成 | provider queuedReason UI/trace 同源；mock 与 live 报告均有排队事件 |
 | P1-10 | 已完成 | generationStatus/isGenerating 均为 registry 派生语义；执行层直接写入清零 |
 | P2-11 | 已完成 | 3.104.0 构建、NSIS/asar、SHA256、真实启动核验、旧产物清理全部完成 |
-| P2-12 | 未完成 | git 分类提交与工作区干净 |
+| P2-12 | 已完成 | git 分类提交与工作区干净 |
 
-本轮未把 P2-12 登记为完成；git 分类提交与工作区干净仍在执行中。
+P2-12 已完成。分类提交记录如下：
+
+- `0c77681a` `feat(pipeline): add run registry and per-run parallel execution`
+- `e8274e0f` `test(pipeline): cover reentry isolation and parallel verification`
+- `bbfa13ba` `chore(release): bump version to 3.104.0`
+- `10d7d661` `docs(audit): close pipeline parallelism V3.3 evidence`
+
+提交后执行 `git status --short`，输出为空，工作区干净。
