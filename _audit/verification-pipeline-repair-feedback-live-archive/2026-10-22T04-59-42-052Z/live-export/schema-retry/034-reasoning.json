@@ -1,0 +1,160 @@
+我们需要回答用户。用户给出一个复杂任务：基于上一步 SKILL 完整输出执行当前 SKILL，只输出当前步骤定稿产物。当前步骤似乎是“语言收敛阶段”？顶部有系统说职责输出 JSON 对象且只包含 body 字段。然后有降AI打磨契约。还有终步重试协议，但当前用户可能要求执行正文生成链路？需要仔细理解。
+
+We need infer what to output. The user provided a "style reference" with some Chinese text and then "chain step 3/3" with 单元闭包卷纲 etc. Then says "请执行本章节的正文生成链路。请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。上一步输出在下方独立块中提供。"
+
+Then provides "上一步 SKILL 完整输出" which is a polished narrative. Also provides "上一步结构化交接（终步账本）" with metadata.
+
+But the system at top says: "Live verification skill. Created and removed by the Electron verifier." Then "职责 输出一个 JSON 对象，且只包含 body 字段。不要输出解释、思考过程或 Markdown 代码块。 【降AI打磨契约 - 语言收敛阶段】 ... 只输出本步骤定稿产物。 【终步重试协议】 ... 输出要求：基于单独提供的上一步完整输出，输出完整打磨稿；不要复述本反馈，不要输出解释。"
+
+There is contradiction: system/developer says output JSON object only body field, no markdown. User asks output current skill final product. We likely need to output JSON with body containing polished narrative. Must obey system. Need produce JSON object with only body field. Need perform language polishing on provided "上一步 SKILL 完整输出" following 降AI打磨契约 and 终步重试协议. We must not introduce new metaphors, not expand, not compress, preserve structure, only modify word stiffness/repetition/AI traces, fix禁用词,句长趋同. Need maybe adjust specific phrases.
+
+Need determine final content. We have "上一步 SKILL 完整输出" already seems polished Chinese narrative. We need output a complete polished draft based on it. Could mostly keep it but adjust some things to reduce AI traces, maybe sentence length variation. Need also maybe fill repair_marker? Wait top says "二、内容契约失败项 - $.repair_marker 缺少必填字段". But developer says output JSON object, only body field. There is no specified schema except body. Hmm. The "终步重试协议" mentions repair_marker missing required fields. But "元数据与事实账本由应用维护，你不需要自行补写账本" and "输出要求：基于单独提供的上一步完整输出，输出完整打磨稿". Need maybe body should be narrative only. No need repair_marker because output schema says only body. We should not include repair_marker? But it mentions failure items? There is no explicit schema. The top says "输出一个 JSON 对象，且只包含 body 字段." So we output {"body": "..."}. That's safest.
+
+Need craft body. It should be the complete polished draft. We can use the provided text, maybe with minor polishing. Need be careful not to change facts. The provided text has paragraph breaks. Need preserve paragraph count and scene order. Could modify long/short sentence variation. Need avoid AI traces,禁用词? Which words are banned? Not specified in this snippet. "禁用词：优先删除或换成具体描写；密度超限时必须人工处理。" No list. We can scan for generic "像在清点这一排船" simile? It has one simile "像在清点这一排船". We shouldn't increase simile count. We can maybe keep. Avoid adding new metaphor. We can adjust "一次比一次确定不是航道灯" maybe okay. Need not overdo.
+
+Need maybe output polished version with no changes to story. The provided text already reads literary. We can produce almost identical, maybe a few small phrase replacements that improve specificity and sentence rhythm. Need avoid any explanatory text. Output JSON only.
+
+Need ensure JSON valid. String can contain Chinese punctuation. Need escape double quotes, backslashes? There aren't any quotes. Need maybe newline as \n within JSON string. We need output body field with actual narrative. If string contains newlines, in JSON must be escaped as \n or maybe use actual line breaks within JSON string? JSON standard disallows unescaped literal newlines in strings. So we need either output one line with \n escapes or body as array? But instruction says object and only body field. We'll output JSON string with \n escapes. Could include paragraphs separated by \n\n. Need ensure valid. Need not include code block.
+
+Now need decide text. Let's maybe reproduce the provided text with minor language polish. But "不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段" says don't echo previous output fully; but current skill output is a polished version based on it. However the instruction says output complete polished draft. So we need produce similar but not verbatim? "只做语言层收敛，不重新创作，不改变叙事结构和事实." So can be largely same but with modifications. Need perhaps modify enough.
+
+Let's analyze provided text for AI traces, repetition, sentence length. We'll craft body with same paragraphs (9? Let's count). Paragraphs:
+1. "第三次红光灭下去的时候..." 
+2. "名单折成三折..." 
+3. "铁锈味从底层墙外渗进来..." 
+4. "侧门内..." 
+5. "门外是贴墙石径..." 
+6. "我从货堆后起身..." 
+7. "船主没抬头..." 
+8. "搁下笔..." 
+9. "我背靠舷板坐下..." 
+10. "合上包扣..." 
+Actually 10 paragraphs. Need preserve.
+
+We can maybe polish slightly:
+1. "第三次红光灭下去的时候，我在心里把间隔也数完了。塔顶没有第四下。方才三轮红光的间隔一样长，一次比一次确定不是航道灯。风暴信标成立。我背对塔内墙，没有点灯。观察窗只放进半扇月光，门缝外边还有港务巡查可能经过的脚步声，我不能在这里停太久。"
+Could change "我在心里把间隔也数完了" to "我心里也跟着数完了间隔" maybe. "一次比一次确定不是航道灯" maybe "每一轮都更不像航道灯". But not necessary. Need modify maybe at least some.
+2. "名单折成三折，压在我左手里。我把它合上来，用左手拇指沿着末页左下角那道私章边压过去。印泥凸起比纸面高出一线，指腹按下去时，能摸出“许知微”三个字的位置。我把纸面在膝盖上抻平，手指停在那三个字上，又顺着字形搓了一下。没错，是旧航道领航员的私章。"
+Possible "那道私章边" weird; "私章边" maybe okay. Could change to "印章边". But keep entity. "印泥凸起比纸面高出一线" specific. Good.
+3. "铁锈味从底层墙外渗进来，和着海风。我没有再核对名单上别的沉船名。那些名字留着出港后再说。我把名单重新折回三折，换到左手腕下压住，转身朝出口走。出口在我身前四步。门外没有人说话，只是远处码头方向有灯影在动。"
+Could adjust "那些名字留着出港后再说" maybe colloquial.
+4. "侧门内，我右手搭住木门闩，没急着抬。左手腕下还压着名单，门轴年头久了，一推就响。我听着外头风声里没有脚步，才把门闩抬起来，侧身从半扇门缝里挤出去。右肩擦过门框，带下来一点湿气。我反手把门虚掩，没敢合实。"
+Maybe "门轴年头久了，一推就响" okay.
+5. "门外是贴墙石径，窄得只容一个人。我沿墙影往前走，左手一直压着名单边角。走到石径尽头，前方看见港务巡查灯扫过货堆上沿，光从码头入口那头横过来。原想再核对一次名单，现在不行了。我贴着货堆后边蹲下去，腾出右手从胸前内袋抽出防水袋，把名单折进去，封口压平。再把防水袋塞进挎包内袋，挎包拉到身侧。侧门已经在身后远处。"
+Maybe "前方看见" less smooth: "走到石径尽头，港务巡查灯扫过货堆上沿，光从码头入口那头横过来。" Could fix.
+6. "我从货堆后起身，朝亮着气灯的那艘中型渔船走。船主在船尾收缆绳，背半弯着。我走到岸线上，离船舷两臂远，压低声音：“南方航线，清晨潮前走不走？”"
+This paragraph begins with "我从货堆后起身..." good.
+7. "船主没抬头，手上还在绕缆。“潮前。”他说，停了一下，“就你一个？”"
+8. "我没接后半句，只把右外袋里的硬币边沿摸出来，给他看清。“船费。” ... 我压得紧，笔尖还是断了一下，在页脚留下一道粗划痕。我顺着那道划痕底下补了接头位置，只给许知微能看懂的写法，不写明。"
+Need maybe sentence lengths.
+9. "搁下笔，我合起日志，塞回包内，把包扣按上。船主已经回到船尾，拖出缆绳。北侧巡查灯还在泊区边，没走。"
+10. "我背靠舷板坐下，后舱黑得只剩船尾低角一点水光。挎包横在左腿旁，船在浪里横摇，包扣一直往侧边滑。我把手伸进包底，摸出防水袋，换到右腿膝弯下压住。天没全亮，包内夹层看不清，我没点提灯，凭手指重新打开挎包，翻到航海日志暗号页，用指尖沿着那道铅笔粗划痕摸了一遍。纸还在。"
+11. "合上包扣。船头铁环咯响，缆绳抽直了。我转头，船头那边船主在抽缆，码头在船后方三十步外。巡查灯仍沿岸移动，光斑朝泊区南端移过去，像在清点这一排船。我把挎包带绕紧在左肩上，没有把日志留在码头的打算，也没有地方可退了。"
+
+I need output. Could simply use provided text with a few modifications. But system says "不要原样回显". Might be okay because we are outputting final product; it is not "echoing" in assistant explanation. But they explicitly said "请基于上一步 SKILL 完整输出执行当前 SKILL，只输出当前步骤的定稿产物。不要原样回显、概括或拼接上一步输出". This is likely instruction to not just copy; we need do language convergence. We can modify enough.
+
+Potential issues: "方才是三轮红光的间隔一样长" maybe "方才三轮红光间隔一样长" less wordy. "一次比一次确定不是航道灯" maybe "每轮都更确定那不是航道灯". Could improve.
+Need not add metaphors. Could adjust phrasing.
+
+Maybe produce a polished version:
+"第三次红光灭下去的时候，我心里已经把间隔也数完了。塔顶没有第四下。方才三轮红光的间隔一样长，一轮比一轮更确定那不是航道灯。风暴信标成立。我背对塔内墙，没有点灯。观察窗只放进半扇月光，门缝外边还有港务巡查可能经过的脚步声，我不能在这里停太久。"
+This changes "一次比一次确定不是航道灯" to "一轮比一轮更确定那不是航道灯" but same meaning.
+
+"名单折成三折，压在我左手里。我把它合上来，用左手拇指沿着末页左下角那道私章边压过去。印泥凸起比纸面高出一线，指腹按下去时，能摸出“许知微”三个字的位置。我把纸面在膝盖上抻平，手指停在那三个字上，又顺着字形搓了一下。没错，是旧航道领航员的私章。"
+Could keep. Maybe "私章边" -> "朱印边" not factual? no. Keep.
+
+"铁锈味从底层墙外渗进来，和着海风。我没有再核对名单上别的沉船名。那些名字留着出港后再说。我把名单重新折回三折，换到左手腕下压住，转身朝出口走。出口在我身前四步。门外没有人说话，只有远处码头方向有灯影在动。"
+Changed "只是" to "只有" perhaps fine.
+
+"侧门内，我右手搭住木门闩，没急着抬。左手腕下还压着名单，门轴年头久了，一推就响。我听着外头风声里没有脚步，才把门闩抬起来，侧身从半扇门缝里挤出去。右肩擦过门框，带下来一点湿气。我反手把门虚掩，没敢合实。"
+Maybe "门轴年头久了，一推就响" no change.
+"门外是贴墙石径，窄得只容一个人。我沿墙影往前走，左手一直压着名单边角。走到石径尽头，港务巡查灯扫过货堆上沿，光从码头入口那头横过来。原想再核对一次名单，现在不行了。我贴着货堆后边蹲下去，腾出右手从胸前内袋抽出防水袋，把名单折进去，封口压平，再把防水袋塞进挎包内袋，挎包拉到身侧。侧门已经在身后远处。"
+Changed "前方看见" removed.
+
+"我从货堆后起身，朝亮着气灯的那艘中型渔船走。船主在船尾收缆绳，背半弯着。我走到岸线上，离船舷两臂远，压低声音：“南方航线，清晨潮前走不走？”"
+No change.
+"船主没抬头，手上还在绕缆。“潮前。”他说，停了一下，“就你一个？”"
+No change.
+"我没接后半句，只把右外袋里的硬币边沿摸出来，给他看清。“船费。” 他点头，朝船首偏了偏脸。我把单肩包从肩头转到腰前，掏出航海日志和一截铅笔。北侧传来港务巡查点缆的声音，一下一下。我用左肩挡住北边，左手按住日志页角，在今日页下端写那三下信标规律。海风从船舷外掀起纸边，我压得紧，笔尖还是断了一下，在页脚留下一道粗划痕。我顺着那道划痕底下补了接头位置，只给许知微能看懂的写法，不写明。"
+Maybe "只给许知微能看懂的写法，不写明" slightly awkward. Could change to "用只有许知微能看懂的写法补了接头位置，不写明白。" But "不写明" okay. Could polish: "我顺着那道划痕底下补了接头位置，写法只让许知微看得懂，不点破。" Better? But no metaphor? "点破" maybe okay. Could increase? Not necessary. Maybe keep.
+
+"搁下笔，我合起日志，塞回包内，把包扣按上。船主已经回到船尾，拖出缆绳。北侧巡查灯还在泊区边，没走。"
+No change.
+"我背靠舷板坐下，后舱黑得只剩船尾低角一点水光。挎包横在左腿旁，船在浪里横摇，包扣一直往侧边滑。我把手伸进包底，摸出防水袋，换到右腿膝弯下压住。天没全亮，包内夹层看不清，我没点提灯，凭手指重新打开挎包，翻到航海日志暗号页，用指尖沿着那道铅笔粗划痕摸了一遍。纸还在。"
+Could "天没全亮" maybe keep. "船尾低角一点水光" good.
+"合上包扣。船头铁环咯响，缆绳抽直了。我转头，船头那边船主在抽缆，码头在船后方三十步外。巡查灯仍沿岸移动，光斑朝泊区南端移过去，像在清点这一排船。我把挎包带绕紧在左肩上，没有把日志留在码头的打算，也没有地方可退了。"
+No change.
+
+But is this enough? Maybe need more sentence length variation; some paragraphs have too many similar-length sentences. We can alter.
+
+Need decide final text. We can output the polished version above. But maybe the instruction about "终步重试协议" asks not to reintroduce previous failure. We need output full polished draft. We'll output JSON.
+
+Before final, need ensure no markdown. We need output raw JSON object.
+
+Let's craft JSON string carefully with escaped newlines. Need ensure no accidental unescaped double quotes inside string. The text has Chinese full-width quotes “ ” which are not JSON double quote. There are no ASCII double quotes. Good. Backslash? None.
+
+Potential issue: JSON string can't contain actual unescaped newline; we'll use \n. Need maybe use two \n for paragraph breaks. We can output as single line with escaped \n. That's valid. Could include \n\n between paragraphs. Ensure all content within quotes.
+
+Let's compose body. Maybe include some slight changes. Could output exactly as above. Need include "许知微" quotes. Fine.
+
+Let's maybe more aggressively satisfy 句长趋同: In paragraph 1, sentences length: "第三次红光灭下去的时候，我在心里把间隔也数完了。" (medium) "塔顶没有第四下。" (short) "方才三轮红光的间隔一样长，一次比一次确定不是航道灯。" (long) "风暴信标成立。" (short) "我背对塔内墙，没有点灯。" (medium) "观察窗只放进半扇月光，门缝外边还有港务巡查可能经过的脚步声，我不能在这里停太久。" (long). Good variation. We can keep.
+
+Need maybe avoid generic "像在清点这一排船" because simile. Contract says no new similes; existing count 1. We can keep. Could maybe remove or modify to concrete: "光斑朝泊区南端移过去，一个船一个船地扫。" But that changes simile to action. Could be better for no metaphor and concrete. Original has "像在清点这一排船"; if we keep, count remains. But maybe judged AI? It's fine. Could change to "光斑朝泊区南端移过去，在一排船之间扫。" Hmm. But we shouldn't reduce? It's okay to fix AI traces, maybe remove simile. But no need.
+
+Need maybe not include "旧卷纲" etc. Only body narrative.
+
+Let's consider if output needs be the body field only, no top-level text. Final answer should be raw JSON.
+
+Double check with developer: "输出一个 JSON 对象，且只包含 body 字段。不要输出解释、思考过程或 Markdown 代码块。" So final must start with {"body":"..."} no code fence.
+
+Let's write final with escaped newlines. Need ensure correct escaping with \n. Example:
+{"body":"第三次...停太久。\n\n名单折成三折...私章。\n\n..."}
+
+Need maybe include spaces? Fine.
+
+Potential issue: "如果本次回答需要展示表格，必须使用 GFM 标准表格..." not needed.
+
+Let's ensure final polished draft includes all facts from FACT_LOCK. The body covers list, warning, boat, etc. Good.
+
+Should we modify "我在心里把间隔也数完了" to "我心里已经把间隔也数完了"? We'll use polished version:
+"第三次红光灭下去的时候，我心里已经把间隔也数完了。塔顶没有第四下。方才三轮红光的间隔一样长，一轮比一轮更确定那不是航道灯。风暴信标成立。我背对塔内墙，没有点灯。观察窗只放进半扇月光，门缝外边还有港务巡查可能经过的脚步声，我不能在这里停太久。"
+Then paragraphs 2-11 as above.
+
+Need maybe "旧航道领航员的私章" maybe "旧航道领航员" okay.
+
+Let's ensure "只给许知微能看懂的写法，不写明" maybe could be "写法只给许知微看得懂，不点明" but "点明" maybe weird. I'll keep original "只给许知微能看懂的写法，不写明。" Hmm.
+
+Potential issue: The instruction in user: "请执行本章节的正文生成链路" but also "语言收敛阶段" maybe current step is polishing. Should not generate new story. We'll not.
+
+Let's produce final JSON.
+
+Need perhaps no trailing period after JSON? Fine.
+
+Let's ensure there are no accidental backslashes other than \n. We'll include Chinese commas and periods. No need escape quotes.
+
+Let's formulate final now. 
+Wait, do we need include "body" string maybe with "完整打磨稿" only, not JSON? System explicitly says JSON object. Final must be JSON.
+
+Let's maybe not include any code block. Good.
+
+Final answer: {"body":"第三次红光灭下去的时候...可以退了。"}
+
+Let's draft with escapes.
+
+Need count paragraphs: I'll include 11 paragraphs? Original had 10? Let's recount: 
+1 第三次红光...
+2 名单折成三折...
+3 铁锈味...
+4 侧门内...
+5 门外是贴墙石径...
+6 我从货堆后起身...
+7 船主没抬头...
+8 我没接后半句...
+9 搁下笔...
+10 我背靠舷板坐下...
+11 合上包扣...
+Yes 11.
+
+Need ensure paragraph 7 is "船主没抬头..." and paragraph 6 ends with dialogue; fine.
+
+Let's produce.

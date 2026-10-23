@@ -1,5 +1,5 @@
 {
-  "id": "run-1792610591479-1",
+  "id": "run-1792639956878-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -16,30 +16,30 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "995b9f71d165",
-    "buildTime": "2026-10-21T19:22:48.819Z"
+    "commit": "b2d0b8088e7e",
+    "buildTime": "2026-10-22T03:27:46.288Z"
   },
-  "startedAt": 1792610591479,
+  "startedAt": 1792639956878,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "body_generation_complete",
-      "recordedAt": 1792610591708
+      "recordedAt": 1792639957056
     }
   ],
   "events": [
     {
-      "id": "event-1792610591479-2",
-      "ts": 1792610591479,
+      "id": "event-1792639956878-2",
+      "ts": 1792639956878,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792610591481-3",
-      "ts": 1792610591481,
+      "id": "event-1792639956889-3",
+      "ts": 1792639956889,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -47,8 +47,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792610591482-4",
-      "ts": 1792610591482,
+      "id": "event-1792639956890-4",
+      "ts": 1792639956890,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -56,8 +56,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792610591484-5",
-      "ts": 1792610591484,
+      "id": "event-1792639956893-5",
+      "ts": 1792639956893,
       "seq": 4,
       "type": "context_scope",
       "level": "info",
@@ -65,8 +65,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":1,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":227,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792610591485-6",
-      "ts": 1792610591485,
+      "id": "event-1792639956893-6",
+      "ts": 1792639956893,
       "seq": 5,
       "type": "memory_context",
       "level": "info",
@@ -74,8 +74,8 @@
       "detail": "{\"chapterId\":\"chapter-body-repair-1\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792610591486-7",
-      "ts": 1792610591486,
+      "id": "event-1792639956895-7",
+      "ts": 1792639956895,
       "seq": 6,
       "type": "prompt-built",
       "level": "info",
@@ -83,8 +83,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1792610591495-8",
-      "ts": 1792610591495,
+      "id": "event-1792639956903-8",
+      "ts": 1792639956903,
       "seq": 7,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -92,8 +92,8 @@
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"body-repair-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792610591523-9",
-      "ts": 1792610591523,
+      "id": "event-1792639956933-9",
+      "ts": 1792639956933,
       "seq": 8,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -101,8 +101,8 @@
       "detail": "{\"variant\":\"methodology-compose\",\"charCount\":2012}"
     },
     {
-      "id": "event-1792610591524-11",
-      "ts": 1792610591524,
+      "id": "event-1792639956934-11",
+      "ts": 1792639956934,
       "seq": 9,
       "type": "api-start",
       "level": "info",
@@ -110,8 +110,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"body-repair-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792610591530-13",
-      "ts": 1792610591530,
+      "id": "event-1792639956937-13",
+      "ts": 1792639956937,
       "seq": 10,
       "type": "run-activity",
       "level": "info",
@@ -123,22 +123,22 @@
       }
     },
     {
-      "id": "event-1792610591530-14",
-      "ts": 1792610591530,
+      "id": "event-1792639956937-14",
+      "ts": 1792639956937,
       "seq": 11,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792610591528-12",
+        "physicalCallId": "physical-1792639956937-12",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792610591531-15",
-      "ts": 1792610591531,
+      "id": "event-1792639956937-15",
+      "ts": 1792639956937,
       "seq": 12,
       "type": "physical-call",
       "level": "info",
@@ -146,18 +146,28 @@
       "detail": "normal / compose / body-repair-model"
     },
     {
-      "id": "event-1792610591592-16",
-      "ts": 1792610591592,
+      "id": "event-1792639956938-16",
+      "ts": 1792639956938,
       "seq": 13,
+      "turnId": "api-1792639956933-10",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-repair-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792639956977-17",
+      "ts": 1792639956977,
+      "seq": 14,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / compose / body-repair-model / stop"
     },
     {
-      "id": "event-1792610591592-17",
-      "ts": 1792610591592,
-      "seq": 14,
+      "id": "event-1792639956978-18",
+      "ts": 1792639956978,
+      "seq": 15,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -168,9 +178,9 @@
       }
     },
     {
-      "id": "event-1792610591595-18",
-      "ts": 1792610591595,
-      "seq": 15,
+      "id": "event-1792639956979-19",
+      "ts": 1792639956979,
+      "seq": 16,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -181,81 +191,81 @@
       }
     },
     {
-      "id": "event-1792610591597-19",
-      "ts": 1792610591597,
-      "seq": 16,
+      "id": "event-1792639956980-20",
+      "ts": 1792639956980,
+      "seq": 17,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792610591524-10 seq=1"
+      "detail": "apiCall=api-1792639956933-10 seq=1"
     },
     {
-      "id": "event-1792610591597-20",
-      "ts": 1792610591597,
-      "seq": 17,
+      "id": "event-1792639956980-21",
+      "ts": 1792639956980,
+      "seq": 18,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / body-repair-model"
     },
     {
-      "id": "event-1792610591604-21",
-      "ts": 1792610591604,
-      "seq": 18,
+      "id": "event-1792639956987-22",
+      "ts": 1792639956987,
+      "seq": 19,
       "type": "body-step-acceptance",
       "level": "error",
       "label": "正文生成步骤 1/1 统一验收",
       "detail": "{\"stepIndex\":0,\"callerStatus\":\"success\",\"rawWordCount\":328,\"extractedWordCount\":328,\"metadata\":{},\"metadataDelta\":0,\"decision\":\"reject\",\"reason\":\"contract_failed\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[],\"contractErrors\":[\"正文过短：328字，要求不低于2400字\"]}"
     },
     {
-      "id": "event-1792610591605-22",
-      "ts": 1792610591605,
-      "seq": 19,
+      "id": "event-1792639956987-23",
+      "ts": 1792639956987,
+      "seq": 20,
       "type": "body-generator-step-rejected",
       "level": "error",
       "label": "正文生成步骤 1/1 拒绝流转",
       "detail": "{\"reason\":\"contract_failure\",\"errors\":[\"正文过短：328字，要求不低于2400字\"]}"
     },
     {
-      "id": "event-1792610591608-23",
-      "ts": 1792610591608,
-      "seq": 20,
+      "id": "event-1792639956989-24",
+      "ts": 1792639956989,
+      "seq": 21,
       "type": "body-artifact-attempt",
       "level": "warn",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-body-repair-1-attempt-1-72kz3ejd\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":328,\"targetWords\":3000,\"ratio\":0.10933333333333334,\"validationMs\":0,\"errors\":[\"正文过短：328字，要求不低于2400字\"],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\\n雨停在灯塔外。林照把纸条\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_4d7faac5\",\"outputHash\":\"fnv1a32_636da6c5\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"reject\",\"reason\":\"contract_failed\",\"rawWordCount\":328,\"extractedWordCount\":328,\"errors\":[\"正文过短：328字，要求不低于2400字\"]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":0}"
+      "detail": "{\"attemptId\":\"chapter-body-repair-1-attempt-1-gw7vkxpb\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":328,\"targetWords\":3000,\"ratio\":0.10933333333333334,\"validationMs\":0,\"errors\":[\"正文过短：328字，要求不低于2400字\"],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\\n雨停在灯塔外。林照把纸条\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_4d7faac5\",\"outputHash\":\"fnv1a32_636da6c5\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"reject\",\"reason\":\"contract_failed\",\"rawWordCount\":328,\"extractedWordCount\":328,\"errors\":[\"正文过短：328字，要求不低于2400字\"]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":0}"
     },
     {
-      "id": "event-1792610591609-24",
-      "ts": 1792610591609,
-      "seq": 21,
+      "id": "event-1792639956989-25",
+      "ts": 1792639956989,
+      "seq": 22,
       "type": "agent-model-fallback",
       "level": "warn",
       "label": "Agent 模型未显式配置，已回退供应商默认模型",
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"body-repair-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792610591609-25",
-      "ts": 1792610591609,
-      "seq": 22,
+      "id": "event-1792639956990-26",
+      "ts": 1792639956990,
+      "seq": 23,
       "type": "deai-prompt-variant",
       "level": "info",
       "label": "降AI注入变体：非链式调用",
       "detail": "{\"variant\":\"methodology-compose\",\"charCount\":2012}"
     },
     {
-      "id": "event-1792610591609-27",
-      "ts": 1792610591609,
-      "seq": 23,
+      "id": "event-1792639956990-28",
+      "ts": 1792639956990,
+      "seq": 24,
       "type": "api-start",
       "level": "info",
       "label": "第 2 次 API 调用开始",
       "detail": "{\"skillName\":\"compose\",\"model\":\"body-repair-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792610591610-29",
-      "ts": 1792610591610,
-      "seq": 24,
+      "id": "event-1792639956991-30",
+      "ts": 1792639956991,
+      "seq": 25,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -266,41 +276,51 @@
       }
     },
     {
-      "id": "event-1792610591610-30",
-      "ts": 1792610591610,
-      "seq": 25,
+      "id": "event-1792639956992-31",
+      "ts": 1792639956992,
+      "seq": 26,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792610591610-28",
+        "physicalCallId": "physical-1792639956991-29",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792610591610-31",
-      "ts": 1792610591610,
-      "seq": 26,
+      "id": "event-1792639956992-32",
+      "ts": 1792639956992,
+      "seq": 27,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / compose / body-repair-model"
     },
     {
-      "id": "event-1792610591627-32",
-      "ts": 1792610591627,
-      "seq": 27,
+      "id": "event-1792639956992-33",
+      "ts": 1792639956992,
+      "seq": 28,
+      "turnId": "api-1792639956990-27",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-repair-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792639957009-34",
+      "ts": 1792639957009,
+      "seq": 29,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / compose / body-repair-model / stop"
     },
     {
-      "id": "event-1792610591628-33",
-      "ts": 1792610591628,
-      "seq": 28,
+      "id": "event-1792639957010-35",
+      "ts": 1792639957010,
+      "seq": 30,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -311,9 +331,9 @@
       }
     },
     {
-      "id": "event-1792610591628-34",
-      "ts": 1792610591628,
-      "seq": 29,
+      "id": "event-1792639957011-36",
+      "ts": 1792639957011,
+      "seq": 31,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -324,99 +344,99 @@
       }
     },
     {
-      "id": "event-1792610591629-35",
-      "ts": 1792610591629,
-      "seq": 30,
+      "id": "event-1792639957011-37",
+      "ts": 1792639957011,
+      "seq": 32,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792610591609-26 seq=2"
+      "detail": "apiCall=api-1792639956990-27 seq=2"
     },
     {
-      "id": "event-1792610591629-36",
-      "ts": 1792610591629,
-      "seq": 31,
+      "id": "event-1792639957011-38",
+      "ts": 1792639957011,
+      "seq": 33,
       "type": "api-success",
       "level": "info",
       "label": "第 2 次 API 调用完成",
       "detail": "compose / body-repair-model"
     },
     {
-      "id": "event-1792610591631-37",
-      "ts": 1792610591631,
-      "seq": 32,
+      "id": "event-1792639957013-39",
+      "ts": 1792639957013,
+      "seq": 34,
       "type": "body-step-acceptance",
       "level": "info",
       "label": "正文生成步骤 1/1 统一验收",
       "detail": "{\"stepIndex\":0,\"callerStatus\":\"success\",\"rawWordCount\":2460,\"extractedWordCount\":2460,\"metadata\":{},\"metadataDelta\":0,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[],\"contractErrors\":[]}"
     },
     {
-      "id": "event-1792610591633-38",
-      "ts": 1792610591633,
-      "seq": 33,
+      "id": "event-1792639957014-40",
+      "ts": 1792639957014,
+      "seq": 35,
       "type": "body-artifact-attempt",
       "level": "info",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-body-repair-1-attempt-2-b3tvvuk2\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":2460,\"targetWords\":3000,\"ratio\":0.82,\"validationMs\":0,\"errors\":[],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\\n雨停在灯塔外。林照把纸条\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_ebb43bae\",\"outputHash\":\"fnv1a32_680bb8f9\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2460,\"extractedWordCount\":2460,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":0}"
+      "detail": "{\"attemptId\":\"chapter-body-repair-1-attempt-2-7khw1gzc\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":2460,\"targetWords\":3000,\"ratio\":0.82,\"validationMs\":0,\"errors\":[],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\\n雨停在灯塔外。林照把纸条\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_ebb43bae\",\"outputHash\":\"fnv1a32_680bb8f9\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2460,\"extractedWordCount\":2460,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":0}"
     },
     {
-      "id": "event-1792610591636-39",
-      "ts": 1792610591636,
-      "seq": 34,
+      "id": "event-1792639957016-41",
+      "ts": 1792639957016,
+      "seq": 36,
       "type": "hard_signal_scan",
       "level": "info",
       "label": "正文硬信号扫描通过",
       "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
     },
     {
-      "id": "event-1792610591641-40",
-      "ts": 1792610591641,
-      "seq": 35,
+      "id": "event-1792639957019-42",
+      "ts": 1792639957019,
+      "seq": 37,
       "type": "contract_review",
       "level": "info",
       "label": "卷契约语义审查",
       "detail": "{\"status\":\"contract_safe\",\"detected\":false,\"findings\":[]}"
     },
     {
-      "id": "event-1792610591641-41",
-      "ts": 1792610591641,
-      "seq": 36,
+      "id": "event-1792639957019-43",
+      "ts": 1792639957019,
+      "seq": 38,
       "type": "body-artifact-validated",
       "level": "info",
       "label": "正文批次验收通过",
       "detail": "{\"chapterId\":\"chapter-body-repair-1\",\"targetWords\":3000,\"wordCount\":2460,\"ratio\":0.82,\"status\":\"complete\",\"repairAttempts\":1}"
     },
     {
-      "id": "event-1792610591701-42",
-      "ts": 1792610591701,
-      "seq": 37,
+      "id": "event-1792639957053-44",
+      "ts": 1792639957053,
+      "seq": 39,
       "type": "write",
       "level": "info",
       "label": "正文已写入项目",
       "detail": "字数 2460"
     },
     {
-      "id": "event-1792610591707-43",
-      "ts": 1792610591707,
-      "seq": 38,
+      "id": "event-1792639957056-45",
+      "ts": 1792639957056,
+      "seq": 40,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "body_generation_complete"
     },
     {
-      "id": "event-1792610591707-44",
-      "ts": 1792610591707,
-      "seq": 39,
+      "id": "event-1792639957056-46",
+      "ts": 1792639957056,
+      "seq": 41,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "body_generation_complete / run=run-1792610591479-1"
+      "detail": "body_generation_complete / run=run-1792639956878-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792610591524-10",
+      "id": "api-1792639956933-10",
       "seq": 1,
       "step": 4,
       "skillId": "compose",
@@ -441,11 +461,11 @@
       "streamText": "雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第5次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第6次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第7次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第8次呼吸结束。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第5次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第6次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第7次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第8次呼吸结束。",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792610591524,
+      "startedAt": 1792639956933,
       "physicalCalls": [
         {
-          "id": "physical-1792610591528-12",
-          "physicalCallId": "physical-1792610591526-0",
+          "id": "physical-1792639956937-12",
+          "physicalCallId": "physical-1792639956934-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -469,11 +489,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792610591528,
-          "durationMs": 64,
-          "firstTokenMs": 58,
-          "outputMs": 6,
-          "endedAt": 1792610591591,
+          "startedAt": 1792639956937,
+          "durationMs": 40,
+          "firstTokenMs": 35,
+          "outputMs": 5,
+          "endedAt": 1792639956977,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -488,24 +508,24 @@
             "driftRatio": -0.9915038232795242,
             "correctedRatio": 0.008496176720475786
           },
-          "firstContentAt": 1792610591585,
-          "lastContentAt": 1792610591585,
+          "firstContentAt": 1792639956971,
+          "lastContentAt": 1792639956971,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792610591593,
-      "lastStreamActivityAt": 1792610591593,
+      "lastExecutionActivityAt": 1792639956979,
+      "lastStreamActivityAt": 1792639956979,
       "finishReason": "stop",
-      "durationMs": 61,
+      "durationMs": 39,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 64,
-        "firstTokenSumMs": 58,
-        "outputSumMs": 6,
-        "minFirstTokenMs": 58,
-        "maxFirstTokenMs": 58,
-        "localOverheadMs": -3
+        "physicalDurationSumMs": 40,
+        "firstTokenSumMs": 35,
+        "outputSumMs": 5,
+        "minFirstTokenMs": 35,
+        "maxFirstTokenMs": 35,
+        "localOverheadMs": -1
       },
       "usage": {
         "inputTokens": 10,
@@ -513,9 +533,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792610591596,
+      "endedAt": 1792639956980,
       "semantic": {
-        "conversationId": "run-1792610591479-1",
+        "conversationId": "run-1792639956878-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -524,7 +544,7 @@
       }
     },
     {
-      "id": "api-1792610591609-26",
+      "id": "api-1792639956990-27",
       "seq": 2,
       "step": 4,
       "skillId": "compose",
@@ -549,11 +569,11 @@
       "streamText": "雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第5次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第6次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第7次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第8次呼吸结束。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第5次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第6次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第7次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第8次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第9次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第10次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第11次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第12次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第13次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第14次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第15次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第16次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第17次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第18次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第19次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第20次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第21次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第22次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第23次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第24次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第25次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第26次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第27次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第28次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第29次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第30次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第31次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第32次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第33次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第34次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第35次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第36次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第37次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第38次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第39次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第40次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第41次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第42次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第43次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第44次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第45次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第46次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第47次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第48次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第49次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第50次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第51次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第52次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第53次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第54次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第55次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第56次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第57次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第58次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第59次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第60次呼吸结束。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第1次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第2次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第3次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第4次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第5次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第6次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第7次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第8次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第9次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第10次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第11次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第12次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第13次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第14次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第15次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第16次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第17次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第18次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第19次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第20次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第21次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第22次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第23次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第24次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第25次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第26次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第27次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第28次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第29次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第30次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第31次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第32次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第33次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第34次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第35次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第36次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第37次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第38次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第39次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第40次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第41次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第42次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第43次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第44次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第45次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第46次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第47次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第48次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第49次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第50次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第51次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第52次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第53次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第54次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第55次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第56次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第57次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第58次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第59次呼吸结束。\n雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来，他数着潮声调整呼吸。第60次呼吸结束。",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792610591609,
+      "startedAt": 1792639956990,
       "physicalCalls": [
         {
-          "id": "physical-1792610591610-28",
-          "physicalCallId": "physical-1792610591609-0",
+          "id": "physical-1792639956991-29",
+          "physicalCallId": "physical-1792639956990-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -577,11 +597,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792610591610,
+          "startedAt": 1792639956991,
           "durationMs": 17,
-          "firstTokenMs": 16,
-          "outputMs": 1,
-          "endedAt": 1792610591627,
+          "firstTokenMs": 15,
+          "outputMs": 2,
+          "endedAt": 1792639957008,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -596,24 +616,24 @@
             "driftRatio": -0.9877149877149877,
             "correctedRatio": 0.012285012285012284
           },
-          "firstContentAt": 1792610591626,
-          "lastContentAt": 1792610591626,
+          "firstContentAt": 1792639957005,
+          "lastContentAt": 1792639957005,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792610591628,
-      "lastStreamActivityAt": 1792610591628,
+      "lastExecutionActivityAt": 1792639957010,
+      "lastStreamActivityAt": 1792639957010,
       "finishReason": "stop",
-      "durationMs": 17,
+      "durationMs": 15,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
         "physicalDurationSumMs": 17,
-        "firstTokenSumMs": 16,
-        "outputSumMs": 1,
-        "minFirstTokenMs": 16,
-        "maxFirstTokenMs": 16,
-        "localOverheadMs": 0
+        "firstTokenSumMs": 15,
+        "outputSumMs": 2,
+        "minFirstTokenMs": 15,
+        "maxFirstTokenMs": 15,
+        "localOverheadMs": -2
       },
       "usage": {
         "inputTokens": 10,
@@ -621,9 +641,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792610591628,
+      "endedAt": 1792639957011,
       "semantic": {
-        "conversationId": "run-1792610591479-1",
+        "conversationId": "run-1792639956878-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -638,15 +658,15 @@
   "payloads": [],
   "stepPhaseTiming": {
     "validation": 0,
-    "persistence": 58
+    "persistence": 34
   },
-  "dirName": "run-trace-正文层-20261022-032311",
+  "dirName": "run-trace-正文层-20261022-113236",
   "timingLedger": {
     "apiCallCount": 2,
     "physicalCallCount": 2,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 81,
-    "firstTokenSumMs": 74,
+    "physicalDurationSumMs": 57,
+    "firstTokenSumMs": 50,
     "outputSumMs": 7,
     "localOverheadSumMs": -3,
     "requestBuildSumMs": 0,
@@ -661,15 +681,15 @@
     "physicalCallCount": 2,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 74,
+    "firstTokenSumMs": 50,
     "outputSumMs": 7,
     "validationSumMs": 0,
-    "persistenceSumMs": 58,
+    "persistenceSumMs": 34,
     "repeatedPromptBlocks": {},
     "contextChars": 4928,
     "outputChars": 3245,
-    "physicalDurationSumMs": 81
+    "physicalDurationSumMs": 57
   },
-  "endedAt": 1792610591707,
-  "durationMs": 228
+  "endedAt": 1792639957056,
+  "durationMs": 178
 }

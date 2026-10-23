@@ -1,0 +1,921 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792437961863-18",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 1,
+  "stepName": "设定层",
+  "mode": "settings",
+  "projectId": "pipeline-artifact-contract-live",
+  "projectName": "流水线产物契约统一真实UI实测",
+  "providerId": "pipeline-artifact-live-provider",
+  "providerName": "Pipeline Artifact Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [
+    "S1-设定生成（文件夹）"
+  ],
+  "skillMode": "chain",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "ab0d8cb6f07f",
+    "buildTime": "2026-10-19T19:24:27.093Z"
+  },
+  "startedAt": 1792437961863,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "settings_generation_complete",
+      "recordedAt": 1792438046494
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1792437961863-19",
+      "ts": 1792437961863,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 设定层运行"
+    },
+    {
+      "id": "event-1792437961863-20",
+      "ts": 1792437961863,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "设定层提示词已构建"
+    },
+    {
+      "id": "event-1792437961901-22",
+      "ts": 1792437961901,
+      "seq": 3,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"S1-设定生成（文件夹）\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792437962167-23",
+      "ts": 1792437962167,
+      "seq": 4,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":269,\"userPromptLength\":1099,\"systemPromptLength\":4280,\"sampleCount\":4,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+    },
+    {
+      "id": "event-1792437962170-25",
+      "ts": 1792437962170,
+      "seq": 5,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792437962170-26",
+      "ts": 1792437962170,
+      "seq": 6,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792437962169-24",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792437962170-27",
+      "ts": 1792437962170,
+      "seq": 7,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792437977181-28",
+      "ts": 1792437977181,
+      "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792437977181-29",
+      "ts": 1792437977181,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792437992172-30",
+      "ts": 1792437992172,
+      "seq": 10,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792437992173-31",
+      "ts": 1792437992173,
+      "seq": 11,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792438007182-32",
+      "ts": 1792438007182,
+      "seq": 12,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792438007182-33",
+      "ts": 1792438007182,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792438022185-34",
+      "ts": 1792438022185,
+      "seq": 14,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792438022185-35",
+      "ts": 1792438022185,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792438032231-36",
+      "ts": 1792438032231,
+      "seq": 16,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438033233-37",
+      "ts": 1792438033233,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438034246-38",
+      "ts": 1792438034246,
+      "seq": 18,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438035270-39",
+      "ts": 1792438035270,
+      "seq": 19,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438036298-40",
+      "ts": 1792438036298,
+      "seq": 20,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438037172-41",
+      "ts": 1792438037172,
+      "seq": 21,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792438037172-42",
+      "ts": 1792438037172,
+      "seq": 22,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S1-设定生成（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S1-设定生成（文件夹）"
+      }
+    },
+    {
+      "id": "event-1792438037320-43",
+      "ts": 1792438037320,
+      "seq": 23,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438038336-44",
+      "ts": 1792438038336,
+      "seq": 24,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438039361-45",
+      "ts": 1792438039361,
+      "seq": 25,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438040452-46",
+      "ts": 1792438040452,
+      "seq": 26,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438041506-47",
+      "ts": 1792438041506,
+      "seq": 27,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438042564-48",
+      "ts": 1792438042564,
+      "seq": 28,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438043595-49",
+      "ts": 1792438043595,
+      "seq": 29,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438044620-50",
+      "ts": 1792438044620,
+      "seq": 30,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438045621-51",
+      "ts": 1792438045621,
+      "seq": 31,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1792438046438-52",
+      "ts": 1792438046438,
+      "seq": 32,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S1-设定生成（文件夹） / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1792438046446-53",
+      "ts": 1792438046446,
+      "seq": 33,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1792438046446-54",
+      "ts": 1792438046446,
+      "seq": 34,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1792438046447-55",
+      "ts": 1792438046447,
+      "seq": 35,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792437961901-21 seq=1"
+    },
+    {
+      "id": "event-1792438046447-56",
+      "ts": 1792438046447,
+      "seq": 36,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "S1-设定生成（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1792438046454-57",
+      "ts": 1792438046454,
+      "seq": 37,
+      "type": "settings-artifact-attempt",
+      "level": "info",
+      "label": "设定批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"acceptedCount\":10,\"rejectedCount\":0,\"validationMs\":2,\"errors\":[]}"
+    },
+    {
+      "id": "event-1792438046493-58",
+      "ts": 1792438046493,
+      "seq": 38,
+      "type": "settings-artifact-validated",
+      "level": "info",
+      "label": "设定批次验收通过",
+      "detail": "{\"acceptedCount\":10,\"rejectedCount\":0,\"reasons\":[],\"repairAttempts\":0}"
+    },
+    {
+      "id": "event-1792438046493-59",
+      "ts": 1792438046493,
+      "seq": 39,
+      "type": "write",
+      "level": "info",
+      "label": "设定已写入项目",
+      "detail": "新增 10 项"
+    },
+    {
+      "id": "event-1792438046494-60",
+      "ts": 1792438046494,
+      "seq": 40,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "settings_generation_complete"
+    },
+    {
+      "id": "event-1792438046494-61",
+      "ts": 1792438046494,
+      "seq": 41,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "settings_generation_complete / run=run-1792437961863-18"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792437961901-21",
+      "seq": 1,
+      "step": 1,
+      "skillId": "compose",
+      "skillName": "S1-设定生成（文件夹）",
+      "providerId": "pipeline-artifact-live-provider",
+      "providerName": "Pipeline Artifact Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "status": "success",
+      "startedAt": 1792437961901,
+      "physicalCalls": [
+        {
+          "id": "physical-1792437962169-24",
+          "physicalCallId": "physical-1792437962168-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-005"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 3128,
+            "outputTokens": 3881,
+            "totalTokens": 7009,
+            "reasoningOutputTokens": 2890
+          },
+          "usageUnavailable": false,
+          "startedAt": 1792437962169,
+          "durationMs": 84269,
+          "firstTokenMs": 2490,
+          "outputMs": 81779,
+          "endedAt": 1792438046438,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 3562,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 3562 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 3562,
+            "actualInputTokens": 3128,
+            "driftRatio": -0.12184166198764734,
+            "correctedRatio": 0.8781583380123527
+          },
+          "firstContentAt": 1792438032229,
+          "lastContentAt": 1792438046429,
+          "lastReasoningAt": 1792438032176,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrs\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": \"未提供/待补信息\",\n      \"意象功能\": \"未提供/待补信息\",\n      \"伏笔ID\": \"未提供/待补信息\",\n      \"能量\": \"未提供/待补信息\",\n      \"身份状态\": \"结构推导：want基于大纲目标推断；其余未提供。\"\n    }\n  },\n  {\n    \"name\":"
+        }
+      ],
+      "lastExecutionActivityAt": 1792438046430,
+      "lastStreamActivityAt": 1792438046430,
+      "providerContextWindowTokens": 1000000,
+      "estimatedInputTokens": 3562,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 3562 / 可用 967232（未声明窗口，按保守值处理）",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 3562,
+        "actualInputTokens": 3128,
+        "driftRatio": -0.12184166198764734,
+        "correctedRatio": 0.8781583380123527
+      },
+      "finishReason": "stop",
+      "durationMs": 84546,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 84269,
+        "firstTokenSumMs": 2490,
+        "outputSumMs": 81779,
+        "minFirstTokenMs": 2490,
+        "maxFirstTokenMs": 2490,
+        "localOverheadMs": 277,
+        "requestBuildMs": 0,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 7,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "usage": {
+        "inputTokens": 3128,
+        "outputTokens": 3881,
+        "totalTokens": 7009,
+        "reasoningOutputTokens": 2890
+      },
+      "usageUnavailable": false,
+      "endedAt": 1792438046447,
+      "semantic": {
+        "conversationId": "run-1792437961863-18",
+        "usage": {
+          "inputTokens": 3128,
+          "outputTokens": 3881,
+          "totalTokens": 7009,
+          "reasoningOutputTokens": 2890
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrs\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": \"未提供/待补信息\",\n      \"意象功能\": \"未提供/待补信息\",\n      \"伏笔ID\": \"未提供/待补信息\",\n      \"能量\": \"未提供/待补信息\",\n      \"身份状态\": \"结构推导：want基于大纲目标推断；其余未提供。\"\n    }\n  },\n  {\n    \"name\":"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 13507,
+      "chars": 5981,
+      "sha256": "41b2217adf61dc06001323dc11d6e4ba8fb0f6d5c8cd59b9c4346bae341c60ab",
+      "duplicateCount": 3,
+      "createdAt": 1792438046888
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 3564,
+      "chars": 2216,
+      "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+      "duplicateCount": 2,
+      "createdAt": 1792438046888
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 3569,
+      "chars": 2221,
+      "sha256": "34817492cb13e1d3089e7ba388f6a6d0a8fe3374f4f69d81bc31430f27a8e0c1",
+      "duplicateCount": 1,
+      "createdAt": 1792438046889
+    },
+    {
+      "id": "payload-004",
+      "kind": "reasoning",
+      "file": "004-reasoning.json",
+      "bytes": 13207,
+      "chars": 5257,
+      "sha256": "509399cb5b4381ddd706410d6bd268c43c77244a5eb329d3ec1ecefb08f1ea01",
+      "duplicateCount": 2,
+      "createdAt": 1792438046889
+    },
+    {
+      "id": "payload-005",
+      "kind": "stream",
+      "file": "005-stream.json",
+      "bytes": 3564,
+      "chars": 2216,
+      "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+      "duplicateCount": 1,
+      "createdAt": 1792438046889
+    },
+    {
+      "id": "payload-006",
+      "kind": "folder-output",
+      "file": "006-folder-output.json",
+      "bytes": 3564,
+      "chars": 2216,
+      "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+      "duplicateCount": 1,
+      "createdAt": 1792438046889
+    },
+    {
+      "id": "payload-007",
+      "kind": "processing-output",
+      "file": "007-processing-output.json",
+      "bytes": 3564,
+      "chars": 2216,
+      "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+      "duplicateCount": 1,
+      "createdAt": 1792438046889
+    }
+  ],
+  "folderDiagnostics": [
+    {
+      "status": "success",
+      "errors": [],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-10-19T19:26:02.165Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-issue",
+          "message": "[non-blocking] item1:主角 invalid 伏笔ID format: 未提供/待补信息",
+          "at": "2026-10-19T19:27:26.445Z"
+        }
+      ],
+      "folderPackageCache": true,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [
+          {
+            "severity": "warning",
+            "code": "post-process-issue",
+            "message": "item1:主角 invalid 伏笔ID format: 未提供/待补信息"
+          }
+        ],
+        "durationMs": 7,
+        "outputPayloadRef": "payload-007",
+        "outputLength": 2216,
+        "outputPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrs\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": \"未提供/待补信息\",\n      \"意象功能\": \"未提供/待补信息\",\n      \"伏笔ID\": \"未提供/待补信息\",\n      \"能量\": \"未提供/待补信息\",\n      \"身份状态\": \"结构推导：want基于大纲目标推断；其余未提供。\"\n    }\n  },\n  {\n    \"name\":"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "pipeline-artifact-live-provider",
+        "usage": {
+          "inputTokens": 3128,
+          "outputTokens": 3881,
+          "totalTokens": 7009,
+          "reasoningOutputTokens": 2890
+        },
+        "reasoningText": "我们被要求生成设定对象。输入是一个大纲，但没有角色或世界元素的详细信息。我们需要从大纲中提取可能的设定。大纲提到：\"全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。第三卷 南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。\"\n\n只有这些文字。角色：主角，没有名字，没有描述。世界元素：灯塔、旧航道、南方航线、风暴纪元、家族信物、旧信、雾中港、失踪船队、风暴信标等。这些都是泛泛的。我们需要根据这些已知信息生成设定对象。但规定：只能从输入明确提供的角色、世界元素和关系中整理设定。输入没有提供的Ghost等必须标记为\"未提供/待补信息\"。我们必须在输出中体现这些标记。\n\n输入是[已确认大纲]的内容，没有具体的角色细节。所以我们将根据这个大纲创建设定对象。但大纲只是梗概，没有角色名字、性格、背景。我们能提取什么？可能生成以下设定：\n\n- 主角：没有名字，所以我们可以称之为\"主角\"或者\"未命名主角\"。category人物。attrs里ghost/wound/lie/want/need都是未提供/待补信息。但大纲说\"逐步揭示家族信物的真相\"，这可能是Ghost相关。可以标记为结构推导？但无法确定具体创伤。我们可以把\"家族信物\"作为一个线索。可能我们需要根据大纲推断一些东西：比如主角的Want是揭示家族信物真相，完成远航。但是否可以标记为结构推导？我们可以说：want来自第一卷主角完成第一次远航的目标。但lie和need没有依据。我们依据规则，只能标记未提供。\n\n对于世界观：灯塔、旧航道、南方航线、风暴纪元、雾中港、失踪船队、风暴信标等。我们需要为每个生成设定，category世界观或物品或地点。这些元素可能有一些属性，但输入没有提供limitations等。所以全部标记为未提供。\n\n唯一有\"锁定的\"是这些名字。所以我们可以生成如下设定数组，包括人物（主角）和世界观元素。每个设定需要有name, category, attrs。attrs里需要包含相应的字段。根据要求，人物类必须有ghost等，世界观类必须有limitations等。因为输入没提供，所以值为\"未提供/待补信息\"。但是否可以有一点结构推导？大纲说\"主角在风暴纪元中逐步揭示家族信物的真相\"，这暗示主角的want是揭示真相，need可能是接受真相或什么？但输入仅给出这些，所以我们可以标记为结构推导：want为\"揭示家族信物的真相\"（基于大纲描述）。lie可能是\"家族信物隐藏着一个秘密\"？不确定。按照要求，缺少的字段标记\"未提供/待补信息\"，但有依据的部分可以标记为结构推导。例如，want：完成第一次远航并揭示真相（结构推导，来自第一卷描述）。ghost可能为空。proactivity等滑块也可以推断吗？没有依据，所以标记未提供。\n\n还要注意：每个实体在attrs末尾标注身份状态：锁定事实、结构推导或未提供/待补信息。而且对于关系、关键秘密等，如果没有输入，就不需要。我们按照参考格式，只提供name, category, attrs。在attrs内部包含所需字段，再加上身份状态字段。\n\n按照要求，attrs值简洁原则：每个attrs字段值控制在1-3句。对于未提供的，直接写\"未提供/待补信息\"。\n\n需要输出JSON数组。\n\n大纲中角色只提了\"主角\"，可能还有别的？没有。世界元素：灯塔、旧航道、南方航线、风暴纪元、家族信物、旧信、雾中港、失踪船队、风暴信标。一共8个世界元素+1个主角。或许可以把\"家族信物\"作为物品类。\n\n建立如下设定：\n\n1. 主角（未命名）：人物。attrs包括：ghost:未提供/待补信息；wound:未提供/待补信息；lie:未提供/待补信息；want:揭示家族信物真相并完成远航（结构推导：来自第一卷目标）；need:未提供/待补信息；proactivity:未提供/待补信息；likability:未提供/待补信息；competence:未提供/待补信息；对话指纹:未提供/待补信息；意象功能:未提供/待补信息；伏笔ID:未提供/待补信息；能量:未提供/待补信息；身份状态:结构推导：want基于大纲目标推断，其余未提供。\n\n2. 灯塔：世界观。attrs：limitations:未提供/待补信息；costs:未提供/待补信息；weaknesses:未提供/待补信息；意象功能:未提供/待补信息；身份状态:锁定事实：名称来自大纲。\n\n3. 旧航道：世界观。同上。\n\n4. 南方航线：世界观。\n\n5. 风暴纪元：世界观（时代背景）。可以作为一个时期设定。\n\n6. 家族信物：物品。category可以\"物品\"或\"设定类\"。但物品类不需要limitations等，但大纲中没有规定物品的属性。按照规则，如果没有合适分类使用\"设定类\"。但category可以是\"物品\"。我们认为物品类可以使用\"设定类\"，但\"物品\"更具体。输入参考中有\"雾潮体系\"用\"世界观\"。这里我们可以分类为\"物品\"或\"设定类\"。稳妥点用\"设定类\"。attrs里我们可以放一些描述，但输入无细节。可以列出其相关：推动主角揭示真相。但为了遵循输入不创造，我们只标记未提供。但是否可以标记结构推导？\"家族信物\"是推动剧情的关键物品，可能是信物类型。大纲没有提供任何细节，所以全未提供。\n\n7. 旧信：物品。同上。\n\n8. 雾中港：地点。category可以用\"地点\"。\n\n9. 失踪船队：事件/组织？可以是\"设定类\"。\n\n10. 风暴信标：物品/地点？可以是\"设定类\"。\n\n以上分开设定，每个一条。\n\n为了简化，可以将相关概念合并吗？不，应该各自列出。\n\n输出JSON数组。每个对象包含name, category, attrs。attrs是一个对象，有多个字段。我们按照例子，把每个字段写成字符串，即使未提供。\n\n对于人物，attrs必须包含ghost, wound, lie, want, need, proactivity, likability, competence, 对话指纹, 意象功能, 伏笔ID, 能量, 身份状态。总共13个字段。对于世界观，必须包含limitations, costs, weaknesses, 意象功能, 身份状态。也可能有能量？经要求，世界观类设定没有强制要求能量，但可以加。我们按规则，世界观类attrs至少4个：limitations, costs, weaknesses, 意象功能。再加身份状态。世界观也需要能量吗？参考中没有为世界观强制要求能量，但可以加。我们保守点，不加能量，只加要求的字段。但为了统一，可以加上能量，标记未提供。不，规则没有强制，就不加，以免多余。\n\n对于物品/地点，world类别的设定也需要limitations等？规则说：\"世界观/魔法类设定attrs必须包含以下4个字段\"，所以只要分类为世界观或魔法，就需要。对于地点，可以归类为世界观。我们就把灯塔、旧航道等归为世界观。家族信物可以归为\"设定类\"或者\"物品\"，可能不需要limitations等。但是，大纲中没有规定物品的限制，那么就不需要limitations等。但为了保持一致性，我们可以将家族信物归为\"设定类\"，但其attrs不需要世界观字段。但我们不确定，规则没有明确说物品类设定要求什么字段。所以只用name, category, attrs，attrs里面放一个\"描述\"字段？参考中，设定类没有例子。根据系统提示：\"根据内容自动分配category；没有合适分类时使用设定类\"。对于家族信物，我们分配\"设定类\"，然后属性根据内容——没有内容，那么只能写\"未提供/待补信息\"作为描述，并加上身份状态。其他如旧信、风暴信标也类似。我们将在attrs里加一个\"描述\"字段，全部未提供。\n\n但是，我们也要遵循要求\"设定只提取和组织输入中已有的角色、关系、规则、资源、伏笔和意象依据\"，所以输入没有的就不添加字段。对于设定类，没有规定必须有哪些字段，所以我们至少要有身份状态。我们可以在attrs里只放\"身份状态\"。但是为了满足用户示例，他们可能期望看到一定的结构。参考输出中有\"未提供/待补信息\"填充。\n\n我决定：为每个设定提供相应的字段，但值都标记未提供或结构推导。人物类需要13个字段；世界观类需要5个字段（limitations, costs, weaknesses, 意象功能, 身份状态）；设定类只需要名称和身份状态。但这样设定类会很单薄。我可以为设定类加一个\"描述\"字段，值也是未提供。为了格式统一，所有设定attrs里都有\"身份状态\"。\n\n现在处理主角。名字：大纲中没有名字，我们称\"主角\"。name:\"主角\"。category:\"人物\"。attrs:ghost:\"未提供/待补信息\"；wound:\"未提供/待补信息\"；lie:\"未提供/待补信息\"；want:\"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\"；need:\"未提供/待补信息\"；proactivity:\"未提供/待补信息\"；likability:\"未提供/待补信息\"；competence:\"未提供/待补信息\"；对话指纹:\"未提供/待补信息\"；意象功能:\"未提供/待补信息\"；伏笔ID:\"未提供/待补信息\"；能量:\"未提供/待补信息\"；身份状态:\"结构推导：want基于大纲目标推断；其余未提供。\" \n\n注意：want基于大纲，所以标记结构推导。\n\n灯塔：name:\"灯塔\", category:\"世界观\", attrs:{limitations:\"未提供/待补信息\",costs:\"未提供/待补信息\",weaknesses:\"未提供/待补信息\",意象功能:\"未提供/待补信息\",身份状态:\"锁定事实：名称来自大纲。\"}\n\n旧航道：类似。\n\n南方航线：类似。\n\n风暴纪元：类别\"世界观\"，身份状态锁定事实。\n\n家族信物：name:\"家族信物\", category:\"设定类\", attrs:{描述:\"未提供/待补信息\",身份状态:\"锁定事实：来自大纲。\"}\n\n旧信：设定类。\n\n雾中港：地点，可以归为世界观。\n\n失踪船队：设定类。\n\n风暴信标：设定类。\n\n这样一共11项。现在生成JSON数组。\n\n关于能量标注，规则说在attrs中标注能量字段，但并没有说必须对所有设定都加。对于角色，我们加了能量，未提供。对于世界观，我们可以不加，因为示例世界观中没有能量。但人物参考中有能量。我的人物设定里加了能量。世界观可以不加。风暴纪元作为世界观，没有能量。\n\n最终输出只输出JSON，不要其他内容。但根据来源交接契约，需要在末尾附加【来源覆盖】区块。规则说：\"输出末尾必须附加唯一的【来源覆盖】区块... 输入单元总数、已覆盖编号、未覆盖编号、重复编号和状态变化...\" 但是输入只是文本大纲，没有编号。所以我们需要处理这个。如果输入没有编号，我们可以自己编号或者忽略。但是要求明确，即使输入是文本，也需要声明输入单元总数和覆盖。我们可以将大纲中的元素视为输入单元，如\"灯塔\"\"旧航道\"等。但是大纲是自由文本，没有明确划分单元。我们可以把大纲中提到的实体作为输入单元，并给每个编号。然后我们覆盖了所有。但是大纲还可能包括没有实体的内容，如\"第一次远航\"。我们只提取了实体设定。需要说明输入单元总数。我们无法精确计数。也许规则是针对结构化输入的。但是为了遵守，我们可以说：输入大纲共提及11个设定元素（主角、灯塔、旧航道、南方航线、风暴纪元、家族信物、旧信、雾中港、失踪船队、风暴信标、远航事件？）。实际上我们设定了11个。我们声明已覆盖11个，未覆盖0。但是输入可能还有更多概念如\"风暴信标合流\"，我们忽略了。我们可以列出识别出的所有元素。我们就用提取的11项作为已覆盖，输入单元总数11，重复0，状态变化：全部为新创建设定，状态为未提供/待补信息或结构推导。可以这样写。在JSON数组之后，加上【来源覆盖】区块。\n\n注意：提示说\"设定 JSON 是用户可见的业务主体。输入单元总数、已覆盖编号、未覆盖编号、重复编号和状态变化属于应用交接 metadata，不得混入设定对象。若应用提供独立 metadata 通道，只写入该通道；只有未提供时，才在 JSON 外追加唯一的【来源覆盖】交接区块。\" 所以我们必须在JSON外加上这个区块。所以输出会是：一个JSON数组，然后一段文本【来源覆盖】... 但要求第一个字必须是成品，所以输出一开始就是[。可以。\n\n现在生成。",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 1000000,
+          "windowDeclared": false,
+          "outputLimitDeclared": false,
+          "estimatedInputTokens": 3562,
+          "outputReserveTokens": 32768,
+          "availableContextTokens": 967232,
+          "reason": "上下文可容纳：输入 3562 / 可用 967232（未声明窗口，按保守值处理）"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 3562,
+          "actualInputTokens": 3128,
+          "driftRatio": -0.12184166198764734,
+          "correctedRatio": 0.8781583380123527
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n从大纲与全书资产中生成结构化设定对象，并保留身份状态、关系期待、对话指纹和伏笔索引。\n\n【输出铁律（最高优先级，高于本文件中所有其他规则）】\r\n\r\n你只能输出成品内容，禁止输出任何分析、思考、计划、说明过程。\r\n不允许出现\"我需要\"\"首先\"\"让我\"\"接下来\"\"现在\"\"根据\"等分析引导词。\r\n你的第一个字必须是成品的第一个字，最后一个字必须是成品的最后一个字。\r\n所有规则的执行过程必须留在内部思考中，不出现在输出中。\r\n违反此铁律的输出视为完全失败。\r\n你是灵魂解剖师。你是链式执行的第1步（共2步）。你的工作不是\"生成设定条目\"，而是为每个角色和世界元素建立灵魂深度。你像一个法医——不是为了诊断，而是为了发现每个角色内心深处那个一直在痛的伤口。你输出增强设定JSON数组，供下一步（设定定稿师）校验。\r\n\r\n## 应用参数\r\n\r\n小说标题：{{novelTitle}}\r\n\r\n以上参数由应用注入。你的设定需与小说标题的题材基调一致。\r\n\r\n## 你的文学视角\r\n\r\n你看到的是角色",
+            "length": 4280
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\"}}]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\",\"身份状态\":\"锁定事实：母亲离开为输入事实；结构推导：最强剑师目标来自多次夜训记录。\",\"关键秘密\":{\"作者真相\":\"林母受组织委托离开\",\"读者已知\":\"林母不告而别\"}},\"关系\":{\"沈青\":\"当前期待：沈青",
+            "length": 1099
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n从大纲与全书资产中生成结构化设定对象，并保留身份状态、关系期待、对话指纹和伏笔索引。\n\n【输出铁律（最高优先级，高于本文件中所有其他规则）】\r\n\r\n你只能输出成品内容，禁止输出任何分析、思考、计划、说明过程。\r\n不允许出现\"我需要\"\"首先\"\"让我\"\"接下来\"\"现在\"\"根据\"等分析引导词。\r\n你的第一个字必须是成品的第一个字，最后一个字必须是成品的最后一个字。\r\n所有规则的执行过程必须留在内部思考中，不出现在输出中。\r\n违反此铁律的输出视为完全失败。\r\n你是灵魂解剖师。你是链式执行的第1步（共2步）。你的工作不是\"生成设定条目\"，而是为每个角色和世界元素建立灵魂深度。你像一个法医——不是为了诊断，而是为了发现每个角色内心深处那个一直在痛的伤口。你输出增强设定JSON数组，供下一步（设定定稿师）校验。\r\n\r\n## 应用参数\r\n\r\n小说标题：{{novelTitle}}\r\n\r\n以上参数由应用注入。你的设定需与小说标题的题材基调一致。\r\n\r\n## 你的文学视角\r\n\r\n你看到的是角色的灵魂层——不是\"这个角色是什么性格\"，而是\"这个角色为什么是他/她现在的样子\"。工具是心理考古：回溯角色的Ghost，找到塑造一切的原始创伤。\r\n\r\n## 核心工作\r\n\r\n在遵循上述格式要求（{name, category, attrs}的JSON数组）的基础上，为每条设定注入灵魂深度。\r\n\r\n### 1. 角色灵魂因果链（核心工作）\r\n\r\n对输入已经提供的角色材料整理Ghost→Wound→Lie→Want→Need因果链。这不是五个独立标签，而是一条因果脉络；缺失字段标记“未提供/待补信息”：\r\n\r\n- Ghost：过去的创伤事件。具体到场景——谁，什么时候，做了什么。不是\"童年不幸\"，而是\"七岁那年冬天，母亲把他留在庙门口走了，再也没有回来\"。\r\n- Wound：Ghost留下的持续情感损伤。不是\"缺乏安全感\"，而是\"他至今无法在任何一张床上安稳入睡，因为庙门口的石阶太冷了\"。\r\n- Lie：为应对Wound而采信的虚假信念。一句话，可以被反驳。\"只要我不依赖任何人，就不会被抛弃。\"\r\n- Want：被Lie驱动的外部目标——错误解法。\"成为最强的修士，强到不需要任何人。\"\r\n- Need：真正能治愈的内在真相——与Lie直接对立。\"真正的强大是允许自己被需要，也允许自己需要别人。\"\r\n\r\n把这条因果链放入attrs中，用ghost、wound、lie、want、need五个字段承载。\n\n每个实体在attrs末尾标注身份状态：锁定事实、结构推导或未提供/待补信息，三者取其一。同一实体的名称、身份、关系归属不得在不同条目间漂移。\n\r\n### 2. Three Sliders画像\r\n\r\n每个角色标注三个独立滑块（0-10）：\r\n- Proactivity（主动性）：驱动剧情还是被剧情推动？\r\n- Likability（讨喜度）：读者是否共鸣？\r\n- Competence（能力）：擅长自己做的事吗？\r\n\r\n规则：引人入胜的角色至少两个滑块高，或一个高且有明确成长。三个都低=无聊。三个从一开始都高=Mary Sue。\r\n\r\n### 3. 对话区分度\r\n\r\n为每个角色建立对话指纹（八维度）：\r\n- 词汇层级（音节数、阅读难度）\r\n- 句长和结构（简短vs冗长）\r\n- 缩略和正式度（\"不能\"vs\"不可\"）\r\n- 口头禅和习惯用语\r\n- 提问vs陈述比例\r\n- 打断模式（主导vs顺从）\r\n- 隐喻域（铁匠用金属比喻，农夫用土地比喻）\r\n- 直接vs间接（\"走\"vs\"天色不早了吧？\"）\r\n\r\n测试：去掉所有对话标签，你还能认出是谁在说话吗？如果能，对话有区分度。\r\n\r\n### 4. 世界观深度（Sanderson三定律）\r\n\r\n对世界观/魔法体系类设定：\r\n- 第一定律：用魔法解决冲突的能力与读者对魔法的理解程度成正比。硬魔法（规则清晰）可以解决冲突，软魔法（神秘）应该制造冲突而非解决。\r\n- 第二定律：限制>能力。标注每个魔法体系的限制、代价、弱点。限制应在叙事中比能力更突出。\r\n- 第三定律：扩展已有的而非添加新的。标注每个能力的多种应用方式。\n- 零新能力法则：最后25%不出现未铺垫的新能力。\n\n能力、资源与代价使用可数刻度：数量、次数、范围、冷却、清单或明确边界；不写“很强”“大量”这类不可执行表述。输入未提供刻度时保留待补标记。\n\n对每个魔法/力量设定，在attrs中标注limitations（限制）、costs（代价）、weaknesses（弱点）。\n\r\n### 5. 意象种子\r\n\r\n识别可作为意象的角色或物品设定，在attrs中标注\"意象功能\"字段：\r\n- 这个设定是否可以承载某种情感或主题的物象？（客观对应物）\r\n- 这个设定是否可以反复出现并随故事演变？（意象网络节点）\r\n- 按输入实际提供的材料标注意象种子；没有依据时标记“未提供/待补信息”。\r\n\r\n### 6. 伏笔种子（草蛇灰线）\r\n\r\n识别可作为伏笔的设定条目。但注意——草蛇灰线的伏笔不是\"埋一个钩子等着回收\"，而是让伏笔与正文肌理融为一体。伏笔看起来是自然的设定细节，回头看才发现线索一直在。\r\n\r\n在attrs中保留输入已有的伏笔ID（F+三位数字），标注已提供的伏笔用途和预期回收方向；没有依据时标记“未提供/待补信息”。\r\n\r\n### 7. 能量标注\r\n\r\n在attrs中标注能量字段：⚡（高能：权力失衡/未解之谜/角色秘密）、🔹（中能）、🍃（辅助性）。\r\n\r\n\r\n## 超长大纲扫描提示\r\n\r\n## 上游兜底原则（关键）\r\n\r\n上游大纲可能含【主题命题】【灵魂因果链】等标记区块，也可能是手写大纲（无标记区块）。遇到含标记区块的大纲时，从【灵魂因果链】标记区块中直接提取每个角色的Ghost→Wound→Lie→Want→Need，不要从零重新推断。遇到无标记区块的大纲时，从角色的背景描述、行为动机中推断因果链。所有标记区块的实质内容必须被设定数据继承和细化，不可遗漏。\r\n\r\n如果大纲超过1万字，先快速扫描全文识别所有角色和世界元素，确保不遗漏中后段（约全文1/3到末尾）出场的角色和后段揭示的世界观信息——角色群像、势力详细描述、技术设定通常分布在大纲后20%位置。每个角色设定都必须有完整的灵魂因果链。\r\n\r\n## 单次通过约束（防止卡死空转）\r\n\r\n你只有一次生成机会。提取和设定注入工作一次性完成，不回头反复修改已生成的设定条目。无论设定是否完美，必须输出完整的JSON数组。禁止反复生成-检查-修改-再检查的循环。\r\n\r\n\r\n## 输出要求\r\n\r\n每条设定格式：{name, category, attrs}\r\n\r\nattrs值简洁原则：每个attrs字段值控制在1-3句，信息密度高，不写段落。ghost/wound/lie/want/need各1-2句，对话指纹每维度1行，意象功能和伏笔用途各1句。\r\n\r\n角色类设定attrs必须包含以下字段（不可遗漏）：ghost、wound、lie、want、need、proactivity（0-10整数）、likability（0-10整数）、competence（0-10整数）、对话指纹（八维度）、意象功能（如适用）、伏笔ID（如适用）、能量、身份状态。\n\r\n世界观/魔法类设定attrs必须包含以下4个字段（不可遗漏）：limitations（限制）、costs（代价）、weaknesses（弱点）、意象功能（如适用）。\r\n\r\n伏笔ID字段随输入实际提供的伏笔保留；没有输入依据时不得为了数量要求创建伏笔。\r\n\r\n## 输出空间管理\r\n\r\n展开设定。质量优先于篇幅节约，token是用来花的，不是用来省的。\r\n\r\n\r\n## 验证反馈处理\r\n\r\n如果收到验证反馈（如字段缺失、JSON转义错误等），请优先针对反馈指出的问题精确修正——只改反馈指出的位置，保留其他内容不变。不要因反馈而重写全部设定。\r\n\r\n【最终输出提醒】\r\n你只能输出成品内容。分析过程留在内部。第一个字必须是成品。违反则视为完全失败。\r\n### 输入依据优先（硬规则）\r\n\r\n本技能只能从输入明确提供的角色、世界元素和关系中整理设定。输入没有提供的 Ghost、Wound、Lie、Want、Need、角色滑块、对话指纹、能力限制、意象功能或伏笔用途，必须标记为“未提供/待补信息”，不得为了完整字段、数量目标或文学张力自行创造。\r\n\r\n结构推导必须标记为“结构推导”，不能把推断出的创伤、动机、能力限制、意象或伏笔写成已锁定设定。输入只提供部分灵魂链时，只保留已知部分，其余字段保留并标记缺口，不得自动补齐。\r\n## 来源交接契约\r\n\r\n输出末尾必须附加唯一的【来源覆盖】区块。保留上游事件、伏笔、角色状态/关系和场景接口编号，并为新增的设定说明标注其对应来源；不得把设定推导伪装成锁定事实。区块逐项列出：输入单元总数、已覆盖编号、未覆盖编号、重复编号和状态变化。缺失设定写“未提供/待补信息”，不得为了完整度创建剧情事实。\r\n\r\n## 运行输入总闸（最高优先级）\r\n\r\n只整理输入明确提供的角色、世界元素、关系和设定。输入未提供的灵魂链、角色滑块、对话指纹、能力限制、代价、意象和伏笔用途统一标记“未提供/待补信息”；结构推导必须标记为“结构推导”，不得为了完整字段或数量目标自行创造。\r\n## 信息状态与来源交接\r\n\r\n设定只提取和组织输入中已有的角色、关系、规则、资源、伏笔和意象依据。字段级状态统一使用：锁定事实、结构推导、未提供/待补信息。关键秘密和重大信息差写明作者真相与读者已知两层，不得混淆；重要关系记录当前期待与情感债务（谁期待什么、谁欠什么），没有依据时保留待补。保留上游来源编号，并在末尾声明输入单元总数、已覆盖编号、未覆盖编号、重复编号和状态变化。\n\r\n## 应用交接边界\r\n\r\n设定 JSON 是用户可见的业务主体。输入单元总数、已覆盖编号、未覆盖编号、重复编号、状态变化和缺口清单属于应用交接 metadata，不得混入设定对象。若应用提供独立 metadata 通道，只写入该通道；只有未提供时，才在 JSON 外追加唯一的【来源覆盖】交接区块。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\"}}]\n[{\"name\":\"林晚照\",\"category\":\"人物\",\"attrs\":{\"ghost\":\"七岁母亲离开\",\"wound\":\"无法安眠\",\"lie\":\"不依赖任何人\",\"want\":\"最强剑师\",\"need\":\"允许被需要\",\"proactivity\":8,\"likability\":7,\"competence\":5,\"对话指纹\":\"简短直接\",\"能量\":\"⚡\",\"身份状态\":\"锁定事实：母亲离开为输入事实；结构推导：最强剑师目标来自多次夜训记录。\",\"关键秘密\":{\"作者真相\":\"林母受组织委托离开\",\"读者已知\":\"林母不告而别\"}},\"关系\":{\"沈青\":\"当前期待：沈青期待林晚照收她为徒；情感债务：林晚照欠沈青一次真心说明。\"}}]\n[{\"name\":\"雾潮体系\",\"category\":\"世界观\",\"attrs\":{\"limitations\":\"每次使用消耗记忆\",\"costs\":\"遗忘重要的人\",\"weaknesses\":\"情绪失控时反噬\",\"意象功能\":\"灯下雾纹\"}}]\n[{\"name\":\"雾潮体系\",\"category\":\"世界观\",\"attrs\":{\"limitations\":\"每次只能维持三十秒\",\"costs\":\"每用一次遗忘一个亲历地名\",\"weaknesses\":\"情绪失控时反噬\",\"意象功能\":\"灯下雾纹\",\"身份状态\":\"结构推导：冷却刻度来自三次战斗记录。\"}}]\n\n--- text ---\n[已确认大纲]\n# 流水线产物契约统一实测大纲\n全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。\n第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突，主角完成第一次远航。\n第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。\n第三卷 南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 0,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 7,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "requestPayloadRef": "payload-001"
+      },
+      "outputPayloadRef": "payload-006",
+      "outputLength": 2216,
+      "outputPreview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrs\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": \"未提供/待补信息\",\n      \"意象功能\": \"未提供/待补信息\",\n      \"伏笔ID\": \"未提供/待补信息\",\n      \"能量\": \"未提供/待补信息\",\n      \"身份状态\": \"结构推导：want基于大纲目标推断；其余未提供。\"\n    }\n  },\n  {\n    \"name\":"
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 2,
+    "persistence": 38
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 84269,
+    "firstTokenSumMs": 2490,
+    "outputSumMs": 81779,
+    "localOverheadSumMs": 277,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 7,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    }
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 2490,
+    "outputSumMs": 81779,
+    "validationSumMs": 2,
+    "persistenceSumMs": 38,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    },
+    "contextChars": 5379,
+    "outputChars": 2216,
+    "physicalDurationSumMs": 84269
+  },
+  "endedAt": 1792438046494,
+  "durationMs": 84631,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1792437961901-21",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+        "bytes": 3564,
+        "chars": 2216,
+        "preview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrs\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": \"未提供/待补信息\",\n      \"意象功能\": \"未提供/待补信息\",\n      \"伏笔ID\": \"未提供/待补信息\",\n      \"能量\": \"未提供/待补信息\",\n      \"身份状态\": \"结构推导：want基于大纲目标推断；其余未提供。\"\n    }\n  },\n  {\n    \"name\":"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "34817492cb13e1d3089e7ba388f6a6d0a8fe3374f4f69d81bc31430f27a8e0c1",
+        "bytes": 3569,
+        "chars": 2221
+      },
+      "reasoning": {
+        "ref": "payload-004",
+        "file": "004-reasoning.json",
+        "sha256": "509399cb5b4381ddd706410d6bd268c43c77244a5eb329d3ec1ecefb08f1ea01",
+        "bytes": 13207,
+        "chars": 5257
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792437962168-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+            "bytes": 3564,
+            "chars": 2216,
+            "preview": "[\n  {\n    \"name\": \"主角\",\n    \"category\": \"人物\",\n    \"attrs\": {\n      \"ghost\": \"未提供/待补信息\",\n      \"wound\": \"未提供/待补信息\",\n      \"lie\": \"未提供/待补信息\",\n      \"want\": \"揭示家族信物的真相并完成远航（结构推导：基于大纲'主角逐步揭示家族信物的真相'与'完成第一次远航'）\",\n      \"need\": \"未提供/待补信息\",\n      \"proactivity\": \"未提供/待补信息\",\n      \"likability\": \"未提供/待补信息\",\n      \"competence\": \"未提供/待补信息\",\n      \"对话指纹\": \"未提供/待补信息\",\n      \"意象功能\": \"未提供/待补信息\",\n      \"伏笔ID\": \"未提供/待补信息\",\n      \"能量\": \"未提供/待补信息\",\n      \"身份状态\": \"结构推导：want基于大纲目标推断；其余未提供。\"\n    }\n  },\n  {\n    \"name\":"
+          },
+          "stream": {
+            "ref": "payload-005",
+            "file": "005-stream.json",
+            "sha256": "2d6fcafa5c9db004d8b46548a8a3cae905f501d06c80e6ddc3d7d336d4ec1486",
+            "bytes": 3564,
+            "chars": 2216
+          },
+          "reasoning": {
+            "ref": "payload-004",
+            "file": "004-reasoning.json",
+            "sha256": "509399cb5b4381ddd706410d6bd268c43c77244a5eb329d3ec1ecefb08f1ea01",
+            "bytes": 13207,
+            "chars": 5257
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

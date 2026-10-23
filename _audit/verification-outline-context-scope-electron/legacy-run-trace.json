@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1791922096137-1",
+  "id": "run-1792640171818-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -14,64 +14,106 @@
   "skillNames": [],
   "skillMode": "chain",
   "status": "success",
-  "startedAt": 1791922096137,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "b2d0b8088e7e",
+    "buildTime": "2026-10-22T03:27:46.288Z"
+  },
+  "startedAt": 1792640171818,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "body_generation_complete",
-      "recordedAt": 1791922096245
+      "recordedAt": 1792640172019
     }
   ],
   "events": [
     {
-      "id": "event-1791922096137-2",
-      "ts": 1791922096137,
+      "id": "event-1792640171818-2",
+      "ts": 1792640171818,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1791922096139-3",
-      "ts": 1791922096139,
+      "id": "event-1792640171831-3",
+      "ts": 1792640171831,
       "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1792640171832-4",
+      "ts": 1792640171832,
+      "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1792640171835-5",
+      "ts": 1792640171835,
+      "seq": 4,
       "type": "context_scope",
       "level": "warn",
       "label": "正文层上下文闭包",
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第12章 纸条\",\"unitId\":\"D1-03\",\"mode\":\"legacy_outline_no_scope\",\"permanentCount\":0,\"unitCount\":0,\"undeclaredCount\":0,\"closureBytes\":202,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":\"legacy_outline_no_scope\"}"
     },
     {
-      "id": "event-1791922096140-4",
-      "ts": 1791922096140,
-      "seq": 3,
+      "id": "event-1792640171835-6",
+      "ts": 1792640171835,
+      "seq": 5,
       "type": "memory_context",
       "level": "info",
       "label": "正文层记忆上下文",
       "detail": "{\"chapterId\":\"chapter-context-12\",\"unitId\":\"D1-03\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1791922096141-5",
-      "ts": 1791922096141,
-      "seq": 4,
+      "id": "event-1792640171837-7",
+      "ts": 1792640171837,
+      "seq": 6,
       "type": "prompt-built",
       "level": "info",
       "label": "正文层执行包已构建",
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第12章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1791922096174-7",
-      "ts": 1791922096174,
-      "seq": 5,
+      "id": "event-1792640171849-8",
+      "ts": 1792640171849,
+      "seq": 7,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"context-scope-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1792640171885-9",
+      "ts": 1792640171885,
+      "seq": 8,
+      "type": "deai-prompt-variant",
+      "level": "info",
+      "label": "降AI注入变体：非链式调用",
+      "detail": "{\"variant\":\"methodology-compose\",\"charCount\":2012}"
+    },
+    {
+      "id": "event-1792640171885-11",
+      "ts": 1792640171885,
+      "seq": 9,
       "type": "api-start",
       "level": "info",
       "label": "第 1 次 API 调用开始",
       "detail": "{\"skillName\":\"compose\",\"model\":\"context-scope-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1791922096181-9",
-      "ts": 1791922096181,
-      "seq": 6,
+      "id": "event-1792640171898-13",
+      "ts": 1792640171898,
+      "seq": 10,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -82,41 +124,42 @@
       }
     },
     {
-      "id": "event-1791922096181-10",
-      "ts": 1791922096181,
-      "seq": 7,
+      "id": "event-1792640171898-14",
+      "ts": 1792640171898,
+      "seq": 11,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1791922096181-8",
+        "physicalCallId": "physical-1792640171897-12",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1791922096181-11",
-      "ts": 1791922096181,
-      "seq": 8,
+      "id": "event-1792640171898-15",
+      "ts": 1792640171898,
+      "seq": 12,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / compose / context-scope-model"
     },
     {
-      "id": "event-1791922096216-12",
-      "ts": 1791922096216,
-      "seq": 9,
-      "type": "physical-call",
+      "id": "event-1792640171899-16",
+      "ts": 1792640171899,
+      "seq": 13,
+      "turnId": "api-1792640171885-10",
+      "type": "provider-queue",
       "level": "info",
-      "label": "第 1 次物理请求完成",
-      "detail": "normal / compose / context-scope-model / stop"
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"context-scope-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1791922096217-13",
-      "ts": 1791922096217,
-      "seq": 10,
+      "id": "event-1792640171952-17",
+      "ts": 1792640171952,
+      "seq": 14,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -127,9 +170,18 @@
       }
     },
     {
-      "id": "event-1791922096217-14",
-      "ts": 1791922096217,
-      "seq": 11,
+      "id": "event-1792640171965-18",
+      "ts": 1792640171965,
+      "seq": 15,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / context-scope-model / stop"
+    },
+    {
+      "id": "event-1792640171967-19",
+      "ts": 1792640171967,
+      "seq": 16,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -140,72 +192,99 @@
       }
     },
     {
-      "id": "event-1791922096218-15",
-      "ts": 1791922096218,
-      "seq": 12,
+      "id": "event-1792640171969-20",
+      "ts": 1792640171969,
+      "seq": 17,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1791922096174-6 seq=1"
+      "detail": "apiCall=api-1792640171885-10 seq=1"
     },
     {
-      "id": "event-1791922096218-16",
-      "ts": 1791922096218,
-      "seq": 13,
+      "id": "event-1792640171969-21",
+      "ts": 1792640171969,
+      "seq": 18,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / context-scope-model"
     },
     {
-      "id": "event-1791922096222-17",
-      "ts": 1791922096222,
-      "seq": 14,
+      "id": "event-1792640171979-22",
+      "ts": 1792640171979,
+      "seq": 19,
+      "type": "body-step-acceptance",
+      "level": "info",
+      "label": "正文生成步骤 1/1 统一验收",
+      "detail": "{\"stepIndex\":0,\"callerStatus\":\"success\",\"rawWordCount\":3001,\"extractedWordCount\":3000,\"metadata\":{},\"metadataDelta\":1,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[],\"contractErrors\":[]}"
+    },
+    {
+      "id": "event-1792640171982-23",
+      "ts": 1792640171982,
+      "seq": 20,
       "type": "body-artifact-attempt",
       "level": "info",
       "label": "正文批次验收",
-      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"wordCount\":2000,\"targetWords\":3000,\"ratio\":0.6666666666666666,\"validationMs\":1,\"errors\":[]}"
+      "detail": "{\"attemptId\":\"chapter-context-12-attempt-1-kz5gde8k\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3000,\"targetWords\":3000,\"ratio\":1,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_6798e65d\",\"outputHash\":\"fnv1a32_e27aacf5\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":3001,\"extractedWordCount\":3000,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":1}"
     },
     {
-      "id": "event-1791922096222-18",
-      "ts": 1791922096222,
-      "seq": 15,
+      "id": "event-1792640171984-24",
+      "ts": 1792640171984,
+      "seq": 21,
+      "type": "hard_signal_scan",
+      "level": "info",
+      "label": "正文硬信号扫描通过",
+      "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
+    },
+    {
+      "id": "event-1792640171994-25",
+      "ts": 1792640171994,
+      "seq": 22,
+      "type": "contract_review",
+      "level": "info",
+      "label": "卷契约语义审查",
+      "detail": "{\"status\":\"contract_safe\",\"detected\":false,\"findings\":[]}"
+    },
+    {
+      "id": "event-1792640171995-26",
+      "ts": 1792640171995,
+      "seq": 23,
       "type": "body-artifact-validated",
       "level": "info",
       "label": "正文批次验收通过",
-      "detail": "{\"chapterId\":\"chapter-context-12\",\"targetWords\":3000,\"wordCount\":2000,\"ratio\":0.6666666666666666,\"status\":\"complete\",\"repairAttempts\":0}"
+      "detail": "{\"chapterId\":\"chapter-context-12\",\"targetWords\":3000,\"wordCount\":3000,\"ratio\":1,\"status\":\"complete\",\"repairAttempts\":0}"
     },
     {
-      "id": "event-1791922096243-19",
-      "ts": 1791922096243,
-      "seq": 16,
+      "id": "event-1792640172017-27",
+      "ts": 1792640172017,
+      "seq": 24,
       "type": "write",
       "level": "info",
       "label": "正文已写入项目",
-      "detail": "字数 2240"
+      "detail": "字数 3000"
     },
     {
-      "id": "event-1791922096245-20",
-      "ts": 1791922096245,
-      "seq": 17,
+      "id": "event-1792640172018-28",
+      "ts": 1792640172018,
+      "seq": 25,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "body_generation_complete"
     },
     {
-      "id": "event-1791922096245-21",
-      "ts": 1791922096245,
-      "seq": 18,
+      "id": "event-1792640172019-29",
+      "ts": 1792640172019,
+      "seq": 26,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "body_generation_complete / run=run-1791922096137-1"
+      "detail": "body_generation_complete / run=run-1792640171818-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1791922096174-6",
+      "id": "api-1792640171885-10",
       "seq": 1,
       "step": 4,
       "skillId": "compose",
@@ -220,17 +299,18 @@
           "id": "payload-001"
         }
       },
+      "deaiPromptVariant": "methodology-compose",
       "streamText": {
         "__payload": {
           "id": "payload-003"
         }
       },
       "status": "success",
-      "startedAt": 1791922096174,
+      "startedAt": 1792640171885,
       "physicalCalls": [
         {
-          "id": "physical-1791922096181-8",
-          "physicalCallId": "physical-1791922096175-0",
+          "id": "physical-1792640171897-12",
+          "physicalCallId": "physical-1792640171887-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -251,37 +331,45 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1791922096181,
-          "durationMs": 36,
-          "endedAt": 1791922096216,
+          "startedAt": 1792640171897,
+          "durationMs": 72,
+          "firstTokenMs": 59,
+          "outputMs": 13,
+          "endedAt": 1792640171964,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
           "providerContextWindowTokens": 128000,
-          "estimatedInputTokens": 1096,
+          "estimatedInputTokens": 1119,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 1096 / 可用 123904",
+          "contextBudgetReason": "上下文可容纳：输入 1119 / 可用 123904",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 1096,
+            "estimatedInputTokens": 1119,
             "actualInputTokens": 10,
-            "driftRatio": -0.9908759124087592,
-            "correctedRatio": 0.009124087591240875
+            "driftRatio": -0.9910634495084897,
+            "correctedRatio": 0.008936550491510277
           },
+          "firstContentAt": 1792640171951,
+          "lastContentAt": 1792640171951,
           "heartbeat": false,
           "responseTextPayloadRef": "payload-002",
           "responseTextPreview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
         }
       ],
-      "lastExecutionActivityAt": 1791922096217,
-      "lastStreamActivityAt": 1791922096217,
+      "lastExecutionActivityAt": 1792640171953,
+      "lastStreamActivityAt": 1792640171953,
       "finishReason": "stop",
-      "durationMs": 40,
+      "durationMs": 73,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 36,
-        "localOverheadMs": 4
+        "physicalDurationSumMs": 72,
+        "firstTokenSumMs": 59,
+        "outputSumMs": 13,
+        "minFirstTokenMs": 59,
+        "maxFirstTokenMs": 59,
+        "localOverheadMs": 1
       },
       "usage": {
         "inputTokens": 10,
@@ -289,9 +377,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1791922096218,
+      "endedAt": 1792640171968,
       "semantic": {
-        "conversationId": "run-1791922096137-1",
+        "conversationId": "run-1792640171818-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -310,41 +398,45 @@
       "id": "payload-001",
       "kind": "request",
       "file": "001-request.json",
-      "bytes": 6108,
-      "chars": 2360,
-      "sha256": "c3f81d36ed867eab7b9fcf047c7d66b56dc7b0f776471cd57216bdad5d8df801",
+      "bytes": 6236,
+      "chars": 2408,
+      "sha256": "5e92f43de99c33d7311e46caa04f36cc2520b79e46452e1d0a06e5787984a011",
       "duplicateCount": 2,
-      "createdAt": 1791922096731
+      "artifactRole": "final",
+      "createdAt": 1792640172419
     },
     {
       "id": "payload-002",
       "kind": "response",
       "file": "002-response.json",
-      "bytes": 6731,
-      "chars": 2251,
-      "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+      "bytes": 10091,
+      "chars": 3371,
+      "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
       "duplicateCount": 2,
-      "createdAt": 1791922096731
+      "artifactRole": "final",
+      "createdAt": 1792640172420
     },
     {
       "id": "payload-003",
       "kind": "stream",
       "file": "003-stream.json",
-      "bytes": 13462,
-      "chars": 4502,
-      "sha256": "e6de84eba639e96a61d98cf4cfba62a9b8e67746967a4cfd0ae6886f19012cc2",
+      "bytes": 20182,
+      "chars": 6742,
+      "sha256": "23fbbfe5ab0732e0bde13e67425050d4ee428fe16a86deac831786890dc6dbc7",
       "duplicateCount": 1,
-      "createdAt": 1791922096731
+      "artifactRole": "final",
+      "createdAt": 1792640172420
     },
     {
       "id": "payload-004",
       "kind": "stream",
       "file": "004-stream.json",
-      "bytes": 6731,
-      "chars": 2251,
-      "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
+      "bytes": 10091,
+      "chars": 3371,
+      "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
       "duplicateCount": 1,
-      "createdAt": 1791922096731
+      "artifactRole": "final",
+      "createdAt": 1792640172420
     }
   ],
   "stepPhaseTiming": {
@@ -355,10 +447,10 @@
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 36,
-    "firstTokenSumMs": 0,
-    "outputSumMs": 0,
-    "localOverheadSumMs": 4,
+    "physicalDurationSumMs": 72,
+    "firstTokenSumMs": 59,
+    "outputSumMs": 13,
+    "localOverheadSumMs": 1,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -371,55 +463,57 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
+    "firstTokenSumMs": 59,
+    "outputSumMs": 13,
     "validationSumMs": 1,
     "persistenceSumMs": 21,
     "repeatedPromptBlocks": {},
-    "contextChars": 2204,
-    "outputChars": 2251,
-    "physicalDurationSumMs": 36
+    "contextChars": 2252,
+    "outputChars": 3371,
+    "physicalDurationSumMs": 72
   },
-  "endedAt": 1791922096245,
-  "durationMs": 108,
+  "endedAt": 1792640172018,
+  "durationMs": 200,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1791922096174-6",
+      "apiCallId": "api-1792640171885-10",
       "seq": 1,
       "status": "success",
       "response": {
         "ref": "payload-002",
         "file": "002-response.json",
-        "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
-        "bytes": 6731,
-        "chars": 2251,
+        "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
+        "bytes": 10091,
+        "chars": 3371,
         "preview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
       },
       "stream": {
         "ref": "payload-003",
         "file": "003-stream.json",
-        "sha256": "e6de84eba639e96a61d98cf4cfba62a9b8e67746967a4cfd0ae6886f19012cc2",
-        "bytes": 13462,
-        "chars": 4502
+        "sha256": "23fbbfe5ab0732e0bde13e67425050d4ee428fe16a86deac831786890dc6dbc7",
+        "bytes": 20182,
+        "chars": 6742
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1791922096175-0",
+          "physicalCallId": "physical-1792640171887-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
           "response": {
             "ref": "payload-002",
             "file": "002-response.json",
-            "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
-            "bytes": 6731,
-            "chars": 2251,
+            "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
+            "bytes": 10091,
+            "chars": 3371,
             "preview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
           },
           "stream": {
             "ref": "payload-004",
             "file": "004-stream.json",
-            "sha256": "b0c7064f5208feaa6f0ffc25caf58c70e9b0b0545c028671b44ad561f960b9fd",
-            "bytes": 6731,
-            "chars": 2251
+            "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
+            "bytes": 10091,
+            "chars": 3371
           }
         }
       ]

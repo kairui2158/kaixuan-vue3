@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-c-ledger-missing",
+  "runId": "run-1792606951345-161",
+  "runStatus": "failed",
+  "requestCount": 4,
+  "heartbeatFrames": 1,
+  "screenshots": [
+    "scenario-c-ledger-missing.png"
+  ]
+}

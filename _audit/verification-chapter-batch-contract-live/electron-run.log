@@ -1,6 +1,9 @@
 [ELECTRON] 
 [ELECTRON STDERR] 
-DevTools listening on ws://127.0.0.1:9345/devtools/browser/024405b9-75e8-4b95-8526-3a55b430cea9
+DevTools listening on ws://127.0.0.1:9345/devtools/browser/4b5ff7cf-f1c8-49e4-b7d7-8ad3b9f24ec3
+[ELECTRON STDERR] libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
 [ELECTRON STDERR] libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
@@ -8,13 +11,10 @@ libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
 libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-libpng warning: iCCP: known incorrect sRGB profile
-[ELECTRON] 21:20:54.541 > [intent-embedding] local model loaded {
+[ELECTRON] 02:15:17.268 > [intent-embedding] local model loaded {
   model: 'Xenova/bge-small-zh-v1.5',
   dir: 'D:\\codex\\novel-workshop-vue3\\resources\\models\\bge-small-zh-v1.5'
 }
-[ELECTRON] 21:20:59.128 > [skill-script-worker] fork requested D:\codex\novel-workshop-vue3\electron\ipc\skill-script-worker.js
-[ELECTRON] 21:20:59.140 > [skill-script-worker] spawned pid=3560
+[ELECTRON] 02:15:22.452 > [skill-script-worker] fork requested D:\codex\novel-workshop-vue3\electron\ipc\skill-script-worker.js
+[ELECTRON] 02:15:22.466 > [skill-script-worker] spawned pid=18516
 [ELECTRON CLOSE] code=1 signal=null

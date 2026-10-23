@@ -1,0 +1,11 @@
+我们需要回答用户。用户输入包含系统/开发者？开头是职责说明：逐字复述 input 中【终步回显样例】标记之后、【终步重试协议】标记之前的全部内容。保留【终步重试协议】要求，但输出内容只包含上述正文，不要修改、概括或省略任何正文字符。然后有降AI打磨契约等。之后用户消息包含 [style reference] ... text ... [终步回显样例] 第1段...第20段。
+
+Need parse: They want us to逐字复述 input 中【终步回显样例】标记之后、【终步重试协议】标记之前的全部内容。但 input 没有【终步重试协议】标记，只到第20段。那可能要求输出【终步回显样例】之后所有内容，即第1段到第20段，包括括号标注。需要精确复制。 另外系统提到 Live verification skill... 但这是用户消息？ 顶部系统/开发者说职责。必须遵守。输出只包含上述正文，不要修改、概括或省略任何正文字符。所以应该复述样例中的 20 段，完全一样。但是否应该包括“（第1段。）”等？逐字复述【终步回显样例】之后、标记之前的全部内容。第1段到第20段重复文本和括号。
+
+Need be careful: The user message includes before [终步回显样例] some [style reference] and text. We don't include those. Only after marker. There's no 【终步重试协议】 marker. So to end of input. We need output exactly the segments. Could maybe include 20 paragraphs.
+
+Let's read each segment: "周砚把防水袋压在左胸，指腹确认名单折角没有移动。海风从灯塔侧门刮进石缝，他把三次红色闪烁的间隔记进航海日志，又将南方航线的接头暗号写在页脚。手电光在码头东侧扫过时，他屏住呼吸，沿着湿滑石阶退进阴影。（第1段。）" then blank line repeated. Need include blank lines? The task says逐字复述全部内容，不要修改、概括或省略任何正文字符. "全部内容" includes newlines/blank lines? Usually include paragraphs. We can output same blank lines between paragraphs. Need maybe not include extra preface. Let's output exactly.
+
+Need consider if output should include all 20 segments? yes. Could maybe no markdown. Ensure exact punctuation: Chinese parentheses and "第1段。" with period inside. Comma and full stop.
+
+Let's output.

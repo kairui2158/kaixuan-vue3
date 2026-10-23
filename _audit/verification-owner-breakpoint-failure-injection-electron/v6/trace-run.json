@@ -1,5 +1,5 @@
 {
-  "id": "run-1792101793929-1",
+  "id": "run-1792641470814-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -17,82 +17,124 @@
   ],
   "skillMode": "chain",
   "status": "failed",
-  "startedAt": 1792101793929,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "b2d0b8088e7e",
+    "buildTime": "2026-10-22T03:43:59.563Z"
+  },
+  "startedAt": 1792641470815,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
       "reason": "generation_failed",
-      "recordedAt": 1792101794240
+      "recordedAt": 1792641471198
     }
   ],
   "events": [
     {
-      "id": "event-1792101793929-2",
-      "ts": 1792101793929,
+      "id": "event-1792641470815-2",
+      "ts": 1792641470815,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792101793935-3",
-      "ts": 1792101793935,
+      "id": "event-1792641470863-3",
+      "ts": 1792641470863,
       "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1792641470865-4",
+      "ts": 1792641470865,
+      "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1792641470872-5",
+      "ts": 1792641470872,
+      "seq": 4,
       "type": "context_scope",
       "level": "info",
       "label": "正文层上下文闭包",
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":1,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":227,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792101793938-4",
-      "ts": 1792101793938,
-      "seq": 3,
+      "id": "event-1792641470874-6",
+      "ts": 1792641470874,
+      "seq": 5,
       "type": "memory_context",
       "level": "info",
       "label": "正文层记忆上下文",
       "detail": "{\"chapterId\":\"chapter-owner-breakpoint-failure-1\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792101793939-5",
-      "ts": 1792101793939,
-      "seq": 4,
+      "id": "event-1792641470880-7",
+      "ts": 1792641470880,
+      "seq": 6,
       "type": "prompt-built",
       "level": "info",
       "label": "正文层执行包已构建",
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1792101793977-6",
-      "ts": 1792101793977,
-      "seq": 5,
+      "id": "event-1792641470926-8",
+      "ts": 1792641470926,
+      "seq": 7,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 1/3 上下文决策",
-      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":330,\"finalPromptLength\":330,\"outlineOriginalLength\":0}"
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792101793983-7",
-      "ts": 1792101793983,
-      "seq": 6,
+      "id": "event-1792641470931-9",
+      "ts": 1792641470931,
+      "seq": 8,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 1/3",
       "detail": "S1（文本）"
     },
     {
-      "id": "event-1792101794008-9",
-      "ts": 1792101794008,
-      "seq": 7,
+      "id": "event-1792641470934-10",
+      "ts": 1792641470934,
+      "seq": 9,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1792641470964-11",
+      "ts": 1792641470964,
+      "seq": 10,
+      "type": "deai-prompt-variant",
+      "level": "info",
+      "label": "降AI注入变体：链步骤 1/3",
+      "detail": "{\"skillIndex\":0,\"totalSkillCount\":3,\"variant\":\"methodology\",\"charCount\":2012}"
+    },
+    {
+      "id": "event-1792641470965-13",
+      "ts": 1792641470965,
+      "seq": 11,
       "type": "api-start",
       "level": "info",
       "label": "第 1 次 API 调用开始",
       "detail": "{\"skillName\":\"S1\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792101794015-11",
-      "ts": 1792101794015,
-      "seq": 8,
+      "id": "event-1792641470974-15",
+      "ts": 1792641470974,
+      "seq": 12,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -103,41 +145,51 @@
       }
     },
     {
-      "id": "event-1792101794015-12",
-      "ts": 1792101794015,
-      "seq": 9,
+      "id": "event-1792641470974-16",
+      "ts": 1792641470974,
+      "seq": 13,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792101794015-10",
+        "physicalCallId": "physical-1792641470973-14",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792101794015-13",
-      "ts": 1792101794015,
-      "seq": 10,
+      "id": "event-1792641470974-17",
+      "ts": 1792641470974,
+      "seq": 14,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / S1 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792101794072-14",
-      "ts": 1792101794072,
-      "seq": 11,
+      "id": "event-1792641470975-18",
+      "ts": 1792641470975,
+      "seq": 15,
+      "turnId": "api-1792641470965-12",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792641471066-19",
+      "ts": 1792641471066,
+      "seq": 16,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / S1 / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792101794073-15",
-      "ts": 1792101794073,
-      "seq": 12,
+      "id": "event-1792641471067-20",
+      "ts": 1792641471067,
+      "seq": 17,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -148,9 +200,9 @@
       }
     },
     {
-      "id": "event-1792101794075-16",
-      "ts": 1792101794075,
-      "seq": 13,
+      "id": "event-1792641471069-21",
+      "ts": 1792641471069,
+      "seq": 18,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -161,81 +213,99 @@
       }
     },
     {
-      "id": "event-1792101794077-17",
-      "ts": 1792101794077,
-      "seq": 14,
+      "id": "event-1792641471071-22",
+      "ts": 1792641471071,
+      "seq": 19,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792101794008-8 seq=1"
+      "detail": "apiCall=api-1792641470965-12 seq=1"
     },
     {
-      "id": "event-1792101794077-18",
-      "ts": 1792101794077,
-      "seq": 15,
+      "id": "event-1792641471071-23",
+      "ts": 1792641471071,
+      "seq": 20,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "S1 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792101794082-20",
-      "ts": 1792101794082,
-      "seq": 16,
+      "id": "event-1792641471079-25",
+      "ts": 1792641471079,
+      "seq": 21,
       "type": "processing-report",
       "level": "info",
       "label": "本地处理完成：chain-handoff",
       "detail": "post"
     },
     {
-      "id": "event-1792101794082-21",
-      "ts": 1792101794082,
-      "seq": 17,
+      "id": "event-1792641471080-26",
+      "ts": 1792641471080,
+      "seq": 22,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 1/3 Handoff",
-      "detail": "{\"artifactId\":\"handoff-0-965bffb5\",\"sourceStep\":0,\"sourceSkillId\":\"OWNER-BP-FAIL-S1\",\"outputHash\":\"965bffb5\",\"fullTextLength\":27,\"delivery\":\"full_text\",\"excerptLength\":27,\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+      "detail": "{\"artifactId\":\"handoff-0-965bffb5\",\"sourceStep\":0,\"sourceSkillId\":\"OWNER-BP-FAIL-S1\",\"outputHash\":\"965bffb5\",\"fullTextLength\":27,\"delivery\":\"full_text\",\"excerptLength\":27,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792101794089-22",
-      "ts": 1792101794089,
-      "seq": 18,
+      "id": "event-1792641471099-27",
+      "ts": 1792641471099,
+      "seq": 23,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 2/3 上下文决策",
-      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":330,\"finalPromptLength\":330,\"outlineOriginalLength\":0}"
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792101794090-23",
-      "ts": 1792101794090,
-      "seq": 19,
+      "id": "event-1792641471100-28",
+      "ts": 1792641471100,
+      "seq": 24,
       "type": "chain-handoff-delivery",
       "level": "info",
       "label": "链式步骤 2/3 上游交付决策",
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":27,\"deliveredLength\":27,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"OWNER-BP-FAIL-S2\",\"skillName\":\"S2（文本）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792101794090-24",
-      "ts": 1792101794090,
-      "seq": 20,
+      "id": "event-1792641471101-29",
+      "ts": 1792641471101,
+      "seq": 25,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 2/3",
       "detail": "S2（文本）"
     },
     {
-      "id": "event-1792101794091-26",
-      "ts": 1792101794091,
-      "seq": 21,
+      "id": "event-1792641471101-30",
+      "ts": 1792641471101,
+      "seq": 26,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1792641471101-31",
+      "ts": 1792641471101,
+      "seq": 27,
+      "type": "deai-prompt-variant",
+      "level": "info",
+      "label": "降AI注入变体：链步骤 2/3",
+      "detail": "{\"skillIndex\":1,\"totalSkillCount\":3,\"variant\":\"creative\",\"charCount\":383}"
+    },
+    {
+      "id": "event-1792641471101-33",
+      "ts": 1792641471101,
+      "seq": 28,
       "type": "api-start",
       "level": "info",
       "label": "第 2 次 API 调用开始",
       "detail": "{\"skillName\":\"S2\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792101794091-28",
-      "ts": 1792101794091,
-      "seq": 22,
+      "id": "event-1792641471102-35",
+      "ts": 1792641471102,
+      "seq": 29,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -246,41 +316,42 @@
       }
     },
     {
-      "id": "event-1792101794091-29",
-      "ts": 1792101794091,
-      "seq": 23,
+      "id": "event-1792641471102-36",
+      "ts": 1792641471102,
+      "seq": 30,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792101794091-27",
+        "physicalCallId": "physical-1792641471101-34",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792101794091-30",
-      "ts": 1792101794091,
-      "seq": 24,
+      "id": "event-1792641471102-37",
+      "ts": 1792641471102,
+      "seq": 31,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / S2 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792101794112-31",
-      "ts": 1792101794112,
-      "seq": 25,
-      "type": "physical-call",
+      "id": "event-1792641471102-38",
+      "ts": 1792641471102,
+      "seq": 32,
+      "turnId": "api-1792641471101-32",
+      "type": "provider-queue",
       "level": "info",
-      "label": "第 1 次物理请求完成",
-      "detail": "normal / S2 / owner-breakpoint-failure-model / stop"
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792101794112-32",
-      "ts": 1792101794112,
-      "seq": 26,
+      "id": "event-1792641471116-39",
+      "ts": 1792641471116,
+      "seq": 33,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -291,9 +362,18 @@
       }
     },
     {
-      "id": "event-1792101794113-33",
-      "ts": 1792101794113,
-      "seq": 27,
+      "id": "event-1792641471121-40",
+      "ts": 1792641471121,
+      "seq": 34,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S2 / owner-breakpoint-failure-model / stop"
+    },
+    {
+      "id": "event-1792641471121-41",
+      "ts": 1792641471121,
+      "seq": 35,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -304,81 +384,108 @@
       }
     },
     {
-      "id": "event-1792101794113-34",
-      "ts": 1792101794113,
-      "seq": 28,
+      "id": "event-1792641471121-42",
+      "ts": 1792641471121,
+      "seq": 36,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792101794091-25 seq=2"
+      "detail": "apiCall=api-1792641471101-32 seq=2"
     },
     {
-      "id": "event-1792101794113-35",
-      "ts": 1792101794113,
-      "seq": 29,
+      "id": "event-1792641471121-43",
+      "ts": 1792641471121,
+      "seq": 37,
       "type": "api-success",
       "level": "info",
       "label": "第 2 次 API 调用完成",
       "detail": "S2 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792101794117-37",
-      "ts": 1792101794117,
-      "seq": 30,
+      "id": "event-1792641471126-44",
+      "ts": 1792641471126,
+      "seq": 38,
+      "type": "body-step-acceptance",
+      "level": "info",
+      "label": "正文生成步骤 2/3 统一验收",
+      "detail": "{\"stepIndex\":1,\"callerStatus\":\"success\",\"rawWordCount\":2650,\"extractedWordCount\":2600,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\nFACT_LOCK:人物状态=警觉\\nFACT_LOCK:位置=灯塔底层\\nFACT_LOCK:关键道具=纸条\\nNEW_FACT:纸条日期与灯芯维护记录不一致\\n【正文交接结束】\"]},\"metadataDelta\":50,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[],\"contractErrors\":[]}"
+    },
+    {
+      "id": "event-1792641471126-46",
+      "ts": 1792641471126,
+      "seq": 39,
       "type": "processing-report",
       "level": "info",
       "label": "本地处理完成：chain-handoff",
       "detail": "post"
     },
     {
-      "id": "event-1792101794119-38",
-      "ts": 1792101794119,
-      "seq": 31,
+      "id": "event-1792641471127-47",
+      "ts": 1792641471127,
+      "seq": 40,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 2/3 Handoff",
-      "detail": "{\"artifactId\":\"handoff-1-8e1cb393\",\"sourceStep\":1,\"sourceSkillId\":\"OWNER-BP-FAIL-S2\",\"outputHash\":\"8e1cb393\",\"fullTextLength\":2150,\"delivery\":\"full_text\",\"excerptLength\":2150,\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+      "detail": "{\"artifactId\":\"handoff-1-fb5252fa\",\"sourceStep\":1,\"sourceSkillId\":\"OWNER-BP-FAIL-S2\",\"outputHash\":\"fb5252fa\",\"fullTextLength\":3141,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792101794127-39",
-      "ts": 1792101794127,
-      "seq": 32,
+      "id": "event-1792641471139-48",
+      "ts": 1792641471139,
+      "seq": 41,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 3/3 上下文决策",
-      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":330,\"finalPromptLength\":330,\"outlineOriginalLength\":0}"
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792101794127-40",
-      "ts": 1792101794127,
-      "seq": 33,
+      "id": "event-1792641471140-49",
+      "ts": 1792641471140,
+      "seq": 42,
       "type": "chain-handoff-delivery",
       "level": "info",
       "label": "链式步骤 3/3 上游交付决策",
-      "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":2150,\"deliveredLength\":2150,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"OWNER-BP-FAIL-S3\",\"skillName\":\"S3（文本）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
+      "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":3141,\"deliveredLength\":3141,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"OWNER-BP-FAIL-S3\",\"skillName\":\"S3（文本）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792101794128-41",
-      "ts": 1792101794128,
-      "seq": 34,
+      "id": "event-1792641471141-50",
+      "ts": 1792641471141,
+      "seq": 43,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 3/3",
       "detail": "S3（文本）"
     },
     {
-      "id": "event-1792101794128-43",
-      "ts": 1792101794128,
-      "seq": 35,
+      "id": "event-1792641471141-51",
+      "ts": 1792641471141,
+      "seq": 44,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1792641471141-52",
+      "ts": 1792641471141,
+      "seq": 45,
+      "type": "deai-prompt-variant",
+      "level": "info",
+      "label": "降AI注入变体：链步骤 3/3",
+      "detail": "{\"skillIndex\":2,\"totalSkillCount\":3,\"variant\":\"polish\",\"charCount\":254}"
+    },
+    {
+      "id": "event-1792641471141-54",
+      "ts": 1792641471141,
+      "seq": 46,
       "type": "api-start",
       "level": "info",
       "label": "第 3 次 API 调用开始",
       "detail": "{\"skillName\":\"S3\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792101794129-45",
-      "ts": 1792101794129,
-      "seq": 36,
+      "id": "event-1792641471142-56",
+      "ts": 1792641471142,
+      "seq": 47,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -389,41 +496,51 @@
       }
     },
     {
-      "id": "event-1792101794130-46",
-      "ts": 1792101794130,
-      "seq": 37,
+      "id": "event-1792641471142-57",
+      "ts": 1792641471142,
+      "seq": 48,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792101794129-44",
+        "physicalCallId": "physical-1792641471142-55",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792101794130-47",
-      "ts": 1792101794130,
-      "seq": 38,
+      "id": "event-1792641471143-58",
+      "ts": 1792641471143,
+      "seq": 49,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / S3 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792101794179-48",
-      "ts": 1792101794179,
-      "seq": 39,
+      "id": "event-1792641471143-59",
+      "ts": 1792641471143,
+      "seq": 50,
+      "turnId": "api-1792641471141-53",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792641471155-60",
+      "ts": 1792641471155,
+      "seq": 51,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / S3 / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792101794180-49",
-      "ts": 1792101794180,
-      "seq": 40,
+      "id": "event-1792641471155-61",
+      "ts": 1792641471155,
+      "seq": 52,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -434,9 +551,9 @@
       }
     },
     {
-      "id": "event-1792101794180-50",
-      "ts": 1792101794180,
-      "seq": 41,
+      "id": "event-1792641471156-62",
+      "ts": 1792641471156,
+      "seq": 53,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -447,197 +564,90 @@
       }
     },
     {
-      "id": "event-1792101794181-51",
-      "ts": 1792101794181,
-      "seq": 42,
+      "id": "event-1792641471156-63",
+      "ts": 1792641471156,
+      "seq": 54,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792101794128-42 seq=3"
+      "detail": "apiCall=api-1792641471141-53 seq=3"
     },
     {
-      "id": "event-1792101794181-52",
-      "ts": 1792101794181,
-      "seq": 43,
+      "id": "event-1792641471156-64",
+      "ts": 1792641471156,
+      "seq": 55,
       "type": "api-success",
       "level": "info",
       "label": "第 3 次 API 调用完成",
       "detail": "S3 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792101794189-53",
-      "ts": 1792101794189,
-      "seq": 44,
-      "type": "chain-output-echo-repair",
-      "level": "warn",
-      "label": "链式步骤 3/3 终步回显修复重试",
-      "detail": "{\"echoRatio\":1}"
-    },
-    {
-      "id": "event-1792101794190-55",
-      "ts": 1792101794190,
-      "seq": 45,
-      "type": "api-start",
-      "level": "info",
-      "label": "第 4 次 API 调用开始",
-      "detail": "{\"skillName\":\"S3\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
-    },
-    {
-      "id": "event-1792101794195-57",
-      "ts": 1792101794195,
-      "seq": 46,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "physical_call_running / 1/S3",
-      "payload": {
-        "source": "physical_call_running",
-        "detail": "1/S3"
-      }
-    },
-    {
-      "id": "event-1792101794196-58",
-      "ts": 1792101794196,
-      "seq": 47,
-      "type": "long-request-in-progress",
-      "level": "info",
-      "label": "长物理请求进行中",
-      "detail": "physicalCall=1 / heartbeat=false / normal",
-      "payload": {
-        "physicalCallId": "physical-1792101794194-56",
-        "seq": 1,
-        "heartbeat": false
-      }
-    },
-    {
-      "id": "event-1792101794196-59",
-      "ts": 1792101794196,
-      "seq": 48,
-      "type": "physical-call",
-      "level": "info",
-      "label": "第 1 次物理请求进行中",
-      "detail": "normal / S3 / owner-breakpoint-failure-model"
-    },
-    {
-      "id": "event-1792101794218-60",
-      "ts": 1792101794218,
-      "seq": 49,
-      "type": "physical-call",
-      "level": "info",
-      "label": "第 1 次物理请求完成",
-      "detail": "normal / S3 / owner-breakpoint-failure-model / stop"
-    },
-    {
-      "id": "event-1792101794218-61",
-      "ts": 1792101794218,
-      "seq": 50,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=4",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=4"
-      }
-    },
-    {
-      "id": "event-1792101794219-62",
-      "ts": 1792101794219,
-      "seq": 51,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=4/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=4/terminal"
-      }
-    },
-    {
-      "id": "event-1792101794219-63",
-      "ts": 1792101794219,
-      "seq": 52,
-      "type": "state-transition",
-      "level": "info",
-      "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792101794189-54 seq=4"
-    },
-    {
-      "id": "event-1792101794219-64",
-      "ts": 1792101794219,
-      "seq": 53,
-      "type": "api-success",
-      "level": "info",
-      "label": "第 4 次 API 调用完成",
-      "detail": "S3 / owner-breakpoint-failure-model"
-    },
-    {
-      "id": "event-1792101794219-65",
-      "ts": 1792101794219,
-      "seq": 54,
-      "type": "chain-output-echo",
-      "level": "warn",
-      "label": "链式步骤 3/3 输出回显警告",
-      "detail": "当前步骤输出与上一步输入有约 100% 重叠，可能正在滚雪球；请让 SKILL 只输出本步骤定稿产物。（前序长度 2150，当前长度 2150）"
-    },
-    {
-      "id": "event-1792101794220-66",
-      "ts": 1792101794220,
-      "seq": 55,
-      "type": "chain-handoff",
-      "level": "warn",
-      "label": "链式步骤 3/3 Handoff",
-      "detail": "{\"artifactId\":\"handoff-2-8e1cb393\",\"sourceStep\":2,\"sourceSkillId\":\"OWNER-BP-FAIL-S3\",\"outputHash\":\"8e1cb393\",\"fullTextLength\":2150,\"delivery\":\"full_text\",\"excerptLength\":2150,\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":1}"
-    },
-    {
-      "id": "event-1792101794236-67",
-      "ts": 1792101794236,
+      "id": "event-1792641471161-65",
+      "ts": 1792641471161,
       "seq": 56,
+      "type": "body-final-step-metadata",
+      "level": "info",
+      "label": "正文终步 3/3 元数据对账",
+      "detail": "{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉\",\"位置=灯塔底层\",\"关键道具=纸条\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}},\"authoritativeKeys\":[\"extractedMeta\"],\"metadataKeys\":[\"extractedMeta\"],\"consumedMetadata\":{\"extractedMeta\":[\"【正文交接】\\nFACT_LOCK:人物状态=警觉\\nFACT_LOCK:位置=灯塔底层\\nFACT_LOCK:关键道具=纸条\\nNEW_FACT:纸条日期与灯芯维护记录不一致\\n【正文交接结束】\"]}}"
+    },
+    {
+      "id": "event-1792641471162-66",
+      "ts": 1792641471162,
+      "seq": 57,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 3/3 Handoff",
+      "detail": "{\"artifactId\":\"handoff-2-2e016ca4\",\"sourceStep\":2,\"sourceSkillId\":\"OWNER-BP-FAIL-S3\",\"outputHash\":\"2e016ca4\",\"fullTextLength\":3235,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1792641471192-67",
+      "ts": 1792641471192,
+      "seq": 58,
       "type": "chain-breakpoint-clear-failed",
       "level": "error",
       "label": "链式完成断点清理失败",
-      "detail": "pipeline:powner-breakpoint-failure:step-4 / pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4"
+      "detail": "pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1 / pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1"
     },
     {
-      "id": "event-1792101794237-68",
-      "ts": 1792101794237,
-      "seq": 57,
+      "id": "event-1792641471193-68",
+      "ts": 1792641471193,
+      "seq": 59,
       "type": "body-artifact-attempt",
       "level": "error",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-failure-1-attempt-1-qb6q6uzb\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4\"],\"bodyPreview\":\"\"}"
+      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-failure-1-attempt-1-77he1lcg\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2650,\"extractedWordCount\":2600,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉\",\"位置=灯塔底层\",\"关键道具=纸条\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":50}"
     },
     {
-      "id": "event-1792101794237-69",
-      "ts": 1792101794237,
-      "seq": 58,
+      "id": "event-1792641471194-69",
+      "ts": 1792641471194,
+      "seq": 60,
       "type": "failed",
       "level": "error",
       "label": "正文运行失败",
-      "detail": "pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4"
+      "detail": "pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1"
     },
     {
-      "id": "event-1792101794240-70",
-      "ts": 1792101794240,
-      "seq": 59,
+      "id": "event-1792641471198-70",
+      "ts": 1792641471198,
+      "seq": 61,
       "type": "finished",
       "level": "error",
       "label": "运行失败",
       "detail": "generation_failed"
     },
     {
-      "id": "event-1792101794240-71",
-      "ts": 1792101794240,
-      "seq": 60,
+      "id": "event-1792641471198-71",
+      "ts": 1792641471198,
+      "seq": 62,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1792101793929-1"
+      "detail": "generation_failed / run=run-1792641470814-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792101794008-8",
+      "id": "api-1792641470965-12",
       "seq": 1,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S1",
@@ -654,18 +664,19 @@
         },
         {
           "role": "user",
-          "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。"
+          "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。"
         }
       ],
+      "deaiPromptVariant": "methodology",
       "responseText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
       "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792101794008,
+      "startedAt": 1792641470965,
       "physicalCalls": [
         {
-          "id": "physical-1792101794015-10",
-          "physicalCallId": "physical-1792101794011-0",
+          "id": "physical-1792641470973-14",
+          "physicalCallId": "physical-1792641470967-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -676,7 +687,7 @@
             },
             {
               "role": "user",
-              "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。"
+              "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。"
             }
           ],
           "responseText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
@@ -689,40 +700,42 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792101794015,
-          "durationMs": 58,
-          "firstTokenMs": 50,
-          "outputMs": 8,
-          "endedAt": 1792101794072,
+          "startedAt": 1792641470973,
+          "durationMs": 94,
+          "firstTokenMs": 88,
+          "outputMs": 6,
+          "endedAt": 1792641471066,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
           "providerContextWindowTokens": 128000,
-          "estimatedInputTokens": 1163,
+          "estimatedInputTokens": 1166,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 1163 / 可用 123904",
+          "contextBudgetReason": "上下文可容纳：输入 1166 / 可用 123904",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 1163,
+            "estimatedInputTokens": 1166,
             "actualInputTokens": 10,
-            "driftRatio": -0.9914015477214101,
-            "correctedRatio": 0.008598452278589854
+            "driftRatio": -0.9914236706689536,
+            "correctedRatio": 0.008576329331046312
           },
-          "firstContentAt": 1792101794064,
-          "lastContentAt": 1792101794064,
+          "firstContentAt": 1792641471059,
+          "lastContentAt": 1792641471059,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792101794074,
-      "lastStreamActivityAt": 1792101794074,
+      "lastExecutionActivityAt": 1792641471067,
+      "lastStreamActivityAt": 1792641471067,
       "finishReason": "stop",
-      "durationMs": 58,
+      "durationMs": 94,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 58,
-        "minFirstTokenMs": 50,
-        "maxFirstTokenMs": 50,
+        "physicalDurationSumMs": 94,
+        "firstTokenSumMs": 88,
+        "outputSumMs": 6,
+        "minFirstTokenMs": 88,
+        "maxFirstTokenMs": 88,
         "localOverheadMs": 0
       },
       "usage": {
@@ -731,9 +744,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792101794076,
+      "endedAt": 1792641471071,
       "semantic": {
-        "conversationId": "run-1792101793929-1",
+        "conversationId": "run-1792641470814-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -742,7 +755,7 @@
       }
     },
     {
-      "id": "api-1792101794091-25",
+      "id": "api-1792641471101-32",
       "seq": 2,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S2",
@@ -755,37 +768,38 @@
       "requestMessages": [
         {
           "role": "system",
-          "content": "输出本步骤生成正文，不要解释。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
+          "content": "输出本步骤生成正文，不要解释。\n\n【降AI创作风格 - 创作执行阶段】\n只做正向风格执行，不做方法解释，不输出检查清单。\n1. 第一句直接进入具体动作、身体感受、环境声音或视觉画面。\n2. 连续三句的长度保持明显差异；短句仅用于关键转折制造节奏冲击，其余用长句铺展细节，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。\n4. 场景按戏剧价值分配轻重；结尾允许保留未解决张力。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡。\n6. 对话保留残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果。\n7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。\n8. 只输出本步骤定稿产物。"
         },
         {
           "role": "user",
-          "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\nS1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。"
+          "content": "chain step 2/3\n\n[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\nS1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。\n\n请生成本章节正文，目标约3000字（不低于2400字，不超过6000字）。只输出正文本身。"
         }
       ],
-      "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
+      "deaiPromptVariant": "creative",
+      "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
+      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792101794091,
+      "startedAt": 1792641471101,
       "physicalCalls": [
         {
-          "id": "physical-1792101794091-27",
-          "physicalCallId": "physical-1792101794091-0",
+          "id": "physical-1792641471101-34",
+          "physicalCallId": "physical-1792641471101-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
           "requestMessages": [
             {
               "role": "system",
-              "content": "输出本步骤生成正文，不要解释。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
+              "content": "输出本步骤生成正文，不要解释。\n\n【降AI创作风格 - 创作执行阶段】\n只做正向风格执行，不做方法解释，不输出检查清单。\n1. 第一句直接进入具体动作、身体感受、环境声音或视觉画面。\n2. 连续三句的长度保持明显差异；短句仅用于关键转折制造节奏冲击，其余用长句铺展细节，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。\n4. 场景按戏剧价值分配轻重；结尾允许保留未解决张力。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡。\n6. 对话保留残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果。\n7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。\n8. 只输出本步骤定稿产物。"
             },
             {
               "role": "user",
-              "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\nS1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。"
+              "content": "chain step 2/3\n\n[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\nS1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。\n\n请生成本章节正文，目标约3000字（不低于2400字，不超过6000字）。只输出正文本身。"
             }
           ],
-          "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-          "streamText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
+          "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
+          "streamText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
           "reasoningText": "",
           "finishReason": "stop",
           "usage": {
@@ -794,41 +808,43 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792101794091,
-          "durationMs": 21,
-          "firstTokenMs": 14,
-          "outputMs": 7,
-          "endedAt": 1792101794112,
+          "startedAt": 1792641471101,
+          "durationMs": 19,
+          "firstTokenMs": 15,
+          "outputMs": 4,
+          "endedAt": 1792641471120,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
           "providerContextWindowTokens": 128000,
-          "estimatedInputTokens": 1239,
+          "estimatedInputTokens": 300,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 1239 / 可用 123904",
+          "contextBudgetReason": "上下文可容纳：输入 300 / 可用 123904",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 1239,
+            "estimatedInputTokens": 300,
             "actualInputTokens": 10,
-            "driftRatio": -0.9919289749798225,
-            "correctedRatio": 0.008071025020177562
+            "driftRatio": -0.9666666666666667,
+            "correctedRatio": 0.03333333333333333
           },
-          "firstContentAt": 1792101794105,
-          "lastContentAt": 1792101794105,
+          "firstContentAt": 1792641471116,
+          "lastContentAt": 1792641471116,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792101794113,
-      "lastStreamActivityAt": 1792101794113,
+      "lastExecutionActivityAt": 1792641471117,
+      "lastStreamActivityAt": 1792641471117,
       "finishReason": "stop",
-      "durationMs": 15,
+      "durationMs": 17,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 21,
-        "minFirstTokenMs": 14,
-        "maxFirstTokenMs": 14,
-        "localOverheadMs": -6
+        "physicalDurationSumMs": 19,
+        "firstTokenSumMs": 15,
+        "outputSumMs": 4,
+        "minFirstTokenMs": 15,
+        "maxFirstTokenMs": 15,
+        "localOverheadMs": -2
       },
       "usage": {
         "inputTokens": 10,
@@ -836,9 +852,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792101794113,
+      "endedAt": 1792641471121,
       "semantic": {
-        "conversationId": "run-1792101793929-1",
+        "conversationId": "run-1792641470814-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -847,7 +863,7 @@
       }
     },
     {
-      "id": "api-1792101794128-42",
+      "id": "api-1792641471141-53",
       "seq": 3,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S3",
@@ -860,37 +876,38 @@
       "requestMessages": [
         {
           "role": "system",
-          "content": "输出打磨后的完整正文，不要解释。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
+          "content": "输出打磨后的完整正文，不要解释。\n\n【降AI打磨契约 - 语言收敛阶段】\n只做语言层收敛，不重新创作，不改变叙事结构和事实。\n1. 保留上游段落数量、场景顺序、人物设定、伏笔和对白含义。\n2. 只修改词语生硬处、重复处、报告腔和明显的AI痕迹。\n3. 修复AI痕迹时优先使用具体动作、身体感受和现场细节，不用泛化同义词替换。\n4. 不为了降低检测命中而增加新比喻；明喻数量不得高于打磨前。\n5. 不扩写、不压缩、不补设定，不为字数目标服务。信息无损的相邻短句合并、句号改逗号或分号，属于合法语言打磨，不算结构变更。\n6. 只输出本步骤定稿产物。"
         },
         {
           "role": "user",
-          "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。"
+          "content": "chain step 3/3\n\n[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n\n--- 上一步结构化交接（终步账本） ---\n- extractedMeta[0]: [metadata-section] FACT_LOCK:人物状态=警觉 FACT_LOCK:位置=灯塔底层 FACT_LOCK:关键道具=纸条 NEW_FACT:纸条日期与灯芯维护记录不一致 【正文交接结束】"
         }
       ],
-      "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
+      "deaiPromptVariant": "polish",
+      "responseText": "林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
+      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792101794128,
+      "startedAt": 1792641471141,
       "physicalCalls": [
         {
-          "id": "physical-1792101794129-44",
-          "physicalCallId": "physical-1792101794128-0",
+          "id": "physical-1792641471142-55",
+          "physicalCallId": "physical-1792641471141-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
           "requestMessages": [
             {
               "role": "system",
-              "content": "输出打磨后的完整正文，不要解释。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
+              "content": "输出打磨后的完整正文，不要解释。\n\n【降AI打磨契约 - 语言收敛阶段】\n只做语言层收敛，不重新创作，不改变叙事结构和事实。\n1. 保留上游段落数量、场景顺序、人物设定、伏笔和对白含义。\n2. 只修改词语生硬处、重复处、报告腔和明显的AI痕迹。\n3. 修复AI痕迹时优先使用具体动作、身体感受和现场细节，不用泛化同义词替换。\n4. 不为了降低检测命中而增加新比喻；明喻数量不得高于打磨前。\n5. 不扩写、不压缩、不补设定，不为字数目标服务。信息无损的相邻短句合并、句号改逗号或分号，属于合法语言打磨，不算结构变更。\n6. 只输出本步骤定稿产物。"
             },
             {
               "role": "user",
-              "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。"
+              "content": "chain step 3/3\n\n[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n\n--- 上一步结构化交接（终步账本） ---\n- extractedMeta[0]: [metadata-section] FACT_LOCK:人物状态=警觉 FACT_LOCK:位置=灯塔底层 FACT_LOCK:关键道具=纸条 NEW_FACT:纸条日期与灯芯维护记录不一致 【正文交接结束】"
             }
           ],
-          "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-          "streamText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
+          "responseText": "林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
+          "streamText": "林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
           "reasoningText": "",
           "finishReason": "stop",
           "usage": {
@@ -899,41 +916,43 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792101794129,
-          "durationMs": 51,
-          "firstTokenMs": 48,
+          "startedAt": 1792641471142,
+          "durationMs": 12,
+          "firstTokenMs": 9,
           "outputMs": 3,
-          "endedAt": 1792101794179,
+          "endedAt": 1792641471154,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
           "providerContextWindowTokens": 128000,
-          "estimatedInputTokens": 2341,
+          "estimatedInputTokens": 1322,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 2341 / 可用 123904",
+          "contextBudgetReason": "上下文可容纳：输入 1322 / 可用 123904",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 2341,
+            "estimatedInputTokens": 1322,
             "actualInputTokens": 10,
-            "driftRatio": -0.9957283212302435,
-            "correctedRatio": 0.004271678769756515
+            "driftRatio": -0.9924357034795764,
+            "correctedRatio": 0.007564296520423601
           },
-          "firstContentAt": 1792101794176,
-          "lastContentAt": 1792101794176,
+          "firstContentAt": 1792641471151,
+          "lastContentAt": 1792641471151,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792101794180,
-      "lastStreamActivityAt": 1792101794180,
+      "lastExecutionActivityAt": 1792641471155,
+      "lastStreamActivityAt": 1792641471155,
       "finishReason": "stop",
-      "durationMs": 50,
+      "durationMs": 10,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 51,
-        "minFirstTokenMs": 48,
-        "maxFirstTokenMs": 48,
-        "localOverheadMs": -1
+        "physicalDurationSumMs": 12,
+        "firstTokenSumMs": 9,
+        "outputSumMs": 3,
+        "minFirstTokenMs": 9,
+        "maxFirstTokenMs": 9,
+        "localOverheadMs": -2
       },
       "usage": {
         "inputTokens": 10,
@@ -941,114 +960,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792101794180,
+      "endedAt": 1792641471156,
       "semantic": {
-        "conversationId": "run-1792101793929-1",
-        "usage": {
-          "inputTokens": 10,
-          "outputTokens": 20,
-          "totalTokens": 30
-        }
-      }
-    },
-    {
-      "id": "api-1792101794189-54",
-      "seq": 4,
-      "step": 4,
-      "skillId": "OWNER-BP-FAIL-S3",
-      "skillName": "S3",
-      "providerId": "owner-breakpoint-failure-provider",
-      "providerName": "Owner Breakpoint Failure Provider",
-      "model": "owner-breakpoint-failure-model",
-      "temperature": 0.1,
-      "maxTokens": 4096,
-      "requestMessages": [
-        {
-          "role": "system",
-          "content": "输出打磨后的完整正文，不要解释。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
-        },
-        {
-          "role": "user",
-          "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n\n[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物。"
-        }
-      ],
-      "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-      "reasoningText": "",
-      "status": "success",
-      "startedAt": 1792101794189,
-      "physicalCalls": [
-        {
-          "id": "physical-1792101794194-56",
-          "physicalCallId": "physical-1792101794190-0",
-          "seq": 1,
-          "phase": "normal",
-          "status": "success",
-          "requestMessages": [
-            {
-              "role": "system",
-              "content": "输出打磨后的完整正文，不要解释。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
-            },
-            {
-              "role": "user",
-              "content": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n\n[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物。"
-            }
-          ],
-          "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-          "streamText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-          "reasoningText": "",
-          "finishReason": "stop",
-          "usage": {
-            "inputTokens": 10,
-            "outputTokens": 20,
-            "totalTokens": 30
-          },
-          "usageUnavailable": false,
-          "startedAt": 1792101794195,
-          "durationMs": 27,
-          "firstTokenMs": 25,
-          "outputMs": 2,
-          "endedAt": 1792101794217,
-          "toolsEnabled": false,
-          "toolsDowngraded": false,
-          "maxTokens": 4096,
-          "providerContextWindowTokens": 128000,
-          "estimatedInputTokens": 2360,
-          "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 2360 / 可用 123904",
-          "usageReconciliation": {
-            "status": "available",
-            "estimatedInputTokens": 2360,
-            "actualInputTokens": 10,
-            "driftRatio": -0.9957627118644068,
-            "correctedRatio": 0.00423728813559322
-          },
-          "firstContentAt": 1792101794215,
-          "lastContentAt": 1792101794215,
-          "heartbeat": false
-        }
-      ],
-      "lastExecutionActivityAt": 1792101794218,
-      "lastStreamActivityAt": 1792101794218,
-      "finishReason": "stop",
-      "durationMs": 26,
-      "timingLedger": {
-        "physicalCallCount": 1,
-        "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 27,
-        "minFirstTokenMs": 25,
-        "maxFirstTokenMs": 25,
-        "localOverheadMs": -1
-      },
-      "usage": {
-        "inputTokens": 10,
-        "outputTokens": 20,
-        "totalTokens": 30
-      },
-      "usageUnavailable": false,
-      "endedAt": 1792101794219,
-      "semantic": {
-        "conversationId": "run-1792101793929-1",
+        "conversationId": "run-1792641470814-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -1061,40 +975,40 @@
   "promptSnapshots": [],
   "processingReports": [
     {
-      "id": "processing-1792101794081-19",
+      "id": "processing-1792641471079-24",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
-      "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。",
+      "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。",
       "outputPreview": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
       "output": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
-      "startedAt": 1792101794081,
-      "endedAt": 1792101794081,
+      "startedAt": 1792641471079,
+      "endedAt": 1792641471079,
       "durationMs": 0
     },
     {
-      "id": "processing-1792101794117-36",
+      "id": "processing-1792641471126-45",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
-      "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[设定摘要]\n\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请为本章节生成约3000字的正文内容。",
+      "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。",
       "outputPreview": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条",
-      "output": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。",
-      "startedAt": 1792101794117,
-      "endedAt": 1792101794117,
+      "output": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。",
+      "startedAt": 1792641471126,
+      "endedAt": 1792641471126,
       "durationMs": 0
     }
   ],
   "payloads": [],
-  "dirName": "run-trace-正文层-20261016-060313",
+  "dirName": "run-trace-正文层-20261022-115750",
   "timingLedger": {
-    "apiCallCount": 4,
-    "physicalCallCount": 4,
+    "apiCallCount": 3,
+    "physicalCallCount": 3,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 157,
-    "firstTokenSumMs": 137,
-    "outputSumMs": 20,
-    "localOverheadSumMs": -8,
+    "physicalDurationSumMs": 125,
+    "firstTokenSumMs": 112,
+    "outputSumMs": 13,
+    "localOverheadSumMs": -4,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -1103,18 +1017,18 @@
   },
   "stepTimingLedger": {
     "promptBuildMs": 0,
-    "apiCallCount": 4,
-    "physicalCallCount": 4,
+    "apiCallCount": 3,
+    "physicalCallCount": 3,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 137,
-    "outputSumMs": 20,
+    "firstTokenSumMs": 112,
+    "outputSumMs": 13,
     "postProcessSumMs": 0,
     "repeatedPromptBlocks": {},
-    "contextChars": 14191,
-    "outputChars": 6477,
-    "physicalDurationSumMs": 157
+    "contextChars": 7357,
+    "outputChars": 6497,
+    "physicalDurationSumMs": 125
   },
-  "endedAt": 1792101794240,
-  "durationMs": 311
+  "endedAt": 1792641471198,
+  "durationMs": 383
 }

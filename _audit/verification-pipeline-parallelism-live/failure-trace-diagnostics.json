@@ -1,0 +1,249 @@
+{
+  "at": "2026-10-23T19:29:30.918Z",
+  "exports": [
+    {
+      "runId": "run-1792783289328-1",
+      "step": 2,
+      "status": "success",
+      "eventTypes": [
+        "started",
+        "settings-projection-composed",
+        "prompt-built",
+        "style-semantics-merged",
+        "agent-model-fallback",
+        "api-start",
+        "run-activity",
+        "long-request-in-progress",
+        "physical-call",
+        "provider-queue",
+        "physical-call",
+        "state-transition",
+        "api-success",
+        "volume-batch-attempt",
+        "volume-batch-validated",
+        "write",
+        "finished",
+        "state-transition"
+      ],
+      "decisionEvents": [],
+      "apiCalls": [
+        {
+          "status": "success",
+          "skillName": "compose",
+          "physicalCalls": [
+            {
+              "status": "success",
+              "durationMs": 10060,
+              "error": null
+            }
+          ]
+        }
+      ],
+      "exportSuccess": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261024-032129-deep",
+      "exportError": null
+    },
+    {
+      "runId": "run-1792783289554-14",
+      "step": 3,
+      "status": "canceled",
+      "eventTypes": [
+        "started",
+        "prompt-built",
+        "chapter-count-arbitration",
+        "style-semantics-merged",
+        "settings-projection-composed",
+        "agent-model-fallback",
+        "api-start",
+        "run-activity",
+        "long-request-in-progress",
+        "physical-call",
+        "provider-queue",
+        "physical-call",
+        "state-transition",
+        "api-canceled",
+        "chapter-batch-attempt",
+        "failed",
+        "canceled",
+        "state-transition"
+      ],
+      "decisionEvents": [
+        {
+          "type": "failed",
+          "detail": "用户取消"
+        }
+      ],
+      "apiCalls": [
+        {
+          "status": "canceled",
+          "skillName": "compose",
+          "error": "用户取消",
+          "physicalCalls": [
+            {
+              "status": "canceled",
+              "durationMs": 317,
+              "error": null
+            }
+          ]
+        }
+      ],
+      "exportSuccess": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-章节层-20261024-032129-deep",
+      "exportError": null
+    },
+    {
+      "runId": "run-1792783289757-28",
+      "step": 4,
+      "status": "success",
+      "eventTypes": [
+        "started",
+        "settings-projection-composed",
+        "style-semantics-merged",
+        "context_scope",
+        "memory_context",
+        "prompt-built",
+        "chain-context-slim",
+        "chain-step",
+        "agent-model-fallback",
+        "api-start",
+        "deai-prompt-variant",
+        "folder-pass-input",
+        "run-activity",
+        "long-request-in-progress",
+        "physical-call",
+        "provider-queue",
+        "physical-call",
+        "folder-diagnostics",
+        "state-transition",
+        "api-success",
+        "processing-report",
+        "chain-handoff",
+        "chain-context-slim",
+        "chain-handoff-delivery",
+        "chain-step",
+        "agent-model-fallback",
+        "api-start",
+        "deai-prompt-variant",
+        "folder-pass-input",
+        "run-activity",
+        "long-request-in-progress",
+        "physical-call",
+        "provider-queue",
+        "physical-call",
+        "folder-diagnostics",
+        "state-transition",
+        "api-success",
+        "chain-output-echo",
+        "body-step-acceptance",
+        "body-generator-step-rejected",
+        "body-artifact-attempt",
+        "failed",
+        "finished",
+        "state-transition"
+      ],
+      "decisionEvents": [
+        {
+          "type": "body-step-acceptance",
+          "detail": {
+            "stepIndex": 1,
+            "callerStatus": "success",
+            "rawWordCount": 1206,
+            "extractedWordCount": 1148,
+            "metadata": {
+              "extractedMeta": [
+                "【正文交接】\n\nFACT_LOCK:人物状态=王芳发现纸条并确认三次红色闪烁\n\nFACT_LOCK:位置=灯塔底层\n\nFACT_LOCK:持有物=纸条\n\n【正文交接结束】",
+                "【来源覆盖】\n\nH1-01\n\n【来源覆盖结束】"
+              ]
+            },
+            "metadataDelta": 58,
+            "decision": "reject",
+            "reason": "contract_failed",
+            "contract": {
+              "targetWords": 3500,
+              "minWords": 2800,
+              "maxWords": 7000
+            },
+            "degradedErrors": [],
+            "contractErrors": [
+              "正文过短：1148字，要求不低于2800字"
+            ]
+          }
+        },
+        {
+          "type": "body-generator-step-rejected",
+          "detail": {
+            "reason": "contract_failure",
+            "errors": [
+              "正文过短：1148字，要求不低于2800字"
+            ]
+          }
+        },
+        {
+          "type": "body-artifact-attempt",
+          "detail": {
+            "attemptId": "ch-parallelism-1-attempt-1-hq6rqxdl",
+            "repairAttempt": 0,
+            "repairScope": "none",
+            "status": "error",
+            "wordCount": 0,
+            "targetWords": 3500,
+            "ratio": 0,
+            "errors": [
+              "正文生成步骤验收失败（contract_failure）：正文过短：1148字，要求不低于2800字"
+            ],
+            "bodyPreview": "",
+            "generatorStepIndex": 1,
+            "feedbackAudits": [],
+            "stepAcceptanceDecisions": [
+              {
+                "stepIndex": 1,
+                "callerStatus": "success",
+                "decision": "reject",
+                "reason": "contract_failed",
+                "rawWordCount": 1206,
+                "extractedWordCount": 1148,
+                "errors": [
+                  "正文过短：1148字，要求不低于2800字"
+                ]
+              }
+            ],
+            "degradedSteps": [],
+            "rawVsExtractedDelta": 58
+          }
+        },
+        {
+          "type": "failed",
+          "detail": "正文生成步骤验收失败（contract_failure）：正文过短：1148字，要求不低于2800字"
+        }
+      ],
+      "apiCalls": [
+        {
+          "status": "success",
+          "skillName": "P1 骨架（文件夹）",
+          "physicalCalls": [
+            {
+              "status": "success",
+              "durationMs": 8024,
+              "error": null
+            }
+          ]
+        },
+        {
+          "status": "success",
+          "skillName": "P2 生成（文件夹）",
+          "physicalCalls": [
+            {
+              "status": "success",
+              "durationMs": 8014,
+              "error": null
+            }
+          ]
+        }
+      ],
+      "exportSuccess": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261024-032129-deep",
+      "exportError": null
+    }
+  ],
+  "error": null
+}

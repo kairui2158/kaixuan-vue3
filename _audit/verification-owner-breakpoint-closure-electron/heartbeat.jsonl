@@ -1,2 +1,3 @@
-{"at":"2026-10-17T01:02:13.804Z","runId":null,"runStatus":null,"lastEventType":null,"progress":0,"status":null,"isGenerating":false,"electronPid":9852,"frame":1}
-{"at":"2026-10-17T01:02:14.821Z","runId":"run-1792198934788-1","runStatus":"running","lastEventType":"prompt-built","progress":20,"status":"API 生成正文中（已注入降AI约束）","isGenerating":true,"electronPid":9852,"frame":2}
+{"at":"2026-10-22T03:50:59.794Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":31912,"frame":1}
+{"at":"2026-10-22T03:51:00.812Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":31912,"frame":2}
+{"at":"2026-10-22T03:51:01.832Z","runId":"run-1792641060972-1","runStatus":"success","lastEventType":"state-transition","progress":null,"status":"done","pipelineRunStatus":null,"isGenerating":false,"electronPid":31912,"frame":3}

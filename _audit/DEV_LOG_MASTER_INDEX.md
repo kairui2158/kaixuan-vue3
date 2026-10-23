@@ -1126,3 +1126,30 @@
 - 范围：经验文件内部版本 v8.20 → v9.0.0；文件名 `_v7.md` → `_v9.md`；删除头部版本流水账；修复使用路由重复编号；迁移 STACK 与历史架构文档的活跃规则指针。
 - 验证：`_audit` 经验文件唯一；活跃指针 `_v7` 命中 0，历史记录保留；`git diff --check` 无 whitespace error；无生产代码变更，应用版本保持 3.103.0。
 - 经验回写：仅元信息升级，门禁语义与编号不变；v8.0-v8.20 入库细节由本索引与 Git 历史追溯。
+
+# 2026-10-22 流水线依赖并行 V3 解封复审
+
+- 文件：[_audit/DEV_LOG_2026-10-22_pipeline-parallelism-v3-unseal-review.md](_audit/DEV_LOG_2026-10-22_pipeline-parallelism-v3-unseal-review.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-21_pipeline-dependency-parallelism-v3.md](_audit/TASK_LEDGERS/2026-10-21_pipeline-dependency-parallelism-v3.md)
+- 范围：V3 解封；按 v9 门禁完成源码全景对账；V3 升级为 V3.1 复审版；登记验证器旧进度断言、性能预算未采样、章节共享断点例外、settings 写键矩阵四个新增缺口。
+- 验证：只读源码对账完成；`git diff --check` 通过；无生产代码变更，Phase 0-J 未启动。
+- 后续更新：用户已批准第 12.8 节全部 4 个决策点；第 12.9 节补齐执行器/工具层成熟化包。2026-10-22 追加第 13 节 20 轮深度推演，方案升级为 V3.2 待审核，新增 D5-D7 三个决策点；同日补充第 13.6 节链路支持性审计并登记 `activeToolRunBudget` 单例串账风险，随后完成方案重整：链路/预算结论并入第 0/1/2/7/8/12.9 节，新增 12.9.8 与第 13.7 节对账清单。生产实现、Electron 并行、live、性能采样仍为 `untested`，生产代码实施待 V3.2 审核通过后从 Phase 0 开始。
+- 门禁对账：2026-10-22 完成 V3.2 对 v9 逐条对账，登记于台账第 13 节；主方向判定为机制层根修，但发现 8 个半接入缺口（四格再入矩阵、供应商 `quota_exhausted` 软错误语义、写队列临界区读新值、trace schema 同步、预算执行计划派生、断点/attempt 生命周期、副作用断言面、发布级封装核验）。方案正文与生产代码未改动，等待用户裁决是否升级 V3.3。
+- V3.3：用户批示“确认并入”后，8 个缺口已一次性写入方案正文（Phase 0/B/C/E/I/J、8.1/8.3/8.4/8.5、12.9.4/12.9.5/12.9.8、13.3、13.5.1、13.5.2、13.7），登记于台账第 14 节。方案升级为 V3.3 待审核 D5-D7；无生产代码改动，Phase 0-J 未启动。
+- 批准：用户批示 D5-D7 全部采纳“是”后，方案升级为“V3.3，已批准待实施”，登记于台账第 15 节。V3.3 为唯一执行版本；下一步从 Phase 0 红测试与单 run 只读性能基线开始。生产实现、Electron 并行、live、性能采样仍为 `untested`。
+- Phase 0：2026-10-22 按批示开始执行，登记于 [_audit/TASK_LEDGERS/2026-10-22_pipeline-parallelism-phase0.md](_audit/TASK_LEDGERS/2026-10-22_pipeline-parallelism-phase0.md)。新增 [pipelineParallelismPhase0.spec.ts](/d:/codex/novel-workshop-vue3/src/services/pipelineParallelismPhase0.spec.ts:1) 共 14 项测试，实测 `7 红 / 7 绿`：红灯钉住隐式中止、进度覆盖、终态吞失、runTrace 自动放弃、agent bridge 串线、配置 RMW 丢写、再入生命周期缺失；保存队列旧快照覆盖未复现，按 G1.17 登记为意外绿灯/守护。单 run 只读基线 run-1792564350585-1743 显示 `durationMs=1,793,484`、`outputSumMs=1,751,306`、`localOverheadSumMs=189`，耗时主体是模型流式输出；S2 usage 未记录，留 Phase B 修观测。补齐后全量回归 `189 files: 1 failed / 188 passed`、`2142 tests: 7 failed / 2135 passed`，唯一失败文件即 Phase 0 红测试文件，既有测试无新增回归。生产代码未改，Electron UI 性能、并行 3 run 压测、Phase A-J 仍未执行。
+- Phase A-D：2026-10-22 继续执行，台账登记于同文件第 8/9 节。Phase A 落地 run 生命周期/取消/工具预算 registry；Phase B 移除 runTrace auto-abandon 与 agent bridge current fallback；Phase C 完成配置事务化、run 启动快照与正文断点 owner key；Phase D 落地 RunProgressChannel、四个生成器 runId 线程化、四个进度条 per-layer 读数、13 个 Electron 验证脚本迁移。最终验证：`npx vue-tsc --noEmit` exit 0；`npx vitest run` `194 files / 2162 tests` 全绿，Phase 0 目标红灯全部转绿；`npm run build:vue` 两个构建成功。诚实边界：Electron 脚本 live 复跑属 Phase J；`generationProgress/generationStatus` 过渡兜底与 `isGenerating` 串行守卫属 Phase F/I 收口，四层真正并行开放仍不可宣称。
+- Phase E-F：2026-10-22 继续执行，台账登记于同文件第 10/11 节。Phase E 将项目保存队列改为 request-sequence + drain loop，物理写挂起期间的新修改追加读最新 state 的第二次落盘；章节批次提交改为按章节 ID 合并，保留并行 run 同卷新章。Phase F 落地同层同目标目标锁，不同层可并行，同层同目标新 run 入队并记录 `queuedReason`；`isGenerating` 改为存在 active run 的派生语义，四个生成按钮改目标锁，顶部提供逐 run 取消与取消全部。验证：定向与全量 `195 files / 2167 tests` 全绿，`npx vue-tsc --noEmit` exit 0。诚实边界：注册表级排队不等于完整队列调度器；Electron 真实窗口四层同时运行属 Phase J；残留全局编辑禁用语义归 Phase I。
+- Phase G：2026-10-22 继续执行，台账登记于同文件第 12 节。新增 providerScheduler 按供应商槽位排队，排队中取消不发起物理请求；软错误统一 `quota_exhausted/auth/402` 终态并禁止物理重试；主页对话、大纲工作台、生成流水线三入口补齐 `provider-queue` trace 与 `onProviderQueue` 透传；runTrace 新增同源并发 run 隔离测试。验证：`npx vue-tsc --noEmit` exit 0；定向 3 files / 202 tests、2 files / 114 tests 全绿；全量 `196 files / 2175 tests` 全绿。诚实边界：供应商槽位按 ID 全局控制，未分层限额；`provider-queue` 未接运行中心 `queuedReason`；真实 Electron 并行压测与 live 观测属 Phase H/J。
+- Phase H-I：2026-10-22 继续执行，台账登记于同文件第 13/14 节。Phase H 新增 performanceMonitor（long task、freeze watchdog、点击反馈预算）并接入 App 生命周期；持久化恢复将非终态 run 显式转 `interrupted`，不再静默丢失；3 run × 300 高频事件合成压测通过。Phase I 删除 `generationProgress` 与 `generationAbortController`，生产代码零引用。验证：`npx vue-tsc --noEmit` exit 0；Phase H 定向 3 files / 109 tests、Phase I 定向 4 files / 111 tests 全绿。诚实边界：真实 Electron 性能数字、live 脚本、版本升级与封装核验属后续 Phase。
+- Phase I 收尾：2026-10-22 同日补齐。`activeToolRunBudget` 全仓 0 命中确认已清零；版本升级 `3.103.0 -> 3.104.0`；`npm run build:vue` 双构建 exit 0；全量 `npx vitest run` 197 files / 2180 tests 全绿。诚实边界：封装核验、13 个 live 脚本、真实 Electron 四格再入与性能预算报告仍属 Phase J，未宣称完成。
+- Phase J：2026-10-23 真实 Electron + mock provider 并行验收 PASS，报告 [_audit/verification-pipeline-parallelism-live/report.json](_audit/verification-pipeline-parallelism-live/report.json)。三层同时 running、章节取消 121ms 隔离、provider 并发重叠、成功终态再入产生新 runId/hash 且物理请求 1→2、freeze/slow-click 均为 0。两个验证脚本缺陷（trace runId/pipeline runId 跨域混用、`find` 观测最早 run）已定案并只修脚本；经验回写 v9 G1.5/G1.17。诚实边界：断点恢复与失败终态后再入未触发，不宣称四格再入全闭环；13 个历史 Electron 脚本未全部复跑；版本升级与封装核验未执行。
+
+# 2026-10-24 流水线并行 V3.3 收口
+
+- 文件：[_audit/DEV_LOG_2026-10-24_pipeline-parallelism-v3-closure.md](_audit/DEV_LOG_2026-10-24_pipeline-parallelism-v3-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-23_pipeline-parallelism-v3-closure.md](_audit/TASK_LEDGERS/2026-10-23_pipeline-parallelism-v3-closure.md)
+- 范围：P0-1 四格再入矩阵闭环、P0-5 StyleProfileCard current 指针清零、P1-6 取消全部单源化、P1-7 排队原因 UI/trace 同源、P1-10 pipeline 旧全局态清零、P2-11 3.104.0 封装与清理。
+- 验证：mock 故障注入矩阵 coverage 五项全 true；live 内置 key 供应商矩阵 PASS；31 项定向测试、`vue-tsc`、`build:vue`、`build` 全部通过；3.104.0 真实 packaged Electron 启动核验 PASSED。
+- 封装：3.104.0；安装包 `dist/神意助手-Setup-3.104.0.exe`，231,562,775 bytes，SHA256 `8ce409b0e017dc3b3fd45088681f7dc81a2e8403c479124bdabd6c38ea601929`；rendererFiles=81、electronAPI methods=77；3.103 旧安装包/脚本/证据与临时日志已清理，dist 仅保留最新交付。
+- 诚实边界：mock 矩阵负责断点恢复与失败终态再入故障注入，live 矩阵负责真实供应商并发；git 分类提交与最终工作区状态见台账 P2-12，提交完成前不宣称仓库收口。

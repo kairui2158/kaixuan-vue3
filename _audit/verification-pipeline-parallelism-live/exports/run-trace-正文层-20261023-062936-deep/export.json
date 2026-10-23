@@ -1,0 +1,553 @@
+{
+  "schema": "shenyi.run-trace",
+  "version": 2,
+  "exportedAt": "2026-10-22T22:29:47.117Z",
+  "run": {
+    "schemaVersion": 19,
+    "id": "run-1792708176772-28",
+    "source": "pipeline",
+    "sourceName": "生成流水线",
+    "step": 4,
+    "stepName": "正文层",
+    "mode": "body",
+    "projectId": "pipeline-parallelism-live",
+    "projectName": "三层并行真实UI实测",
+    "providerId": "parallelism-provider",
+    "providerName": "Pipeline Parallelism Provider",
+    "model": "parallelism-model",
+    "skillNames": [],
+    "skillMode": "compose",
+    "status": "success",
+    "runtimeFingerprint": {
+      "source": "vite-manifest",
+      "manifestVersion": "1",
+      "commit": "b2d0b8088e7e",
+      "buildTime": "2026-10-22T20:59:31.560Z"
+    },
+    "startedAt": 1792708176772,
+    "stateHistory": [
+      {
+        "fromStatus": "running",
+        "toStatus": "success",
+        "reason": "body_generation_complete",
+        "recordedAt": 1792708184972
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1792708176772-29",
+        "ts": 1792708176772,
+        "seq": 1,
+        "type": "started",
+        "level": "info",
+        "label": "开始生成流水线 正文层运行"
+      },
+      {
+        "id": "event-1792708176779-30",
+        "ts": 1792708176779,
+        "seq": 2,
+        "type": "settings-projection-composed",
+        "level": "info",
+        "label": "设定锁定投影已组装",
+        "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+      },
+      {
+        "id": "event-1792708176780-31",
+        "ts": 1792708176780,
+        "seq": 3,
+        "type": "style-semantics-merged",
+        "level": "info",
+        "label": "风格语义已仲裁合并",
+        "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+      },
+      {
+        "id": "event-1792708176784-32",
+        "ts": 1792708176784,
+        "seq": 4,
+        "type": "context_scope",
+        "level": "info",
+        "label": "正文层上下文闭包",
+        "detail": "{\"volume\":\"第一卷 灯塔航线\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":0,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":271,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
+      },
+      {
+        "id": "event-1792708176784-33",
+        "ts": 1792708176784,
+        "seq": 5,
+        "type": "memory_context",
+        "level": "info",
+        "label": "正文层记忆上下文",
+        "detail": "{\"chapterId\":\"ch-parallelism-1\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
+      },
+      {
+        "id": "event-1792708176785-34",
+        "ts": 1792708176785,
+        "seq": 6,
+        "type": "prompt-built",
+        "level": "info",
+        "label": "正文层执行包已构建",
+        "detail": "{\"volume\":\"第一卷 灯塔航线\",\"chapter\":\"第1章 纸条\",\"targetWords\":1000}"
+      },
+      {
+        "id": "event-1792708176789-35",
+        "ts": 1792708176789,
+        "seq": 7,
+        "type": "agent-model-fallback",
+        "level": "warn",
+        "label": "Agent 模型未显式配置，已回退供应商默认模型",
+        "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"parallelism-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+      },
+      {
+        "id": "event-1792708176789-36",
+        "ts": 1792708176789,
+        "seq": 8,
+        "type": "deai-prompt-variant",
+        "level": "info",
+        "label": "降AI注入变体：非链式调用",
+        "detail": "{\"variant\":\"methodology-compose\",\"charCount\":2012}"
+      },
+      {
+        "id": "event-1792708176789-38",
+        "ts": 1792708176789,
+        "seq": 9,
+        "type": "api-start",
+        "level": "info",
+        "label": "第 1 次 API 调用开始",
+        "detail": "{\"skillName\":\"compose\",\"model\":\"parallelism-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+      },
+      {
+        "id": "event-1792708176790-40",
+        "ts": 1792708176790,
+        "seq": 10,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/compose",
+        "payload": {
+          "source": "physical_call_running",
+          "detail": "1/compose"
+        }
+      },
+      {
+        "id": "event-1792708176790-41",
+        "ts": 1792708176790,
+        "seq": 11,
+        "type": "long-request-in-progress",
+        "level": "info",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "payload": {
+          "physicalCallId": "physical-1792708176790-39",
+          "seq": 1,
+          "heartbeat": false
+        }
+      },
+      {
+        "id": "event-1792708176791-42",
+        "ts": 1792708176791,
+        "seq": 12,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / compose / parallelism-model"
+      },
+      {
+        "id": "event-1792708176791-43",
+        "ts": 1792708176791,
+        "seq": 13,
+        "turnId": "api-1792708176789-37",
+        "type": "provider-queue",
+        "level": "info",
+        "label": "等待供应商槽位：第 1/1 位",
+        "detail": "{\"providerId\":\"parallelism-provider\",\"status\":\"queued\",\"position\":1,\"waiting\":1,\"maxConcurrencyPerProvider\":2}"
+      },
+      {
+        "id": "event-1792708176882-44",
+        "ts": 1792708176882,
+        "seq": 14,
+        "turnId": "api-1792708176789-37",
+        "type": "provider-queue",
+        "level": "info",
+        "label": "已获得供应商槽位",
+        "detail": "{\"providerId\":\"parallelism-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+      },
+      {
+        "id": "event-1792708184930-52",
+        "ts": 1792708184930,
+        "seq": 15,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求完成",
+        "detail": "normal / compose / parallelism-model / stop"
+      },
+      {
+        "id": "event-1792708184930-53",
+        "ts": 1792708184930,
+        "seq": 16,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=1",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=1"
+        }
+      },
+      {
+        "id": "event-1792708184931-54",
+        "ts": 1792708184931,
+        "seq": 17,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=1/terminal",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=1/terminal"
+        }
+      },
+      {
+        "id": "event-1792708184931-55",
+        "ts": 1792708184931,
+        "seq": 18,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "apiCall=api-1792708176789-37 seq=1"
+      },
+      {
+        "id": "event-1792708184931-56",
+        "ts": 1792708184931,
+        "seq": 19,
+        "type": "api-success",
+        "level": "info",
+        "label": "第 1 次 API 调用完成",
+        "detail": "compose / parallelism-model"
+      },
+      {
+        "id": "event-1792708184936-57",
+        "ts": 1792708184936,
+        "seq": 20,
+        "type": "body-step-acceptance",
+        "level": "info",
+        "label": "正文生成步骤 1/1 统一验收",
+        "detail": "{\"stepIndex\":0,\"callerStatus\":\"success\",\"rawWordCount\":1148,\"extractedWordCount\":1148,\"metadata\":{},\"metadataDelta\":0,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":1000,\"minWords\":800,\"maxWords\":2000},\"degradedErrors\":[],\"contractErrors\":[]}"
+      },
+      {
+        "id": "event-1792708184937-58",
+        "ts": 1792708184937,
+        "seq": 21,
+        "type": "body-artifact-attempt",
+        "level": "info",
+        "label": "正文批次验收",
+        "detail": "{\"attemptId\":\"ch-parallelism-1-attempt-1-85sb39s2\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":1148,\"targetWords\":1000,\"ratio\":1.148,\"validationMs\":0,\"errors\":[],\"bodyPreview\":\"1. 雨还没有停，王芳把纸条压进灯座。\\n\\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\\n\\n灯塔底层很小，声音却像海一样来回撞。\\n\\n她确认过三遍航线，又把纸条上的每个字念出声。\\n\\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\\n\\n2. 雨还没有停，王芳把纸条压进灯座。\\n\\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\\n\\n灯塔底层很小，声音却像海一样来回撞。\\n\\n她确认过三遍航线，又把纸条上\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_93797161\",\"outputHash\":\"fnv1a32_f58d49d6\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":1148,\"extractedWordCount\":1148,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":0}"
+      },
+      {
+        "id": "event-1792708184938-59",
+        "ts": 1792708184938,
+        "seq": 22,
+        "type": "hard_signal_scan",
+        "level": "info",
+        "label": "正文硬信号扫描通过",
+        "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
+      },
+      {
+        "id": "event-1792708184941-60",
+        "ts": 1792708184941,
+        "seq": 23,
+        "type": "contract_review",
+        "level": "info",
+        "label": "卷契约语义审查",
+        "detail": "{\"status\":\"contract_safe\",\"detected\":false,\"findings\":[]}"
+      },
+      {
+        "id": "event-1792708184942-61",
+        "ts": 1792708184942,
+        "seq": 24,
+        "type": "body-artifact-validated",
+        "level": "info",
+        "label": "正文批次验收通过",
+        "detail": "{\"chapterId\":\"ch-parallelism-1\",\"targetWords\":1000,\"wordCount\":1148,\"ratio\":1.148,\"status\":\"complete\",\"repairAttempts\":0}"
+      },
+      {
+        "id": "event-1792708184971-62",
+        "ts": 1792708184971,
+        "seq": 25,
+        "type": "write",
+        "level": "info",
+        "label": "正文已写入项目",
+        "detail": "字数 1148"
+      },
+      {
+        "id": "event-1792708184972-63",
+        "ts": 1792708184972,
+        "seq": 26,
+        "type": "finished",
+        "level": "info",
+        "label": "运行完成",
+        "detail": "body_generation_complete"
+      },
+      {
+        "id": "event-1792708184972-64",
+        "ts": 1792708184972,
+        "seq": 27,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "body_generation_complete / run=run-1792708176772-28"
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1792708176789-37",
+        "seq": 1,
+        "step": 4,
+        "skillId": "compose",
+        "skillName": "compose",
+        "providerId": "parallelism-provider",
+        "providerName": "Pipeline Parallelism Provider",
+        "model": "parallelism-model",
+        "temperature": 0.1,
+        "maxTokens": 8192,
+        "requestMessages": {
+          "__payload": {
+            "id": "payload-001"
+          }
+        },
+        "deaiPromptVariant": "methodology-compose",
+        "streamText": {
+          "__payload": {
+            "id": "payload-003"
+          }
+        },
+        "status": "success",
+        "startedAt": 1792708176789,
+        "physicalCalls": [
+          {
+            "id": "physical-1792708176790-39",
+            "physicalCallId": "physical-1792708176789-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "requestMessages": {
+              "__payload": {
+                "id": "payload-001"
+              }
+            },
+            "streamText": {
+              "__payload": {
+                "id": "payload-004"
+              }
+            },
+            "finishReason": "stop",
+            "usage": {
+              "inputTokens": 20,
+              "outputTokens": 40,
+              "totalTokens": 60
+            },
+            "usageUnavailable": false,
+            "startedAt": 1792708176790,
+            "durationMs": 8140,
+            "firstTokenMs": 8138,
+            "outputMs": 2,
+            "endedAt": 1792708184930,
+            "toolsEnabled": false,
+            "toolsDowngraded": false,
+            "maxTokens": 8192,
+            "providerContextWindowTokens": 128000,
+            "estimatedInputTokens": 1189,
+            "contextBudgetDecision": "fits",
+            "contextBudgetReason": "上下文可容纳：输入 1189 / 可用 119808",
+            "usageReconciliation": {
+              "status": "available",
+              "estimatedInputTokens": 1189,
+              "actualInputTokens": 20,
+              "driftRatio": -0.9831791421362489,
+              "correctedRatio": 0.01682085786375105
+            },
+            "firstContentAt": 1792708184928,
+            "lastContentAt": 1792708184928,
+            "heartbeat": false,
+            "responseTextPayloadRef": "payload-002",
+            "responseTextPreview": "1. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n2. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n3. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n4. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n5. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一"
+          }
+        ],
+        "lastExecutionActivityAt": 1792708184931,
+        "lastStreamActivityAt": 1792708184931,
+        "finishReason": "stop",
+        "durationMs": 8140,
+        "timingLedger": {
+          "physicalCallCount": 1,
+          "retryPhysicalCallCount": 0,
+          "physicalDurationSumMs": 8140,
+          "firstTokenSumMs": 8138,
+          "outputSumMs": 2,
+          "minFirstTokenMs": 8138,
+          "maxFirstTokenMs": 8138,
+          "localOverheadMs": 0
+        },
+        "usage": {
+          "inputTokens": 20,
+          "outputTokens": 40,
+          "totalTokens": 60
+        },
+        "usageUnavailable": false,
+        "endedAt": 1792708184931,
+        "semantic": {
+          "conversationId": "run-1792708176772-28",
+          "usage": {
+            "inputTokens": 20,
+            "outputTokens": 40,
+            "totalTokens": 60
+          }
+        },
+        "responseTextPayloadRef": "payload-002",
+        "responseTextPreview": "1. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n2. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n3. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n4. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n5. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一"
+      }
+    ],
+    "sessionKind": "task",
+    "promptSnapshots": [],
+    "processingReports": [],
+    "payloads": [
+      {
+        "id": "payload-001",
+        "kind": "request",
+        "file": "001-request.json",
+        "bytes": 6598,
+        "chars": 2560,
+        "sha256": "1345cab18b8b3971ff7b80fcf2ca54dc90d222171fa5a20353ce0482df11a53b",
+        "duplicateCount": 2,
+        "artifactRole": "final",
+        "createdAt": 1792708187118
+      },
+      {
+        "id": "payload-002",
+        "kind": "response",
+        "file": "002-response.json",
+        "bytes": 3937,
+        "chars": 1427,
+        "sha256": "3a6a2ae53cc27651f3579408c5bb42895237ad47c91e991eed2a04b4e6f38cc6",
+        "duplicateCount": 2,
+        "artifactRole": "final",
+        "createdAt": 1792708187118
+      },
+      {
+        "id": "payload-003",
+        "kind": "stream",
+        "file": "003-stream.json",
+        "bytes": 7874,
+        "chars": 2854,
+        "sha256": "ce0f77a2f44756042ee79c0124e9be46852156eecc6d84ec02c3491a1f2ce103",
+        "duplicateCount": 1,
+        "artifactRole": "final",
+        "createdAt": 1792708187118
+      },
+      {
+        "id": "payload-004",
+        "kind": "stream",
+        "file": "004-stream.json",
+        "bytes": 3937,
+        "chars": 1427,
+        "sha256": "3a6a2ae53cc27651f3579408c5bb42895237ad47c91e991eed2a04b4e6f38cc6",
+        "duplicateCount": 1,
+        "artifactRole": "final",
+        "createdAt": 1792708187119
+      }
+    ],
+    "stepPhaseTiming": {
+      "validation": 0,
+      "persistence": 29
+    },
+    "timingLedger": {
+      "apiCallCount": 1,
+      "physicalCallCount": 1,
+      "retryPhysicalCallCount": 0,
+      "physicalDurationSumMs": 8140,
+      "firstTokenSumMs": 8138,
+      "outputSumMs": 2,
+      "localOverheadSumMs": 0,
+      "requestBuildSumMs": 0,
+      "schemaValidateSumMs": 0,
+      "retrySumMs": 0,
+      "postProcessSumMs": 0,
+      "repeatedPromptBlocks": {}
+    },
+    "stepTimingLedger": {
+      "promptBuildMs": 0,
+      "apiCallCount": 1,
+      "physicalCallCount": 1,
+      "retryCallCount": 0,
+      "continuationCallCount": 0,
+      "firstTokenSumMs": 8138,
+      "outputSumMs": 2,
+      "validationSumMs": 0,
+      "persistenceSumMs": 29,
+      "repeatedPromptBlocks": {},
+      "contextChars": 2402,
+      "outputChars": 1427,
+      "physicalDurationSumMs": 8140
+    },
+    "endedAt": 1792708184972,
+    "durationMs": 8200,
+    "apiResponseIndex": [
+      {
+        "apiCallId": "api-1792708176789-37",
+        "seq": 1,
+        "status": "success",
+        "response": {
+          "ref": "payload-002",
+          "file": "002-response.json",
+          "sha256": "3a6a2ae53cc27651f3579408c5bb42895237ad47c91e991eed2a04b4e6f38cc6",
+          "bytes": 3937,
+          "chars": 1427,
+          "preview": "1. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n2. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n3. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n4. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n5. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一"
+        },
+        "stream": {
+          "ref": "payload-003",
+          "file": "003-stream.json",
+          "sha256": "ce0f77a2f44756042ee79c0124e9be46852156eecc6d84ec02c3491a1f2ce103",
+          "bytes": 7874,
+          "chars": 2854
+        },
+        "physicalCalls": [
+          {
+            "physicalCallId": "physical-1792708176789-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "response": {
+              "ref": "payload-002",
+              "file": "002-response.json",
+              "sha256": "3a6a2ae53cc27651f3579408c5bb42895237ad47c91e991eed2a04b4e6f38cc6",
+              "bytes": 3937,
+              "chars": 1427,
+              "preview": "1. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n2. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n3. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n4. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一边把沉默拆成一句接一句的玩笑。\n\n灯塔底层很小，声音却像海一样来回撞。\n\n她确认过三遍航线，又把纸条上的每个字念出声。\n\n风暴在窗外退了半尺，她的声音先一步抵达岸线。\n\n5. 雨还没有停，王芳把纸条压进灯座。\n\n她一边数信标的红闪，一"
+            },
+            "stream": {
+              "ref": "payload-004",
+              "file": "004-stream.json",
+              "sha256": "3a6a2ae53cc27651f3579408c5bb42895237ad47c91e991eed2a04b4e6f38cc6",
+              "bytes": 3937,
+              "chars": 1427
+            }
+          }
+        ]
+      }
+    ],
+    "payloadIntegrityWarnings": []
+  },
+  "exportMode": "deep",
+  "payloadDirectoryHint": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports",
+  "payloadDirectory": "payloads",
+  "payloadCount": 4,
+  "payloadVerification": {
+    "total": 4,
+    "missing": [],
+    "hashMismatch": [],
+    "ok": true
+  },
+  "apiResponseIndexVerification": {
+    "total": 1,
+    "brokenRefs": [],
+    "ok": true
+  }
+}

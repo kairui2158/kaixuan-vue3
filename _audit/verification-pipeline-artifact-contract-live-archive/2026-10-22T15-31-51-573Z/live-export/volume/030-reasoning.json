@@ -1,0 +1,533 @@
+我们需要回答中文，输出格式必须严格：第一个字符【 最后一个字符】。不能输出分析。要执行当前 SKILL。输入里有一个 style reference 顶部似乎是当前卷骨架示例？用户说明：请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。上一步输出是当前卷任务包和全局资产表。需要生成第2卷《雾中港》骨架。注意用户还贴了一个【当前卷】废墟之上等 style reference？这可能只是格式参考示例？我们需要仔细。用户消息开始：
+[style reference]
+【当前卷】废墟之上 | 建议字数500000 | 主题子命题：知识封锁在末日中是对抗压迫的唯一武器
+【卷号】第 1 卷
+【卷型】地图重定价 | 卷使命：完成从废区独行到据点共同体的地图价值重估 | 主导增量：主角获得被外部势力定价的身份
+【定价变化区间】开篇知识仍是个人保命资产→中段转为据点半公共议价资产→卷末暴露后成为外部势力锁定的高价值资产
+【本卷目标】检验知识封锁能否保护陈暮自己，并让他第一次主动使用知识救人
+
+--- text ---
+chain step 2/4
+
+[大纲]
+...
+本次只生成第2卷...
+请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。
+不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。
+上一步输出在下方独立块中提供。
+
+--- 上一步 SKILL 完整输出 ---
+【当前卷任务包】...
+【全局资产表】...
+
+所以顶部 style reference 像是“当前卷骨架格式参考”，但内容与我们要生成的第2卷不同。我们不能复述。它可能提供格式风格：卷名、建议字数、主题子命题，然后卷号... But our format already specified. Need follow SKILL template.
+
+Need produce one current volume skeleton. Let's parse facts:
+
+当前卷任务包：
+当前卷号：第 2 卷
+生成边界：只生成当前这一卷
+已生成卷数：1
+上一卷卷名：《风暴起点》
+上一卷概要：旧信、灯塔与南方航线在风暴中第一次合流，主角让渡部分家族秘密换取灯塔验证与试航窗口，完成第一次远航并形成航线记录；卷末家族信物真相只露一角，主角决定前往雾中港。本卷建议承载3章。
+上一卷卷末状态：人物处境=完成第一次远航并形成航线记录；关系状态=未提供/待补信息；情感债务=未提供/待补信息；悬念库存=家族信物真相只露一角；卷级钩子=主角决定前往雾中港；钩子形态=未提供/待补信息；下卷衔接信号=前往雾中港。
+本卷覆盖故事范围：第2卷《雾中港》的港口交易、旧盟约与失踪船队使矛盾升级，主角必须选择立场。
+本卷主题问题：未提供/待补信息；输入仅提示主角必须选择立场。
+本卷必须推进的伏笔：F001 家族信物真相（状态：第1卷末只露一角；预期回收时机：第3卷；生命周期：跨卷）。
+本卷必须延续的关系与资源：主角与家族秘密/家族信物的揭示关系；航线记录；灯塔验证与试航窗口；其他关系与资源未提供/待补信息。
+本卷可用字数：3333
+剩余待分配字数：6667
+舞台状态线索：舞台空间=主角完成第一次远航后决定前往雾中港；资源状态=已形成航线记录；认知边界=家族信物真相只露一角；主角身份、敌对层级、关系格局=未提供/待补信息。
+卷型线索：卷功能=让矛盾升级并迫使主角选择立场；主导增量=未提供/待补信息；价值重估方向=在港口交易、旧盟约与失踪船队中选择立场。
+首卷判断：否
+信息缺口：主角姓名、旧信与家族信物具体内容、旧盟约方、失踪船队细节、除主角外的角色与势力、具体风格节奏参数、上一卷情感债务与关系状态、本卷主题问题均未提供或仅给大纲级提示。
+
+全局资产表：
+主题核心命题未提供/待补，已提供事实全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相。
+灵魂链主角 Ghost等待补。
+骨架节拍位置：第2卷，处于全书三卷结构的中间升级段；故事圆环待补；承诺系统待补。
+Stability待补。
+伏笔F001 家族信物真相：内容=家族信物背后的真相；状态=第1卷末只露一角；预期回收时机=第3卷；生命周期=跨卷。未覆盖编号：未提供/待补信息。
+意象未提供。
+故事梗概第二阶段当前边界。
+势力角色：主角，灯塔，旧航道，南方航线，雾中港，旧盟约，失踪船队，风暴信标。多为未提供。
+术语：风暴纪元、灯塔、旧航道、南方航线、雾中港、旧盟约、失踪船队、家族信物、风暴信标；命名约束未提供。
+风格节奏未设置。
+信息四层分离有矩阵。知识矩阵。
+世界规则：资源航线记录、灯塔验证与试航窗口；其他待补；能力待补；社会约束待补；道德约束待补；世界规则仅风暴纪元背景。
+
+需要输出骨架。必须按输出格式。
+
+Need decide exact details without inventing too much beyond input. But need generate skeleton, causal chain, conflict levels etc. We can derive from input and keep unspecified as 待补/无 where insufficient. Need not create new names. Entities can only come from story梗概 and势力角色。 So use 主角、雾中港、旧盟约、失踪船队、灯塔、家族信物、航线记录、风暴信标? 南方航线 not current? can mention as background maybe. No new characters.
+
+Need be careful: “对手四层” need specific opponents from 势力角色. 近敌、中敌、远敌、自我敌对. We only have entities: 旧盟约, 失踪船队, maybe 雾中港, 灯塔? We need map:
+近敌: 雾中港的港口交易对手/旧盟约执行方? Input doesn't specify. Could use 旧盟约 as 近敌? It is second volume矛盾来源之一. But “近敌”本卷正面交锋的紧迫对手. Could assign “旧盟约” or “失踪船队” as immediate. 中敌: 灯塔? Since cross-volume behind? 家族信物真相? 远敌: 风暴纪元制度? But 远敌 needs终局/制度性敌对，we don't have. Could use “风暴信标” maybe? That's third volume element, maybe not敌对. 自我敌对: 主角内心撕裂. Need fill with 待补/无.
+
+Given instructions: 不凭空新建势力. If not inferable, write 待补/无. But need at least some. We can say 近敌=旧盟约相关执行方（未具名）；中敌=失踪船队背后的操纵力量（未具名）；远敌=南方航线合流背后的制度性封锁（待补/无）；自我敌对=主角在港口交易中让渡家族秘密以换航路与隐藏真相之间的矛盾。But "旧盟约相关执行方" is derived? 势力角色 says 旧盟约：第二卷矛盾来源之一；具体内容未提供. It's an abstract force, not person. Could be okay to use as collective name. No new names. Use "旧盟约（未具名执行方）"? Might be edge. We can write "旧盟约（未具名，作为港口交易中的近敌）" in opponent. Let's consider.
+
+Need formulate theme sub-proposition for volume: Input lacks core命题, only “主角必须选择立场”。 Need craft from facts: 本卷检验“在旧盟约、港口交易与失踪船队的多方压力下，家族秘密该不该继续封锁，以及在何种条件下必须抛出以换立足”。 But not invent too much. The volume problem: “港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。” So theme子命题 could be: “当秘密成为多方争夺的筹码，选择立场就是选择把家族真相押给哪一方。” This is derived. Good.
+
+卷型：from menu maybe “新旧对照”? Actually volume function:让矛盾升级并迫使主角选择立场。主导增量 maybe 主角获得雾中港的临时盟约身份或旧盟约方承诺/新威胁. Need not invent. We can state: 主导增量：主角在雾中港获得可进入下一卷的航路许可或新旧盟约身份（待补/无? But must deliver. Input says 卷型线索主导增量未提供/待补信息。 However skeleton requires. We can write "待补/无" if insufficient; but skill says 输入不足时写“待补/无”，不硬造。 Maybe volume mission can be "本卷为全书承担的唯一叙事任务：把第一次远航形成的航线记录从个人资产推入雾中港多方议价，迫使主角选择立场，并留下前往南方航线的资格或债务。" 主导增量 could be "主角获得或被锁定进入南方航线的资格/威胁（具体形态待补）" because third volume long航路贯通. That seems derived: next卷 tension is南方航线，本卷必须交付资格/威胁. We can say "主角获得前往南方航线的入口资格或债务（具体由旧盟约/港口交易结果决定，待下游填充）". That's not creating new. Good.
+
+Need 上卷衔接: no first volume. State changes from上一卷: 舞台空间=由航线回到雾中港? 主角完成远航后前往雾中港. 敌对层级=从灯塔验证的试航窗口转入雾中港港口交易与旧盟约多方压力；资源状态=航线记录从自用航行成果转为可议价资产；主角身份=从持信人/试航者转为港口交易中的立场选择者；关系格局=从与灯塔验证合作转为面对旧盟约与失踪船队。认知边界=家族信物真相仍只露一角。 We can note changes: 舞台空间、敌对层级、资源状态、主角身份、关系格局发生换档；认知边界延续上卷状态。 This respects.
+
+【字数仲裁】Need calculate:本卷可用字数:3333. 剩余待分配字数:6667. 每卷建议字数? Not provided. 总字数10000/卷数3 = 3333. 采用值=3333, 来源=本卷可用字数，冲突说明=本卷可用字数3333与总字数/卷数3333一致；剩余待分配字数6667为全书余量，不冲突，只说明后续卷合计余量。 Actually priority:本卷可用字数 > 剩余待分配字数 > 每卷建议字数 > 总字数除以卷数. Available 3333, so adopt. Conflict:剩余待分配字数6667与采用值3333不冲突 because remaining after current? Wait first卷 allocated 3333, total 10000, remaining 6667 for two volumes: 3333 each if equal. 本卷可用字数3333. So no conflict. Write.
+
+Now skeleton four sections:
+起(前段): arrival雾中港? Input: 主角完成第一次远航后决定前往雾中港. We can say:
+因果前提：上一卷卷末主角决定前往雾中港，带着航线记录和只露一角的家族信物真相进入港口。
+压力转变：航线记录从试航验证成果转为港口交易筹码，旧盟约方或港口代理对记录提出查验/报价，主角第一次感到家族秘密可能被反推。
+残留债：港口交易只开启未完成，主角欠下一个必须选边的时间窗口。
+冲突级别：章节冲突（maybe entering雾中港 and first被接触 is chapter conflict）。
+线密度:主线60%/感情5%/势力25%/成长5%/伏笔5%? Need not be exact maybe.
+剧情点拆分指引:本段建议3-4个剧情点 etc. But capacity suggests total maybe 3 chapters? 可用字数3333，单章建议字数? Need infer. The previous卷 recommended 3 chapters for 3333. So each chapter ~1111. Need capacity. But user says 本卷可用字数3333. We can recommend 3 chapters. Four sections with intervals maybe 起1章,承1章,转0.5?合0.5? Since only 3 chapters, but four sections can share chapters. Need be careful.
+
+Let's derive chapter capacity: 建议章节数: 3章（按本卷可用字数3333，单章建议1000-1100字）。 However if each chapter only 1000字, realistic? Fine. 四段区间: 起 1章，承 1章，转 0.5-1章，合 0.5-1章. Since four beats can share chapters. Need provide剧情点密度: 每卷3章，本卷建议3-5个剧情点? Hmm each section 3-8 according to template? Actually template says 剧情点拆分指引:本段建议3-8个剧情点，每点2-4个微场景锚点. That's generic for a 50万 volume perhaps, but here 3333字 cannot fit 3-8 per section. Need adjust: 起(前段): 1个剧情点，2-3个微场景锚点; 承: 1个剧情点，2-3个微场景锚点; 转: 1个剧情点，2-3个微场景锚点; 合: 1个剧情点，2个微场景锚点. But template says 3-8; However capacity must be based on word count. The user maybe expects we use form but values can be smaller. We can write "本段建议1-2个剧情点，每点2-3个微场景锚点" to fit 3333. That's okay? The output format example says "本段建议3-8个剧情点，每点2-4个微场景锚点" as generic. But if we output 1-2, it's still sensible. Need not violate exact? It says "剧情点拆分指引" not necessarily fixed. We can adapt due字数. But there is an instruction in output format literally "剧情点拆分指引:本段建议3-8个剧情点，每点2-4个微场景锚点". But that's in the skeleton template as placeholder maybe. We can include our recommended counts.
+
+However maybe we should follow the template exactly? It says:
+【骨架】
+起(前段): 因果前提→压力转变→残留债 | 冲突级别 | 线密度:主线X%/感情X%/势力X%/成长X%/伏笔X% | 剧情点拆分指引:本段建议3-8个剧情点，每点2-4个微场景锚点
+承(中段): ... 
+Maybe we can use that but include appropriate numbers. For 3333 volume 3-8 per section is too many. But the instruction says "区间是推演参考，不限制章节数，不生成章节列表，不指定每章内容。" It doesn't mention changing剧情点 patterns. However capacity must make sense. Perhaps we can recommend total 3-5剧情点 for whole volume, not each section. But template expects per section. We should adapt values to capacity.
+
+Potential conflict: System says if this answer need table; If no table. Output format includes GFM maybe no table necessary. But maybe knowledge matrix not output table? Format doesn't include table except maybe inherited block. We can use colon-separated text.
+
+Need include all required blocks:
+【当前卷】卷名 | 建议字数 | 主题子命题
+【字数仲裁】采用值 | 来源 | 冲突说明
+【卷号】第 N 卷
+【本卷目标】核心叙事问题与驱动力
+【上卷衔接】...
+【卷型】卷型 | 卷使命 | 主导增量
+【信念演化】状态+触发事件+情绪走向
+【骨架】起承转合...
+【章节容量】...
+【定价变化区间】区间与价值重估内容；未出现时写“无”
+【Stability】不可逆变化 | 道德困境 | 信息经济 | 代价 | 资源压力表达
+【对手】近敌 | 中敌 | 远敌 | 自我敌对 | 视角策略（切入安排或非视角加压方式） | 动作意图
+【伏笔规划】继承伏笔操作+新伏笔操作+状态机+密度分配
+【关系线】关系对:初始值→变化轨迹(触发事件)→对主线影响
+【卷末接口】必须出现 | 禁止出现 | 收束产物（新资格/新威胁/新秩序，至少一项；不足写待补/无） | 卷末钩子（按本作气质选择收束形态） | 下一卷张力
+
+【继承区块】
+【主题】主题命题浓缩：一句话
+【灵魂链】逐条角色：Ghost→Wound→Lie→Want→Need 浓缩
+【伏笔】逐条 V-ID：状态+当前进度+本卷涉及程度
+【意象】逐条意象：功能+当前演变状态
+【故事梗概】本卷覆盖范围与相邻边界一句话
+【势力角色】逐条势力/角色：当前立场+与本卷关系
+【术语规范】逐条术语：锁定定义浓缩
+【信息四层分离】读者/角色/势力/世界各层关键信息差一行
+【知识矩阵】关键技术或知识：当前状态+使用边界
+【风格节奏】本卷基调+节奏要求一句话
+【世界规则】逐条硬规则：不可违反的约束
+【当前卷任务包】卷号+边界+可用字数+必须推进项
+【继承区块结束】
+
+【来源覆盖】
+输入单元总数：
+已覆盖编号：
+未覆盖编号：
+重复编号：
+状态变化：
+【来源覆盖结束】
+
+Need fill.
+
+Need ensure first char is 【 no spaces. Last char 】. Output pure.
+
+Potential need "不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。" So in source coverage, we can count units maybe 9? Actually input has 【当前卷任务包】, 【全局资产表】, 【信息来源元数据】 maybe 3 units. But instructions ask 输入单元总数, 已覆盖编号, 未覆盖编号, 重复编号, 状态变化. We can use input unit total: 3? Or 9? The metadata says 提取单元总数:9. But that's from previous process. We should not copy, but we can record our source coverage from current input units. Inputs: style reference, current卷任务包, global资产表. Possibly "上一步 SKILL 完整输出" includes two major units. We can say 输入单元总数=2 (当前卷任务包、全局资产表)；已覆盖编号=F001；未覆盖编号=未提供/待补信息；重复编号=无；状态变化=本步骤输出第2卷骨架，不改变第1卷与第3卷边界。 But maybe "输入单元总数" should be number of source units processed. Let's be safe: 3 if including [style reference]? But style reference isn't a fact source? It's format reference. Maybe use 2. However the user provided "chain step 2/4" and [大纲] etc, then上一步 output. But actual input to current step is that block with 当前卷任务包 and 全局资产表. We can count 2. The previous metadata said 9, but we shouldn't echo. The instruction "输入若包含历史卷纲 JSON、其他卷完整内容，只把它们当素材" etc. Not relevant.
+
+Need maybe include "已覆盖编号=F001" because伏笔. "未覆盖编号=未提供/待补信息" as input didn't supply other IDs. "重复编号=无" "状态变化=第1卷已完成，第2卷骨架已生成，第3卷仅保留背景约束；不生成其他卷。" Good.
+
+Need think through skeleton content in detail to fill all fields logically.
+
+Let's define volume 2 in a coherent way without inventing new named characters.
+
+Potential story beats:
+
+第2卷《雾中港》约3333字:
+起：主角携航线记录抵达雾中港，港口对航线记录和家族信物提出查验，主角以部分航线信息换停泊资格。
+承：旧盟约方与失踪船队线索在港口交易中交错出现，航线记录价值上升，但家族信物被港口势力暗中标记。
+转：主角意识到继续封锁家族秘密会失去旧盟约方指认失踪船队的机会，而公布秘密会暴露航线源头；被迫在两个阵营间选边。
+合：主角选择与旧盟约方暂时合作，以部分家族秘密换失踪船队坐标和离港许可，但家族信物被更大的南方航线目光锁定，形成进入第3卷的钩子。
+
+But must not invent details like coords not in input. Could use abstract.
+
+Need "主题子命题": "在多方港口交易中，秘密越是不公开，越会被当作可标价资产；选择立场即选择把秘密押向哪一方。" Good.
+
+Belief evolution: Lie of主角未提供. Need "状态+触发事件+情绪走向" We can say Lie 本卷状态：未明确输入，可由事件标记为“坚信独自保守家族秘密就能换得航路与安全”。触发事件：港口交易中，旧盟约与失踪船队同时追索航线记录，保守秘密开始产生代价。情绪走向：由完成远航的审慎自信，转向被多方夹持的焦虑，再转为必须让渡部分秘密的决意。 But “Lie” not provided; we should mark待补/无. Yet format says必须标注. Maybe write: “Lie（未提供，按本卷事件暂标）：保守家族秘密即可同时保住航线记录与自身选择权。” That's inference. Need be careful "输入缺失时保留待补标记". Could write:
+【信念演化】主角Lie：未提供/待补信息；本卷事件标记为“只要继续封锁家族秘密，就能保住航线记录与选择权”——触发事件=港口交易中旧盟约与失踪船队同时追索航线记录；情绪走向=谨慎自信→多方压力下的焦虑→被迫让渡部分秘密以换立场的决意。
+But that creates Lie. Maybe acceptable as推演? Skill says灵魂链可能未提供，但信念演化需要标注主角 Lie 的本卷状态与推进。 输入不足时写“待补/无”，不硬造. So perhaps better:
+【信念演化】Lie：未提供/待补信息（本卷可观测行为：主角在保护航线记录与家族秘密之间不断收紧信息控制）| 触发事件=旧盟约追索与失踪船队线索在雾中港交汇 | 情绪走向=上岸时的谨慎→被两方夹击的焦虑→以部分秘密换取立场的决意
+This doesn't assert specific Lie. Good.
+
+Causal chain details:
+起:
+因果前提:上卷卷末主角决定前往雾中港，并带航线记录和家族信物真相一角，港口交易尚未开始。
+压力转变:航线记录进入雾中港即被估价，主角的停泊/交易资格从灯塔试航成果转为旧盟约或港口代理的谈判对象；资源压力从“航线是否成立”转为“航线记录何价出售”。
+残留债:主角尚未交易但已进入港口视野，必须回应旧盟约的查验/报价。
+冲突级别:章节冲突
+线密度:主线65% 感情5% 势力20% 成长5% 伏笔5%
+剧情点拆分指引:本段建议1-2个剧情点，每点2-3个微场景锚点（抵港、航线记录被查验/估价）。
+
+承:
+因果前提:起段的估价与查验使旧盟约方与失踪船队线索同时出现，双方都指向航线记录。
+压力转变:失踪船队这一未解散债务被压到主角船上；旧盟约提出以航线记录换对失踪船队的追索支持，主角开始感知家庭秘密不能继续完全封闭；资源压力表达为“航线记录”从成品资产转为被争夺的信用杠杆，不设具体数值账本（世界规则未提供可计量资源细则）。
+残留债:主角获得失踪船队线索，但未选择阵营，欠旧盟约方一次立场回话。
+冲突级别:卷级冲突？ Actually middle may be卷级. But perhaps conflict级别:章节冲突 for each section? Could use:起=建立认知?承=卷级冲突?转=卷级冲突?合=闭环加新洞. The levels定义:建立认知、章节冲突、卷级冲突或闭环加新洞. Use:
+起:建立认知—主角进入雾中港，认识买方结构。
+承:章节冲突—旧盟约追索升级。
+转:卷级冲突—被迫选边。
+合:闭环加新洞—本卷选择完成，引出南方航线压力。
+Good.
+
+转:
+因果前提:承段欠下的立场回话到期，旧盟约与失踪船队双方都要求主角交出更多家族秘密，否则航线记录被冻结/停泊资格被取消。
+压力转变:主角为解锁航线记录与失踪船队情报，开始让渡部分家族秘密；缺口来源是对旧盟约的证明义务，且不可再回到完全隐藏。资源压力表达为情报信用消耗：每多披露一点家族秘密，航线记录的可交易价值上升但个人安全边际下降。
+残留债:主角做出立场选择，但旧盟约若反悔，航线记录与失踪船队情报均为债务展期。
+冲突级别:卷级冲突
+线密度 etc.
+剧情点拆分指引:1个剧情点，2-3个微场景锚点.
+
+合:
+因果前提:主角在旧盟约与雾中港港口方之间做出选择，以部分家族秘密换取离港或追索资格。
+压力转变:本卷矛盾暂结，旧盟约线闭合，失踪船队线转成下一段线索；家族信物真相仍只露一角，但被南方航线/风暴信标相关方注意到。
+残留债:主角在下卷前必须带着与新盟约的债务继续南下；航线记录背后关联被更高层定价。
+冲突级别:闭环加新洞
+线密度.
+剧情点拆分指引:1个剧情点，2个微场景锚点.
+
+Need add line密度 values. Should sum 100. Maybe:
+起:主线60% 感情5% 势力20% 成长5% 伏笔10%
+承:主线55% 感情10% 势力20% 成长5% 伏笔10%
+转:主线45% 感情10% 势力25% 成长10% 伏笔10%
+合:主线40% 感情10% 势力25% 成长10% 伏笔15%
+This shows growth and伏笔 increase. Fine.
+
+Pricing change interval: Existing top style reference had a price change. For current volume:
+定价变化区间: 开篇航线记录仍是个人航行成果→中段航线记录被旧盟约与港口交易推为公共信用筹码→卷末部分家族秘密让渡后，航线记录与家族信物同时被南方航线/风暴信标相关方锁定为高价值资产。
+This aligns.
+
+【Stability】
+不可逆变化:主角从“完整持有家族秘密”变为“让渡部分秘密换立场”，秘密不可回收。
+道德困境:为获得失踪船队线索或离港资格，让渡家族秘密会弱化其对家族信物的掌控。
+信息经济:港口交易中，航线记录与家族秘密的露出量直接决定主角议价力；读者知道的真相仍被限制在一角。
+代价:失去部分秘密控制权和后续被追踪风险。
+资源压力表达:不具可计量数值；以“航线记录被一遍遍查验、秘密披露的信用消耗与安全边际下降”作为压力表达。
+
+【对手四层】
+近敌:旧盟约（未具名执行方，在港口交易中正面追索航线记录与立场承诺）
+中敌:失踪船队背后的操纵/线索引力（未具名，跨卷拉扯主角前往南方方向；本卷部分登场或暗示）
+远敌:风暴信标/南方航线背后的制度性真相封锁（未具名，本卷仅以“航线记录被更高层锁定”显现）
+自我敌对:主角在守住家族秘密与换取失踪船队线索/离港资格之间的撕裂
+视角策略:本作单视角/有限视角，不切换对手视角；对手信息通过港口报价变化、旧盟约通牒、失踪船队遗留物痕迹和航线记录被冻痕迹加压。
+动作意图:旧盟约方—主动目标：取得航线记录或家族秘密背书；行动方向：以失踪船队线索作交换向主角逼价；结果意图：将主角纳入旧盟约执行线。 失踪船队—主动目标：通过线索显现迫使主角追索；行动方向：以失踪痕迹和船队遗留信息持续扰动港口交易；结果意图：把主角拖向南方航线。 风暴信标/南方航线—主动目标：锁定航线记录及家族信物；行动方向：在卷末以更高层注意形成外部压力；结果意图：为第三卷合流提供追索压力。
+Need ensure no new势力. "风暴信标/南方航线" are in实体. Good.
+
+But "远敌：终局或制度性敌对，本卷只做允许程度的显现。" Could use "风暴信标/南方航线背后的制度性敌对（未具名；本卷只做允许程度的显现）". Okay.
+
+Potential problem: "旧盟约" and "失踪船队" are not characters, maybe abstract. But that's all input has. Use them.
+
+【伏笔规划】
+继承伏笔:
+F001 家族信物真相：状态=第1卷末只露一角；本卷操作=推进/暗示（不回收）；状态机=部分披露—本卷由完全封锁转向为立场让渡部分信息；生命周期=跨卷；密度分配=卷末与南向钩子联动。
+新伏笔:
+F002 旧盟约与失踪船队关联：本卷新设/暗示；状态=未回收；生命周期=跨卷（预期第3卷回收/升级）；来源=港口交易中旧盟约追踪失踪船队。
+F003 家族信物被南方航线/风暴信标锁定：本卷新设；状态=暗示；生命周期=跨卷（第3卷合流）；来源=卷末航线记录被更高层定价。
+Need note F-ID downstream转换. "新识别伏笔继续使用 F-ID，由下游定稿时转换。" So can include F001 inherited and F002/F003 new. Good.
+
+【关系线】
+关系对:主角—旧盟约：初始值=未提供/待补信息（以第1卷无直接旧盟约关系）→变化轨迹=雾中港交易中由陌生/互不信任转为以失踪船队为筹码的临时合作；触发事件=旧盟约追索航线记录并抛出失踪船队线索；对主线影响=为主角锁定南方航线债务，并造成秘密让渡不可逆。
+主角—家族秘密/家族信物：初始值=完全封锁、只露一角→变化轨迹=因港口交易与失踪船队追索而发生部分让渡；触发事件=航线记录被冻/旧盟约逼价；对主线影响=家族秘密从私人护身符变为可交易资产，推动第3卷真相合流。
+主角—灯塔：初始值=完成验证与试航窗口合作→变化轨迹=本卷退居后台，以航线记录合法性依据存在；触发事件=雾中港交易对航线记录来源的查证；对主线影响=为主角提供“记录真实”背书，也限制作假空间。
+Maybe include 主角—失踪船队？ Relation unfamiliar. Could mention: 主角—失踪船队：初始值=仅作为雾中港传闻/恐惧对象→变化轨迹=因线索不断逼近而成为追查对象；触发事件=旧盟约以失踪船队情报为筹码；对主线影响=让主角必须选择立场并建立下一卷南下动力。 Good.
+Need not overdo.
+
+【卷末接口】
+必须出现：旧盟约与主角达成阶段性协议（或主角被其锁定）；航线记录与家族信物被更高层势力注意；主角必须南下或进入南方航线。
+禁止出现：家族信物真相全貌揭露；旧盟约/失踪船队全部解释；南方航线提前闭环；其他卷剧情展开。
+收束产物：新资格=主角获得旧盟约方的追索通道或离港许可（具体形态待补/无）；新威胁=家族信物被南方航线/风暴信标相关方锁定；新秩序=雾中港交易将航线记录从私人成果变为多方议价资产。 At least one.
+卷末钩子:按悬疑升级气质，用“主角获得的不是出口，而是一份必须继续南下的债”收束；可择旧盟约方发出的南方航线通牒或失踪船队信号重燃。
+下一卷张力:南方航线的航路贯通、家族真相与风暴信标合流，逼迫主角在更高层追索中处理已让渡的秘密。
+
+Need maybe include "卷末钩子（按本作气质选择收束形态）". We can write "单视角悬疑升级：以主角手机/航海日志收到南方航线追索信号或旧盟约离港条件作结，具体形态由下游填充。" But that's too detail? We can say "新威胁型钩子". But template asks choose收束形态 by style. We can choose "悬疑升级型：外部势力锁定" without inventing.
+
+Now 【章节容量】
+建议章节数:3章
+推算依据:本卷可用字数3333；按上一卷已生成卷建议承载3章，单章约1100字。总字数10000/3=3333同构。
+四段章节区间:起1章，承1章，转0.5-1章，合0.5-1章；四段共享3章。
+剧情点密度:全卷建议3-5个剧情点；起段1-2点/章，承段1点/章，转段1点/章，合段1点/章，每点2-3个微场景锚点。
+功能定位分布:高压推进约2章，关系回收约0.5章，信息整理约0.5章，呼吸或转场短章约0.5章（如港口场景喘息）；对手视角不单设。
+Actually need align: "高压推进、普通推进、关系回收、信息整理、生活呼吸等适合本作类型". We can list:
+- 高压推进：承、转各自共同构成约2章；
+- 普通推进：起段约1章；
+- 关系回收：合段约0.5章；
+- 信息整理：起段或合段约0.5章；
+- 生活呼吸：雾中港市面识读约0.5章，作为信息呼吸短章。
+But 3 chapters total. Fine.
+结构段闭环:
+进入状态/功能组合/退出状态/残留价值 for each section? Need list.
+起：进入状态=主角刚抵雾中港，信息不对称；功能组合=普通推进+信息整理+生活呼吸；退出状态=航线记录被港口估价；残留价值=旧盟约报价和失踪船队初次闪现。
+承：进入状态=两方追索出现；功能组合=高压推进+普通推进；退出状态=主角欠下立场答复；残留价值=航线记录从谈判品上升为命脉。
+转：进入状态=航线记录被冻或停泊资格受威胁；功能组合=高压推进+关系回收；退出状态=主角做出倾向旧盟约的选择；残留价值=主角让渡部分秘密的不可逆成本。
+合：进入状态=选择完成但债务未清；功能组合=关系回收+信息整理；退出状态=主角获得离港/追索通道，家族信物被锁定；残留价值=下一卷南方航线追索张力。
+信息短章区登记:本卷确实存在以雾中港市面观察、航线记录重记为承压过渡的短章区，用途是缓和连续逼价并让情报落地，所属结构段=起段后部或承段前部；不设数量间隔。
+
+Need maybe not be too long but required.
+
+Now 【继承区块】:
+Need one line each.
+
+【主题】主题命题浓缩：未提供/待补信息；已确认全书围绕灯塔、旧航道和南方航线展开，主角揭示家族信物真相。
+Maybe include one sentence: “在风暴纪元中，灯塔、旧航道与南方航线围绕家族信物的真相逐卷合流。” Good.
+
+【灵魂链】逐条角色：主角（姓名未提供）: Ghost=未提供/待补信息，Wound=未提供/待补信息，Lie=未提供/待补信息（本卷可观测为封锁秘密以保住选择权），Want=未提供/待补信息，Need=未提供/待补信息。
+Need maybe no other roles.
+
+【伏笔】逐条 V-ID：
+F001 家族信物真相：状态=第1卷末只露一角；当前进度=本卷推进/暗示，不回收；本卷涉及程度=中高（因立场选择被部分让渡）
+F002 旧盟约与失踪船队关联：本卷新设/暗示；当前进度=未回收；本卷涉及程度=高（矛盾升级主线）
+F003 家族信物被南方航线/风暴信标锁定：本卷新设/暗示；当前进度=未回收；本卷涉及程度=卷末高
+But needs V-ID? F001 is V-ID? Input says F001 is 伏笔; maybe in inheritance block it says伏笔逐条 V-ID. Could use F001, F002. But "V-ID" maybe actual编号. The input labels F001. Fine.
+
+【意象】未提供/待补信息。
+Could note if have any? Input no意象. So write 未提供/待补信息。
+
+【故事梗概】本卷覆盖范围与相邻边界一句话：第2卷《雾中港》围绕港口交易、旧盟约与失踪船队推动主角选择立场；上承第1卷远航记录，下启第3卷南方航线合流。
+
+【势力角色】
+- 主角：当前立场=在守密与换路之间被迫选边；与本卷关系=核心视角，承担航线记录和家族秘密压力。
+- 灯塔：当前立场=上游验证/试航背书；与本卷关系=后台合法性依据，不主导本卷冲突。
+- 旧航道：当前立场=历史航路背景；与本卷关系=航线记录来源背景，不直接登场。
+- 南方航线：当前立场=未抵达的下一段航线；与本卷关系=卷末外部锁定的方向。
+- 雾中港：当前立场=本卷舞台与交易场；与本卷关系=港口交易发生地。
+- 旧盟约：当前立场=本卷正面追索方；与本卷关系=矛盾来源之一，逼使主角表态。
+- 失踪船队：当前立场=本卷矛盾线索来源；与本卷关系=矛盾来源之一，为主角提供追索/让渡压力。
+- 风暴信标：当前立场=终局合流要素；与本卷关系=卷末以外部注意显现，不展开。
+
+【术语规范】逐条术语锁定定义浓缩：
+风暴纪元：时代背景，未提供具体规则。
+灯塔：第1卷验证与试航窗口提供方。
+旧航道：历史航路，航线记录相关背景。
+南方航线：第3卷航路贯通目标。
+雾中港：第2卷港口交易舞台。
+旧盟约：第2卷矛盾来源/追索方，具体内容未提供。
+失踪船队：第2卷矛盾来源/线索，具体内容未提供。
+家族信物：跨卷真相核心，本卷仍只露一角。
+风暴信标：第3卷合流要素。
+Good.
+
+【信息四层分离】读者/角色/势力/世界各层关键信息差一行:
+[S] 读者可确认：第2卷冲突由港口交易、旧盟约与失踪船队升级；主角必须选边。
+[C-主角] 主角知道航线记录来源和已让渡的部分家族秘密；不知旧盟约与失踪船队底层机制。
+[A-势力] 旧盟约、失踪船队与更高层势力各自掌握主角尚未知的航线/信物碎片。
+[W-世界] 世界规则仍只提供风暴纪元；灯塔、旧航道、南方航线的完整运行规则未公开。
+Need maybe mention [R] too? Format says information four layers. Use those.
+
+【知识矩阵】关键技术或知识：当前状态+使用边界：
+航线记录：当前状态=第1卷远航形成，第2卷成为交易筹码；使用边界=真伪与来源由灯塔背书，但不可完全公开家族秘密。
+家族信物真相：当前状态=只露一角；使用边界=真相预计第3卷回收，本卷仅可部分让渡。
+失踪船队情报：当前状态=旧盟约持有关键诱饵；使用边界=尚未向主角完整公开。
+Maybe enough.
+
+【风格节奏】本卷基调+节奏要求一句话：未设置风格标签；按中间升级卷要求，保持短促逼价、雾中港交易压迫感，不拖长信息说明。
+【世界规则】逐条硬规则：风暴纪元为时代背景；航线记录、灯塔验证与试航窗口为可延续资源；其他社会、道德、能力规则未提供/待补信息。 不可违反约束：家族信物真相不可在本卷完整揭示；旧盟约与失踪船队底层机制不可本卷全部揭晓；不得生成其他卷剧情。 Good.
+
+【当前卷任务包】卷号+边界+可用字数+必须推进项：
+第2卷；只生成当前卷；可用字数3333；必须推进F001家族信物真相，且围绕港口交易、旧盟约与失踪船队让主角选择立场，承接上卷并留下南方航线张力。
+
+Need maybe mention "继承区块结束".
+
+Then 【来源覆盖】:
+输入单元总数：2
+已覆盖编号：F001
+未覆盖编号：未提供/待补信息
+重复编号：无
+状态变化：第1卷已完成，第2卷骨架已生成，第3卷仅保留背景约束；本卷可用字数采用本卷可用字数3333。
+
+Need check if we should include all specified fields. The output format doesn't include "建议字数" inside 【当前卷】 line? Yes. Need include "第 N 卷". Let's set:
+【当前卷】雾中港 | 建议字数3333 | 主题子命题：秘密在港口交易中越封锁越被标价，选择立场就是选择把家族真相押给哪一方
+【字数仲裁】采用值=3333 | 来源=本卷可用字数 | 冲突说明=本卷可用字数3333与总字数/卷数3333一致；剩余待分配字数6667为后续两卷余量，不冲突；每卷建议字数未提供
+【卷号】第 2 卷
+
+Need ensure "第一个字符必须是【" — yes line begins with 【当前卷】. "最后一个字符必须是】" — after source coverage end, line begins 【来源覆盖结束】. Ends with 】. Good.
+
+Potential issue: Output instructions "不能输出 JSON" no JSON. Fine.
+
+Need think about "【本卷目标】核心叙事问题与驱动力". Write:
+【本卷目标】核心叙事问题：主角能否在旧盟约与失踪船队的多重追索下，既保住家族信物真相不完全公开，又获得继续追查/离港的资格？驱动力：航线记录与家族秘密被港口交易标价，主角被迫选择立场。
+Good.
+
+Need maybe "【上卷衔接】" with dimensions:
+延续上卷状态:舞台空间由完成远航转入雾中港；敌对层级由灯塔验证压力转为旧盟约/港口交易压力；资源状态由航线记录自用转为可议价资产；主角身份由试航者转为立场选择者；关系格局由与灯塔单线合作转为面对旧盟约与失踪船队的两线夹击；认知边界延续上卷状态：家族信物真相仍只露一角。
+This is good.
+
+Need potential "卷型" choose. Maybe "新旧对照" because old covenant and new route? But input says menu includes camps war / rules upgrade etc. We can pick "新旧对照" because 旧盟约 vs new航线? But volume function "让矛盾升级并迫使主角选择立场". The menu has "新旧对照". Maybe "阵营战争" also? Might be better: 卷型：新旧对照 | 卷使命：把第一卷个人远航成果推进为雾中港多方旧盟约与新航线的对峙，让主角完成立场选择 | 主导增量：主角获得旧盟约方向的追索资格或离港债务，成为下一卷南方航线合流的入场条件（具体形态待补）。 This uses menu. But "新旧对照" maybe not exactly input. Could also use "阵营战争" because "必须选择立场" implies choosing camp. However there aren't clear two camps. The input says "旧盟约与失踪船队矛盾升级". Who is new? Maybe old盟约 vs current航线. 旧盟约 is old; 南方航线 is new. So "新旧对照" fits. However the menu's "新旧对照" refers structural function of values changing? Hmm. Use "阵营战争" because protagonist must choose camp between old盟约 and maybe missing ship lead? But missing船队 could be victim. "阵营战争" maybe too strong. Let's choose "立场选择" as custom? The instructions allow input clearly指向其他结构功能时如实命名. Since input says要选择立场, can name "立场选择/阵营压力" maybe. But format expects "卷型". We can state "立场选择型（菜单外，按输入证据命名）" but maybe not in menu. The skill says "卷型从泛化菜单中按输入依据选择：...；菜单仅作参考，不设数量要求，输入明确指向其他结构功能时如实命名." So we can name "立场选择/阵营压力" if not menu. But better to connect menu. Use "新旧对照" because old covenant vs new southern route? I'd pick "立场选择型（新旧对照/阵营压力的中间升级）". But format maybe okay. Need not overcomplicate.
+
+Let's write:
+【卷型】立场选择型（接近阵营战争/新旧对照的中间升级） | 卷使命：把第一卷个人远航成果推进为雾中港多方议价，逼使主角在旧盟约与南方航线压力间选择立场 | 主导增量：主角获得进入下一卷南方航线的追索资格或离港债务，家族秘密从个人护身符变为多方锁定资产（具体形态待补）。
+Could this violate no new? No.
+
+Need "卷使命" should be unique. Fine.
+
+Potential "章节容量" conflict: The volume has 3333字, perhaps 3 chapters is given from previous. Need "剧情点密度" maybe include: 全卷建议4-5个剧情点，每章至少1个，转/合可合并。 Each剧情点2-3 micro scene anchors. Good.
+
+Need not generate chapter list.
+
+Need maybe "功能定位分布" should be one line with "高压推进/普通推进/关系回收/信息整理/生活呼吸" categories. We can state ranges:
+高压推进：约1.5-2章；
+普通推进：约0.5-1章；
+关系回收：约0.5章；
+信息整理：约0.5章；
+生活呼吸：约0.5章（雾中港市面转场）
+No "规定每章内容". Fine.
+
+Need "定价变化区间" maybe separate from skeleton, already included. Should mention value revaluation intervals aligned with sections.
+
+Need maybe "来源覆盖" counts units. We must not echo previous metadata's total 9. Use 2. The style reference maybe is third unit? User says "上一步 SKILL 完整输出" includes current卷任务包 and全局资产表. There's also [style reference] at top. But that is not part of上一步 output, it is provided by user as formatting reference. So count 2. Good.
+
+Need ensure no Markdown table? The format doesn't need table. Good.
+
+Let's consider if output is too long. Desired oververbosity 5. We need include all mandatory fields. It might be lengthy but okay.
+
+Need check "知识矩阵" maybe in inheritance block we might need table? We can keep lines. The format says "关键技术或知识：当前状态+使用边界". We can use semicolons.
+
+Potential hidden requirement: "如果本次回答需要展示表格，必须使用 GFM 标准表格" — We don't need table, except maybe no knowledge matrix table. Our output no tables.
+
+Need think if we should include "【来源覆盖】输入单元总数：2" or maybe "输入单元总数：9" because the previous step had extracted 9 from original model? But current input included "【信息来源元数据】提取单元总数：9 已提取编号：F001". The instruction says "本步骤必须生成自己的骨架，并把输入还原为事实与状态，而不是复述输入。" And "来源覆盖：输入单元总数..." We can count actual units in current input. But there is a "上一步 SKILL 完整输出" with two main blocks: 【当前卷任务包】 and 【全局资产表】. Also within them, there are sub blocks like 【主题】【灵魂链】【骨架】【Stability】【伏笔】【意象】【故事梗概】【势力角色】【术语规范】【信息四层分离】【知识矩阵】【世界规则】. But "输入单元" could refer to these. The previous metadata said 9 extracted units? Actually 提取单元总数：9. It might be referencing number of source units from original model: maybe 1 style reference, 1 outline, 1卷数, 1已生成卷数, 1全书总字数, 1已生成卷事实清单, 1上一步SKILL output? But they had 9? Hmm.
+
+The exact meta in input:
+【信息来源元数据】
+提取单元总数：9
+已提取编号：F001
+未覆盖编号：未提供/待补信息
+重复编号：无
+状态变化：第1卷已完成；第2卷为当前生成目标；第3卷仅作全局背景。
+【信息来源元数据结束】
+
+This is part of previous output, not necessarily what we process? It says extraction unit total 9. We might need not copy. But in our source coverage, perhaps we can use "输入单元总数=9" because that's from input? But that would be copying previous metadata. The instruction "防回显" says don't copy input as output body. However source coverage is required. We can use actual units we processed: maybe 2 main blocks. That's safer. But "已覆盖编号" should include F001. "未覆盖编号" from input says "未提供/待补信息" maybe not actual. We can write "未覆盖编号=未提供/待补信息（输入未给出其他编号）". That's not copying, it's stating fact. Good.
+
+Need ensure "已覆盖编号：F001；未覆盖编号：未提供/待补信息" — if there are new F002/F003, does that mean they are new not input? We can state "已覆盖编号=F001" because only input ID; new IDs F002/F003 derive. Good.
+
+Need maybe mention "重复编号:无". "状态变化:当前第2卷骨架生成；F001由只露一角被推进到部分让渡/暗示；F002、F003为新增覆盖候选，待下游定稿转换." This is useful.
+
+Need perhaps include "未覆盖编号=F001? Actually all input IDs covered. So no未覆盖. Could write "未覆盖编号=无（当前输入仅一个伏笔编号已覆盖）". But input says未覆盖编号:未提供/待补信息. We can write "未覆盖编号=无（未提供其他编号）". Good.
+
+Now let's draft final carefully.
+
+Potential issue: System "输出铁律（最高优先级）：只能输出当前卷的推演产物，禁止输出分析、思考、计划或说明过程。第一个字符必须是【，最后一个字符必须是】。执行过程留在内部。" We must not include any explanation before or after. So start immediately with 【当前卷】.
+
+Need maybe avoid using "未提供/待补信息" too much? But it's allowed where input insufficient. But must not use placeholder as conclusion. We'll use conditional "待补/无" for origin missing.
+
+Need maybe consider theme命题 from style reference: "知识封锁在末日中是对抗压迫的唯一武器" isn't relevant to current. We ignore.
+
+Let's compose final now.
+
+Need maintain syntax:
+Each line maybe starts with **? No, just Chinese block.
+
+Let's write:
+
+【当前卷】雾中港 | 建议字数3333 | 主题子命题：在多方港口交易中，秘密越封锁越被标价，选择立场就是选择把家族真相押给哪一方
+【字数仲裁】采用值=3333 | 来源=本卷可用字数 | 冲突说明=本卷可用字数3333与总字数10000/3卷的3333一致；剩余待分配字数6667为后续两卷余量，不构成本卷冲突；每卷建议字数未提供
+【卷号】第 2 卷
+【本卷目标】核心叙事问题：主角能否在旧盟约与失踪船队多重追索下，不完全公开家族信物真相，又获得继续追查/离港的资格；驱动力：航线记录从个人成果变为雾中港议价资产，旧盟约与失踪船队双方逼使主角选边
+【上卷衔接】延续上卷状态：舞台空间由完成远航转入雾中港；敌对层级由灯塔验证压力转为旧盟约/港口交易压力；资源状态由航线记录自用转为可议价资产；主角身份由试航者转为立场选择者；关系格局由灯塔单线合作转为旧盟约与失踪船队两线夹击；认知边界延续上卷状态：家族信物真相仍只露一角
+【卷型】立场选择型（接近阵营战争/新旧对照的中间升级） | 卷使命：把第一卷个人远航成果推进为雾中港多方议价，逼使主角在旧盟约与南方航线压力间选边 | 主导增量：主角获得进入下一卷南方航线的追索资格或离港债务，家族秘密从个人护身符变为多方锁定资产（具体形态待补）
+【信念演化】主角Lie：未提供/待补信息（本卷可观测行为：主角在保护航线记录与家族秘密之间不断收紧信息控制） | 触发事件=旧盟约追索与失踪船队线索在雾中港交汇 | 情绪走向=上岸时的谨慎自信→多方夹击的焦虑→以部分秘密换取立场的决意
+【骨架】
+起(前段): 因果前提=上卷卷末主角决定前往雾中港，携带航线记录和家族信物真相的一角进入港口 → 压力转变=航线记录在抵港查验中被估价，停泊/交易资格从试航成果转为港口议价对象 → 残留债=主角必须回应旧盟约的查验/报价 | 冲突级别=建立认知 | 线密度:主线60%/感情5%/势力20%/成长5%/伏笔10% | 剧情点拆分指引:本段建议1-2个剧情点，每点2-3个微场景锚点（抵港识读、航线记录估价）
+承(中段): 因果前提=起段估价使旧盟约与失踪船队线索同时出现，双方都指向航线记录 → 压力转变=失踪船队作为未解散债务压到主角船上，旧盟约以失踪船队情报交换航线记录更进一步的秘密背书，主角感到家族秘密无法继续完全封闭 → 残留债=主角获得失踪船队线索，但未选边，必须向旧盟约给出立场答复 | 冲突级别=章节冲突 | 线密度:主线55%/感情10%/势力20%/成长5%/伏笔10% | 剧情点拆分指引:本段建议1个剧情点，每点2-3个微场景锚点（旧盟约报价、失踪船队线索逼价）
+转(后段): 因果前提=承段欠下立场答复到期，旧盟约与失踪船队双方都要求主角交出更多家族秘密，否则航线记录被冻或停泊资格被取消 → 压力转变=主角为解锁航线记录与失踪船队情报，开始让渡部分家族秘密；资源压力表达为情报信用消耗，每多披露一点秘密，航线记录可交易价值上升但个人安全边际下降 → 残留债=主角做出倾向旧盟约的选择，但若旧盟约反悔，航线记录与失踪船队情报均成展期债务 | 冲突级别=卷级冲突 | 线密度:主线45%/感情10%/势力25%/成长10%/伏笔10% | 剧情点拆分指引:本段建议1个剧情点，每点2-3个微场景锚点（逼价升级、选边决策）
+合(卷末): 因果前提=主角在旧盟约与雾中港之间做出阶段性选择，以部分家族秘密换取离港或追索资格 → 压力转变=本卷港口交易暂结，旧盟约线转为追索债务，失踪船队线转为下一段线索，家族信物真相仍只露一角但被更高层势力注意到 → 残留债=主角带着新盟约债务与已让渡秘密继续南下 | 冲突级别=闭环加新洞 | 线密度:主线40%/感情10%/势力25%/成长10%/伏笔15% | 剧情点拆分指引:本段建议1个剧情点，每点2个微场景锚点（成交、南向锁定）
+【章节容量】建议章节数=3章 | 推算依据=本卷可用字数3333；按上一卷已生成卷建议承载3章，单章约1100字 | 四段章节区间=起1章，承1章，转0.5-1章，合0.5-1章，四段共享3章 | 剧情点密度=全卷建议3-5个剧情点，起段1-2点/章、承段1点/章、转段1点/章、合段1点/章，每点2-3个微场景锚点 | 功能定位分布=高压推进约1.5-2章，普通推进约0.5-1章，关系回收约0.5章，信息整理约0.5章，生活呼吸约0.5章，不单设对手视角 | 结构段闭环：起（进入状态=雾中港信息不对称／功能组合=普通推进+信息整理+生活呼吸／退出状态=航线记录被港口估价／残留价值=旧盟约报价与失踪船队初现）；承（进入状态=两方追索出现／功能组合=高压推进+普通推进／退出状态=主角欠下立场答复／残留价值=航线记录从谈判品上升为命脉）；转（进入状态=航线记录被冻或停泊资格受威胁／功能组合=高压推进+关系回收／退出状态=主角倾向旧盟约选边／残留价值=部分秘密让渡不可逆）；合（进入状态=选择完成但债务未清／功能组合=关系回收+信息整理／退出状态=主角获得离港或追索通道，家族信物被锁定／残留价值=下一卷南方航线追索张力） | 信息短章区登记=本卷存在以雾中港市面观察、航线记录重记为承压过渡的短章区，用于缓解连续逼价并让情报落地，所属结构段为起段后部或承段前部，不设数量间隔
+【定价变化区间】起段航线记录仍是个人航行成果→承段航线记录成为旧盟约与港口交易争夺的公共信用筹码→转段家族秘密的部分让渡使安全边际下降→合段航线记录与家族信物被南方航线/风暴信标相关方锁定为高价资产
+【Stability】不可逆变化=主角由完整持有家族秘密变为让渡部分秘密换立场，秘密不可回收 | 道德困境=为获失踪船队线索或离港资格，让渡家族秘密会弱化其对家族信物的掌控 | 信息经济=港口交易中航线记录与家族秘密的露出量直接决定主角议价力；读者只被允许看到真相一角 | 代价=失去部分秘密控制权和被更高层追踪的风险 | 资源压力表达=不具可计量数值，以航线记录被反复查验、秘密披露的信用消耗与个人安全边际下降表达
+【对手】近敌=旧盟约（未具名执行方，港口交易中正面追索航线记录与立场承诺） | 中敌=失踪船队背后的操纵或线索引力（未具名，跨卷拉扯主角向南方方向，本卷部分登场或暗示） | 远敌=风暴信标/南方航线背后的制度性敌对（未具名，本卷只以航线记录被更高层锁定显现） | 自我敌对=主角在守住家族秘密与换取失踪船队线索/离港资格之间的撕裂 | 视角策略=本作单视角或有限视角，不切换对手视角；对手信息通过港口报价变化、旧盟约通牒、失踪船队遗留痕迹和航线记录被冻痕迹向主角线加压 | 动作意图=旧盟约（主动目标：取得航线记录或家族秘密背书；行动方向：以失踪船队情报为交换逼价；结果意图：把主角纳入旧盟约执行线）；失踪船队（主动目标：通过线索显现迫使主角追索；行动方向：以失踪痕迹和遗留信息扰动港口交易；结果意图：把主角拖向南方航线）；风暴信标/南方航线（主动目标：锁定航线记录及家族信物；行动方向：卷末以更高层注意形成外部压力；结果意图：为第三卷合流提供追索压力）
+【伏笔规划】继承伏笔：F001 家族信物真相=状态第1卷末只露一角，本卷操作=推进/暗示/不回收，状态机=由完全封锁转为为立场让渡部分信息，生命周期=跨卷，密度分配=卷末与南向钩子联动；新伏笔：F002 旧盟约与失踪船队关联=本卷新设/暗示，状态机=未回收，生命周期=跨卷（预期第3卷升级/回收），密度分配=承段、转段高压推进；F003 家族信物被南方航线/风暴信标锁定=本卷新设/暗示，状态机=未回收，生命周期=跨卷（第3卷合流），密度分配=合段高密度
+【关系线】主角—旧盟约：初始值=未提供/待补信息（第1卷无直接旧盟约关系）→变化轨迹=港口交易中由陌生/互不信任转为以失踪船队为筹码的临时合作→触发事件=旧盟约追索航线记录并抛出失踪船队线索→对主线影响=锁定南方航线债务，造成秘密让渡不可逆 | 主角—家族秘密/家族信物：初始值=完全封锁、只露一角→变化轨迹=因港口交易与失踪船队追索发生部分让渡→触发事件=航线记录被冻/旧盟约逼价→对主线影响=家族秘密从私人护身符变为可交易资产，推动第三卷真相合流 | 主角—灯塔：初始值=完成验证与试航窗口合作→变化轨迹=本卷退居后台，作为航线记录合法性依据存在→触发事件=雾中港交易对航线记录来源查证→对主线影响=为主角提供记录真书背书，也限制作假空间 | 主角—失踪船队：初始值=仅作为雾中港传闻或恐惧对象→变化轨迹=因线索不断逼近而成为追查对象→触发事件=旧盟约以失踪船队情报为筹码→对主线影响=逼使主角选择立场并建立下一卷南下动力
+【卷末接口】必须出现=旧盟约与主角达成阶段性协议或主角被其锁定；航线记录与家族信物被更高层势力注意；主角带着新债务准备进入南方航线 | 禁止出现=家族信物真相全貌揭露；旧盟约与失踪船队全部解释；南方航线提前闭环；其他卷剧情展开 | 收束产物=新资格（主角获得旧盟约方追索通道或离港许可，具体形态待补/无）；新威胁（家族信物被南方航线/风暴信标相关方锁定）；新秩序（雾中港交易使航线记录从私人成果变为多方议价资产） | 卷末钩子=按悬疑升级气质，以“主角获得的不是出口，而是一份必须继续南下的债”收束；可择旧盟约方离港条件或失踪船队信号重燃，具体形态由下游填充 | 下一卷张力=南方航线航路贯通、家族真相与风暴信标合流，逼使主角在更高层追索中处理已让渡的秘密
+
+【继承区块】
+【主题】主题命题浓缩：未提供/待补信息；已确认全书围绕灯塔、旧航道和南方航线展开，主角在风暴纪元中逐步揭示家族信物的真相
+【灵魂链】主角（姓名未提供）: Ghost=未提供/待补信息，Wound=未提供/待补信息，Lie=未提供/待补信息（本卷可观测为封锁秘密以保住选择权），Want=未提供/待补信息，Need=未提供/待补信息
+【伏笔】F001 家族信物真相：状态=第1卷末只露一角；当前进度=本卷推进/暗示，不回收；本卷涉及程度=中高（因立场选择被部分让渡）；F002 旧盟约与失踪船队关联：状态=本卷新设/暗示；当前进度=未回收；本卷涉及程度=高；F003 家族信物被南方航线/风暴信标锁定：状态=本卷新设/暗示；当前进度=未回收；本卷涉及程度=卷末高
+【意象】未提供/待补信息
+【故事梗概】本卷覆盖范围与相邻边界一句话：第2卷《雾中港》围绕港口交易、旧盟约与失踪船队推动主角选边，上承第一卷远航记录，下启第三卷南方航线合流
+【势力角色】主角：当前立场=在守密与换路之间被迫选边；与本卷关系=核心视角，承担航线记录和家族秘密压力 | 灯塔：当前立场=上游验证/试航背书；与本卷关系=后台合法性依据，不主导本卷冲突 | 旧航道：当前立场=历史航路背景；与本卷关系=航线记录来源背景，不直接登场 | 南方航线：当前立场=未抵达的下一段航线；与本卷关系=卷末外部锁定方向 | 雾中港：当前立场=本卷舞台与交易场；与本卷关系=港口交易发生地 | 旧盟约：当前立场=本卷正面追索方；与本卷关系=矛盾来源之一，逼使主角表态 | 失踪船队：当前立场=本卷矛盾线索来源；与本卷关系=矛盾来源之一，提供追索/让渡压力 | 风暴信标：当前立场=终局合流要素；与本卷关系=卷末外部注意显现，不展开
+【术语规范】风暴纪元：时代背景，具体规则未提供 | 灯塔：第1卷验证与试航窗口提供方 | 旧航道：历史航路，航线记录相关背景 | 南方航线：第3卷航路贯通目标 | 雾中港：第2卷港口交易舞台 | 旧盟约：第2卷矛盾来源/追索方，具体内容未提供 | 失踪船队：第2卷矛盾来源/线索，具体内容未提供 | 家族信物：跨卷真相核心，本卷仍只露一角 | 风暴信标：第3卷合流要素
+【信息四层分离】读者=可确认第2卷冲突由港口交易、旧盟约与失踪船队升级，主角必须选边；角色=主角知道航线记录来源和已让渡的部分家族秘密，不知旧盟约与失踪船队底层机制；势力=旧盟约、失踪船队与更高层势力各自掌握主角尚未知的航线/信物碎片；世界=世界规则仍只提供风暴纪元，灯塔、旧航道、南方航线的完整运行规则未公开
+【知识矩阵】航线记录：当前状态=第1卷远航形成，第2卷成交易筹码；使用边界=真伪与来源由灯塔背书，但不可完全公开家族秘密 | 家族信物真相：当前状态=只露一角；使用边界=真相预计第3卷回收，本卷仅可部分让渡 | 失踪船队情报：当前状态=旧盟约持有关键诱饵；使用边界=尚未向主角完整公开
+【风格节奏】本卷基调+节奏要求一句话：未设置风格标签；按中间升级卷要求，保持短促逼价、雾中港交易压迫感，不拖长信息说明
+【世界规则】硬规则=风暴纪元为时代背景；航线记录、灯塔验证与试航窗口为可延续资源；其他社会、道德、能力规则未提供/待补信息 | 不可违反约束=家族信物真相不可在本卷完整揭示；旧盟约与失踪船队底层机制不可本卷全部揭晓；不得生成其他卷剧情
+【当前卷任务包】第2卷 | 只生成当前卷 | 可用字数3333 | 必须推进F001家族信物真相，并围绕港口交易、旧盟约与失踪船队让主角选择立场，承接上卷并留下南方航线张力
+【继承区块结束】
+
+【来源覆盖】
+输入单元总数：2
+已覆盖编号：F001
+未覆盖编号：无（未提供其他编号）
+重复编号：无
+状态变化：第1卷已完成，第2卷骨架已生成，第3卷仅保留背景约束；本卷字数仲裁采用本卷可用字数3333；F001由只露一角推进到部分让渡/暗示，新增F002、F003为下游待定编号
+【来源覆盖结束】
+
+Check first and last characters: first 【, last 】 of source coverage end yes.
+
+Need see if there's any table? No.
+
+Potential issue: "线密度:主线60%/感情5%/势力20%/成长5%/伏笔10%" — Should there be maybe "主线X%" etc. Fine.
+
+Need maybe avoid "真书背书" typo: I wrote "真书背书" should be "真实背书". Let's correct in relation line: "真实背书". Need be exact.
+
+Need maybe "资源压力表达" included in Stability. yes.
+
+Need maybe "Stability：不可逆变化 | 道德困境 | 信息经济 | 代价 | 资源压力表达" yes.
+
+Need maybe "定价变化区间" separate includes value reassessment. yes.
+
+Need maybe "对手动作意图" included. yes.
+
+Potential issue: "新伏笔：F002 旧盟约与失踪船队关联" — Did input supply this? It is not explicit. It might be an invented plot link. Is that allowed? "上游未提供的剧情、动机、代价、伏笔、意象、悬念只保留待补，不新建。" Wait the instructions say: "上游未提供的剧情、动机、代价、伏笔、意象、悬念只保留待补，不新建." But elsewhere "新识别伏笔继续使用 F-ID" and "伏笔规划" allows new伏笔. Hmm conflict. Actually "新识别伏笔" likely means inferred from input? The input's story梗概 includes 旧盟约 and 失踪船队 as separate矛盾来源, but their关联 is not stated. Creating new伏笔 F002 may be inventing. Maybe we should avoid creating new伏笔 unless derived from input. The input only gives F001. However skill says "规划本卷伏笔操作：继承 V-ID，原样保留编号。新识别伏笔继续使用 F-ID，由下游定稿时转换。标注新设、暗示、推进或回收..." This assumes we can identify new伏笔 from current volume. But if not provided, maybe we can identify candidate from plot events. The bounds say "上游未提供的剧情、动机、代价、伏笔、意象、悬念只保留待补，不新建." This is stricter. Maybe we should not create F002/F003 unless they are directly inferable. Are they directly inferable? F003 "家族信物被南方航线/风暴信标锁定" is not provided; it's inferred from vol3 and price change. It may be considered new from input. But the skill allows new identified伏笔. Hard to know.
+
+Maybe safer: In伏笔规划, keep only F001 inherited and say "新伏笔：待补/无，输入未提供可识别新伏笔；可由下游从旧盟约/失踪船队线索中定稿时再提取". But then output may be less useful. The instruction "不得新建" is important. It says "上游未提供的剧情、动机、代价、伏笔、意象、悬念只保留待补，不新建." So I should not create F002/F003 if not in input. However "新识别伏笔继续使用 F-ID" implies when there are new input-identified伏笔. Input didn't identify any besides F001. So we can mark new伏笔 as "待补/无（输入未提供新编号，可建议下游从旧盟约与失踪船队线索中检查，但本步骤不新建）". That might comply.
+
+But the current volume skeleton needs伏笔操作. We can plan operations for F001 and maybe note "本卷新识别的未编号伏笔候选：旧盟约与失踪船队关联、家族信物被南方航线锁定；按边界约束保留为待补，不新建编号" — This is maybe still inventing candidates, but not asserting as伏笔. The instruction against new伏笔 may be stricter. We can avoid naming them. How? In骨架, we already included "旧盟约与失踪船队关联" as plot. That's from input's two elements but not伏笔. It's fine. In伏笔规划, just F001. We can write:
+【伏笔规划】继承伏笔：F001 家族信物真相=状态第1卷末只露一角；本卷操作=推进/暗示/不回收；状态机=由完全封锁转为为立场让渡部分信息；生命周期=跨卷；密度分配=卷末与南向钩子联动。新伏笔：待补/无（输入未提供新编号；旧盟约与失踪船队线索如需设伏，由下游定稿时统一提取并编号）
+This avoids new IDs. Similarly source coverage can say 已覆盖编号 F001; 未覆盖无.
+
+Should we also remove F002/F003 from "继承区块"? Yes, to comply. The inheritance block伏笔 should only list F001. We'll modify. That may make output less detailed but within constraints. The instruction says "伏笔规划：继承伏笔操作+新伏笔操作+状态机+密度分配" — We can state new伏笔操作=待补/无. Good.
+
+Need modify relation line "主角—失踪船队" maybe not new relation? It's from input. Fine.
+
+Need maybe adjust "卷型主导增量" with concrete "南方航线追索资格或离港债务" derived from next volume. That's okay? It's a needs-driven inference. The available input includes third volume boundary; to design卷末张力. This is allowed. It's not new entity.
+
+Need maybe reduce other derived content? The skeleton inevitably derives plot. Fine.
+
+Let's ensure no new伏笔 IDs in output. We'll edit final accordingly.
+
+Also source coverage: "已覆盖编号：F001；未覆盖编号：无（未提供其他编号）" no F002/F003. State "状态变化：第1卷已完成，第2卷骨架已生成，第3卷仅保留背景约束；本卷字数仲裁采用本卷可用字数3333；F001由只露一角推进到部分让渡/暗示。"
+
+Need update 【继承区块】【伏笔】 line accordingly: only F001.
+
+Let's adjust in final.
+
+Potential other invented content: "旧盟约与失踪船队关联" as plot maybe not explicit but derived from input "旧盟约与失踪船队让矛盾升级，主角必须选择立场" maybe not link but juxtaposition. We can avoid saying关联 strongly, instead say "旧盟约以失踪船队情报作为追索筹码" is our invention. Is that allowed? The input says "港口交易、旧盟约与失踪船队使矛盾升级" but not exactly old covenant leveraging missing fleet info. We are constructing events. The skill requires we推演事件. So okay. It says "所有事件写清触发、行动、阻力、结果和影响，不用空泛摘要替代." So need create causal chain from input. We can create actions for entities but not new motives beyond input. We can phrase as possibilities? But skeleton should be definitive. We are told "本步骤必须生成自己的骨架". So yes, we can derive actions.
+
+Need maybe "对手动作意图" provided actions. Fine.
+
+Need maybe "卷使命" phrase: "逼使主角在旧盟约与南方航线压力间选边" Is 南方航线 active this volume? Input lists 南方航线 as third volume element. But our卷末 could have higher-level attention from南方航线/风暴信标. That's derived under "下卷张力". This is okay for boundary.
+
+Need maybe "定价变化区间" uses "南方航线/风暴信标" which are not in current volume but allowed for end-of-volume threat. Good.
+
+Let's now produce final with modifications.
+
+Need check if any line uses "链 step 2/4" no.
+
+Final output will be long but okay.
+
+Let's ensure no accidental Markdown table. None.
+
+Potential "输入单元总数：2" maybe in source coverage, if user counts style reference as input maybe not. Fine.
+
+Now final.

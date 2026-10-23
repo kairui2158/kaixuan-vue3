@@ -1,0 +1,11 @@
+{
+  "url": "file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+  "buttonExists": false,
+  "buttonDisabled": null,
+  "buttonRect": null,
+  "hitTag": null,
+  "hitId": null,
+  "hitClass": null,
+  "closeButtonCount": 0,
+  "bodyTextStart": "三层并行真实UI实测\n生成\n项目\n>\n第一卷 灯塔航线\n纲\n1章\n第1章 纸条\n概\n>\n第二卷 航线之后\n纲\n0章\n正文层\n第1章 纸条\n生成\n保存\n提取记忆\n查找\n折叠\n大纲\n导出\n去AI味\nAI命名\n运行记录\n1427 字\n第1章 纸条\n开始对话\n在下方输入框输入消息，与 AI 助手开始创作\n发送\n重置对话\nEnter 发送\nEnter 换行\nSKILL选择\n添加技能\nAGENT\n默认\n凯旋写作Agent\n白虎\n模式\n并行\n串行\n0 字 | API 已配置\n智能体进度\n>\n已连接\nparallelism-model\n第1章 纸条\n字数: 1427"
+}

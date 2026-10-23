@@ -1,0 +1,86 @@
+{
+  "volumeId": "vol-parallelism",
+  "chapterId": "ch-parallelism-1",
+  "calls": [
+    {
+      "traceRunId": "run-1792778150983-1",
+      "pipelineRunId": "pipeline-run-1792778150982-1",
+      "layer": "volumes",
+      "status": "success",
+      "startedAt": 1792778151036,
+      "endedAt": 1792778200670,
+      "durationMs": 49635,
+      "error": null
+    },
+    {
+      "traceRunId": "run-1792778151195-14",
+      "pipelineRunId": "pipeline-run-1792778151195-2",
+      "layer": "chapters",
+      "status": "canceled",
+      "startedAt": 1792778151212,
+      "endedAt": 1792778151414,
+      "durationMs": 202,
+      "error": "用户取消"
+    },
+    {
+      "traceRunId": "run-1792778151299-28",
+      "pipelineRunId": "pipeline-run-1792778151299-3",
+      "layer": "body",
+      "status": "success",
+      "startedAt": 1792778151624,
+      "endedAt": 1792778205707,
+      "durationMs": 54084,
+      "error": null
+    },
+    {
+      "traceRunId": "run-1792778151299-28",
+      "pipelineRunId": "pipeline-run-1792778151299-3",
+      "layer": "body",
+      "status": "success",
+      "startedAt": 1792778205740,
+      "endedAt": 1792778425260,
+      "durationMs": 219519,
+      "error": null
+    },
+    {
+      "traceRunId": "run-1792778151299-28",
+      "pipelineRunId": "pipeline-run-1792778151299-3",
+      "layer": "body",
+      "status": "success",
+      "startedAt": 1792778425362,
+      "endedAt": 1792778630090,
+      "durationMs": 204728,
+      "error": null
+    },
+    {
+      "traceRunId": "run-1792778631898-270",
+      "pipelineRunId": "pipeline-run-1792778631897-4",
+      "layer": "body",
+      "status": "success",
+      "startedAt": 1792778632025,
+      "endedAt": 1792778692882,
+      "durationMs": 60857,
+      "error": null
+    },
+    {
+      "traceRunId": "run-1792778631898-270",
+      "pipelineRunId": "pipeline-run-1792778631897-4",
+      "layer": "body",
+      "status": "success",
+      "startedAt": 1792778692926,
+      "endedAt": 1792778819716,
+      "durationMs": 126790,
+      "error": null
+    },
+    {
+      "traceRunId": "run-1792778631898-270",
+      "pipelineRunId": "pipeline-run-1792778631897-4",
+      "layer": "body",
+      "status": "success",
+      "startedAt": 1792778819757,
+      "endedAt": 1792778928998,
+      "durationMs": 109241,
+      "error": null
+    }
+  ]
+}

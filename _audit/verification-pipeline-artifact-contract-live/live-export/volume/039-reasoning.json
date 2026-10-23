@@ -1,210 +1,229 @@
-We need answer with JSON array length 1 for volume 2. Need follow user. Need produce final only JSON array. Need use provided 上一步 SKILL 完整输出. Need craft outline with required sections keywords. Need ensure no forbidden markers: 【卷旨】,【骨架】,【意象】,【织体】,【冲突】,【弧光】,【悬念】,【交接】,【主题】,【灵魂链】, Lie演化, Stability, 继承自, 因果前提, 压力转变, 残留债, Lie状态, 对应叙事阶段, mustAdvance, mustPreserve. Also no English terms Lie/Need/Want/Ghost/Wound/Stability/mustAdvance/mustPreserve. But user says in style reference includes mustAdvance etc—but output rules say forbidden markers includes mustAdvance mustPreserve, and no English terms. Need avoid.
+We need answer must be JSON array length 1. Need generate current volume 2 "雾中港"定稿. Need obey output format. Need craft outline text with required sections, no forbidden markers. Need include all needed guidewords: 起承转合, 角色弧光, 核心冲突, 伏笔与意象, 感官调色板, 潜台词, 卷末状态, 章节进度索引. Must avoid forbidden markers: 【卷旨】【骨架】【织体】【冲突】【弧光】【悬念】【交接】 etc and forbidden english terms Lie Need Want Ghost Wound Stability mustAdvance mustPreserve. But guidewords include 核心冲突, 角色弧光, 伏笔与意象, 感官调色板, 潜台词, 卷末状态, 章节进度索引. Need not use 【】 markers in outline except maybe none. Avoid "Stability" exactly. Don't include "Lie演化" etc. Need no code fence, just JSON array. Need include fields: name, outline, summary, allocatedWords, readerExpectations, mainPlotLine, unlockMilestone, forbiddenFinalCards, contractRisk. Need maybe allocatedWords 3333 from 字数仲裁. Need summary within 150 chars. readerExpectations <=80 char, mainPlotLine <=80, unlockMilestone <=60. Need contractRisk maybe contract_safe? Need determine. Input has some missing / 待补. contractRisk maybe contract_needs_reinforcement? Need choose one enumerated. Since many missing? But story is complete enough. Could be contract_safe. But "信息缺口" includes Lie/Need/Ghost/Wound 待补 but not necessary? Contract risk perhaps safe? Need likely contract_safe. But maybe because not all inherited assets provided, "待补充" in Sens? The contract is about reader contract? Need not broken. We can output contract_safe. But maybe since Need etc missing, contract needs reinforcement? Hmm.
 
-Need produce outlined volume with name "雾中港" (from current volume). allocatedWords 3333. summary <=150 Chinese chars. readerExpectations <=80 chars. mainPlotLine <=80. unlockMilestone <=60. forbiddenFinalCards array strings. contractRisk choose one. Need likely contract_safe? Input lacks contract risk info. Could be contract_safe? Need ensure not broken. We can choose "contract_safe" maybe. But if need [待补充]? The available contract seems coherent, so contract_safe. Need maybe no need.
+Need ensure outline length >=2000. Need include segment min length maybe each of four sections >=400; plot points >=100. We'll write robust. Need include all required subsections. Need avoid forbidden markers. Need include "起承转合" literal. Could use "卷的开篇约四分之一" etc. Don't use "【" in outline. We can use "剧情点" plain. Need avoid "【当前卷】" etc.
 
-Need outline length >=2000; segment min 400; plot points 100 each. Need include all keywords groups. Need write natural language structured volume outline, no engineering markers. Need handle non-first volume: at beginning write "上一卷状态缺失：[待补充]" if missing. But input includes第1卷 summary and 卷末雾中港钩子. But exact上一卷卷末状态? It says 承接第1卷卷末雾中港钩子 but no detailed previous state. Since non-first volume, requirement: "非首卷缺少上一卷卷末状态时，开头写“上一卷状态缺失：[待补充]”，仍完成本卷定稿." The upstep has enough? It says 上卷衔接 but not full previous state. Could still maybe not missing? However it lacks specific previous state snapshots. To be safe include "上一卷状态缺失：[待补充]" at start of outline? But that may be odd, since provided some info. But requirement says only if missing. Could regard as partially present. We can write "上一卷状态承接：第1卷末留下雾中港钩子，但详细卷末状态快照缺失：[待补充]" Maybe but exact phrase required? "非首卷缺少上一卷卷末状态时，开头写“上一卷状态缺失：[待补充]”". Since current is non首卷 and maybe missing detailed state, include that exact phrase at very beginning of outline. Need not use forbidden markers. Fine.
+Need ensure string contains escaped newlines as actual `\n` not literal. We need output valid JSON: I can output as single-line or multiline JSON with strings containing \n escape. Need include Chinese quotes. Avoid unescaped double quotes. Use `\n` for newlines in outline. The entire JSON can be formatted with actual newlines between fields? JSON spec allows whitespace, but rule says strings内换行必须写成 `\n`; object formatting newlines outside strings okay. To be safe output as single-line or pretty JSON. It's okay prettified with field separation newlines? The model usually outputs JSON block. But first char `[`, last `]`. No extra text. We can output pretty JSON with spaces; it's valid. Need no code fence. We need ensure no trailing comma. We'll craft.
 
-Need compose outline. Must include:
+Need decide "name": "雾中港". summary: 150字以内. Need maybe "本卷以雾中港交易、旧盟约指控与失踪船队残骸为矛盾升级点，迫使主角从验证信物真相转向选择立场，最终交出局部真相、背负追索并取得半份航路图，为第3卷南方航线贯通留下缺口。本卷建议承载7章。" Count within 150? Let's count rough maybe 106? Good.
 
-本卷故事走向
-起承转合四段情节概要: each segment with 段落概要 and 剧情点. Could write "卷的开篇约四分之一" etc. Need 起承转合? The guide says outline内容: 起承转合四段情节概要; must include guideword 起承转合. Could use phrase "起承转合四段情节概要". We can use headings.
+allocatedWords: 3333.
 
-Need include 10 plot points? The input has Q1-Q3, C1-C3, Z1-Z3, H1-H2. Need each plot point 100+ chars, with event, behavior, conflict, result, snapshots. We can adapt. Ensure each plot point contains five snapshot? "末尾写落点快照；相邻落点用增量表达，无变化项写“承接”；每段末写段落落点." We'll write each with 落点：人物状态快照...关系变化...信息变化...伏笔状态...承诺状态. Need no forbidden markers.
+readerExpectations: core expectation. "读者期待主角能否在港口与旧盟约压力下守住关键符号并换到失踪船队线索；第3-4章以信物拓印对峙加深，第6章选择南下半份图兑现，第7章转移为追索与完整真相缺口。" Need <=80 chars. Count maybe too long? 80 Chinese chars. Let's ensure concise: "读者期待主角是否能以局部真相换取失踪船队线索而不被吞没；第3-4章对峙加深，第6章选择南下兑现，第7章转移为追索定价。" length maybe 58.
 
-Need include 角色弧光, 核心冲突与代价, 伏笔与意象, 感官调色板, 潜台词, 卷末状态, 伏笔索引, 微场景锚点, 章节进度索引. Must include all. Need not include "交接". Need include 章节进度索引 with capacity inference 4 chapters. Need micro scene anchors with five structures: 场景目的、进入状态、退出状态、必须推进事项、必须保持事项 and承载区间. Need Chinese terms not mustAdvance/mustPreserve. We need include all 20? Input has 20 micro scenes Q1-1... H2-2. Could include all but compressed. Need chapter intervals from 1-4.
+mainPlotLine: "主角在雾中港用家族信物局部真相交换失踪船队线索，因旧盟约与港口逼迫从交易竞价走向立场选择，卷末携半份航路图南下并背负追索。" 64 maybe.
 
-Need obey word count not too huge? Outline min 2000. We can write substantial but not insane. Need JSON only, no markdown. Need escape newlines. Need Chinese quotes. Need ensure no direct newlines in strings: use \n. Need no unescaped quotes; use Chinese quotes. Need avoid "第2卷" maybe okay. Need not output code fence.
+unlockMilestone: "本卷结束时必须解锁半份南方航线航路图与家族信物被外部定价为航路钥匙的物证状态，锁定第3卷贯通压力。" maybe 60. Need count. Could be okay.
 
-Need include "伏笔 V2-1" etc? Input uses F001-F006. Output rule: "V-ID 伏笔保留原编号。F-ID 伏笔转为 V当前卷号-序号。跨卷 V-ID 不改号." Input has F001 etc; for current volume, F-ID should convert to V2-1... Need maybe assign V2-1 family信物真相, V2-2旧信, V2-3灯塔指引不明, V2-4失踪船队, V2-5雾中港钩子, V2-6风暴信标. But F001等 are probably F-ID? It says F-ID 伏笔转为 V当前卷号-序号. Need in 伏笔索引 use V2-1... or maybe keep original? Output rule: "V-ID 伏笔保留原编号。F-ID 伏笔转为 V当前卷号-序号。跨卷 V-ID 不改号." Since input uses F001. We can convert. Use "伏笔 V2-1 | 家族信物真相 | ..." etc. Need maybe include V2-5 雾中港钩子 as recycled, but it was from volume 1. "雾中港钩子" maybe V1? But no V-ID given. We can list as V2-5? Since F005. Fine.
+forbiddenFinalCards: array maybe ["家族信物完整真相","南方航线贯通","风暴信标合流","失踪船队完整因果"] maybe. Should not be too broad? Yes.
 
-Need contractRisk maybe "contract_safe". The volume plan is coherent. But if info missing Need "[待补充]" for Need? We must not use English term. Could mention "内心深层需求未提供，待补充" maybe. Since output "不虚构" and "必需信息缺失时写 [待补充]". In outline, maybe role arc section: "主角深层需求仍为[待补充]，本卷以其完成远航目标与隐瞒不安的碰撞代理推进." Good.
+contractRisk: "contract_safe"? maybe.
 
-Need summary: <=150 Chinese chars. Use maybe "主角在雾中港被旧盟约交易条件冻结离港许可，旧信从私藏转为抵押筹码；他在多方逼宫下选择站队，完成交易闭环，并为南方航线留下风暴信标异常钩子。本卷建议承载4章。" Count approx 80. Good.
+Now craft outline. Need include required content detailed.
 
-readerExpectations <=80: "读者期待主角能否在多方利益捆绑中选择立场；起段制造站队期待，中段以旧信泄露加深，转段兑现选择，卷末转移到南方航线异常。" count maybe 62.
+Let's construct outline in Chinese. Need natural language structured. Use sections:
 
-mainPlotLine <=80: "唯一主推线：主角以旧信换补给与线索，在港口代理人、旧航道势力夹击下被迫站队，卷末锁定旧盟约离港条款。" count maybe 55.
+本卷故事走向：...
+卷型与卷使命：...
+定价变化区间：...
+起承转合四段： Write four stage paragraphs with plot points DP-1 to DP-6 and段落落点.
 
-unlockMilestone <=60: "卷末必须解锁南方航线通行线索与风暴信标异常重合，使下卷远航闭环不可回避。" count ~40.
+Need maybe "起段（第1-2章）..." etc. Avoid "起承转合" phrase? Need include literal "起承转合" maybe in heading "起承转合四段情节概要". That's allowed. Not forbidden.
 
-forbiddenFinalCards: list: ["家族信物完整真相","失踪船队全部谜团","南方航线抵达","旧盟约附加条款具体内容全貌","风暴信标异常原因"] Need no early reveal.
+Need include each plot point >=100 chars; we can make concise but enough. Use 落点：人物状态快照/关系变化/信息变化/伏笔状态/承诺状态. Could include "承接" as needed. Need avoid "Stability" etc.
 
-Need build outline. Let's plan.
+Then 角色弧光 with specific角色 name? Input says 主角未具名. We can use "主角（未具名）". That's fine. "主角从求证的审慎转为被要挟的警觉，再转为选择南下后的沉重..." Need no Lie/Need etc.
 
-Start with exact phrase? "上一卷状态缺失：[待补充]" at very beginning maybe awkward with 本卷故事走向. Do it: outline begins "上一卷状态缺失：[待补充]\n本卷故事走向：..."
+核心冲突与代价: near/middle/far/self enemies. Include four-layer opponents and cost. Avoid "Stability" but mention不可逆变化、道德困境、代价. Fine.
 
-Need include outline length. Let's write detailed. Need no forbidden markers. No "因果前提" or "残留债" etc. Need maybe not use "承段" etc? Can use "第二段（承）" but no engineering marker? Forbidden markers list includes 【骨架】 but not 承段. However output "不出现工程标记【卷旨】【骨架】【织体】【交接】【灵魂链】等". "承段" may be okay but maybe better use "第二段". Use "起承转合四段情节概要" and "第一段（起）" etc. But "起承转合" required. Fine.
+对手动作意图 maybe included. Could combine.
 
-Need ensure each plot point 100+ chars. Let's draft 10 points with approx 150-200 each. Segment length >400.
+伏笔与意象: list V2-1 etc. Need maybe use V-ID: F-ID 伏笔转为 V当前卷号-序号. Current volume 2. Input伏笔 no numbers. We can assign V2-1, V2-2, V2-3, V2-4. Need "伏笔 V2-1 | ... | 埋设于..." etc later in 伏笔索引. In伏笔与意象 section narrative plus maybe index. Rule says 伏笔索引每行一条 format. We can include under伏笔与意象 or separate. Need ensure "伏笔 V2-1" etc. Good.
 
-Could produce outline as one string with \n. Need ensure Chinese quotes. Use "主角". Fine.
+感官调色板: include sense.
 
-Let's draft:
+潜台词.
 
-"上一卷状态缺失：[待补充]\n本卷故事走向：主角带着第1卷末雾中港钩子入港补给，却因旧盟约门槛被冻结离港许可。核心故事线是旧信、旧盟约、失踪船队三线在港口交易中合流，主角必须从保持中立转向选择立场。主题问题：在多方利益捆绑下，保持中立不是保护，而是交出选择权。驱动力：补给匮乏、离港冻结、情报时效和旧信价值被多方询价，迫使主角不断做选择。\n\n起承转合四段情节概要：\n第一段（起）：..."
+卷末状态: include 人物处境, 情感债务, 悬念库存, 卷级钩子, 钩子形态, 下卷衔接信号. Also 期待债盘点 here. Need mention上卷衔接? Input says non-first卷开头承接上一卷卷末状态. Add "上卷衔接：上一卷卷末状态未提供/待补信息；依据第1卷概要，主角完成第一次远航后抵达雾中港。本卷承接并推进第1卷家传信物局部真相验证的余波，把第一次远航见闻转为港口议价资产，并将旧航道日志与信物一并压上交易桌。" Good. Avoid "交接" literal. Fine.
 
-Need include "卷末状态" etc.
+收束产物: 新资格=半份航路图与独立行动资格; 新威胁=港口追索; 新秩序=家族信物被定价为航路钥匙.
 
-Let's write plot point 1:
+伏笔索引: 4 lines.
 
-"剧情点一：主角入港补给，离港许可被港口以旧盟约设门槛冻结。主角试图用首次远航完成身份换补给，交易代理人不认可其信用。冲突是旧盟约条款不明却直接卡住补给。结果补给被扣，主角陷入交易债务。落点：人物状态快照——主角进入被动受限状态，关系变化——与港口交易代理人建立初步对峙，信息变化——确认港口用旧盟约门槛锁离港，伏笔状态——旧信暂未卷入，承诺状态——建立“暂不交出旧信”的克制。"
+微场景锚点: Need preserve five structures (场景目的、进入状态、退出状态、必须推进事项、必须保持事项) and承载区间. We can list 9 anchors as in input. Need include different chapter ranges, no overlap/断档. Could use "微场景锚点..." each with 场景目的 etc. Must be in outline. Ensure "第2-3章" not later? We have 7 chapters. Anchors: 1章,2章,3章,3章,4章,5章,6章,6章,7章. Same chapter multiple okay. Then 章节进度索引 needs intervals and overlap statement.
 
-Need avoid "冲突" maybe okay as natural term, not "【冲突】". Fine.
+章节进度索引: "容量推演区间1-7，本卷定稿承载7章；结构段闭环：起段进入=携第一次远航证据入港、退出=交易条件悬置、残留价值=旧航道见闻成为议价资产；承段进入=交易条件悬置、退出=交出信物拓印并保留关键符号、残留价值=隐瞒债务与站队竞价压力；转段进入=承段隐瞒被识破、退出=主角选择南下并取得半份航路图、残留价值=半份图缺口与追索债务；合段进入=主角脱离雾中港交易控制、退出=信物被定价为南方航线钥匙、残留价值=追索与旧盟约作废的解释权争夺。四段区间：起段第1-2章、承段第3-4章、转段第5-6章、合段第7章。剧情单元：U-2-1第1-2章兑现入港被评估；U-2-2第3章兑现旧盟约指控，残留价值=旧盟约交易室铺垫；U-2-3第4章兑现拓印对峙，残留价值=信物拓印残页与关键符号缺口；U-2-4第5章兑现残骸与信标痕迹，残留价值=风暴信标符号素材；U-2-5第6章兑现立场选择，残留价值=半份航路图；U-2-6第7章收束追索定价，残留价值=下一卷压力物证。信息短章区用途：第3章残骸泊位与交易室间安排停留，加厚旧盟约与失踪船队暗示密度；第7章以降速让信物定价与追索号角压住卷末。价值标准修正：旧标准=主角以为可中立换信息，修正证据=旧盟约文书现出风暴信标痕迹、残骸漂入港外、双方要求明确归属，修正后影响=主角承认无法中立，以独立行动资格换合法交易资格。关系变化与信息差释放区间：主角与雾中港关系在第1-2章建立、第3-4章被交易评估、第6-7章转为追索敌对；旧盟约解释权信息在第3-5章释放；风暴信标痕迹在第5-7章释放；完整真相与合流信息不在本卷释放。对手信息供给区间：港口税吏扣押旧盟约文书第2章、旧盟约交易室火封涂改痕迹第3章、失踪船队残骸漂入港外与信标痕迹曝光第5章、追索者雾中火把与号角第7章。伏笔操作区间：V2-1第1-7章推进；V2-2第5-7章埋设暗示；V2-3第6-7章埋设；V2-4第2-7章推进。卷末收束任务：第7章完成追索定价登记、半份图缺口固定、旧盟约作废确认，把第3卷压力压缩为具体物证火封信标符号。微场景锚点承载第1章至第7章，不重叠、不断档。"
 
-Need maybe keep "落点" in each plot point; maybe not include "段落落点" per plot. Fine.
+Need avoid "【" so okay. This is long enough.
 
-Need include each segment "段落落点". We'll do at end.
+Need include "剧情点" all.
 
-Potential issue: "未提供/待补信息" from input is weird but we can use [待补充] for missing. Need not use "未提供/待补信息" maybe but can use [待补充]. Fine.
+Potential issue: The validation rule forbids markers "【卷旨】", etc; but not forbidding "伏笔与意象" or "起承转合". Good. Need not use "继承自" etc. Also avoid "Stability", "mustAdvance", "mustPreserve", "Lie", "Need", "Want", "Ghost", "Wound". In outline avoid capital English. We can say "内心需要" instead of Need? Actually need maybe not say Want/Need. Avoid "Want/Need碰撞" phrase. Use "内在追求与未明需要的碰撞". Good.
 
-Need include "角色弧光：主角从入港时的被动受限与克制观望，推进到被迫站队后的主动承担。变化由Q3旧信承诺、C3同源判断、Z2重读旧信、Z3接受条款等选择造成。主角内心深层需求仍为[待补充]，本卷以其完成远航目标与隐瞒不安的碰撞代理推进。"
-Maybe need mention "Want" not English. Good.
+Need maybe mention "角色弧光" with no "弧光" forbidden? Wait forbidden markers includes "【弧光】" but guideword "角色弧光" is allowed. So use exactly "角色弧光". Avoid "弧光" alone? Fine.
 
-核心冲突与代价: "近敌：雾中港交易代理人群像，初期以补给扣押试探，中期以失踪船队线索为饵压迫，末期逼主角站队；中敌：旧航道相关势力，初期经旧盟约条文间接显现，中期由残骸标记暗示，末期以旧盟约附加条款生效收束；远敌：风暴纪元制度性封锁，作为港口失控背景出现，卷末由风暴信标异常转为下卷航路未知；自我敌对：主角在完成远航与旧盟约隐瞒造成的不安之间撕扯。对手视角在本作为有限视角，通过后果、物证、传闻和断供加压：代理人不解释旧盟约，只不断抬高抵押条件；残骸被转移与封锁使主角只能获得表层信息；风暴信标冷光在卷入旧约坐标后成为不可验证的新威胁。不可逆变化：主角选定立场并被写入旧盟约契约，不能再以中立外来者身份重谈。道德困境：是否用旧信同源标记揭开失踪船队真相，哪怕会摧毁港口交易根基。代价：旧信外泄、信用债扩大、船队真相只露表层、背弃方仇恨落成。"
+Need maybe avoid "交接" literal in text; use "上卷衔接" and "卷末状态". But guideword may include "交接"? Not needed. Avoid "【交接】". We won't use.
 
-Need maybe not too long.
+Need maybe "卷末状态" must include "情感债务", "悬念库存", "卷级钩子". Good.
 
-伏笔与意象: list core imagery and evolution.
-"伏笔推进：家族信物真相保持未回收，仅在中段文本比对暗示其与旧契约早期联系；旧信由第1章交易条件转为半公开抵押品；灯塔指引不明保持背景，不主动推进；失踪船队从中段残骸标记部分揭示；雾中港钩子在合段回收；风暴信标在卷末转为异常冷光线索。核心意象演变：雾从入港的封锁背景转为站队压迫，旧信从私藏遗物转为公开契约筹码，港从补给地转为旧契约收口，风暴信标从航路背景转为卷末异常冷光。"
+Need maybe "卷的开篇约四分之一" etc; okay.
 
-感官调色板: "主色调雾灰，气味湿冷海腥、铁锈与煤烟，触感潮湿衣袖、旧信折痕、盐结晶伤口，听觉低沉船钟、缆绳摩擦、账本翻页，空间感封闭压抑。开卷低压雾港，中段焦灼封闭，卷末南方方向风暴信标异常冷光形成冷峻余韵。安静时刻：入港受阻后在港口边缘看雾，潜台词是港口以雾为罩，中立只是幻觉；离港前夜看南方方向，潜台词是选择已被写入旧约。"
+Now craft specific outline content. Need ensure all plot points >100 chars. We can write moderately. Let's draft in mind:
 
-潜台词: "主角表面用旧信换线索是为了航行，内心恐惧旧信与旧盟约同源会揭开家族真相；表面保持中立，实际已被交易方用断供和时效逐步锁定。读者比主角更早看出旧信成为港口各方觊觎的债务凭证，主角仍试图用少量泄露换回主动权。"
+本卷故事走向：主角携第1卷远航余波进入雾中港，本欲以旧航道见闻换取失踪船队线索，却因信物验真、旧盟约指控和残骸信标痕迹，被迫从交易竞价走向立场选择，最终携带半份航路图南下并背负追索。主题子命题：当旧盟约与失踪船队把家族信物变成交易筹码，主角必须选择立场，才能不重演失踪。核心驱动力=主角必须第一次主动选择立场，不再是中立验证者。
 
-卷末状态: need include previous state. 
-"上一卷状态承接：第1卷末只确认雾中港钩子，详细卷末状态快照缺失，开头已标待补充。本卷卷末人物处境：主角完成立场选择，拿到有限补给与南方航线通行线索，同时承受旧盟约履行义务、背弃方债务与失踪船队遗属真相债。关系：与港口某一方形成契约性靠近，与背弃方结仇，对船队遗属欠道德债。资源：补给有限，离港前夜可用，旧盟约条款临期。信息：旧信已部分外泄，三线同源标记被主角确认但完整真相未揭。伏笔：家族信物真相未回收，失踪船队部分揭示，雾中港钩子已回收，风暴信标转异常线索。承诺：旧信交换义务与旧盟约履行义务并存，南方航线真相债转入下一卷。情感债务：对失踪船队遗属的真相债、对背弃方的潜在报复债、对旧盟约方的履行债。悬念库存：家族信物完整真相、失踪船队全部谜团、南方航线风暴信标异常原因、旧盟约附加条款背后的旧航道势力。卷级钩子：离港前夜南方航线方向风暴信标异常亮起，与旧盟约坐标标注重合。钩子形态：引语悬置加新威胁显形。下卷衔接信号：敌对层级由港口人际转为航路未知与制度性封锁，资源状态由港口信用转为船舶补给与旧约时效，认知边界由旧盟约牵连推进到旧航道存在。期待债盘点：本卷制造“主角必须站队，否则失去补给与情报”；中段以旧信泄露加深“信息独享价值流失”；转段兑现“站队完成、旧盟约附加条款生效”；卷末转移“风暴信标异常与南方航线不可回避”。"
+卷型与卷使命：卷型=立场选择型；卷使命=完成从航道见闻到立场选择的矛盾升级；主导增量=半份航路图；卷型功能位置=交易竞价、旧盟约指控与残骸触发立场选择；以半份航路图为第3卷航路贯通交付主导增量。
+定价变化区间：家族信物从私人验证凭证转为港口议价资产，中段升值为旧盟约与失踪船队交易筹码，转段因隐瞒识破暴露与风暴信标关联，卷末被外部势力重新定价为南方航线钥匙。
 
-Need maybe "章节进度索引" later. Must include before maybe.
+Then 起承转合.
 
-伏笔索引:
-"伏笔索引：\n伏笔 V2-1 | 家族信物真相 | 埋设于第一段至第三段，仅在第三段文本比对暗示 | 回收卷: 第3卷\n伏笔 V2-2 | 旧信 | 埋设并推进于第1章至第2章，部分泄露 | 回收卷: 第3卷\n伏笔 V2-3 | 灯塔指引不明 | 背景态，本卷不主动推进 | 回收卷: 第3卷\n伏笔 V2-4 | 失踪船队 | 部分揭示于第2章至第3章 | 回收卷: 第3卷\n伏笔 V2-5 | 雾中港钩子 | 合段第4章回收 | 回收卷: 第2卷\n伏笔 V2-6 | 风暴信标 | 卷末转为异常线索 | 回收卷: 第3卷"
+Need maybe include each plot point's落点 with "落点：人物状态快照——...关系变化——...信息变化——...伏笔状态——...承诺状态——..." and "段落落点".
 
-Need maybe "回收卷: 第2卷" for V2-5. Good.
+Let's ensure "承诺状态" maybe if none write "未建立新承诺" or "承接". Good.
 
-微场景锚点: Need include maybe all 20 or at least 12? Output wants retain construction from manuscript with five structures and intervals. Could include all 20 in compressed format, but outline will be long. Need maybe list 20? We need micro scene anchors covering第1-4章不重叠不断档. The input has 20 micro scenes. We can include all but concise. Need five items: 场景目的、进入状态、退出状态、必须推进事项、必须保持事项. Input already has names. We can write maybe in a block "微场景锚点：" with 20 entries. Each entry maybe one line but five-part separated by；. Need not use mustAdvance/mustPreserve; use 必须推进事项/必须保持事项.
+Need include micro anchors maybe separate section not repeat in plotpoints? Could integrate but long. Better separate "微场景锚点" after plot. But required "起承转合四段" maybe enough; micro anchors in outline later.
 
-Could include all 20, but that is massive. Yet outline min, maybe okay. But output should be manageable. Need maybe include "微场景锚点保留施工稿五项结构" and list all 20 in compact lines. We can compress each to about 80-120 Chinese chars. 20*100=2000. That adds length. Fine. But total outline may be huge. Not a problem perhaps. Need ensure no direct line breaks.
+We can include plotpoints no anchors, then later micro anchors.
 
-Let's create micro scene anchors section:
-"微场景锚点：\nQ1-1 入港受阻；场景目的=坐实港口以旧盟约设交易门槛；进入状态=初入雾中港无信用；退出状态=补给被扣、离港冻结意识形成；必须推进事项=港口代理人扣押补给的事实；必须保持事项=不提前交代旧信内容与家族信物；承载区间：第1章。\n..."
-Need no "mustAdvance". Good.
+Need maybe "—— 起段（第1-2章）——" and "剧情点DP-1..." etc. Good.
 
-Need maybe not include "意象功能、潜台词、感官设计" because not required by five structures; could include, but maybe not. The current skill says "保留施工稿中的五项结构（场景目的、进入状态、退出状态、必须推进事项、必须保持事项）和各自承载区间". So only these five + interval. We can omit 意象/潜台词/感官. But output maybe okay. We need not include.
+Need maybe "剧情点DP-2..." etc.
 
-Need list all 20:
-Q1-1, Q1-2, Q2-1, Q2-2, Q3-1, Q3-2, C1-1, C1-2, C2-1, C2-2, C3-1, C3-2, Z1-1, Z1-2, Z2-1, Z2-2, Z3-1, Z3-2, H1-1, H1-2, H2-1, H2-2? Wait that's 22? Input lists 20? Let's count: Q1-1 Q1-2 (2), Q2-1 Q2-2 (4), Q3-1 Q3-2 (6), C1-1 C1-2 (8), C2-1 C2-2 (10), C3-1 C3-2 (12), Z1-1 Z1-2 (14), Z2-1 Z2-2 (16), Z3-1 Z3-2 (18), H1-1 H1-2 (20), H2-1 H2-2 (22). Actually 22. The manuscript had 22 micro scene anchors. We can include all 22? It says 每点2-3锚点, total maybe 22. Need coverage no gaps. We'll include all 22? Okay. But some C2 etc. Fine.
+Need maybe not include "【Stability】". Good.
 
-Could perhaps summarize Q1-Q3, C1-C3 etc, but to maintain no break maybe list each. Need intervals mostly each chapter. Ensure sequence: Q1-1: 第1章; Q1-2: 第1章; ... H2-2: 第4章末. We'll copy from input but remove forbidden "意象功能" etc. Could be lengthy. But okay.
+Let's draft segment text:
 
-Need then "章节进度索引" with opening "容量推演区间1-4，本卷定稿承载4章" (since total 10000 / 3 = 3333, 4 chapters maybe maybe each ~833; but suggested 4 chapters from fact清单). Then four segment intervals, plot unit intervals etc. Need include "覆盖声明：微场景锚点承载第1章至第4章，不重叠、不断档。"
+起承转合四段情节概要：
+起段（第1-2章）：主角携远航证据入港，港方把停泊与交易资格设为验真前提。剧情点DP-1入港被扣押... [long]. 落点... 段落落点...
+承段（第3-4章）：...
+转段（第5-6章）：...
+合段（第7章）：...
 
-Need maybe include "剧情单元" outside chapter progress? The outline guide mentions "剧情单元" but not required? It says outline content includes "章节进度索引": write four段章节区间、每个剧情单元的章节区间与兑现位置、单元残留价值 etc. We can include in section "章节进度索引". Need include "剧情单元U1第1章兑现交易债务，残留价值...; U2第2章至第3章前...; U3第3章前... maybe." Input has U1-U5. We need include.
+Need maybe "起承转合" in heading as exact. Fine.
 
-Could write:
+Need "每个剧情点 100 字以上" We'll write about 150 each. Good.
 
-"章节进度索引：容量推演区间1-4，本卷定稿承载4章；第一段第1章承载入港受阻与交易条件，结构段闭环：退出状态为交易债务形成；剧情单元U1第1章兑现交易债务，残留价值为中立幻觉破灭；第二段第2章至第3章前半承载港口会谈、残骸辨认与旧盟约比对，剧情单元U2第2章兑现失踪船队线索初现，残留价值为旧信独享价值下降；剧情单元U3第3章前半兑现三线同源标记确认，残留价值为站队前提与遗属真相债；第三段第3章承载三方逼宫、重读旧信与站队代价，剧情单元U4第3章兑现站队选择，残留价值为背弃方仇恨与旧盟约附加条款；第四段第4章承载交易完成与风暴信标异常，剧情单元U5第4章兑现离港方向锁定，残留价值为南方航线通行义务与异常线索。信息短章区用途：第1章后半与第3章前半的短场景用于消化旧信价值变化和站队压迫，不另设单独章节。价值标准修正：旧标准保持中立可以避免被绑，修正证据为补给被扣、旧信被逼抵押、旧盟约与旧信同源标记确认，修正后影响为后续协作和航路选择必须优先考虑旧盟约条款约束。关系变化与信息差释放区间：第1章释放港口门槛信息，第2章释放残骸旧航道标记，第3章释放三线同源与站队结果，第4章释放离港义务和信标异常。对手信息供给区间：港口代理人信息集中在第1章至第3章，通过账本、条款和封锁间接呈现；旧航道势力只在第3章合约条款中提供主要信息。伏笔操作区间：V2-2旧信于第1章至第2章泄露推进，V2-4失踪船队于第2章至第3章部分揭示，V2-5雾中港钩子于第4章回收，V2-6风暴信标于第4章末转异常线索。卷末收束任务：完成站队闭环，锁定旧盟约条款，留下南方航线异常冷光。覆盖声明：微场景锚点承载第1章至第4章，不重叠、不断档。"
+Need maybe "落点快照" with incremental differences. Fine.
 
-Need include "上卷衔接" maybe not required? In outline content has 卷末状态. Could include in 卷末状态. Need maybe avoid "上卷衔接" outside? Fine.
+Now 角色弧光:
+主角（未具名）从求证的审慎进入雾中港，初期以为保存信物即可，到港后因税务台要求公开局部用途而由审慎转入警觉；中段在残骸泊位和旧盟约交易室被迫面对指控，交出信物拓印时愧疚加深；后段见识残骸漂入与火封信标痕迹后，认知修正为无法中立；最终选择南下，情绪转为承担追索后果的沉重。变化由信物验真、拓印对峙和信标曝光三个剧情选择造成。
 
-Need ensure required guidewords "起承转合、角色弧光、核心冲突、伏笔与意象、感官调色板、潜台词、卷末状态、章节进度索引." We'll have exactly.
+核心冲突与代价:
+近敌=雾中港港口交易势力（未具名群像）。其本卷主动目标是锁定信物为港口筹码，行动方向是从扣押旧盟约文书、提出验真条件，到竞价与发布追索；结果意图是让主角离港并使信物被定价。中敌=旧盟约相关方（未具名群像）。其主动目标是控制旧盟约解释权并制约港口，行动方向是交易室指控、要求站队，再由文书火封现出风暴信标痕迹；结果意图是把解释权争夺延后至第3卷。远敌=风暴信标背后的航路封锁秩序（未具名制度性敌对）。其主动目标是维持南方航线不贯通，通过残骸漂入、信标符号和追索物证间接加压。自我敌对=主角在是否同意验真、是否交出拓印、是否保留关键符号、是否选择南下之间撕裂。本卷不可逆变化=主角选择南下一方后，无法再以中立验证者身份回雾中港交易；道德困境=是否用家族信物的局部真相与隐瞒关键符号换取失踪船队幸存者线索；代价=失去雾中港合法交易资格、旧盟约作废、只取得半份航路图、背负港口追索。有限视角下对手行动通过税吏扣押文书、交易室火封涂改、残骸漂入、追索号角与火把等可感知后果向主角线加压，不切换对手视角。
 
-Need ensure no forbidden markers "【卷旨】" etc. We'll avoid.
+This covers section.
 
-Need JSON escape. Need write multiline string with \n. Need ensure all newline represented as \n, no actual newline in string. Actually final JSON can be formatted with actual newlines between fields, but string value cannot contain raw newline. We'll use one line string with \n. Fine. Need ensure no tabs. Fine.
+伏笔与意象:
+核心意象=家族信物。演变：第1章套在掌心以为保存即可；第2章被要求公开局部用途，沾上外人手温；第3章残骸泊位被验真吸进盐腐气；第4章拓印时失去部分光泽，保留符号后掌心有灼感；第5章与旧盟约火封对映显出信标关联；第6章作为半份航路图的钥匙被交接；第7章在追索者口中被定价为南方航线钥匙，未完全点亮。防重复变体：家传旧件、那半枚真相、扣在掌心不示人的东西、信物槽纹；分别写纹路像活了、表面吸进雾里的水、信物在指间沉了一分、旧件边角发暗。其他意象：灯塔开卷作为第1卷远航旧坐标一闪，中段避用，卷末以追索背景光点回归；旧航道从航海日志墨线变为被扣押物证，再变为残骸与半份图引信；南方航线从传闻虚线到半份实页，再到主角眼里的方向；风暴信标只以火封焦痕、符号缺口、追索者指尖烫痕暗写，不具名展开；雾中港由可停泊舞台变为交易追索的封闭空间；旧信本卷作为信物附件被验真，不单独发力。伏笔索引...
+- V2-1 | 家族信物完整真相未明：局部真相→被交易验真→暴露信标痕迹→被定价为南方航线钥匙 | 埋设于第1-7章推进，不在本卷回收 | 回收卷: 第3卷
+Need format "伏笔 V2-1 | 简述 | 埋设于阶段位置 | 回收卷: 第N卷". We'll write exactly.
 
-Need avoid English quotes inside strings. Use Chinese quotes "". For JSON string we use double quotes for keys/values. Inside string, if need quote, use Chinese quotes. No need escaping except backslash \n. Need ensure no unescaped double quotes inside string. We'll use Chinese quotes only. Could include "第1章" etc no issue.
+Maybe V2-4 | 旧盟约文书扣押：起段扣押→转段火封现信标→合段追索者持有 | 埋设于起段 | 回收卷: 第3卷? It is maybe partially resolved this volume? We can say回收卷: 第3卷 or 本卷? Need if not resolved. Use 回收卷: 第3卷. Good. V2-2风暴信标 maybe 回收卷: 第3卷. V2-3 half map maybe 回收卷: 第3卷. Good.
 
-Need maybe use "契约安全" but field contractRisk must value exact. Use "contract_safe".
+感官调色板:
+主色温=雾灰与盐渍白偏冷；气味=盐、湿木、鱼腥、火漆蜡、霉变纸页；触感=信物发黏、缆绳粗硬、纸页湿软、铜章冰冷；听觉=雾中船号、税吏铜章敲击、缆绳吱嘎、追索号角；空间感=雾中港像被雾挤压成一条不得不通过的长廊，泊位、税务台、残骸泊位、交易室逐段逼窄。氛围转变：开卷湿冷警惕，中段旧盟约文书火封带来焦灼，焦甜味压过盐腥，卷末离港后追索号角传回，温度转冷而决然。安静时刻两处：第3章残骸泊位主角独自核对旧航道日志，信物在掌心发烫，表面辨认残骸，内里估算哪一方会先动手；第7章离港前主角回望税务台方向，火封在追索者手中一闪，无声的符号揭示，主角反而没有回头。
 
-Need maybe ensure summary <=150. Need count. "主角在雾中港被旧盟约交易条件冻结离港许可，旧信从私藏转为抵押筹码；他在多方逼宫下选择站队，完成交易闭环，并为南方航线留下风暴信标异常钩子。本卷建议承载4章。" Count: roughly 70 Chinese chars + 4 maybe under 150.
+潜台词:
+主角表面配合验真，内心保留关键符号；港口交易方表面议价，实际争夺南方航线定价权；旧盟约相关方表面指控隐瞒，实际测试主角知道多少；读者看到信物已被定价，主角以为自己只是失去交易资格。读者与主角的信息差集中在：读者已知火封信标符号是下一卷钩子，主角只把它当作被迫选边的物证。
 
-Need maybe readerExpectations <=80. "读者期待主角能否在多方利益捆绑中选择立场；起段制造站队期待，中段以旧信泄露加深，转段兑现选择，卷末转移到南方航线异常。" Count about 56.
+卷末状态:
+上卷衔接：上一卷卷末状态未提供/待补信息；依据第1卷概要，主角完成第一次远航后抵达雾中港。本卷承接并推进第1卷家传信物局部真相验证的余波，把第一次远航见闻转为港口议价资产，并将旧航道日志与信物一并压上交易桌。
+人物处境：主角离开雾中港，携带半份航路图与信物拓印残页，身份由中立验证者转为被追索者。情感债务：对失踪船队欠因果解释与幸存者下落；对旧盟约相关方背负解释权争夺；对雾中港追索状态未解除；对自身遗留是否后悔选南下的未答之问。悬念库存：家族信物完整真相未明；南方航线只有半份；风暴信标只到符号暗示；失踪船队因果未明。卷级钩子：卷末追索者手中旧盟约文书火封现出风暴信标符号，但只认完整真相，把第3卷压力压缩为可识别的新威胁物证。钩子形态=新威胁显形。下卷衔接信号：舞台空间由雾中港向南方航线移动；敌对层级由港口交易追索转向风暴信标背后的航路封锁秩序；资源状态由完整交易资格变为半份航路图加追索定价；主角身份由中立验证者变为独立行动者；关系格局由旧盟约作废变为背负解释权争夺；认知边界由局部真相变为信物被定价。期待债盘点：本卷制造主角必须用信息换信息的期待，中段加深关键符号与拓印归属期待，后段以交出拓印、保留符号、取得半份图兑现部分期待，卷末把期待转移至第3卷南方航线贯通与信物完整真相合并。收束产物：新资格=半份南方航线航路图与旧盟约作废后的独立行动资格；新威胁=雾中港港口交易势力追索定价；新秩序=家族信物从私人凭证变为外部势力争夺的航路钥匙。
 
-Need mainPlotLine <=80. "唯一主推线：主角以旧信换补给与线索，在港口代理人、旧航道势力夹击下被迫站队，卷末锁定旧盟约离港条款。" Count about 47.
+Need maybe "卷末状态" includes all. Good.
 
-Need unlockMilestone <=60. "卷末必须解锁南方航线通行线索与风暴信标异常重合，使下卷远航闭环不可回避。" Count about 33.
+微场景锚点: Use same as input but no "意象=..." maybe include five structure plus maybe "潜台词/感官" etc? Required five structure and承载区间. Could include all nine. Need ensure not "必须保持事项" etc. Good.
 
-Need forbiddenFinalCards: array of strings. We can use ["家族信物完整真相", "失踪船队全部谜团", "南方航线抵达", "旧盟约附加条款具体内容全貌", "风暴信标异常原因"].
+伏笔索引 maybe before微场景.
 
-Need produce final only JSON array. Let's compose.
+章节进度索引 as above.
 
-Need ensure the outline has "伏笔索引" maybe can be part of outline; okay.
+Need ensure "起承转合" and all guidewords in outline. Already.
 
-Let's draft entire JSON carefully.
+Potential issue "outline" string too long; fine.
 
-Need maybe no trailing comma.
+Need ensure no forbidden marker "交接" maybe in "下卷衔接信号" no "交接". Fine. "锚点" okay. "剧情单元" okay. "Stability" avoided. "Lie/Need/Want/Ghost/Wound" avoided. "mustAdvance" avoided. "mustPreserve" avoided. "继承自" avoided. "因果前提" avoided. "压力转变" maybe not; no. "残留债" avoided; use 残留价值. "Lie状态" avoided. "对应叙事阶段" avoid; use 阶段. "mustAdvance" etc no.
 
-Let's formulate value.
+Need maybe "【" none. Good.
 
-Potential issue: The system says "当前卷施工稿" and "上一步 SKILL 完整输出" provided. Need output current volume object. Fine.
+Need output only JSON array. Need maybe no actual newline in outline string. We'll use `\n` escapes. Pretty JSON might have newlines outside strings; allowed. But final output should begin with `[` exactly, end with `]`. We can produce pretty JSON with newlines outside strings. That's okay. But I can output a single-line huge JSON to avoid any issues with "first char [" and last "]". I'll output single-line? It's huge but okay. Need ensure no unescaped newline in outline string. I'll use `\n` inside strings and actual newline outside object? JSON pretty with newline outside strings okay. To be safe maybe output one line. But model can handle. I'll produce mini JSON with no unescaped actual newline inside string. I need manually include \n sequences; in final answer, I can include actual newline characters? In JSON, actual newline in string is invalid. I must write escape sequences as two chars backslash+n. The final text will contain backslash n in the string. Good. The JSON array can also be pretty printed with line breaks outside strings; not problematic. But rule "字符串内换行必须写成 `\n`" means inside string. I'll ensure all string-internal line breaks are literal backslash+n sequences. But in the final answer, does the system display `\n` as characters or as newline? I write `\n` as two chars. Good.
 
-Let's write JSON with fields. The outline string will be long. I need ensure not accidentally raw newlines. I'll use \n in string. In final answer, I'll write JSON lines with proper escaping only for outline. But I can format the JSON object with actual line breaks between fields; values like outline as a single string with \n escapes. That's acceptable. Need first char must `[` and last `]`. I'll output exactly:
+Need maybe no code fences.
+
+Let's formulate full JSON. Need watch double quotes only for JSON field delimiters; inside strings use Chinese quotes. There is maybe no English double quotes except field names. Good.
+
+Let's craft maybe too long. Need ensure allocatedWords 3333.
+
+Need maybe summary not too long. Let's count summary:
+"本卷以雾中港交易、旧盟约指控与失踪船队残骸为矛盾升级点，迫使主角从验证信物真相转向选择立场，最终交出局部真相、背负追索并取得半份航路图，为第3卷南方航线贯通留下缺口。本卷建议承载7章。" Count Chinese chars: maybe 96? Fine.
+
+Need maybe readerExpectations count. Let's estimate. "读者期待主角能以局部真相换取失踪船队线索而不被吞没；第3-4章对峙加深，第6章选择南下兑现，第7章转移为追索与完整真相缺口。" 56? Good.
+
+mainPlotLine: "主角在雾中港用家族信物局部真相交换失踪船队线索，因旧盟约与港口逼迫从交易竞价走向立场选择，卷末携半份航路图南下并背负追索。" 62.
+
+unlockMilestone: "本卷结束时必须解锁半份南方航线航路图，并确认家族信物被外部定价为航路钥匙，锁定第3卷贯通压力。" Count about 46. Good.
+
+forbiddenFinalCards maybe [
+"家族信物完整真相",
+"南方航线贯通",
+"风暴信标与信物完整关联",
+"失踪船队完整因果"
+]
+Need maybe final cards. Fine.
+
+contractRisk maybe "contract_safe".
+
+Need now craft outline. Must be >=2000 chars, likely.
+
+Potential issue: "伏笔与意象" guideword exactly. "角色弧光" exactly. "核心冲突" exactly. "感官调色板", "潜台词", "卷末状态", "章节进度索引". Good.
+
+Need maybe "起承转合" exactly appears in "起承转合四段情节概要". Good.
+
+Let's assemble.
+
+I need ensure no trailing comma after contractRisk. Good.
+
+Let's prepare final JSON. It might be extremely long. I can use pretty with newlines between fields but okay. Let's output as one line or pretty? Pretty easier. But final instruction first char `[`, last `]`—if pretty, still first char `[`, last `]` after newline maybe. Yes.
+
+But if pretty with newline, string-internal newline escapes remain `\n`. Fine.
+
+Let's write in final with actual newlines outside strings perhaps. Need ensure no accidental actual newline inside string. I'll use \n inside. Let's craft carefully.
+
+Need maybe escape backslash? No, just \n. Good.
+
+Let's draft final answer:
+
 [
   {
     "name": "雾中港",
-    "outline": "上一卷状态缺失：[待补充]\n本卷故事走向：...",
+    "outline": "本卷故事走向：...\n卷型与卷使命：...\n...",
     "summary": "...",
-    ...
+    "allocatedWords": 3333,
+    "readerExpectations": "...",
+    "mainPlotLine": "...",
+    "unlockMilestone": "...",
+    "forbiddenFinalCards": ["..."],
+    "contractRisk": "contract_safe"
   }
 ]
-This has actual newlines between fields but first char "[" last "]" is okay; JSON valid? The array line breaks outside strings are okay. Strings do not contain raw newline. Need ensure first character is "[" indeed. Fine.
 
-Need include all required guidewords in outline, check.
+Need no code fence.
 
-Let's compose outline string now. Need maybe long enough. We'll include.
+Let's build outline text fully. I'll ensure each section.
 
-Let's draft in final carefully.
+Potential typo: "旧信" not needed.
 
-Need no direct newlines inside outline; use \n. I will write in final answer with "outline": "上一卷状态缺失：[待补充]\n本卷故事走向：..." all one line but with `\n` escapes. It will be very long line. Fine.
+Let's check forbidden markers: Do not include "【卷旨】" etc. I'll avoid "【". But guideword "角色弧光" has no brackets. We will use "角色弧光：" not brackets. Good.
 
-Let's ensure the string is valid JSON: double quotes inside will be Chinese or escaped. I'll use only Chinese quotes. Need no `\"` inside. Good.
+Need maybe "对手动作意图" may be included; not required but okay.
 
-Let's write.
+Let's craft outline in final exactly.
 
-Now, need maybe "感官调色板" etc. Check keywords groups present in outline: I need include literally "角色弧光" "核心冲突" "伏笔与意象" "感官调色板" "潜台词" "卷末状态" "章节进度索引" "起承转合". I will include.
-
-Need "核心冲突与代价" maybe and "角色弧光". Yes.
-
-Need "伏笔索引" maybe separate.
-
-Need maybe avoid "承段" term? I use "第一段（起）", etc; but I might use "承段" in chapter index. Not forbidden, but maybe okay. Avoid maybe use "第二段"。I'll not use "承段" maybe. But "起承转合" required. We can use "第一段、第二段、第三段、第四段". Fine.
-
-Need maybe avoid "近敌" etc? no.
-
-Need maybe not include "【卷旨】" etc. Fine.
+Need maybe "章节进度索引" mention "起承转合" maybe not repeated. But required groups present includes "起承转合"? Validation says keyword_groups: ["角色弧光","核心冲突","伏笔与意象","感官调色板","潜台词","卷末状态","章节进度索引"] only. Good.
 
 Let's produce.
 
-But ensure "outline" includes all 10 plot points with 100+ chars. We'll include Q1-Q3, C1-C3, Z1-Z3, H1-H2. Each plot point maybe 150-250. Ensure no plot point too short. Let's count rough: Good.
+Double-check no "Stability" etc. Good.
 
-Let's craft each:
+Need maybe if "Need=未提供" appears? Avoid "Need". I say "未明需要" instead. Good.
 
-剧情点一：主角入港补给，港口以旧盟约门槛冻结离港许可。主角用首次远航完成身份换补给，交易代理人不认可信用。冲突是旧盟约条款不明却直接卡住补给，结果是补给被扣，主角欠下交易债务。落点：人物状态快照——主角进入被动受限状态，关系变化——与港口交易代理人建立初步对峙，信息变化——确认港口用旧盟约门槛锁离港，伏笔状态——旧信暂未卷入，承诺状态——建立暂不交出旧信的克制。 (about 130)
-
-剧情点二：代理人出示以旧信或旧航道凭证抵押的交易条件，主角拒绝直接交出旧信。冲突是信息价码不对称，阻力来自断供威胁。结果主角被迫进入港口打探旧盟约与船队线索。落点：人物状态快照——主角从被动受限转向被迫侦察，关系变化——对峙升级为谈判，信息变化——旧信被正式询价，伏笔状态——旧信浮上台面，承诺状态——暂不交出旧信但接受打探任务。 (~130)
-
-剧情点三：主角为获得补给与离港方向，被要求用旧信部分内容质押；他犹豫后未完全交出旧信，只承诺部分外泄。冲突是旧信安全与航行补给不可兼得，结果是欠下解释义务并结束第一段。落点：人物状态快照——主角进入半妥协状态，关系变化——与代理人形成债务约束，信息变化——旧信部分内容被允许外泄，伏笔状态——旧信进入半公开过程，承诺状态——部分内容换线索的口头承诺建立。 (~140)
-
-第二段:
-剧情点四：主角与代理人再谈，对方以失踪船队线索为饵要求旧信内容；主角用旧信部分线索交换残骸指向。冲突是代理人垄断线索分配权，结果是船队线索初现但旧信信息贬值。落点：人物状态快照——主角进入负债侦察状态，关系变化——代理人从阻碍者变为线索供给者，信息变化——得到残骸指向但仍被隐瞒来源，伏笔状态——失踪船队线索引出，承诺状态——旧信交换义务加重。 (~140)
-剧情点五：港口出现残骸，主角辨认出旧航道标记，但势力封锁信息。主角从旁观者转为追诉者，只记录标记不公开。结果是卷入线索处置权。落点：人物状态快照——主角从侦察转向追诉，关系变化——与封锁方进入对抗，信息变化——旧航道标记初现，伏笔状态——失踪船队与旧航道建立联系，承诺状态——暂不公开辨认结果的保留承诺。 (~130)
-剧情点六：主角私下比对旧盟约文本与旧信，发现同一标记，并被逼问旧信来源。冲突是旧信来源与旧盟约关系被逼问，结果是主角向代理人承认部分比对，欠下真相债。落点：人物状态快照——主角进入三线信息收束后的压力状态，关系变化——与代理人形成相互利用，信息变化——旧信、旧盟约、船队残骸三线同源确认，伏笔状态——家族信物与旧契约早期联系被暗示，承诺状态——承认部分比对的解释义务形成。 (~150)
-
-第三段:
-剧情点七：港口代理人与另一股势力同时逼近，要求确认旧盟约归属与船队线索处置权。主角试图保留中立，被两方以断供和告发威胁。结果是中立空间消失。落点：人物状态快照——主角进入必须站队的绝境，关系变化——三方关系转为逼宫，信息变化——中立不再是可选项，伏笔状态——旧信与旧盟约关联被外部逼问，承诺状态——旧信保密承诺被严重挤压。 (~130)
-剧情点八：主角重读旧信，结合旧盟约与船队线索形成站队判断。他在内心推演同源标记，冲突是自我撕裂与外部债务挤压，结果是选定旧盟约方向。落点：人物状态快照——主角进入决断前自省，关系变化——与自己恐惧的旧约靠近，信息变化——旧信同源判断转为行动依据，伏笔状态——同源标记进一步被确认，承诺状态——旧信保密承诺在内心濒临破裂。 (~130)
-剧情点九：主角站队宣布后，背弃方仇恨落成，旧盟约附加条款生效。冲突是离港方向与契约义务绑定，结果是离港条件被锁死并进入收束。落点：人物状态快照——主角进入代价承受状态，关系变化——与旧盟约方形成契约合作，与背弃方结仇，信息变化——离港前置变成契约义务，伏笔状态——旧信被条款换走，承诺状态——旧盟约履行义务固化。 (~130)
-
-第四段:
-剧情点十：主角拿到有限补给与南方航线通行线索，接受旧盟约附加条款。冲突是契约义务与航路未知，结果是离港方向锁定，主体闭环完成。落点：人物状态快照——主角完成本卷主体转向，关系变化——契约性靠近落地，信息变化——离港前置明确，伏笔状态——家族信物与船队全谜团仍保留，承诺状态——旧盟约履行义务进入执行前状态。 (~130)
-剧情点十一：离港前夜，南方航线方向风暴信标异常亮起，与旧盟约坐标标注重合。主角意识到接受的不是航路，而是旧约通行义务。冲突是远航前的新威胁与不可验证，结果留下下一卷钩子。落点：人物状态快照——主角进入不可回避启程状态，关系变化——与南方航线形成新债务，信息变化——风暴信标异常与旧约坐标重合，伏笔状态——风暴信标转异常线索，承诺状态——下卷远航义务建立。 (~140)
-
-Need ensure "每个剧情点 100字以上" yes.
-
-Need include "段落落点" per segment. We'll append after each segment. Fine.
-
-Need maybe "第二段（承）" etc. We'll include. Maybe "承" is okay? No issue. To avoid engineering markers, use "第二段". But "起承转合" maybe in heading. Fine.
-
-Let's craft in final answer. Need ensure no "Stability" etc. Fine.
-
-Let's produce JSON now.
+Let's formulate now.

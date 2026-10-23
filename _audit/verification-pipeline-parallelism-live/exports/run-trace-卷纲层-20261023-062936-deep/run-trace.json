@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1792708176439-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "pipeline-parallelism-live",
+  "projectName": "三层并行真实UI实测",
+  "providerId": "parallelism-provider",
+  "providerName": "Pipeline Parallelism Provider",
+  "model": "parallelism-model",
+  "skillNames": [],
+  "skillMode": "compose",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "b2d0b8088e7e",
+    "buildTime": "2026-10-22T20:59:31.560Z"
+  },
+  "startedAt": 1792708176439,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "all_volumes_generation_complete",
+      "recordedAt": 1792708186588
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1792708176440-2",
+      "ts": 1792708176440,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1792708176464-3",
+      "ts": 1792708176464,
+      "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1792708176465-4",
+      "ts": 1792708176465,
+      "seq": 3,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":88000,\"remainingVolumes\":1,\"currentVolumeBudget\":88000,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1792708176467-5",
+      "ts": 1792708176467,
+      "seq": 4,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1792708176479-6",
+      "ts": 1792708176479,
+      "seq": 5,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":2,\"configuredModel\":null,\"fallbackModel\":\"parallelism-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1792708176506-8",
+      "ts": 1792708176506,
+      "seq": 6,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"parallelism-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1792708176513-10",
+      "ts": 1792708176513,
+      "seq": 7,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1792708176513-11",
+      "ts": 1792708176513,
+      "seq": 8,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1792708176512-9",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1792708176513-12",
+      "ts": 1792708176513,
+      "seq": 9,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / parallelism-model"
+    },
+    {
+      "id": "event-1792708176513-13",
+      "ts": 1792708176513,
+      "seq": 10,
+      "turnId": "api-1792708176504-7",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"parallelism-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792708186569-65",
+      "ts": 1792708186569,
+      "seq": 11,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / parallelism-model / stop"
+    },
+    {
+      "id": "event-1792708186570-66",
+      "ts": 1792708186570,
+      "seq": 12,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1792708176504-7 seq=1"
+    },
+    {
+      "id": "event-1792708186570-67",
+      "ts": 1792708186570,
+      "seq": 13,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / parallelism-model"
+    },
+    {
+      "id": "event-1792708186574-68",
+      "ts": 1792708186574,
+      "seq": 14,
+      "type": "volume-batch-attempt",
+      "level": "info",
+      "label": "卷纲批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":1,\"errors\":[]}"
+    },
+    {
+      "id": "event-1792708186587-69",
+      "ts": 1792708186587,
+      "seq": 15,
+      "type": "volume-batch-validated",
+      "level": "info",
+      "label": "卷纲批次验收通过",
+      "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1792708186587-70",
+      "ts": 1792708186587,
+      "seq": 16,
+      "type": "write",
+      "level": "info",
+      "label": "卷纲已写入项目",
+      "detail": "写入 1 卷"
+    },
+    {
+      "id": "event-1792708186588-71",
+      "ts": 1792708186588,
+      "seq": 17,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "all_volumes_generation_complete"
+    },
+    {
+      "id": "event-1792708186588-72",
+      "ts": 1792708186588,
+      "seq": 18,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "all_volumes_generation_complete / run=run-1792708176439-1"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1792708176504-7",
+      "seq": 1,
+      "step": 2,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "parallelism-provider",
+      "providerName": "Pipeline Parallelism Provider",
+      "model": "parallelism-model",
+      "temperature": 0.1,
+      "maxTokens": 8192,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "status": "success",
+      "startedAt": 1792708176504,
+      "physicalCalls": [
+        {
+          "id": "physical-1792708176512-9",
+          "physicalCallId": "physical-1792708176509-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-003"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 20,
+            "outputTokens": 40,
+            "totalTokens": 60
+          },
+          "usageUnavailable": false,
+          "startedAt": 1792708176512,
+          "durationMs": 10058,
+          "firstTokenMs": 10057,
+          "outputMs": 1,
+          "endedAt": 1792708186569,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": 8192,
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 238,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 238 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 238,
+            "actualInputTokens": 20,
+            "driftRatio": -0.9159663865546218,
+            "correctedRatio": 0.08403361344537816
+          },
+          "firstContentAt": 1792708186568,
+          "lastContentAt": 1792708186568,
+          "heartbeat": false,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "[{\"name\":\"第二卷 航线之后\",\"outline\":\"王芳把灯塔纸条拼进航行图，南方航线逐步显形。\",\"summary\":\"纸条指向南方渔港。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到航线从线索变成行动。\",\"mainPlotLine\":\"灯塔纸条推动南方航线。\",\"unlockMilestone\":\"航行图第二段展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
+        }
+      ],
+      "lastExecutionActivityAt": 1792708176512,
+      "finishReason": "stop",
+      "durationMs": 10059,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 10058,
+        "firstTokenSumMs": 10057,
+        "outputSumMs": 1,
+        "minFirstTokenMs": 10057,
+        "maxFirstTokenMs": 10057,
+        "localOverheadMs": 1
+      },
+      "usage": {
+        "inputTokens": 20,
+        "outputTokens": 40,
+        "totalTokens": 60
+      },
+      "usageUnavailable": false,
+      "endedAt": 1792708186569,
+      "semantic": {
+        "conversationId": "run-1792708176439-1",
+        "usage": {
+          "inputTokens": 20,
+          "outputTokens": 40,
+          "totalTokens": 60
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "[{\"name\":\"第二卷 航线之后\",\"outline\":\"王芳把灯塔纸条拼进航行图，南方航线逐步显形。\",\"summary\":\"纸条指向南方渔港。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到航线从线索变成行动。\",\"mainPlotLine\":\"灯塔纸条推动南方航线。\",\"unlockMilestone\":\"航行图第二段展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 1292,
+      "chars": 756,
+      "sha256": "d589883244dc1f72bcb5a6e8496cd7a0c89f75d9b7655a00dbe51d2dc2458b46",
+      "duplicateCount": 2,
+      "artifactRole": "final",
+      "createdAt": 1792708187089
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 392,
+      "chars": 252,
+      "sha256": "865881fe10375ec36b9d0f1e0819376ec450747d5980faecb1a96f0a4a7b3f00",
+      "duplicateCount": 2,
+      "artifactRole": "final",
+      "createdAt": 1792708187089
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 392,
+      "chars": 252,
+      "sha256": "865881fe10375ec36b9d0f1e0819376ec450747d5980faecb1a96f0a4a7b3f00",
+      "duplicateCount": 1,
+      "artifactRole": "final",
+      "createdAt": 1792708187089
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 1,
+    "persistence": 11
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 10058,
+    "firstTokenSumMs": 10057,
+    "outputSumMs": 1,
+    "localOverheadSumMs": 1,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 10057,
+    "outputSumMs": 1,
+    "validationSumMs": 1,
+    "persistenceSumMs": 11,
+    "repeatedPromptBlocks": {},
+    "contextChars": 627,
+    "outputChars": 252,
+    "physicalDurationSumMs": 10058
+  },
+  "endedAt": 1792708186588,
+  "durationMs": 10149,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1792708176504-7",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "865881fe10375ec36b9d0f1e0819376ec450747d5980faecb1a96f0a4a7b3f00",
+        "bytes": 392,
+        "chars": 252,
+        "preview": "[{\"name\":\"第二卷 航线之后\",\"outline\":\"王芳把灯塔纸条拼进航行图，南方航线逐步显形。\",\"summary\":\"纸条指向南方渔港。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到航线从线索变成行动。\",\"mainPlotLine\":\"灯塔纸条推动南方航线。\",\"unlockMilestone\":\"航行图第二段展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1792708176509-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "865881fe10375ec36b9d0f1e0819376ec450747d5980faecb1a96f0a4a7b3f00",
+            "bytes": 392,
+            "chars": 252,
+            "preview": "[{\"name\":\"第二卷 航线之后\",\"outline\":\"王芳把灯塔纸条拼进航行图，南方航线逐步显形。\",\"summary\":\"纸条指向南方渔港。\",\"allocatedWords\":12000,\"readerExpectations\":\"看到航线从线索变成行动。\",\"mainPlotLine\":\"灯塔纸条推动南方航线。\",\"unlockMilestone\":\"航行图第二段展开。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
+          },
+          "stream": {
+            "ref": "payload-003",
+            "file": "003-stream.json",
+            "sha256": "865881fe10375ec36b9d0f1e0819376ec450747d5980faecb1a96f0a4a7b3f00",
+            "bytes": 392,
+            "chars": 252
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

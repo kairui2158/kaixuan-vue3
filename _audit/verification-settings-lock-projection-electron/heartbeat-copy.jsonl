@@ -1,5 +1,6 @@
-{"at":"2026-10-20T14:57:47.805Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":3320,"frame":1}
-{"at":"2026-10-20T14:57:48.833Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":3320,"frame":2}
-{"at":"2026-10-20T14:57:49.922Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":3320,"frame":3}
-{"at":"2026-10-20T14:57:50.924Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":3320,"frame":4}
-{"at":"2026-10-20T14:57:51.992Z","running":[{"id":"run-1792508271939-70","source":"home","stepName":"主页共创","events":5,"apiCalls":0}],"pipelineStatus":"done","isGenerating":false,"electronPid":3320,"frame":5}
+{"at":"2026-10-22T09:54:07.167Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":22940,"frame":1}
+{"at":"2026-10-22T09:54:08.176Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":22940,"frame":2}
+{"at":"2026-10-22T09:54:09.265Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":22940,"frame":3}
+{"at":"2026-10-22T09:54:10.310Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":22940,"frame":4}
+{"at":"2026-10-22T09:54:11.339Z","running":[],"pipelineStatus":"done","isGenerating":false,"electronPid":22940,"frame":5}
+{"at":"2026-10-22T09:54:12.479Z","running":[{"id":"run-1792662852298-77","source":"home","stepName":"主页共创","events":5,"apiCalls":0}],"pipelineStatus":"done","isGenerating":false,"electronPid":22940,"frame":6}

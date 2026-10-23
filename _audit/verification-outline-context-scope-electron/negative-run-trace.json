@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1791922103902-1",
+  "id": "run-1792640180663-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -11,50 +11,74 @@
   "skillNames": [],
   "skillMode": "chain",
   "status": "failed",
-  "startedAt": 1791922103902,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "b2d0b8088e7e",
+    "buildTime": "2026-10-22T03:27:46.288Z"
+  },
+  "startedAt": 1792640180663,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
       "reason": "generation_failed",
-      "recordedAt": 1791922103908
+      "recordedAt": 1792640180682
     }
   ],
   "events": [
     {
-      "id": "event-1791922103902-2",
-      "ts": 1791922103902,
+      "id": "event-1792640180663-2",
+      "ts": 1792640180663,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1791922103906-3",
-      "ts": 1791922103906,
+      "id": "event-1792640180675-3",
+      "ts": 1792640180675,
       "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1792640180676-4",
+      "ts": 1792640180676,
+      "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1792640180681-5",
+      "ts": 1792640180681,
+      "seq": 4,
       "type": "failed",
       "level": "error",
       "label": "正文运行失败",
       "detail": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲"
     },
     {
-      "id": "event-1791922103907-4",
-      "ts": 1791922103907,
-      "seq": 3,
+      "id": "event-1792640180682-6",
+      "ts": 1792640180682,
+      "seq": 5,
       "type": "finished",
       "level": "error",
       "label": "运行失败",
       "detail": "generation_failed"
     },
     {
-      "id": "event-1791922103908-5",
-      "ts": 1791922103908,
-      "seq": 4,
+      "id": "event-1792640180682-7",
+      "ts": 1792640180682,
+      "seq": 6,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1791922103902-1"
+      "detail": "generation_failed / run=run-1792640180663-1"
     }
   ],
   "apiCalls": [],
@@ -84,8 +108,8 @@
     "continuationCallCount": 0,
     "repeatedPromptBlocks": {}
   },
-  "endedAt": 1791922103907,
-  "durationMs": 5,
+  "endedAt": 1792640180682,
+  "durationMs": 19,
   "apiResponseIndex": [],
   "payloadIntegrityWarnings": []
 }

@@ -1,0 +1,302 @@
+我们需要回答用户。需要生成叙事骨架文档，不能输出正文、分析。要遵守系统提示中的大量规则。输入给出了当前章节信息。还有结构化重试反馈说校验失败项“闪烁(3次)”，要求重新输出完整结果，不要复述反馈。需要输出完整骨架文档。
+
+我们需要仔细理解任务。用户最初消息是系统提示，包含职责、输出铁律、阶段化指令、应用参数：当前章节标题“灯塔信标”，梗概、剧情点，上一章未设置，角色列表未设置，每章字数1200，风格标签未设置，节奏参数未设置。然后有user路线：style reference和text? Wait conversation: user includes "[style reference]" examples and "[单元闭包卷纲] ...". There is a system instruction? Actually the user prompt after system includes style reference and text. We need produce skeleton.
+
+Need ensure no NOT-READY? We have POV, space though details sparse, action sequence, fact boundary, hook. Need maybe mark some待补. Time not provided, so time地点 can be待补. But absolute time anchor required: input未提供时写“待补信息”。 We can use relative? 剧情点没有明确时间。上一章未设置。所以场景时间地点：灯塔底层，风暴信标开始闪烁时，具体时刻待补信息(待). Need maybe "距上一场景约..." not available.
+
+Need handle "无角色列表" but POV clear 周砚 first person. Collaborators none.
+
+Need produce scenes matching剧情点. Need allocate total 1200字. We can pick 4-5 scenes. The retry feedback flagged "闪烁(3次)" maybe means our prior output had something wrong. We need ensure "三次红色闪烁" appears correctly? It's a fact. "校验失败项 闪烁(3次)" might be schema or content issue? Likely a metadata or action that was invalid. Need include maybe "三次红色闪烁" in scene 1 as hard fact. It failed maybe due to repetition? Not sure. We'll ensure clear.
+
+Need output skeleton document, no extra analysis. Must include【正文交接】 after 风格合同, and termination metadata. The system says output from skeleton正文开始; no preamble. Need include conflict? No conflict, all sources align. Need maybe output no [CONFLICT]. Need maybe include "来源编号保真" but no Vx-Ey given. We can state "来源单元总数/已建场景数/未消费编号" likely no IDs, so "来源编号：未提供" perhaps. But protocol says output末尾声明“来源单元总数/已建场景数/未消费编号”. We can add in metadata maybe. Need not create fake IDs. We'll say 来源编号：输入未提供（0组）. But "来源单元总数/已建场景数/未消费编号" maybe in正文交接? We need follow.
+
+Need design scenes.
+
+Given每章字数1200。Scenes should total 95%-105% = 1140-1260. We can allocate four scenes.
+
+Chapter剧情点:
+- 周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁
+- 他收到旧航道沉船名单，认出领航员许知微的私章
+- 为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头
+- 沿南方航线预约一艘清晨渔船
+- 并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。
+
+Need scenes:
+1. 灯塔底层确认信标三次红色闪烁 (钩子区，起)
+2. 收到/查看旧航道沉船名单，认出许知微私章 (承)
+3. 把名单折进防水袋，从灯塔侧门绕到南码头，避开港务巡查 (转)
+4. 预约清晨渔船 + 写航海日志信标规律和接头暗号 (合/收束) maybe split into two scenes? Need total 4 scenes with one maybe two actions. Could combine预约渔船与写日志 in one scene because same location near码头/船? But actions distinct. Maybe 4 scenes:
+- 灯塔底层确认信标
+- 灯塔底层/门边查看名单认出私章
+- 离开灯塔侧门绕行南码头
+- 南码头预约渔船并在船边写航海日志留暗号，章末钩子。
+
+Need每个场景四步：目标、行动、阻碍、转变. Need pressure/drama. Need choice points. Need soft pressure since no explicit. We can create from environment: 港务巡查灯光、时间窗口、风暴逼近、私章证据不能被发现等。 Need not contradict. We can add reasonable obstacles from narrative: need not invent hard facts? We can infer from "为了不惊动港务巡查" there is巡查 in area; we can make巡查灯光/脚步声 as obstacle.这是基于剧情点的合理推断，标软. Need maybe use "港务巡查的提灯" etc. Is that inventing? It is from "不惊动港务巡查", so yes there is巡查 presence. okay.
+
+Need absolute time anchors. Could use: "信标完成第一轮闪烁后" etc. Since no actual clock. But rule says "绝对或相对锚点，例如入侵后第三日黄昏/暴雨开始后二十分钟/距上一场景约半小时". We can anchor relative to event: "风暴信标完成第一轮三次红色闪烁后约两分钟" or "从灯塔底层转身准备离开后". But that is relative to previous scene. Need each scene time地点 containing sortable anchor. For scene 1: "灯塔底层，风暴信标开始闪烁时，具体时刻待补信息(待)" is not a sortable anchor? It says only氛围词不算锚点；输入未提供时写待补信息。 But we can use "风暴信标第一轮红色闪烁刚结束时" as relative to event. That's an event anchor, acceptable? The requirement: "必须含一个可排序的绝对或相对锚点，例如...". So yes "风暴信标第一轮三次红色闪烁刚结束时" is relative. Good.
+
+But input didn't provide actual time, we can mark specific actual time待补; relative event anchors we can infer from sequence? We should avoid fabricating absolute. For scene1 maybe time地点: "灯塔底层，风暴信标第一轮三次红色闪烁刚结束时，具体日期时刻待补信息(待)". That includes relative anchor. Good.
+
+Need each scene包含 POV、时间地点、场景起点、人物位置、关键物体位置、目标、行动、信息来源、阻碍、判断变化、转变、读者收益、空间结果、下一场景承接位置、节拍、场景类型、情感弧光、信息差、字数。
+
+Need ensure actions are concrete, not abstract. Need maintain first-person POV; action descriptions in skeleton should be from周砚's perception, no omniscient. "关键物体位置" okay.
+
+Need "场景起点" must be body/action state.
+
+Need "时间地点" for each scene maybe relative anchor unique.
+
+Let's design.
+
+Scene 1: 场景名称: 灯塔底层确认信标
+POV: 周砚第一人称(硬)
+时间地点: 灯塔底层，风暴信标第一轮三次红色闪烁刚结束，具体日期时刻待补信息(待)
+场景起点: 周砚站于门口内侧，左肩抵着湿墙，面朝门缝外的海面(硬)
+人物位置: 周砚在门口内侧，出口在右后方一步，门扇半开；门外是塔根湿雾与部分海面；门缝宽约两指(硬)
+关键物体位置: 无(硬) maybe key object is信标? far sea; not in reach. We can say "风暴信标在远处海面方向，隔着门缝约数百米，具体距离待补信息(待)"? But剧情点说站在灯塔底层确认风暴信标三次红色闪烁，可能灯塔信标在塔顶或海面? Let's parse: "灯塔信标" maybe灯塔本身? "风暴信标" likely灯塔的灯? Need be careful. "站在灯塔底层，确认风暴信标的三次红色闪烁" means he is at lighthouse base, observing a storm beacon blinking three times red. Could be lighthouse beacon? Actually "灯塔信标与旧航道线索推动主角南下." 灯塔信标 might be the lighthouse signal. Could be located on lighthouse tower; he is at底层. He could see reflected? To observe three red flashes, maybe from window. We don't need exact location if not input. We can mark具体位置待补. But for skeleton, key object位置: "信标光源在海面/塔外方向，超出触碰范围，具体方位距离待补信息(待)". That's acceptable. Need not place object nearby.
+
+目标: 确认风暴信标是否仍为三次红色闪烁，以决定是否按旧航道节奏行动(硬)
+行动: 周砚把右眼贴近门缝→等下一轮闪光→在第三次红色闪过后用拇指压住门框计数→转身看向门内(硬). Need maybe count each flash, etc.
+信息来源: 看见海面方向三次红色亮光；听见门板被风拍打声；手背感到门缝灌入的湿冷空气(硬)
+阻碍: 门缝过窄只能单眼观察；下一轮闪烁间隔未确定，若港务巡查提灯经过塔根会误判信标次数(软). Need choice point: could choose直接离港 vs 等第二轮确认. Need "至少两个可行动作，写明选中的动作、放弃的动作和放弃带来的代价". In scene 1, maybe choice: 选择再等一轮确认三次规律；放弃立刻出门，代价是留在塔根多暴露约两分钟，可能撞上巡查(软). Good include in阻碍 or判断变化. Need indicate放弃的动作.
+判断变化: 第一轮看见两次红闪时以为只有双闪→看见第三次红光后确认仍为三次规律→决定按三次间隔计算离港窗口，放弃立刻出门(硬/软?) Evidence. We need hard? The事实"三次红色闪烁" is hard from剧情点;推断 seeing only two first then third maybe okay. We can mark (软) for initial misjudgment, (硬) for final. But format says判断变化: infer based. Could be "初始只捕捉到前两次红光(软)→后续第三次出现→确认三次规律，放弃立刻出门，改等下一轮结束(硬)".
+转变: 成功确认三次红色闪烁律(硬)；代价是门口停留时间延长，门外巡查脚步声靠近过一次(软)，带来紧张。 Need maybe "部分成功带新问题": New problem? "门外塔根石阶传来脚步声，无法判断是否巡查(软)" maybe. This drives next scene: he ducks back, etc. But剧情点 says no direct conflict with巡查 yet. Could have starting pressure.
+
+空间结果: 周砚仍站门内，右肩抵墙，门缝被风推合两指宽，外侧塔根有湿雾与脚步声渐渐远去(软). Need "下一场景承接位置": 从周砚侧身贴门，右眼刚离开门缝的姿势接续(软).
+
+节拍: 起
+场景类型: 观察
+情感弧光: 从屏息到确认(软)
+信息差: 周砚不知道信标之外还有谁在观察灯塔(软/待?) Maybe could say "无/待补". Need no omniscient. Use "周砚不知道是否有其他人看见同一轮红光(待)". Good.
+字数: 约300字
+
+Scene 2: 收到/查看名单认出私章. Need where? Maybe in灯塔底层 after closing door, someone left a packet?剧情点说"他收到旧航道沉船名单" vague. Need we need establish receiving. Because previous scene maybe he goes to door then maybe turns to something. We need handle "收到" without source?输入未提供 who gives. Could infer someone had left it? But no role list, prev not set. We cannot invent a messenger. Better use "已在身上/手中" from earlier? But chapter input says "他收到...名单"—this is an event in chapter. We need denote receipt as fact but source unknown. Could be he "在灯塔底层门侧取到一枚防潮筒" if we invent? But we don't know. Need avoid building uncertain facts. Could mark source "待补信息". We can set scene起点 after he has the list in hand but receipt not depicted? But requirement says each scene must have goal/action. The "收到" action maybe can be captured as "从防水袋内倒出小卷名单" if he already had it. But that changes event order: chapter says he received list then recognized seal then折进防水袋. So list not already in防水袋 before. Need keep: scene2 goal: 收取并查看名单. We can mark "来源与传递方式待补信息(待)" but action: 伸出手接住从门缝塞进的小包? That invents. Maybe message was dropped through? Need maybe use "received" as passive: "名单被塞进半开门缝" but source unknown. However user said input未提供 when missing. We can write "来源与传递方式待补信息(待)" in关键物体位置 or信息来源. The action could be: 周砚从门边捡起潮软的纸卷→展开→就门缝漏光查看→看到私章. That's okay: he finds the list at threshold, source unknown; this respects unknown. Is that too much invention? It is a reasonable materialization of "他收到". But "收到" could be given by person; we can avoid naming. We can say "纸卷塞在门缝下，递送者未露脸(待?)" Hmm no.
+
+Maybe we can set scene 2 as:
+POV: 周砚第一人称(硬)
+时间地点: 灯塔底层门内，信标确认后约两分钟(软/硬? relative)
+场景起点: 周砚蹲在门边，一张对折的防潮纸卷夹在右手指间，来源待补信息(待)
+人物位置: 周砚蹲在门口内侧，背后是旋转石梯，外侧门缝仍半开(硬)
+关键物体位置: 名单在周砚右手；私章盖在名单右下角，距他眼睛约半臂(硬)
+目标: 在下一次巡查经过前确认名单真伪与关键人名(硬)
+行动: 展开名单→用门缝漏光辨认墨迹→手指沿名单右侧摸到圆形私章边缘→把私章转向光→看清“许知微”三字(硬)
+信息来源: 指尖摸到蜡封凹凸、门缝漏光看到章面字迹、嗅觉闻见纸张带潮腥与煤油味(软)
+阻碍: 门外塔根脚步声又出现，光太弱，展开纸有响声；周砚只能蹲低，用背挡门缝，看章时间被压缩(软)
+判断变化: 以为只是普通沉船名单(软)→摸到私章后判断是许知微旧物(硬)→放弃当场细读全部名单，先把纸折小(硬)
+转变: 认出私章，确认许知微线索(硬)；代价是没细看其余名单，只记住章面和附近两行(软)
+读者收益: 新信息（许知微私章与旧航道沉船名单绑定）(硬)
+空间结果: 周砚蹲在门内，名单折成小方夹在虎口，门缝被风吹得开合，塔根脚步声到门外石阶中段(软)
+下一场景承接位置: 从周砚蹲姿、右手指间夹着折好的名单、左手撑地的姿势接续(软)
+节拍: 承
+场景类型: 动作/观察? It includes physical, maybe动作。
+情感弧光: 从疑惑到警觉(软)
+信息差: 周砚不知道名单递送者是谁(待)
+字数: 约300字
+
+Need ensure no omniscient. "塔根脚步声" okay through door.
+
+Scene 3: 折叠名单入防水袋，从灯塔侧门绕到南码头，避开巡查. Need incorporate choice. Steps:
+- goal: 带名单离开灯塔且不惊动港务巡查(硬)
+- action: 将折小名单塞进防水袋→封口→拉门只开一条肩宽→探出半身看塔根→从侧门绕向礁石路→沿阴影走至南码头(硬)
+- 阻碍: 巡查提灯在码头口来回，南码头方向没有遮蔽，风雨刮来导致袋口滑手，侧门石阶湿滑(软)
+- choice: 他选择从灯塔侧门绕南码头而非直接正门出去，放弃近路，代价是多走一段礁石下坡，可能错过预约渔船时间? But剧情点 requires侧门绕到南码头. So choice established. "至少两个可行动作，写明选中的动作、放弃的动作和放弃带来的代价": 选从侧门绕南码头；放弃从正门直下码头，代价是多绕礁石路、鞋底打滑，且暴露时间更长(软). Good.
+- 判断变化: 原本想走正门下码头(软)→听见港务巡查咳嗽与提灯金属声从正门石阶传来→判断正门会被截住→改走侧门绕南码头(硬/软). Evidence.
+- 转变: 成功到达南码头边缘(硬)；代价是名单防水袋在奔跑中被岩石刮了一下但未落水？Need maybe new problem: 防水袋表面被岩角划破一道灰痕，未破到纸层(软). Is that okay? Could be invented; okay as soft现场代价. Or more relevant: 抵达南码头后发现预约渔船的人家已经熄了大半灯,时间紧. We'll include maybe.
+- 空间结果: 周砚站在南码头末端，背贴栓船柱，面前是一排小渔船，身后礁石路只剩几点巡查提灯(软)
+- 下一场景承接: 从周砚靠柱、防水袋握在左胸前的姿势接续(软)
+节拍: 承/转
+场景类型: 动作
+情感弧光: 从紧张到屏息(软)
+信息差: 周砚不知道巡查是否看见他的侧影(待)
+字数: 约300字
+
+Need maybe "南码头" physical relationship? Input lacks exact orientation. We can mark "南码头与灯塔相对方位待补信息(待)" in时间地点 or人物位置; but still need space. Could say "人物位置：周砚到达南码头末端，身后是来路礁石，面前一列渔船，具体方位距离待补信息(待)". That's allowed.
+
+Scene 4: 预约清晨渔船/写日志留暗号. Maybe two actions combined in one scene at南码头. Need include targeted obstacle and choice.
+- goal: 沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志留下接头暗号(硬)
+- action: 他沿码头走了半排船→找到一艘船尾挂着南方航线旧灯牌的渔船→屈指敲船帮三下→与船主? But no character list. Since no listed characters, we can keep船主未出现? However预约 requires someone. We cannot invent dialogue? We can say "朝船艙内低声说出/递上预约铅片" but need not name? Input says "预约一艘清晨渔船" means there must be a person or boat. Since role list not set, we can mark "船主/守船人未提供，待补信息(待)" and keep action physical: "把预约铅片挂在船桩铁环上" maybe. But that's a token we invented. Better: "周砚把一枚预约用的小铅片挂到船桩铁环上" is maybe from 海港 practice inferred. But not in input. Could be flagged as inventing. However skeleton can use soft inferred objects. We have no hard objects. But to make action executable we can use "预约铅片" marked (软). Need not mention previous? It says "留下一条给许知微的接头暗号" maybe in log. We can use logbook he has.
+
+Maybe scene 4 can be split into two scenes to manage actions:
+Scene 4: 预约渔船
+Scene 5: 写日志留暗号
+But 5 scenes maybe okay within 1200, total 1200. Need total 95-105. Let's allocate 4 scenes? 3 300 + 4 250 + 5 350 = 1200. We can do 4 scenes including scene 4 with both actions maybe too much. Maybe 5 scenes to make clear. But system says 3000字以内章节控制在5至6个场景; 1200字 can be 4 scenes. "超出时优先合并因果相邻的场景，不得删事件." So we can combine写日志 and预约? They are adjacent at码头. Could be one scene: 预约渔船并写日志留暗号. That's okay if action chain clear.
+
+Let's attempt 4 scenes total: 300/300/300/300 = 1200. Good.
+
+Scene 4:
+POV: 周砚第一人称(硬)
+时间地点: 南码头边，抵达后约几分钟，具体夜间时刻待补信息(待) maybe relative anchor.
+场景起点: 周砚从栓船柱后出来，弯着腰沿船排走，左手按着防水袋(硬)
+人物位置: 周砚半蹲在一条旧渔船船中舱旁，船头朝南，岸边码头板在他右后方一步，具体方位距离待补信息(待)
+关键物体位置: 航海日志在周砚外套内袋；预约铅片/船桩铁环在船头缆桩，具体物品种类待补? We'll use "预约用铅片(软)".
+目标: 在巡查灯光扫来前完成预约，并把信标规律和接头暗号写进航海日志(硬)
+行动: 确定船头旧航牌→将预约铅片穿进船桩铁环→抽出航海日志→蹲在船边用膝盖垫着写→先写“三次红闪，间隔待核”几个字→在末页画下/写下给许知微的接头暗号→把日志合上塞回内袋(硬/软)
+信息来源: 看见船尾航牌字迹、指尖摸到船桩铁环湿锈、听见码头远处巡查铁门响、闻见船底死水味(软)
+阻碍: 海风从南面吹来掀动日志页，码头板湿滑，巡查灯光每过大约半分钟扫到南码头东侧；周砚只能蹲在船影里写，手不稳，字迹不能太大(软)
+判断变化: 原本打算预约完先离岸再说(软)→写日志时听见码头口巡查铁门被风掀动→判断必须现在留暗号，否则天亮前可能没机会传递→放弃提前离港，多留三分钟(硬/软)
+转变: 完成预约与暗号写入(硬)；代价是离开南码头的时间被压缩，巡查灯光已经扫到渔网堆，周砚只能贴着船边后退(软)
+读者收益: 新信息（接头暗号已留在日志末页；信标规律被记录）(硬)
+空间结果: 周砚蹲到船只阴影里，日志在内袋，防水袋在左腰，船桩铁环上挂有预约铅片，巡查灯光逼近渔网堆(软/硬? maybe软)
+下一场景承接位置: 从周砚半蹲船边、右膝压着半边船绳、左手撑住船舷的姿势接续(软)
+节拍: 合
+场景类型: 动作
+情感弧光: 从紧绷到静默(软)
+信息差: 周砚不知道许知微是否还能看到暗号(待)
+字数: 约300字
+
+Need ensure "接头暗号" content? Input says留下一条给许知微的接头暗号, not given exact. We should mark "暗号内容待补信息(待)" in 行动 or 关键物体位置, not invent. We can write "写下暗号"但 not specify content. But skeleton needs action: maybe "用指甲在末页右下划三道短痕，不写字" could be the暗号, but this invents. Better mark暗号具体形式待补信息; action says "把信标规律写进航海日志，并在同一页留下给许知微的接头暗号（具体形式待补信息）(硬/待)". Then downstream will know not to invent? But maybe need concrete. We can say "暗号内容/形式待补信息(待)" and action only "在末页留出暗号位置/画下预先约定的记号". Hmm.
+
+Maybe use "三次红色闪烁" itself as暗号? But剧情点 differentiates: 把信标规律写进航海日志，留下一条给许知微的接头暗号. So暗号 likely separate. We can keep unspecified.
+
+Need source numbering. No IDs given. We can include maybe "来源编号：未提供（0组）" and "来源单元总数/已建场景数/未消费编号：0/4/无". But output要求 "原样继承 Vx-Ey... 输出末尾声明来源单元总数/已建场景数/未消费编号" Since no IDs, "输入未提供来源编号；来源单元总数0（按执行包无编号）". That might be okay.
+
+Need include【正文交接】 after 风格合同. Fields fixed:
+章节
+POV
+已完成场景
+未完成场景
+来源覆盖状态
+角色状态变化
+章末状态
+下一章必须使用
+
+Need write concise not prose.
+
+Need include termination metadata maybe after. The system says "骨架和【风格合同】之后输出【正文交接】". Then maybe no further content. We need also maybe include "来源单元总数/已建场景数/未消费编号" at output末尾声明. Could append in正文交接? Or separate line. We can include at end of正文交接:
+来源单元总数：输入未提供来源编号，视为0(待)
+已建场景数：4
+未消费编号：无
+This satisfies.
+
+Need ensure not output any analysis/thinking. Only skeleton. We must not mention retry feedback. Start with【场景1...】.
+
+Need make fields type annotated every field value with (硬)(软)(待). Some fields can have multiple clauses with separate annotations. Need not annotate field labels? The rule says 字段输出值末尾追加类型标注. We do that.
+
+Need ensure no forbidden phrases? Our output is skeleton, not prose, but still should comply with style? Maybe not relevant to prose. But avoid analysis words. Use concise.
+
+Potential issue: The first line after user says [style reference], then [单元闭包卷纲]. We need output skeleton only. The system says "输出从骨架正文开始". So start with【场景1...】.
+
+Let's review if any NOT-READY? Inputs have POV, space partially, action sequence, fact boundary, hook. Yes.
+
+Need maybe include [CONFLICT]? No conflicts. But there is "上一章梗概：未设置", maybe no conflict. "角色列表未设置" no conflict. So no conflict block.
+
+Need maybe include "时间地点" absolute anchors. Each must include relative event. Scene 1: "灯塔底层，风暴信标第一轮三次红色闪烁刚结束时，具体日期时刻待补信息(待)". That's relative event anchor.
+Scene 2: "灯塔底层门内，信标确认后约两分钟(软)" This is relative.
+Scene 3: "灯塔底层至南码头，离开灯塔侧门后约数分钟，具体时刻待补信息(待)" okay.
+Scene 4: "南码头船边，抵达后约几分钟，具体夜间时刻待补信息(待)".
+
+Need ensure each "信息来源" has sense types. Fine.
+
+Need maybe include "章节剧情点是主线..." not needed.
+
+Let's prepare full skeleton carefully.
+
+Potential issues in stage direction：场景2 "名单在周砚右手；私章盖在名单右下角，距他眼睛约半臂(硬)" but the key物体位置 cannot be known until he opens. That's okay.
+
+Need include "目标" with immediate intention.
+
+Scene 2 action "展开名单→用门缝漏光辨认墨迹→手指沿名单右侧摸到圆形私章边缘→把私章转向光→看清“许知微”三字(硬)" - Wait "手指摸到" before seeing may be okay. But if source says he received list, not necessarily paper roll. We say "对折的防潮纸卷夹在右手指间". Might be inventing but acceptable field type (软?) We can mark "对折的防潮纸卷(软)" if inferred. But the list existence hard. We'll set场景起点: 周砚蹲在门内，对折的旧航道沉船名单夹在右手指间，来源与传递方式待补信息(待). That respects. Type? Could be (硬) for list presence, (待) for source. Maybe annotate mixed.
+
+Need use "收到" event? Our scene 2 starts after receipt. Does that omit "收到"? The剧情点: "他收到旧航道沉船名单，认出..." Our skeleton action doesn't depict reception, just starts holding it. The system wants执行包每个施工字段落到行为; "收到" should maybe be action. Could be in scene起点? Might be okay but maybe better include as action: "伸手从门缝外接住/从门边拾起名单" but source unknown. Since "收到" is event. Could write:
+场景2 场景起点: 周砚手腕一沉，有人或物把一叠纸塞进门缝；半边湿纸抵住他虎口；他没看见递送者(待). But this invents someone. Could mark source待. Maybe too speculative. The safe is: "名单已经在周砚手中，收到过程未提供/待补信息"—we can note in场景起点. However requirement "不得只把这些字段改写为摘要"; we are allowed to mark missing. But "收到" missing specifics; we could still write action "周砚接住从门缝下缘滑入的纸卷" with source待. Hmm.
+
+Maybe choose:
+场景起点：周砚蹲在门内，左肘压着门板；旧航道沉船名单刚从他指间展开第一折，递送者与方式待补信息(待)
+Then "收到" is implicitly just happened. That's acceptable.
+
+Need maybe "剧情点未提供角色列表，涉及船主等未出场，故预约动作通过物件完成，不对未给定的人物出场". In skeleton we can avoid naming船主. Use "预约铅片" object. Fine.
+
+Need maybe not use "无" as obstacle. We provide soft.
+
+Need "戏剧压强门禁" says "禁止输出无外部阻碍". Good.
+
+Need "转变服务于本章因果：部分成功带新问题、失败带新信息、成功带代价..." We have.
+
+Need maybe "节拍": Scene 1 起, Scene 2 承, Scene 3 转, Scene 4 合. Good.
+
+Need "字数": total 1200. Our sum: 300*4=1200.
+
+Need maybe "风格合同" from styleTags empty, so write "无——使用当代中文叙事文学的自然语感，粗糙度中，允许生活噪音". But the fields must be filled. We'll infer:
+叙事推进：时间序列+悬疑递增(软)
+场景单元模式：感知异常→受限行动→部分突破→新威胁(软)
+情绪表达：behavior_only(软)
+语言质感：克制、粗糙度中、句长变化中、允许生活噪音(软)
+节奏：中快、段密度中高、慎用碎片流、动作优先(软)
+正向指令：现实落差(软)
+
+Need maybe style contract has exact format. We'll include.
+
+Need maybe "段落结构" etc not necessary. Skeleton only.
+
+Need ensure【正文交接】 after 风格合同. Could include:
+【正文交接】
+章节：灯塔信标
+POV：周砚，第一人称(硬)
+已完成场景：场景1 灯塔底层确认信标；场景2 查看名单认出私章；场景3 侧门绕行南码头；场景4 预约渔船并留暗号
+未完成场景：无
+来源覆盖状态：输入未提供来源编号(待)；当前章节剧情点四点全部覆盖（信标、名单/私章、侧门绕行南码头、预约渔船/日志暗号）(硬)
+角色状态变化：周砚从灯塔底层到南码头船边；持有防水袋（内有名单）、航海日志；弄清信标三次红闪；许知微未出场(硬)
+章末状态：周砚蹲在船影里，航海日志在内袋，防水袋在左腰，船桩铁环挂预约铅片，巡查灯光逼近渔网堆(软)
+下一章必须使用：周砚半蹲船边、右膝压船绳、左手撑船舷的姿势；防水袋内名单；航海日志末页暗号；信标规律；南方航线起点与巡查灯光逼近的未解决威胁
+来源单元总数/已建场景数/未消费编号：输入未提供来源编号(待)/4/无
+
+Need maybe "巡查灯光逼近渔网堆" from scene 4, we marked soft. Could be hook. Good.
+
+Need ensure "下一章可接第一幕" etc not in正文交接? The fixed fields only. We have them.
+
+Need maybe include "章末钩子" before正文交接. We'll do:
+【章末钩子】
+巡查提灯从码头口东侧扫到渔网堆，周砚半蹲船影里，船桩上的预约铅片还在轻晃(软/硬？ maybe事件). Need mark hard/soft? We can mark "巡查灯光逼近渔网堆(软)" since inferred. But hook should be specific. Use "码头口一对巡查提灯转向南码头东侧，光斑落在渔网堆上，尚未扫到船边(软)". This is from our construction. Since it's inferred from剧情点 (不惊动港务巡查), okay. Mark软.
+最后事件: 周砚把航海日志合上塞回内袋，蹲身退进船影(硬/软).
+不可回头点: 名单已折进防水袋并带离灯塔，许知微私章与日志暗号绑定，周砚不能再回到灯塔不被发现(硬/软)
+未完成情绪: 对许知微暗号是否会被读到的不安(软)
+下一章可接第一幕: 周砚半蹲船边、右膝压船绳、左手撑船舷，防水袋在左腰，日志在内袋，预约铅片在船桩铁环，巡查灯光逼近渔网堆(软)
+
+Need maybe "最后事件" is actual last action. Our scene 4 action includes "把日志合上塞回内袋" and "蹲身退进船影". Good.
+
+Need maybe "不可回头点": Chapter results. Fine.
+
+Need maybe "未完成情绪": POV角色尚未处理完的情绪. We set "对许知微暗号是否会被读到的不安".
+
+Need maybe "状态连续性" no need output separate. But our scene transitions are consistent: scene1 ends at door; scene2 still at door; scene3 exit side door; scene4 at码头. Holding relationships consistent: list in hand then folded into防水袋 in scene3; logbook appears in scene4 from inner pocket. Need ensure logbook not earlier introduced. We can introduce at scene4 as "周砚外套内袋" with no prior mention; okay.
+
+Need maybe include "收到名单" before folding into防水袋. Scene2 list in hand. Scene3 action:把折小名单塞进防水袋→封口. Good.
+
+Need maybe "关键物体位置" for scene1: no key object in reach. We'll write "无(硬)". This is allowed.
+
+Need maybe "目标" scene1: "确认风暴信标是否仍为三次红色闪烁，好定下离港节奏(硬)" Good.
+
+Need maybe "判断变化" must change action. In scene1: choice: "放弃立刻出门，等第三下确认" yes.
+Scene2: "放弃当场细读全部名单，先把纸折小" yes.
+Scene3: "放弃正门下码头，改走侧门" yes.
+Scene4: "原打算预约完先离岸→决定现在留暗号，多留三分钟" yes.
+
+Need maybe "每个场景有观察半径" key. We include door crack, relative distances. Some distances待补. Fine.
+
+Potential issue: "角色列表未设置" means no known characters. We shouldn't write "港务巡查" as specified character? It's kind of group from剧情点 "港务巡查". okay. We can treat as obstacle. Not named.
+
+Need maybe "事实防火墙" don't reveal许知微 identity. We won't.
+
+Need maybe "来源编号保真" no IDs. We'll state.
+
+Need now craft final output in Chinese.
+
+Need make sure no explanation or markdown beyond skeleton. The output can include GFM table? Not needed. No tables.
+
+Let's write.
+
+Potential problem: The system says "输出格式 每个场景一个区块". We'll format exactly.
+
+Need maybe "每章字数：1200", we allocate 300 each. That's uniform, but rule 5 "戏剧价值决定篇幅; 禁止每个场景篇幅差不多". But this is skeleton allocation, not final prose. We can vary slightly? We can set scene1 250, scene2 350, scene3 250, scene4 350 to vary. Total 1200. Need "字数分配根据事件权重、场景复杂度"; maybe better vary. Let's set:
+场景1：约250字
+场景2：约350字 (核心认出私章)
+场景3：约250字
+场景4：约350字
+Total 1200. This is more varied. Good.
+
+Need adjust scenes to match weights. Scene2 and 4 have more action/info. Good.
+
+Let's prepare.
+
+Need ensure "上次 feedback 闪烁(3次)" maybe maybe they want "三次红色闪烁" in scene? We'll include clearly. Good.
+
+Let's produce final.

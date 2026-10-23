@@ -1,286 +1,307 @@
-我们需要回答用户。只能输出JSON数组，一个对象。需要根据上一步完整输出执行当前 SKILL，只输出当前步骤定稿产物。我们需要构建第一卷 JSON。
+We need produce final JSON array of 1 object for volume 1 based on prior skill output. Need follow all constraints. Must not output anything except JSON array. Need create "outline" natural language, include required guide words: 起承转合、角色弧光、核心冲突、伏笔与意象、感官调色板、潜台词、卷末状态、章节进度索引. Avoid forbidden markers/English terms. Outline >=2000 chars, each four segments >=400 chars, plot points >=100 chars? Need include plot points. Need include many fields from input: name, outline, summary, allocatedWords, readerExpectations, mainPlotLine, unlockMilestone, forbiddenFinalCards, contractRisk.
 
-需要严格遵守规则。字段 name outline summary allocatedWords readerExpectations mainPlotLine unlockMilestone forbiddenFinalCards contractRisk.
+Need decide values:
+name: "风暴起点"
+allocatedWords: 3333 (positive integer) based 【字数仲裁】.
+summary <=150 chars: mention story and theme direction and chapter count. Suggested chapters from progress: 第1—7章. So "旧信、灯塔与南方航线共同迫使主角以行动验证家族信物的局部真相，完成第一次远航。本卷建议承载7章。"
+readerExpectations <=80 chars. core expectations,兑现位置,转移去向. Need concise.
+mainPlotLine <=80 chars. unique main line,推进方式,卷末状态.
+unlockMilestone <=60 chars. end volume milestone.
+forbiddenFinalCards: array strings: list not reveal: 家族信物完整真相, 灯塔误导的真实原因, 无标记船影来源与雾中港内情, 旧信完整隐藏页与南方航线为何风暴显现? Need not include "终局底牌" maybe. Ensure array no English quotes? Use Chinese.
+contractRisk: one of contract_safe, contract_needs_reinforcement, contract_broken, [待补充]. Since many missing (Lie, specific character names, specific resources), but contract maybe "contract_needs_reinforcement"? The contract validation? We need choose. Input indicates "契约安全"? Not specified. We need evaluate. The Volume contract tasks from skeleton with 16 plot points, chapters 1-7. There are missing many details (near enemy etc). Contract might be "contract_needs_reinforcement" because core contract established but needs reinforcement due missing specific details? Let's see. Required contractRisk values include "contract_needs_reinforcement", "contract_broken", "contract_safe", "[待补充]". Since the upstream output has many "待补信息" for lie/wound, specific names, enemies. But contract as volume? The volume contract is fulfilled by outline? We can set "contract_needs_reinforcement" perhaps because missing values need reinforcement. But should we not fabricate? I think "contract_needs_reinforcement" is appropriate: the volume contract is formed but has missing details awaiting补全. However validation doesn't forbid. The JSON schema maybe expects one of enum. Fine.
 
-需要从输入读取：当前卷任务包、字数仲裁、骨架与施工稿、交接、继承区块。只生成第1卷。输出数组长度1。
+Need write outline. We need use natural language and include all sections. Since only JSON array, no code fence. Need escape any English double quotes. Use Chinese quotes only.
 
-需要填：
-name: "风暴起点" 从【当前卷】卷名。
-allocatedWords: 采用值约3333字。正整数不带单位：3333。
-summary 150字以内摘要，概括本卷故事、主题方向，并写明本卷建议承载章节数。根据输入：建议承载4章? 章节进度：第1章到第4章。上一步微场景锚点从第1章到第4章。所以 summary 可以说本卷建议承载4章。内容是主角凭旧信灯塔南方航线完成第一次远航，揭示家族信物线索，留下雾中港钩子。字数控制在150字以内。
-readerExpectations 80字以内：写读者核心期待、兑现位置与转移去向。需要压缩。核心期待：旧信与灯塔谁在误导、主角能否完成首次远航；兑现位置：第3章旧信灯塔共同指向通过特定航段；转移去向：第4章指向雾中港家族信物真相。需要精确80字以内。中文按字符算。写一句。
-mainPlotLine 80字以内：本卷唯一主推线、推进方式与卷末状态。主推线：旧信与灯塔共同指引用主角完成南方航线首次远航；推进方式：旧信对照灯塔、风暴危机、共同通过条件；卷末状态：完成首次远航，留下雾中港指向。
-unlockMilestone 60字以内：卷末必须解锁里程碑。如“完成南方航线首次远航，验证旧信与灯塔共同指向，并将家族信物线索推进至雾中港联系。”需要60字。
-forbiddenFinalCards 字符串数组，本卷不得提前揭开的终局底牌。输入有单元禁止提前释放清单：F001家族信物完整真相；旧信与灯塔共同指向完整答案；雾中港交易、旧盟约、失踪船队具体登场；南方航线全段贯通或第三卷闭环；完成第一次远航在合段专属? 但这是本卷里程碑，不是终局底牌。 forbiddenFinalCards 应该是终局底牌? 本卷不得提前揭开的终局底牌。根据任务边界可以列：
-- "家族信物完整真相"
-- "旧信与灯塔共同指向的完整机理"
-- "雾中港交易、旧盟约与失踪船队的具体登场"
-- "南方航线全段贯通与第三卷闭环"
-可能终局底牌是后续卷的。注意不提前揭开。好。
+Need be careful with direct newline: We can include actual \n escapes in JSON strings, not literal newlines. The output can be one long line with \n characters in string. That's acceptable. Need avoid unescaped English double quotes. Use no " except if escaped. It's easier to use Chinese quotes throughout; but JSON strings themselves require English double quotes as delimiters, which are outside string? Actually entire JSON uses English double quotes for field names and string delimiters. Inside string values, we must not use unescaped English double quote. We can use Chinese fullwidth quotes. Fine. But there may be curly quotes? The instruction says strings内引号只能使用中文引号“”‘’；若必须使用英文双引号，必须写成 \". We'll use Chinese quotes in content. Need ensure no double quote inside outline string except Chinese. The JSON field values can include Chinese quotes. OK.
 
-contractRisk 只能是四个之一。判断是否 contract_safe? 输入有大量 “未提供/待补信息”，但规则说必需信息缺失写[待补充]，不虚构。contractRisk 判断可以根据卷契约健康度。示例非首卷缺少状态会写。本输入是首卷，有清晰卷旨骨架。虽然有 Ghost/Wound/Lie 未提供，但不影响当前卷契约？可填 contract_safe 或 contract_needs_reinforcement？ validation 可能要求字段存在不限制值。从施工稿状态看，核心推进明确。但很多设定缺失。契约风险？我倾向 "contract_safe"，因为本卷情节闭环和边界清晰，没有 broken。可是有很多待补信息，是否算 contract_needs_reinforcement? 需要理解 contractRisk 定义： contract_safe, contract_needs_reinforcement, contract_broken, [待补充]. 由于多个信息缺口“未提供/待补信息”，特别是主角 Lie、Need、势力等未提供，但当前卷能按现有结构生成。输出该字段可以为 contract_needs_reinforcement，因为有不少待补，但卷主线可执行。但规则说输入提供的信息直接采用，必需缺失时写 [待补充]，不虚构。 contractRisk 可能是需要标记契约需加固。如何判断？看是否有上一卷缺失？首卷没有。但很多设定未提供，可能 contract_needs_reinforcement 更准确。用户给的 style reference 示例 contractRisk 是 contract_safe（但示例里没有 contractRisk? 第一个示例只有到 allocatedWords; 第二个同样。所以实际输出必须填）。我将选 contract_needs_reinforcement? 需要谨慎：契约风险指本卷卷契约是否有断裂风险。输入有大量“未提供/待补信息”，比如中敌、远敌、自我敌对未提供，Need未提供，Lie未提供。不过当前卷情节仍依托环境冲突，可能仍安全但需要加固。根据技能规则：“必需信息缺失时，在对应位置写 [待补充]，不虚构情节、状态或数值。” contractRisk 允许 [待补充]。如果认为必要信息缺失导致无法判定，可输出 "[待补充]"。但这样可能不理想。因为字段有枚举但包含 [待补充] 可直接用。上一步输出中 conflict contract? 没有明确。
+Need include all required guide words exactly? "起承转合" should appear. Could section heading "起承转合四段情节概要". "角色弧光" etc.
 
-我们再仔细读用户系统要求：当前技能把当前卷施工稿定稿为应用和章节层可直接消费的 JSON 数组。contractRisk 只能是四之一。需要客观。由于多个核心设定未提供，可能 contractRisk = "contract_needs_reinforcement" 合理：卷契约基本成立但需加强，因为主角内心机制未提供，势力与对手层级缺失。
+Need not include forbidden markers: list includes 【卷旨】【骨架】【意象】【织体】【冲突】【弧光】【悬念】【交接】 etc. So in outline avoid angle-bracket markers. The word "意象" alone? Wait forbidden pattern includes "【意象】" specifically with brackets. The required "伏笔与意象" includes 意象, allowed. We must avoid bracketed markers. Also forbidden: "Lie演化", "Stability", "继承自", "因果前提", "压力转变", "残留债", "Lie状态", "对应叙事阶段", "mustAdvance", "mustPreserve". Avoid these terms. We can use "因果前提" maybe forbidden exact marker. Avoid. Use natural narrative.
 
-但也要避免过度标记？验证规则没有规定 contractRisk 值具体判断。我倾向 "contract_needs_reinforcement"，并在 outline 中相应写 [待补充] 位置。不过输出里不能加说明，只能在 outline 内或字段中用 [待补充]。
+Need ensure no English terms: Lie, Need, Want, Ghost, Wound, Stability, mustAdvance, mustPreserve. We'll avoid all.
 
-需要写 outline。要求 outline 长度不低于 2000 字符。必须包含板块和引导词：起承转合、角色弧光、核心冲突、伏笔与意象、感官调色板、潜台词、卷末状态、章节进度索引。还必须包含伏笔索引每行格式“伏笔 V卷号-序号 | ...”。伏笔 F-ID 转为 V当前卷号-序号。跨卷 V-ID 不改号。输入有 F001 家族信物真相，本卷应转为 V1-1？ 对于 F001 转为 V1-1? 规则说 F-ID 伏笔转为 V当前卷号-序号。F001 -> V1-1。注意后续跨卷 V-ID 不改号。伏笔索引需要每行一条。可以包括 V1-1。 输入还有 V-ID 保留原编号。没有其它 V。大纲里只能列 V1-1。如果原本有 V-ID 保留。这里转换。
+Need output one object, array length 1. Need be valid JSON with no trailing commas.
 
-outline 需自然语言，禁用工程标记：不能出现【卷旨】等，不能出现 Lie Need Want Ghost Wound Stability mustAdvance mustPreserve 英文。不能用英文 mustAdvance/mustPreserve，要中文替代。需要避免 “F-ID” “V-ID” 等？允许“伏笔 V1-1”格式。不要出现“F001”? 规则已说 F-ID 伏笔转为 V当前卷号-序号。应写 V1-1，别写 F001。也不要写英文 Lie/Need/Want/Ghost/Wound/Stability/mustAdvance/mustPreserve。正文中避免。章节进度索引中不能用 mustAdvance mustPreserve，用“必须推进”“必须保持”。
+Outline content:
+- 本卷故事走向; 卷型与卷使命; 起承转合四段情节概要.
+- Role arc.
+- Core conflict.
+- 对手动作意图.
+- 伏笔与意象.
+- 感官调色板.
+- 潜台词.
+- 卷末状态 (includes emotional debt, suspense inventory, hook, lower volume connection, expectations debt)
+- 收束产物.
+- 伏笔索引.
+- 微场景锚点.
+- 章节进度索引.
+- 章节层资产摘要.
 
-需要 outline 包含：本卷故事走向；起承转合四段情节概要，每段先写段落概要，再写剧情点；每个剧情点 100 字以上，含事件、行为、冲突、结果，末尾写落点快照；相邻落点用增量表达，无变化项写“承接”；每段末写段落落点。 输入已有剧情点4个，每个可写100+。需要遵循。 起段、承段、转段、合段。每段一个剧情点（共4个）。每个剧情点末尾写落点快照，包括人物状态快照、关系变化、信息变化、伏笔状态、承诺状态。每段末尾再写段落落点。我可以按输入编写，但要避免出现工程标记。落点快照需自然。
+Need not be too overly long but >2000 chars. It will be long. Need ensure four segments each >=400 chars. We'll write detailed but not too extreme. Plot points each >=100 characters? We can include 16 plot points. Need ensure each "剧情点..." paragraph length >=100 characters. We'll keep moderate.
 
-注意：用户给示例 style reference 里使用“落点：人物状态快照—— ... 关系变化——... 信息变化——... 伏笔状态——... 承诺状态——...”。这是可接受的中文。允许。每段至少400字符？ validation 非阻塞，可以保证。
+Need include "剧情单元" maybe in章节进度索引. But required? We'll include.
 
-outline 还需角色弧光：主角内心变化轨迹，使用具体角色名。名字未提供，称“主角”。具体角色名未提供，只能“主角”。可写主角从被动持信未出航到主动验证，再到完成远航并知前路未明。由于主角姓名未提供，不算虚构名字，使用“主角”。
+Need include "微场景锚点" five structures: 场景目的、进入状态、退出状态、必须推进事项、必须保持事项 and intervals. We can summarize per segment with anchor groups, not necessarily 38 individual anchors with full details, but should preserve "五项结构". The validation doesn't explicitly require each anchor but our skill says outline should include "微场景锚点：保留施工稿中的五项结构". We'll include a subsection listing each anchor with 5 fields and interval. Need not list all 38? The instruction says保留施工稿中的五项结构 and intervals; likely must include all. To be safe, include all 38 anchors? But that would be huge. The example outline included 7 anchors in second example, not all. First example omitted micro scene anchors? It had no微场景锚点 but included. The current instructions explicitly require微场景锚点, perhaps we should include all 38? But can be concise. We need output long enough. Could include a summary of anchors per segment covering all plot points, maybe not every individual anchor. But "微场景锚点：保留施工稿中的五项结构" means need five items; we can present representative anchor groups. However there is requirement "不重叠、不断档" for intervals. We'll include full anchor groups by chapter. Could be manageable if condense each anchor to one line.
 
-核心冲突与代价：输入有四层对手：近敌南方航线风暴与塔光异常；中敌待补充；远敌待补充；自我敌对待补充（表现为信任摇摆）。要写明不可逆变化、道德困境、代价；适合多视角/单视角。视角未提供，暂按主角认知推进；写对手行动如何通过后果、物证、传闻和误判向主角线加压。不引入第三方视角。应写环境作为近敌通过天气骤变、塔光异常等后果向主角加压。中敌/远敌 [待补充]。自我敌对写信任摇摆。代价：船只与补给损耗，离开原有安全状态。
+Need possibly include all 16剧情点 with落点 snapshots. We'll write each segment plot point and section落点. Each plot point >=100 characters. We can include concise but >100. Use Chinese punctuation. Need ensure no English double quotes. Should include "落点:" after each.
 
-伏笔与意象：列出本卷埋设、推进、回收伏笔，核心意象演变。伏笔 V1-1 家族信物真相：埋设+推进，不揭示。意象：灯塔、南方航线、旧信、旧航道、家族信物。按照输入。
+Let's plan outline structure.
 
-感官调色板：主色调、气味、触感、听觉、空间感和氛围转变，均影响判断/行动。可以写。
+I'll craft in Chinese.
 
-潜台词：角色表面与内心差距，读者与角色信息差。
+Start:
+"本卷故事走向：风暴纪元中，主角在岸上持有一封来路可疑的旧信和家族信物，旧信将灯塔、南方航线同时拉入一条无法被岸上经验证实的航向。主角必须离开近岸，在风暴逼迫下选择相信旧信还是相信灯塔，并以一次不可逆转向完成第一次远航。主题问题是旧信、灯塔与南方航线中哪一条线索足以支撑首次远航；驱动力是旧信指令的可疑性与灯塔异常形成的行动压力，使主角从被动持有线索转为主动选择航路。\n"
+This includes some brackets? none.
 
-卷末状态：人物处境、情感债务、悬念库存、卷级钩子、钩子形态、下卷衔接信号。期待债盘点并入。非首卷开头写承接，首卷写“无（首卷）”。需要包含上卷衔接：无（首卷）。期待债盘点制造/加深/兑现/转移。
+Need maybe "卷型与卷使命" line.
 
-伏笔索引：每行“伏笔 V1-1 | 家族信物真相 | 埋设于第1章起段 | 回收卷: 第2卷”之类。由于是长线可能回收卷第3卷？输入F001真相后续卷未定；雾中港第二卷，家族信物真相可能第三卷。上一步写现有F001本卷推进至20%，不揭示，回收卷? 没有明确。可写“回收卷: 第3卷” 因为全书3卷，南部航线合流第三卷完成远方闭环，家族真相可能在第三卷。不过输入第3卷“南方航线：航路贯通、家族真相与风暴信标合流，完成第一阶段的远航闭环。” 所以家族真相在第三卷。伏笔索引回收卷: 第3卷。也可写第2-3卷？格式是回收卷: 第N卷。写第3卷。也可以包含卷内转化：第2卷推进，第3卷回收。但格式只需回收卷。写“回收卷: 第3卷”。
+Then "起承转合" four segments. We'll include four headings with chapter ranges. Need mention "剧情点一" etc. Could write:
 
-微场景锚点：保留施工稿中的五项结构（场景目的、进入状态、退出状态、必须推进事项、必须保持事项）和各自承载区间；区间从第1章顺序衔接至卷末。 需要在 outline 中包含微场景锚点。输入有8个锚点：E1-1a、E1-1b 第1章；E1-2a、E1-2b 第2章；E1-3a、E1-3b 第3章；E1-4a、E1-4b 第4章。我应该全部保留，用自然语言，避免“mustAdvance mustPreserve”，写成“必须推进事项=...；必须保持事项=...”。注意：规则“不出现 mustAdvance、mustPreserve 等英文术语”，不能出现英文关键词。可以用“必须推进：”“必须保持：”。微场景锚点承载区间从第1章至第4章，不重叠不断档。写入 outline 里。这是很大内容。
+"起承转合四段情节概要：\n"
+"起段第1—2章..." etc.
 
-章节进度索引：开头写“容量推演区间X-Y，本卷定稿承载N章”；随后写四段章节区间、每个剧情单元的章节区间与兑现位置、单元残留价值、结构段闭环、信息短章区用途（如适用）、价值标准修正（如适用）、关系变化与信息差释放区间、对手信息供给区间、伏笔操作区间、卷末收束任务；结尾写覆盖声明“微场景锚点承载第1章至第N章，不重叠、不断档”。 输入有容量推演区间1-4? 当前卷任务包建议约3333字，章节进度四章，封面。容量推演区间：可能是1-4。本卷定稿承载4章。写“容量推演区间1-4，本卷定稿承载4章”。包含每个剧情单元 U1-1第1章，U1-2第2章，U1-3第3章，U1-4第4章；兑现位置、残留价值。无信息短章区（合段开篇用二至三句延续）。价值标准修正：旧标准=独行者只依赖单一旧信/灯塔线索，修正证据=灯塔失效与实况矛盾，修正后影响=转向组合验证并承担远航代价。关系变化与信息差释放区间：主角与家族信物关系：第1章触发，第2章怀疑，第3章验证，第4章部分更新；信息差：读者知真相未揭示，主角不知；释放区间第3章通过条件，第4章雾中港指向。对手信息供给区间：近敌天气/塔光异常在第1-4章由后果呈现。伏笔操作区间：V1-1第1章埋设，第2-3章推进，第4章再推进并转移。卷末收束任务：第4章回收航路悬念，兑现首次远航结果，V1-1推进到雾中港指向，不揭示真相。覆盖声明。
+Need avoid "卷末约四分之一"? okay.
 
-需要 outline 字符串内换行为 \n 转义。这是 JSON，所以需要在字符串内用 \n 实体，而不是真实换行。 最终输出应是单行或多行 JSON 但字符串内不得直接换行。为了可读性 JSON 对象字段值可包含 \n 转义，不能在字符串里有实际换行。我将输出一个对象，字段值含 \n。整个 JSON 数组可以是多行，但 outline 值必须一行内用 \n 表示，不能物理换行。需要注意不要尾随逗号。
+Let's create each segment >=400 characters. We can count rough. We need not exactly but sufficiently.
 
-由于很大，需在最终回答输出正确 JSON。不能输出围栏或说明。必须确保 JSON 合法。需要转义内部引号：字符串内只能中文引号；“如果必须英文双引号”转义。我将避免英文双引号，用中文引号或直接不用引号。注意 name 等值用英文 JSON 双引号没问题，这是结构引号。内部不要使用英文双引号。如果必须，需要转义。我用中文引号“”。
+Need include "段落落点" at end of each segment, with status snapshot/relations/info/foreshadowing/promise.
 
-需要判断 allocatedWords 3333 正整数。总字数10000，分三卷3333。可以。
+Let's craft:
 
-summary 建议承载章节数：4章。150字以内。需要数。
+起段：
+"起段（第1—2章）... 段落概要：旧信激活、灯塔异常确认、出航准备和离岸入海共同建立旧信—灯塔—南方航线三方谜面，主角从岸上准备进入海上验证。剧情点一：主角在岸上暂居处重读旧信，发现残页提到灯塔与南方航线并现于风暴航路，但字迹残缺、海图方位不吻合；主角核对旧信与随身海图后陷入半信半疑，决定实测。落点：人物进入行动准备状态；关系上未具名同行者尚未表态；信息上建立旧信与海图的矛盾；伏笔保持埋设；承诺建立出海验证旧信的第一重期待。剧情点二：主角在海岸高点观测灯塔，记录到回讯频率异常，灯塔看似正常却无法解释旧信所称伪引；主角判断必须出海才能验证。落点：灯塔可信度下降，旧信获得一票支持；关系未变；信息上确认灯塔异常；伏笔推进；承诺加深。剧情点三：主角说服未具名同行者准备船只和给养，同行者质疑旧信久远，主角以家族信物压阵并承诺只测试一段航向。落点：人物获得行动主导；关系建立暂时合作但保留疑虑；信息上离岸窗口压力显形；伏笔埋设家族信物与航路关系；承诺建立首次远航目标。剧情点四：主角离岸入海，旧信指示的偏转方向与经验航法相反，船只没有立即转向，留下航向分歧。落点：人物进入海上验证状态；关系仍以暂时合作为主；信息上出现航向偏差；伏笔推进；承诺进入海上兑现区间。段落落点：主角从被动等待进入主动出海状态；同行者暂时配合但疑虑未消；旧信—灯塔矛盾建立；本卷核心伏笔完成埋设，首次远航承诺进入行动阶段。"
+This is >400.
 
-readerExpectations <=80字。写：
-“读者期待旧信与灯塔谁在误导、主角能否完成首次远航；第3章以二者共同指向通过风暴航段部分兑现；第4章将家族信物真相与雾中港立场选择转向下一卷。”
-数一下：读 1 者2 期3 待4 旧5 信6 与7 灯8 塔9 谁10 在11 误12 导13、14 主15 角16 能17 否18 完19 成20 首21 次22 远23 航24；25 第26 3 27 章28 以29 二30 者31 共32 同33 指34 向35 通36 过37 风38 暴39 航40 段41 部42 分43 兑44 现45；46 第47 4 48 章49 将50 家51 族52 信53 物54 真55 相56 与57 雾58 中59 港60 立61 场62 选63 择64 转65 向66 下67 一68 卷69。 约69字，好。
+Need maybe mention chapters 1-2.
 
-mainPlotLine <=80字：“本卷唯一主推线是旧信与灯塔共同指向南方航线首次远航；通过线索对照、风暴航标失效、共同通过条件三步推进；卷末完成首次远航，留下雾中港指向。” 字数：本卷唯一主推线是旧信与灯塔共同指向南方航线首次远航； 25？ 算一下约68，可以。
+承段:
+"承段（第3—4章）... 段落概要..."
+Need include 5 plot points B1-B5. Each >=100. We can combine? Must "每个剧情点 100 字以上". We'll write each maybe 80-120. Keep enough.
 
-unlockMilestone <=60字：“解锁完成南方航线首次远航的里程碑，验证旧信与灯塔共同指向的通过条件，并将家族信物线索推进到雾中港联系。” 约50字。好。
+"剧情点五：海上风浪增大，主角按旧信指示偏航，旧信路线避开一处浅礁但牺牲航速，风暴逼近；同行者一边记录一边降低对旧信的抗拒。落点: ... 剧情点六：风暴预警出现，同伴提出直航避风方案，旧信路线被迫面对速度取舍，主角第一次认真权衡旧信与经验。落点... 剧情点七：灯塔在风暴前突然增强回讯，给出与旧信相反的所谓安全航向，两条指引互斥，旧信警告灯塔会误导船只触礁；主角暂缓决断，观察风暴云隙。落点... 剧情点八：同行者提及风暴眼后方可能有南方航线旧道残迹，主角重新检视旧信，发现旧信称南方航线只在风暴中显现，南方航线成为第三变量。落点... 剧情点九：主角尝试按旧信绕行，同伴激烈反对，风暴边缘出现疑似航路残影，船上分歧达到本段顶点。落点... 段落落点..." etc.
 
-forbiddenFinalCards 数组：三项：
-"家族信物完整真相"
-"旧信与灯塔共同指向的完整机理"
-"雾中港交易、旧盟约与失踪船队的具体登场"
-"南方航线全段贯通与第三卷远航闭环"
-这第四项可以吗？“终局底牌”可能包括结局。可以。数组字符串内部避免英文双引号。
+转段:
+"C转" 4 plot points.
+Need >=400.
 
-contractRisk: "contract_needs_reinforcement" 还是 contract_safe? 由于 outline 内有大量[待补充]，可能 contract_needs_reinforcement。我将选 "contract_needs_reinforcement"，理由是主角内心机制和势力层级未提供。但这会不会与“契约风险”字段期望描述当前卷纲风险？ contract_needs_reinforcement 表示需要加固，可以接受。 但是也许系统希望尽量 contract_safe 以通过？ validation 不检查。我更可能选 contract_needs_reinforcement，因为大量待补信息。
+合段:
+"D合" 3 plot points.
+Need >=400.
 
-但注意 output 必须事实。如果没有明确 contractRisk 来源，可写 "[待补充]"，但输出硬规则允许。这会不会后续使用时不识别？枚举中包含 [待补充]。这里已有足够信息判断当前卷可执行，但内部待补。我认为 "contract_needs_reinforcement" 更合适，而不是 [待补充]。可是如果有待补信息，是否 contractRisk 必须待补充? 不一定。 contractRisk 是评估卷契约的健康风险。本卷卷入工程术语不足但不破坏契约。应该是 safe 或 needs_reinforcement。由于上一步明确指出多个未提供，但主线清晰，需在下卷前补设定。 "contract_needs_reinforcement"。
+Then角色弧光:
+Use not "主角（未具名）"? Can say "主角" without name, as no name. Need use specific角色名? The instruction says use具体角色名; but character未具名. We can say "主角（未提供姓名）". That's okay maybe. Use "未具名同行者". Fine.
 
-现在构建 outline。需要长文本，注意避免出现禁用标记。禁用标记包括 【卷旨】【骨架】【意象】【织体】【冲突】【弧光】【悬念】【交接】【主题】【灵魂链】、Lie演化、Stability、继承自、因果前提、压力转变、残留债、Lie状态、对应叙事阶段、mustAdvance、mustPreserve。我们要避免这些词。
+Core conflict:
+Near enemy missing; we can phrase "近敌未提供具体角色，以旧信误导、灯塔反向指引、风暴环境与同行者质疑作为直接阻力；中敌以灯塔背后可能势力在末章形成影子；远敌以无标记船影和雾中港三字形成外层压迫；自我敌对是主角继续依赖旧信与信物而不自己判断航向。不可逆变化：主角从未完成远航变为完成第一次远航，旧信从待验证线索变为局部可信、但不可完全相信的已用线索，南方航线从传闻变为初现入口，同行者关系因信息独占出现裂缝。道德困境：是否在旧信与灯塔矛盾中拿同行者生命验证个人线索，是否应当共享旧信隐藏页。对手行动通过后果、物证、传闻和误判向主角线加压：灯塔突然增强回讯制造反向指引，旧信隐藏页模糊警告让主角抵达后仍无法松懈，无标记船影在暂泊点外海出现形成第二卷阴影。"
+Need maybe include "核心冲突与代价" section with near enemy etc. Good.
 
-注意不要使用“因果前提”“压力转变”“残留债”等禁用词汇。 不能用“Stability”。 不能用“Lie”等英文。
+对手动作意图: include then or separate. We'll include "对手动作意图" before or within. Need maybe separate:
+"对手动作意图：近敌的主动目标是让主角偏离可验证航路，行动方向是旧信误导与灯塔反向指引，结果意图是迫使主角在未验证条件下选择；中敌未具体提供，行动方向是让灯塔异常成为制度性压力，结果意图是隐藏旧信警告的现实根源；远敌未具体提供，行动方向是让南方航线入口被记录为交易筹码，结果意图是让主角进入第二卷港口。"
+But input says near/mid/far enemies未提供; we can use "待补信息" for missing. Need not fabricate too much. We can phrase along given content. It's not fabrication of plot; it's derived.
 
-大纲结构如下：
+Need include "伏笔与意象" section with F001—F004 mapped to V1-1 etc? Input had F001 etc. We need V-ID? The rule: "V-ID 伏笔保留原编号。F-ID 伏笔转为 V当前卷号-序号。跨卷 V-ID 不改号。" We have F001-F004. Need convert to V1-1..V1-4? We need use V1-1 etc in伏笔索引. We'll include mapping maybe in text: "原F001序列在本卷定稿转为V1-1..." but may not be necessary. Need "伏笔 V1-1 | 简述 | 埋设于阶段位置 | 回收卷: 第N卷". We'll do a line for each:
+伏笔 V1-1 | 家族信物与南方航线的感应关系 | 埋设于起段第1章A3、推进于转段第5—6章 | 回收卷: 第2卷
+伏笔 V1-2 | 旧信隐藏页及雾中港指向 | 埋设于起段第1章、推进于第3—7章 | 回收卷: 第2卷
+伏笔 V1-3 | 灯塔异常与误导意志 | 埋设于起段第1章、推进于承段与卷末 | 回收卷: 第3卷
+伏笔 V1-4 | 南方航线只在风暴中显现的规则 | 埋设于承段第4章、部分兑现在转段第6章、留钩第7章 | 回收卷: 第2卷
+Need be careful "回收卷: 第3卷" maybe since lighthouse maybe later. This is known.
 
-开头：
-本卷故事走向：主角生活在风暴纪元，旧信出现并暗示家族信物与南方航线有关联。灯塔作为旧航道指引状态不明，南方航线被风暴阻隔，主角必须决定是否冒险出航。主题问题是：他是否愿意为尚未完整的家族线索付出第一次远航代价。驱动力是家族信物真相未揭示，旧信线索推动验证。
+Also include "核心意象演变" in same section.
 
-起（第一卷开篇约四分之一）:
-段落概要：主角从被动持有旧信转入主动判断航路，建立远航目标并做出启航决定。
-剧情点一：旧信触发与首次航向判断。主角整理旧信线索，对照灯塔信号，发现二者可对照但有矛盾，南方航线危险未明。事件：...行为...冲突...阻力...结果... 落点快照：人物状态快照——主角进入行动状态；关系变化——主角与家族信物关系从持有转为验证；信息变化——确认旧信、灯塔、南方航线存在未验证关联；伏笔状态——V1-1埋设，不揭示；承诺状态——新承诺建立：完成首次远航。
-段落落点：人物状态快照——主角从被动处境转入主动出航判断；关系变化——主角与家族信物关系建立初始张力；信息变化——出航目标确认；伏笔状态——V1-1完成第1章埋设；承诺状态——本卷首次远航承诺建立。
+感官调色板:
+"主色调为冷灰绿，海水、雾和旧信纸色占主体；气味是北部冷风、湿木与油布味；触感是寒冷、潮湿、靴中进水；听觉是风撕帆布、船体挤压与远处灯塔周期回响；空间感是海天无边界、船身狭小与远岸渐远。氛围从开卷低而晦暗，到承段刺骨晕眩，再在卷末转入湿冷平静后因雾后闪光与无标记船影重新拉高疑惧。"
+Good.
 
-微场景锚点一（第1章）：场景目的=让主角从被动持有旧信转为主动验证；进入状态=旧信线索未明；退出状态=灯塔指引纳入判断；必须推进=盘点旧信、灯塔、南方航线关联；必须保持=家族信物真相不揭示，灯塔状态不明，南方航线危险未明。
-微场景锚点二（第1章）：场景目的=完成启航决策；进入状态=旧信与灯塔对照完毕尚存疑虑；退出状态=启航离岸；必须推进=让出航决定落地并把未验证感带入后段；必须保持=不交代南方航线内部细节，不削弱风暴危险。
+潜台词:
+"主角表面用验证航路说服同行者，内心不愿放弃与家族有关的最后线索；读者比角色更早察觉灯塔异常不是孤立事件；同行者表面服从航向，内心对主角独占旧信与信物已积累不满。"
 
-承段落：
-段落概要：主角进入南方航线，风暴与航标异常让旧信和灯塔矛盾显现，航向偏移，补给损耗，产生怀疑但未放弃。
-剧情点二：第一次航程与航标失效。事件...结果偏离但未放弃。落点...
-段落落点。
-微场景锚点一第2章，锚点二第2章。
+卷末状态:
+Need include "情感债务、悬念库存、卷级钩子、钩子形态、下卷衔接信号、期待债盘点" and non-first volume? first volume "上卷衔接：无（首卷）" maybe include. At beginning of volume status maybe. Section:
+"卷末状态：主角在暂泊点完成第一次远航，持有部分验证的家族信物与未完全解读的旧信；未具名同行者因主角拒绝共享旧信隐藏页而不满但暂未反抗；灯塔在远岸异常闪烁，南方航线入口消失，无标记船影出现。情感债务：主角对家族信物既依赖又困惑，对同行者隐瞒信息，对旧信背后势力警觉。悬念库存：家族信物完整真相未解，灯塔误导原因未解，旧信未解页与雾中港关系未解，无标记船影来源未解，南方航线入口能否再次打开未解。卷级钩子：新威胁显形加引语悬置，旧信雾中港字迹淡去与无标记船影形成第二卷必须进港的必然性。下卷衔接信号：主角从岸上等待者变为完成远航者，敌对层级从线索环境隐患变为外部有意回应，资源状态从离岸准备变为海上消耗后的暂泊点困局，认知边界从旧信可依赖变为旧信只是局部真相，关系格局因信息独占和同行者不满产生缝隙。期待债盘点：本卷制造旧信与灯塔互斥、南方航线出口、家族信物发热与入口关系、旧信未解警告；中段加深风暴升级与航线互斥；后段兑现南方航线入口出现与首次远航确认；卷末转移旧信未解页与雾中港债务至第二卷。收束产物：新资格是主角获得完成第一次远航的事实资格；新威胁是无标记船影和灯塔异常回响；新秩序是南方航线作为风暴显现的入口进入航路认知。上卷衔接：无（首卷）。"
+This includes "新秩序" maybe. Good.
 
-转段落：
-段落概要：风暴峰值迫使主角重新对照旧信与灯塔，发现共同指向特定通过条件，做出主动远航判断，付出代价通过。
-剧情点三：风暴临界与旧信验证。结果通过特定航段，部分验证。
-段落落点。
-微场景锚点三 第3章两个。
+Need include "收束产物" maybe separate, but can include there. Ensure not "无（首卷）" maybe okay.
 
-合段落：
-段落概要：完成首次远航，抵达阶段性终点，旧信或灯塔差异暗示家族信物与雾中港旧联系，留下下一卷张力。
-剧情点四：首次远航完成与雾中港指向。结果完成首次远航，家族信物线索推进，指向雾中港。
-段落落点。
-微场景锚点四 第4章两个。
+Need "伏笔索引" separate.
 
-角色弧光：
-主角从“持旧信但未出航”的被动状态，经过第2章对灯塔的怀疑，到第3章在风暴中主动选择信任旧信与灯塔共同指向，再到第4章完成首次远航并意识到自己只走到下一层谜题前。变化由剧情点中的选择造成：第1章决定出航，第2章选择不放弃，第3章选择信任组合线索，第4章接受雾中港指向。内心变化轨迹是压抑、蓄力、短暂释放、回稳。
+Need "微场景锚点" section. We can include all 38 condensed. It must include five structures and interval. Maybe we can group by chapter and list each anchor as "A1锚点1：场景目的…进入状态…退出状态…必须推进事项…必须保持事项…承载第1章。" That would be huge but doable. Let's include all 38? The original has 38 anchors: A1 two, A2 two, A3 two, A4 two = 8; B1 two B2 two B3 two B4 two B5 two = 10, total 18; C1 two C2 two C3 two C4 two =8 total 26; D1 two D2 two D3 two =6 total 32? Wait original list: A1 2, A2 2, A3 2, A4 2 =8. B1 2 B2 2 B3 2 B4 2 B5 2 =10 -> 18. C1 2 C2 2 C3 2 C4 2 =8 ->26. D1 2 D2 2 D3 2 =6 ->32. Actually the summary said 38? Maybe there were 38 but list count 32? Let me count: A1 2, A2 2, A3 2, A4 2 =8; B1 2, B2 2, B3 2, B4 2, B5 2 =10 total 18; C1 2, C2 2, C3 2, C4 2 =8 total 26; D1 2, D2 2, D3 2 =6 total 32. They said 38 but may be typo. We don't need reproduce all. The instruction says "保留施工稿中的五项结构". Could include a summarized anchor set for each plot point, maybe not all individual. But to satisfy, maybe provide abbreviated "微场景锚点：按剧情点A1—D3保留五项结构；承载区间第1章至第7章，不断档。A1锚点1..." That would be very long but ensures.
 
-核心冲突与代价：
-近敌是南方航线风暴与塔光异常，环境压力分三阶段：初期航线外围风浪和塔光不明；中期航标失效、风浪升级；末期风暴峰值形成通过窗口。中敌、远敌 [待补充]。自我敌对是主角对旧信与灯塔指引的信任摇摆，具体内心撕裂形态因主角深层设定 [待补充] 不完整。单视角下，对手行动通过天气骤变、塔光节拍变化、旧信内容与实况矛盾等后果向主角线加压。碰撞点在第3章，近敌风暴峰值与自我信任摇摆同时达到卷级峰值。不可逆变化是主角从“持信未出航”变为“完成第一次远航”；道德困境是是否相信未完全验证的旧信与灯塔指引来冒生命风险；代价为船只与补给在风暴航段中的损耗，以及离开原有安全状态。
+However, JSON output length maybe okay. We can condense each anchor into one line. Might be too lengthy but acceptable. But need be careful with total output size. We can produce perhaps 5000-8000 chars. Fine.
 
-伏笔与意象：
-伏笔 V1-1 家族信物真相：本卷第1章隐入旧信与灯塔关联，第2-3章借矛盾与组合验证推进，第4章指向雾中港，但完整真相不揭示。
-核心意象演变：灯塔从不明指引到中途失效/干扰，再到与旧信共同指向通过条件，合段恢复稳定却留下节拍差异；南方航线从被风暴阻隔到风暴显形、特定通过条件，完成首次验证；旧信从未验证线索到可能被误读、部分验证，并指向雾中港；旧航道作为背景通道被风暴扰乱，与南方航线关系重新标记；家族信物全程保持未揭示，只以外围线索反衬目标未达。
+Need "章节进度索引" with exact required elements:
+- 容量推演区间X-Y，本卷定稿承载N章
+- 结构段闭环：起段进入…退出…，承段进入…退出…，转段进入…退出…，合段进入…退出…，各段残留价值…
+- 四段区间汇总 “起段第X-Y章、承段第Y+1-Z章、转段第Z+1-M章、合段第M+1-N章”
+- 每个剧情单元的章节区间与兑现位置、单元残留价值、信息短章区用途（如适用）、价值标准修正（如适用）、定价变化区间、关系变化与信息差释放区间、对手信息供给区间、伏笔操作区间、卷末收束任务
+- 结尾覆盖声明 “微场景锚点承载第1章至第N章，不重叠、不断档”
 
-感官调色板：
-主色调灰蓝冷峻，偶有烛火暖色破入；气味是盐雾、潮湿木材、霉湿纸页和金属锈味；触感湿冷滑腻；听觉是风啸、塔铃、船体呻吟、绳索将断未断声；空间从舱房逼仄到海面开阔但压迫，航程中风暴让空间摇晃逼仄，合段恢复劫后微冷余韵。氛围从开卷低气压悬置，到第2-3章风暴压力升温，第3章峰值，第4章回稳后因雾中港钟声转为新不安。这些感官变化参与判断：塔光间歇、空气湿度骤增、风向变化影响主角航行选择。
+Need ensure interval format no overlap. We have chapters:
+起段第1—2章; 承段第3—4章; 转段第5—6章; 合段第7章. Need four段 interval summary exactly:
+"起段第1-2章、承段第3-4章、转段第5-6章、合段第7章"
+That's fine.
 
-潜台词：
-主角表面把出航解释为验证旧信线索，内心更怕错过家族真相；第2章主角不敢承认对家族线索产生动摇；第3章在绝境中被迫承认对家族线索仍残留信任。读者比主角更清楚家族信物真相未揭示，但本卷不越过认知边界；旧信与灯塔的矛盾先被读作指引错误，实际是线索尚未拼完。
+Need include "容量推演区间1-7，本卷定稿承载7章". The input said chapter progress 第1—7章. Good.
 
-卷末状态：
-人物处境：主角完成第一次远航，抵达阶段性终点，船只与补给有损耗，对家族信物认知部分更新但仍不完整。情感债务：对家族信物真相的执念因首次远航验证而增强，对误读旧信可能造成损失的后怕留存，对灯塔指引的不完全信任成为隐性债。悬念库存：家族信物完整真相未揭示，灯塔与旧信关系存疑，雾中港旧联系未明，南方航线仅完成首次验证。卷级钩子：雾中港方向的钟声与旧信折痕或塔光节拍差异留下半句未解感。钩子形态：采用陈述留白与引语悬置，不采用动作未完或新威胁显形。下卷衔接信号：舞台空间从出发地迁移至阶段性终点与雾中港前景，资源状态弱于出发时，认知边界从旧信线索未验变为旧信与灯塔共同指向更深层联系，敌对层级仍以环境与未明势力为主。期待债盘点：第1-2章制造“谁在误导”的期待；第2-3章加深“误读旧信将付出代价”的期待；第3章用旧信与灯塔共同指向的通过条件部分兑现；第4章把家族信物真相与雾中港立场选择转移向下一卷。上卷衔接：无（首卷）。
+Need maybe include "剧情单元" U1-U16 with intervals. We'll list:
+起段第1—2章: U1第1章兑现旧信第一推动，U2第1章兑现灯塔异常，U3第1—2章兑现出航准备，U4第2章兑现离岸入海；残留价值... 
+承段第3—4章...
+转段第5—6章...
+合段第7章...
+Need include "信息短章区用途：本卷无独立发酵章，信息消化放在承段风暴预警与卷末旧信隐藏页两处". 
+"价值标准修正：旧标准是主角依赖旧信寻找航路，修正证据是旧信只局部有效且灯塔会误导，修正后影响是主角从借物验证转为以物为辅、自行判断航向。"
+"定价变化区间：第5—6章旧信由不可靠线索变为局部可信航路依据，家族信物由陈旧物件变为部分被验证线索，南方航线由传闻变为事实入口，首次远航资格形成；其余区间无价值重估节点。"
+"关系变化与信息差释放区间：主角与未具名同行者在第1—2章建立暂时合作，第3—4章因航向分歧激化，第5—6章因共同渡险暂时靠近，第7章因旧信独占产生新裂缝；旧信隐藏页第6章显露给主角，第7章被主角对同行者隐瞒，读者在第1章后即比同行者更早感知灯塔异常。"
+"对手信息供给区间：灯塔异常在第1章显形、第3—4章升级为反向安全航向、第5章被主角否定、第7章再度异常；无标记船影在第7章末出现；旧信隐藏警告在第6—7章供主角读取。"
+"伏笔操作区间：V1-1第1章埋设、第5—6章推进；V1-2第1章埋设、第3—7章推进、第6—7章部分回收；V1-3第1章埋设、第3—7章推进；V1-4第4章埋设、第6章部分兑现、第7章留钩。"
+"卷末收束任务：第7章完成抵达暂泊点、首次远航确认、旧信未解页显露、灯塔回响、南方航线入口消失与无标记船影出现，回收旧信小验证与南方航线入口两类期待，留钩雾中港与船影，不展开第二卷。"
+End with coverage declaration.
 
-伏笔索引：
-伏笔 V1-1 | 家族信物真相 | 埋设于第1章起段 | 回收卷: 第3卷
+Need "章节层资产摘要" perhaps last:
+"章节层资产摘要：术语约束沿用上游锁定名称，不新增设定；世界规则硬边界为不新设资源、能力或社会道德规则，以旧信线索、风暴压力与航迹真实性作为压力表达；关键信息差是主角与未具名同行者对旧信未解页的认知差，以及读者对灯塔异常早于角色确认的信息差；本卷活跃角色弧光是主角从被动依赖旧信到主动判断航向，未具名同行者从半信半疑到因信息独占不满；伏笔状态与操作区间见伏笔索引；待补信息为家族信物核心定义、灯塔背后势力、雾中港内部与旧信完整隐藏页。"
+Need mention "待补信息" for missing.
 
-微场景锚点：
-需要完整写，可能放在伏笔索引后还是卷末状态前？规则 outline 内容板块顺序可自由，但必须包含。通常可以放在伏笔索引后或章节进度索引前。我将在伏笔索引后写“微场景锚点：”列出8项。注意不重叠不断档：第1章两个，第2章两个，第3章两个，第4章两个。
+Need also include "核心冲突与代价" maybe preceding "对手动作意图".
 
-为避免 outline 过长可适当精简但需保留五项结构和承载区间。每项可以 60-100 字。已经要根据输入。
+Need ensure all required guide words present: 起承转合, 角色弧光, 核心冲突, 伏笔与意象, 感官调色板, 潜台词, 卷末状态, 章节进度索引. Yes.
 
-章节进度索引：
-开头写“容量推演区间1-4，本卷定稿承载4章”。
-随后：
-四段章节区间：起段第1章；承段第2章；转段第3章；合段第4章。
-剧情单元：U1-1第1章兑现旧信线索整理与出航决定，残留价值旧信悬念与对灯塔不可靠的隐忧；U1-2第2章兑现航行压力显现与指引矛盾，残留价值补给损耗与对灯塔指引的怀疑；U1-3第3章兑现关键判断与部分线索验证，残留价值船只与补给损失未清算、家族信物认知部分更新；U1-4第4章兑现首次远航并植入下一卷张力，残留价值家族信物真相留疑、南方航线只完成首次验证。
-结构段闭环：起段进入被动持信、未出航，退出为启航；承段进入航程，退出为偏离且怀疑；转段进入风暴临界，退出为通过特定航段；合段进入接近终点，退出为完成首次远航与雾中港指向。
-信息短章区用途：本卷无独立短章，合段第4章开篇以二至三句延续第3章沉郁感后再收束。
-价值标准修正：旧标准是单一依赖旧信或灯塔指引，修正证据是灯塔失效与实况矛盾，修正后影响是从独索判断转向寻找组合验证并准备承担远航代价。
-关系变化与信息差释放区间：主角与家族信物关系第1章由持有转为验证，第2章怀疑，第3章组合验证，第4章部分更新；读者与主角的信息差保持到第4章，本卷只释放通过条件与雾中港指向，不释放真相。
-对手信息供给区间：近敌在每章以环境后果供给，第2章航标失真与风暴显形，第3章风暴峰值与相对平静窗口，第4章塔光节拍差异与雾中港钟声。
-伏笔操作区间：V1-1第1章埋设，第2-3章推进，第4章再推进并转移下一卷。
-卷末收束任务：第4章回收“旧信与灯塔误导或共同指向”的航路悬念，兑现第一次远航结果，将V1-1推进到雾中港指向，不揭示真相，不提前进入第二卷港口冲突。
-覆盖声明：微场景锚点承载第1章至第4章，不重叠、不断档。
+Need ensure no forbidden markers. Avoid any "【" in outline. We will not use bracket markers. Could use "V1-1 |" etc; fine. No "【". Avoid "Stability" etc. Ensure no English terms except JSON field names and enum. Fine.
 
-确保 outline 长度>2000。这已经够了。
+Need write JSON string with newlines as \n. We must be careful actual output as one line? I'll craft as JSON object with very long string. Need ensure any newlines inside outline are encoded as literal `\n` sequences, not actual line breaks in output. But output can be pretty printed with escaping; easier to write as one line. We can include actual newline characters in string? JSON standard allows escaping as \n, not literal. We need output can be multi-line? It says output JSON array; string内换行必须写成 \n. So in the actual response, inside strings, newlines must be written as backslash-n. It also says first char '[' last char ']'. We can output a single JSON array spanning multiple lines? But if we use actual newlines between fields, that's outside strings and okay. However to be safe, output as one continuous JSON line with `\n` escapes inside outline/summary etc. This avoids raw newline issues. Field values are strings. I'll generate one long line. Need ensure no unescaped backslash? We only use \n, no backslash otherwise.
 
-注意必须在 outline 中不出现 "Stability" 等英文。检查：文章中“第一”等没问题。不要使用“mustAdvance”“mustPreserve”字段名称，我会写“必须推进事项：”。 避免出现“F001”改为“V1-1”。 避免出现“U1-1”是否工程标记？规则只禁【卷旨】等标记，不禁 U 编号。可以出现。输入有剧情单元卡，输出自然语言可使用“单元U1-1”等。
+Need validate JSON: use double quotes for fields and strings. Inside strings use Chinese double quotes, no straight double quotes. Need escape no. Use only Chinese punctuation. Field names etc fine with ASCII quotes.
 
-注意“V1-1”是伏笔索引格式要求。允许。
+Potential issue: In JSON string, if content contains `\n`, that's two characters backslash+n in the actual response; JSON parser sees newline. Fine. We'll include many `\n` sequences. Need ensure no accidental line breaks in response. I'll write all in one line to satisfy first/last.
 
-现在构建 JSON。由于 outline 非常长，必须处理转义。我将在最终中手动写出。
+Need maybe include `allocatedWords` as integer 3333. Good.
 
-需要小心 JSON 中反斜杠转义。 outline 字符串中包含 \n 分隔行。我用问答输出纯文本，应该用 JSON 字符串语法。
+Need `name`: "风暴起点"
+`summary`: "旧信、灯塔与南方航线共同迫使主角以行动验证家族信物的局部真相，完成第一次远航。本卷建议承载7章。" Count maybe <=150. Chinese characters 36 maybe.
 
-我们可能不能包含任何真实换行在 outline 字符串内。我会把 outline 字段值放在一行，使用 \n 分隔。结果 JSON 可能很长单行。可以接受。
+`readerExpectations`: Need <=80 chars. Draft:
+"读者期待旧信与灯塔谁在误导，南方航线是否真实；兑现于第5—6章转向与入口出现，转移向第2卷雾中港旧信未解页。"
+Count? Chinese chars: maybe 54. Good.
 
-现在撰写 outline 具体文本。
+`mainPlotLine`: <=80 chars:
+"以旧信、灯塔、南方航线的互斥指引推动主角完成首次远航；推进方式是不可逆航向选择，卷末达成抵达暂泊点并转入雾中港新洞。"
+Count? ~60. Good.
 
-Draft outline：
+`unlockMilestone`: <=60 chars:
+"卷末解锁主角完成第一次远航的事实资格，并揭示南方航线入口与旧信未解页指向的雾中港。"
+Count maybe 50. Good.
 
-本卷故事走向：主角生活在风暴纪元，旧信出现并暗示家族信物与南方航线存在未验证关联。灯塔作为旧航道指引状态不明，南方航线被风暴阻隔，主角必须决定是否冒险出航。主题问题是：他是否愿意为尚未完整的家族线索付出第一次远航代价。驱动力是家族信物真相未揭示，旧信线索推动验证。
+`forbiddenFinalCards`: list:
+"家族信物完整真相",
+"灯塔误导旧信的真实原因",
+"旧信完整隐藏页与雾中港内情",
+"无标记船影来源及南方航线为何只在风暴中显现"
+Maybe includes not reveal. Fine.
 
-起（第1章，约四分之一）：
-段落概要：主角从被动持有旧信转入主动判断航路，建立远航目标并做出启航决定。
-剧情点一：旧信触发与首次航向判断。事件：主角重新翻阅旧信，发现它暗示家族信物与南方航线有关，但灯塔指引状态不明，两者存在可对照矛盾。行为：主角整理旧信线索，对照灯塔信号，估算南方航线风险。冲突：信息不足与必须行动形成拉扯。阻力：灯塔信号不明，南方航线被风暴阻隔。结果：主角决定回应灯塔指引，冒险进入南方航线，启航离岸。落点：人物状态快照——主角进入行动状态；关系变化——主角与家族信物关系从持有转为验证；信息变化——确认旧信、灯塔、南方航线存在未验证关联；伏笔状态——V1-1埋设，不揭示；承诺状态——新承诺建立：完成首次远航。
-段落落点：人物状态快照——主角从被动处境转入主动出航判断；关系变化——主角与家族信物关系建立初始张力；信息变化——出航目标确认；伏笔状态——V1-1完成第1章埋设；承诺状态——本卷首次远航承诺建立。
-微场景锚点一（第1章进入并退出）：场景目的=让主角从被动持有旧信转为主动验证线索；进入状态=主角独处，旧信线索未明；退出状态=灯塔指引被纳入判断，出航念头成型；必须推进事项=盘点旧信、灯塔、南方航线关联；必须保持事项=家族信物真相不揭示，灯塔状态不明，南方航线危险未明。
-微场景锚点二（第1章进入并退出）：场景目的=完成启航决策；进入状态=旧信与灯塔对照完毕，尚存疑虑；退出状态=启航离岸；必须推进事项=让出航决定落地并把未验证感带入后段；必须保持事项=不交代南方航线内部细节，不削弱风暴危险。
+`contractRisk`: "contract_needs_reinforcement"
 
-承（第2章，约四分之一）：
-段落概要：主角进入南方航线，风暴与航标异常让旧信和灯塔矛盾显现，航向偏移，补给损耗，产生怀疑但未放弃。
-剧情点二：第一次航程与航标失效。事件：主角进入南方航线后遭遇风暴，塔光间歇异常，旧信指引与实况产生矛盾。行为：主角尝试按旧信与灯塔判断航向，但风浪和异常信号迫使其调整。冲突：保持航向与风暴干扰形成对抗。阻力：补给消耗、塔光间歇、风浪升级。结果：船只偏离计划航段，主角对旧信与灯塔产生怀疑，但未放弃航行。落点：人物状态快照——主角进入压力状态；关系变化——主角与家族信物关系出现怀疑；信息变化——旧信与灯塔矛盾确认；伏笔状态——V1-1推进；承诺状态——完成首次远航的承诺进入压力。
-段落落点：人物状态快照——主角从行动转入承受；关系变化——主角与家族信物关系进入怀疑形态；信息变化——指引矛盾显形；伏笔状态——V1-1进入推进；承诺状态——首次远航承诺承受风险。
-微场景锚点三（第2章进入并退出）：场景目的=制造旧信与灯塔指引的第一重矛盾；进入状态=航程初期仍按旧信与灯塔判断；退出状态=塔光间歇异常，偏离原计划航段；必须推进事项=让主角遭遇航标失真并产生怀疑；必须保持事项=旧信具体内容不完整，不给出完整真相。
-微场景锚点四（第2章进入并退出）：场景目的=强化航程压力；进入状态=航向偏移，补给开始吃紧；退出状态=主角被迫承认单靠旧信或灯塔不够；必须推进事项=让困境落实到船只或补给损耗；必须保持事项=不提前解决，不留到下一段解释。
+Need craft outline string. Let's draft carefully with all sections. It's long. Need ensure no invalid. We'll write in one line. Let's compose in portions mentally and then assemble.
 
-转（第3章，约四分之一）：
-段落概要：风暴峰值迫使主角重新对照旧信与灯塔，发现共同指向特定通过条件，做出主动远航判断，付出代价通过。
-剧情点三：风暴临界与旧信验证。事件：在风暴最危急时，主角重新对照旧信与灯塔，发现二者共同指向南方航线特定通过条件。行为：主角在外部风暴压力下主动选择信任家族线索，按共同指向通过特定航段。冲突：内部信任摇摆与外部风暴威胁相互挤压。阻力：风暴峰值、船只损耗风险、自我怀疑。结果：通过特定航段，付出船只与补给代价，部分验证旧信线索。落点：人物状态快照——主角进入决断后果状态；关系变化——主角与家族信物关系从怀疑转为有条件验证；信息变化——旧信与灯塔共同指向部分成立；伏笔状态——V1-1接近本卷回收前推进；承诺状态——首次远航承诺部分兑现。
-段落落点：人物状态快照——主角从决断转入承受后果；关系变化——主角与家族信物关系完成本卷转变；信息变化——冲突真相层级固定；伏笔状态——V1-1完成本卷关键推进；承诺状态——承诺部分兑现并留下未清代价。
-微场景锚点五（第3章进入并退出）：场景目的=将外部风暴压力转为内部信任问题；进入状态=船只在风暴中接近极限；退出状态=主角开始重新对照旧信与灯塔共同指向；必须推进事项=主角从怀疑转向尝试组合验证；必须保持事项=不揭示家族信物完整真相，不把通过条件解释为万能答案。
-微场景锚点六（第3章进入并退出）：场景目的=完成关键远航判断；进入状态=旧信与灯塔共同指向通过条件刚被拼出；退出状态=通过特定航段，船体受损或补给进一步损失；必须推进事项=让主角承担主动选择带来的代价；必须保持事项=不抹去残留债，不给出完整家族信物认知。
+We need include a literal \n between sections. I will use `\n` in the string. In this reasoning text I can write with actual line breaks, but final will have escapes. For final, I must produce actual JSON with escaped \n.
 
-合（第4章，约四分之一）：
-段落概要：完成首次远航，抵达阶段性终点，旧信或灯塔差异暗示家族信物与雾中港旧联系，留下下一卷张力。
-剧情点四：首次远航完成与雾中港指向。事件：主角抵达阶段性终点，确认航路可行，整理航程得失。行为：主角确认完成第一次远航，并在旧信内容或灯塔信号中发现雾中港指向。冲突：完成航程与下一步未知之间形成张力。阻力：家族信物真相仍未揭示，新洞开启。结果：完成首次远航，家族信物线索推进，为下一卷雾中港立场选择埋下钩子。落点：人物状态快照——主角进入本卷卷末状态；关系变化——主角与家族信物关系留下未完成张力；信息变化——保留下一卷关键信息：雾中港联系；伏笔状态——V1-1继续推进并转移下一卷；承诺状态——留下未完成承诺：继续接近家族信物真相。
-段落落点：人物状态快照——主角完成本卷身份位置更新；关系变化——主角与家族信物关系留下下一卷债务；信息变化——下一卷信息差建立；伏笔状态——V1-1完成卷间衔接；承诺状态——承诺进入悬置状态。
-微场景锚点七（第4章进入并退出）：场景目的=完成首次远航并收束航程压力；进入状态=船只通过特定航段，接近阶段性终点；退出状态=主角确认完成第一次远航，获得喘息；必须推进事项=确认航路可行，并把旧信与灯塔关系留下一层未解；必须保持事项=家族信物完整真相不揭示，雾中港不具体登场。
-微场景锚点八（第4章进入并退出）：场景目的=植入雾中港钩子；进入状态=主角在阶段性终点整理航程所得；退出状态=旧信或灯塔信号暗示家族信物与雾中港旧联系；必须推进事项=让后续指向具体落在雾中港而不展开；必须保持事项=第二卷交易、旧盟约、失踪船队不具体登场。
+Let's build outline content:
 
-角色弧光：主角从“持旧信但未出航”的被动状态，经过第2章对灯塔的怀疑，到第3章在风暴中主动选择信任旧信与灯塔共同指向，再到第4章完成首次远航并意识到自己只走到下一层谜题前。变化由剧情点中的选择造成：第1章决定出航，第2章选择不放弃，第3章选择信任组合线索，第4章接受雾中港指向。情绪轨迹压抑、蓄力、短暂释放、回稳。
+"本卷故事走向：风暴纪元中，主角在岸上持有一封来路可疑的旧信和一件未完全激活的家族信物，旧信将灯塔、南方航线同时拉入一条无法被岸上经验证实的航向。主角必须离开近岸，在风暴逼迫下选择相信旧信还是相信灯塔，并以一次不可逆转向完成第一次远航。主题问题是旧信、灯塔与南方航线中哪一条线索足以支撑首次远航；驱动力是旧信指令的可疑性与灯塔异常形成的行动压力，使主角从被动持有线索转为主动选择航路。\n卷型与卷使命：本卷是首卷冲突起始型；卷使命是让旧信、灯塔与南方航线的互斥推动主角完成第一次远航；主导增量是主角获得完成首次远航的事实资格，并形成进入第二卷港口交易的条件性入口。卷型功能在起段建立线索谜面，承段升级为生存威胁，转段完成不可逆选择，合段兑现局部闭环并留下港口入口债务。\n起承转合四段情节概要：\n起段第1—2章，旧信激活、灯塔异常确认、出航准备与离岸入海共同建立三方谜面。剧情点一：主角在岸上暂居处重读旧信，发现残页提到灯塔与南方航线并现于风暴航路，但字迹残缺且海图方位不吻合；主角核对旧信与随身海图后陷入半信半疑，决定实测。落点：人物进入行动准备状态；同行者未表态；信息建立旧信与海图矛盾；伏笔保持埋设；承诺建立出海验证旧信。剧情点二：主角在海岸高点观测灯塔，记录到回讯频率异常，灯塔看似正常却无法解释旧信所称伪引，主角判断必须出海才能验证。落点：灯塔可信度下降，旧信获得一票支持；关系未变；信息确认灯塔异常；伏笔推进；承诺加深。剧情点三：主角说服未具名同行者准备船只和给养，同行者质疑旧信久远，主角以家族信物压阵并承诺只测试一段航向。落点：主角获得行动主导；同行者暂合作但疑虑未消；信息上离岸窗口压力显形；伏笔埋设家族信物与航路关系；承诺建立首次远航目标。剧情点四：主角离岸入海，旧信指示的偏转方向与经验航法相反，船只没有立即转向，留下航向分歧。段落落点：主角从被动等待进入主动出海状态；同行者暂时配合但疑虑未消；旧信—灯塔矛盾建立；本卷核心伏笔完成埋设，首次远航承诺进入行动阶段。\n承段第3—4章，海上生存压力和风暴逼迫把线索分歧升级为必须选择的冲突。剧情点五：海上风浪增大，主角按旧信指示偏航，旧信路线避开一处浅礁但牺牲航速，风暴逼近；同行者一边记录一边降低抗拒。落点：旧信信用上升，航速损失，风暴窗口缩小。剧情点六：风暴预警出现，同行者提出直航避风方案，旧信路线被迫面对速度取舍，主角第一次认真权衡旧信与经验。落点：风暴逼近；旧信信用受压力测试；同行者更倾向经验航法。剧情点七：灯塔在风暴前突然增强回讯，给出与旧信相反的所谓安全航向，两条指引互斥；旧信警告灯塔会误导船只触礁，主角暂缓决断，观察风暴云隙。落点：旧信与灯塔矛盾从提示变为生存威胁，权威指引互斥，主角决策压力提升。剧情点八：同行者提及风暴眼后方可能有南方航线旧道残迹，主角重新检视旧信，发现旧信称南方航线只在风暴中显现，南方航线成为第三变量。落点：南方航线进入主线索，主角初步接受风暴显道，冒险欲望上升。剧情点九：主角尝试按旧信绕行，同行者激烈反对，风暴边缘出现疑似航路残影，船上分歧达到本段顶点。落点：航向不可逆成本出现；同行者关系裂缝扩大；南方航线残迹诱发决断。段落落点：主角从行动推进转入承受压力；同行者关系进入分歧形态；冲突结构完整显形；旧信与灯塔的信任裂口扩大；承诺进入压力状态。\n转段第5—6章，所有线索压到一次不可逆选择上。剧情点十：主角在风暴前沿否定灯塔指引，强行按旧信方位转向并进入风暴边缘，代价是放弃直航避风机会；转向后旧信方位出现航路入口但能否通过未知。落点：航路选择不可逆；旧信与灯塔信任裂口无法收回；主角主动意志提升。剧情点十一：家族信物在转向后出现异常温度，似与南方航线入口产生感应，信物没有明确指示但热量增强使主角更确信；同行者拒绝把信物当海图。落点：家族信物部分激活；主角对信物真相产生新疑问；同行者质疑加深。剧情点十二：主角在同伴抗议中利用旧信转向点、信物温度与风暴暗流完成最后偏转，南方航线入口短暂成形，船身受损但进入边缘。落点：南方航线由传闻变为接触事实；旧信局部正确；主角获得航路选择的事实反馈。剧情点十三：进入南方航线边缘后海况趋稳，主角重新记录航线，旧信页面在潮气中显出部分隐藏字迹，指向南方航线但未解释灯塔为何误导。落点：南方航线存在得到确认；旧信未解页面部分显露；灯塔误导成为新债。段落落点：主角从决断前状态转入承受后果；同行者关系因共同渡险短暂靠近；冲突真相层级固定；旧信从待验证线索变为局部可信；承诺完成本卷关键兑现。\n合段第7章，第一次远航闭环并形成第二卷张力。剧情点十四：主角在南方航线边缘找到避风暂泊点，停船检查损伤并记录航线，暂泊点荒凉但风浪减弱，同行者情绪稍缓。落点：主角抵达可确认的阶段性终点；首次远航事实资格形成；情绪进入短暂平静。剧情点十五：主角整理旧信，确认隐藏字句指向南方航线不可全信灯塔，但灯塔为何误导仍未解释；同行者要求查看旧信，主角以未解内容不宜扩散回绝。落点：首次远航被确认；主角对同行者形成信息独占；旧信余留信息成为新债。剧情点十六：灯塔再次异常闪烁，南方航线入口已经消失，远处海面出现无标记船影，旧信最后一页的雾中港字迹淡去。落点：新威胁显形但并不具体；旧信指向第二卷入口；卷末钩子建立。段落落点：主角完成本卷身份更新，从未完成远航变为完成第一次远航；同行者关系留下下一卷债务；下一卷信息差建立；伏笔完成卷间衔接；承诺进入悬置状态。"
 
-核心冲突与代价：近敌是南方航线风暴与塔光异常，环境压力分三阶段：初期航线外围风浪和塔光不明；中期航标失效、风浪升级；末期风暴峰值形成通过窗口。中敌、远敌 [待补充]。自我敌对是主角对旧信与灯塔指引的信任摇摆，更深层内心形态因设定缺口暂无法锁定。单视角下，对手行动通过天气骤变、塔光节拍变化、旧信内容与实况矛盾等后果向主角线加压，不切换视角。碰撞点在第3章，近敌风暴峰值与自我信任摇摆同时达到卷级峰值。不可逆变化是主角从“持信未出航”变为“完成第一次远航”；道德困境是是否相信未完全验证的旧信与灯塔指引来冒生命风险；代价为船只与补给在风暴航段中的损耗，以及离开原有安全状态。
+This is long and covers plot points. Good. Need no "Stability" etc. Good.
 
-伏笔与意象：伏笔 V1-1 家族信物真相，本卷第1章埋设，第2至3章借矛盾与组合验证推进，第4章指向雾中港，完整真相不揭示。核心意象演变：灯塔从不明指引到中途失效或干扰，再到与旧信共同指向通过条件，合段恢复稳定却留下节拍差异；南方航线从被风暴阻隔到风暴显形、特定通过条件，完成首次验证；旧信从未验证线索到可能被误读、部分验证，并指向雾中港；旧航道作为背景通道被风暴扰乱，与南方航线关系被重新标记；家族信物全程未揭示，只以外围线索反衬目标未达。
+Then:
+"角色弧光：主角从岸上被动持有旧信、等待线索，推进到主动比较旧信与灯塔、敢于否定外部指令并承担航向后果；变化由起段重读旧信、承段与同行者争论、转段不可逆转向和第6章信物发热共同造成。未具名同行者从暂时被说服，到中段激烈反对，再到共同渡险后短暂靠近，最终因主角独占旧信未解页而产生新裂缝。家族信物从压阵器物变为部分被验证的线索，主角对它的态度从无感持有推进到既依赖又警觉。"
 
-感官调色板：主色调灰蓝冷峻，偶有烛火暖色破入；气味为盐雾、潮湿木材、霉湿纸页和金属锈味；触感湿冷滑腻；听觉为风啸、塔铃、船体呻吟、绳索将断未断声；空间从舱房逼仄到海面开阔但压迫，航程中风暴让空间摇晃逼仄，合段恢复劫后微冷余韵。氛围从开卷低气压悬置，到第2至3章风暴压力升温，第3章达到峰值，第4章回稳后因雾中港钟声转为新不安。这些感官变化参与判断：塔光间歇、空气湿度骤增、风向变化影响主角航行选择。
+Core conflict:
+"核心冲突与代价：近敌未提供具体人物，以旧信误导、灯塔反向指引、风暴环境与同行者质疑作为直接阻力；中敌未提供具体势力，以灯塔背后可能意志在末章形成影子；远敌未提供具体势力，以无标记船影和旧信雾中港作为外层压迫。自我敌对是主角是否继续依赖旧信与信物而不自己判断航向，转段信物发热让主角从借物验证变成以物为辅、自行决断。不可逆变化是主角从未完成远航变为完成第一次远航，旧信从待验证线索变为不可完全相信的已用线索，南方航线由传闻变为初现入口，同行者关系因信息独占出现裂缝。道德困境是是否在旧信与灯塔矛盾中拿同行者生命验证个人线索，以及是否应当共享旧信隐藏页。本卷采用有限视角，对手行动通过后果、物证、传闻和误判向主角线加压：灯塔在风暴前突然增强回讯并给出反向安全航向，旧信隐藏页的模糊警告让主角抵达后仍无法松懈，无标记船影在暂泊点外海出现形成第二卷阴影。"
+Need "对手动作意图" separate? Could be included after "核心冲突与代价" but requirement says include. We have "近敌..中敌..远敌" statements but not exactly "对手动作意图". Maybe add before core conflict or within:
+"对手动作意图：近敌未提供具体主动性，以误导与反向指引实现让主角偏离可验证航路；中敌未提供具体势力，主动目标是让灯塔异常成为外部压力，结果意图是隐藏旧信警告的现实根源；远敌未提供具体势力，主动目标是让南方航线入口被记录为后续交易筹码，结果意图是迫使主角进入第二卷港口。"
+But this may be redundant. Add brief after core conflict.
 
-潜台词：主角表面把出航解释为验证旧信线索，内心更怕错过家族真相；第2章主角不敢承认对家族线索产生动摇；第3章在绝境中被迫承认对家族线索仍残留信任。读者比主角更清楚家族信物真相未揭示，但本卷不越过认知边界；旧信与灯塔的矛盾先被读作指引错误，实际是线索尚未拼完。
+Need "伏笔与意象" section:
+"伏笔与意象：核心意象灯塔从岸上指引演变为海上异常，再与旧信互斥，被主角主动否定即时指引，最终成为未解误导债务；防重复变体包括岸光、强光穿过雾、反向指引、雾后无规律闪光。旧信从陈旧信纸演变为半信半疑线索，再到局部可信航道依据，最后显为未交出的警告页；变体为残页、边缘符号、血丝字迹、未交出的警告页。南方航线由传闻演变为残影、入口和暂泊点，变体为旧道、海痕、窄门般的海浪。家族信物由贴身旧物演变为压阵物品、发热异应和部分线索，变体为衣内重量、金属微温、不给出文字的器物。旧航道作为背景贯穿，只以遥远水痕和旧海图边线出现。"
+Then伏笔索引 lines:
+"伏笔索引：\n伏笔 V1-1 | 家族信物与南方航线的感应关系 | 埋设于起段第1章，推进于转段第5—6章 | 回收卷: 第2卷\n伏笔 V1-2 | 旧信隐藏页及雾中港指向 | 埋设于起段第1章，推进于第3—7章，部分回收于第6—7章 | 回收卷: 第2卷\n伏笔 V1-3 | 灯塔异常与误导意志 | 埋设于起段第1章，推进于第3—7章 | 回收卷: 第3卷\n伏笔 V1-4 | 南方航线只在风暴中显现的规则 | 埋设于承段第4章，部分兑现在转段第6章，留钩于第7章 | 回收卷: 第2卷"
+Need use exact line format "伏笔 V1-1 | ..." good.
 
-卷末状态：人物处境为主角完成第一次远航，抵达阶段性终点，船只与补给有损耗，对家族信物认知部分更新但仍不完整。情感债务为对家族信物真相的执念因首次远航验证而增强，对误读旧信可能造成损失的后怕留存，对灯塔指引的不完全信任成为隐性债。悬念库存为家族信物完整真相未揭示，灯塔与旧信关系存疑，雾中港旧联系未明，南方航线仅完成首次验证。卷级钩子为雾中港方向的钟声与旧信折痕或塔光节拍差异留下半句未解感。钩子形态采用陈述留白与引语悬置，不采用动作未完或新威胁显形。下卷衔接信号为舞台空间从出发地迁移至阶段性终点与雾中港前景，资源状态弱于出发时，认知边界从旧信线索未验变为旧信与灯塔共同指向更深层联系，敌对层级仍以环境与未明势力为主。期待债盘点：第1至2章制造“谁在误导”的期待；第2至3章加深“误读旧信将付出代价”的期待；第3章用旧信与灯塔共同指向通过条件部分兑现；第4章把家族信物真相与雾中港立场选择转移向下一卷。上卷衔接：无（首卷）。
+Then "感官调色板：..." as above.
 
-伏笔索引：
-伏笔 V1-1 | 家族信物真相 | 埋设于第1章起段 | 回收卷: 第3卷
+"潜台词：..." as above.
 
-微场景锚点：
-（后面列表如上）需要包括每个。我已经在四段中分散写微场景锚点一至八。但规则要求保留施工稿五项结构和各自承载区间；已经写在各段内。也可集中再次列出？规则说“微场景锚点：保留施工稿中的五项结构…和各自承载区间；区间从第1章顺序衔接至卷末。” 已经存在各段后，不必集中重复。但“微场景锚点”引导词没在必须出现关键词列表？ 必须出现：起承转合、角色弧光、核心冲突、伏笔与意象、感官调色板、潜台词、卷末状态、章节进度索引。微场景锚点不是必需引导词，但内容要求保留。我们已嵌入段落。可以。
+"卷末状态：..." as above.
 
-章节进度索引：
-容量推演区间1-4，本卷定稿承载4章；结构段闭环：起段进入被动持信未出航，退出为启航离岸；承段进入航程，退出为偏离且怀疑；转段进入风暴临界，退出为通过特定航段；合段进入接近终点，退出为完成首次远航与雾中港指向。剧情单元U1-1第1章兑现旧信线索整理与出航决定，残留价值旧信悬念与灯塔不可靠隐忧；U1-2第2章兑现航行压力显现与指引矛盾，残留价值补给损耗与对灯塔指引的怀疑；U1-3第3章兑现关键判断与部分线索验证，残留价值船只及补给损失未清算、家族信物认知部分更新；U1-4第4章兑现首次远航并植入下一卷张力，残留价值家族信物真相留疑、南方航线只完成首次验证。信息短章区用途：本卷无独立短章，合段第4章开篇用二至三句延续第3章沉郁感后再收束。价值标准修正：旧标准为单一依赖旧信或灯塔指引，修正证据为灯塔失效与实况矛盾，修正后影响为转向组合验证并准备承担远航代价。关系变化与信息差释放区间：主角与家族信物关系第1章由持有转为验证，第2章怀疑，第3章组合验证，第4章部分更新；读者与主角的信息差保持到第4章，本卷只释放通过条件与雾中港指向，不释放真相。对手信息供给区间：近敌以环境后果每章供给，第2章航标失真与风暴显形，第3章风暴峰值与相对平静窗口，第4章塔光节拍差异与雾中港钟声。伏笔操作区间：V1-1第1章埋设，第2至3章推进，第4章再推进并转移下一卷。卷末收束任务：第4章回收“旧信与灯塔误导或共同指向”的航路悬念，兑现第一次远航结果，将V1-1推进到雾中港指向，不揭示真相，不提前进入第二卷港口冲突。覆盖声明：微场景锚点承载第1章至第4章，不重叠、不断档。
+Need 微场景锚点. We'll create condensed but complete. Let's produce lines for all 32 anchors in abbreviated form. Could reduce to per chapter anchor groups rather than each. The instruction says "保留施工稿中的五项结构（场景目的、进入状态、退出状态、必须推进事项、必须保持事项）和各自承载区间；区间从第 1 章顺序衔接至卷末，跨章锚点后继从上一锚点结束章的下一章开始，同一章可保留多个单章锚点；第28-29章 的后继只能写第30章 ..." We can list all anchors. Need ensure no overlaps? We'll use "第1章" etc. Let's list all 32 anchors with five fields. That is long but manageable. We can condense each line as:
+"A1锚点1：场景目的=旧信内容被激活；进入状态=岸上暂居处检查旧信；退出状态=残页与海图矛盾被记录；必须推进事项=旧信出现灯塔与南方航线并现；必须保持事项=不揭示家族信物真相；承载第1章。"
+We'll list each.
 
-需要检查禁用标记：上面没有【卷旨】等。用了“设定缺口”替代“未提供/待补”。允许。
-没有英文术语 must。 okay.
+But maybe too long. However output length fine. Could group by chapter:
+"第1章：A1锚点1...; A1锚点2...; A2..." But still include all 32. The instruction examples had only a few, but current requirement asks. Let's include all to be safe.
 
-现在 summary:
-“本卷中主角受旧信触发，在灯塔指引不明与南方航线风暴压力下做出首次远航判断，经历航标失效与风暴临界，完成第一步验证并留下雾中港钩子。本卷建议承载4章。”
-字数约70，150以内。好的。
+We need include "未具名" etc. Fine.
 
-需要确保 JSON 键值正确，字符串中没有未转义英文双引号。outline 里有中文引号，没问题。注意 “谁在误导” 使用中文引号，好。
-在章节进度索引中“旧信与灯塔误导或共同指向”中文引号，好。
-在卷末状态中“谁在误导” 中文引号。
+Let's draft 微场景锚点 section carefully:
+"微场景锚点：\n第1章：A1锚点1场景目的=旧信内容被激活，进入状态=岸上暂居处检查旧信，退出状态=残页与海图矛盾被记录，必须推进事项=旧信出现灯塔与南方航线并现，必须保持事项=不揭示家族信物真相；A1锚点2场景目的=确认旧信出海理由，进入状态=主角站在海岸看海，退出状态=决定去测旧信，必须推进事项=旧信提到航向窗口，必须保持事项=不点明南方航线具体位置；A2锚点1场景目的=观测灯塔异常，进入状态=岸边高地遥望灯塔，退出状态=记录回讯频率突变，必须推进事项=灯塔信号与旧信描述偏差，必须保持事项=灯塔未发出显式警告；A2锚点2场景目的=旧信首次被部分验证，进入状态=比较灯塔记录与旧信，退出状态=出海意愿增强，必须推进事项=旧信警告勿轻信岸光得到回响，必须保持事项=不证明旧信全对。\n第1—2章：A3锚点1场景目的=说服同行者出航，进入状态=同行者质疑旧信陈旧，退出状态=同意先测试一小段，必须推进事项=主角以家族信物压阵，必须保持事项=同行者疑虑未解；A3锚点2场景目的=离岸准备完成，进入状态=船只缆绳解开，退出状态=离岸完成，必须推进事项=旧信被放入防水筒，必须保持事项=不给出具体给养清单，承载第2章。\n第2章：A4锚点1场景目的=进入旧信指向航段，进入状态=船离岸后第一段顺风，退出状态=第一次偏航阻力出现，必须推进事项=旧信指示与经验航法相反，必须保持事项=暂不转向保持观测；A4锚点2场景目的=旧信小胜浅礁避让，进入状态=主角按旧信偏航，退出状态=确认避开浅礁，必须推进事项=保留航速损失时间成本，必须保持事项=未进入南方航线。\n第3章：B1锚点1场景目的=把表面航行困难转成线索困难，进入状态=海上风浪增大，退出状态=旧信避礁得手，必须推进事项=风暴逼近开始影响航线，必须保持事项=旧信路线未主动召祸；B1锚点2场景目的=同伴重新评估旧信，进入状态=同行者记录浅礁方位，退出状态=旧信短期获胜，必须推进事项=旧信与经验路线矛盾仍在，必须保持事项=未触碰南方航线话题；B2锚点1场景目的=风暴预警实体化，进入状态=气压下降，退出状态=必须选择抗风路线，必须推进事项=直航避风方案出现，必须保持事项=风暴尚未直接撕开船体；B2锚点2场景目的=同伴提出直航方案，进入状态=直航避风计划被计算，退出状态=旧信被迫面对速度取舍，必须推进事项=直航与旧信路线必须二选一，必须保持事项=风暴路径未明。\n第3—4章：B3锚点1场景目的=灯塔增强回讯制造误导，进入状态=风暴逼近灯塔信号突然增强，退出状态=灯塔给出与旧信相反的所谓安全航向，必须推进事项=两条指引互斥升格为可视冲突，必须保持事项=灯塔暂未显形实体；B3锚点2场景目的=主角暂停选择，进入状态=旧信与灯塔互斥，退出状态=推迟决断观察云隙，必须推进事项=记录矛盾方向角，必须保持事项=不贸然信灯塔，承载第4章。\n第4章：B4锚点1场景目的=同伴提起南方航线传闻，进入状态=暂停决断后重新讨论，退出状态=南方航线成为第三选项，必须推进事项=旧信与南方航线关系显影，必须保持事项=南方航线尚未确认；B4锚点2场景目的=旧信风暴显道使主角更想绕行，进入状态=南方航线被提出，退出状态=主角倾向冒险找道，必须推进事项=旧信提及风暴显道，必须保持事项=不给出航线具体入口；B5锚点1场景目的=同伴反对进入风暴边缘，进入状态=南方航线可能存在的兴奋褪去，退出状态=同伴与主角发生激烈分歧，必须推进事项=风暴边缘正在接近，必须保持事项=残影未被确认；B5锚点2场景目的=疑似航路残影出现，进入状态=冲突中船身摇晃加剧，退出状态=短暂残影被看到，必须推进事项=残影成为最终推力，必须保持事项=残影只是视觉信号不解释成因。\n第5章：C1锚点1场景目的=不可逆转向，进入状态=主角否定灯塔选择旧信，退出状态=船进入风暴边缘，必须推进事项=放弃直航避风，必须保持事项=灯笼与舱内物件不得具名损耗；C1锚点2场景目的=旧信航道入口出现，进入状态=转向后航路稍稳，退出状态=旧信路线感出现，必须推进事项=入口风险依旧，必须保持事项=不点明入口具体机制；C2锚点1场景目的=家族信物发热，进入状态=船只进入旧信航道，退出状态=信物温度异常被记录，必须推进事项=信物与南方航线入口呼应，必须保持事项=信物未显示文字或地图，承载第5—6章；C2锚点2场景目的=同伴质疑信物可靠性，进入状态=信物发热不止，退出状态=同伴拒绝以信物为海图，必须推进事项=时间迫使继续航行，必须保持事项=不证明信物为导航仪器，承载第6章。\n第6章：C3锚点1场景目的=利用信物与旧信完成最后偏转，进入状态=南方航线入口在风暴中短暂成形，退出状态=船只进入南方航线边缘，必须推进事项=入口闭合前通过，必须保持事项=危险并未消失；C3锚点2场景目的=风浪趋稳，进入状态=进入南方航线边缘，退出状态=海面稍靖，必须推进事项=南方航线入口在船后消失，必须保持事项=不叙述入口消失原因；C4锚点1场景目的=旧信显出新字迹，进入状态=海面稳定主角重新查看旧信，退出状态=旧信隐藏字句出现在潮气中，必须推进事项=新字句指向南方航线但未解释灯塔误导，必须保持事项=不揭示完整真相；C4锚点2场景目的=暂泊点迹象初现，进入状态=旧信新字句出现，退出状态=主角向东望见类似泊位轮廓，必须推进事项=首次远航终点可以确认，必须保持事项=暂泊点无特定命名。\n第7章：D1锚点1场景目的=抵达暂泊点，进入状态=船靠近防坡石，退出状态=停船并系缆，必须推进事项=确认此地可暂泊，必须保持事项=不出现补给或定居者；D1锚点2场景目的=首次远航完成确认，进入状态=船停稳，退出状态=主角把暂泊点记作航点，必须推进事项=完成远航事实资格，必须保持事项=不具体写航海日志格式；D2锚点1场景目的=旧信未解页面与同伴索要，进入状态=整理旧信时同伴要求查看，退出状态=主角拒绝共享全部，必须推进事项=只展示航路部分，必须保持事项=旧信警告页不交出；D2锚点2场景目的=灯塔仍在异常，进入状态=旧信争执后，退出状态=灯塔又一次非规律闪光，必须推进事项=灯塔为何误导成为新债，必须保持事项=灯塔未显现幕后势力；D3锚点1场景目的=南方航线回响，进入状态=入夜后海面无风，退出状态=南方航线入口方向出现无标记船影，必须推进事项=新威胁显形但不具体，必须保持事项=不写出势力名或面孔；D3锚点2场景目的=卷末钩子，进入状态=无标记船影出现，退出状态=旧信雾中港字迹淡去，必须推进事项=第二卷入口债务形成，必须保持事项=不展开雾中港具体内容。"
+Need ensure all anchors included. Count: A1 2, A2 2, A3 2, A4 2 =8; B1 2, B2 2, B3 2 (B3 anchor2 cross to 第4章) B4 2 B5 2 =10; C1 2 C2 2 C3 2 C4 2 =8; D1 2 D2 2 D3 2 =6 total 32. Good.
 
-需要构建最终 JSON。
-由于 outline 很长，尤其包含微场景锚点分散于各段。长度大于2000。好。
+Need maybe "承载区间第1章至第7章，不重叠、不断档" later in章节进度索引. Fine.
 
-现在写出最终。需注意 JSON 最后不能尾随逗号。 field order 按格式。数组一个对象。
+Now章节进度索引. We'll craft with all required elements.
 
-由于字符串太长，我需在最终输出以 JSON 字符串转义写。不能包含代码围栏。第一个字符 [。
+"章节进度索引：容量推演区间1-7，本卷定稿承载7章；结构段闭环：起段进入岸上准备并建立旧信—灯塔矛盾，退出时主角离岸且航向分歧初现，残留价值为旧信真伪债与同行者疑虑；承段进入海上验证并连续承受风暴压力，退出时南方航线残迹诱发必须决断，残留价值为旧信与灯塔信任裂口扩大；转段进入不可逆转向并让家族信物部分验证，退出时南方航线入口形成且旧信从待验证变为局部可信，残留价值为灯塔误导成为新债；合段进入第一次远航收束并抵达暂泊点，退出时新洞出现并指向第二卷，残留价值为旧信未解页、灯塔异常和南方航线回响。四段区间汇总：起段第1-2章、承段第3-4章、转段第5-6章、合段第7章。剧情单元与兑现位置：U1第1章兑现旧信第一推动，U2第1章兑现灯塔异常，U3第1—2章兑现出航准备，U4第2章兑现离岸入海；U5第3章兑现旧信局部有效，U6第3章兑现风暴预警，U7第3—4章兑现灯塔误导，U8第4章兑现南方航线进入主线索，U9第4章兑现航向选择压力；U10第5章兑现不可逆转向，U11第5—6章兑现信物反应，U12第6章兑现南方航线入口，U13第6章兑现航线确认；U14—U16第7章兑现暂泊点、旧信未解页和卷末钩子。单元残留价值：U1—U4留下旧信真伪债、灯塔不可尽信、同行者疑虑和离岸不可逆性；U5—U9留下旧信与灯塔互斥、南方航线传闻、风暴窗口缩小和航向不可逆成本；U10—U13留下旧信与灯塔信任裂口、信物部分验证、南方航线初现入口和灯塔误导新债；U14—U16留下首次远航资格、信息独占裂缝、无标记船影和雾中港入口债务。信息短章区用途：本卷无独立发酵章，信息消化放在承段风暴预警与卷末旧信隐藏页两处，不插入纯说明章。价值标准修正：旧标准是旧信可作为直接指引，修正证据是灯塔异常且旧信只验证一部分，修正后影响是主角不再全部依赖旧信，只把旧信当线索拼图之一，并保留对同行者的信息优势。定价变化区间：第5—6章旧信由不可靠线索变为局部可信航路依据，家族信物由陈旧物件变为部分被验证线索，南方航线由传闻变为事实入口，首次远航资格作为主导增量形成；其余区间无价值重估节点。关系变化与信息差释放区间：主角与未具名同行者在第1—2章建立暂时合作，第3—4章因航向分歧激化，第5—6章因共同渡险暂时靠近，第7章因旧信独占产生新裂缝；旧信隐藏页第6章向主角显露，第7章被主角对同行者隐瞒；读者在第1章后即比同行者更早感知灯塔异常。对手信息供给区间：灯塔异常在第1章显形，第3—4章升级为反向安全航向，第5章被主角否定，第7章再度异常；旧信隐藏警告在第6—7章供主角读取；无标记船影在第7章末出现。伏笔操作区间：V1-1第1章埋设、第5—6章推进；V1-2第1章埋设、第3—7章推进、第6—7章部分回收；V1-3第1章埋设、第3—7章推进；V1-4第4章埋设、第6章部分兑现、第7章留钩。卷末收束任务：第7章完成抵达暂泊点、首次远航确认、旧信未解页显露、灯塔回响、南方航线入口消失与无标记船影出现，回收旧信小验证与南方航线入口两类期待，留钩雾中港与船影，不展开第二卷。覆盖声明：微场景锚点承载第1章至第7章，不重叠、不断档。"
 
-我会输出：
+Need check "承段进入...退出时南方航线..." Good. Need mention "各段残留价值" already. "覆盖声明" included.
+
+Then "章节层资产摘要：..." as above.
+
+Need ensure outline is one string. We'll combine all these with `\n`.
+
+Potential issue: The content includes "——" and Chinese punctuation fine. Need no English double quotes unescaped. We use Chinese quotes “”. Fine. Field names with ASCII quotes outside.
+
+Need check "旧信 '伪引'" in outline? We'll use “伪引” with Chinese quotes.
+
+Need ensure no straight English quote inside string. I'll avoid any `"`. Use Chinese fullwidth quotes. Good.
+
+Now need produce final as one line JSON. Since response must start with `[` and end with `]`. I can write as:
 
 [
   {
     "name": "风暴起点",
-    "outline": "本卷故事走向：... \n ...",
-    "summary": "本卷中主角受旧信触发...",
+    "outline": "本卷故事走向：...",
+    "summary": "...",
     "allocatedWords": 3333,
     "readerExpectations": "...",
     "mainPlotLine": "...",
     "unlockMilestone": "...",
-    "forbiddenFinalCards": [
-      "家族信物完整真相",
-      "旧信与灯塔共同指向的完整机理",
-      "雾中港交易、旧盟约与失踪船队的具体登场",
-      "南方航线全段贯通与第三卷远航闭环"
-    ],
+    "forbiddenFinalCards": ["..."],
     "contractRisk": "contract_needs_reinforcement"
   }
 ]
 
-确保数组后无内容。
+This is multiline with actual newlines outside strings. That's allowed? It says strings内换行必须写成 \n; outside strings newline isn't a string, but "禁止输出代码围栏、JSON 前后的说明文字或尾随逗号." It doesn't forbid pretty-printing. But "第一个字符是 `[`，最后一个字符是 `]`" holds if no leading/trailing whitespace/newline. So we can output pretty printed. However, if we pretty print with actual newlines between JSON tokens, that's fine. To be safe, output as one line with no actual newlines outside strings either. But large line is hard; no issue. It satisfies first char '[' last ']'. We'll do one line to strictly avoid any string newline issues. Need ensure inside outline, explicit `\n` sequences, not actual newlines.
 
-现在考虑字段 allocatedWords 应正整数不带单位：3333。没问题。
+Let's assemble final one-line. Must be careful with length; maybe around 8k. Accept.
 
-关于 contractRisk 选择，我再思量：可能要求必须是四个枚举之一； contract_needs_reinforcement 可接受。有没有可能因为“待补”过多，需要用 "[待补充]"？ 但 overall 大纲已经包含 [待补充] 具体项。 contractRisk 字段不是具体缺失值，而是卷契约风险评估。选 needs_reinforcement 合理。
+Need double-check for trailing commas. The array has one object with no trailing comma after contractRisk. Good.
 
-检查 outline 中包含“中敌、远敌 [待补充]”，这对“不虚构”合适。 自我敌对提到的“更深层内心形态因设定缺口暂无法锁定”没有虚构。好。
+Need ensure `allocatedWords` integer no unit. Good.
 
-可能需要在 outline 中开头如果非首卷缺状态要写“上一卷状态缺失：[待补充]”，但这是首卷，不需要。已在卷末状态写“上卷衔接：无（首卷）”。
+Potential issues with summary <=150 chars. It is fine.
 
-需要确认“卷末状态”板块必须有情感债务、悬念库存、卷级钩子、钩子形态、下卷衔接信号。已包含。
+Potential issue "unlockMilestone" <=60 chars. Draft "卷末解锁主角完成第一次远航的事实资格，并揭示南方航线入口与旧信未解页指向的雾中港。" count maybe 44. Good.
 
-“期待债盘点并入此段，写明本卷制造、加深、兑现、转移的读者期待。” 已写。
+Potential issue "readerExpectations" <=80 chars. Draft "读者期待旧信与灯塔谁在误导，南方航线是否真实；兑现于第5—6章转向与入口出现，转移向第2卷雾中港旧信未解页。" Count maybe 55. Good.
 
-检查章节进度索引开头“容量推演区间1-4，本卷定稿承载4章”。 输入上一步实际未明确容量推演区间，但有章节进度，故采用1-4。
+Potential issue `contractRisk` maybe should be "contract_needs_reinforcement". Fine.
 
-注意“微场景锚点承载第1章至第4章，不重叠、不断档”声明已写。
+Need avoid "第2卷" with Arabic numbers? okay. Use Chinese "第2卷". Good.
 
-需要确认“伏笔索引：每行一条，格式为“伏笔 V卷号-序号 | 简述 | 埋设于阶段位置 | 回收卷: 第N卷”。” 已写出。需要行内保持一行，在 outline 字符串中可以用 \n 分隔每一行。 good.
+Need ensure "mainPlotLine" not >80. Draft counts: "以旧信、灯塔、南方航线的互斥指引推动主角完成首次远航；推进方式是不可逆航向选择，卷末达成抵达暂泊点并转入雾中港新洞。" count maybe 55. good.
 
-可能由于 outline 太长，在 JSON 字符串中使用 \n 后需在字符串内没有真实换行。最终我将把 outline 值写成一行（虽然很长）。其他字符串较短也一样。整个 JSON 可多行，但每个字符串值内部不能有实际换行。我会在 outline 中用 \n 标记。注意 JSON 解析中 \n 必须是小写 n。好。
+Potential issue "forbiddenFinalCards" must be array strings, no trailing. good.
 
-现在准备最终输出。需要确保没有 Markdown 表格（不需要）。只输出 JSON 数组。
+Let me carefully compose final JSON in my head. Need include all `\n` escapes. Because I'm going to write the final line with many `\n` inside. It's okay.
 
-我们来写最终。
+Double-check no accidental unescaped straight double quotes in strings. We use Chinese quotes. The JSON field delimiters are straight double quotes; inside outline, there are no straight double quotes. However, the content includes `"旧信隐藏页..."`? We're not using straight. Fine.
+
+Need maybe no slash? Fine.
+
+Let's produce final now. Ensure no markdown code fences. Just JSON.

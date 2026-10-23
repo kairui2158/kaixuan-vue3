@@ -1,5 +1,5 @@
 {
-  "id": "run-1792606949199-1",
+  "id": "run-1792639985997-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -20,30 +20,30 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "0b9776d23e9b",
-    "buildTime": "2026-10-21T18:17:37.709Z"
+    "commit": "b2d0b8088e7e",
+    "buildTime": "2026-10-22T03:27:46.288Z"
   },
-  "startedAt": 1792606949200,
+  "startedAt": 1792639985997,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
       "reason": "generation_failed",
-      "recordedAt": 1792606949700
+      "recordedAt": 1792639986360
     }
   ],
   "events": [
     {
-      "id": "event-1792606949200-2",
-      "ts": 1792606949200,
+      "id": "event-1792639985997-2",
+      "ts": 1792639985997,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792606949202-3",
-      "ts": 1792606949202,
+      "id": "event-1792639986004-3",
+      "ts": 1792639986004,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -51,8 +51,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792606949204-4",
-      "ts": 1792606949204,
+      "id": "event-1792639986005-4",
+      "ts": 1792639986005,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -60,8 +60,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792606949205-5",
-      "ts": 1792606949205,
+      "id": "event-1792639986007-5",
+      "ts": 1792639986007,
       "seq": 4,
       "type": "context_scope",
       "level": "info",
@@ -69,8 +69,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":0,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":179,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792606949206-6",
-      "ts": 1792606949206,
+      "id": "event-1792639986007-6",
+      "ts": 1792639986007,
       "seq": 5,
       "type": "memory_context",
       "level": "info",
@@ -78,8 +78,8 @@
       "detail": "{\"chapterId\":\"ch-body-contract-degraded\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792606949207-7",
-      "ts": 1792606949207,
+      "id": "event-1792639986008-7",
+      "ts": 1792639986008,
       "seq": 6,
       "type": "prompt-built",
       "level": "info",
@@ -87,8 +87,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3500}"
     },
     {
-      "id": "event-1792606949249-8",
-      "ts": 1792606949249,
+      "id": "event-1792639986050-8",
+      "ts": 1792639986050,
       "seq": 7,
       "type": "chain-context-slim",
       "level": "info",
@@ -96,8 +96,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":266,\"finalPromptLength\":266,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792606949253-9",
-      "ts": 1792606949253,
+      "id": "event-1792639986053-9",
+      "ts": 1792639986054,
       "seq": 8,
       "type": "chain-step",
       "level": "info",
@@ -105,8 +105,8 @@
       "detail": "S1 骨架（文件夹）"
     },
     {
-      "id": "event-1792606949255-10",
-      "ts": 1792606949255,
+      "id": "event-1792639986054-10",
+      "ts": 1792639986054,
       "seq": 9,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -114,8 +114,8 @@
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"body-contract-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792606949255-12",
-      "ts": 1792606949255,
+      "id": "event-1792639986055-12",
+      "ts": 1792639986055,
       "seq": 10,
       "type": "api-start",
       "level": "info",
@@ -123,8 +123,8 @@
       "detail": "{\"skillName\":\"S1 骨架（文件夹）\",\"model\":\"body-contract-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792606949255-13",
-      "ts": 1792606949255,
+      "id": "event-1792639986055-13",
+      "ts": 1792639986055,
       "seq": 11,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -132,8 +132,8 @@
       "detail": "{\"skillIndex\":0,\"totalSkillCount\":3,\"variant\":\"methodology\",\"charCount\":2012}"
     },
     {
-      "id": "event-1792606949477-14",
-      "ts": 1792606949477,
+      "id": "event-1792639986227-14",
+      "ts": 1792639986227,
       "seq": 12,
       "type": "folder-pass-input",
       "level": "info",
@@ -141,8 +141,8 @@
       "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":266,\"userPromptLength\":427,\"systemPromptLength\":2148,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
     },
     {
-      "id": "event-1792606949482-16",
-      "ts": 1792606949482,
+      "id": "event-1792639986230-16",
+      "ts": 1792639986230,
       "seq": 13,
       "type": "run-activity",
       "level": "info",
@@ -154,22 +154,22 @@
       }
     },
     {
-      "id": "event-1792606949482-17",
-      "ts": 1792606949482,
+      "id": "event-1792639986230-17",
+      "ts": 1792639986230,
       "seq": 14,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792606949482-15",
+        "physicalCallId": "physical-1792639986230-15",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792606949482-18",
-      "ts": 1792606949482,
+      "id": "event-1792639986230-18",
+      "ts": 1792639986230,
       "seq": 15,
       "type": "physical-call",
       "level": "info",
@@ -177,18 +177,28 @@
       "detail": "normal / S1 骨架（文件夹） / body-contract-model"
     },
     {
-      "id": "event-1792606949533-19",
-      "ts": 1792606949533,
+      "id": "event-1792639986230-19",
+      "ts": 1792639986230,
       "seq": 16,
+      "turnId": "api-1792639986055-11",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-contract-degraded-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792639986262-20",
+      "ts": 1792639986262,
+      "seq": 17,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / S1 骨架（文件夹） / body-contract-model / stop"
     },
     {
-      "id": "event-1792606949535-20",
-      "ts": 1792606949535,
-      "seq": 17,
+      "id": "event-1792639986264-21",
+      "ts": 1792639986264,
+      "seq": 18,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -199,17 +209,17 @@
       }
     },
     {
-      "id": "event-1792606949541-21",
-      "ts": 1792606949541,
-      "seq": 18,
+      "id": "event-1792639986266-22",
+      "ts": 1792639986266,
+      "seq": 19,
       "type": "folder-diagnostics",
       "level": "info",
       "label": "记录 folder SKILL 诊断"
     },
     {
-      "id": "event-1792606949542-22",
-      "ts": 1792606949542,
-      "seq": 19,
+      "id": "event-1792639986268-23",
+      "ts": 1792639986268,
+      "seq": 20,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -220,108 +230,108 @@
       }
     },
     {
-      "id": "event-1792606949547-23",
-      "ts": 1792606949547,
-      "seq": 20,
+      "id": "event-1792639986269-24",
+      "ts": 1792639986269,
+      "seq": 21,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792606949255-11 seq=1"
+      "detail": "apiCall=api-1792639986055-11 seq=1"
     },
     {
-      "id": "event-1792606949547-24",
-      "ts": 1792606949547,
-      "seq": 21,
+      "id": "event-1792639986269-25",
+      "ts": 1792639986269,
+      "seq": 22,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "S1 骨架（文件夹） / body-contract-model"
     },
     {
-      "id": "event-1792606949548-26",
-      "ts": 1792606949548,
-      "seq": 22,
+      "id": "event-1792639986270-27",
+      "ts": 1792639986270,
+      "seq": 23,
       "type": "processing-report",
       "level": "info",
       "label": "本地处理完成：chain-handoff",
       "detail": "post"
     },
     {
-      "id": "event-1792606949548-27",
-      "ts": 1792606949548,
-      "seq": 23,
+      "id": "event-1792639986271-28",
+      "ts": 1792639986271,
+      "seq": 24,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 1/3 Handoff",
       "detail": "{\"artifactId\":\"handoff-0-c9de57c9\",\"sourceStep\":0,\"sourceSkillId\":\"folder:BODY-GATE-S1\",\"outputHash\":\"c9de57c9\",\"fullTextLength\":59,\"delivery\":\"full_text\",\"excerptLength\":59,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792606949562-28",
-      "ts": 1792606949562,
-      "seq": 24,
+      "id": "event-1792639986278-29",
+      "ts": 1792639986278,
+      "seq": 25,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 2/3 上下文决策",
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":266,\"finalPromptLength\":266,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792606949565-29",
-      "ts": 1792606949565,
-      "seq": 25,
+      "id": "event-1792639986279-30",
+      "ts": 1792639986279,
+      "seq": 26,
       "type": "chain-handoff-delivery",
       "level": "info",
       "label": "链式步骤 2/3 上游交付决策",
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":59,\"deliveredLength\":59,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:BODY-GATE-S2\",\"skillName\":\"S2 生成（文件夹）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792606949566-30",
-      "ts": 1792606949566,
-      "seq": 26,
+      "id": "event-1792639986280-31",
+      "ts": 1792639986280,
+      "seq": 27,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 2/3",
       "detail": "S2 生成（文件夹）"
     },
     {
-      "id": "event-1792606949567-31",
-      "ts": 1792606949567,
-      "seq": 27,
+      "id": "event-1792639986280-32",
+      "ts": 1792639986280,
+      "seq": 28,
       "type": "agent-model-fallback",
       "level": "warn",
       "label": "Agent 模型未显式配置，已回退供应商默认模型",
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"body-contract-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792606949567-33",
-      "ts": 1792606949567,
-      "seq": 28,
+      "id": "event-1792639986280-34",
+      "ts": 1792639986280,
+      "seq": 29,
       "type": "api-start",
       "level": "info",
       "label": "第 2 次 API 调用开始",
       "detail": "{\"skillName\":\"S2 生成（文件夹）\",\"model\":\"body-contract-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792606949567-34",
-      "ts": 1792606949567,
-      "seq": 29,
+      "id": "event-1792639986280-35",
+      "ts": 1792639986280,
+      "seq": 30,
       "type": "deai-prompt-variant",
       "level": "info",
       "label": "降AI注入变体：链步骤 2/3",
       "detail": "{\"skillIndex\":1,\"totalSkillCount\":3,\"variant\":\"creative\",\"charCount\":383}"
     },
     {
-      "id": "event-1792606949580-35",
-      "ts": 1792606949580,
-      "seq": 30,
+      "id": "event-1792639986283-36",
+      "ts": 1792639986283,
+      "seq": 31,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1",
       "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":518,\"userPromptLength\":679,\"systemPromptLength\":509,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
     },
     {
-      "id": "event-1792606949581-37",
-      "ts": 1792606949581,
-      "seq": 31,
+      "id": "event-1792639986284-38",
+      "ts": 1792639986284,
+      "seq": 32,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -332,41 +342,42 @@
       }
     },
     {
-      "id": "event-1792606949581-38",
-      "ts": 1792606949581,
-      "seq": 32,
+      "id": "event-1792639986285-39",
+      "ts": 1792639986285,
+      "seq": 33,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792606949581-36",
+        "physicalCallId": "physical-1792639986284-37",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792606949581-39",
-      "ts": 1792606949581,
-      "seq": 33,
+      "id": "event-1792639986285-40",
+      "ts": 1792639986285,
+      "seq": 34,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / S2 生成（文件夹） / body-contract-model"
     },
     {
-      "id": "event-1792606949596-40",
-      "ts": 1792606949596,
-      "seq": 34,
-      "type": "physical-call",
+      "id": "event-1792639986285-41",
+      "ts": 1792639986285,
+      "seq": 35,
+      "turnId": "api-1792639986280-33",
+      "type": "provider-queue",
       "level": "info",
-      "label": "第 1 次物理请求完成",
-      "detail": "normal / S2 生成（文件夹） / body-contract-model / stop"
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-contract-degraded-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792606949597-41",
-      "ts": 1792606949597,
-      "seq": 35,
+      "id": "event-1792639986296-42",
+      "ts": 1792639986296,
+      "seq": 36,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -377,27 +388,36 @@
       }
     },
     {
-      "id": "event-1792606949614-42",
-      "ts": 1792606949614,
-      "seq": 36,
+      "id": "event-1792639986298-43",
+      "ts": 1792639986298,
+      "seq": 37,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S2 生成（文件夹） / body-contract-model / stop"
+    },
+    {
+      "id": "event-1792639986305-44",
+      "ts": 1792639986305,
+      "seq": 38,
       "type": "schema-retry-feedback-composed",
       "level": "info",
       "label": "结构化重试反馈已单源合成：S2 生成（文件夹）",
       "detail": "{\"candidateChars\":8826,\"feedbackChars\":683,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":8408}"
     },
     {
-      "id": "event-1792606949614-43",
-      "ts": 1792606949614,
-      "seq": 37,
+      "id": "event-1792639986305-45",
+      "ts": 1792639986305,
+      "seq": 39,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1（重试）",
       "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":518,\"userPromptLength\":679,\"systemPromptLength\":1194,\"sampleCount\":3,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
     },
     {
-      "id": "event-1792606949615-45",
-      "ts": 1792606949615,
-      "seq": 38,
+      "id": "event-1792639986306-47",
+      "ts": 1792639986306,
+      "seq": 40,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -408,59 +428,69 @@
       }
     },
     {
-      "id": "event-1792606949615-46",
-      "ts": 1792606949615,
-      "seq": 39,
+      "id": "event-1792639986306-48",
+      "ts": 1792639986306,
+      "seq": 41,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=2 / heartbeat=false / schema_retry",
       "payload": {
-        "physicalCallId": "physical-1792606949615-44",
+        "physicalCallId": "physical-1792639986306-46",
         "seq": 2,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792606949615-47",
-      "ts": 1792606949615,
-      "seq": 40,
+      "id": "event-1792639986306-49",
+      "ts": 1792639986306,
+      "seq": 42,
       "type": "physical-call",
       "level": "info",
       "label": "第 2 次物理请求进行中",
       "detail": "schema_retry / S2 生成（文件夹） / body-contract-model"
     },
     {
-      "id": "event-1792606949626-48",
-      "ts": 1792606949626,
-      "seq": 41,
+      "id": "event-1792639986306-50",
+      "ts": 1792639986306,
+      "seq": 43,
+      "turnId": "api-1792639986280-33",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-contract-degraded-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792639986315-51",
+      "ts": 1792639986315,
+      "seq": 44,
       "type": "physical-call",
       "level": "info",
       "label": "第 2 次物理请求完成",
       "detail": "schema_retry / S2 生成（文件夹） / body-contract-model / stop"
     },
     {
-      "id": "event-1792606949640-49",
-      "ts": 1792606949640,
-      "seq": 42,
+      "id": "event-1792639986320-52",
+      "ts": 1792639986320,
+      "seq": 45,
       "type": "schema-retry-feedback-composed",
       "level": "info",
       "label": "结构化重试反馈已单源合成：S2 生成（文件夹）",
       "detail": "{\"candidateChars\":8826,\"feedbackChars\":683,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":8408}"
     },
     {
-      "id": "event-1792606949640-50",
-      "ts": 1792606949640,
-      "seq": 43,
+      "id": "event-1792639986321-53",
+      "ts": 1792639986321,
+      "seq": 46,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1（重试）",
       "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":518,\"userPromptLength\":679,\"systemPromptLength\":1194,\"sampleCount\":3,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
     },
     {
-      "id": "event-1792606949641-52",
-      "ts": 1792606949641,
-      "seq": 44,
+      "id": "event-1792639986321-55",
+      "ts": 1792639986321,
+      "seq": 47,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -471,58 +501,77 @@
       }
     },
     {
-      "id": "event-1792606949641-53",
-      "ts": 1792606949641,
-      "seq": 45,
+      "id": "event-1792639986321-56",
+      "ts": 1792639986321,
+      "seq": 48,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=3 / heartbeat=false / schema_retry",
       "payload": {
-        "physicalCallId": "physical-1792606949641-51",
+        "physicalCallId": "physical-1792639986321-54",
         "seq": 3,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792606949642-54",
-      "ts": 1792606949642,
-      "seq": 46,
+      "id": "event-1792639986321-57",
+      "ts": 1792639986321,
+      "seq": 49,
       "type": "physical-call",
       "level": "info",
       "label": "第 3 次物理请求进行中",
       "detail": "schema_retry / S2 生成（文件夹） / body-contract-model"
     },
     {
-      "id": "event-1792606949656-55",
-      "ts": 1792606949656,
-      "seq": 47,
+      "id": "event-1792639986321-58",
+      "ts": 1792639986321,
+      "seq": 50,
+      "turnId": "api-1792639986280-33",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-contract-degraded-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1792639986331-59",
+      "ts": 1792639986331,
+      "seq": 51,
       "type": "physical-call",
       "level": "info",
       "label": "第 3 次物理请求完成",
       "detail": "schema_retry / S2 生成（文件夹） / body-contract-model / stop"
     },
     {
-      "id": "event-1792606949666-56",
-      "ts": 1792606949666,
-      "seq": 48,
+      "id": "event-1792639986336-60",
+      "ts": 1792639986336,
+      "seq": 52,
       "type": "schema-retry-feedback-composed",
       "level": "info",
       "label": "结构化重试反馈已单源合成：S2 生成（文件夹）",
       "detail": "{\"candidateChars\":8826,\"feedbackChars\":683,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":8408}"
     },
     {
-      "id": "event-1792606949667-57",
-      "ts": 1792606949667,
-      "seq": 49,
+      "id": "event-1792639986337-61",
+      "ts": 1792639986337,
+      "seq": 53,
+      "type": "body-feedback-audit",
+      "level": "info",
+      "label": "正文修复反馈审计：候选全文已抑制",
+      "detail": "{\"channel\":\"schema\",\"candidateChars\":8826,\"feedbackChars\":683,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":8408}"
+    },
+    {
+      "id": "event-1792639986337-62",
+      "ts": 1792639986337,
+      "seq": 54,
       "type": "folder-diagnostics",
       "level": "info",
       "label": "记录 folder SKILL 诊断"
     },
     {
-      "id": "event-1792606949667-58",
-      "ts": 1792606949667,
-      "seq": 50,
+      "id": "event-1792639986338-63",
+      "ts": 1792639986338,
+      "seq": 55,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -533,90 +582,90 @@
       }
     },
     {
-      "id": "event-1792606949668-59",
-      "ts": 1792606949668,
-      "seq": 51,
+      "id": "event-1792639986338-64",
+      "ts": 1792639986338,
+      "seq": 56,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → degraded",
-      "detail": "apiCall=api-1792606949567-32 seq=2"
+      "detail": "apiCall=api-1792639986280-33 seq=2"
     },
     {
-      "id": "event-1792606949668-60",
-      "ts": 1792606949668,
-      "seq": 52,
+      "id": "event-1792639986338-65",
+      "ts": 1792639986338,
+      "seq": 57,
       "type": "api-degraded",
       "level": "warn",
       "label": "第 2 次 API 调用完成（降级）",
       "detail": "S2 生成（文件夹） / body-contract-model / folder SKILL 降级完成，已保留可用输出"
     },
     {
-      "id": "event-1792606949669-61",
-      "ts": 1792606949669,
-      "seq": 53,
+      "id": "event-1792639986338-66",
+      "ts": 1792639986338,
+      "seq": 58,
       "type": "folder-skill-degraded-with-error",
       "level": "warn",
       "label": "SKILL「S2 生成（文件夹）」降级但保留有效输出",
       "detail": "第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；输出未通过校验，已达最大尝试次数 3"
     },
     {
-      "id": "event-1792606949674-62",
-      "ts": 1792606949674,
-      "seq": 54,
+      "id": "event-1792639986342-67",
+      "ts": 1792639986342,
+      "seq": 59,
       "type": "body-step-acceptance",
       "level": "error",
       "label": "正文生成步骤 2/3 统一验收",
       "detail": "{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"rawWordCount\":7170,\"extractedWordCount\":1640,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\n交接元数据第1条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第2条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第3条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第4条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第5条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第6条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第7条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第8条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第9条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第10条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第11条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第12条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第13条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第14条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第15条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第16条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第17条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第18条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第19条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第20条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第21条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第22条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第23条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第24条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第25条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第26条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第27条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第28条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第29条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第30条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第31条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第32条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第33条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第34条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第35条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第36条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第37条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第38条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第39条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第40条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第41条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第42条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第43条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第44条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第45条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第46条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第47条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第48条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第49条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第50条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第51条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第52条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第53条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第54条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第55条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第56条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第57条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第58条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第59条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第60条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第61条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第62条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第63条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第64条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第65条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第66条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第67条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第68条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第69条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第70条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第71条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第72条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第73条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第74条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第75条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第76条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第77条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第78条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第79条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第80条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第81条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第82条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第83条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第84条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第85条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第86条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第87条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第88条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第89条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第90条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第91条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第92条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第93条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第94条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第95条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第96条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第97条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第98条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第99条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第100条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第101条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第102条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第103条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第104条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第105条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第106条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第107条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第108条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第109条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第110条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第111条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第112条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第113条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第114条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第115条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第116条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第117条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第118条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第119条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第120条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第121条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第122条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第123条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第124条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第125条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第126条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第127条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第128条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第129条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第130条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第131条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第132条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第133条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第134条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第135条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第136条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第137条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第138条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第139条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第140条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第141条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第142条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第143条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第144条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第145条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第146条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第147条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第148条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第149条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第150条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第151条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第152条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第153条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第154条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第155条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第156条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第157条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第158条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第159条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第160条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第161条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第162条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第163条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第164条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第165条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第166条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第167条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第168条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第169条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第170条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第171条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第172条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第173条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第174条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第175条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第176条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第177条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第178条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第179条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第180条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第181条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第182条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第183条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第184条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第185条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第186条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第187条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第188条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第189条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第190条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第191条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第192条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第193条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第194条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第195条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第196条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第197条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第198条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第199条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第200条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第201条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第202条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第203条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第204条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第205条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第206条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第207条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第208条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第209条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第210条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第211条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第212条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第213条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第214条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第215条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第216条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第217条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第218条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第219条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第220条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第221条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第222条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第223条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第224条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第225条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第226条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第227条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第228条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第229条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第230条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第231条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第232条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第233条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第234条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第235条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第236条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第237条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第238条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第239条：维持灯芯记录的事实锁，不进入正文。\\n交接元数据第240条：维持灯芯记录的事实锁，不进入正文。\\n【正文交接结束】\"]},\"metadataDelta\":5530,\"decision\":\"reject\",\"reason\":\"contract_failed\",\"contract\":{\"targetWords\":3500,\"minWords\":2800,\"maxWords\":7000},\"degradedErrors\":[\"第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"输出未通过校验，已达最大尝试次数 3\"],\"contractErrors\":[\"正文过短：1640字，要求不低于2800字\"]}"
     },
     {
-      "id": "event-1792606949674-63",
-      "ts": 1792606949674,
-      "seq": 55,
+      "id": "event-1792639986342-68",
+      "ts": 1792639986342,
+      "seq": 60,
       "type": "body-generator-step-rejected",
       "level": "error",
       "label": "正文生成步骤 2/3 拒绝流转",
       "detail": "{\"reason\":\"degraded_plus_contract_failure\",\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：1640字，要求不低于2800字\"]}"
     },
     {
-      "id": "event-1792606949696-64",
-      "ts": 1792606949696,
-      "seq": 56,
+      "id": "event-1792639986355-69",
+      "ts": 1792639986355,
+      "seq": 61,
       "type": "body-artifact-attempt",
       "level": "error",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"ch-body-contract-degraded-attempt-1-zqetfas6\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3500,\"ratio\":0,\"errors\":[\"正文生成步骤验收失败（degraded_plus_contract_failure）：第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；输出未通过校验，已达最大尝试次数 3；正文过短：1640字，要求不低于2800字\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"decision\":\"reject\",\"reason\":\"contract_failed\",\"rawWordCount\":7170,\"extractedWordCount\":1640,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：1640字，要求不低于2800字\"]}],\"degradedSteps\":[{\"stepIndex\":1,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：1640字，要求不低于2800字\"]}],\"rawVsExtractedDelta\":5530}"
+      "detail": "{\"attemptId\":\"ch-body-contract-degraded-attempt-1-r1kiqorz\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3500,\"ratio\":0,\"errors\":[\"正文生成步骤验收失败（degraded_plus_contract_failure）：第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；输出未通过校验，已达最大尝试次数 3；正文过短：1640字，要求不低于2800字\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[{\"schema\":{\"candidateChars\":8826,\"feedbackChars\":683,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":8408},\"finalStep\":null}],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"decision\":\"reject\",\"reason\":\"contract_failed\",\"rawWordCount\":7170,\"extractedWordCount\":1640,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：1640字，要求不低于2800字\"]}],\"degradedSteps\":[{\"stepIndex\":1,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：1640字，要求不低于2800字\"]}],\"rawVsExtractedDelta\":5530}"
     },
     {
-      "id": "event-1792606949696-65",
-      "ts": 1792606949696,
-      "seq": 57,
+      "id": "event-1792639986355-70",
+      "ts": 1792639986355,
+      "seq": 62,
       "type": "failed",
       "level": "error",
       "label": "正文运行失败",
       "detail": "正文生成步骤验收失败（degraded_plus_contract_failure）：第 1/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 2/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；第 3/3 次输出未通过 postProcess 校验：正文交接缺少NEW_FACT事实锁；输出未通过校验，已达最大尝试次数 3；正文过短：1640字，要求不低于2800字"
     },
     {
-      "id": "event-1792606949700-66",
-      "ts": 1792606949700,
-      "seq": 58,
+      "id": "event-1792639986359-71",
+      "ts": 1792639986359,
+      "seq": 63,
       "type": "finished",
       "level": "error",
       "label": "运行失败",
       "detail": "generation_failed"
     },
     {
-      "id": "event-1792606949700-67",
-      "ts": 1792606949700,
-      "seq": 59,
+      "id": "event-1792639986360-72",
+      "ts": 1792639986360,
+      "seq": 64,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1792606949199-1"
+      "detail": "generation_failed / run=run-1792639985997-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792606949255-11",
+      "id": "api-1792639986055-11",
       "seq": 1,
       "step": 4,
       "skillId": "folder:BODY-GATE-S1",
@@ -639,11 +688,11 @@
       "streamText": "林照进入灯塔，发现纸条藏在灯座下。\n他听见门外巡逻声，把纸条压进掌心。\n他在窗边确认风暴信标闪烁三次，决定天亮前离港。林照进入灯塔，发现纸条藏在灯座下。\n他听见门外巡逻声，把纸条压进掌心。\n他在窗边确认风暴信标闪烁三次，决定天亮前离港。",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792606949255,
+      "startedAt": 1792639986055,
       "physicalCalls": [
         {
-          "id": "physical-1792606949482-15",
-          "physicalCallId": "physical-1792606949479-0",
+          "id": "physical-1792639986230-15",
+          "physicalCallId": "physical-1792639986228-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -667,11 +716,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792606949482,
-          "durationMs": 51,
-          "firstTokenMs": 47,
-          "outputMs": 4,
-          "endedAt": 1792606949533,
+          "startedAt": 1792639986230,
+          "durationMs": 33,
+          "firstTokenMs": 28,
+          "outputMs": 5,
+          "endedAt": 1792639986262,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -686,13 +735,13 @@
             "driftRatio": -0.9920697858842189,
             "correctedRatio": 0.007930214115781126
           },
-          "firstContentAt": 1792606949528,
-          "lastContentAt": 1792606949528,
+          "firstContentAt": 1792639986257,
+          "lastContentAt": 1792639986257,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792606949537,
-      "lastStreamActivityAt": 1792606949537,
+      "lastExecutionActivityAt": 1792639986264,
+      "lastStreamActivityAt": 1792639986264,
       "providerContextWindowTokens": 128000,
       "estimatedInputTokens": 1261,
       "contextBudgetDecision": "fits",
@@ -705,20 +754,20 @@
         "correctedRatio": 0.007930214115781126
       },
       "finishReason": "stop",
-      "durationMs": 287,
+      "durationMs": 213,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 51,
-        "firstTokenSumMs": 47,
-        "outputSumMs": 4,
-        "minFirstTokenMs": 47,
-        "maxFirstTokenMs": 47,
-        "localOverheadMs": 236,
-        "requestBuildMs": 2,
+        "physicalDurationSumMs": 33,
+        "firstTokenSumMs": 28,
+        "outputSumMs": 5,
+        "minFirstTokenMs": 28,
+        "maxFirstTokenMs": 28,
+        "localOverheadMs": 180,
+        "requestBuildMs": 0,
         "schemaValidateMs": 0,
         "retryMs": 0,
-        "postProcessMs": 7,
+        "postProcessMs": 3,
         "schemaRetryCount": 0,
         "repeatedPromptBlocks": {
           "[已生成卷事实清单]": 0,
@@ -734,9 +783,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792606949547,
+      "endedAt": 1792639986269,
       "semantic": {
-        "conversationId": "run-1792606949199-1",
+        "conversationId": "run-1792639985997-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -745,7 +794,7 @@
       }
     },
     {
-      "id": "api-1792606949567-32",
+      "id": "api-1792639986280-33",
       "seq": 2,
       "step": 4,
       "skillId": "folder:BODY-GATE-S2",
@@ -768,11 +817,11 @@
       "streamText": "林照进入灯塔，发现纸条藏在灯座下。\n他听见门外巡逻声，把纸条压进掌心。\n他在窗边确认风暴信标闪烁三次，决定天亮前离港。林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条压进灯座，潮声第12次盖住他的呼吸。\n林照把纸条压进灯座，潮声第13次盖住他的呼吸。\n林照把纸条压进灯座，潮声第14次盖住他的呼吸。\n林照把纸条压进灯座，潮声第15次盖住他的呼吸。\n林照把纸条压进灯座，潮声第16次盖住他的呼吸。\n林照把纸条压进灯座，潮声第17次盖住他的呼吸。\n林照把纸条压进灯座，潮声第18次盖住他的呼吸。\n林照把纸条压进灯座，潮声第19次盖住他的呼吸。\n林照把纸条压进灯座，潮声第20次盖住他的呼吸。\n林照把纸条压进灯座，潮声第21次盖住他的呼吸。\n林照把纸条压进灯座，潮声第22次盖住他的呼吸。\n林照把纸条压进灯座，潮声第23次盖住他的呼吸。\n林照把纸条压进灯座，潮声第24次盖住他的呼吸。\n林照把纸条压进灯座，潮声第25次盖住他的呼吸。\n林照把纸条压进灯座，潮声第26次盖住他的呼吸。\n林照把纸条压进灯座，潮声第27次盖住他的呼吸。\n林照把纸条压进灯座，潮声第28次盖住他的呼吸。\n林照把纸条压进灯座，潮声第29次盖住他的呼吸。\n林照把纸条压进灯座，潮声第30次盖住他的呼吸。\n林照把纸条压进灯座，潮声第31次盖住他的呼吸。\n林照把纸条压进灯座，潮声第32次盖住他的呼吸。\n林照把纸条压进灯座，潮声第33次盖住他的呼吸。\n林照把纸条压进灯座，潮声第34次盖住他的呼吸。\n林照把纸条压进灯座，潮声第35次盖住他的呼吸。\n林照把纸条压进灯座，潮声第36次盖住他的呼吸。\n林照把纸条压进灯座，潮声第37次盖住他的呼吸。\n林照把纸条压进灯座，潮声第38次盖住他的呼吸。\n林照把纸条压进灯座，潮声第39次盖住他的呼吸。\n林照把纸条压进灯座，潮声第40次盖住他的呼吸。\n林照把纸条压进灯座，潮声第41次盖住他的呼吸。\n林照把纸条压进灯座，潮声第42次盖住他的呼吸。\n林照把纸条压进灯座，潮声第43次盖住他的呼吸。\n林照把纸条压进灯座，潮声第44次盖住他的呼吸。\n林照把纸条压进灯座，潮声第45次盖住他的呼吸。\n林照把纸条压进灯座，潮声第46次盖住他的呼吸。\n林照把纸条压进灯座，潮声第47次盖住他的呼吸。\n林照把纸条压进灯座，潮声第48次盖住他的呼吸。\n林照把纸条压进灯座，潮声第49次盖住他的呼吸。\n林照把纸条压进灯座，潮声第50次盖住他的呼吸。\n林照把纸条压进灯座，潮声第51次盖住他的呼吸。\n林照把纸条压进灯座，潮声第52次盖住他的呼吸。\n林照把纸条压进灯座，潮声第53次盖住他的呼吸。\n林照把纸条压进灯座，潮声第54次盖住他的呼吸。\n林照把纸条压进灯座，潮声第55次盖住他的呼吸。\n林照把纸条压进灯座，潮声第56次盖住他的呼吸。\n林照把纸条压进灯座，潮声第57次盖住他的呼吸。\n林照把纸条压进灯座，潮声第58次盖住他的呼吸。\n林照把纸条压进灯座，潮声第59次盖住他的呼吸。\n林照把纸条压进灯座，潮声第60次盖住他的呼吸。\n林照把纸条压进灯座，潮声第61次盖住他的呼吸。\n林照把纸条压进灯座，潮声第62次盖住他的呼吸。\n林照把纸条压进灯座，潮声第63次盖住他的呼吸。\n林照把纸条压进灯座，潮声第64次盖住他的呼吸。\n林照把纸条压进灯座，潮声第65次盖住他的呼吸。\n林照把纸条压进灯座，潮声第66次盖住他的呼吸。\n林照把纸条压进灯座，潮声第67次盖住他的呼吸。\n林照把纸条压进灯座，潮声第68次盖住他的呼吸。\n林照把纸条压进灯座，潮声第69次盖住他的呼吸。\n林照把纸条压进灯座，潮声第70次盖住他的呼吸。\n林照把纸条压进灯座，潮声第71次盖住他的呼吸。\n林照把纸条压进灯座，潮声第72次盖住他的呼吸。\n林照把纸条压进灯座，潮声第73次盖住他的呼吸。\n林照把纸条压进灯座，潮声第74次盖住他的呼吸。\n林照把纸条压进灯座，潮声第75次盖住他的呼吸。\n林照把纸条压进灯座，潮声第76次盖住他的呼吸。\n林照把纸条压进灯座，潮声第77次盖住他的呼吸。\n林照把纸条压进灯座，潮声第78次盖住他的呼吸。\n林照把纸条压进灯座，潮声第79次盖住他的呼吸。\n林照把纸条压进灯座，潮声第80次盖住他的呼吸。\n林照把纸条压进灯座，潮声第81次盖住他的呼吸。\n林照把纸条压进灯座，潮声第82次盖住他的呼吸。\n【正文交接】\n交接元数据第1条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第2条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第3条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第4条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第5条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第6条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第7条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第8条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第9条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第10条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第11条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第12条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第13条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第14条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第15条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第16条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第17条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第18条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第19条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第20条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第21条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第22条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第23条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第24条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第25条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第26条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第27条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第28条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第29条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第30条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第31条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第32条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第33条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第34条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第35条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第36条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第37条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第38条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第39条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第40条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第41条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第42条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第43条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第44条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第45条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第46条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第47条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第48条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第49条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第50条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第51条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第52条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第53条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第54条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第55条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第56条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第57条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第58条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第59条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第60条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第61条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第62条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第63条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第64条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第65条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第66条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第67条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第68条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第69条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第70条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第71条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第72条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第73条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第74条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第75条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第76条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第77条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第78条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第79条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第80条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第81条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第82条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第83条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第84条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第85条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第86条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第87条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第88条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第89条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第90条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第91条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第92条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第93条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第94条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第95条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第96条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第97条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第98条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第99条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第100条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第101条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第102条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第103条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第104条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第105条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第106条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第107条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第108条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第109条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第110条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第111条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第112条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第113条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第114条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第115条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第116条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第117条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第118条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第119条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第120条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第121条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第122条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第123条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第124条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第125条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第126条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第127条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第128条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第129条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第130条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第131条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第132条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第133条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第134条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第135条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第136条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第137条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第138条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第139条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第140条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第141条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第142条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第143条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第144条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第145条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第146条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第147条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第148条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第149条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第150条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第151条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第152条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第153条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第154条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第155条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第156条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第157条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第158条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第159条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第160条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第161条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第162条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第163条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第164条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第165条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第166条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第167条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第168条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第169条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第170条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第171条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第172条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第173条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第174条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第175条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第176条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第177条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第178条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第179条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第180条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第181条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第182条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第183条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第184条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第185条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第186条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第187条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第188条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第189条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第190条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第191条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第192条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第193条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第194条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第195条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第196条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第197条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第198条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第199条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第200条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第201条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第202条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第203条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第204条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第205条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第206条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第207条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第208条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第209条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第210条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第211条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第212条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第213条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第214条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第215条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第216条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第217条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第218条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第219条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第220条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第221条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第222条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第223条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第224条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第225条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第226条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第227条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第228条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第229条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第230条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第231条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第232条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第233条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第234条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第235条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第236条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第237条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第238条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第239条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第240条：维持灯芯记录的事实锁，不进入正文。\n【正文交接结束】林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条压进灯座，潮声第12次盖住他的呼吸。\n林照把纸条压进灯座，潮声第13次盖住他的呼吸。\n林照把纸条压进灯座，潮声第14次盖住他的呼吸。\n林照把纸条压进灯座，潮声第15次盖住他的呼吸。\n林照把纸条压进灯座，潮声第16次盖住他的呼吸。\n林照把纸条压进灯座，潮声第17次盖住他的呼吸。\n林照把纸条压进灯座，潮声第18次盖住他的呼吸。\n林照把纸条压进灯座，潮声第19次盖住他的呼吸。\n林照把纸条压进灯座，潮声第20次盖住他的呼吸。\n林照把纸条压进灯座，潮声第21次盖住他的呼吸。\n林照把纸条压进灯座，潮声第22次盖住他的呼吸。\n林照把纸条压进灯座，潮声第23次盖住他的呼吸。\n林照把纸条压进灯座，潮声第24次盖住他的呼吸。\n林照把纸条压进灯座，潮声第25次盖住他的呼吸。\n林照把纸条压进灯座，潮声第26次盖住他的呼吸。\n林照把纸条压进灯座，潮声第27次盖住他的呼吸。\n林照把纸条压进灯座，潮声第28次盖住他的呼吸。\n林照把纸条压进灯座，潮声第29次盖住他的呼吸。\n林照把纸条压进灯座，潮声第30次盖住他的呼吸。\n林照把纸条压进灯座，潮声第31次盖住他的呼吸。\n林照把纸条压进灯座，潮声第32次盖住他的呼吸。\n林照把纸条压进灯座，潮声第33次盖住他的呼吸。\n林照把纸条压进灯座，潮声第34次盖住他的呼吸。\n林照把纸条压进灯座，潮声第35次盖住他的呼吸。\n林照把纸条压进灯座，潮声第36次盖住他的呼吸。\n林照把纸条压进灯座，潮声第37次盖住他的呼吸。\n林照把纸条压进灯座，潮声第38次盖住他的呼吸。\n林照把纸条压进灯座，潮声第39次盖住他的呼吸。\n林照把纸条压进灯座，潮声第40次盖住他的呼吸。\n林照把纸条压进灯座，潮声第41次盖住他的呼吸。\n林照把纸条压进灯座，潮声第42次盖住他的呼吸。\n林照把纸条压进灯座，潮声第43次盖住他的呼吸。\n林照把纸条压进灯座，潮声第44次盖住他的呼吸。\n林照把纸条压进灯座，潮声第45次盖住他的呼吸。\n林照把纸条压进灯座，潮声第46次盖住他的呼吸。\n林照把纸条压进灯座，潮声第47次盖住他的呼吸。\n林照把纸条压进灯座，潮声第48次盖住他的呼吸。\n林照把纸条压进灯座，潮声第49次盖住他的呼吸。\n林照把纸条压进灯座，潮声第50次盖住他的呼吸。\n林照把纸条压进灯座，潮声第51次盖住他的呼吸。\n林照把纸条压进灯座，潮声第52次盖住他的呼吸。\n林照把纸条压进灯座，潮声第53次盖住他的呼吸。\n林照把纸条压进灯座，潮声第54次盖住他的呼吸。\n林照把纸条压进灯座，潮声第55次盖住他的呼吸。\n林照把纸条压进灯座，潮声第56次盖住他的呼吸。\n林照把纸条压进灯座，潮声第57次盖住他的呼吸。\n林照把纸条压进灯座，潮声第58次盖住他的呼吸。\n林照把纸条压进灯座，潮声第59次盖住他的呼吸。\n林照把纸条压进灯座，潮声第60次盖住他的呼吸。\n林照把纸条压进灯座，潮声第61次盖住他的呼吸。\n林照把纸条压进灯座，潮声第62次盖住他的呼吸。\n林照把纸条压进灯座，潮声第63次盖住他的呼吸。\n林照把纸条压进灯座，潮声第64次盖住他的呼吸。\n林照把纸条压进灯座，潮声第65次盖住他的呼吸。\n林照把纸条压进灯座，潮声第66次盖住他的呼吸。\n林照把纸条压进灯座，潮声第67次盖住他的呼吸。\n林照把纸条压进灯座，潮声第68次盖住他的呼吸。\n林照把纸条压进灯座，潮声第69次盖住他的呼吸。\n林照把纸条压进灯座，潮声第70次盖住他的呼吸。\n林照把纸条压进灯座，潮声第71次盖住他的呼吸。\n林照把纸条压进灯座，潮声第72次盖住他的呼吸。\n林照把纸条压进灯座，潮声第73次盖住他的呼吸。\n林照把纸条压进灯座，潮声第74次盖住他的呼吸。\n林照把纸条压进灯座，潮声第75次盖住他的呼吸。\n林照把纸条压进灯座，潮声第76次盖住他的呼吸。\n林照把纸条压进灯座，潮声第77次盖住他的呼吸。\n林照把纸条压进灯座，潮声第78次盖住他的呼吸。\n林照把纸条压进灯座，潮声第79次盖住他的呼吸。\n林照把纸条压进灯座，潮声第80次盖住他的呼吸。\n林照把纸条压进灯座，潮声第81次盖住他的呼吸。\n林照把纸条压进灯座，潮声第82次盖住他的呼吸。\n【正文交接】\n交接元数据第1条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第2条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第3条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第4条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第5条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第6条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第7条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第8条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第9条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第10条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第11条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第12条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第13条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第14条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第15条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第16条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第17条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第18条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第19条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第20条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第21条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第22条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第23条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第24条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第25条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第26条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第27条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第28条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第29条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第30条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第31条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第32条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第33条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第34条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第35条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第36条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第37条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第38条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第39条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第40条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第41条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第42条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第43条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第44条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第45条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第46条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第47条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第48条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第49条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第50条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第51条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第52条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第53条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第54条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第55条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第56条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第57条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第58条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第59条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第60条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第61条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第62条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第63条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第64条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第65条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第66条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第67条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第68条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第69条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第70条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第71条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第72条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第73条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第74条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第75条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第76条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第77条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第78条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第79条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第80条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第81条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第82条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第83条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第84条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第85条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第86条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第87条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第88条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第89条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第90条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第91条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第92条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第93条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第94条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第95条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第96条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第97条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第98条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第99条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第100条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第101条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第102条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第103条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第104条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第105条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第106条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第107条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第108条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第109条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第110条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第111条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第112条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第113条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第114条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第115条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第116条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第117条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第118条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第119条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第120条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第121条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第122条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第123条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第124条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第125条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第126条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第127条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第128条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第129条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第130条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第131条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第132条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第133条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第134条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第135条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第136条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第137条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第138条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第139条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第140条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第141条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第142条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第143条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第144条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第145条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第146条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第147条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第148条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第149条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第150条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第151条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第152条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第153条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第154条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第155条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第156条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第157条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第158条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第159条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第160条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第161条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第162条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第163条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第164条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第165条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第166条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第167条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第168条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第169条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第170条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第171条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第172条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第173条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第174条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第175条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第176条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第177条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第178条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第179条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第180条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第181条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第182条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第183条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第184条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第185条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第186条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第187条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第188条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第189条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第190条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第191条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第192条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第193条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第194条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第195条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第196条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第197条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第198条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第199条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第200条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第201条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第202条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第203条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第204条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第205条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第206条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第207条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第208条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第209条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第210条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第211条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第212条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第213条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第214条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第215条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第216条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第217条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第218条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第219条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第220条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第221条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第222条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第223条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第224条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第225条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第226条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第227条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第228条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第229条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第230条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第231条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第232条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第233条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第234条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第235条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第236条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第237条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第238条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第239条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第240条：维持灯芯记录的事实锁，不进入正文。\n【正文交接结束】林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条压进灯座，潮声第12次盖住他的呼吸。\n林照把纸条压进灯座，潮声第13次盖住他的呼吸。\n林照把纸条压进灯座，潮声第14次盖住他的呼吸。\n林照把纸条压进灯座，潮声第15次盖住他的呼吸。\n林照把纸条压进灯座，潮声第16次盖住他的呼吸。\n林照把纸条压进灯座，潮声第17次盖住他的呼吸。\n林照把纸条压进灯座，潮声第18次盖住他的呼吸。\n林照把纸条压进灯座，潮声第19次盖住他的呼吸。\n林照把纸条压进灯座，潮声第20次盖住他的呼吸。\n林照把纸条压进灯座，潮声第21次盖住他的呼吸。\n林照把纸条压进灯座，潮声第22次盖住他的呼吸。\n林照把纸条压进灯座，潮声第23次盖住他的呼吸。\n林照把纸条压进灯座，潮声第24次盖住他的呼吸。\n林照把纸条压进灯座，潮声第25次盖住他的呼吸。\n林照把纸条压进灯座，潮声第26次盖住他的呼吸。\n林照把纸条压进灯座，潮声第27次盖住他的呼吸。\n林照把纸条压进灯座，潮声第28次盖住他的呼吸。\n林照把纸条压进灯座，潮声第29次盖住他的呼吸。\n林照把纸条压进灯座，潮声第30次盖住他的呼吸。\n林照把纸条压进灯座，潮声第31次盖住他的呼吸。\n林照把纸条压进灯座，潮声第32次盖住他的呼吸。\n林照把纸条压进灯座，潮声第33次盖住他的呼吸。\n林照把纸条压进灯座，潮声第34次盖住他的呼吸。\n林照把纸条压进灯座，潮声第35次盖住他的呼吸。\n林照把纸条压进灯座，潮声第36次盖住他的呼吸。\n林照把纸条压进灯座，潮声第37次盖住他的呼吸。\n林照把纸条压进灯座，潮声第38次盖住他的呼吸。\n林照把纸条压进灯座，潮声第39次盖住他的呼吸。\n林照把纸条压进灯座，潮声第40次盖住他的呼吸。\n林照把纸条压进灯座，潮声第41次盖住他的呼吸。\n林照把纸条压进灯座，潮声第42次盖住他的呼吸。\n林照把纸条压进灯座，潮声第43次盖住他的呼吸。\n林照把纸条压进灯座，潮声第44次盖住他的呼吸。\n林照把纸条压进灯座，潮声第45次盖住他的呼吸。\n林照把纸条压进灯座，潮声第46次盖住他的呼吸。\n林照把纸条压进灯座，潮声第47次盖住他的呼吸。\n林照把纸条压进灯座，潮声第48次盖住他的呼吸。\n林照把纸条压进灯座，潮声第49次盖住他的呼吸。\n林照把纸条压进灯座，潮声第50次盖住他的呼吸。\n林照把纸条压进灯座，潮声第51次盖住他的呼吸。\n林照把纸条压进灯座，潮声第52次盖住他的呼吸。\n林照把纸条压进灯座，潮声第53次盖住他的呼吸。\n林照把纸条压进灯座，潮声第54次盖住他的呼吸。\n林照把纸条压进灯座，潮声第55次盖住他的呼吸。\n林照把纸条压进灯座，潮声第56次盖住他的呼吸。\n林照把纸条压进灯座，潮声第57次盖住他的呼吸。\n林照把纸条压进灯座，潮声第58次盖住他的呼吸。\n林照把纸条压进灯座，潮声第59次盖住他的呼吸。\n林照把纸条压进灯座，潮声第60次盖住他的呼吸。\n林照把纸条压进灯座，潮声第61次盖住他的呼吸。\n林照把纸条压进灯座，潮声第62次盖住他的呼吸。\n林照把纸条压进灯座，潮声第63次盖住他的呼吸。\n林照把纸条压进灯座，潮声第64次盖住他的呼吸。\n林照把纸条压进灯座，潮声第65次盖住他的呼吸。\n林照把纸条压进灯座，潮声第66次盖住他的呼吸。\n林照把纸条压进灯座，潮声第67次盖住他的呼吸。\n林照把纸条压进灯座，潮声第68次盖住他的呼吸。\n林照把纸条压进灯座，潮声第69次盖住他的呼吸。\n林照把纸条压进灯座，潮声第70次盖住他的呼吸。\n林照把纸条压进灯座，潮声第71次盖住他的呼吸。\n林照把纸条压进灯座，潮声第72次盖住他的呼吸。\n林照把纸条压进灯座，潮声第73次盖住他的呼吸。\n林照把纸条压进灯座，潮声第74次盖住他的呼吸。\n林照把纸条压进灯座，潮声第75次盖住他的呼吸。\n林照把纸条压进灯座，潮声第76次盖住他的呼吸。\n林照把纸条压进灯座，潮声第77次盖住他的呼吸。\n林照把纸条压进灯座，潮声第78次盖住他的呼吸。\n林照把纸条压进灯座，潮声第79次盖住他的呼吸。\n林照把纸条压进灯座，潮声第80次盖住他的呼吸。\n林照把纸条压进灯座，潮声第81次盖住他的呼吸。\n林照把纸条压进灯座，潮声第82次盖住他的呼吸。\n【正文交接】\n交接元数据第1条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第2条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第3条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第4条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第5条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第6条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第7条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第8条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第9条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第10条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第11条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第12条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第13条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第14条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第15条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第16条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第17条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第18条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第19条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第20条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第21条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第22条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第23条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第24条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第25条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第26条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第27条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第28条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第29条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第30条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第31条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第32条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第33条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第34条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第35条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第36条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第37条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第38条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第39条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第40条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第41条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第42条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第43条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第44条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第45条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第46条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第47条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第48条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第49条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第50条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第51条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第52条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第53条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第54条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第55条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第56条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第57条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第58条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第59条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第60条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第61条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第62条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第63条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第64条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第65条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第66条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第67条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第68条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第69条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第70条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第71条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第72条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第73条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第74条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第75条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第76条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第77条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第78条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第79条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第80条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第81条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第82条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第83条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第84条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第85条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第86条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第87条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第88条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第89条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第90条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第91条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第92条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第93条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第94条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第95条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第96条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第97条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第98条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第99条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第100条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第101条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第102条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第103条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第104条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第105条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第106条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第107条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第108条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第109条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第110条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第111条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第112条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第113条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第114条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第115条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第116条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第117条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第118条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第119条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第120条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第121条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第122条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第123条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第124条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第125条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第126条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第127条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第128条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第129条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第130条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第131条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第132条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第133条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第134条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第135条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第136条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第137条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第138条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第139条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第140条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第141条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第142条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第143条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第144条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第145条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第146条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第147条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第148条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第149条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第150条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第151条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第152条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第153条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第154条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第155条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第156条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第157条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第158条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第159条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第160条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第161条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第162条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第163条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第164条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第165条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第166条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第167条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第168条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第169条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第170条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第171条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第172条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第173条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第174条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第175条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第176条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第177条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第178条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第179条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第180条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第181条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第182条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第183条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第184条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第185条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第186条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第187条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第188条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第189条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第190条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第191条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第192条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第193条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第194条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第195条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第196条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第197条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第198条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第199条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第200条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第201条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第202条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第203条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第204条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第205条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第206条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第207条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第208条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第209条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第210条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第211条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第212条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第213条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第214条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第215条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第216条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第217条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第218条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第219条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第220条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第221条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第222条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第223条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第224条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第225条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第226条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第227条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第228条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第229条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第230条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第231条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第232条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第233条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第234条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第235条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第236条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第237条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第238条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第239条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第240条：维持灯芯记录的事实锁，不进入正文。\n【正文交接结束】林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条压进灯座，潮声第12次盖住他的呼吸。\n林照把纸条压进灯座，潮声第13次盖住他的呼吸。\n林照把纸条压进灯座，潮声第14次盖住他的呼吸。\n林照把纸条压进灯座，潮声第15次盖住他的呼吸。\n林照把纸条压进灯座，潮声第16次盖住他的呼吸。\n林照把纸条压进灯座，潮声第17次盖住他的呼吸。\n林照把纸条压进灯座，潮声第18次盖住他的呼吸。\n林照把纸条压进灯座，潮声第19次盖住他的呼吸。\n林照把纸条压进灯座，潮声第20次盖住他的呼吸。\n林照把纸条压进灯座，潮声第21次盖住他的呼吸。\n林照把纸条压进灯座，潮声第22次盖住他的呼吸。\n林照把纸条压进灯座，潮声第23次盖住他的呼吸。\n林照把纸条压进灯座，潮声第24次盖住他的呼吸。\n林照把纸条压进灯座，潮声第25次盖住他的呼吸。\n林照把纸条压进灯座，潮声第26次盖住他的呼吸。\n林照把纸条压进灯座，潮声第27次盖住他的呼吸。\n林照把纸条压进灯座，潮声第28次盖住他的呼吸。\n林照把纸条压进灯座，潮声第29次盖住他的呼吸。\n林照把纸条压进灯座，潮声第30次盖住他的呼吸。\n林照把纸条压进灯座，潮声第31次盖住他的呼吸。\n林照把纸条压进灯座，潮声第32次盖住他的呼吸。\n林照把纸条压进灯座，潮声第33次盖住他的呼吸。\n林照把纸条压进灯座，潮声第34次盖住他的呼吸。\n林照把纸条压进灯座，潮声第35次盖住他的呼吸。\n林照把纸条压进灯座，潮声第36次盖住他的呼吸。\n林照把纸条压进灯座，潮声第37次盖住他的呼吸。\n林照把纸条压进灯座，潮声第38次盖住他的呼吸。\n林照把纸条压进灯座，潮声第39次盖住他的呼吸。\n林照把纸条压进灯座，潮声第40次盖住他的呼吸。\n林照把纸条压进灯座，潮声第41次盖住他的呼吸。\n林照把纸条压进灯座，潮声第42次盖住他的呼吸。\n林照把纸条压进灯座，潮声第43次盖住他的呼吸。\n林照把纸条压进灯座，潮声第44次盖住他的呼吸。\n林照把纸条压进灯座，潮声第45次盖住他的呼吸。\n林照把纸条压进灯座，潮声第46次盖住他的呼吸。\n林照把纸条压进灯座，潮声第47次盖住他的呼吸。\n林照把纸条压进灯座，潮声第48次盖住他的呼吸。\n林照把纸条压进灯座，潮声第49次盖住他的呼吸。\n林照把纸条压进灯座，潮声第50次盖住他的呼吸。\n林照把纸条压进灯座，潮声第51次盖住他的呼吸。\n林照把纸条压进灯座，潮声第52次盖住他的呼吸。\n林照把纸条压进灯座，潮声第53次盖住他的呼吸。\n林照把纸条压进灯座，潮声第54次盖住他的呼吸。\n林照把纸条压进灯座，潮声第55次盖住他的呼吸。\n林照把纸条压进灯座，潮声第56次盖住他的呼吸。\n林照把纸条压进灯座，潮声第57次盖住他的呼吸。\n林照把纸条压进灯座，潮声第58次盖住他的呼吸。\n林照把纸条压进灯座，潮声第59次盖住他的呼吸。\n林照把纸条压进灯座，潮声第60次盖住他的呼吸。\n林照把纸条压进灯座，潮声第61次盖住他的呼吸。\n林照把纸条压进灯座，潮声第62次盖住他的呼吸。\n林照把纸条压进灯座，潮声第63次盖住他的呼吸。\n林照把纸条压进灯座，潮声第64次盖住他的呼吸。\n林照把纸条压进灯座，潮声第65次盖住他的呼吸。\n林照把纸条压进灯座，潮声第66次盖住他的呼吸。\n林照把纸条压进灯座，潮声第67次盖住他的呼吸。\n林照把纸条压进灯座，潮声第68次盖住他的呼吸。\n林照把纸条压进灯座，潮声第69次盖住他的呼吸。\n林照把纸条压进灯座，潮声第70次盖住他的呼吸。\n林照把纸条压进灯座，潮声第71次盖住他的呼吸。\n林照把纸条压进灯座，潮声第72次盖住他的呼吸。\n林照把纸条压进灯座，潮声第73次盖住他的呼吸。\n林照把纸条压进灯座，潮声第74次盖住他的呼吸。\n林照把纸条压进灯座，潮声第75次盖住他的呼吸。\n林照把纸条压进灯座，潮声第76次盖住他的呼吸。\n林照把纸条压进灯座，潮声第77次盖住他的呼吸。\n林照把纸条压进灯座，潮声第78次盖住他的呼吸。\n林照把纸条压进灯座，潮声第79次盖住他的呼吸。\n林照把纸条压进灯座，潮声第80次盖住他的呼吸。\n林照把纸条压进灯座，潮声第81次盖住他的呼吸。\n林照把纸条压进灯座，潮声第82次盖住他的呼吸。\n【正文交接】\n交接元数据第1条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第2条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第3条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第4条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第5条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第6条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第7条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第8条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第9条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第10条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第11条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第12条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第13条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第14条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第15条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第16条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第17条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第18条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第19条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第20条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第21条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第22条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第23条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第24条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第25条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第26条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第27条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第28条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第29条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第30条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第31条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第32条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第33条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第34条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第35条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第36条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第37条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第38条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第39条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第40条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第41条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第42条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第43条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第44条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第45条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第46条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第47条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第48条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第49条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第50条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第51条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第52条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第53条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第54条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第55条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第56条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第57条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第58条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第59条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第60条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第61条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第62条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第63条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第64条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第65条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第66条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第67条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第68条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第69条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第70条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第71条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第72条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第73条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第74条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第75条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第76条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第77条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第78条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第79条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第80条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第81条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第82条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第83条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第84条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第85条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第86条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第87条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第88条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第89条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第90条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第91条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第92条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第93条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第94条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第95条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第96条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第97条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第98条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第99条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第100条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第101条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第102条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第103条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第104条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第105条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第106条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第107条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第108条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第109条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第110条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第111条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第112条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第113条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第114条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第115条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第116条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第117条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第118条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第119条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第120条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第121条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第122条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第123条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第124条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第125条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第126条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第127条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第128条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第129条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第130条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第131条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第132条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第133条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第134条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第135条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第136条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第137条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第138条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第139条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第140条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第141条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第142条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第143条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第144条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第145条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第146条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第147条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第148条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第149条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第150条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第151条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第152条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第153条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第154条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第155条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第156条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第157条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第158条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第159条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第160条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第161条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第162条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第163条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第164条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第165条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第166条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第167条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第168条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第169条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第170条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第171条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第172条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第173条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第174条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第175条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第176条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第177条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第178条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第179条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第180条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第181条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第182条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第183条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第184条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第185条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第186条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第187条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第188条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第189条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第190条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第191条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第192条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第193条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第194条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第195条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第196条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第197条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第198条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第199条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第200条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第201条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第202条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第203条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第204条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第205条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第206条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第207条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第208条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第209条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第210条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第211条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第212条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第213条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第214条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第215条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第216条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第217条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第218条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第219条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第220条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第221条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第222条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第223条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第224条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第225条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第226条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第227条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第228条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第229条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第230条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第231条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第232条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第233条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第234条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第235条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第236条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第237条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第238条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第239条：维持灯芯记录的事实锁，不进入正文。\n交接元数据第240条：维持灯芯记录的事实锁，不进入正文。\n【正文交接结束】",
       "reasoningText": "",
       "status": "degraded",
-      "startedAt": 1792606949567,
+      "startedAt": 1792639986280,
       "physicalCalls": [
         {
-          "id": "physical-1792606949581-36",
-          "physicalCallId": "physical-1792606949580-0",
+          "id": "physical-1792639986284-37",
+          "physicalCallId": "physical-1792639986283-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -796,11 +845,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792606949581,
-          "durationMs": 15,
-          "firstTokenMs": 11,
-          "outputMs": 4,
-          "endedAt": 1792606949596,
+          "startedAt": 1792639986284,
+          "durationMs": 14,
+          "firstTokenMs": 12,
+          "outputMs": 2,
+          "endedAt": 1792639986298,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -815,13 +864,13 @@
             "driftRatio": -0.9730458221024259,
             "correctedRatio": 0.026954177897574125
           },
-          "firstContentAt": 1792606949592,
-          "lastContentAt": 1792606949592,
+          "firstContentAt": 1792639986296,
+          "lastContentAt": 1792639986296,
           "heartbeat": false
         },
         {
-          "id": "physical-1792606949615-44",
-          "physicalCallId": "physical-1792606949615-0",
+          "id": "physical-1792639986306-46",
+          "physicalCallId": "physical-1792639986305-0",
           "seq": 2,
           "phase": "schema_retry",
           "status": "success",
@@ -845,11 +894,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792606949615,
-          "durationMs": 11,
-          "firstTokenMs": 9,
+          "startedAt": 1792639986306,
+          "durationMs": 9,
+          "firstTokenMs": 7,
           "outputMs": 2,
-          "endedAt": 1792606949626,
+          "endedAt": 1792639986315,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -864,13 +913,13 @@
             "driftRatio": -0.9832214765100671,
             "correctedRatio": 0.016778523489932886
           },
-          "firstContentAt": 1792606949624,
-          "lastContentAt": 1792606949624,
+          "firstContentAt": 1792639986313,
+          "lastContentAt": 1792639986313,
           "heartbeat": false
         },
         {
-          "id": "physical-1792606949641-51",
-          "physicalCallId": "physical-1792606949641-0",
+          "id": "physical-1792639986321-54",
+          "physicalCallId": "physical-1792639986321-0",
           "seq": 3,
           "phase": "schema_retry",
           "status": "success",
@@ -894,11 +943,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792606949641,
-          "durationMs": 14,
-          "firstTokenMs": 12,
+          "startedAt": 1792639986321,
+          "durationMs": 10,
+          "firstTokenMs": 8,
           "outputMs": 2,
-          "endedAt": 1792606949656,
+          "endedAt": 1792639986331,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -913,27 +962,27 @@
             "driftRatio": -0.9832214765100671,
             "correctedRatio": 0.016778523489932886
           },
-          "firstContentAt": 1792606949653,
-          "lastContentAt": 1792606949653,
+          "firstContentAt": 1792639986329,
+          "lastContentAt": 1792639986329,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792606949657,
-      "lastStreamActivityAt": 1792606949657,
-      "durationMs": 100,
+      "lastExecutionActivityAt": 1792639986330,
+      "lastStreamActivityAt": 1792639986330,
+      "durationMs": 58,
       "timingLedger": {
         "physicalCallCount": 3,
         "retryPhysicalCallCount": 2,
-        "physicalDurationSumMs": 40,
-        "firstTokenSumMs": 32,
-        "outputSumMs": 8,
-        "minFirstTokenMs": 9,
+        "physicalDurationSumMs": 33,
+        "firstTokenSumMs": 27,
+        "outputSumMs": 6,
+        "minFirstTokenMs": 7,
         "maxFirstTokenMs": 12,
-        "localOverheadMs": 60,
-        "requestBuildMs": 1,
+        "localOverheadMs": 25,
+        "requestBuildMs": 0,
         "schemaValidateMs": 0,
         "retryMs": 0,
-        "postProcessMs": 39,
+        "postProcessMs": 15,
         "schemaRetryCount": 2,
         "repeatedPromptBlocks": {
           "[已生成卷事实清单]": 0,
@@ -944,22 +993,22 @@
         }
       },
       "error": "folder SKILL 降级完成，已保留可用输出",
-      "endedAt": 1792606949667
+      "endedAt": 1792639986338
     }
   ],
   "sessionKind": "task",
   "promptSnapshots": [],
   "processingReports": [
     {
-      "id": "processing-1792606949548-25",
+      "id": "processing-1792639986270-26",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
       "inputPreview": "[单元闭包卷纲]\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，林照检查灯塔底层的纸条，并确认风暴信标的三次红色闪烁。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，林照检查灯塔底层的纸条，并确认风暴信标的三次红色闪烁。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查灯塔底层的纸条，并确认风暴信标的三次红色闪烁。\n\n请执行本章节的正文生成链路。",
       "outputPreview": "林照进入灯塔，发现纸条藏在灯座下。\n他听见门外巡逻声，把纸条压进掌心。\n他在窗边确认风暴信标闪烁三次，决定天亮前离港。",
       "output": "林照进入灯塔，发现纸条藏在灯座下。\n他听见门外巡逻声，把纸条压进掌心。\n他在窗边确认风暴信标闪烁三次，决定天亮前离港。",
-      "startedAt": 1792606949548,
-      "endedAt": 1792606949548,
+      "startedAt": 1792639986270,
+      "endedAt": 1792639986270,
       "durationMs": 0
     }
   ],
@@ -974,13 +1023,13 @@
           "type": "info",
           "code": "folder-template-priority",
           "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
-          "at": "2026-10-21T18:22:29.473Z"
+          "at": "2026-10-22T03:33:06.224Z"
         },
         {
           "type": "info",
           "code": "folder-template-variables-missing",
           "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
-          "at": "2026-10-21T18:22:29.474Z"
+          "at": "2026-10-22T03:33:06.224Z"
         }
       ],
       "folderPackageCache": true,
@@ -989,7 +1038,7 @@
         "changedOutput": false,
         "output": "林照进入灯塔，发现纸条藏在灯座下。\n他听见门外巡逻声，把纸条压进掌心。\n他在窗边确认风暴信标闪烁三次，决定天亮前离港。",
         "issues": [],
-        "durationMs": 7
+        "durationMs": 3
       },
       "apiMeta": {
         "finishReason": "stop",
@@ -1045,10 +1094,10 @@
           }
         ],
         "timingLedger": {
-          "requestBuildMs": 2,
+          "requestBuildMs": 0,
           "schemaValidateMs": 0,
           "retryMs": 0,
-          "postProcessMs": 7,
+          "postProcessMs": 3,
           "schemaRetryCount": 0,
           "repeatedPromptBlocks": {
             "[已生成卷事实清单]": 0,
@@ -1057,7 +1106,8 @@
             "[style reference]": 1,
             "[上一步 SKILL 完整输出]": 0
           }
-        }
+        },
+        "retainedCandidateIndex": 1
       }
     },
     {
@@ -1074,55 +1124,61 @@
           "type": "info",
           "code": "folder-template-priority",
           "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
-          "at": "2026-10-21T18:22:29.579Z"
+          "at": "2026-10-22T03:33:06.283Z"
         },
         {
           "type": "info",
           "code": "folder-template-variables-missing",
           "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
-          "at": "2026-10-21T18:22:29.579Z"
+          "at": "2026-10-22T03:33:06.283Z"
         },
         {
           "type": "error",
           "code": "post-process-issue:intentional-degraded",
           "message": "[blocking] 正文交接缺少NEW_FACT事实锁",
-          "at": "2026-10-21T18:22:29.613Z"
+          "at": "2026-10-22T03:33:06.304Z"
         },
         {
           "type": "warning",
           "code": "post-process-validation-failed",
           "message": "尝试 1/3：正文交接缺少NEW_FACT事实锁",
-          "at": "2026-10-21T18:22:29.614Z"
+          "at": "2026-10-22T03:33:06.305Z"
         },
         {
           "type": "error",
           "code": "post-process-issue:intentional-degraded",
           "message": "[blocking] 正文交接缺少NEW_FACT事实锁",
-          "at": "2026-10-21T18:22:29.639Z"
+          "at": "2026-10-22T03:33:06.320Z"
         },
         {
           "type": "warning",
           "code": "post-process-validation-failed",
           "message": "尝试 2/3：正文交接缺少NEW_FACT事实锁",
-          "at": "2026-10-21T18:22:29.640Z"
+          "at": "2026-10-22T03:33:06.320Z"
         },
         {
           "type": "error",
           "code": "post-process-issue:intentional-degraded",
           "message": "[blocking] 正文交接缺少NEW_FACT事实锁",
-          "at": "2026-10-21T18:22:29.665Z"
+          "at": "2026-10-22T03:33:06.335Z"
         },
         {
           "type": "warning",
           "code": "post-process-validation-failed",
           "message": "尝试 3/3：正文交接缺少NEW_FACT事实锁",
-          "at": "2026-10-21T18:22:29.666Z"
+          "at": "2026-10-22T03:33:06.336Z"
+        },
+        {
+          "type": "warning",
+          "code": "schema-validation-best-candidate-retained",
+          "message": "重试耗尽后保留第 1/3 次候选（1 项失败）",
+          "at": "2026-10-22T03:33:06.336Z"
         },
         {
           "type": "error",
           "code": "schema-validation-exhausted",
           "message": "输出未通过校验，已达最大尝试次数",
-          "at": "2026-10-21T18:22:29.666Z"
+          "at": "2026-10-22T03:33:06.336Z"
         }
       ],
       "folderPackageCache": true,
@@ -1137,7 +1193,7 @@
             "message": "正文交接缺少NEW_FACT事实锁"
           }
         ],
-        "durationMs": 9
+        "durationMs": 4
       },
       "apiMeta": {
         "reasoningText": "",
@@ -1196,10 +1252,10 @@
           }
         ],
         "timingLedger": {
-          "requestBuildMs": 1,
+          "requestBuildMs": 0,
           "schemaValidateMs": 0,
           "retryMs": 0,
-          "postProcessMs": 39,
+          "postProcessMs": 15,
           "schemaRetryCount": 2,
           "repeatedPromptBlocks": {
             "[已生成卷事实清单]": 0,
@@ -1208,23 +1264,24 @@
             "[style reference]": 1,
             "[上一步 SKILL 完整输出]": 0
           }
-        }
+        },
+        "retainedCandidateIndex": 1
       }
     }
   ],
-  "dirName": "run-trace-正文层-20261022-022229",
+  "dirName": "run-trace-正文层-20261022-113305",
   "timingLedger": {
     "apiCallCount": 2,
     "physicalCallCount": 4,
     "retryPhysicalCallCount": 2,
-    "physicalDurationSumMs": 91,
-    "firstTokenSumMs": 79,
-    "outputSumMs": 12,
-    "localOverheadSumMs": 296,
-    "requestBuildSumMs": 3,
+    "physicalDurationSumMs": 66,
+    "firstTokenSumMs": 55,
+    "outputSumMs": 11,
+    "localOverheadSumMs": 205,
+    "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
-    "postProcessSumMs": 46,
+    "postProcessSumMs": 18,
     "repeatedPromptBlocks": {
       "[已生成卷事实清单]": 0,
       "[全书大纲]": 0,
@@ -1234,14 +1291,14 @@
     }
   },
   "stepTimingLedger": {
-    "promptBuildMs": 3,
+    "promptBuildMs": 0,
     "apiCallCount": 2,
     "physicalCallCount": 4,
     "retryCallCount": 2,
     "schemaRetryCallCount": 2,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 79,
-    "outputSumMs": 12,
+    "firstTokenSumMs": 55,
+    "outputSumMs": 11,
     "postProcessSumMs": 0,
     "repeatedPromptBlocks": {
       "[已生成卷事实清单]": 0,
@@ -1252,8 +1309,8 @@
     },
     "contextChars": 4448,
     "outputChars": 8885,
-    "physicalDurationSumMs": 91
+    "physicalDurationSumMs": 66
   },
-  "endedAt": 1792606949699,
-  "durationMs": 499
+  "endedAt": 1792639986357,
+  "durationMs": 360
 }

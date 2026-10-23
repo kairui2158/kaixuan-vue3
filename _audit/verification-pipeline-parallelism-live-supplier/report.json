@@ -1,0 +1,316 @@
+{
+  "script": "verify-pipeline-parallelism-electron.mjs",
+  "at": "2026-10-23T18:08:49.333Z",
+  "result": "PASS",
+  "concurrentSnapshot": {
+    "at": 1792778151321,
+    "volumes": null,
+    "chapters": {
+      "runId": "pipeline-run-1792778151195-2",
+      "status": "running",
+      "progress": 50,
+      "statusText": "已获得供应商槽位，正在请求供应商"
+    },
+    "body": {
+      "runId": "pipeline-run-1792778151299-3",
+      "status": "running",
+      "progress": 10,
+      "statusText": "AI生成正文中"
+    },
+    "allRuns": [
+      {
+        "runId": "pipeline-run-1792778150982-1",
+        "layer": "volumes",
+        "target": "all",
+        "status": "running",
+        "progress": 10
+      },
+      {
+        "runId": "pipeline-run-1792778151195-2",
+        "layer": "chapters",
+        "target": "vol-parallelism",
+        "status": "running",
+        "progress": 50
+      },
+      {
+        "runId": "pipeline-run-1792778151299-3",
+        "layer": "body",
+        "target": "ch-parallelism-1",
+        "status": "running",
+        "progress": 10
+      }
+    ],
+    "chapterCount": 1,
+    "traceRuns": [
+      {
+        "id": "run-1792778151299-28",
+        "pipelineRunId": "pipeline-run-1792778151299-3",
+        "step": 4,
+        "status": "running",
+        "apiCalls": 0,
+        "providerQueueEvents": 0
+      },
+      {
+        "id": "run-1792778151195-14",
+        "pipelineRunId": "pipeline-run-1792778151195-2",
+        "step": 3,
+        "status": "running",
+        "apiCalls": 1,
+        "providerQueueEvents": 1
+      },
+      {
+        "id": "run-1792778150983-1",
+        "pipelineRunId": "pipeline-run-1792778150982-1",
+        "step": 2,
+        "status": "running",
+        "apiCalls": 1,
+        "providerQueueEvents": 1
+      }
+    ]
+  },
+  "cancelTiming": {
+    "clickToCanceledMs": 93
+  },
+  "terminalSnapshot": {
+    "at": 1792778631208,
+    "volumes": null,
+    "chapters": {
+      "runId": "pipeline-run-1792778151195-2",
+      "status": "canceled",
+      "progress": 50,
+      "statusText": "canceled"
+    },
+    "body": {
+      "runId": "pipeline-run-1792778151299-3",
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded"
+    },
+    "allRuns": [
+      {
+        "runId": "pipeline-run-1792778150982-1",
+        "layer": "volumes",
+        "target": "all",
+        "status": "succeeded",
+        "progress": 100
+      },
+      {
+        "runId": "pipeline-run-1792778151195-2",
+        "layer": "chapters",
+        "target": "vol-parallelism",
+        "status": "canceled",
+        "progress": 50
+      },
+      {
+        "runId": "pipeline-run-1792778151299-3",
+        "layer": "body",
+        "target": "ch-parallelism-1",
+        "status": "succeeded",
+        "progress": 100
+      }
+    ],
+    "chapterCount": 1,
+    "traceRuns": [
+      {
+        "id": "run-1792778151299-28",
+        "pipelineRunId": "pipeline-run-1792778151299-3",
+        "step": 4,
+        "status": "success",
+        "apiCalls": 3,
+        "providerQueueEvents": 1
+      },
+      {
+        "id": "run-1792778151195-14",
+        "pipelineRunId": "pipeline-run-1792778151195-2",
+        "step": 3,
+        "status": "canceled",
+        "apiCalls": 1,
+        "providerQueueEvents": 1
+      },
+      {
+        "id": "run-1792778150983-1",
+        "pipelineRunId": "pipeline-run-1792778150982-1",
+        "step": 2,
+        "status": "success",
+        "apiCalls": 1,
+        "providerQueueEvents": 1
+      }
+    ]
+  },
+  "providerMetrics": {
+    "requestCount": 8,
+    "successCount": 7,
+    "maxConcurrency": 2,
+    "overlappedPairs": [
+      [
+        "volumes",
+        "body"
+      ]
+    ],
+    "byLayer": {
+      "volumes": 1,
+      "chapters": 1,
+      "body": 6
+    },
+    "durations": [
+      {
+        "layer": "volumes",
+        "status": "success",
+        "durationMs": 49635
+      },
+      {
+        "layer": "chapters",
+        "status": "canceled",
+        "durationMs": 202
+      },
+      {
+        "layer": "body",
+        "status": "success",
+        "durationMs": 54084
+      },
+      {
+        "layer": "body",
+        "status": "success",
+        "durationMs": 219519
+      },
+      {
+        "layer": "body",
+        "status": "success",
+        "durationMs": 204728
+      },
+      {
+        "layer": "body",
+        "status": "success",
+        "durationMs": 60857
+      },
+      {
+        "layer": "body",
+        "status": "success",
+        "durationMs": 126790
+      },
+      {
+        "layer": "body",
+        "status": "success",
+        "durationMs": 109241
+      }
+    ]
+  },
+  "performance": {
+    "longTaskCount": 0,
+    "freezeCount": 0,
+    "clickFeedbackCount": 3,
+    "slowClickFeedbackCount": 0,
+    "withinBudget": true,
+    "thresholds": {
+      "longTaskThresholdMs": 200,
+      "freezeThresholdMs": 2000,
+      "clickFeedbackBudgetMs": 100
+    },
+    "events": [
+      {
+        "kind": "click-feedback",
+        "startTime": 1792778150982,
+        "durationMs": 0,
+        "label": "pipeline-run-start:volumes"
+      },
+      {
+        "kind": "click-feedback",
+        "startTime": 1792778151195,
+        "durationMs": 0,
+        "label": "pipeline-run-start:chapters"
+      },
+      {
+        "kind": "click-feedback",
+        "startTime": 1792778151299,
+        "durationMs": 0,
+        "label": "pipeline-run-start:body"
+      }
+    ]
+  },
+  "traces": {
+    "volume": {
+      "runId": "run-1792778150983-1",
+      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261024-015550-deep",
+      "status": "success"
+    },
+    "chapter": {
+      "runId": "run-1792778151195-14",
+      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-章节层-20261024-015551-deep",
+      "status": "canceled"
+    },
+    "body": {
+      "runId": "run-1792778151299-28",
+      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261024-015551-deep",
+      "status": "success"
+    }
+  },
+  "reentry": {
+    "previousBodyRunId": "pipeline-run-1792778151299-3",
+    "newBodyRunId": "pipeline-run-1792778631897-4",
+    "previousBodyHash": "91851c276cea8599cc46295fa590ccd6d31b8507958bebddb0b5102b594aca64",
+    "newBodyHash": "e7002a9869cd3103e6289d29320868ba0cbf674a821387afab5d6bda0b4b586a",
+    "newBodyChars": 4622,
+    "bodyPhysicalRequests": {
+      "before": 3,
+      "after": 6
+    }
+  },
+  "breakpointReentry": null,
+  "failedTerminalReentry": null,
+  "keyLeakCheck": {
+    "checkedFiles": [
+      "report.json",
+      "electron-run.log",
+      "heartbeat.jsonl",
+      "_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261024-015550-deep\\run-trace.json",
+      "_data\\pipeline-parallelism-exports\\run-trace-章节层-20261024-015551-deep\\run-trace.json",
+      "_data\\pipeline-parallelism-exports\\run-trace-正文层-20261024-015551-deep\\run-trace.json"
+    ],
+    "checkedEncryptedKeyCount": 1,
+    "plaintextPatternFound": false
+  },
+  "mode": "live-supplier",
+  "summary": {
+    "runs": [
+      {
+        "runId": "pipeline-run-1792778150982-1",
+        "layer": "volumes",
+        "target": "all",
+        "status": "succeeded",
+        "progress": 100
+      },
+      {
+        "runId": "pipeline-run-1792778151195-2",
+        "layer": "chapters",
+        "target": "vol-parallelism",
+        "status": "canceled",
+        "progress": 50
+      },
+      {
+        "runId": "pipeline-run-1792778151299-3",
+        "layer": "body",
+        "target": "ch-parallelism-1",
+        "status": "succeeded",
+        "progress": 100
+      },
+      {
+        "runId": "pipeline-run-1792778631897-4",
+        "layer": "body",
+        "target": "ch-parallelism-1",
+        "status": "succeeded",
+        "progress": 100
+      }
+    ],
+    "chapterBodyChars": 4622,
+    "volumeCount": 2,
+    "chapterCount": 1
+  },
+  "coverage": {
+    "freshStart": true,
+    "successfulTerminalReentry": true,
+    "canceledRunIsolation": true,
+    "breakpointReentry": false,
+    "failedTerminalReentry": false,
+    "note": "live 供应商矩阵覆盖真实 UI 启动、三层并发、取消隔离、成功终态再入；断点/失败终态再入由 mock 报告保留为可注入故障的互补证据。"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "shenyi.body-contract-degraded.electron",
+  "version": 1,
+  "generatedAt": "2026-10-21T18:22:32.163Z",
+  "script": "verify-body-contract-degraded-electron.mjs",
+  "projectId": "body-contract-degraded-gate",
+  "chapterId": "ch-body-contract-degraded",
+  "targetWords": 3500,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "0b9776d23e9b",
+    "buildTime": "2026-10-21T18:17:37.709Z"
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realDropdownSelection": "#pl-s5-skill / #pl-s5-add-skill / #pl-s5-skills-list",
+    "noInjectionImpersonation": true,
+    "physicalRequestSequenceAsserted": true
+  },
+  "scenarios": {
+    "reject-before-s3": {
+      "status": "failed",
+      "runId": "run-1792606949199-1",
+      "requestCount": 4,
+      "extractedWordCount": 1640,
+      "rejectReason": "degraded_plus_contract_failure"
+    },
+    "accept-and-extract": {
+      "status": "success",
+      "runId": "run-1792606950176-68",
+      "requestCount": 5,
+      "extractedWordCount": 2800,
+      "s3ReceivesExtractedFace": true,
+      "s3ReceivesStructuredHandoff": true,
+      "s2SchemaRetryPhases": 2,
+      "timingLedgerConsistency": "call/run/step same-source sums"
+    },
+    "ledger-missing-terminal": {
+      "status": "failed",
+      "runId": "run-1792606951345-161",
+      "requestCount": 4,
+      "extractedWordCount": 2800,
+      "terminalEvent": "body-generator-ledger-missing",
+      "terminalStepCalled": false,
+      "bodyPersisted": false
+    }
+  },
+  "heartbeatFrames": 4,
+  "heartbeatDurationMs": 3885
+}

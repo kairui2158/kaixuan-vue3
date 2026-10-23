@@ -1,19 +1,19 @@
 {
   "schema": "shenyi.contract-semantics.electron",
   "version": 1,
-  "generatedAt": "2026-10-13T22:58:05.004Z",
+  "generatedAt": "2026-10-22T03:33:36.614Z",
   "script": "verify-contract-semantics-electron.mjs",
   "cases": [
     {
       "case": "normal_progression_does_not_flag_contract",
-      "runId": "run-1791932293832-1",
+      "runId": "run-1792640025185-1",
       "status": "success",
       "contractReviewStatus": "contract_safe",
       "requestCount": 1
     },
     {
       "case": "early_reveal_is_reported_without_blocking",
-      "runId": "run-1791932305364-1",
+      "runId": "run-1792640034441-1",
       "status": "success",
       "contractReviewStatus": "contract_broken",
       "requestCount": 1
