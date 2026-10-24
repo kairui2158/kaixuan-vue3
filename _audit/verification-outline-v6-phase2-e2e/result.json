@@ -1,0 +1,66 @@
+{
+  "schema": "shenyi.outline-v6-phase2-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-24T02:38:35.303Z",
+  "script": "verify-outline-v6-phase2-e2e.mjs",
+  "projectId": "outline-v6-phase2-project",
+  "migration": {
+    "messageCount": 2,
+    "backupPath": "D:\\codex\\novel-workshop-vue3\\_data\\outline-v6-phase2-profile\\documents-data\\outline-journal_outline-v6-phase2-project.json.legacy-bak",
+    "projectMainFileContainsOutlineChat": false
+  },
+  "virtualization": {
+    "total": 400,
+    "rendered": 23,
+    "firstMessageId": "virtual-msg-1",
+    "copiedTextLength": 17,
+    "rollbackStatus": "rolled_back"
+  },
+  "backup": {
+    "journalKey": "outline-journal_outline-v6-phase2-project",
+    "invalidImportRejected": true,
+    "validRestoreThenAppend": true
+  },
+  "persistenceFailure": {
+    "visibleError": true,
+    "retryQueuePreserved": true,
+    "recoveredAfterAck": true
+  },
+  "restart": {
+    "beforeCount": 7,
+    "afterCount": 7,
+    "storeCount": 7
+  },
+  "providerRequests": [
+    {
+      "seq": 1,
+      "url": "/v1/chat/completions",
+      "model": "outline-v6-phase2-model",
+      "messageCount": 5,
+      "toolCount": 16,
+      "intentFallback": false,
+      "agentRuntime": false,
+      "hasUserRequest": true,
+      "firstUserPreview": "请整理这份大纲"
+    }
+  ],
+  "assertions": {
+    "legacyMigrationPreservedMessages": true,
+    "projectMainFileSlimmed": true,
+    "legacyBackupPreservedOriginalArray": true,
+    "realAppendAndImmediateFlush": true,
+    "pendingIndicatorAppearsAndClears": true,
+    "virtualizedCopyInsertScrollRollbackWork": true,
+    "backupContainsJournalKey": true,
+    "invalidBackupRejectedWithoutHalfWrite": true,
+    "validRestoreThenAppendNoRegression": true,
+    "failureIndicatorPersistsUntilAck": true,
+    "reloadKeepsAllMessagesAndIds": true
+  },
+  "providerRequestAudit": {
+    "totalRequests": 1,
+    "userTurnRequests": 1,
+    "intentFallbackRequests": 0,
+    "requestsWithTools": 1
+  }
+}

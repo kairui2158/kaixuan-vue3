@@ -25,6 +25,25 @@ var ipcHandlersRegistered = false
 var windowStateSaveTimers = new Map() // win.id -> debounce timer
 var rendererResourceSamplers = new Map() // win.id -> interval timer
 
+function ensurePopupPreload(win) {
+  if (!win) return
+  win.webContents.setWindowOpenHandler(function(details) {
+    var targetUrl = details.url || ''
+    if (!/^file:\/\//i.test(targetUrl)) return { action: 'deny' }
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        webPreferences: {
+          preload: path.join(__dirname, 'preload.js'),
+          contextIsolation: true,
+          nodeIntegration: false,
+          webSecurity: true,
+        },
+      },
+    }
+  })
+}
+
 function startRendererResourceSampler(win) {
   if (!win || rendererResourceSamplers.has(win.id)) return
   var sampleCount = 0
@@ -81,6 +100,7 @@ const { registerApiHandlers } = require('./ipc/api')
 const { registerDialogHandlers } = require('./ipc/dialog')
 const { registerLifecycleHandlers, registerWindowCloseHandler } = require('./ipc/lifecycle')
 const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = require('./ipc/storage')
+const { registerOutlineJournalHandlers, setDataDir: setOutlineJournalDataDir } = require('./ipc/outlineJournal')
 const { registerSkillLoaderHandlers } = require('./ipc/skill-loader')
 const { registerSkillPackageHandlers } = require('./ipc/skill-package')
 const { registerRunTraceHandlers, setDataDir: setRunTraceDataDir } = require('./ipc/runTrace')
@@ -88,6 +108,10 @@ const { registerIntentCorpusHandlers, setDataDir: setIntentCorpusDataDir } = req
 const { registerJiebaHandlers } = require('./ipc/jieba')
 const { registerIntentEmbeddingHandlers } = require('./ipc/intentEmbedding')
 const { registerAgentStateHandlers, setDataDir: setAgentStateDataDir } = require('./ipc/agentState')
+const {
+  attachWindowResponsivenessListeners,
+  registerResponsivenessHandlers,
+} = require('./ipc/responsivenessLedger')
 
 function registerApplicationMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
@@ -201,6 +225,7 @@ function createWindow(projectId) {
   }
 
   setDataDir(dataDir)
+  setOutlineJournalDataDir(dataDir)
   setRunTraceDataDir(dataDir)
   setIntentCorpusDataDir(dataDir)
   setAgentStateDataDir(dataDir)
@@ -210,6 +235,9 @@ function createWindow(projectId) {
   if (!ipcHandlersRegistered) {
     registerCryptoHandlers()
     registerStorageHandlers()
+    registerOutlineJournalHandlers(ipcMain, {
+      testIsolationEnabled: explicitIsolation === true,
+    })
     registerDiagHandlers()
     registerApiHandlers()
     registerDialogHandlers()
@@ -322,6 +350,7 @@ function createWindow(projectId) {
   startRendererResourceSampler(win)
   windowMap.set(win.id, { windowId: winId, projectId: projectId || null, browserWindow: win })
   if (projectId) lockedProjects.add(projectId)
+  if (!ipcHandlersRegistered || winId === 1) registerResponsivenessHandlers(ipcMain, win)
 
   win.once('ready-to-show', function() {
     win.show()
@@ -346,6 +375,9 @@ function createWindow(projectId) {
 
   // Per-window close handler (lifecycle IPC: save & quit / force quit / cancel)
   registerWindowCloseHandler(win)
+
+  ensurePopupPreload(win)
+  attachWindowResponsivenessListeners(win, winId)
 
   win.webContents.on('render-process-gone', function(_event, details) {
     log.error('render-process-gone: reason=' + details.reason + ' exitCode=' + details.exitCode)

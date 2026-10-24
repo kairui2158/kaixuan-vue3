@@ -1,16 +1,21 @@
 export interface PerformanceEventRecord {
-  kind: 'longtask' | 'freeze' | 'click-feedback'
+  kind: 'longtask' | 'freeze' | 'click-feedback' | 'responsiveness-state'
   startTime: number
   durationMs: number
   label?: string
+  payload?: unknown
 }
+
+export type ResponsivenessState = 'normal' | 'warning' | 'safe_mode'
 
 export interface PerformanceMonitorOptions {
   now?: () => number
   longTaskThresholdMs?: number
   freezeThresholdMs?: number
+  safeModeThresholdMs?: number
   clickFeedbackBudgetMs?: number
   maxEvents?: number
+  recoveryTicks?: number
 }
 
 interface PerformanceObserverLike {
@@ -29,26 +34,36 @@ type PerformanceObserverCtor = new (
 export class PerformanceMonitor {
   readonly longTaskThresholdMs: number
   readonly freezeThresholdMs: number
+  readonly safeModeThresholdMs: number
   readonly clickFeedbackBudgetMs: number
   longTaskCount = 0
   freezeCount = 0
+  safeModeCount = 0
   clickFeedbackCount = 0
   slowClickFeedbackCount = 0
+  responsivenessState: ResponsivenessState = 'normal'
   private readonly maxEvents: number
   private readonly now: () => number
+  private readonly recoveryTicks: number
   private observer: PerformanceObserverLike | null = null
   private freezeStartedAt: number | null = null
+  private consecutiveCleanTicks = 0
+  private safeModeSource: 'auto' | 'manual' | null = null
   private readonly events: PerformanceEventRecord[] = []
   private readonly listeners = new Set<() => void>()
 
   constructor(options: PerformanceMonitorOptions = {}) {
     this.longTaskThresholdMs = options.longTaskThresholdMs ?? 200
     this.freezeThresholdMs = options.freezeThresholdMs ?? 2000
+    this.safeModeThresholdMs = options.safeModeThresholdMs ?? 5000
     this.clickFeedbackBudgetMs = options.clickFeedbackBudgetMs ?? 100
     this.now = options.now || (() => Date.now())
     const maxEvents = options.maxEvents ?? 200
     if (!Number.isFinite(maxEvents) || maxEvents < 1) throw new Error('maxEvents must be a positive number')
     this.maxEvents = maxEvents
+    const recoveryTicks = options.recoveryTicks ?? 2
+    if (!Number.isFinite(recoveryTicks) || recoveryTicks < 1) throw new Error('recoveryTicks must be a positive number')
+    this.recoveryTicks = Math.floor(recoveryTicks)
   }
 
   start(): void {
@@ -86,16 +101,35 @@ export class PerformanceMonitor {
       return
     }
     const blockedMs = now - this.freezeStartedAt - 500
+    this.applyBlockedDuration(blockedMs, this.freezeStartedAt)
+    this.freezeStartedAt = now
+  }
+
+  private applyBlockedDuration(blockedMs: number, startedAt: number | null) {
     if (blockedMs >= this.freezeThresholdMs) {
       this.freezeCount += 1
       this.record({
         kind: 'freeze',
-        startTime: this.freezeStartedAt,
+        startTime: startedAt ?? this.now(),
         durationMs: blockedMs,
-        label: 'main-thread-freeze'
+          label: 'main-thread-freeze'
       })
     }
-    this.freezeStartedAt = now
+    if (blockedMs >= this.safeModeThresholdMs) {
+      this.enterSafeMode('auto', blockedMs, startedAt || this.now())
+      return
+    }
+    if (blockedMs >= this.freezeThresholdMs) {
+      this.setResponsivenessState('warning', 'freeze', blockedMs)
+      this.consecutiveCleanTicks = 0
+      return
+    }
+    if (this.responsivenessState === 'normal') return
+    this.consecutiveCleanTicks += 1
+    if (this.safeModeSource === 'auto' && this.consecutiveCleanTicks >= this.recoveryTicks) {
+      this.setResponsivenessState('normal', 'recovered', undefined)
+      this.safeModeSource = null
+    }
   }
 
   clickFeedback(startedAt: number, label = 'run-start-click'): void {
@@ -118,13 +152,16 @@ export class PerformanceMonitor {
     longTaskCount: number
     freezeCount: number
     clickFeedbackCount: number
-    slowClickFeedbackCount: number
-    withinBudget: boolean
-    thresholds: {
-      longTaskThresholdMs: number
-      freezeThresholdMs: number
-      clickFeedbackBudgetMs: number
-    }
+      slowClickFeedbackCount: number
+      safeModeCount: number
+      responsivenessState: ResponsivenessState
+      withinBudget: boolean
+      thresholds: {
+        longTaskThresholdMs: number
+        freezeThresholdMs: number
+        safeModeThresholdMs: number
+        clickFeedbackBudgetMs: number
+      }
     events: readonly PerformanceEventRecord[]
   } {
     return {
@@ -132,10 +169,13 @@ export class PerformanceMonitor {
       freezeCount: this.freezeCount,
       clickFeedbackCount: this.clickFeedbackCount,
       slowClickFeedbackCount: this.slowClickFeedbackCount,
+      safeModeCount: this.safeModeCount,
+      responsivenessState: this.responsivenessState,
       withinBudget: this.withinBudget(),
       thresholds: {
         longTaskThresholdMs: this.longTaskThresholdMs,
         freezeThresholdMs: this.freezeThresholdMs,
+        safeModeThresholdMs: this.safeModeThresholdMs,
         clickFeedbackBudgetMs: this.clickFeedbackBudgetMs,
       },
       events: this.listEvents(),
@@ -163,6 +203,42 @@ export class PerformanceMonitor {
     this.observer?.disconnect()
     this.observer = null
     this.freezeStartedAt = null
+  }
+
+  requestSafeMode(reason = 'renderer_requested'): void {
+    this.enterSafeMode('manual', undefined, this.now(), reason)
+  }
+
+  exitSafeMode(reason = 'user_exit'): void {
+    if (this.responsivenessState !== 'safe_mode') return
+    this.setResponsivenessState('normal', reason, undefined)
+    this.safeModeSource = null
+    this.consecutiveCleanTicks = 0
+  }
+
+  private enterSafeMode(source: 'auto' | 'manual', durationMs: number | undefined, startedAt: number, reason?: string) {
+    if (this.responsivenessState === 'safe_mode') return
+    this.safeModeCount += 1
+    this.safeModeSource = source
+    this.consecutiveCleanTicks = 0
+    this.setResponsivenessState('safe_mode', source === 'manual' ? reason || 'renderer_requested' : 'main-thread-blocked', durationMs, startedAt)
+  }
+
+  private setResponsivenessState(
+    state: ResponsivenessState,
+    reason: string,
+    durationMs?: number,
+    startedAt?: number,
+  ) {
+    if (this.responsivenessState === state) return
+    this.responsivenessState = state
+    this.record({
+      kind: 'responsiveness-state',
+      startTime: startedAt ?? this.now(),
+      durationMs: Math.max(0, durationMs ?? 0),
+      label: `responsiveness-${state}`,
+      payload: { reason, source: this.safeModeSource || 'auto' },
+    })
   }
 
   private record(event: PerformanceEventRecord) {

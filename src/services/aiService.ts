@@ -43,6 +43,13 @@ import {
   sanitizeUrlForLog,
   normalizeProviderType,
 } from './providerProtocols'
+import { normalizeProviderResponse } from './providerResponseContract'
+import {
+  createStreamFrame,
+  parseStreamFrames,
+  type StreamFrame,
+  type StreamParseState,
+} from './streamContract'
 import { resolveProvider, type ProviderStoreLike } from './providerRouter'
 import {
   validateAgentToolInput,
@@ -374,39 +381,6 @@ const RETRY_DELAYS = [1000, 2000, 3000]
 const MAX_RETRIES = 3
 const IDLE_THRESHOLD = 15_000
 const IDLE_THRESHOLD_LOW = 10_000
-// A null timeoutMs means "no total deadline"; it must never disable stream
-// liveness detection. A provider can leave a half-open connection that emits
-// no bytes and no error, so an idle stream is treated as a network drop and
-// routed through the physical retry path.
-const MAIN_NET_STREAM_IDLE_TIMEOUT_MS = 15 * 60_000
-// Slow-stream tolerance is for output that has already started. A silent
-// connection before the first content/reasoning delta is still a dead
-// transport and must re-enter the full-request physical retry path.
-const MAIN_NET_STREAM_FIRST_OUTPUT_TIMEOUT_MS = 3 * 60_000
-// Some OpenAI-compatible providers keep the socket alive while sending
-// protocol-only SSE frames (empty deltas/usage pings). This watchdog only
-// resets on content or reasoning progress, so those live-but-silent streams
-// still terminate and enter the normal retry path.
-const MAIN_NET_STREAM_PROGRESS_TIMEOUT_MS = 20 * 60_000
-// Reasoning deltas prove the connection is alive, not that the task is
-// healthy. Generation requests must produce body text or executable tool
-// progress; a stream that only reasons is stopped so a semantic retry can
-// disable reasoning instead of waiting for a provider-side stop.
-const getBodyAbsentTimeoutMs = () => {
-  const testOverrides = (globalThis as unknown as {
-    __SHENYI_AI_SERVICE_TEST_OVERRIDES__?: { bodyAbsentTimeoutMs?: unknown }
-  }).__SHENYI_AI_SERVICE_TEST_OVERRIDES__
-  const buildConfiguredTimeout = typeof __SHENYI_BODY_ABSENT_TIMEOUT_MS__ === 'string'
-    ? __SHENYI_BODY_ABSENT_TIMEOUT_MS__
-    : undefined
-  const configured = Number(
-    testOverrides?.bodyAbsentTimeoutMs
-    || buildConfiguredTimeout
-    || globalThis.process?.env?.SHENYI_BODY_ABSENT_TIMEOUT_MS
-    || 12 * 60_000
-  )
-  return Number.isFinite(configured) && configured > 0 ? configured : 12 * 60_000
-}
 const HEARTBEAT_INTERVAL = 60_000
 const MAX_HEARTBEAT_ATTEMPTS = 3
 const PHYSICAL_HEARTBEAT_INTERVAL_MS = 15_000
@@ -1129,6 +1103,7 @@ interface StreamCallbacks {
   onReasoning?: (text: string) => void
   onUsage?: (usage: any) => void
   onToolProgress?: (progress: StreamToolProgressEvent) => void
+  onProviderQueue?: (event: ProviderQueueEvent) => void
 }
 
 export interface StreamToolProgressEvent {
@@ -1359,6 +1334,8 @@ async function parseSSEStream(
   cb: StreamCallbacks,
   protocolName: string = 'openai-compatible',
   nativeToolExchange = false
+  ,
+  onProviderQueue?: (event: ProviderQueueEvent) => void
 ): Promise<MainNetStreamResult> {
   const decoder = new TextDecoder()
   let fullText = ''
@@ -1844,6 +1821,39 @@ function hasMainNet(): boolean {
     typeof (window as any).electronAPI?.providerNetStream === 'function'
 }
 
+function startStreamHeartbeat(signalId: string): () => void {
+  const bridge = (window as any).electronAPI
+  if (typeof bridge?.providerNetHeartbeat !== 'function') return () => {}
+  const timer = setInterval(() => {
+    bridge.providerNetHeartbeat(signalId).catch(() => {})
+  }, 1000)
+  return () => clearInterval(timer)
+}
+
+function isStreamOwnerV6Enabled(): boolean {
+  return Boolean((globalThis as any).__SHENYI_STREAM_OWNER_V6__)
+}
+
+function hasExternalSchedulerSnapshot(): boolean {
+  return typeof window !== 'undefined' &&
+    typeof (window as any).electronAPI?.providerNetSchedulerSnapshot === 'function'
+}
+
+async function refreshExternalSchedulerSnapshot(
+  scheduler: ReturnType<typeof createProviderScheduler>
+): Promise<void> {
+  try {
+    const response = await (window as any).electronAPI.providerNetSchedulerSnapshot()
+    if (!response || response.ok !== true || !response.snapshot) {
+      scheduler.setExternalSnapshot(null)
+      return
+    }
+    scheduler.setExternalSnapshot(response.snapshot)
+  } catch {
+    scheduler.setExternalSnapshot(null)
+  }
+}
+
 function isMainNetCanceled(result: MainNetResult): boolean {
   return result.kind === 'canceled'
 }
@@ -1876,6 +1886,32 @@ async function mainNetRequest(request: {
   })
 }
 
+async function mainNetRequestRaw(request: {
+  url: string
+  method?: string
+  headers: Record<string, string>
+  body?: unknown
+}, externalSignal?: AbortSignal): Promise<MainNetResult> {
+  const signalId = 'provider-net-request-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+  const abortHandler = () => {
+    ;(window as any).electronAPI.providerNetAbort(signalId).catch(() => {})
+  }
+  externalSignal?.addEventListener('abort', abortHandler, { once: true })
+  try {
+    const result = await (window as any).electronAPI.providerNetRequest({
+      ...request,
+      method: request.method || 'GET',
+      signalId,
+    })
+    if (!result || typeof result !== 'object') {
+      return { ok: false, kind: 'network', message: '主进程网络桥接返回空结果' }
+    }
+    return result
+  } finally {
+    externalSignal?.removeEventListener('abort', abortHandler)
+  }
+}
+
 function extractProtocolStreamDelta(json: any, protocol: ReturnType<typeof getProviderProtocol>) {
   const openAIDelta = extractStreamDelta(json)
   if (openAIDelta.content || openAIDelta.reasoning) return openAIDelta
@@ -1900,7 +1936,13 @@ function extractProtocolStreamDelta(json: any, protocol: ReturnType<typeof getPr
 }
 
 async function mainNetStream(
-  request: { url: string; headers: Record<string, string>; body: Record<string, unknown> },
+  request: {
+    url: string
+    headers: Record<string, string>
+    body: Record<string, unknown>
+    providerId?: string
+    projectId?: string | null
+  },
   callbacks: StreamCallbacks,
   protocolName: string,
   externalSignal?: AbortSignal,
@@ -1910,9 +1952,10 @@ async function mainNetStream(
 ): Promise<MainNetStreamResult> {
   const signalId = 'provider-net-' + Date.now() + '-' + Math.random().toString(36).slice(2)
   const chunkQueue: string[] = []
+  const frameQueue: StreamFrame[] = []
   let resolveChunk: (() => void) | null = null
   let ended = false
-  let streamError: string | null = null
+  let streamError: string | undefined = undefined
   let canceled = false
   let fullText = ''
   let reasoningText = ''
@@ -1933,6 +1976,9 @@ async function mainNetStream(
       // Keep the normal SSE parser for partial or non-JSON responses.
     }
   }
+  const streamOwnerV6 = isStreamOwnerV6Enabled()
+  let parseState: StreamParseState | undefined
+  let parseBudgetExceeded = false
 
   const offChunk = (window as any).electronAPI.onProviderNetStreamChunk((payload: any) => {
     if (payload.signalId !== signalId) return
@@ -1946,19 +1992,73 @@ async function mainNetStream(
       streamError = payload.message || '主进程流式请求失败'
       ended = true
     }
+    if (payload.event === 'queued' || payload.event === 'started' || payload.event === 'canceled') {
+      callbacks.onProviderQueue?.({
+        providerId: request.providerId || '',
+        status: payload.event,
+        position: payload.position,
+        waiting: payload.waiting,
+        maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
+      })
+    }
     if (resolveChunk) {
       const resolve = resolveChunk
       resolveChunk = null
       resolve()
     }
   })
+  const offFrame = streamOwnerV6
+    ? (window as any).electronAPI.onProviderNetStreamFrame((payload: any) => {
+      if (payload?.streamId !== signalId) return
+      frameQueue.push(payload)
+      if (payload.transportEvent === 'end') ended = true
+      if (payload.transportEvent === 'canceled') {
+        canceled = true
+        ended = true
+      }
+      if (payload.transportEvent === 'error') {
+        streamError = payload.message || '主进程流式请求失败'
+        ended = true
+      }
+      if (payload.transportEvent === 'queued') {
+        callbacks.onProviderQueue?.({
+          providerId: request.providerId || '',
+          status: 'queued',
+          position: payload.position,
+          waiting: payload.waiting,
+          maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
+        })
+      }
+      if (payload.transportEvent === 'started') {
+        callbacks.onProviderQueue?.({
+          providerId: request.providerId || '',
+          status: 'started',
+          maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
+        })
+      }
+      if (payload.transportEvent === 'canceled') {
+        callbacks.onProviderQueue?.({
+          providerId: request.providerId || '',
+          status: 'canceled',
+          maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
+        })
+      }
+      if (resolveChunk) {
+        const resolve = resolveChunk
+        resolveChunk = null
+        resolve()
+      }
+    })
+    : null
 
   const invoke: Promise<MainNetResult> = (window as any).electronAPI.providerNetStream({
     ...request,
     signalId,
     slowStreamTolerant,
+    providerId: request.providerId || undefined,
+    projectId: request.projectId || undefined,
   })
-  const streamActivitySignal = new AbortController()
+  const stopHeartbeat = startStreamHeartbeat(signalId)
   invoke
     .then((result: MainNetResult) => {
       // The stream IPC returns failures without emitting a stream event. Wake
@@ -1981,126 +2081,25 @@ async function mainNetStream(
         resolveChunk = null
         resolve()
       }
-    })
+  })
   const startedAt = Date.now()
-  let idleTimedOut = false
-  let progressTimedOut = false
-  let firstOutputTimedOut = false
-  let bodyAbsentTimedOut = false
   let streamSettled = false
   let sawStreamOutput = false
   let firstContentAt: number | null = null
   let lastContentAt: number | null = null
   let lastReasoningAt: number | null = null
-  let streamProgressTimer: ReturnType<typeof setTimeout> | null = null
-  let idleTimer: ReturnType<typeof setTimeout> | null = null
-  let firstOutputTimer: ReturnType<typeof setTimeout> | null = null
-  let bodyAbsentTimer: ReturnType<typeof setTimeout> | null = null
-  const clearBodyAbsentWatchdog = () => {
-    if (!bodyAbsentTimer) return
-    clearTimeout(bodyAbsentTimer)
-    bodyAbsentTimer = null
-  }
-  const armBodyAbsentWatchdog = () => {
-    if (slowStreamTolerant) return
-    clearBodyAbsentWatchdog()
-    bodyAbsentTimer = setTimeout(() => {
-      bodyAbsentTimedOut = true
-      streamError = '流式响应长时间未产生正文，已按 reasoning-only 断流处理'
-      ended = true
-      if (resolveChunk) {
-        const resolve = resolveChunk
-        resolveChunk = null
-        resolve()
-      }
-    }, getBodyAbsentTimeoutMs())
-  }
-  const clearIdleWatchdog = () => {
-    if (!idleTimer) return
-    clearTimeout(idleTimer)
-    idleTimer = null
-  }
-  const armIdleWatchdog = () => {
-    clearIdleWatchdog()
-    idleTimer = setTimeout(() => {
-      idleTimedOut = true
-      streamError = '流式响应长时间无输出，已按网络断流处理'
-      ended = true
-      if (resolveChunk) {
-        const resolve = resolveChunk
-        resolveChunk = null
-        resolve()
-      }
-    }, MAIN_NET_STREAM_IDLE_TIMEOUT_MS)
-  }
-  const clearProgressWatchdog = () => {
-    if (!streamProgressTimer) return
-    clearTimeout(streamProgressTimer)
-    streamProgressTimer = null
-  }
-  const armProgressWatchdog = () => {
-    clearProgressWatchdog()
-    streamProgressTimer = setTimeout(() => {
-      progressTimedOut = true
-      streamError = '流式响应长时间无正文或推理增量，已按内容断流处理'
-      ended = true
-      if (resolveChunk) {
-        const resolve = resolveChunk
-        resolveChunk = null
-        resolve()
-      }
-    }, MAIN_NET_STREAM_PROGRESS_TIMEOUT_MS)
-  }
-  const clearFirstOutputWatchdog = () => {
-    if (!firstOutputTimer) return
-    clearTimeout(firstOutputTimer)
-    firstOutputTimer = null
-  }
-  const armFirstOutputWatchdog = () => {
-    if (!slowStreamTolerant) return
-    clearFirstOutputWatchdog()
-    firstOutputTimer = setTimeout(() => {
-      firstOutputTimedOut = true
-      streamError = '慢流请求首字超时，已按网络断流处理'
-      ended = true
-      if (resolveChunk) {
-        const resolve = resolveChunk
-        resolveChunk = null
-        resolve()
-      }
-    }, MAIN_NET_STREAM_FIRST_OUTPUT_TIMEOUT_MS)
-  }
   const markStreamOutput = () => {
     if (!sawStreamOutput) {
       sawStreamOutput = true
-      clearFirstOutputWatchdog()
-      // A wall-clock timeout protects the connection only until output has
-      // started. After that, the idle and progress watchdogs own stall
-      // detection so an actively streaming long response is never restarted.
-      streamActivitySignal.abort()
     }
   }
-  // Slow-stream callers own stall handling at the task layer. Transport
-  // watchdogs must not kill a live-but-slow final-draft stream and force the
-  // current segment to restart from zero. The first-output watchdog is the
-  // exception: until content or reasoning actually starts, there is no
-  // partial result worth protecting and the request must reconnect.
-  if (!slowStreamTolerant) {
-    armIdleWatchdog()
-    armProgressWatchdog()
-    armBodyAbsentWatchdog()
-  } else {
-    armFirstOutputWatchdog()
-  }
+  // Stream liveness is owned exclusively by the main-process watchdog. The
+  // renderer classifies terminal events; it must not race a second timer set.
 
   const abortHandler = () => {
     ;(window as any).electronAPI.providerNetAbort(signalId)
   }
   externalSignal?.addEventListener('abort', abortHandler, { once: true })
-  streamActivitySignal.signal.addEventListener('abort', () => {
-    if (sawStreamOutput) return
-    ;(window as any).electronAPI.providerNetAbort(signalId)
-  }, { once: true })
 
   const decoder = new TextDecoder()
   let buffer = ''
@@ -2108,7 +2107,62 @@ async function mainNetStream(
   const protocol = getProviderProtocol(protocolName)
 
   try {
-    while (!ended || chunkQueue.length > 0) {
+    while (streamOwnerV6 ? (!ended || frameQueue.length > 0 || parseBudgetExceeded) : (!ended || chunkQueue.length > 0)) {
+      if (streamOwnerV6 && frameQueue.length === 0 && parseBudgetExceeded) {
+        parseBudgetExceeded = false
+      } else if (streamOwnerV6 && frameQueue.length === 0 && !ended) {
+        await new Promise<void>(resolve => {
+          resolveChunk = resolve
+          setTimeout(resolve, 100)
+        })
+        if (!ended && timeoutMs && !sawStreamOutput && Date.now() - startedAt > timeoutMs) {
+          throw new DOMException('The operation was aborted', 'AbortError')
+        }
+        continue
+      }
+      if (streamOwnerV6 && frameQueue.length === 0) continue
+      if (streamOwnerV6 && frameQueue.length > 0) {
+        const frames = frameQueue.splice(0, frameQueue.length)
+        const parsed = parseStreamFrames(frames, protocolName as never, parseState, { maxDurationMs: 16 })
+        parseState = parsed.state
+        for (const event of parsed.events) {
+          const hasStreamToolProgress = collectStreamToolCalls(event.raw, protocolName, toolCallState)
+          if (hasStreamToolProgress) {
+            if (firstContentAt === null) firstContentAt = Date.now()
+            lastContentAt = Date.now()
+          }
+          if (event.content) {
+            if (firstContentAt === null) firstContentAt = Date.now()
+            lastContentAt = Date.now()
+          }
+          if (event.reasoning) lastReasoningAt = Date.now()
+          if (hasStreamToolProgress) {
+            callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
+          }
+          finishReason = event.finishReason || finishReason
+          if (event.reasoning) {
+            markStreamOutput()
+            const emitted = reasoningFilter.push(event.reasoning)
+            if (emitted) {
+              reasoningText += emitted
+              callbacks.onReasoning?.(emitted)
+            }
+          }
+          if (event.content) {
+            markStreamOutput()
+            fullText += event.content
+            const emitted = chunkFilter.push(event.content)
+            if (emitted) callbacks.onChunk?.(emitted)
+          }
+          if (event.usage) {
+            streamUsage = { ...streamUsage, ...event.usage }
+            callbacks.onUsage?.(streamUsage)
+          }
+        }
+        if (parsed.state.pendingFrames.length > 0) parseBudgetExceeded = true
+        continue
+      }
+      if (streamOwnerV6) continue
       if (chunkQueue.length === 0 && !ended) {
         await new Promise<void>(resolve => {
           resolveChunk = resolve
@@ -2127,7 +2181,6 @@ async function mainNetStream(
       }
       const text = chunkQueue.shift()
       if (text == null) continue
-      armIdleWatchdog()
       if (!sawFirstByte) {
         sawFirstByte = true
       }
@@ -2146,31 +2199,21 @@ async function mainNetStream(
           if (hasStreamToolProgress) {
             if (firstContentAt === null) firstContentAt = Date.now()
             lastContentAt = Date.now()
-            clearBodyAbsentWatchdog()
           }
           const bodyDelta = extractProtocolStreamDelta(json, protocol)
           if (bodyDelta.content) {
             if (firstContentAt === null) firstContentAt = Date.now()
             lastContentAt = Date.now()
-            clearBodyAbsentWatchdog()
           }
           if (bodyDelta.reasoning) lastReasoningAt = Date.now()
-          if (!progressTimedOut) {
-            const delta = extractProtocolStreamDelta(json, protocol)
-            if (delta.content || delta.reasoning) {
-              markStreamOutput()
-              if (!slowStreamTolerant) armProgressWatchdog()
-            }
-          }
           if (hasStreamToolProgress) {
             callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
-            if (!slowStreamTolerant) armProgressWatchdog()
           }
           const delta = bodyDelta
+          if (delta.content || delta.reasoning) markStreamOutput()
           finishReason = delta.finishReason || finishReason
           if (delta.reasoning) {
             markStreamOutput()
-            if (!slowStreamTolerant) armProgressWatchdog()
             const emitted = reasoningFilter.push(delta.reasoning)
             if (emitted) {
               reasoningText += emitted
@@ -2179,7 +2222,6 @@ async function mainNetStream(
           }
           if (delta.content) {
             markStreamOutput()
-            if (!slowStreamTolerant) armProgressWatchdog()
             fullText += delta.content
             const emitted = chunkFilter.push(delta.content)
             if (emitted) callbacks.onChunk?.(emitted)
@@ -2197,22 +2239,19 @@ async function mainNetStream(
     if (canceled) {
       throw new DOMException('The operation was aborted', 'AbortError')
     }
-    if (idleTimedOut) {
-      throw new AiServiceErrorImpl({ kind: 'network', message: streamError || '流式响应长时间无输出' })
-    }
-    if (progressTimedOut) {
-      throw new AiServiceErrorImpl({ kind: 'network', message: streamError || '流式响应长时间无正文或推理增量' })
-    }
-    if (firstOutputTimedOut) {
-      throw new AiServiceErrorImpl({ kind: 'network', message: streamError || '慢流请求首字超时' })
-    }
-    if (bodyAbsentTimedOut) {
+    const terminalStreamError = streamError as string | undefined
+    if (terminalStreamError) {
       const error = new AiServiceErrorImpl({
         kind: 'network',
-        message: streamError || '流式响应长时间未产生正文',
+        message: terminalStreamError,
         providerId: undefined,
-      }) as AiServiceErrorImpl & { code?: string; bodyAbsentMs?: number; firstContentAt?: number; lastReasoningAt?: number }
-      error.code = 'reasoning_only_stalled'
+      }) as AiServiceErrorImpl & {
+        code?: string
+        bodyAbsentMs?: number
+        firstContentAt?: number
+        lastReasoningAt?: number
+      }
+      if (terminalStreamError.includes('未产生正文')) error.code = 'reasoning_only_stalled'
       error.bodyAbsentMs = Date.now() - startedAt
       error.firstContentAt = firstContentAt === null ? undefined : firstContentAt
       error.lastReasoningAt = lastReasoningAt === null ? undefined : lastReasoningAt
@@ -2268,12 +2307,10 @@ async function mainNetStream(
       raw: streamToolCallRaw(protocolName, toolCallState),
     }
   } finally {
-    clearProgressWatchdog()
-    clearIdleWatchdog()
-    clearFirstOutputWatchdog()
-    clearBodyAbsentWatchdog()
+    stopHeartbeat()
     externalSignal?.removeEventListener('abort', abortHandler)
     if (typeof offChunk === 'function') offChunk()
+    if (typeof offFrame === 'function') offFrame()
     if (!streamSettled) {
       ;(window as any).electronAPI.providerNetAbort(signalId).catch(() => {})
     }
@@ -2292,6 +2329,14 @@ export function createAiService(
   const log = logger || null
   const compatibilityWriteGuards = new Map<string, RepeatedWriteGuard>()
   const providerScheduler = createProviderScheduler()
+  const externalSchedulerSnapshotEnabled = hasExternalSchedulerSnapshot()
+  let externalSchedulerSnapshotTimer: ReturnType<typeof setInterval> | null = null
+  if (externalSchedulerSnapshotEnabled) {
+    void refreshExternalSchedulerSnapshot(providerScheduler)
+    externalSchedulerSnapshotTimer = setInterval(() => {
+      void refreshExternalSchedulerSnapshot(providerScheduler)
+    }, 1000)
+  }
 
   async function _rawCall(
     provider: ProviderLike,
@@ -2299,6 +2344,12 @@ export function createAiService(
     timeoutMs: number | null,
     explicitToolRunBudget?: ToolRunBudget
   ) {
+    // In Electron the main process owns real acquire/queue semantics. A
+    // renderer-side slot here would double-count every physical request and
+    // race the main scheduler for abort handling.
+    if (hasMainNet()) {
+      return await _rawCallWithSlot(provider, params, timeoutMs, explicitToolRunBudget)
+    }
     let slot: Awaited<ReturnType<typeof providerScheduler.acquire>>
     try {
       slot = await providerScheduler.acquire({
@@ -2386,29 +2437,42 @@ export function createAiService(
       tools: nativeTools,
     })
     const useMainNet = hasMainNet()
+    const streamOwnerContext = {
+      providerId: provider.id,
+      projectId: params.meta?.projectId || null,
+    }
     let resp: Response | null = null
+    let mainNetResponse: ReturnType<typeof normalizeProviderResponse> | null = null
     if (useMainNet && !wantStream) {
-      const mainResult = await mainNetRequest({ url, method: 'POST', headers, body }, signal)
-      if ('__mainNetError' in mainResult) {
-        const result = mainResult.result
-        if (isMainNetCanceled(result) || params.signal?.aborted) {
+      const mainResult = await mainNetRequestRaw({ url, method: 'POST', headers, body }, signal)
+      if (mainResult.ok === false) {
+        if (isMainNetCanceled(mainResult) || params.signal?.aborted) {
           throw new DOMException('The operation was aborted', 'AbortError')
         }
-        throw mainNetError(result, provider, params.purpose)
+        throw mainNetError(mainResult, provider, params.purpose)
       }
-      resp = mainResult
+      mainNetResponse = normalizeProviderResponse(
+        {
+          ok: true,
+          statusCode: mainResult.statusCode,
+          text: mainResult.text,
+          data: mainResult.data,
+          stream: false,
+        },
+        { protocolName: providerType, providerId: provider.id, purpose: params.purpose }
+      )
     } else if (!useMainNet) {
       resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal })
     }
     if (resp && !resp.ok) throw resp
-    if (!wantStream && !resp) throw new Error('网络传输初始化失败')
+    if (!wantStream && !resp && !mainNetResponse) throw new Error('网络传输初始化失败')
     if (wantStream) {
       try {
         let result: MainNetStreamResult
         let streamUsage: any
         if (useMainNet) {
           result = await mainNetStream(
-            { url, headers, body },
+            { url, headers, body, ...streamOwnerContext },
             {
               onChunk: (text: string) => {
                 firstOutputStreamSignal?.markOutput()
@@ -2423,6 +2487,7 @@ export function createAiService(
                 streamUsage = u
                 if (requestParams.onUsage) requestParams.onUsage(u)
               },
+              onProviderQueue: requestParams.onProviderQueue,
             },
             providerType,
             signal,
@@ -2467,7 +2532,7 @@ export function createAiService(
         firstOutputStreamSignal?.dispose()
       }
     } else {
-      const data = await resp!.json()
+      const data = mainNetResponse?.raw ?? await resp!.json()
       if (
         (!protocol.extractText(data) && !protocol.extractReasoning(data) && extractSoftProviderErrorBody(data))
         || hasProviderSoftQuotaError(extractProviderErrorSummary(data))
@@ -2481,11 +2546,11 @@ export function createAiService(
           Boolean(provisionalText)
         )
       }
-      const text = protocol.extractText(data)
-      const reasoning = protocol.extractReasoning(data)
+      const text = mainNetResponse?.text ?? protocol.extractText(data)
+      const reasoning = mainNetResponse?.reasoning ?? protocol.extractReasoning(data)
       const rawUsage = protocol.extractUsage(data)
       const usage = normalizeTraceUsage(providerType, rawUsage)
-      const rawFinishReason = protocol.extractFinishReason(data)
+      const rawFinishReason = mainNetResponse?.finishReason ?? protocol.extractFinishReason(data)
       if (usage && requestParams.onUsage) requestParams.onUsage(usage)
       const finishReason = resolveFinishReason(rawFinishReason, usage, maxTokens, Boolean(text))
       return {
@@ -4476,7 +4541,20 @@ export function createAiService(
     }
   }
 
-  return { callAi, fetchModels, fetchModelsForProvider, testConnection, testConnectionForProvider }
+  const service = {
+    callAi,
+    fetchModels,
+    fetchModelsForProvider,
+    testConnection,
+    testConnectionForProvider,
+    providerScheduler,
+    externalSchedulerSnapshotEnabled,
+    _stopExternalSchedulerSnapshot: () => {
+      if (externalSchedulerSnapshotTimer) clearInterval(externalSchedulerSnapshotTimer)
+      externalSchedulerSnapshotTimer = null
+    },
+  } as any
+  return service
 }
 
 // ── Singleton ───────────────────────────────────────────────────────

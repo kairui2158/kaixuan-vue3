@@ -28,6 +28,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
   storageImport: function(filePath) { return ipcRenderer.invoke('storage:import', filePath) },
   storageGetDataDir: function() { return ipcRenderer.invoke('storage:getDataDir') },
   storageOpenDataDir: function() { return ipcRenderer.invoke('storage:openDataDir') },
+  outlineJournalApply: function(projectId, commands, options) {
+    return ipcRenderer.invoke('outlineJournal:apply', projectId, commands, options || {})
+  },
+  outlineJournalSnapshot: function(projectId) {
+    return ipcRenderer.invoke('outlineJournal:snapshot', projectId)
+  },
+  outlineJournalMigrate: function(projectId, messages) {
+    return ipcRenderer.invoke('outlineJournal:migrate', projectId, messages)
+  },
+  outlineJournalFlush: function(projectId) {
+    return ipcRenderer.invoke('outlineJournal:flush', projectId)
+  },
+  outlineJournalFlushAll: function() {
+    return ipcRenderer.invoke('outlineJournal:flushAll')
+  },
+  outlineJournalRestore: function(projectId, snapshot) {
+    return ipcRenderer.invoke('outlineJournal:restore', projectId, snapshot)
+  },
+  outlineJournalTestFailureControl: function(command) {
+    return ipcRenderer.invoke('outlineJournal:testFailureControl', command)
+  },
 
   // Dialog
   dialogSaveFile: function(defaultName) { return ipcRenderer.invoke('dialog:saveFileAsync', defaultName) },
@@ -57,6 +78,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return function() { ipcRenderer.removeListener('app:rendererRecoveryNotice', listener) }
   },
   onGetCurrentProjectId: function(callback) { ipcRenderer.on('app:getCurrentProjectId', function() { callback() }) },
+  responsivenessLedger: function() { return ipcRenderer.invoke('responsiveness:ledger') },
+  responsivenessReport: function(payload) { return ipcRenderer.invoke('responsiveness:report', payload || {}) },
+  onResponsivenessEvent: function(callback) {
+    var listener = function(_event, detail) { callback(detail || {}) }
+    ipcRenderer.on('app:responsivenessEvent', listener)
+    return function() { ipcRenderer.removeListener('app:responsivenessEvent', listener) }
+  },
   windowOpenProject: function(pid) { return ipcRenderer.invoke('window:openProject', pid) },
   windowSetCurrentProject: function(pid) { return ipcRenderer.invoke('window:setCurrentProject', pid) },
   windowGetInitialProjectId: function() { return ipcRenderer.invoke('window:getInitialProjectId') },
@@ -115,10 +143,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   providerNetStream: function(payload) { return ipcRenderer.invoke('providerNet:stream', payload || {}) },
   providerNetRequest: function(request) { return ipcRenderer.invoke('providerNet:request', request) },
   providerNetAbort: function(signalId) { return ipcRenderer.invoke('providerNet:abort', signalId) },
+  providerNetRegistry: function() { return ipcRenderer.invoke('providerNet:registry') },
+  providerNetHeartbeat: function(streamId) { return ipcRenderer.invoke('providerNet:heartbeat', streamId) },
+  providerNetSchedulerSnapshot: function() { return ipcRenderer.invoke('providerNet:schedulerSnapshot') },
   onProviderNetStreamChunk: function(callback) {
     var listener = function(event, payload) { callback(payload) }
     ipcRenderer.on('providerNet:streamChunk', listener)
     return function() { ipcRenderer.removeListener('providerNet:streamChunk', listener) }
+  },
+  onProviderNetStreamFrame: function(callback) {
+    var listener = function(event, payload) { callback(payload) }
+    ipcRenderer.on('providerNet:streamFrame', listener)
+    return function() { ipcRenderer.removeListener('providerNet:streamFrame', listener) }
   },
 
   // Intent routing is synchronous, so the native Chinese tokenizer lives in

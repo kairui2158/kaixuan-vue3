@@ -1,0 +1,14 @@
+{
+  "phase": "baseline-failure",
+  "scene": {
+    "readyState": "complete",
+    "workspaceOpen": true,
+    "chatOpen": true,
+    "messageCount": 0,
+    "sendDisabled": false,
+    "outlineChatLength": 0,
+    "runCount": 1,
+    "longTasks": []
+  },
+  "message": "AssertionError [ERR_ASSERTION]: event seq covers all injected events (5000)"
+}

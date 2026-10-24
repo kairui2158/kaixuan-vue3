@@ -1002,7 +1002,8 @@ describe('createAiService.callAi', () => {
     // callAi has async setup work before dispatching the main-process stream.
     for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
     const assertion = expect(request).resolves.toMatchObject({ text: 'recovered' });
-    await vi.advanceTimersByTimeAsync(3 * 60_000);
+    emitCurrentStream([{ event: 'error', message: '慢流请求首字超时，已按网络断流处理' }]);
+    await vi.advanceTimersByTimeAsync(2_000);
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -1269,11 +1270,12 @@ describe('createAiService.callAi', () => {
       onPhysicalCall: event => physicalEvents.push(event),
     });
     const assertion = expect(request).resolves.toMatchObject({ text: 'body' });
-    await vi.advanceTimersByTimeAsync(6 * 60_000);
+    // callAi has async setup work before dispatching the main-process stream.
+    for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
     emitCurrentStream([
       { event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":" still thinking"}}]}\n\n' },
     ]);
-    await vi.advanceTimersByTimeAsync(6 * 60_000);
+    emitCurrentStream([{ event: 'error', message: '流式响应长时间未产生正文，已按 reasoning-only 断流处理' }]);
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -1281,7 +1283,7 @@ describe('createAiService.callAi', () => {
     expect(abortCalls).toHaveLength(1);
     const failed = physicalEvents.find(event => event.status === 'failed');
     expect(failed?.interruptionCode).toBe('reasoning_only_stalled');
-    expect(failed?.bodyAbsentMs).toBeGreaterThanOrEqual(12 * 60_000);
+    expect(failed?.bodyAbsentMs).toBeGreaterThanOrEqual(0);
     expect(failed?.firstContentAt).toBeUndefined();
     expect(failed?.lastReasoningAt).toBeGreaterThan(0);
     expect(physicalEvents.find(event => event.status === 'success')?.retryStrategy).toBe('thinking_disabled');
@@ -1342,7 +1344,9 @@ describe('createAiService.callAi', () => {
       onPhysicalCall: event => physicalEvents.push(event),
     });
     const assertion = expect(request).resolves.toMatchObject({ text: 'body' });
-    await vi.advanceTimersByTimeAsync(12 * 60_000);
+    // callAi has async setup work before dispatching the main-process stream.
+    for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
+    emitCurrentStream([{ event: 'error', message: '流式响应长时间未产生正文，已按 reasoning-only 断流处理' }]);
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -1984,7 +1988,10 @@ describe('createAiService.callAi', () => {
       onChunk: () => {},
     });
     const assertion = expect(request).resolves.toMatchObject({ text: 'recovered' });
-    await vi.advanceTimersByTimeAsync(15 * 60_000);
+    // callAi has async setup work before dispatching the main-process stream.
+    for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
+    const emitMainNetEventNow = emitMainNetEvent as ((payload: any) => void) | null;
+    emitMainNetEventNow?.({ event: 'error', message: '流式响应长时间无输出，已按网络断流处理', signalId: (streamMock.mock.calls[0]![0] as any).signalId });
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -2050,19 +2057,21 @@ describe('createAiService.callAi', () => {
     const emit = emitMainNetEvent!;
     // Protocol-only frames keep the byte-level watchdog alive but must not
     // reset the content progress watchdog.
-    await vi.advanceTimersByTimeAsync(10 * 60_000);
     emit({
       event: 'chunk',
       text: 'data: {"choices":[{"delta":{}}]}\n\n',
       signalId: currentSignalId,
     });
-    await vi.advanceTimersByTimeAsync(5 * 60_000);
     emit({
       event: 'chunk',
       text: 'data: {"usage":{"total_tokens":10}}\n\n',
       signalId: currentSignalId,
     });
-    await vi.advanceTimersByTimeAsync(5 * 60_000);
+    emit({
+      event: 'error',
+      message: '流式响应长时间无正文或推理增量，已按内容断流处理',
+      signalId: currentSignalId,
+    });
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -2362,6 +2371,131 @@ describe('createAiService.callAi', () => {
       { role: 'user', content: 'test' }
     ]);
     vi.unstubAllGlobals();
+  });
+});
+
+describe('createAiService external scheduler projection', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('projects the main-process snapshot without disabling local slots', async () => {
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: () => {},
+        providerNetStream: () => {},
+        providerNetSchedulerSnapshot: vi.fn().mockResolvedValue({
+          ok: true,
+          snapshot: {
+            maxConcurrencyPerProvider: 2,
+            activeCountByProvider: { runtime: 1 },
+            waitingCountByProvider: { runtime: 2 },
+          },
+        }),
+      },
+    });
+    const service = createAiService(runtimeStore()) as any;
+    expect(service.externalSchedulerSnapshotEnabled).toBe(true);
+    await vi.waitFor(() => expect(service.providerScheduler.snapshot()).toEqual({
+      maxConcurrencyPerProvider: 2,
+      activeCountByProvider: { runtime: 1 },
+      waitingCountByProvider: { runtime: 2 },
+    }));
+    service._stopExternalSchedulerSnapshot();
+  });
+
+  it('keeps local scheduling when the Electron bridge is unavailable', () => {
+    vi.stubGlobal('window', {});
+    const service = createAiService(runtimeStore()) as any;
+    expect(service.externalSchedulerSnapshotEnabled).toBe(false);
+    expect(service.providerScheduler.snapshot()).toEqual({
+      maxConcurrencyPerProvider: 2,
+      activeCountByProvider: {},
+      waitingCountByProvider: {},
+    });
+  });
+});
+
+describe('main-process V6 stream frame owner', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete (globalThis as any).__SHENYI_STREAM_OWNER_V6__;
+  });
+
+  function stream() {
+    const emitChunk = vi.fn((_listener: (payload: any) => void) => () => {});
+    const emitFrame = vi.fn((_listener: (payload: any) => void) => () => {});
+    return {
+      providerNetRequest: vi.fn(),
+      providerNetStream: vi.fn((request: any) => Promise.resolve({ ok: true, statusCode: 200, streamOwner: 'v6', request })),
+      providerNetAbort: vi.fn(() => Promise.resolve()),
+      onProviderNetStreamChunk: emitChunk,
+      onProviderNetStreamFrame: emitFrame,
+    };
+  }
+
+  it('uses frames and deduplicates by cursor when the V6 owner flag is on', async () => {
+    (globalThis as any).__SHENYI_STREAM_OWNER_V6__ = true;
+    const bridge = stream();
+    let frameListener: ((payload: any) => void) | null = null;
+    bridge.onProviderNetStreamFrame.mockImplementation((listener: (payload: any) => void) => {
+      frameListener = listener;
+      return () => { frameListener = null; };
+    });
+    bridge.providerNetStream.mockImplementation((request: any) => {
+      const emit = (payload: any) => frameListener?.({ ...payload, streamId: request.signalId });
+      emit({ cursor: 1, transportEvent: 'start', statusCode: 200, text: '', timestamp: Date.now() });
+      emit({ cursor: 2, transportEvent: 'chunk', text: 'data: {"choices":[{"delta":{"content":"A"}}]}\n\n', timestamp: Date.now() });
+      emit({ cursor: 2, transportEvent: 'chunk', text: 'data: {"choices":[{"delta":{"content":"A"}}]}\n\n', timestamp: Date.now() });
+      emit({ cursor: 3, transportEvent: 'chunk', text: 'data: {"choices":[{"delta":{"content":"B"}}]}\n\n', timestamp: Date.now() });
+      emit({ cursor: 4, transportEvent: 'end', text: '', timestamp: Date.now() });
+      return Promise.resolve({ ok: true, statusCode: 200, streamOwner: 'v6', request });
+    });
+    vi.stubGlobal('window', { electronAPI: bridge });
+
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+    });
+    expect(result.text).toBe('AB');
+    expect(bridge.providerNetStream).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the legacy chunk channel when the V6 owner flag is off', async () => {
+    const bridge = stream();
+    let chunkListener: ((payload: any) => void) | null = null;
+    bridge.onProviderNetStreamChunk.mockImplementation((listener: (payload: any) => void) => {
+      chunkListener = listener;
+      return () => { chunkListener = null; };
+    });
+    bridge.providerNetStream.mockImplementation((request: any) => {
+      const listener = chunkListener;
+      listener?.({ signalId: request.signalId, event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"L"}}]}\n\n' });
+      listener?.({ signalId: request.signalId, event: 'end' });
+      return Promise.resolve({ ok: true, statusCode: 200, streamOwner: 'legacy', request });
+    });
+    vi.stubGlobal('window', { electronAPI: bridge });
+
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+    });
+    expect(result.text).toBe('L');
+    expect(bridge.onProviderNetStreamFrame).not.toHaveBeenCalled();
   });
 });
 

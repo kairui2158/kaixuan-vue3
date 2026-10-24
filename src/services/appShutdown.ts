@@ -12,6 +12,7 @@ export interface AppShutdownResult {
   flushErrors: string[]
   projectSaveOk: boolean
   projectFailedKeys: string[]
+  outlineJournalOk: boolean
 }
 
 export async function shutdownApplication(
@@ -30,6 +31,7 @@ export async function shutdownApplication(
   })
   let projectSaveOk = true
   let projectFailedKeys: string[] = []
+  let outlineJournalOk = true
   try {
     const saveResult = await stores.projectStore.saveProject()
     projectSaveOk = saveResult.ok
@@ -39,11 +41,20 @@ export async function shutdownApplication(
     projectFailedKeys = ['project-save-exception']
     traceResult.errors.push(error instanceof Error ? error.message : String(error))
   }
+  try {
+    const journalResult = await stores.projectStore.flushOutlineJournal({ immediate: true })
+    outlineJournalOk = journalResult.ok
+    if (!journalResult.ok) traceResult.errors.push(journalResult.error || 'outline_journal_flush_failed')
+  } catch (error) {
+    outlineJournalOk = false
+    traceResult.errors.push(error instanceof Error ? error.message : String(error))
+  }
   return {
     canceledPipelineRunIds: pipelineResult.canceledRunIds,
     canceledTraceRunIds: traceResult.canceledRunIds,
     flushErrors: traceResult.errors,
     projectSaveOk,
     projectFailedKeys,
+    outlineJournalOk,
   }
 }

@@ -1,0 +1,17 @@
+{
+  "phase": "baseline-failure",
+  "scene": {
+    "readyState": "complete",
+    "workspaceOpen": true,
+    "chatOpen": true,
+    "messageCount": 11,
+    "sendDisabled": false,
+    "outlineChatLength": 10000,
+    "runCount": 0,
+    "longTasks": [
+      1573,
+      101
+    ]
+  },
+  "message": "AssertionError [ERR_ASSERTION]: message count rendered (10000)"
+}

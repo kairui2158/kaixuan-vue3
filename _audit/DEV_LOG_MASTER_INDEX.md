@@ -1153,3 +1153,11 @@
 - 验证：mock 故障注入矩阵 coverage 五项全 true；live 内置 key 供应商矩阵 PASS；31 项定向测试、`vue-tsc`、`build:vue`、`build` 全部通过；3.104.0 真实 packaged Electron 启动核验 PASSED。
 - 封装：3.104.0；安装包 `dist/神意助手-Setup-3.104.0.exe`，231,562,775 bytes，SHA256 `8ce409b0e017dc3b3fd45088681f7dc81a2e8403c479124bdabd6c38ea601929`；rendererFiles=81、electronAPI methods=77；3.103 旧安装包/脚本/证据与临时日志已清理，dist 仅保留最新交付。
 - 诚实边界：mock 矩阵负责断点恢复与失败终态再入故障注入，live 矩阵负责真实供应商并发；git 已按功能源码、测试验证、3.104.0 版本、审计证据四类提交（`0c77681a`、`e8274e0f`、`bbfa13ba`、`10d7d661`），提交后 `git status --short` 为空，仓库与工作区收口。
+
+# 2026-10-24 大纲编辑器 V6.3 Phase 4-5 收口
+
+- 文件：[_audit/DEV_LOG_2026-10-24_OUTLINE_V6_3_PHASE4_5_CLOSURE.md](_audit/DEV_LOG_2026-10-24_OUTLINE_V6_3_PHASE4_5_CLOSURE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md)
+- 范围：Responsiveness Supervisor 三档真实 UI 验证（6500ms / 5500ms / 4800ms 负向）、验证器自动恢复竞态修复、全量回归、台账与经验回写、版本 3.105.0、工作区清理与提交。
+- 验证：三档 E2E 全部 PASS；`node --check`、`npm run type-check`、`npx vitest run` 209 files / 2281 tests 全部通过；`_data/outline-v6-phase4-e2e-profile` 不存在。
+- 诚实边界：真实 API 长流与 SKILL 下拉已在 Phase 3 live 验证闭环；本轮 Phase 4 使用本地 mock provider 注入 renderer 阻塞，安全模式行为不依赖供应商内容。经验回写 G1.5。

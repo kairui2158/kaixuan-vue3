@@ -1,0 +1,312 @@
+{
+  "schema": "shenyi.outline-v6-baseline",
+  "version": 1,
+  "generatedAt": "2026-10-23T22:30:06.627Z",
+  "build": {
+    "rendererIndexMtime": "2026-10-23T19:57:21.022Z"
+  },
+  "cases": [
+    {
+      "case": "single-100000",
+      "chars": 100000,
+      "renderMs": 25.299999952316284,
+      "saveMs": 291.89999997615814,
+      "rendered": true,
+      "saveOk": true,
+      "failedKeys": [],
+      "typing": {
+        "duration": 22.600000023841858,
+        "renderedMarker": true,
+        "length": 53
+      },
+      "metrics": {
+        "longTaskCount": 1,
+        "longTaskTotalMs": 285,
+        "longTaskMaxMs": 285,
+        "longTasks": [
+          {
+            "duration": 285,
+            "startTime": 2992,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          }
+        ],
+        "frameDelayCount": 1,
+        "frameDelayMaxMs": 646,
+        "frameDelayAvgMs": 646,
+        "memory": {
+          "usedJSHeapSize": 20500000,
+          "totalJSHeapSize": 29400000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    },
+    {
+      "case": "single-300000",
+      "chars": 300000,
+      "renderMs": 810.1999999284744,
+      "saveMs": 32.89999997615814,
+      "rendered": true,
+      "saveOk": true,
+      "failedKeys": [],
+      "typing": {
+        "duration": 7.299999952316284,
+        "renderedMarker": true,
+        "length": 54
+      },
+      "metrics": {
+        "longTaskCount": 2,
+        "longTaskTotalMs": 853,
+        "longTaskMaxMs": 789,
+        "longTasks": [
+          {
+            "duration": 64,
+            "startTime": 3680,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 789,
+            "startTime": 3744,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          }
+        ],
+        "frameDelayCount": 1,
+        "frameDelayMaxMs": 1255,
+        "frameDelayAvgMs": 1255,
+        "memory": {
+          "usedJSHeapSize": 20500000,
+          "totalJSHeapSize": 29400000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    },
+    {
+      "case": "single-1000000",
+      "chars": 1000000,
+      "renderMs": 574.5999999046326,
+      "saveMs": 53,
+      "rendered": true,
+      "saveOk": true,
+      "failedKeys": [],
+      "typing": {
+        "duration": 8,
+        "renderedMarker": true,
+        "length": 54
+      },
+      "metrics": {
+        "longTaskCount": 2,
+        "longTaskTotalMs": 694,
+        "longTaskMaxMs": 586,
+        "longTasks": [
+          {
+            "duration": 108,
+            "startTime": 4980,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 586,
+            "startTime": 5088,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          }
+        ],
+        "frameDelayCount": 1,
+        "frameDelayMaxMs": 1142,
+        "frameDelayAvgMs": 1142,
+        "memory": {
+          "usedJSHeapSize": 20500000,
+          "totalJSHeapSize": 29400000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    },
+    {
+      "case": "count-10000-200",
+      "messageCount": 10000,
+      "charsPerMessage": 200,
+      "totalChars": 2000000,
+      "renderMs": 11484.099999904633,
+      "saveMs": 311.7000000476837,
+      "renderedCount": 10000,
+      "saveOk": true,
+      "failedKeys": [],
+      "typing": {
+        "duration": 4874.799999952316,
+        "renderedMarker": true,
+        "length": 57
+      },
+      "metrics": {
+        "longTaskCount": 7,
+        "longTaskTotalMs": 21767,
+        "longTaskMaxMs": 7230,
+        "longTasks": [
+          {
+            "duration": 7230,
+            "startTime": 6721,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 4963,
+            "startTime": 13951,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 73,
+            "startTime": 18925,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 4625,
+            "startTime": 19016,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 190,
+            "startTime": 23641,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 59,
+            "startTime": 23832,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 4627,
+            "startTime": 23891,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          }
+        ],
+        "frameDelayCount": 3,
+        "frameDelayMaxMs": 13243,
+        "frameDelayAvgMs": 7571,
+        "memory": {
+          "usedJSHeapSize": 20500000,
+          "totalJSHeapSize": 29400000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    },
+    {
+      "case": "count-50000-100",
+      "messageCount": 50000,
+      "charsPerMessage": 100,
+      "totalChars": 5000000,
+      "renderMs": 48293.5,
+      "saveMs": 2732.100000023842,
+      "renderedCount": 50000,
+      "saveOk": true,
+      "failedKeys": [],
+      "typing": {
+        "duration": 24630.5,
+        "renderedMarker": true,
+        "length": 56
+      },
+      "metrics": {
+        "longTaskCount": 4,
+        "longTaskTotalMs": 76057,
+        "longTaskMaxMs": 31493,
+        "longTasks": [
+          {
+            "duration": 31493,
+            "startTime": 31270,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 19980,
+            "startTime": 62764,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 23711,
+            "startTime": 83748,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 873,
+            "startTime": 107500,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          }
+        ],
+        "frameDelayCount": 3,
+        "frameDelayMaxMs": 54212,
+        "frameDelayAvgMs": 34436,
+        "memory": {
+          "usedJSHeapSize": 20500000,
+          "totalJSHeapSize": 29400000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    }
+  ],
+  "environment": {
+    "stepTimeoutMs": 180000,
+    "globalTimeoutMs": 2400000,
+    "runOnly": []
+  },
+  "failure": {
+    "message": "AssertionError [ERR_ASSERTION]: event count retained (5000)",
+    "at": "2026-10-23T22:32:25.765Z"
+  }
+}

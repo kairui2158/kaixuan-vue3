@@ -1,0 +1,14 @@
+{
+  "phase": "baseline-failure",
+  "scene": {
+    "readyState": "complete",
+    "workspaceOpen": true,
+    "chatOpen": true,
+    "messageCount": 1,
+    "sendDisabled": false,
+    "outlineChatLength": 1,
+    "runCount": 0,
+    "longTasks": []
+  },
+  "message": "AssertionError [ERR_ASSERTION]: all required cases executed: 1/7"
+}

@@ -1,0 +1,87 @@
+{
+  "latestRun": {
+    "id": "run-1792867615806-1",
+    "status": "running",
+    "eventCount": 26,
+    "lastEvents": [
+      {
+        "type": "agent-snapshot",
+        "label": "任务快照：running",
+        "level": "info"
+      },
+      {
+        "type": "agent-state",
+        "label": "任务状态：running",
+        "level": "info"
+      },
+      {
+        "type": "api-execution-settlement-updated",
+        "label": "第 1 次 API 调用执行状态更新",
+        "detail": "locating / 读取 0/36 / 写入 0/12 / 覆盖 0",
+        "level": "info"
+      },
+      {
+        "type": "agent-state",
+        "label": "任务状态：waiting_tool",
+        "detail": "physical request dispatched",
+        "level": "info"
+      },
+      {
+        "type": "agent-snapshot",
+        "label": "任务快照：waiting_tool",
+        "detail": "physical request dispatched",
+        "level": "info"
+      },
+      {
+        "type": "agent-state",
+        "label": "任务状态：waiting_tool",
+        "detail": "physical request dispatched",
+        "level": "info"
+      },
+      {
+        "type": "run-activity",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/直接对话",
+        "level": "info"
+      },
+      {
+        "type": "long-request-in-progress",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "level": "info"
+      },
+      {
+        "type": "physical-call",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / 直接对话 / outline-v6-phase4-model",
+        "level": "info"
+      },
+      {
+        "type": "provider-queue",
+        "label": "已获得供应商槽位",
+        "detail": "{\"providerId\":\"outline-v6-phase4-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}",
+        "level": "info"
+      },
+      {
+        "type": "run-activity",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=1",
+        "level": "info"
+      },
+      {
+        "type": "run-activity",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=1",
+        "level": "info"
+      }
+    ]
+  },
+  "streamingMessage": true,
+  "cancelButtons": [
+    {
+      "id": "btn-ow-cancel-generation",
+      "disabled": false,
+      "visible": true
+    }
+  ]
+}

@@ -1,0 +1,352 @@
+{
+  "schema": "shenyi.outline-input-gate-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-23T23:08:20.280Z",
+  "script": "verify-outline-input-gate-e2e.mjs",
+  "skill": {
+    "id": "outline-input-gate-skill",
+    "selectedThrough": "#ow-skill-select"
+  },
+  "triggerInput": "生成后讨论一下",
+  "resumeInput": "继续执行生成，并输出结果",
+  "awaiting": {
+    "bannerVisible": true,
+    "bannerText": "API 正在等待你的回复；本轮输入会接续当前大纲任务。",
+    "sendDisabled": false,
+    "inputDisabled": false,
+    "inputValue": "",
+    "activeRunCount": 1,
+    "latestRunId": "run-1792796899361-1",
+    "latestRunStatus": "running",
+    "latestRunTurnCount": 1,
+    "latestRunEvents": [
+      {
+        "type": "started"
+      },
+      {
+        "type": "user-request",
+        "detail": "生成后讨论一下"
+      },
+      {
+        "type": "input-gate-decision",
+        "detail": "mode=new_run; target=new_run; runId=none; resumeToken=none; resolvedRunId=run-1792796899361-1"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[],\"text\":\"系统提示\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[],\"text\":\"系统提示\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "routing-started",
+        "detail": "生成后讨论一下"
+      },
+      {
+        "type": "routing-diagnostics",
+        "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"llm-fallback\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited\",\"failure\":{\"stage\":\"llm-fallback\",\"message\":\"JSON 解析失败，已重试一次仍无法解析\"}}}"
+      },
+      {
+        "type": "routing-result",
+        "detail": "ambiguous-top2 | fallback=await-user"
+      },
+      {
+        "type": "turn-intent-updated",
+        "detail": "await-user"
+      },
+      {
+        "type": "skill-skipped",
+        "detail": "intent-no-match:auto"
+      },
+      {
+        "type": "routing-fallback",
+        "detail": "ambiguous-top2"
+      },
+      {
+        "type": "state-transition",
+        "detail": "awaiting_user"
+      },
+      {
+        "type": "turn-finished",
+        "detail": "skill_execution_complete"
+      },
+      {
+        "type": "session-active",
+        "detail": "第 1 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+      }
+    ]
+  },
+  "completed": {
+    "bannerVisible": false,
+    "bannerText": "",
+    "sendDisabled": false,
+    "inputDisabled": false,
+    "inputValue": "",
+    "activeRunCount": 1,
+    "latestRunId": "run-1792796899361-1",
+    "latestRunStatus": "running",
+    "latestRunTurnCount": 2,
+    "latestRunEvents": [
+      {
+        "type": "started"
+      },
+      {
+        "type": "user-request",
+        "detail": "生成后讨论一下"
+      },
+      {
+        "type": "input-gate-decision",
+        "detail": "mode=new_run; target=new_run; runId=none; resumeToken=none; resolvedRunId=run-1792796899361-1"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[],\"text\":\"系统提示\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[],\"text\":\"系统提示\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "routing-started",
+        "detail": "生成后讨论一下"
+      },
+      {
+        "type": "routing-diagnostics",
+        "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"llm-fallback\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited\",\"failure\":{\"stage\":\"llm-fallback\",\"message\":\"JSON 解析失败，已重试一次仍无法解析\"}}}"
+      },
+      {
+        "type": "routing-result",
+        "detail": "ambiguous-top2 | fallback=await-user"
+      },
+      {
+        "type": "turn-intent-updated",
+        "detail": "await-user"
+      },
+      {
+        "type": "skill-skipped",
+        "detail": "intent-no-match:auto"
+      },
+      {
+        "type": "routing-fallback",
+        "detail": "ambiguous-top2"
+      },
+      {
+        "type": "state-transition",
+        "detail": "awaiting_user"
+      },
+      {
+        "type": "turn-finished",
+        "detail": "skill_execution_complete"
+      },
+      {
+        "type": "session-active",
+        "detail": "第 1 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+      },
+      {
+        "type": "routing-diagnostics",
+        "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"keyword\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"cold-start\"}}"
+      },
+      {
+        "type": "state-transition",
+        "detail": "next_turn:继续执行生成，并输出结果"
+      },
+      {
+        "type": "user-request",
+        "detail": "继续执行生成，并输出结果"
+      },
+      {
+        "type": "input-gate-decision",
+        "detail": "mode=resume_run; target=resume_run; runId=run-1792796899361-1; resumeToken=present; resolvedRunId=run-1792796899361-1"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[],\"text\":\"系统提示\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[],\"text\":\"系统提示\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "routing-started",
+        "detail": "继续执行生成，并输出结果"
+      },
+      {
+        "type": "routing-diagnostics",
+        "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"keyword\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"cold-start\"}}"
+      },
+      {
+        "type": "turn-intent-updated",
+        "detail": "generate / none / editor.get_state,editor.document_map,editor.read_range,editor.search,editor.locate,editor.write,editor.reveal,editor.multi_get_state,editor.global_search,editor.workspace_summary,outline.get_structure,outline.read_range,outline.search,outline.get_summary"
+      },
+      {
+        "type": "routing-result",
+        "detail": "keyword-top1"
+      },
+      {
+        "type": "skill-start",
+        "detail": "步骤 1"
+      },
+      {
+        "type": "style-profile",
+        "detail": "{\"profileVersion\":1,\"locked\":false,\"injected\":false,\"target\":\"outline\",\"injectedChars\":0,\"truncated\":false,\"truncationReason\":null,\"sections\":[],\"reason\":\"style_unlocked\",\"styleTags\":\"\",\"pacingParams\":\"\"}"
+      },
+      {
+        "type": "dialogue-tool-surface-declaration",
+        "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"text\":\"系统提示\\n\\n本轮实际可调用的工具：editor.get_state(read)、editor.document_map(read)、editor.read_range(read)、editor.search(read)、editor.locate(read)、editor.write(write)、editor.reveal(read)、editor.multi_get_state(read)、editor.global_search(read)、editor.workspace_summary(read)、outline.get_structure(read)、outline.read_range(read)、outline.search(read)、outline.get_summary(read)。\\n\\n本轮工具面包含 editor.write(write)。\",\"origin\":\"application\"}"
+      },
+      {
+        "type": "api-start",
+        "detail": "{\"skillName\":\"输入门控验证技能（文本）\",\"model\":\"outline-input-gate-model\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"permissionDecision\":null}"
+      },
+      {
+        "type": "prompt-built",
+        "detail": "输入门控验证技能（文本） / outline-input-gate-skill / chain"
+      },
+      {
+        "type": "run-activity",
+        "detail": "physical_call_running / 1/输入门控验证技能（文本）"
+      },
+      {
+        "type": "long-request-in-progress",
+        "detail": "physicalCall=1 / heartbeat=false / normal"
+      },
+      {
+        "type": "physical-call",
+        "detail": "normal / 输入门控验证技能（文本） / outline-input-gate-model"
+      },
+      {
+        "type": "physical-call",
+        "detail": "normal / 输入门控验证技能（文本） / outline-input-gate-model / stop"
+      },
+      {
+        "type": "chain-handoff",
+        "detail": "{\"artifactId\":\"handoff-0-db3c9595\",\"sourceStep\":0,\"sourceSkillId\":\"outline-input-gate-skill\",\"outputHash\":\"db3c9595\",\"fullTextLength\":16,\"delivery\":\"full_text\",\"excerptLength\":16,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+      },
+      {
+        "type": "state-transition",
+        "detail": "apiCall=api-1792796899809-35 seq=1"
+      },
+      {
+        "type": "api-success",
+        "detail": "输入门控验证技能（文本） / outline-input-gate-model"
+      },
+      {
+        "type": "skill-complete",
+        "detail": "输出 16 字"
+      },
+      {
+        "type": "routing-run-complete",
+        "detail": "completed"
+      },
+      {
+        "type": "state-transition",
+        "detail": "全部链式技能执行完成"
+      },
+      {
+        "type": "skill-run-complete",
+        "detail": "模式：chain；技能：输入门控验证技能（文本）"
+      },
+      {
+        "type": "turn-finished",
+        "detail": "skill_execution_complete"
+      },
+      {
+        "type": "session-active",
+        "detail": "第 2 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+      }
+    ]
+  },
+  "providerRequests": [
+    {
+      "url": "/v1/chat/completions",
+      "messageCount": 2,
+      "messageRoles": [
+        "system",
+        "user"
+      ],
+      "containsAwaitInput": true,
+      "containsResumeInput": false,
+      "isIntentClassifierRequest": true
+    },
+    {
+      "url": "/v1/chat/completions",
+      "messageCount": 2,
+      "messageRoles": [
+        "system",
+        "user"
+      ],
+      "containsAwaitInput": true,
+      "containsResumeInput": false,
+      "isIntentClassifierRequest": true
+    },
+    {
+      "url": "/v1/chat/completions",
+      "messageCount": 2,
+      "messageRoles": [
+        "system",
+        "user"
+      ],
+      "containsAwaitInput": true,
+      "containsResumeInput": false,
+      "isIntentClassifierRequest": true
+    },
+    {
+      "url": "/v1/chat/completions",
+      "messageCount": 2,
+      "messageRoles": [
+        "system",
+        "user"
+      ],
+      "containsAwaitInput": true,
+      "containsResumeInput": false,
+      "isIntentClassifierRequest": true
+    },
+    {
+      "url": "/v1/chat/completions",
+      "messageCount": 4,
+      "messageRoles": [
+        "system",
+        "system",
+        "user",
+        "user"
+      ],
+      "containsAwaitInput": true,
+      "containsResumeInput": true,
+      "isIntentClassifierRequest": false
+    }
+  ],
+  "assertions": {
+    "awaitingBannerVisible": true,
+    "inputAndSendRemainUsable": true,
+    "noSecondActiveRun": true,
+    "resumeUsesSameRun": true,
+    "inputGateDecisionTraced": true,
+    "skillSelectedByRealDropdown": true,
+    "noPhysicalApiCallWhileAwaiting": true
+  }
+}

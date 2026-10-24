@@ -8,6 +8,7 @@ import type { ContextBudgetDecision } from '../services/contextBudget'
 import { resolveRuntimeBuildFingerprint } from '../services/buildManifest'
 import type { LifecycleStatus } from '../services/stateTransitionGuard'
 import { normalizeUsage as normalizeTraceUsage } from '../services/traceFieldNormalizer'
+import { safeModeActive } from '../services/responsivenessStore'
 
 export type RunTraceStatus =
   | 'running'
@@ -972,6 +973,15 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
   }
 
+  function rebuildEventSeqIndex(run: RunTrace, reason: 'restore' | 'direct-push') {
+    let maxSeq = 0
+    for (const event of run.events) {
+      if (typeof event.seq === 'number' && event.seq > maxSeq) maxSeq = event.seq
+    }
+    lastMaxEventSeqByRunId.set(run.id, maxSeq)
+    void reason
+  }
+
   const currentRunId = computed(() => currentRunIdBySource.value.pipeline)
   const currentApiCallId = computed(() => currentApiCallIdBySource.value.pipeline)
   const currentRun = computed(() => runs.value.find(run => run.id === currentRunId.value) || null)
@@ -1069,6 +1079,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       label: '运行未正常结束',
       detail: run.error
     })
+    rebuildEventSeqIndex(run, 'direct-push')
     run.apiCalls.forEach(call => {
       if (call.status === 'running') {
         call.status = 'failed'
@@ -1379,7 +1390,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
     call.lastExecutionActivityAt = now
     const lastEventAt = lastToolArgumentActivityEventAtByCallId.get(callId) ?? 0
-    if (now - lastEventAt < 1000) return true
+    const activityThrottleMs = safeModeActive.value ? 5000 : 1000
+    if (now - lastEventAt < activityThrottleMs) return true
     lastToolArgumentActivityEventAtByCallId.set(callId, now)
     reportRunActivity(runId, 'tool_argument_delta', [
       `apiCall=${call.seq}`,
@@ -1532,8 +1544,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   function addEvent(runId: string, event: Omit<RunTraceEvent, 'id' | 'ts'>) {
     const run = getRun(runId)
     if (!run) return
-    const seq = Math.max(lastMaxEventSeqByRunId.get(runId) || 0,
-      run.events.reduce((max, item) => Math.max(max, item.seq || 0), 0)) + 1
+    const seq = (lastMaxEventSeqByRunId.get(runId) || 0) + 1
     lastMaxEventSeqByRunId.set(runId, seq)
     const { turnId: explicitTurnId, ...rest } = event
     run.events.push({
@@ -2098,7 +2109,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     if (text) {
       const now = Date.now()
       const lastEventAt = lastStreamActivityEventAtByCallId.get(callId) ?? 0
-      if (now - lastEventAt >= 1000) {
+      const activityThrottleMs = safeModeActive.value ? 5000 : 1000
+      if (now - lastEventAt >= activityThrottleMs) {
         lastStreamActivityEventAtByCallId.set(callId, now)
         reportRunActivity(runId, 'stream_delta', `apiCall=${call.seq}`)
       }
@@ -2568,16 +2580,22 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   }
 
   function addBatchEvent(source: RunTraceSource, batchEvent: DialogueBatchEvent) {
-    const runId = currentRunIdBySource.value[source]
+    const normalizedSource = normalizeSource(source)
+    const activeRunId = currentRunIdBySource.value[normalizedSource]
+    const runId = activeRunId || lastRunIdBySource.value[normalizedSource]
     if (!runId) {
-      console.warn('[runTrace] dropped batch event without an active run', { source, batchId: batchEvent.batchId })
+      console.warn('[runTrace] dropped batch event without a recorded run', { source, batchId: batchEvent.batchId })
       return
     }
-    const run = runId ? getRun(runId) : null
-    if (run?.status !== 'running') {
-      console.warn('[runTrace] dropped batch event without an active run', { source, batchId: batchEvent.batchId })
+    const run = getRun(runId)
+    if (!run) {
+      console.warn('[runTrace] dropped batch event because the recorded run is unavailable', { source, batchId: batchEvent.batchId })
       return
     }
+    // Batch rollback/replay is a user action that may happen after a chat run
+    // has reached its terminal state. Keep those audit events attached to the
+    // most recent run of the same source instead of silently dropping them.
+    const offline = run.status !== 'running'
     addEvent(runId, {
       type: 'batch_event',
       level: batchEvent.status === 'pending' || batchEvent.status === 'applied' ? 'info' : 'warn',
@@ -2587,6 +2605,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
         `workspace=${batchEvent.workspace}`,
         `targetId=${batchEvent.targetId}`,
         `commands=${batchEvent.commandCount}`,
+        offline ? 'offline=true' : '',
         batchEvent.reason,
       ].filter(Boolean).join(' / '),
       batchEvent,
@@ -2824,6 +2843,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       source: normalizeSource(run.source),
       sourceName: RUN_TRACE_SOURCE_NAMES[normalizeSource(run.source)]
     }
+    rebuildEventSeqIndex(restoredRun, 'restore')
     runs.value.push(restoredRun)
     return true
   }

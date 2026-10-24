@@ -21,6 +21,14 @@
           </select>
         </div>
         <div class="ow-header-right">
+          <span
+            v-if="outlineJournalPersistenceText"
+            id="ow-journal-persistence-status"
+            class="ow-journal-status"
+            :class="{ 'is-error': projectStore.outlineJournalLastError }"
+            role="status"
+            aria-live="polite"
+          >{{ outlineJournalPersistenceText }}</span>
           <button
             id="btn-ow-zoom"
             class="ow-icon-btn"
@@ -97,148 +105,81 @@
             <div v-if="compatibilityNotice" id="ow-compatibility-notice" class="ow-msg assistant">
               <div class="ow-msg-bubble">{{ compatibilityNotice }}</div>
             </div>
-            <div v-for="(msg, i) in messages" :key="i" class="ow-msg" :class="msg.role">
-              <div class="ow-msg-bubble" v-html="renderMarkdown(msg.content)"></div>
-            <div
-              v-if="msg.role === 'assistant' && msg.routingFallback"
-              class="ow-routing-fallback"
-              :data-msg-index="i"
+            <DynamicScroller
+              v-if="messageVirtualizationEnabled"
+              ref="messageScrollerRef"
+              :items="virtualMessages"
+              :min-item-size="96"
+              key-field="messageId"
+              class="ow-message-scroller"
+              :buffer="600"
+              :prerender="12"
             >
-                <div class="ow-routing-title">未识别到明确执行意图</div>
-                <div class="ow-routing-desc">{{ outlineRoutingText(msg) }}</div>
-                <div class="ow-routing-actions">
-                  <button class="msg-btn" :disabled="isGenerating" @click="continueOutlineRouting(i)">按推荐技能继续</button>
-                  <details class="ow-routing-advanced">
-                    <summary>高级</summary>
-                    <button class="msg-btn" :disabled="isGenerating" @click="bypassOutlineRouting(i)">本次直接全链执行</button>
-                  </details>
-                </div>
-              </div>
-              <div
-                v-if="msg.role === 'assistant' && msg.budgetExhausted"
-                class="ow-routing-fallback ow-routing-budget"
-              >
-                <div class="ow-routing-title">API 调用预算已用尽（{{ msg.budgetExhausted.used }}/{{ msg.budgetExhausted.limit }}）</div>
-                <div class="ow-routing-desc">已保留链式断点，可追加预算后从断点继续。</div>
-                <div class="ow-routing-actions">
-                  <button class="msg-btn" :disabled="isGenerating" @click="extendOutlineBudget(i)">追加 4 次并继续</button>
-                </div>
-              </div>
-              <div
-                v-if="msg.role === 'assistant' && msg.finalDraftTask"
-                class="ow-routing-fallback ow-final-draft-status"
-                :class="msg.finalDraftTask.status"
-              >
-                <div class="ow-routing-title">终稿生成：{{ outlineFinalDraftStatusLabel(msg.finalDraftTask.status) }}</div>
-                <div class="ow-routing-desc">
-                  源文 {{ msg.finalDraftTask.sourceChars }} 字；终稿 {{ msg.finalDraftTask.completedChars || msg.finalDraftTask.accumulatedChars }} 字；续生成 {{ msg.finalDraftTask.continuationCount }} 次。
-                </div>
-                <div class="ow-routing-desc" v-if="msg.finalDraftTask.error">{{ msg.finalDraftTask.error }}</div>
-                <div class="ow-routing-desc ow-final-draft-stalled" v-if="outlineFinalDraftStalled(msg.finalDraftTask)">
-                  流式停滞：长时间无新增或持续低速输出。可继续等待、重试当前段或取消生成；重试会保留已完成分段。
-                </div>
-                <div class="ow-routing-actions" v-if="outlineFinalDraftStalled(msg.finalDraftTask)">
-                  <select
-                    v-model="outlineStalledRetryProviderId"
-                    class="ow-final-draft-provider-select"
-                    aria-label="停滞重试供应商"
-                  >
-                    <option value="">使用当前供应商</option>
-                    <option v-for="provider in outlineStalledRetryProviders" :key="provider.id" :value="provider.id">
-                      {{ provider.name }}（{{ provider.model }}）
-                    </option>
-                  </select>
-                </div>
-                <div
-                  class="ow-routing-actions"
-                  v-if="canResumeOutlineFinalDraft(msg.finalDraftTask) || outlineFinalDraftStalled(msg.finalDraftTask)"
+              <template #default="{ item, index, active }">
+                <DynamicScrollerItem
+                  :item="item"
+                  :active="active"
+                  :index="index"
+                  :data-message-id="item.messageId"
                 >
-                  <button class="msg-btn" :disabled="isGenerating" @click="continueOutlineFinalDraft(i)">继续生成终稿</button>
-                  <button
-                    v-if="msg.finalDraftTask.status === 'generating' || msg.finalDraftTask.status === 'awaiting_continuation' || msg.finalDraftTask.status === 'interrupted'"
-                    class="msg-btn"
-                    :class="{ 'is-stalled': outlineFinalDraftStalled(msg.finalDraftTask) }"
-                    :disabled="isGenerating && !outlineFinalDraftStalled(msg.finalDraftTask)"
-                    @click="retryOutlineFinalDraftSegment(i, outlineStalledRetryProviderId)"
-                  >重试当前段</button>
-                  <button
-                    v-if="msg.finalDraftTask.status === 'generating'"
-                    class="msg-btn"
-                    :disabled="isGenerating"
-                    @click="resumeOutlineFinalDraft(i)"
-                  >从检查点恢复</button>
-                </div>
-              </div>
+                  <OutlineChatMessage
+                    :message="item"
+                    :busy="isGenerating"
+                    :current-outline-content="projectStore.outlineText || ''"
+                    :batch-diff="outlineBatchDiffById(item.messageId)"
+                    :stalled-retry-providers="outlineStalledRetryProviders"
+                    @copy="copyMsg(item.content)"
+                    @replace="replaceOutline(item.content)"
+                    @regenerate="regenerateOutlineMessageById(item.messageId)"
+                    @insert="insertAtCursor(item.content)"
+                    @routing-continue="continueOutlineRoutingById(item.messageId)"
+                    @routing-bypass="bypassOutlineRoutingById(item.messageId)"
+                    @budget-extend="extendOutlineBudgetById(item.messageId)"
+                    @final-draft-continue="continueOutlineFinalDraftById(item.messageId)"
+                    @final-draft-retry-segment="providerId => retryOutlineFinalDraftSegmentById(item.messageId, providerId)"
+                    @final-draft-resume="resumeOutlineFinalDraftById(item.messageId)"
+                    @deletion-approve="approveOutlineDeletionById(item.messageId)"
+                    @deletion-dismiss="dismissOutlineDeletionById(item.messageId)"
+                    @batch-rollback="rollbackOutlineBatchById(item.messageId)"
+                    @batch-reveal="revealOutlineBatchById(item.messageId)"
+                    @batch-rollback-hunk="hunkIndex => rollbackOutlineBatchHunkById(item.messageId, hunkIndex)"
+                    @batch-reveal-hunk="hunk => revealOutlineBatchHunkById(item.messageId, hunk)"
+                    @continuation-continue="continueOutlineMessageById(item.messageId)"
+                  />
+                </DynamicScrollerItem>
+              </template>
+            </DynamicScroller>
+            <template v-else>
               <div
-                v-if="msg.role === 'assistant' && msg.outlineDeletionConfirmation"
-                class="ow-routing-fallback ow-deletion-confirmation"
-                :data-turn-id="msg.outlineDeletionConfirmation.turnId"
+                v-for="msg in messages"
+                :key="msg.messageId || ''"
               >
-                <div class="ow-routing-title">API 请求删除大纲标题，等待你授权</div>
-                <div class="ow-routing-desc">{{ msg.outlineDeletionConfirmation.reason }}。授权前原文不会被修改。</div>
-                <div class="ow-routing-actions">
-                  <button class="msg-btn" :disabled="isGenerating" @click="approveOutlineDeletion(i)">授权本次删除</button>
-                  <button class="msg-btn" :disabled="isGenerating" @click="dismissOutlineDeletion(i)">拒绝并保留原文</button>
-                </div>
-              </div>
-              <RealSkillDiagnosticsPanel
-                v-if="msg.role === 'assistant' && msg.skillRunDiagnostics"
-                :status="msg.skillRunDiagnostics.status"
-                :diagnostics="msg.skillRunDiagnostics.diagnostics"
-                :request-messages="msg.skillRunDiagnostics.requestMessages"
-                :budget="msg.skillRunDiagnostics.budget"
-                :folder-package-cache="msg.skillRunDiagnostics.folderPackageCache"
-              />
-              <div
-                v-if="msg.role === 'assistant' && msg.outlineCompatibilityMode"
-                class="ow-compatibility-mode"
-              >
-                <span class="ow-compatibility-mode-title">兼容模式：定位可靠性较低</span>
-                <span class="ow-compatibility-mode-desc">当前供应商未启用原生工具调用。请在修改命令中使用结构锚点（卷/章/节标题）或更长的唯一原文片段。</span>
-              </div>
-              <div v-if="msg.role === 'assistant' && outlineBatchDiffView(i)" class="ow-batch-diff">
-                <EditorDiffLayer
-                  :batch-plan="{
-                    ok: true,
-                    original: outlineBatchDiffView(i)!.original,
-                    next: outlineBatchDiffView(i)!.next,
-                    items: [],
-                  }"
-                  :current-content="projectStore.outlineText || ''"
-                    :stored-hunks="outlineBatchDiffView(i)!.hunks"
-              :busy="isGenerating"
-                  @rollback-hunk="hunkIndex => rollbackOutlineBatchHunk(i, hunkIndex)"
-                  @reveal-hunk="hunk => revealOutlineBatchHunk(i, hunk)"
+                <OutlineChatMessage
+                  :message="msg"
+                  :busy="isGenerating"
+                  :current-outline-content="projectStore.outlineText || ''"
+                  :batch-diff="outlineBatchDiffById(msg.messageId)"
+                  :stalled-retry-providers="outlineStalledRetryProviders"
+                  @copy="copyMsg(msg.content)"
+                  @replace="replaceOutline(msg.content)"
+                  @regenerate="regenerateOutlineMessageById(msg.messageId)"
+                  @insert="insertAtCursor(msg.content)"
+                  @routing-continue="continueOutlineRoutingById(msg.messageId)"
+                  @routing-bypass="bypassOutlineRoutingById(msg.messageId)"
+                  @budget-extend="extendOutlineBudgetById(msg.messageId)"
+                  @final-draft-continue="continueOutlineFinalDraftById(msg.messageId)"
+                  @final-draft-retry-segment="providerId => retryOutlineFinalDraftSegmentById(msg.messageId, providerId)"
+                  @final-draft-resume="resumeOutlineFinalDraftById(msg.messageId)"
+                  @deletion-approve="approveOutlineDeletionById(msg.messageId)"
+                  @deletion-dismiss="dismissOutlineDeletionById(msg.messageId)"
+                  @batch-rollback="rollbackOutlineBatchById(msg.messageId)"
+                  @batch-reveal="revealOutlineBatchById(msg.messageId)"
+                  @batch-rollback-hunk="hunkIndex => rollbackOutlineBatchHunkById(msg.messageId, hunkIndex)"
+                  @batch-reveal-hunk="hunk => revealOutlineBatchHunkById(msg.messageId, hunk)"
+                  @continuation-continue="continueOutlineMessageById(msg.messageId)"
                 />
               </div>
-              <div v-if="msg.role === 'assistant'" class="ow-msg-actions">
-                <button class="msg-btn" data-tooltip="复制" @click="copyMsg(msg.content)">复制</button>
-                <button class="msg-btn" data-tooltip="替换整个大纲" @click="replaceOutline(msg.content)">替换</button>
-              <button class="msg-btn" data-tooltip="重新生成该回复" @click="regenerateMsg(i)">重生成</button>
-              <button class="msg-btn" data-tooltip="插入到光标处" @click="insertAtCursor(msg.content)">插入</button>
-              <button
-                v-if="msg.outlineBatchRecord?.status === 'applied' && msg.outlineBatchRecord?.undoAvailable === true"
-                class="msg-btn"
-                :disabled="isGenerating"
-                data-tooltip="恢复该批次应用前的大纲内容"
-                @click="rollbackOutlineBatch(i)"
-              >回滚批次</button>
-              <button
-                v-if="msg.outlineBatchRecord?.status === 'applied'"
-                class="msg-btn"
-                :disabled="isGenerating"
-                data-tooltip="在大纲编辑器中定位首处变更"
-                @click="revealOutlineBatch(i)"
-              >查看位置</button>
-              <button
-                  v-if="msg.continuation && canContinue(msg.continuation)"
-                  class="msg-btn"
-                  :disabled="isGenerating"
-                  data-tooltip="从中断位置继续生成"
-                  @click="continueOutlineMessage(i)"
-                >续生成</button>
-              </div>
-            </div>
+            </template>
             <div v-if="isGenerating" id="ow-streaming-message" class="ow-msg assistant ow-msg-streaming">
               <div class="ow-streaming-status">
                 <div
@@ -248,6 +189,7 @@
                   :class="`is-${line.kind}`"
                 >{{ line.text }}</div>
               </div>
+              <div v-if="streamingRenderWindowed" class="ow-streaming-window-status">{{ streamingRenderWindowedText }}</div>
               <div class="ow-msg-bubble" v-html="streamingRenderedContent || '正在等待 API 返回...'"></div>
             </div>
           </div>
@@ -257,6 +199,16 @@
             @resume="resumeOutlineEditTask"
             @cancel="cancelOutlineEditTask"
           />
+          <div
+            v-if="outlineAwaitingUser"
+            id="ow-awaiting-user-banner"
+            class="ow-awaiting-banner"
+            role="status"
+            aria-live="polite"
+          >
+            <span class="ow-awaiting-dot"></span>
+            <span>{{ outlineAwaitBannerText }}</span>
+          </div>
           <div class="ow-input-row">
             <ApiChatInput
               v-model="inputText"
@@ -404,6 +356,7 @@ import {
 import type { PlainDialogueIntent } from '../../services/plainDialogueIntent'
 import RealSkillDiagnosticsPanel from './RealSkillDiagnosticsPanel.vue'
 import EditorDiffLayer from '../editor/EditorDiffLayer.vue'
+import OutlineChatMessage from './OutlineChatMessage.vue'
 import RunTracePanel from './RunTracePanel.vue'
 import EditTaskBanner from './EditTaskBanner.vue'
 import ApiChatInput from './ApiChatInput.vue'
@@ -416,7 +369,9 @@ import { useLiveApiStatus, type LiveApiStatusInput } from '../../composables/use
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import {
   getAiService,
+  type AiService,
   type CallAiParams,
+  type CallAiResult,
   type PhysicalCallEvent,
   type ProviderQueueEvent,
 } from '../../services/aiService'
@@ -425,6 +380,7 @@ import { createIntentLlmFallback } from '../../services/intentLlmFallback'
 import { conversationContextService, resolveEffectiveModelContextWindow } from '../../services/conversationContextService'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { buildContinuationMessages, continueSnapshot } from '../../services/continuationService'
+import { createOutlineMessageId } from '../../services/outlineJournal'
 import { classifyRunOutcome } from '../../services/generationValidity'
 import { slimContinuationMessages } from '../../services/continuationSlim'
 import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
@@ -465,7 +421,7 @@ import {
   retryFinalDraftSegmentTask,
   runFinalDraft,
 } from '../../services/finalDraftRunner'
-import { canResumeFinalDraftTask, finalDraftCheckpointId, resolveFinalDraftTaskFromView } from '../../services/finalDraftCheckpoint'
+import { finalDraftCheckpointId, resolveFinalDraftTaskFromView } from '../../services/finalDraftCheckpoint'
 import { compileStyleContext } from '../../services/styleContextCompiler'
 import { createElectronFinalDraftCheckpointStore } from '../../services/finalDraftCheckpointElectron'
 import { formatFinalDraftProgress } from '../../services/finalDraftProgress'
@@ -491,9 +447,9 @@ import {
   type ToolRunSupervisor,
 } from '../../services/toolRunSupervisor'
 import type { ContextMessage } from '../../types/context'
-import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { extractJsonArray } from '../../services/jsonExtraction'
+import { resolveOutlineInputGate } from '../../services/outlineInputGate'
 import { createTextareaViewport, type EditorViewport } from '../../services/editorViewport'
 import {
   buildMultiCursorEditPlan,
@@ -532,10 +488,47 @@ onMounted(() => modalQueue.open('outline-workspace'))
 onUnmounted(() => modalQueue.close('outline-workspace'))
 
 const messages = computed(() => projectStore.outlineChat)
+const outlineJournalPersistenceText = computed(() => {
+  if (projectStore.outlineJournalLastError) {
+    return projectStore.outlineJournalPendingCount > 0
+      ? `聊天落盘失败，待重试 ${projectStore.outlineJournalPendingCount} 条`
+      : '聊天落盘失败'
+  }
+  return projectStore.outlineJournalPendingCount > 0
+    ? `聊天待落盘 ${projectStore.outlineJournalPendingCount} 条`
+    : ''
+})
+const messageScrollerRef = ref<any | null>(null)
+const MESSAGE_VIRTUALIZATION_THRESHOLD = 300
+const messageVirtualizationEnabled = computed(() => messages.value.length >= MESSAGE_VIRTUALIZATION_THRESHOLD)
+const virtualMessages = computed(() => {
+  const rows: any[] = []
+  for (let index = 0; index < messages.value.length; index++) {
+    const message = messages.value[index] as Record<string, unknown>
+    rows.push({
+      id: String(message.id ?? index),
+      messageId: String(message.messageId || createOutlineMessageId(message, index)),
+      role: message.role,
+      content: message.content,
+      continuation: message.continuation,
+      routingFallback: message.routingFallback,
+      budgetExhausted: message.budgetExhausted,
+      finalDraftTask: message.finalDraftTask,
+      outlineDeletionConfirmation: message.outlineDeletionConfirmation,
+      skillRunDiagnostics: message.skillRunDiagnostics,
+      outlineCompatibilityMode: message.outlineCompatibilityMode,
+      outlineBatchRecord: message.outlineBatchRecord,
+    })
+  }
+  return rows
+})
+
+function outlineMessageIndexById(messageId: string): number {
+  return messages.value.findIndex(message => String(message.messageId || '') === messageId)
+}
 const outlineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
 let outlineStyleAnalysisRunId: string | null = null
 const inputText = ref('')
-const outlineStalledRetryProviderId = ref('')
 const outlineDeletionContract = createOutlineDeletionContract()
 const pendingOutlineDeletionConfirmation = ref<{
   turnId: string
@@ -579,6 +572,14 @@ function outlineBatchDiffView(messageIndex: number): OutlineBatchDiffSnapshot | 
   const message = messages.value[messageIndex]
   if (message?.role !== 'assistant' || message.outlineBatchRecord?.status !== 'applied') return null
   return normalizeOutlineDiff(message.outlineBatchDiff)
+}
+
+function outlineBatchDiffById(messageId: string): OutlineBatchDiffSnapshot | null {
+  return outlineBatchDiffView(outlineMessageIndexById(messageId))
+}
+
+async function resumeOutlineFinalDraftById(messageId: string) {
+  await resumeOutlineFinalDraft(outlineMessageIndexById(messageId))
 }
 let outlineFailedWriteBatch: {
   workspace: string
@@ -754,6 +755,12 @@ function reportOutlineSourceContamination(sourceContent: string) {
 }
 let lastWorkspaceSkillMeta: WorkspaceSkillRunMeta | null = null
 let outlineRunTurnId: string | null = null
+let pendingOutlineInputGateDecision: {
+  type: string
+  label: string
+  level?: 'info' | 'warn' | 'error'
+  detail?: string
+} | null = null
 let outlineSessionProjectId = ''
 let outlineSessionReadLedger: DocumentReadLedger | null = null
 let outlineApiBudget: ApiCallBudget | null = null
@@ -866,14 +873,6 @@ function recordOutlineRoutingEvent(event: ChainRoutingEvent, requestText = curre
   }
 }
 
-function outlineRoutingText(msg: any) {
-  const routing = msg?.routingFallback?.routing
-  if (routing?.kind === 'ambiguous') {
-    return `检测到多个可能意图：${routing.candidates.join('、')}。请确认后继续。`
-  }
-  return '未能识别意图，请补充写入或讨论说明'
-}
-
 function clearOutlineRoutingState(index: number) {
   const message = messages.value[index]
   if (!message) return
@@ -925,12 +924,18 @@ async function continueOutlineRouting(index: number) {
     })
   } else if (fallback.runId) {
     runTraceStore.finishAwaitingUser(fallback.runId, `resume:${fallback.requestText.slice(0, 80)}`)
+    outlineLatestAwaitResumeToken.value = null
+    outlineRunLease.value = 'new_run'
   }
   clearOutlineRoutingState(index)
   await askAi(fallback.requestText, {
     forcedIntent,
     recommendedSkillIds
   })
+}
+
+async function continueOutlineRoutingById(messageId: string) {
+  await continueOutlineRouting(outlineMessageIndexById(messageId))
 }
 
 async function bypassOutlineRouting(index: number) {
@@ -945,6 +950,10 @@ async function bypassOutlineRouting(index: number) {
   })
   clearOutlineRoutingState(index)
   await askAi(requestText, { bypass: true })
+}
+
+async function bypassOutlineRoutingById(messageId: string) {
+  await bypassOutlineRouting(outlineMessageIndexById(messageId))
 }
 
 async function extendOutlineBudget(index: number) {
@@ -970,8 +979,35 @@ async function extendOutlineBudget(index: number) {
   await askAi(requestText, { resumedApiBudget: outlineApiBudget })
 }
 
+async function extendOutlineBudgetById(messageId: string) {
+  await extendOutlineBudget(outlineMessageIndexById(messageId))
+}
+
 function outlineProjectId() {
   return String(projectStore.currentProjectId || 'default')
+}
+
+function buildOutlineAiMeta(source: string) {
+  return {
+    source,
+    projectId: outlineProjectId(),
+    workspace: 'outline' as const,
+    targetId: 'outline',
+    readableTargets: ['outline', 'outline-settings'],
+  }
+}
+
+function withOutlineAiMeta<T extends { meta?: CallAiParams['meta'] }>(
+  aiService: { callAi: (params: T) => Promise<unknown> },
+  source: string,
+) {
+  const baseMeta = buildOutlineAiMeta(source)
+  return {
+    callAi: (params: T) => aiService.callAi({
+      ...params,
+      meta: { ...baseMeta, ...(params.meta || {}) },
+    }) as unknown as Promise<CallAiResult>,
+  }
 }
 
 function buildOutlineConversationMarkers(limit = 8): Array<{ role: string; content: string }> {
@@ -988,6 +1024,14 @@ function outlineTraceTarget() {
     activeTab: '大纲编辑器',
     locked: projectStore.outlineLocked
   }
+}
+
+function outlineShouldPreserveAwaitingRunLease(runId: string | null) {
+  return Boolean(
+    runId
+    && runTraceStore.getRun(runId)?.status === 'running'
+    && runTraceStore.isAwaitingUser(runId),
+  )
 }
 
 function startOutlineRun(
@@ -1008,6 +1052,14 @@ function startOutlineRun(
     : undefined
   outlineStreamLength = 0
   const activeRun = outlineRunTraceId ? runTraceStore.getRun(outlineRunTraceId) : null
+  if (activeRun?.status === 'running' && runTraceStore.isAwaitingUser(activeRun.id)) {
+    outlineRunLease.value = 'same_run'
+  } else if (activeRun?.status === 'running') {
+    outlineRunLease.value = 'expired'
+  } else {
+    outlineRunLease.value = 'new_run'
+    outlineLatestAwaitResumeToken.value = null
+  }
   if (
     activeRun &&
     activeRun.status === 'running' &&
@@ -1056,6 +1108,13 @@ function startOutlineRun(
     label: '用户请求',
     detail: requestText
   })
+  if (pendingOutlineInputGateDecision) {
+    addOutlineTraceEvent({
+      ...pendingOutlineInputGateDecision,
+      detail: `${pendingOutlineInputGateDecision.detail}; resolvedRunId=${outlineRunTraceId || 'none'}`,
+    })
+    pendingOutlineInputGateDecision = null
+  }
 }
 
 function appendOutlineStream(text: string, isDelta = false) {
@@ -1134,7 +1193,7 @@ async function runOutlineFinalDraftTurn(options: {
       }),
     })
     const task = await runFinalDraft({
-      aiService,
+      aiService: withOutlineAiMeta(aiService, 'OutlineWorkspace.finalDraft'),
       adapter: outlineFinalDraftAdapter(),
       destination: 'outline-editor',
       targetId: 'outline',
@@ -1239,7 +1298,7 @@ async function continueOutlineFinalDraft(index: number) {
     projectStore.updateOutlineChatAt(index, { content: '正在继续生成终稿...' })
     const aiService = await getAiService()
     latestTask = await continueFinalDraftTask({
-      aiService,
+      aiService: withOutlineAiMeta(aiService, 'OutlineWorkspace.finalDraft.continue'),
       adapter: outlineFinalDraftAdapter(),
       task,
       model: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
@@ -1301,6 +1360,10 @@ async function continueOutlineFinalDraft(index: number) {
     releaseRunTracking()
     await scrollToBottom()
   }
+}
+
+async function continueOutlineFinalDraftById(messageId: string) {
+  await continueOutlineFinalDraft(outlineMessageIndexById(messageId))
 }
 
 const OUTLINE_FINAL_DRAFT_RESUME_REASONS: Record<string, string> = {
@@ -1375,7 +1438,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
     projectStore.updateOutlineChatAt(index, { content: '正在重试当前终稿分段...' })
     const aiService = await getAiService()
     latestTask = await retryFinalDraftSegmentTask({
-      aiService,
+      aiService: withOutlineAiMeta(aiService, 'OutlineWorkspace.finalDraft.retry'),
       adapter: outlineFinalDraftAdapter(),
       task,
       model: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
@@ -1449,9 +1512,8 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   }
 }
 
-function canResumeOutlineFinalDraft(task: FinalDraftTask | FinalDraftTaskView) {
-  if (task.status === 'awaiting_continuation' || task.status === 'interrupted') return true
-  return 'sourceContent' in task && canResumeFinalDraftTask(task)
+async function retryOutlineFinalDraftSegmentById(messageId: string, providerId?: string) {
+  await retryOutlineFinalDraftSegment(outlineMessageIndexById(messageId), providerId)
 }
 
 async function resumeOutlineFinalDraft(index: number) {
@@ -1483,7 +1545,7 @@ async function resumeOutlineFinalDraft(index: number) {
     projectStore.updateOutlineChatAt(index, { content: '正在恢复终稿检查点...' })
     const aiService = await getAiService()
     latestTask = await resumeFinalDraftTask({
-      aiService,
+      aiService: withOutlineAiMeta(aiService, 'OutlineWorkspace.finalDraft.resume'),
       adapter: outlineFinalDraftAdapter(),
       checkpointId: finalDraftCheckpointId(task.taskId),
       sourceContent,
@@ -1591,21 +1653,6 @@ function finishOutlineRunIfRunning(status: RunTraceStatus, error?: string, resul
     return
   }
   finishOutlineRun(status, error, resultPreview, reason)
-}
-
-function outlineFinalDraftStatusLabel(status: string) {
-  const labels: Record<string, string> = {
-    planning: '准备中',
-    generating: '生成中',
-    awaiting_continuation: '等待续生成',
-    interrupted: '慢流中断',
-    writing: '写入中',
-    completed: '已写入',
-    failed: '失败',
-    rolled_back: '已回滚',
-    canceled: '已取消',
-  }
-  return labels[status] || '未知状态'
 }
 
 function outlineFinalDraftAdapter(): FinalDraftEditorAdapter {
@@ -2714,7 +2761,7 @@ async function handleStyleAnalysisRequest(event: Event) {
         })
       },
       onProviderQueue: event => recordOutlineProviderQueue(apiCallId, event),
-      meta: { source: 'OutlineWorkspace.style-analysis' },
+      meta: buildOutlineAiMeta('OutlineWorkspace.style-analysis'),
     })
     if (apiCallId) {
       runTraceStore.finishApiCall(runId, apiCallId, {
@@ -2956,13 +3003,35 @@ const findRef = ref<HTMLInputElement | null>(null)
 const isGenerating = ref(false)
 const outlineInputUnlockedByAgent = ref(false)
 const outlineSendStarting = ref(false)
+const outlineRunLease = ref<'same_run' | 'new_run' | 'expired' | 'none'>('none')
+const outlineLatestAwaitResumeToken = ref<string | null>(null)
+const outlineInputGate = computed(() => resolveOutlineInputGate({
+  isGenerating: isGenerating.value,
+  awaitingUser: Boolean(
+    outlineRunTraceId
+    && runTraceStore.isAwaitingUser(outlineRunTraceId)
+    && runTraceStore.getRun(outlineRunTraceId)?.status === 'running',
+  ),
+  runId: outlineRunTraceId,
+  resumeToken: outlineLatestAwaitResumeToken.value,
+  interactiveResponseActive: outlineInputUnlockedByAgent.value,
+  sendStarting: outlineSendStarting.value,
+  runLease: outlineRunLease.value,
+}))
+const outlineAwaitingUser = computed(() => outlineInputGate.value.mode === 'resume_run')
+const outlineAwaitBannerText = computed(() => {
+  if (!outlineAwaitingUser.value) return ''
+  return outlineInputGate.value.resumeToken
+    ? 'API 正在等待你的回复；本轮输入会接续当前大纲任务。'
+    : 'API 正在等待你的回复；本轮输入会接续当前大纲任务。'
+})
 const outlineInputBlocked = computed(() =>
-  (isGenerating.value || outlineSendStarting.value) && !outlineInputUnlockedByAgent.value
+  !outlineInputGate.value.canSend
 )
 // The send-starting flag only suppresses duplicate UI submits. askAi is part
 // of that same send flow, so execution gating must use the generation state.
 const outlineExecutionLocked = computed(() =>
-  isGenerating.value && !outlineInputUnlockedByAgent.value
+  isGenerating.value && outlineInputGate.value.mode !== 'agent_reply'
 )
 const generationStatus = ref('')
 const streamingContent = ref('')
@@ -2997,7 +3066,12 @@ function diagnosticCountFromSummary(summary: string): number {
   if (!match) return 0
   return Number(match[1] || match[2] || 0)
 }
-const { content: streamingRenderedContent, flush: flushStreamingRender } = useThrottledMarkdown(streamingContent)
+const {
+  content: streamingRenderedContent,
+  flush: flushStreamingRender,
+  windowedStatus: streamingRenderWindowedText,
+} = useThrottledMarkdown(streamingContent)
+const streamingRenderWindowed = computed(() => Boolean(streamingRenderWindowedText.value))
 let generationController: AbortController | null = null
 let activeOutlineRunPromise: Promise<unknown> | null = null
 function beginActiveOutlineRunTracking(): () => void {
@@ -3835,21 +3909,6 @@ async function handleImport(e: Event) {
   target.value = ''
 }
 
-function renderMarkdown(text: string): string {
-  return renderMarkdownText(text)
-}
-
-watch(messages, async () => {
-  await nextTick()
-  await enhanceCodeBlocks(msgContainer.value)
-}, { immediate: true })
-
-watch(streamingContent, async () => {
-  await nextTick()
-  const streamingMessage = document.getElementById('ow-streaming-message')
-  await enhanceCodeBlocks(streamingMessage?.querySelector('.ow-msg-bubble') || null)
-})
-
 function rollbackOutlineBatch(messageIndex: number) {
   if (isGenerating.value) {
     void appConfirm.alert('正在生成中，请等待当前回复完成后再回滚批次')
@@ -4175,6 +4234,30 @@ function revealOutlineBatchHunk(messageIndex: number, hunk: EditorDiffHunk) {
   })
 }
 
+function rollbackOutlineBatchById(messageId: string) {
+  rollbackOutlineBatch(outlineMessageIndexById(messageId))
+}
+
+function revealOutlineBatchById(messageId: string) {
+  revealOutlineBatch(outlineMessageIndexById(messageId))
+}
+
+function rollbackOutlineBatchHunkById(messageId: string, hunkIndex: number) {
+  rollbackOutlineBatchHunk(outlineMessageIndexById(messageId), hunkIndex)
+}
+
+function revealOutlineBatchHunkById(messageId: string, hunk: EditorDiffHunk) {
+  revealOutlineBatchHunk(outlineMessageIndexById(messageId), hunk)
+}
+
+async function approveOutlineDeletionById(messageId: string) {
+  await approveOutlineDeletion(outlineMessageIndexById(messageId))
+}
+
+function dismissOutlineDeletionById(messageId: string) {
+  dismissOutlineDeletion(outlineMessageIndexById(messageId))
+}
+
 function pendingOutlineDirectWriteFields() {
   const directWrite = pendingOutlineDirectWrite.value
   return directWrite
@@ -4430,7 +4513,7 @@ async function autoDecompose(outline: string) {
       maxTokens: agent?.maxTokens ?? null,
       stream: false,
       retry: true,
-      meta: { source: 'outline.autoDecompose' }
+      meta: buildOutlineAiMeta('outline.autoDecompose')
     })
     trace.finishApiCall(decomposeCallId, {
       status: decomposeResponse.text ? 'success' : 'degraded',
@@ -4471,7 +4554,7 @@ async function autoDecompose(outline: string) {
       maxTokens: agent?.maxTokens ?? null,
       stream: false,
       retry: true,
-      meta: { source: 'outline.autoDecompose' }
+      meta: buildOutlineAiMeta('outline.autoDecompose')
     })
     trace.finishApiCall(foreshadowCallId, {
       status: foreshadowResponse.text ? 'success' : 'degraded',
@@ -4625,9 +4708,24 @@ function insertAtCursor(text: string) {
 async function sendMessage() {
   if (outlineSendStarting.value) return
   const text = inputText.value.trim()
-  if (!text || outlineInputBlocked.value) return
+  const inputGate = outlineInputGate.value
+  if (!text || !inputGate.canSend) return
   outlineSendStarting.value = true
   try {
+    pendingOutlineInputGateDecision = {
+      type: 'input-gate-decision',
+      level: 'info',
+      label: '输入门控决策',
+      detail: [
+        `mode=${inputGate.mode}`,
+        `target=${inputGate.sendTarget}`,
+        `runId=${inputGate.runId || 'none'}`,
+        `resumeToken=${inputGate.resumeToken ? 'present' : 'none'}`,
+      ].join('; '),
+    }
+    if (inputGate.mode === 'resume_run') {
+      outlineRunLease.value = 'same_run'
+    }
   if (isOutlineDeletionAffirmativeInput(text)) {
     const consumed = await consumeOutlineDeletionAffirmativeTurn(text)
     if (consumed) {
@@ -4646,6 +4744,11 @@ async function sendMessage() {
   await askAi(text)
   } finally {
     outlineSendStarting.value = false
+    if (outlineShouldPreserveAwaitingRunLease(outlineRunTraceId)) {
+      outlineRunLease.value = 'same_run'
+    } else if (inputGate.mode !== 'agent_reply') {
+      outlineRunLease.value = 'none'
+    }
   }
 }
 
@@ -4671,8 +4774,16 @@ async function regenerateMsg(index: number) {
   await askAi(requestText)
 }
 
+async function regenerateOutlineMessageById(messageId: string) {
+  await regenerateMsg(outlineMessageIndexById(messageId))
+}
+
 async function scrollToBottom() {
   await nextTick()
+  if (messageVirtualizationEnabled.value) {
+    messageScrollerRef.value?.scrollToBottom?.()
+    return
+  }
   if (msgContainer.value) msgContainer.value.scrollTop = msgContainer.value.scrollHeight
 }
 
@@ -5173,7 +5284,11 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     })
     // BUG-2 修复：等待用户确认时不收尾，trace 保持 running；用户确认后由正常链路 finishRun
     generationStatus.value = '等待意图确认'
-    if (outlineRunTraceId) runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_user')
+    if (outlineRunTraceId) {
+      runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_user')
+      outlineLatestAwaitResumeToken.value = awaitingState?.resumeToken || null
+      outlineRunLease.value = 'same_run'
+    }
     activeOutlineExecutionPlan = null
     return
   }
@@ -6024,13 +6139,7 @@ async function askPlainAi(
           compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
         }
       } : undefined,
-      meta: {
-        source: 'OutlineWorkspace.askAi',
-        workspace: 'outline',
-        targetId: 'outline',
-        readableTargets: ['outline', 'outline-settings'],
-      },
-      callAi: params => aiService!.callAi(params),
+      callAi: withOutlineAiMeta(aiService!, 'OutlineWorkspace.askAi').callAi,
     })
     const result = agentResult.result
     if (!result) throw new Error(agentResult.reason || 'Agent 编排器未返回 API 结果')
@@ -6361,12 +6470,7 @@ async function askPlainAi(
                   })
                 },
               } : undefined,
-              meta: {
-                source: 'OutlineWorkspace.askPlainAi.retry',
-                workspace: 'outline',
-                targetId: 'outline',
-                readableTargets: ['outline', 'outline-settings'],
-              },
+              meta: buildOutlineAiMeta('OutlineWorkspace.askPlainAi.retry'),
             })
             const retryText = retryResult.text || ''
             plainAiResult = retryResult
@@ -6659,6 +6763,10 @@ async function continueOutlineMessage(index: number) {
   await scrollToBottom()
 }
 
+async function continueOutlineMessageById(messageId: string) {
+  await continueOutlineMessage(outlineMessageIndexById(messageId))
+}
+
 async function restoreOutlineContinuation() {
   try {
     const stored = await loadContinuation(outlineProjectId(), OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
@@ -6700,7 +6808,7 @@ async function resetConversation() {
   activeExecutionTaskStore.clear('outline', outlineProjectId())
   activeOutlineExecutionPlan = null
     try {
-    projectStore.outlineChat = []
+    await projectStore.resetOutlineJournal()
     await nextTick()
     await conversationContextService.clearSession({
       projectId: String(projectStore.currentProjectId || 'default'),
@@ -6788,6 +6896,18 @@ function handleUnlockOutline() {
   display: flex;
   align-items: center;
   gap: var(--space-4);
+}
+.ow-journal-status {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.ow-journal-status.is-error {
+  color: var(--warning, #d97706);
 }
 .ow-icon-btn {
   width: 30px;
@@ -6984,7 +7104,7 @@ function handleUnlockOutline() {
 }
 .ow-messages {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding: var(--space-5);
   min-height: 0;
 }
@@ -7015,6 +7135,15 @@ function handleUnlockOutline() {
   margin: 0 0 var(--space-2) var(--space-1);
   color: var(--text-secondary);
   font-size: var(--font-size-xs);
+}
+.ow-streaming-window-status {
+  margin: 0 0 var(--space-2) var(--space-1);
+  color: var(--warning);
+  font-size: var(--font-size-xs);
+}
+.ow-message-scroller {
+  height: 100%;
+  overflow-y: auto;
 }
 .ow-live-status-line {
   white-space: nowrap;
@@ -7127,6 +7256,26 @@ function handleUnlockOutline() {
   gap: var(--space-3);
   padding: var(--space-5) var(--space-5);
   border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+.ow-awaiting-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 var(--space-5);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  flex-shrink: 0;
+}
+.ow-awaiting-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warning, #d97706);
   flex-shrink: 0;
 }
 .ow-footer {

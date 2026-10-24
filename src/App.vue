@@ -42,6 +42,10 @@
       <span>{{ rendererRecoveryNotice }}</span>
       <button class="save-error-dismiss" @click="rendererRecoveryNotice = ''">知道了</button>
     </div>
+    <div v-if="safeModeActive" id="app-safe-mode-banner" class="save-error-banner safe-mode-banner" role="status">
+      <span>界面已进入安全模式：仅降低渲染负载，输入、取消和页面切换仍可使用。</span>
+      <button class="save-error-dismiss" @click="exitSafeMode">退出安全模式</button>
+    </div>
 
     <InlineMenu :visible="inlineMenu.visible" :x="inlineMenu.x" :y="inlineMenu.y" :selectedText="inlineMenu.text" @close="inlineMenu.visible=false" @action="handleInlineAction" />
     <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
@@ -72,6 +76,7 @@ import { usePipelineStore } from './stores/pipeline'
 import { useEditorStore } from './stores/editor'
 import { useRunTraceStore } from './stores/runTrace'
 import { appPerformanceMonitor, installPerformanceMonitorReadSurface } from './services/performanceMonitor'
+import { installResponsivenessBridge, installResponsivenessProjection, safeModeActive } from './services/responsivenessStore'
 import { shutdownApplication } from './services/appShutdown'
 import SidebarNav from './components/sidebar/SidebarNav.vue'
 import ChapterTree from './components/sidebar/ChapterTree.vue'
@@ -233,6 +238,8 @@ function handleAiNamingInsert(e: Event) {
 
 const appMainRef = ref<HTMLElement | null>(null)
 let performanceWatchdogTimer: ReturnType<typeof setInterval> | null = null
+let rendererResizeObserver: MutationObserver | null = null
+let removeRendererRecoveryNotice: (() => void) | null = null
 const {
   widths: resizerWidths,
   dragging: isResizing,
@@ -247,6 +254,8 @@ const {
 onMounted(async () => {
   appPerformanceMonitor.start()
   installPerformanceMonitorReadSurface()
+  installResponsivenessProjection()
+  installResponsivenessBridge()
   performanceWatchdogTimer = setInterval(() => appPerformanceMonitor.tick(), 500)
   // Fire all independent store loads in parallel for startup speed
   await Promise.all([
@@ -301,29 +310,16 @@ try {
   window.addEventListener('ai-naming-insert', handleAiNamingInsert)
  nextTick(() => initResizers())
  // Rebind splitters when panels toggle via v-if
- const observer = new MutationObserver(() => {
-   nextTick(() => rebindResizers())
- })
-let removeRendererRecoveryNotice: (() => void) | null = null
+  rendererResizeObserver = new MutationObserver(() => {
+    nextTick(() => rebindResizers())
+  })
 if (typeof window !== 'undefined' && (window as any).electronAPI?.onRendererRecoveryNotice) {
   removeRendererRecoveryNotice = (window as any).electronAPI.onRendererRecoveryNotice((detail: { message?: string }) => {
     rendererRecoveryNotice.value = detail?.message || '窗口页面进程异常退出，请检查未保存内容。'
   })
 }
-onUnmounted(() => {
-  appPerformanceMonitor.stop()
-  if (performanceWatchdogTimer) {
-    clearInterval(performanceWatchdogTimer)
-    performanceWatchdogTimer = null
-  }
-  window.removeEventListener('generate-body', handleGenerateBody)
-  window.removeEventListener('insert-text', handleInsertText)
-  window.removeEventListener('show-skill-binding', handleSkillBinding)
-  window.removeEventListener('ai-naming-insert', handleAiNamingInsert)
-  removeRendererRecoveryNotice?.()
-})
  const appMainEl = document.querySelector('.app-main-content')
- if (appMainEl) observer.observe(appMainEl, { childList: true, subtree: false })
+ if (appMainEl) rendererResizeObserver.observe(appMainEl, { childList: true, subtree: false })
   const labels: Record<string, string> = {
     'pipeline': '生成流水线', 'settings': '设置', 'outline-workspace': '大纲工作台',
     'memory': '记忆管理', 'dashboard': '写作仪表盘', 'plugin-market': '插件市场'
@@ -380,11 +376,31 @@ if (typeof window !== 'undefined') {
  }
 
  // Multi-window: on startup, check if main process assigned us a specific project
- ;(window as any).electronAPI?.windowGetInitialProjectId?.().then((pid: string | null) => {
-   if (pid && pid !== projectStore.currentProjectId) {
-     projectStore.loadProject(pid)
-   }
- })
+  ;(window as any).electronAPI?.windowGetInitialProjectId?.().then((pid: string | null) => {
+    if (pid && pid !== projectStore.currentProjectId) {
+      projectStore.loadProject(pid)
+    }
+  })
+})
+
+function exitSafeMode() {
+  appPerformanceMonitor.exitSafeMode('user_exit')
+}
+
+onUnmounted(() => {
+  appPerformanceMonitor.stop()
+  if (performanceWatchdogTimer) {
+    clearInterval(performanceWatchdogTimer)
+    performanceWatchdogTimer = null
+  }
+  window.removeEventListener('generate-body', handleGenerateBody)
+  window.removeEventListener('insert-text', handleInsertText)
+  window.removeEventListener('show-skill-binding', handleSkillBinding)
+  window.removeEventListener('ai-naming-insert', handleAiNamingInsert)
+  rendererResizeObserver?.disconnect()
+  rendererResizeObserver = null
+  removeRendererRecoveryNotice?.()
+  removeRendererRecoveryNotice = null
 })
 
 
@@ -519,6 +535,11 @@ main {
   background: transparent; border: 1px solid var(--text-on-accent);
   color: var(--text-on-accent); border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-5); cursor: pointer; flex-shrink: 0;
+}
+.safe-mode-banner {
+  /* Safe mode must remain operable above full-screen workspace modals. */
+  z-index: 9100;
+  background: var(--warning, #b8860b);
 }
 </style>
 

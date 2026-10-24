@@ -1,0 +1,21 @@
+{
+  "schema": "shenyi.outline-v6-baseline",
+  "version": 1,
+  "generatedAt": "2026-10-23T22:34:34.464Z",
+  "build": {
+    "rendererIndexMtime": "2026-10-23T19:57:21.022Z"
+  },
+  "cases": [],
+  "environment": {
+    "stepTimeoutMs": 180000,
+    "globalTimeoutMs": 900000,
+    "runOnly": [
+      "events-5000",
+      "events-20000"
+    ]
+  },
+  "failure": {
+    "message": "Error: page.evaluate: ReferenceError: ledger is not defined\n    at eval (eval at evaluate (:303:30), <anonymous>:25:20)\n    at UtilityScript.evaluate (<anonymous>:305:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+    "at": "2026-10-23T22:34:41.847Z"
+  }
+}

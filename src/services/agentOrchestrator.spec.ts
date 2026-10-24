@@ -214,6 +214,39 @@ describe('AgentOrchestrator state machine', () => {
     expect(runtime.callAi).toHaveBeenCalledTimes(1)
   })
 
+  it('stops a direct write plan after one no-tool text response', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '在文末追加一段总结',
+      content: '第一段：旧句。\n第二段：验证正文。',
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('direct')
+
+    const liveBudget = createToolRunBudget({ plan: executionPlan })
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult(
+        '我建议直接在文末追加一段总结。',
+      ) as CallAiResult),
+      document: {
+        content: '第一段：旧句。\n第二段：验证正文。',
+        operationType: 'targeted-edit',
+        executionPlan,
+      },
+      toolRunBudgetInstance: liveBudget,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('write_not_executed')
+    expect(result.text).toContain('追加一段总结')
+    expect(runtime.callAi).toHaveBeenCalledTimes(1)
+    expect(agent.getSnapshot().maxPhysicalRequests).toBe(52)
+    expect(agent.getSnapshot().callCount).toBe(1)
+  })
+
   it('uses the supplied live tool budget instead of rebuilding a second budget', async () => {
     const content = '第一段：旧句。'
     const executionPlan = buildLongDocumentExecutionPlan({

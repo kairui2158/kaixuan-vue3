@@ -1,0 +1,14 @@
+{
+  "phase": "baseline-failure",
+  "scene": {
+    "readyState": "complete",
+    "workspaceOpen": true,
+    "chatOpen": true,
+    "messageCount": 0,
+    "sendDisabled": false,
+    "outlineChatLength": 0,
+    "runCount": 1,
+    "longTasks": []
+  },
+  "message": "Error: page.evaluate: ReferenceError: ledger is not defined\n    at eval (eval at evaluate (:303:30), <anonymous>:25:20)\n    at UtilityScript.evaluate (<anonymous>:305:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+}

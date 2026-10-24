@@ -22,6 +22,12 @@ export interface ProviderSchedulerSlot {
   release: () => void
 }
 
+export interface ProviderSchedulerSnapshot {
+  maxConcurrencyPerProvider: number
+  activeCountByProvider: Record<string, number>
+  waitingCountByProvider: Record<string, number>
+}
+
 interface QueueItem {
   onEvent?: (event: ProviderQueueEvent) => void
   start: () => void
@@ -38,6 +44,8 @@ export function createProviderScheduler(options?: {
   )
   const activeCountByProvider = new Map<string, number>()
   const queuesByProvider = new Map<string, QueueItem[]>()
+  let externalSnapshot: Partial<ProviderSchedulerSnapshot> = {}
+  let externalSnapshotEnabled = false
 
   const queueSnapshot = (providerId: string) =>
     queuesByProvider.get(providerId) || []
@@ -153,12 +161,26 @@ export function createProviderScheduler(options?: {
 
   return {
     acquire,
-    snapshot: () => ({
-      maxConcurrencyPerProvider,
-      activeCountByProvider: Object.fromEntries(activeCountByProvider),
-      waitingCountByProvider: Object.fromEntries(
-        [...queuesByProvider.entries()].map(([providerId, items]) => [providerId, items.length]),
-      ),
-    }),
+    snapshot: (): ProviderSchedulerSnapshot => {
+      const localSnapshot = {
+        maxConcurrencyPerProvider,
+        activeCountByProvider: Object.fromEntries(activeCountByProvider),
+        waitingCountByProvider: Object.fromEntries(
+          [...queuesByProvider.entries()].map(([providerId, items]) => [providerId, items.length]),
+        ),
+      }
+      return externalSnapshotEnabled ? { ...localSnapshot, ...externalSnapshot } : localSnapshot
+    },
+    setExternalSnapshot: (snapshot: Partial<ProviderSchedulerSnapshot> | null | undefined) => {
+      if (!snapshot || typeof snapshot !== 'object') {
+        externalSnapshot = {}
+        externalSnapshotEnabled = false
+        return
+      }
+      externalSnapshot = { ...snapshot }
+      externalSnapshotEnabled = true
+    },
+    externalSnapshot: () => ({ ...externalSnapshot }),
+    isExternalSnapshotEnabled: () => externalSnapshotEnabled,
   }
 }

@@ -16,6 +16,11 @@ import type {
 } from '../types/memory'
 import { getChangeHistory, rollbackByChapter, rollbackTo, saveChangeRecord } from '../services/memoryVersion'
 import {
+  createOutlineJournalSnapshot,
+  type OutlineJournalCommand,
+} from '../services/outlineJournal'
+import { safeModeActive } from '../services/responsivenessStore'
+import {
   createTrackingTransaction,
   commitImport,
   commitTransaction,
@@ -543,9 +548,11 @@ export const useProjectStore = defineStore('project', () => {
  const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
  const schemaVersion = ref(CURRENT_SCHEMA_VERSION)
   const pipelineConfig = ref<{ volumeCount: number; volumeWords: number; chapterWords: number }>({ volumeCount: 3, volumeWords: 100000, chapterWords: 3500 })
-  const memories = ref<MemoryData>(createDefaultMemories())
-  const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
+ const memories = ref<MemoryData>(createDefaultMemories())
+ const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
  const outlineChat = ref<any[]>([])
+ const outlineJournalPendingCount = ref(0)
+ const outlineJournalLastError = ref<string | null>(null)
  const editorBookmarks = ref<EditorBookmark[]>([])
  const styleProfile = ref<StyleProfile>(createDefaultStyleProfile())
 
@@ -743,7 +750,22 @@ export const useProjectStore = defineStore('project', () => {
     memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
     aiNaming.value = normalizeAiNaming(data.aiNaming)
     styleProfile.value = normalizeStyleProfile(data.styleProfile)
-     outlineChat.value = data.outlineChat || []
+     const legacyOutlineChat = Array.isArray(data.outlineChat) ? data.outlineChat : []
+     const journalResult = await window.electronAPI.outlineJournalSnapshot?.(id)
+     if (journalResult?.ok) {
+       outlineChat.value = journalResult.snapshot?.messages || []
+     } else {
+       outlineChat.value = legacyOutlineChat
+     }
+     if (Array.isArray(legacyOutlineChat) && legacyOutlineChat.length > 0) {
+       const migration = await window.electronAPI.outlineJournalMigrate?.(id, legacyOutlineChat)
+       if (migration?.ok && migration.snapshot) {
+         outlineChat.value = migration.snapshot.messages
+         const legacyFields = { ...data } as Record<string, unknown>
+         delete legacyFields.outlineChat
+         await window.electronAPI.storageWrite(storageKey('project_' + id), legacyFields)
+       }
+     }
     editorBookmarks.value = Array.isArray(data.editorBookmarks)
        ? data.editorBookmarks.filter((item: any) => item && typeof item.id === 'string' && typeof item.documentId === 'string')
        : []
@@ -801,13 +823,7 @@ export const useProjectStore = defineStore('project', () => {
       memoryBlacklist: toPlain(memoryBlacklist.value),
      aiNaming: toPlain(aiNaming.value),
      styleProfile: toPlain(styleProfile.value),
-     outlineChat: (toPlain(outlineChat.value) as Array<Record<string, unknown>>).map(message => {
-       if (!message || typeof message !== 'object' || !('outlineDeletionConfirmation' in message)) return message
-       const next = { ...message } as Record<string, unknown>
-       delete next.outlineDeletionConfirmation
-       return next
-     }),
-     editorBookmarks: toPlain(editorBookmarks.value)
+    editorBookmarks: toPlain(editorBookmarks.value)
     }
    const failedKeys: string[] = []
     const projectOk = await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
@@ -858,27 +874,123 @@ export const useProjectStore = defineStore('project', () => {
  }
 
   function appendOutlineChat(msg: any) {
-    outlineChat.value.push(msg)
-    saveProject()
+    const message = { ...msg } as Record<string, unknown>
+    const normalized = createOutlineJournalSnapshot(currentProjectId.value || 'default', [message])
+    const nextMessage = normalized.messages[0]
+    outlineChat.value.push(nextMessage)
+    void queueOutlineJournalCommand({ op: 'append', messageId: String(nextMessage.messageId), message: nextMessage })
   }
 
   function removeOutlineChatAt(index: number) {
     if (index >= 0 && index < outlineChat.value.length) {
+      const messageId = outlineChat.value[index]?.messageId
       outlineChat.value.splice(index, 1)
-      saveProject()
+      if (typeof messageId === 'string' && messageId) {
+        void queueOutlineJournalCommand({ op: 'remove', messageId })
+      }
     }
   }
 
   function updateOutlineChatAt(index: number, patch: Record<string, any>) {
     if (index >= 0 && index < outlineChat.value.length) {
+      const previous = outlineChat.value[index] as Record<string, unknown> | undefined
+      const messageId = previous?.messageId
       const next = { ...outlineChat.value[index], ...patch }
       if (patch.routingFallback === undefined) delete next.routingFallback
       if (patch.budgetExhausted === undefined) delete next.budgetExhausted
       if (patch.outlineBatchDiff === undefined) delete next.outlineBatchDiff
       if (patch.outlineDeletionConfirmation === undefined) delete next.outlineDeletionConfirmation
+      if (!messageId) {
+        const normalized = createOutlineJournalSnapshot(
+          currentProjectId.value || 'default',
+          [next as Record<string, unknown>],
+        )
+        next.messageId = normalized.messages[0].messageId
+      }
       outlineChat.value[index] = next
-      saveProject()
+      if (typeof next.messageId === 'string' && next.messageId) {
+        void queueOutlineJournalCommand({
+          op: 'replace',
+          messageId: String(next.messageId),
+          message: next as Record<string, unknown>,
+        })
+      }
     }
+  }
+
+  const outlineJournalQueue: {
+    pending: OutlineJournalCommand[]
+    timer: ReturnType<typeof setTimeout> | null
+    flush: ((value: { ok: boolean; error?: string }) => void) | null
+  } = { pending: [], timer: null, flush: null }
+
+  function outlineJournalUnavailable(): { ok: true; error: string } {
+    outlineJournalLastError.value = 'outline_journal_unavailable_fallback_memory_only'
+    return { ok: true, error: outlineJournalLastError.value }
+  }
+
+  function scheduleOutlineJournalFlush(delay?: number) {
+    if (outlineJournalQueue.timer) return
+    const effectiveDelay = delay ?? (safeModeActive.value ? 2000 : 300)
+    outlineJournalQueue.timer = setTimeout(() => {
+      outlineJournalQueue.timer = null
+      void flushOutlineJournal()
+    }, effectiveDelay)
+  }
+
+  async function flushOutlineJournal(options: { immediate?: boolean } = {}): Promise<{ ok: boolean; error?: string }> {
+    const commands = outlineJournalQueue.pending
+    outlineJournalQueue.pending = []
+    outlineJournalPendingCount.value = 0
+    if (commands.length === 0) {
+      const result = await window.electronAPI.outlineJournalFlush?.(currentProjectId.value || 'default')
+      if (!window.electronAPI.outlineJournalFlush) return outlineJournalUnavailable()
+      if (result?.ok === true) {
+        outlineJournalLastError.value = null
+        return { ok: true }
+      }
+      outlineJournalLastError.value = result?.error || 'outline_journal_flush_failed'
+      return { ok: false, error: outlineJournalLastError.value || undefined }
+    }
+    const result = await window.electronAPI.outlineJournalApply?.(
+      currentProjectId.value || 'default',
+      commands,
+      { immediate: options.immediate === true },
+    )
+    if (!window.electronAPI.outlineJournalApply) {
+      outlineJournalQueue.pending = [...commands, ...outlineJournalQueue.pending]
+      outlineJournalPendingCount.value = outlineJournalQueue.pending.length
+      return outlineJournalUnavailable()
+    }
+    if (result?.ok === true) {
+      outlineJournalLastError.value = null
+      return { ok: true }
+    }
+    outlineJournalQueue.pending = [...commands, ...outlineJournalQueue.pending]
+    outlineJournalPendingCount.value = outlineJournalQueue.pending.length
+    outlineJournalLastError.value = result?.error || 'outline_journal_apply_failed'
+    return { ok: false, error: result?.error || 'outline_journal_apply_failed' }
+  }
+
+  async function resetOutlineJournal(): Promise<void> {
+    outlineChat.value = []
+    if (outlineJournalQueue.timer) clearTimeout(outlineJournalQueue.timer)
+    outlineJournalQueue.timer = null
+    outlineJournalQueue.pending = []
+    outlineJournalPendingCount.value = 0
+    outlineJournalLastError.value = null
+    await window.electronAPI.outlineJournalApply?.(
+      currentProjectId.value || 'default',
+      [{ op: 'clear', messageId: 'outline-chat-reset' }],
+      { immediate: true },
+    )
+  }
+
+  function queueOutlineJournalCommand(command: OutlineJournalCommand) {
+    outlineJournalQueue.pending.push(command)
+    outlineJournalPendingCount.value = outlineJournalQueue.pending.length
+    if (outlineJournalQueue.pending.length >= 32) void flushOutlineJournal()
+    else scheduleOutlineJournalFlush()
   }
 
   function addNamingFavorite(item: NamingResult) {
@@ -1525,6 +1637,11 @@ export const useProjectStore = defineStore('project', () => {
     aiNaming.value = createDefaultAiNamingData()
     styleProfile.value = createDefaultStyleProfile()
     outlineChat.value = []
+    if (outlineJournalQueue.timer) clearTimeout(outlineJournalQueue.timer)
+    outlineJournalQueue.timer = null
+    outlineJournalQueue.pending = []
+    outlineJournalPendingCount.value = 0
+    outlineJournalLastError.value = null
     editorBookmarks.value = []
     schemaVersion.value = CURRENT_SCHEMA_VERSION
   }
@@ -1555,6 +1672,7 @@ export const useProjectStore = defineStore('project', () => {
     await window.electronAPI.storageRemove('wa_project_' + id)
     await window.electronAPI.storageRemove(storageKey('project_' + id))
     await window.electronAPI.storageRemove('wa_project-' + id)
+    await window.electronAPI.storageRemove('outline-journal_' + id)
     // Also remove old ProjectManager formats that could trigger recovery
     await window.electronAPI.storageRemove('project-' + id)
     await window.electronAPI.storageRemove('wa_projects')
@@ -1623,7 +1741,8 @@ export const useProjectStore = defineStore('project', () => {
     memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
     updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordMemoryTransaction, recordMemoryImport, recordSourceVersion, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
-    outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
+    outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt, flushOutlineJournal, resetOutlineJournal,
+    outlineJournalPendingCount, outlineJournalLastError,
     editorBookmarks, setEditorBookmarks,
     styleProfile, styleProfileEffective, updateStyleProfileDraft, applyStyleProfileDraftPatch, lockStyleProfile, unlockStyleProfile, applyAiStyleAnalysis,
     applyStyleImportPreview, applyStyleAnalysisPreview, updateStyleRuleEnabled,

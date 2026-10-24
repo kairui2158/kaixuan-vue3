@@ -1,0 +1,72 @@
+{
+  "schema": "shenyi.outline-v6-phase3-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-24T12:47:37.557Z",
+  "script": "verify-outline-v6-phase3-e2e.mjs",
+  "projectId": "outline-v6-phase3-project",
+  "realUiLongStream": {
+    "inputLatency": {
+      "latencyMs": 5.799999952316284,
+      "disabled": false,
+      "readOnly": false
+    },
+    "stream": {
+      "bytesReceived": 73304,
+      "chunkCount": 5
+    }
+  },
+  "ringBuffer": {
+    "transportedChunkCount": 2462,
+    "rendererChunkCount": 2462,
+    "bytesReceived": 184904,
+    "backpressure": true,
+    "checkpointLength": 66218
+  },
+  "windowIsolation": {
+    "secondWindowSeesStream": false,
+    "secondWindowCanHeartbeat": false,
+    "ownerCompleted": true
+  },
+  "orphanRecovery": {
+    "status": "orphaned",
+    "reason": "heartbeat_timeout",
+    "recoveryStatus": "recovering",
+    "disposition": "partial"
+  },
+  "providerRequests": [
+    {
+      "seq": 1,
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "messageCount": 3
+    },
+    {
+      "seq": 2,
+      "url": "/v1/chat/completions/burst",
+      "stream": true,
+      "messageCount": 0
+    },
+    {
+      "seq": 3,
+      "url": "/v1/chat/completions/slow",
+      "stream": true,
+      "messageCount": 0
+    },
+    {
+      "seq": 4,
+      "url": "/v1/chat/completions/stall",
+      "stream": true,
+      "messageCount": 0
+    }
+  ],
+  "assertions": {
+    "realUiSendAndStream": true,
+    "inputResponsiveDuringStream": true,
+    "registryHasProviderAndProjectIdentity": true,
+    "ringBufferBoundedBackpressure": true,
+    "schedulerSnapshotWindowIsolated": true,
+    "secondWindowReadOnly": true,
+    "heartbeatLossCreatesRecoveringPartialCheckpoint": true,
+    "orphanDoesNotImpersonateSuccess": true
+  }
+}

@@ -10,6 +10,21 @@ interface ElectronApiBridge {
   storageWrite(key: string, data: any): Promise<any> | any
   storageRemove(key: string): Promise<any> | any
   storageList(): Promise<any> | any
+  outlineJournalApply(projectId: string, commands: any[], options?: { immediate?: boolean }): Promise<any> | any
+  outlineJournalSnapshot(projectId: string): Promise<any> | any
+  outlineJournalMigrate(projectId: string, messages: any[]): Promise<any> | any
+  outlineJournalFlush(projectId: string): Promise<any> | any
+  outlineJournalFlushAll(): Promise<any> | any
+  outlineJournalRestore(projectId: string, snapshot: any): Promise<any> | any
+  outlineJournalTestFailureControl(command: { op: 'fail' | 'clear'; operation?: 'apply' | 'flush'; error?: string }): Promise<any> | any
+  providerNetRegistry(): Promise<any> | any
+  providerNetHeartbeat(streamId: string): Promise<any> | any
+  providerNetSchedulerSnapshot(): Promise<any> | any
+  providerNetStreamFrame: any
+  onProviderNetStreamFrame(callback: (payload: any) => void): () => void
+  responsivenessLedger(): Promise<any> | any
+  responsivenessReport(payload: { kind: string; detail?: unknown }): Promise<any> | any
+  onResponsivenessEvent(callback: (detail: any) => void): () => void
   dialogReadFile(filePath: string): Promise<any> | any
   dialogReadFileAsync(filePath: string): Promise<any> | any
   dialogWriteFile(filePath: string, content: string): Promise<any> | any

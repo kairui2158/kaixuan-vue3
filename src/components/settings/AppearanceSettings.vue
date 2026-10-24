@@ -142,6 +142,8 @@ import { ref, onMounted } from 'vue'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { getSavedLayoutPreset, requestLayoutPreset, type LayoutPreset } from '../../composables/useResizers'
 import { useThemeStore } from '../../stores/theme'
+import { useProjectStore } from '../../stores/project'
+import { buildOutlineBackupImportPlan } from '../../services/outlineJournal'
 
 const appConfirm = useAppConfirm()
 const themeStore = useThemeStore()
@@ -187,6 +189,17 @@ function toggleTheme() {
 }
 async function exportData() {
   try {
+    const projectStore = useProjectStore()
+    const journalFlush = await projectStore.flushOutlineJournal({ immediate: true })
+    if (!journalFlush.ok) {
+      await appConfirm.alert('导出失败：大纲聊天日志未能完整落盘（' + (journalFlush.error || 'unknown') + '），已中止导出以避免生成不完整备份。')
+      return
+    }
+    const globalJournalFlush = await window.electronAPI?.outlineJournalFlushAll?.()
+    if (globalJournalFlush && globalJournalFlush.ok === false) {
+      await appConfirm.alert('导出失败：部分大纲聊天日志未能完整落盘（' + (globalJournalFlush.error || 'unknown') + '），已中止导出以避免生成不完整备份。')
+      return
+    }
     const listed = await window.electronAPI?.storageList?.()
     const keys = Array.isArray(listed) ? listed : []
     const data: Record<string, any> = {}
@@ -208,10 +221,49 @@ function importData() {
     try {
       const text = await file.text()
       const data = JSON.parse(text)
+      const plan = await buildOutlineBackupImportPlan(data, {
+        storageRead: key => window.electronAPI.storageRead(key),
+      })
+      if (!plan.valid) {
+        const detail = plan.invalidJournalKeys?.length
+          ? plan.invalidJournalKeys.join('、')
+          : (plan.reason || 'unknown')
+        await appConfirm.alert('导入失败：备份校验未通过（' + detail + '），未写入任何数据。')
+        return
+      }
       const failedKeys: string[] = []
-      for (const k of Object.keys(data)) {
-        const ok = await window.electronAPI?.storageWrite?.(k, data[k])
-        if (ok !== true) failedKeys.push(k)
+      const writtenKeys: string[] = []
+      for (const step of plan.steps) {
+        const isJournalKey = step.key.startsWith('outline-journal_')
+        const projectId = isJournalKey ? step.key.slice('outline-journal_'.length) : ''
+        const ok = isJournalKey
+          ? await window.electronAPI?.outlineJournalRestore?.(projectId, step.value)
+          : await window.electronAPI?.storageWrite?.(step.key, step.value)
+        if (ok === true) {
+          step.committed = true
+          writtenKeys.push(step.key)
+        } else {
+          failedKeys.push(step.key)
+          const rollbackFailures: string[] = []
+          for (const rollbackKey of writtenKeys.reverse()) {
+            const before = plan.steps.find(step => step.key === rollbackKey)?.previous
+            const rollbackIsJournal = rollbackKey.startsWith('outline-journal_')
+            const rollbackOk = rollbackIsJournal && before != null
+              ? await window.electronAPI?.outlineJournalRestore?.(rollbackKey.slice('outline-journal_'.length), before)
+              : rollbackIsJournal
+              ? await window.electronAPI?.storageRemove?.(rollbackKey)
+              : before == null
+              ? await window.electronAPI?.storageRemove?.(rollbackKey)
+              : await window.electronAPI?.storageWrite?.(rollbackKey, before)
+            if (rollbackOk !== true) rollbackFailures.push(rollbackKey)
+          }
+          if (rollbackFailures.length > 0) {
+            await appConfirm.alert('导入失败且回滚未完全成功：' + rollbackFailures.join('、') + ' 可能处于导入后的值，请立即重启应用并检查数据目录。')
+            return
+          }
+          await appConfirm.alert('导入失败：' + failedKeys.join('、') + ' 写入失败，已回滚到导入前状态，未产生半写。')
+          return
+        }
       }
       const total = Object.keys(data).length
       if (failedKeys.length === 0) {

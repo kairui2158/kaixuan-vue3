@@ -232,6 +232,13 @@ function evaluateWriteTaskRound(input: {
     } as AgentOrchestratorRoundVerdict
   }
   if (!hasSuccessfulWrite && input.successfulWriteCount === 0 && text) {
+    if (input.plan.mode === 'direct') {
+      return {
+        progress: false,
+        complete: false,
+        reason: 'write_not_executed',
+      } as AgentOrchestratorRoundVerdict
+    }
     return {
       progress: true,
       complete: false,
@@ -991,6 +998,10 @@ export class AgentOrchestrator {
           label: `连续无进展：${this.noProgressRounds}`,
           payload: { maxNoProgressRounds },
         })
+        if (verdict.reason === 'write_not_executed' && executionPlan?.mode === 'direct') {
+          this.transition('stalled', verdict.reason)
+          break
+        }
         if (this.noProgressRounds >= maxNoProgressRounds) {
           this.transition('stalled', verdict.reason || 'no_progress')
           break

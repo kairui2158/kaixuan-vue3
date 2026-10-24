@@ -450,10 +450,7 @@ function defaultStorage(): ContextStorage {
   }
 }
 
-async function defaultProjectReader(projectId: string): Promise<ContextProjectSnapshot> {
-  const api = typeof window !== 'undefined' ? window.electronAPI : undefined
-  if (!api) return {}
-  const raw = await api.storageRead(storageKey(`project_${projectId}`))
+export function normalizeDefaultProjectSnapshot(raw: unknown): ContextProjectSnapshot {
   if (!raw || typeof raw !== 'object') return {}
   const data = raw as any
   return {
@@ -461,6 +458,13 @@ async function defaultProjectReader(projectId: string): Promise<ContextProjectSn
     settings: data.settingsCollection || { categories: [], items: {} },
     memories: data.memories || null
   }
+}
+
+async function defaultProjectReader(projectId: string): Promise<ContextProjectSnapshot> {
+  const api = typeof window !== 'undefined' ? window.electronAPI : undefined
+  if (!api) return {}
+  const raw = await api.storageRead(storageKey(`project_${projectId}`))
+  return normalizeDefaultProjectSnapshot(raw)
 }
 
 function memoryText(value: MemoryData | string | null | undefined): string {

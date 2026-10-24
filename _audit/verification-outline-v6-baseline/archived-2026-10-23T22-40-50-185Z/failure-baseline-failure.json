@@ -1,0 +1,14 @@
+{
+  "phase": "baseline-failure",
+  "scene": {
+    "readyState": "complete",
+    "workspaceOpen": true,
+    "chatOpen": true,
+    "messageCount": 0,
+    "sendDisabled": false,
+    "outlineChatLength": 0,
+    "runCount": 1,
+    "longTasks": []
+  },
+  "message": "AssertionError [ERR_ASSERTION]: event ledger records all events (5000): live=0 exported=0 events=0 maxSeq=0"
+}

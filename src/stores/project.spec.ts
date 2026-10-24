@@ -2,6 +2,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useProjectStore } from './project'
+import { PerformanceMonitor } from '../services/performanceMonitor'
+import { installResponsivenessProjection, setPerformanceMonitorForTests } from '../services/responsivenessStore'
 
 const storageWrite = vi.fn().mockResolvedValue(true)
 const storageRead = vi.fn().mockResolvedValue(null)
@@ -118,6 +120,113 @@ describe('project store recordSourceVersion', () => {
 
     expect(versionId).toBe('')
     expect(store.memories.sourceVersions || []).toHaveLength(0)
+  })
+})
+
+describe('project store outline journal persistence state', () => {
+  const outlineJournalApply = vi.fn()
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    storageWrite.mockClear()
+    storageRead.mockClear()
+    outlineJournalApply.mockReset()
+    vi.stubGlobal('window', {
+      electronAPI: { storageWrite, storageRead, storageRemove, storageList, outlineJournalApply },
+    })
+  })
+
+  it('shows pending messages and clears the state after a successful ack', async () => {
+    outlineJournalApply.mockResolvedValue({ ok: true })
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-ack'
+
+    store.appendOutlineChat({ role: 'user', content: '第一轮' })
+    expect(store.outlineJournalPendingCount).toBe(1)
+
+    const result = await store.flushOutlineJournal({ immediate: true })
+    expect(result.ok).toBe(true)
+    expect(store.outlineJournalPendingCount).toBe(0)
+    expect(store.outlineJournalLastError).toBe(null)
+    expect(outlineJournalApply).toHaveBeenCalledWith(
+      'journal-ack',
+      [expect.objectContaining({ op: 'append' })],
+      { immediate: true },
+    )
+  })
+
+  it('keeps a failed flush visible and restores commands to the queue head', async () => {
+    outlineJournalApply.mockResolvedValueOnce({ ok: false, error: 'checksum_mismatch' })
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-failed'
+
+    store.appendOutlineChat({ role: 'user', content: '失败消息' })
+    const failed = await store.flushOutlineJournal({ immediate: true })
+
+    expect(failed).toMatchObject({ ok: false, error: 'checksum_mismatch' })
+    expect(store.outlineJournalPendingCount).toBe(1)
+    expect(store.outlineJournalLastError).toBe('checksum_mismatch')
+
+    outlineJournalApply.mockResolvedValueOnce({ ok: true })
+    const recovered = await store.flushOutlineJournal({ immediate: true })
+    expect(recovered.ok).toBe(true)
+    expect(store.outlineJournalPendingCount).toBe(0)
+    expect(store.outlineJournalLastError).toBe(null)
+  })
+
+  it('marks journal unavailable and keeps the command queued for retry', async () => {
+    vi.stubGlobal('window', {
+      electronAPI: { storageWrite, storageRead, storageRemove, storageList },
+    })
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-unavailable'
+
+    store.appendOutlineChat({ role: 'user', content: '降级消息' })
+    const result = await store.flushOutlineJournal({ immediate: true })
+
+    expect(result).toMatchObject({ ok: true, error: 'outline_journal_unavailable_fallback_memory_only' })
+    expect(store.outlineJournalPendingCount).toBe(1)
+    expect(store.outlineJournalLastError).toBe('outline_journal_unavailable_fallback_memory_only')
+  })
+
+  it('clears persistence state when the outline journal is reset', async () => {
+    outlineJournalApply.mockResolvedValue({ ok: true })
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-reset'
+    store.appendOutlineChat({ role: 'user', content: '待重置' })
+    await store.flushOutlineJournal({ immediate: true })
+
+    await store.resetOutlineJournal()
+
+    expect(store.outlineJournalPendingCount).toBe(0)
+    expect(store.outlineJournalLastError).toBe(null)
+  })
+
+  it('delays journal flushing in safe mode while immediate flushes still persist', async () => {
+    vi.useFakeTimers()
+    outlineJournalApply.mockResolvedValue({ ok: true })
+    const monitor = new PerformanceMonitor({ now: () => Date.now() })
+    setPerformanceMonitorForTests(monitor)
+    installResponsivenessProjection()
+    monitor.requestSafeMode('test_freeze')
+
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-safe-mode'
+    store.appendOutlineChat({ role: 'user', content: '安全模式消息' })
+
+    vi.advanceTimersByTime(300)
+    expect(outlineJournalApply).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1700)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(outlineJournalApply).toHaveBeenCalledWith(
+      'journal-safe-mode',
+      [expect.objectContaining({ op: 'append' })],
+      { immediate: false },
+    )
+
+    monitor.exitSafeMode('user_exit')
+    setPerformanceMonitorForTests(null)
+    vi.useRealTimers()
   })
 })
 

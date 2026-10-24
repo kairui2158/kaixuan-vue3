@@ -1,0 +1,118 @@
+{
+  "schema": "shenyi.outline-v6-phase4-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-24T18:47:03.200Z",
+  "script": "verify-outline-v6-phase4-e2e.mjs",
+  "blockDurationMs": 6500,
+  "measuredBlockedMs": 7285.5,
+  "before": {
+    "safeModeActive": false,
+    "inputUsable": true
+  },
+  "realGenerationStarted": {
+    "isGenerating": true,
+    "streamingMessage": true
+  },
+  "providerRequests": [
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "messageCount": 3,
+      "requestOpenedAt": 1792867615881,
+      "requestClosedAt": 1792867615887,
+      "responseClosedAt": 1792867622541,
+      "sseChunkTimestamps": [
+        1792867615886,
+        1792867616148,
+        1792867616411,
+        1792867616675,
+        1792867616925,
+        1792867617178,
+        1792867617429,
+        1792867617680,
+        1792867617931,
+        1792867618184,
+        1792867618436,
+        1792867618689,
+        1792867618939,
+        1792867619205,
+        1792867619455,
+        1792867619718,
+        1792867619983,
+        1792867620236,
+        1792867620487,
+        1792867620751,
+        1792867621002,
+        1792867621255,
+        1792867621506,
+        1792867621769,
+        1792867622034,
+        1792867622286,
+        1792867622535
+      ]
+    }
+  ],
+  "providerAbortCount": 1,
+  "canceledTurn": true,
+  "postCancelUi": {
+    "isGenerating": false,
+    "sendRestored": true
+  },
+  "safeModeVisible": true,
+  "inputLatency": {
+    "latencyMs": 1.0999999046325684,
+    "disabled": false,
+    "valueLength": 1
+  },
+  "cancelProbe": {
+    "present": true,
+    "disabled": false,
+    "usable": true,
+    "visible": true
+  },
+  "safeModeWindow": {
+    "streamingTextLength": 12000,
+    "containerFound": false
+  },
+  "ledgerKinds": [
+    {
+      "kind": "renderer_safe_mode",
+      "at": 1792867622435,
+      "windowId": 1
+    }
+  ],
+  "exitDiagnostics": {
+    "beforeClick": "safe_mode",
+    "buttonFound": true,
+    "zIndex": "9100",
+    "pointerEvents": "auto",
+    "hitTest": "button"
+  },
+  "exitResult": {
+    "afterClick": "normal",
+    "sequence": [
+      {
+        "at": 8835.899999976158,
+        "state": "normal"
+      }
+    ],
+    "eventLog": [
+      "native:true:false"
+    ]
+  },
+  "safeModeExited": {
+    "bannerAbsent": true,
+    "monitorState": "normal"
+  },
+  "assertions": {
+    "injectedBlockTriggersSafeMode": true,
+    "realUiGenerationReachesProvider": true,
+    "realUiCancelStopsGeneration": true,
+    "realUiCancelAbortsProvider": true,
+    "inputRemainsUsableInSafeMode": true,
+    "cancelPresentInSafeMode": true,
+    "cancelUsableInSafeMode": true,
+    "mainLedgerReceivesRendererState": true,
+    "safeModeIsVisibleAndExitable": true
+  }
+}

@@ -71,8 +71,9 @@ window.electronAPI?.onCloseRequest?.(() => {
 window.electronAPI?.onFinalSave?.(() => {
   void (async function () {
     const projectResult = await projectStore.saveProject()
+    const outlineJournalResult = await projectStore.flushOutlineJournal({ immediate: true })
     const providerResult = await providerStore.saveProviders()
-    if (!projectResult.ok || providerResult === false) {
+    if (!projectResult.ok || !outlineJournalResult.ok || providerResult === false) {
       try {
         const diag = (window as any).DiagLogger
         if (diag && typeof diag.log === 'function') {
@@ -106,8 +107,9 @@ function cancel() {
 }
 async function performSave(): Promise<boolean> {
   const projectResult = await projectStore.saveProject()
+  const outlineJournalResult = await projectStore.flushOutlineJournal({ immediate: true })
   const providerResult = await providerStore.saveProviders()
-  return projectResult.ok && providerResult !== false
+  return projectResult.ok && outlineJournalResult.ok && providerResult !== false
 }
 async function saveAndExit() {
   pendingChoice.value = 'quit'

@@ -1,0 +1,95 @@
+{
+  "schema": "shenyi.outline-v6-baseline",
+  "version": 1,
+  "generatedAt": "2026-10-23T22:29:41.066Z",
+  "build": {
+    "rendererIndexMtime": "2026-10-23T19:57:21.022Z"
+  },
+  "cases": [
+    {
+      "case": "single-100000",
+      "chars": 100000,
+      "renderMs": 74.79999995231628,
+      "saveMs": 311.89999997615814,
+      "rendered": true,
+      "saveOk": true,
+      "failedKeys": [],
+      "typing": {
+        "duration": 94.20000004768372,
+        "renderedMarker": true,
+        "length": 54
+      },
+      "metrics": {
+        "longTaskCount": 4,
+        "longTaskTotalMs": 485,
+        "longTaskMaxMs": 267,
+        "longTasks": [
+          {
+            "duration": 99,
+            "startTime": 3166,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 267,
+            "startTime": 3265,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 56,
+            "startTime": 3581,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 63,
+            "startTime": 3637,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          }
+        ],
+        "frameDelayCount": 2,
+        "frameDelayMaxMs": 735,
+        "frameDelayAvgMs": 436,
+        "memory": {
+          "usedJSHeapSize": 20500000,
+          "totalJSHeapSize": 29400000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    }
+  ],
+  "environment": {
+    "stepTimeoutMs": 120000,
+    "globalTimeoutMs": 1800000,
+    "runOnly": [
+      "single-100000"
+    ]
+  },
+  "summary": {
+    "totalCases": 1,
+    "requiredCases": 7,
+    "allCasesExecuted": false,
+    "worstTypingDelayMs": 94.20000004768372,
+    "worstRenderMs": 74.79999995231628,
+    "worstSaveMs": 311.89999997615814,
+    "worstLongTaskMs": 267
+  },
+  "failure": {
+    "message": "AssertionError [ERR_ASSERTION]: all required cases executed: 1/7",
+    "at": "2026-10-23T22:29:49.483Z"
+  }
+}

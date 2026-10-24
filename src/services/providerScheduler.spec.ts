@@ -98,4 +98,25 @@ describe('providerScheduler', () => {
       signal: controller.signal,
     })).rejects.toBeInstanceOf(ProviderSchedulerCanceledError)
   })
+
+  it('can project a main-process snapshot without changing local enforcement', () => {
+    const scheduler = createProviderScheduler({ maxConcurrencyPerProvider: 2 })
+    scheduler.setExternalSnapshot({
+      maxConcurrencyPerProvider: 4,
+      activeCountByProvider: { p1: 3 },
+      waitingCountByProvider: { p1: 2 },
+    })
+    expect(scheduler.snapshot()).toEqual({
+      maxConcurrencyPerProvider: 4,
+      activeCountByProvider: { p1: 3 },
+      waitingCountByProvider: { p1: 2 },
+    })
+    expect(scheduler.isExternalSnapshotEnabled()).toBe(true)
+    scheduler.setExternalSnapshot(null)
+    expect(scheduler.snapshot()).toEqual({
+      maxConcurrencyPerProvider: 2,
+      activeCountByProvider: {},
+      waitingCountByProvider: {},
+    })
+  })
 })

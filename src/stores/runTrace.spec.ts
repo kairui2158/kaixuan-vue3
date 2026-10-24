@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { folderDiagnosticsStatus, useRunTraceStore } from './runTrace'
+import { PerformanceMonitor } from '../services/performanceMonitor'
+import { installResponsivenessProjection, setPerformanceMonitorForTests } from '../services/responsivenessStore'
 import type { RunTrace } from './runTrace'
 
 describe('runTrace store', () => {
@@ -2357,6 +2359,41 @@ describe('runTrace store', () => {
     vi.useRealTimers()
   })
 
+  it('reduces stream activity frequency in safe mode without losing response text', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-24T00:00:00Z'))
+    const monitor = new PerformanceMonitor({ now: () => Date.now() })
+    setPerformanceMonitorForTests(monitor)
+    installResponsivenessProjection()
+    monitor.requestSafeMode('test_freeze')
+
+    const store = useRunTraceStore()
+    const runId = store.startRun({ source: 'outline', stepName: '大纲共创', mode: 'chat', sessionKind: 'chat', skillNames: [] })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '安全模式流式验证' }]
+    })
+
+    for (let i = 0; i < 12; i++) {
+      store.appendStream(runId, callId, '字')
+      vi.advanceTimersByTime(1000)
+    }
+
+    const run = store.getRun(runId)!
+    const activity = run.events.filter(event =>
+      event.type === 'run-activity'
+      && (event.payload as { source?: string } | undefined)?.source === 'stream_delta')
+    expect(activity.length).toBeLessThanOrEqual(3)
+    const call = run.apiCalls.find(item => item.id === callId)!
+    expect(call.streamText).toHaveLength(12)
+    expect(call.responseText).toHaveLength(12)
+
+    monitor.exitSafeMode('user_exit')
+    setPerformanceMonitorForTests(null)
+    store.finishRun(runId, 'success')
+    vi.useRealTimers()
+  })
+
   it('throttles tool-argument progress and exposes the latest progress to live UI', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-10T00:00:00Z'))
@@ -2886,6 +2923,56 @@ describe('runTrace store', () => {
     expect(store.getLastRunId('pipeline')).toBe(activeRunId)
   })
 
+  it('keeps event seq monotonic without scanning restored events on every append', async () => {
+    const restored = {
+      id: 'run-restored-seq',
+      source: 'outline',
+      sourceName: '大纲共创',
+      mode: 'chat',
+      status: 'success',
+      startedAt: 1770000000000,
+      events: [
+        { id: 'event-7', ts: 1770000000001, seq: 7, level: 'info', type: 'restored', label: '历史事件 7' },
+        { id: 'event-41', ts: 1770000000002, seq: 41, level: 'info', type: 'restored', label: '历史事件 41' }
+      ],
+      apiCalls: []
+    }
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        electronAPI: {
+          runTraceList: vi.fn(async (source: string) => ({
+            success: true,
+            runs: source === 'outline' ? [{ dirName: 'run-restored-seq' }] : []
+          })),
+          runTraceRead: vi.fn(async () => ({ success: true, run: restored }))
+        }
+      }
+    })
+
+    const store = useRunTraceStore()
+    await store.restorePersistedRuns()
+    store.addEvent('run-restored-seq', { type: 'post-restore', level: 'info', label: '恢复后事件' })
+
+    const run = store.getRun('run-restored-seq')!
+    expect(run.events.at(-1)?.seq).toBe(42)
+
+    const events: Array<{ seq?: number }> = []
+    Object.defineProperty(run, 'events', {
+      configurable: true,
+      get() {
+        return events
+      },
+      set(value: Array<{ seq?: number }>) {
+        events.splice(0, events.length, ...value)
+      }
+    })
+    for (let index = 0; index < 1000; index += 1) {
+      store.addEvent('run-restored-seq', { type: `bulk-${index}`, level: 'info', label: `批量事件 ${index}` })
+    }
+    expect(events.at(-1)?.seq).toBe(1043)
+  })
+
   it('persists long-running streams with a debounced snapshot save', async () => {
     vi.useFakeTimers()
     const runTraceSave = vi.fn(async (_payload: unknown) => ({ success: true, dirName: 'run-1' }))
@@ -3151,7 +3238,7 @@ describe('runTrace store', () => {
     expect(JSON.stringify(store.exportRunToJson(run))).toContain('batch_event')
   })
 
-  it('drops source events after a run reaches a terminal state', () => {
+  it('records offline batch events after a run reaches a terminal state but drops source events', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
       source: 'outline',
@@ -3165,12 +3252,12 @@ describe('runTrace store', () => {
 
     store.addBatchEvent('outline', {
       version: 1,
-      batchId: 'late-batch',
+      batchId: 'late-rollback',
       workspace: 'outline',
       targetId: 'outline',
-      status: 'applied',
+      status: 'rolled_back',
       commandCount: 2,
-      reason: '迟到事件',
+      reason: '已回滚大纲 AI 批次',
       occurredAt: Date.now()
     })
     store.addSourceEvent('outline', {
@@ -3180,8 +3267,28 @@ describe('runTrace store', () => {
     })
 
     const run = store.getRun(runId)!
-    expect(run.events.some(item => item.batchEvent?.batchId === 'late-batch')).toBe(false)
+    const lateBatch = run.events.find(item => item.batchEvent?.batchId === 'late-rollback')
+    expect(lateBatch?.batchEvent?.status).toBe('rolled_back')
+    expect(String(lateBatch?.detail)).toContain('offline=true')
     expect(run.events.some(item => item.label === '迟到来源事件')).toBe(false)
+  })
+
+  it('does not crash when an offline batch event has no recorded run', () => {
+    const store = useRunTraceStore()
+    store.clearRuns()
+
+    store.addBatchEvent('outline', {
+      version: 1,
+      batchId: 'orphan-batch',
+      workspace: 'outline',
+      targetId: 'outline',
+      status: 'rolled_back',
+      commandCount: 1,
+      reason: '无历史 run',
+      occurredAt: Date.now()
+    })
+
+    expect(store.runs.length).toBe(0)
   })
 
   it('exports folder diagnostics status for run-level aggregation', () => {

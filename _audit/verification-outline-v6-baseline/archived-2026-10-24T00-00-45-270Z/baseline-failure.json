@@ -1,0 +1,20 @@
+{
+  "schema": "shenyi.outline-v6-baseline",
+  "version": 1,
+  "generatedAt": "2026-10-23T23:57:35.522Z",
+  "build": {
+    "rendererIndexMtime": "2026-10-23T23:56:02.155Z"
+  },
+  "cases": [],
+  "environment": {
+    "stepTimeoutMs": 120000,
+    "globalTimeoutMs": 1800000,
+    "runOnly": [
+      "messages-10000"
+    ]
+  },
+  "failure": {
+    "message": "AssertionError [ERR_ASSERTION]: message count rendered (10000)",
+    "at": "2026-10-23T23:58:44.121Z"
+  }
+}

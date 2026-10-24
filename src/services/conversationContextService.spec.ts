@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   ConversationContextService,
   conversationContextService,
+  normalizeDefaultProjectSnapshot,
   resolveEffectiveModelContextWindow,
   resolveModelContextWindow,
 } from './conversationContextService'
@@ -41,6 +42,27 @@ const baseMessages: ContextMessage[] = [
 ]
 
 describe('ConversationContextService', () => {
+  it('默认项目读取器在旧主文件与 journal 迁移后的新主文件之间保持上下文一致', () => {
+    const shared = {
+      outlineText: '第一卷 大纲正文',
+      settingsCollection: { categories: [], items: { character: [{ id: 'c1', name: '王芳', traits: ['幽默', '话痨'] }] } },
+      memories: { version: 1 },
+    }
+    const legacy = normalizeDefaultProjectSnapshot({
+      ...shared,
+      outlineChat: [{ role: 'user', content: '旧聊天消息' }],
+    })
+    const migrated = normalizeDefaultProjectSnapshot(shared)
+
+    expect(legacy).toEqual(migrated)
+    expect(legacy).toEqual({
+      outline: '第一卷 大纲正文',
+      settings: shared.settingsCollection,
+      memories: shared.memories,
+    })
+    expect(normalizeDefaultProjectSnapshot(null)).toEqual({})
+  })
+
   it('供应商声明窗口优先于模型名推断，未声明时才回退模型名', () => {
     expect(resolveEffectiveModelContextWindow({
       model: 'unknown-gateway-model',

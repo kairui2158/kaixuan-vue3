@@ -1,0 +1,73 @@
+{
+  "schema": "shenyi.outline-v6-phase4-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-24T18:49:10.026Z",
+  "script": "verify-outline-v6-phase4-e2e.mjs",
+  "blockDurationMs": 4800,
+  "measuredBlockedMs": 5457.600000023842,
+  "before": {
+    "safeModeActive": false,
+    "inputUsable": true
+  },
+  "realGenerationStarted": {
+    "isGenerating": true,
+    "streamingMessage": true
+  },
+  "providerRequests": [
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "messageCount": 3,
+      "requestOpenedAt": 1792867744530,
+      "requestClosedAt": 1792867744536,
+      "responseClosedAt": 1792867749465,
+      "sseChunkTimestamps": [
+        1792867744535,
+        1792867744796,
+        1792867745059,
+        1792867745309,
+        1792867745559,
+        1792867745809,
+        1792867746074,
+        1792867746326,
+        1792867746590,
+        1792867746840,
+        1792867747091,
+        1792867747342,
+        1792867747605,
+        1792867747870,
+        1792867748135,
+        1792867748385,
+        1792867748650,
+        1792867748915,
+        1792867749167,
+        1792867749417
+      ]
+    }
+  ],
+  "providerAbortCount": 1,
+  "canceledTurn": true,
+  "postCancelUi": {
+    "isGenerating": false,
+    "sendRestored": true
+  },
+  "safeModeVisible": false,
+  "cancelProbe": {
+    "present": true,
+    "disabled": false,
+    "usable": true,
+    "visible": true
+  },
+  "ledgerKinds": [
+    {
+      "kind": "renderer_warning",
+      "at": 1792867749381,
+      "windowId": 1
+    }
+  ],
+  "assertions": {
+    "subThresholdBlockDoesNotTriggerSafeMode": true,
+    "inputRemainsUsableOutsideSafeMode": true,
+    "realUiReachesProvider": true
+  }
+}
