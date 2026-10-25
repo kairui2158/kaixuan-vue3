@@ -1164,6 +1164,15 @@
 
 # 2026-10-25 大纲编辑器 V6.3 崩溃账本收口
 
+# 2026-10-25 大纲编辑器 V6.3 Phase D 断流恢复
+
+- 文件：[_audit/DEV_LOG_2026-10-25_OUTLINE_V6_3_PHASE_D_RECOVERY.md](_audit/DEV_LOG_2026-10-25_OUTLINE_V6_3_PHASE_D_RECOVERY.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md)
+- 范围：孤儿流 `recovering/partial` checkpoint 的会话内 UI 闭环；保存为草稿、丢弃本段、继续接收走 InputGate `new_run`，partial 不冒充 assistant 输出。
+- 验证：type-check、build:vue、定向 vitest 199/199、Phase D 真实 Electron E2E、Phase 3 E2E 回归全部 PASS；证据 `_audit/verification-outline-v6-phase-d-recovery-e2e/result.json`。
+- 收口：全量 `npm run test:services` 212 files / 2303 tests 全绿；`directWriteWiring.spec.ts` 结构断言从旧 `inputGate.canSend` 字符串同步到 Phase A 的 `resolveOutlineEntryDecision(...).allowed` 单源契约；版本 3.106.0 → 3.107.0。
+- 诚实边界：跨主进程重启持久化按用户裁决暂缓第二期。
+
 - 文件：[_audit/DEV_LOG_2026-10-25_OUTLINE_V6_3_CRASH_LEDGER_CLOSURE.md](_audit/DEV_LOG_2026-10-25_OUTLINE_V6_3_CRASH_LEDGER_CLOSURE.md)
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md)
 - 范围：popup/嵌套 popup 响应面递归接线、崩溃后账本 E2E 三类验证器缺陷修复（顶层 `await`、恢复事件时序、失效 Playwright 句柄）、经验文件 v9.1.0、版本 3.106.0。

@@ -1,12 +1,12 @@
 {
   "schema": "shenyi.outline-v6-phase3-e2e",
   "version": 1,
-  "generatedAt": "2026-10-24T12:47:37.557Z",
+  "generatedAt": "2026-10-25T11:31:18.152Z",
   "script": "verify-outline-v6-phase3-e2e.mjs",
   "projectId": "outline-v6-phase3-project",
   "realUiLongStream": {
     "inputLatency": {
-      "latencyMs": 5.799999952316284,
+      "latencyMs": 14.199999928474426,
       "disabled": false,
       "readOnly": false
     },
@@ -16,11 +16,11 @@
     }
   },
   "ringBuffer": {
-    "transportedChunkCount": 2462,
-    "rendererChunkCount": 2462,
+    "transportedChunkCount": 2156,
+    "rendererChunkCount": 2156,
     "bytesReceived": 184904,
     "backpressure": true,
-    "checkpointLength": 66218
+    "checkpointLength": 75830
   },
   "windowIsolation": {
     "secondWindowSeesStream": false,

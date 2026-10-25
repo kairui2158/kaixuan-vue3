@@ -1,0 +1,43 @@
+{
+  "schema": "shenyi.outline-v6-phase-d-recovery-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-25T11:29:05.235Z",
+  "script": "verify-outline-v6-phase-d-recovery-e2e.mjs",
+  "projectId": "outline-v6-phase-d-project",
+  "orphanStream": {
+    "streamId": "phase-d-outline-recovery-stream",
+    "status": "orphaned",
+    "reason": "heartbeat_timeout",
+    "recoveryStatus": "recovering",
+    "disposition": "partial",
+    "checkpointTextLength": 58
+  },
+  "savedDraft": {
+    "length": 104,
+    "hasStreamIdentity": true,
+    "hasProviderTail": true
+  },
+  "assertions": {
+    "realElectronUi": true,
+    "realOrphanSweeper": true,
+    "recoveryBannerVisible": true,
+    "saveDraftWritesRealCheckpointTail": true,
+    "discardClearsBannerWithoutDraftWrite": true,
+    "dismissedRecoveryDoesNotReturn": true,
+    "partialNeverBecomesAssistantOutput": true
+  },
+  "providerRequests": [
+    {
+      "seq": 1,
+      "url": "/v1/chat/completions/stall",
+      "stream": true,
+      "messageCount": 0
+    },
+    {
+      "seq": 2,
+      "url": "/v1/chat/completions/stall",
+      "stream": true,
+      "messageCount": 0
+    }
+  ]
+}

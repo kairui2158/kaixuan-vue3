@@ -340,6 +340,8 @@ V6.1 对各 Phase 追加以下通过条件：
 
 ### 断点 5：双写与旧路径清理
 
+> 2026-10-25 执行口径修正：双写开关已在 Phase 3 收口后删除。`__SHENYI_STREAM_OWNER_V6__` 仅保留为测试钩子，控制 streamFrame 去重与 legacy chunk 断言；生产路径单走主进程 stream owner，不再存在 on/off 双语义。`streamOwnerContext` 只是传给 provider/project 的上下文对象，不是开关。
+
 **接线**：
 
 1. 引入 `SHENYI_STREAM_OWNER_V6` 开关，默认 off；on 时 `mainNetStream` 走 stream owner 协议。
