@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveOutlineInputGate } from './outlineInputGate'
+import {
+  resolveOutlineEntryDecision,
+  resolveOutlineInputGate,
+} from './outlineInputGate'
 
 describe('resolveOutlineInputGate', () => {
   it('creates a new run when the workspace is idle', () => {
@@ -71,6 +74,53 @@ describe('resolveOutlineInputGate', () => {
     })).toMatchObject({
       canSend: false,
       disabledReason: 'send_starting',
+    })
+  })
+
+  it('routes all secondary outline entries through the same gate decision', () => {
+    const gate = resolveOutlineInputGate({
+      isGenerating: true,
+      awaitingUser: false,
+      runId: 'run-1',
+    })
+
+    for (const entry of ['routing_continue', 'routing_bypass', 'budget_resume', 'regenerate'] as const) {
+      expect(resolveOutlineEntryDecision(entry, gate)).toEqual({
+        allowed: false,
+        deferReason: 'generation_running',
+        expectedSendTarget: 'new_run',
+      })
+    }
+  })
+
+  it('keeps routing continue bound to an awaiting run lease', () => {
+    const gate = resolveOutlineInputGate({
+      isGenerating: false,
+      awaitingUser: true,
+      runId: 'run-1',
+      runLease: 'same_run',
+      resumeToken: 'token-1',
+    })
+
+    expect(resolveOutlineEntryDecision('routing_continue', gate)).toEqual({
+      allowed: true,
+      deferReason: null,
+      expectedSendTarget: 'resume_run',
+    })
+  })
+
+  it('forces secondary entries to a new run when the awaiting lease expired', () => {
+    const gate = resolveOutlineInputGate({
+      isGenerating: false,
+      awaitingUser: true,
+      runId: 'run-1',
+      runLease: 'expired',
+    })
+
+    expect(resolveOutlineEntryDecision('routing_continue', gate)).toEqual({
+      allowed: true,
+      deferReason: null,
+      expectedSendTarget: 'new_run',
     })
   })
 })

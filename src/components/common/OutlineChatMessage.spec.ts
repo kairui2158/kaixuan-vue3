@@ -60,3 +60,45 @@ describe('OutlineChatMessage safe-mode rendering', () => {
     expect(wrapper.get('.ow-msg-bubble').element.innerHTML).not.toContain('第一版')
   })
 })
+
+describe('OutlineChatMessage fallback actions', () => {
+  it('disables routing and budget actions while the workspace is generating', async () => {
+    setActivePinia(createPinia())
+    setPerformanceMonitorForTests(null)
+    setOutlineMarkdownWorkerFactoryForTests(null)
+
+    const wrapper = mount(OutlineChatMessage, {
+      props: {
+        message: {
+          messageId: 'msg-fallback',
+          role: 'assistant',
+          content: '等待确认',
+          routingFallback: {
+            requestText: '继续这个方案',
+            routing: { kind: 'no_match', confidence: 0, reason: 'low-confidence' },
+          },
+          budgetExhausted: {
+            requestText: '继续这个方案',
+            used: 4,
+            limit: 4,
+          },
+        },
+        busy: true,
+        currentOutlineContent: '',
+        batchDiff: null,
+        stalledRetryProviders: [],
+      },
+    })
+
+    const buttons = wrapper.findAll('button')
+    const routingButton = buttons.find(button => button.text() === '按推荐技能继续')
+    const budgetButton = buttons.find(button => button.text() === '追加 4 次并继续')
+
+    expect(routingButton?.attributes('disabled')).toBeDefined()
+    expect(budgetButton?.attributes('disabled')).toBeDefined()
+    await routingButton?.trigger('click')
+    await budgetButton?.trigger('click')
+    expect(wrapper.emitted('routing-continue')).toBeUndefined()
+    expect(wrapper.emitted('budget-extend')).toBeUndefined()
+  })
+})
