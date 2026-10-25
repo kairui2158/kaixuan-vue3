@@ -261,10 +261,10 @@ usage 对账：{{ renderText(JSON.stringify(call.usageReconciliation || {}, null
 
             <div v-else class="rt-section">
               <div class="rt-export">
-                <button type="button" class="btn-primary" @click="exportRun('standard')">导出标准 JSON</button>
-                <button type="button" class="btn-secondary" @click="exportRun('light')">导出轻量</button>
-                <button type="button" class="btn-secondary" @click="exportRun('deep')">导出深度</button>
-                <button type="button" class="btn-secondary" @click="copyRun">复制完整文本</button>
+                <button type="button" class="btn-primary" :disabled="exportState === 'exporting'" @click="exportRun('standard')">导出标准 JSON</button>
+                <button type="button" class="btn-secondary" :disabled="exportState === 'exporting'" @click="exportRun('light')">导出轻量</button>
+                <button type="button" class="btn-secondary" :disabled="exportState === 'exporting'" @click="exportRun('deep')">导出深度</button>
+                <button type="button" class="btn-secondary" :disabled="copyState === 'copying'" @click="copyRun">复制完整文本</button>
                 <button
                   v-if="selectedRun.sessionKind === 'chat' && selectedRun.status === 'running'"
                   type="button"
@@ -273,6 +273,12 @@ usage 对账：{{ renderText(JSON.stringify(call.usageReconciliation || {}, null
                 >
                   完成本段记录
                 </button>
+                <span v-if="exportState === 'exporting'" class="rt-export-status">导出中...</span>
+                <span v-else-if="exportState === 'done'" class="rt-export-result">{{ exportResult }}</span>
+                <span v-else-if="exportState === 'failed'" class="rt-export-error">{{ exportResult }}</span>
+                <span v-if="copyState === 'copying'" class="rt-export-status">复制中...</span>
+                <span v-else-if="copyState === 'done'" class="rt-export-result">{{ copyResult }}</span>
+                <span v-else-if="copyState === 'failed'" class="rt-export-error">{{ copyResult }}</span>
               </div>
               <p class="rt-export-tip">标准导出包含结构与全部 payload 全文；轻量导出只保留结构和摘要，方便快速交流；深度导出等于标准导出，若采集到 HTTP 原文会脱敏后一并保存。所有导出前都会隐藏 API Key，导出结果是一个包含 payloads 文件夹和 export.json 的目录。</p>
             </div>
@@ -337,6 +343,10 @@ const compareRunAId = ref<string | null>(null)
 const compareRunBId = ref<string | null>(null)
 const diffExportState = ref<'idle' | 'exporting' | 'done' | 'failed'>('idle')
 const diffExportResult = ref('')
+const exportState = ref<'idle' | 'exporting' | 'done' | 'failed'>('idle')
+const exportResult = ref('')
+const copyState = ref<'idle' | 'copying' | 'done' | 'failed'>('idle')
+const copyResult = ref('')
 
 watch(() => props.visible, visible => {
   if (visible) modalQueue.open('run-trace-panel')
@@ -519,15 +529,26 @@ function sealSelectedRun() {
 async function copyRun() {
   const run = selectedRun.value
   if (!run) return
-  const text = await exportRunTraceTextInWorker(run)
-  if (text === null) {
-    console.warn('运行记录复制失败：导出 Worker 不可用或超时')
-    return
-  }
+  if (copyState.value === 'copying') return
+  copyState.value = 'copying'
+  copyResult.value = ''
   try {
-    await navigator.clipboard.writeText(text)
+    const exported = await exportRunTraceTextInWorker(run)
+    if (!exported.ok) throw new Error(exported.error)
+    await navigator.clipboard.writeText(exported.text)
+    copyState.value = 'done'
+    copyResult.value = `已复制 ${exported.text.length} 字符`
   } catch {
-    await window.electronAPI?.clipboardWrite(text)
+    try {
+      const exported = await exportRunTraceTextInWorker(run)
+      if (!exported.ok) throw new Error(exported.error)
+      await window.electronAPI?.clipboardWrite(exported.text)
+      copyState.value = 'done'
+      copyResult.value = `已复制 ${exported.text.length} 字符`
+    } catch (error) {
+      copyState.value = 'failed'
+      copyResult.value = `复制失败：${error instanceof Error ? error.message : String(error)}`
+    }
   }
 }
 
@@ -585,20 +606,31 @@ async function exportDiff() {
 async function exportRun(mode: 'standard' | 'light' | 'deep') {
   const run = selectedRun.value
   if (!run) return
-  const exportedRun = await exportRunTraceJsonInWorker(run)
-  if (!exportedRun) {
-    console.warn('运行记录导出失败：导出 Worker 不可用或超时')
-    return
-  }
-  const result = await window.electronAPI?.runTraceExport({
-    schema: 'shenyi.run-trace',
-    version: 6,
-    mode,
-    exportedAt: new Date().toISOString(),
-    run: exportedRun
-  })
-  if (result && !result.success && result.reason !== 'canceled') {
-    console.warn('运行记录导出失败：' + (result.reason || '未知错误'))
+  if (exportState.value === 'exporting') return
+  exportState.value = 'exporting'
+  exportResult.value = ''
+  try {
+    const exportedRun = await exportRunTraceJsonInWorker(run)
+    if (!exportedRun.ok) throw new Error(exportedRun.error)
+    const result = await window.electronAPI?.runTraceExport({
+      schema: 'shenyi.run-trace',
+      version: 6,
+      mode,
+      exportedAt: new Date().toISOString(),
+      run: exportedRun.run
+    })
+    if (result?.success) {
+      exportState.value = 'done'
+      exportResult.value = `已导出：${result.path || '未知目录'}${result.bytes ? `（${result.bytes} bytes）` : ''}`
+    } else if (result?.reason === 'canceled') {
+      exportState.value = 'idle'
+      exportResult.value = '已取消导出'
+    } else {
+      throw new Error(result?.reason || '未知错误')
+    }
+  } catch (error) {
+    exportState.value = 'failed'
+    exportResult.value = `导出失败：${error instanceof Error ? error.message : String(error)}`
   }
 }
 

@@ -1,0 +1,480 @@
+{
+  "mode": "source",
+  "scenarios": [
+    {
+      "name": "plain-list",
+      "seed": {
+        "appReady": true,
+        "currentProjectId": "outline-message-scroll-ui-regression-plain-list",
+        "outlineChatLength": 40,
+        "journalLastError": null,
+        "navButtonVisible": true
+      },
+      "beforeOpen": {
+        "phase": "before-open-plain-list",
+        "currentProjectId": "outline-message-scroll-ui-regression-plain-list",
+        "outlineChatLength": 40,
+        "journalLastError": null,
+        "journalPending": 0,
+        "navButtonExists": true,
+        "workspaceExists": false,
+        "chatAreaExists": false,
+        "visibleMessageCount": 0,
+        "domMessageCount": 0,
+        "chatDisplay": null,
+        "toggleHit": null,
+        "scrollerCount": 0,
+        "consoleHint": "If store has messages but DOM is 0, inspect OutlineWorkspace message rendering/mount state"
+      },
+      "afterOpen": {
+        "phase": "after-open-plain-list",
+        "currentProjectId": "outline-message-scroll-ui-regression-plain-list",
+        "outlineChatLength": 40,
+        "journalLastError": null,
+        "journalPending": 0,
+        "navButtonExists": true,
+        "workspaceExists": true,
+        "chatAreaExists": true,
+        "visibleMessageCount": 40,
+        "domMessageCount": 40,
+        "chatDisplay": {
+          "display": "flex",
+          "visibility": "visible",
+          "width": 439.640625,
+          "height": 569.203125
+        },
+        "toggleHit": {
+          "rect": {
+            "x": 1031.65625,
+            "y": 80.5,
+            "width": 99.34375,
+            "height": 34
+          },
+          "stack": [
+            "button#btn-ai-co-create.ow-chat-toggle",
+            "div#.ow-header-right",
+            "div#.ow-header",
+            "div#.ow-content",
+            "div#outline-workspace.modal-overlay",
+            "div#panel-backdrop.panel-backdrop"
+          ]
+        },
+        "scrollerCount": 0,
+        "consoleHint": "If store has messages but DOM is 0, inspect OutlineWorkspace message rendering/mount state"
+      },
+      "before": {
+        "messageCount": 40,
+        "root": {
+          "overflow": "hidden auto",
+          "overflowY": "auto",
+          "clientHeight": 458,
+          "scrollHeight": 6832,
+          "scrollTop": 0
+        },
+        "scroller": null,
+        "styles": [
+          {
+            "selector": "#ow-chat-messages",
+            "rect": {
+              "x": 752.359375,
+              "y": 127.5,
+              "width": 438.640625,
+              "height": 458.203125
+            },
+            "hitStack": [
+              "p#.;pointer-events=auto",
+              "div#.ow-msg-bubble;pointer-events=auto",
+              "div#.ow-msg.assistant;pointer-events=auto",
+              "div#.;pointer-events=auto",
+              "div#ow-chat-messages.ow-messages;pointer-events=auto",
+              "div#.ow-chat;pointer-events=auto",
+              "div#.ow-body;pointer-events=auto",
+              "div#.ow-content;pointer-events=auto"
+            ]
+          }
+        ],
+        "responsiveness": {
+          "longTaskCount": 0,
+          "freezeCount": 0,
+          "clickFeedbackCount": 0,
+          "slowClickFeedbackCount": 0,
+          "safeModeCount": 0,
+          "responsivenessState": "normal",
+          "withinBudget": true,
+          "thresholds": {
+            "longTaskThresholdMs": 200,
+            "freezeThresholdMs": 2000,
+            "safeModeThresholdMs": 5000,
+            "clickFeedbackBudgetMs": 100
+          },
+          "events": []
+        }
+      },
+      "staticUp": {
+        "before": {
+          "root": 0,
+          "scroller": 0
+        },
+        "after": {
+          "root": 0,
+          "scroller": 0
+        },
+        "delta": 0,
+        "point": {
+          "x": 971.6796875,
+          "y": 356.6015625
+        }
+      },
+      "staticDown": {
+        "before": {
+          "root": 0,
+          "scroller": 0
+        },
+        "after": {
+          "root": 600,
+          "scroller": 0
+        },
+        "delta": 600,
+        "point": {
+          "x": 971.6796875,
+          "y": 356.6015625
+        }
+      },
+      "generating": {
+        "active": true
+      },
+      "generatingDom": {
+        "messageCount": 41,
+        "root": {
+          "overflow": "hidden auto",
+          "overflowY": "auto",
+          "clientHeight": 458,
+          "scrollHeight": 6913,
+          "scrollTop": 600
+        },
+        "scroller": null,
+        "styles": [
+          {
+            "selector": "#ow-chat-messages",
+            "rect": {
+              "x": 752.359375,
+              "y": 127.5,
+              "width": 438.640625,
+              "height": 458.203125
+            },
+            "hitStack": [
+              "p#.;pointer-events=auto",
+              "div#.ow-msg-bubble;pointer-events=auto",
+              "div#.ow-msg.user;pointer-events=auto",
+              "div#.;pointer-events=auto",
+              "div#ow-chat-messages.ow-messages;pointer-events=auto",
+              "div#.ow-chat;pointer-events=auto",
+              "div#.ow-body;pointer-events=auto",
+              "div#.ow-content;pointer-events=auto"
+            ]
+          }
+        ],
+        "responsiveness": {
+          "longTaskCount": 0,
+          "freezeCount": 0,
+          "clickFeedbackCount": 0,
+          "slowClickFeedbackCount": 0,
+          "safeModeCount": 0,
+          "responsivenessState": "normal",
+          "withinBudget": true,
+          "thresholds": {
+            "longTaskThresholdMs": 200,
+            "freezeThresholdMs": 2000,
+            "safeModeThresholdMs": 5000,
+            "clickFeedbackBudgetMs": 100
+          },
+          "events": []
+        }
+      },
+      "generatingScroll": {
+        "before": {
+          "root": 600,
+          "scroller": 0
+        },
+        "after": {
+          "root": 0,
+          "scroller": 0
+        },
+        "delta": -600,
+        "point": {
+          "x": 971.6796875,
+          "y": 356.6015625
+        }
+      }
+    },
+    {
+      "name": "virtual-list",
+      "seed": {
+        "appReady": true,
+        "currentProjectId": "outline-message-scroll-ui-regression-virtual-list",
+        "outlineChatLength": 320,
+        "journalLastError": null,
+        "navButtonVisible": true
+      },
+      "beforeOpen": {
+        "phase": "before-open-virtual-list",
+        "currentProjectId": "outline-message-scroll-ui-regression-virtual-list",
+        "outlineChatLength": 320,
+        "journalLastError": null,
+        "journalPending": 0,
+        "navButtonExists": true,
+        "workspaceExists": false,
+        "chatAreaExists": false,
+        "visibleMessageCount": 0,
+        "domMessageCount": 0,
+        "chatDisplay": null,
+        "toggleHit": null,
+        "scrollerCount": 0,
+        "consoleHint": "If store has messages but DOM is 0, inspect OutlineWorkspace message rendering/mount state"
+      },
+      "afterOpen": {
+        "phase": "after-open-virtual-list",
+        "currentProjectId": "outline-message-scroll-ui-regression-virtual-list",
+        "outlineChatLength": 320,
+        "journalLastError": null,
+        "journalPending": 0,
+        "navButtonExists": true,
+        "workspaceExists": true,
+        "chatAreaExists": true,
+        "visibleMessageCount": 12,
+        "domMessageCount": 24,
+        "chatDisplay": {
+          "display": "flex",
+          "visibility": "visible",
+          "width": 439.640625,
+          "height": 569.203125
+        },
+        "toggleHit": {
+          "rect": {
+            "x": 1031.65625,
+            "y": 80.5,
+            "width": 99.34375,
+            "height": 34
+          },
+          "stack": [
+            "button#btn-ai-co-create.ow-chat-toggle",
+            "div#.ow-header-right",
+            "div#.ow-header",
+            "div#.ow-content",
+            "div#outline-workspace.modal-overlay",
+            "div#panel-backdrop.panel-backdrop"
+          ]
+        },
+        "scrollerCount": 1,
+        "consoleHint": "If store has messages but DOM is 0, inspect OutlineWorkspace message rendering/mount state"
+      },
+      "before": {
+        "messageCount": 12,
+        "root": {
+          "overflow": "hidden auto",
+          "overflowY": "auto",
+          "clientHeight": 458,
+          "scrollHeight": 458,
+          "scrollTop": 0
+        },
+        "scroller": {
+          "overflowY": "auto",
+          "clientHeight": 434,
+          "scrollHeight": 31384,
+          "scrollTop": 0
+        },
+        "styles": [
+          {
+            "selector": "#ow-chat-messages",
+            "rect": {
+              "x": 752.359375,
+              "y": 127.5,
+              "width": 438.640625,
+              "height": 458.203125
+            },
+            "hitStack": [
+              "p#.;pointer-events=auto",
+              "div#.ow-msg-bubble;pointer-events=auto",
+              "div#.ow-msg.assistant;pointer-events=auto",
+              "div#.;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-view;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-wrapper;pointer-events=auto",
+              "div#.vue-recycle-scroller.ready.direction-vertical;pointer-events=auto",
+              "div#ow-chat-messages.ow-messages;pointer-events=auto"
+            ]
+          },
+          {
+            "selector": ".vue-recycle-scroller ready direction-vertical ow-message-scroller",
+            "rect": {
+              "x": 764.359375,
+              "y": 139.5,
+              "width": 414.640625,
+              "height": 434.203125
+            },
+            "hitStack": [
+              "p#.;pointer-events=auto",
+              "div#.ow-msg-bubble;pointer-events=auto",
+              "div#.ow-msg.assistant;pointer-events=auto",
+              "div#.;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-view;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-wrapper;pointer-events=auto",
+              "div#.vue-recycle-scroller.ready.direction-vertical;pointer-events=auto",
+              "div#ow-chat-messages.ow-messages;pointer-events=auto"
+            ]
+          }
+        ],
+        "responsiveness": {
+          "longTaskCount": 0,
+          "freezeCount": 0,
+          "clickFeedbackCount": 0,
+          "slowClickFeedbackCount": 0,
+          "safeModeCount": 0,
+          "responsivenessState": "normal",
+          "withinBudget": true,
+          "thresholds": {
+            "longTaskThresholdMs": 200,
+            "freezeThresholdMs": 2000,
+            "safeModeThresholdMs": 5000,
+            "clickFeedbackBudgetMs": 100
+          },
+          "events": []
+        }
+      },
+      "staticUp": {
+        "before": {
+          "root": 0,
+          "scroller": 0
+        },
+        "after": {
+          "root": 0,
+          "scroller": 0
+        },
+        "delta": 0,
+        "point": {
+          "x": 971.6796875,
+          "y": 356.6015625
+        }
+      },
+      "staticDown": {
+        "before": {
+          "root": 0,
+          "scroller": 0
+        },
+        "after": {
+          "root": 0,
+          "scroller": 600
+        },
+        "delta": 600,
+        "point": {
+          "x": 971.6796875,
+          "y": 356.6015625
+        }
+      },
+      "generating": {
+        "active": true
+      },
+      "generatingDom": {
+        "messageCount": 13,
+        "root": {
+          "overflow": "hidden auto",
+          "overflowY": "auto",
+          "clientHeight": 458,
+          "scrollHeight": 539,
+          "scrollTop": 0
+        },
+        "scroller": {
+          "overflowY": "auto",
+          "clientHeight": 434,
+          "scrollHeight": 31384,
+          "scrollTop": 600
+        },
+        "styles": [
+          {
+            "selector": "#ow-chat-messages",
+            "rect": {
+              "x": 752.359375,
+              "y": 127.5,
+              "width": 438.640625,
+              "height": 458.203125
+            },
+            "hitStack": [
+              "p#.;pointer-events=auto",
+              "div#.ow-msg-bubble;pointer-events=auto",
+              "div#.ow-msg.assistant;pointer-events=auto",
+              "div#.;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-view.vue-recycle-scroller__item-view.hover;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-wrapper;pointer-events=auto",
+              "div#.vue-recycle-scroller.ready.direction-vertical;pointer-events=auto",
+              "div#ow-chat-messages.ow-messages;pointer-events=auto"
+            ]
+          },
+          {
+            "selector": ".vue-recycle-scroller ready direction-vertical ow-message-scroller",
+            "rect": {
+              "x": 764.359375,
+              "y": 139.5,
+              "width": 408.640625,
+              "height": 434.203125
+            },
+            "hitStack": [
+              "p#.;pointer-events=auto",
+              "div#.ow-msg-bubble;pointer-events=auto",
+              "div#.ow-msg.assistant;pointer-events=auto",
+              "div#.;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-view.vue-recycle-scroller__item-view.hover;pointer-events=auto",
+              "div#.vue-recycle-scroller__item-wrapper;pointer-events=auto",
+              "div#.vue-recycle-scroller.ready.direction-vertical;pointer-events=auto",
+              "div#ow-chat-messages.ow-messages;pointer-events=auto"
+            ]
+          }
+        ],
+        "responsiveness": {
+          "longTaskCount": 0,
+          "freezeCount": 0,
+          "clickFeedbackCount": 0,
+          "slowClickFeedbackCount": 0,
+          "safeModeCount": 0,
+          "responsivenessState": "normal",
+          "withinBudget": true,
+          "thresholds": {
+            "longTaskThresholdMs": 200,
+            "freezeThresholdMs": 2000,
+            "safeModeThresholdMs": 5000,
+            "clickFeedbackBudgetMs": 100
+          },
+          "events": []
+        }
+      },
+      "generatingScroll": {
+        "before": {
+          "root": 0,
+          "scroller": 600
+        },
+        "after": {
+          "root": 0,
+          "scroller": 0
+        },
+        "delta": -600,
+        "point": {
+          "x": 968.6796875,
+          "y": 356.6015625
+        }
+      }
+    }
+  ],
+  "consoleMessages": [
+    "[log] [OK] SkillValidators loaded",
+    "[log] [OK] SkillExecutionEngine loaded",
+    "[info] 诊断日志已启动 | {\"level\":2,\"enabled\":true}",
+    "[log] [OK] SkillValidators loaded",
+    "[log] [OK] SkillExecutionEngine loaded",
+    "[info] 诊断日志已启动 | {\"level\":2,\"enabled\":true}",
+    "[log] [OK] SkillValidators loaded",
+    "[log] [OK] SkillExecutionEngine loaded",
+    "[info] 诊断日志已启动 | {\"level\":2,\"enabled\":true}",
+    "[log] [OK] SkillValidators loaded",
+    "[log] [OK] SkillExecutionEngine loaded",
+    "[info] 诊断日志已启动 | {\"level\":2,\"enabled\":true}"
+  ],
+  "pageErrors": []
+}

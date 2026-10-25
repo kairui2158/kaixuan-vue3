@@ -18,3 +18,9 @@
 
 - 在 DevTools 附加 + Windows + 当前 Electron 版本组合下，40 秒与 60 秒 busy-wait 均未触发 Electron 原生 `unresponsive/responsive` 事件；报告保留 `nativeUnresponsiveCaptured=false`、`nativeResponsiveCaptured=false`，不把 `renderer_safe_mode` 冒充原生事件，也不把该现象误报为产品缺陷。
 - 跨主进程重启的 checkpoint/trace/聊天持久化恢复按用户裁决迁移第二期；本期完成的是会话内 orphan 流恢复（保存草稿、丢弃本段、继续接收转新 run）。
+
+## 经验与封装回写
+
+- 经验文件 `_audit/神意开发经验总结_v9.md` 升级 v9.1.0 → v9.2.0：G1.4 新增“原生事件环境边界登记”；G1.5 新增“测试通道契约参数三面同步”。无旧编号新增，两个语义均并入既有条目。
+- 安装包更新（2026-10-26）：`npm run build` exit 0，renderer 双构建通过，electron-builder 生成 3.108.0 NSIS 包。产物核验：`dist/神意助手-Setup-3.108.0.exe` 存在，231,599,892 字节，SHA256 `284FD8E6EA54F5CC2B5D70BF6838657DBEE1FD232E38D0B431897C791CF46B8A`；`latest.yml` version=3.108.0、size=231599892，与安装包一致；`win-unpacked`、app.asar、blockmap 均存在。
+- 旧产物清理复核：`dist/神意助手-Setup-3.107.0.exe` `exists=false`、blockmap `exists=false`，`dist` 仅保留 3.108.0 一套安装产物。诚实边界：本轮未做 NSIS 安装器的人工安装路径核验，安装包完整性以 electron-builder 输出、文件尺寸、latest.yml 与哈希为准。

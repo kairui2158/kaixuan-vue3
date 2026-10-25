@@ -4,24 +4,12 @@
     "readyState": "complete",
     "workspaceOpen": true,
     "chatOpen": true,
-    "messageCount": 12,
-    "scrollerGeometry": {
-      "className": "vue-recycle-scroller ready direction-vertical ow-message-scroller",
-      "clientHeight": 434,
-      "scrollHeight": 960972,
-      "overflowY": "auto",
-      "height": "434.203px",
-      "display": "block",
-      "position": "relative"
-    },
+    "messageCount": 1,
+    "scrollerGeometry": null,
     "sendDisabled": false,
-    "outlineChatLength": 10000,
+    "outlineChatLength": 1,
     "runCount": 0,
-    "longTasks": [
-      1613,
-      53,
-      107
-    ]
+    "longTasks": []
   },
-  "message": "AssertionError [ERR_ASSERTION]: message count rendered (10000)"
+  "message": "Error: UNKNOWN: unknown error, open 'D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-baseline\\baseline.json'"
 }

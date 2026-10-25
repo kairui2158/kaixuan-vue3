@@ -535,6 +535,37 @@ const outlineJournalPersistenceText = computed(() => {
 const messageScrollerRef = ref<any | null>(null)
 const MESSAGE_VIRTUALIZATION_THRESHOLD = 300
 const messageVirtualizationEnabled = computed(() => messages.value.length >= MESSAGE_VIRTUALIZATION_THRESHOLD)
+const MESSAGE_FOLLOW_EDGE_DISTANCE = 96
+const MESSAGE_SCROLL_WRITE_INTERVAL_MS = 80
+const outlineMessageFollowEnabled = ref(true)
+let outlineMessageScrollTimer: ReturnType<typeof setTimeout> | null = null
+let outlineMessageScrollPending = false
+let outlineMessageUserScrollTimer: ReturnType<typeof setTimeout> | null = null
+
+function activeMessageScrollElement(): HTMLElement | null {
+  if (messageVirtualizationEnabled.value) {
+    const scroller = messageScrollerRef.value?.$el
+    return scroller instanceof HTMLElement ? scroller : null
+  }
+  return msgContainer.value
+}
+
+function syncOutlineMessageFollowState() {
+  const element = activeMessageScrollElement()
+  if (!element) return
+  const distanceFromBottom = element.scrollHeight - element.clientHeight - element.scrollTop
+  const shouldFollow = distanceFromBottom <= MESSAGE_FOLLOW_EDGE_DISTANCE
+  if (outlineMessageFollowEnabled.value !== shouldFollow) {
+    outlineMessageFollowEnabled.value = shouldFollow
+  }
+}
+
+function handleOutlineMessageUserScroll() {
+  syncOutlineMessageFollowState()
+  if (outlineMessageUserScrollTimer) clearTimeout(outlineMessageUserScrollTimer)
+  // Keep the explicit user decision through short layout shifts during streaming.
+  outlineMessageUserScrollTimer = setTimeout(syncOutlineMessageFollowState, 120)
+}
 const virtualMessages = computed(() => {
   const rows: any[] = []
   for (let index = 0; index < messages.value.length; index++) {
@@ -3568,6 +3599,8 @@ onMounted(async () => {
   workspaceSkillAgents.value = migrateSkillAgentBindings(config.skillAgents, { 0: config.skillIds })
   window.addEventListener('diff-locate', handleDiffLocate)
   window.addEventListener('style-analysis-request', handleStyleAnalysisRequest)
+  // DOM scroll events do not bubble; capture lets the same intent state cover the virtual scroller.
+  msgContainer.value?.addEventListener('scroll', handleOutlineMessageUserScroll, { passive: true, capture: true })
   outlineStreamRecoveryTimer = setInterval(refreshOutlineStreamRecovery, 5000)
 })
 
@@ -3576,6 +3609,15 @@ onUnmounted(() => {
     clearInterval(outlineStreamRecoveryTimer)
     outlineStreamRecoveryTimer = null
   }
+  if (outlineMessageScrollTimer) {
+    clearTimeout(outlineMessageScrollTimer)
+    outlineMessageScrollTimer = null
+  }
+  if (outlineMessageUserScrollTimer) {
+    clearTimeout(outlineMessageUserScrollTimer)
+    outlineMessageUserScrollTimer = null
+  }
+  msgContainer.value?.removeEventListener('scroll', handleOutlineMessageUserScroll, { capture: true })
   outlineViewport?.dispose()
   outlineViewport = null
   window.removeEventListener('diff-locate', handleDiffLocate)
@@ -4956,11 +4998,26 @@ async function regenerateOutlineMessageById(messageId: string) {
 
 async function scrollToBottom() {
   await nextTick()
+  if (!outlineMessageFollowEnabled.value) return
   if (messageVirtualizationEnabled.value) {
-    messageScrollerRef.value?.scrollToBottom?.()
+    if (outlineMessageScrollPending) return
+    outlineMessageScrollPending = true
+    outlineMessageScrollTimer = setTimeout(() => {
+      outlineMessageScrollTimer = null
+      outlineMessageScrollPending = false
+      messageScrollerRef.value?.scrollToBottom?.()
+    }, MESSAGE_SCROLL_WRITE_INTERVAL_MS)
     return
   }
-  if (msgContainer.value) msgContainer.value.scrollTop = msgContainer.value.scrollHeight
+  const element = msgContainer.value
+  if (!element) return
+  if (outlineMessageScrollPending) return
+  outlineMessageScrollPending = true
+  outlineMessageScrollTimer = setTimeout(() => {
+    outlineMessageScrollTimer = null
+    outlineMessageScrollPending = false
+    element.scrollTop = element.scrollHeight
+  }, MESSAGE_SCROLL_WRITE_INTERVAL_MS)
 }
 
 type OutlineRoutingDecision = {
@@ -7280,7 +7337,8 @@ function handleUnlockOutline() {
 }
 .ow-messages {
   flex: 1;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: var(--space-5);
   min-height: 0;
 }

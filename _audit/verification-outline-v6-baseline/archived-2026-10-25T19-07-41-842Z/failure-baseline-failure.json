@@ -1,0 +1,15 @@
+{
+  "phase": "baseline-failure",
+  "scene": {
+    "readyState": "complete",
+    "workspaceOpen": true,
+    "chatOpen": true,
+    "messageCount": 1,
+    "scrollerGeometry": null,
+    "sendDisabled": false,
+    "outlineChatLength": 1,
+    "runCount": 0,
+    "longTasks": []
+  },
+  "message": "Error: UNKNOWN: unknown error, open 'D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-baseline\\baseline.json'"
+}

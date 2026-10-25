@@ -1,0 +1,54 @@
+{
+  "beforeChat": {
+    "inputExists": true,
+    "inputDisabled": null,
+    "sendDisabled": false,
+    "inputRect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "hitStack": [
+      "div#outline-workspace.modal-overlay;pointer-events=auto;z-index=3000;disabled=undefined",
+      "div#panel-backdrop.panel-backdrop;pointer-events=auto;z-index=300;disabled=undefined",
+      "aside#app-sidebar.sidebar-nav;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#app-body.app-body;pointer-events=auto;z-index=auto;disabled=undefined",
+      "main#.;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#.app-container;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#app.;pointer-events=auto;z-index=auto;disabled=undefined",
+      "body#.light-theme;pointer-events=auto;z-index=auto;disabled=undefined"
+    ],
+    "responsivenessState": "normal",
+    "activeElement": "select#ow-agent-select",
+    "safeModeBanner": false
+  },
+  "clickProbe": {
+    "inputExists": true,
+    "inputDisabled": null,
+    "sendDisabled": false,
+    "inputRect": {
+      "x": 764.359375,
+      "y": 598.703125,
+      "width": 300.640625,
+      "height": 60
+    },
+    "hitStack": [
+      "textarea#ow-chat-input.api-chat-input;pointer-events=auto;z-index=auto;disabled=false",
+      "div#.api-chat-input-row;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#.api-chat-input-root;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#.ow-input-row;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#.ow-chat;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#.ow-body;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#.ow-content;pointer-events=auto;z-index=auto;disabled=undefined",
+      "div#outline-workspace.modal-overlay;pointer-events=auto;z-index=3000;disabled=undefined"
+    ],
+    "responsivenessState": "normal",
+    "activeElement": "textarea#ow-chat-input",
+    "safeModeBanner": false
+  },
+  "inputState": {
+    "value": "真实鼠标输入回归",
+    "activeElement": "textarea#ow-chat-input"
+  }
+}

@@ -214,6 +214,19 @@ describe('direct write production wiring', () => {
     expect(outline).not.toContain('event.payload as { status?: AgentOrchestratorStatus }')
   })
 
+  it('keeps outline message history scrollable without auto-follow stealing user scroll', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+
+    expect(outline).toContain('const outlineMessageFollowEnabled = ref(true)')
+    expect(outline).toContain('function syncOutlineMessageFollowState()')
+    expect(outline).toContain('function handleOutlineMessageUserScroll()')
+    expect(outline).toContain('{ passive: true, capture: true }')
+    expect(outline).toContain('const MESSAGE_SCROLL_WRITE_INTERVAL_MS = 80')
+    expect(outline).toContain('async function scrollToBottom()')
+    expect(outline).toContain('if (!outlineMessageFollowEnabled.value) return')
+    expect(outline).not.toMatch(/\.ow-messages\s*\{[^}]*overflow:\s*hidden/s)
+  })
+
   it('unlocks dialogue input after an Agent interactive response while background work continues', () => {
     const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
     const home = readComponentSource('src/components/chat/ChatPanel.vue')

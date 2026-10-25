@@ -1186,3 +1186,13 @@
 - 范围：Phase D 裁决边界注记、安全模式长文复制、渲染冻结 journal 追加、40/60 秒原生事件实测、测试隔离上限 60 秒。
 - 验证：组合回归 6 项断言全 true；主账本 40/60 秒档 PASS；Phase 4 复跑 9 项断言全 true；`build:vue`、`type-check`、全量 212 files / 2303 tests 全部通过。
 - 诚实边界：当前环境组合下 40/60 秒 busy-wait 未触发 Electron 原生 `unresponsive/responsive`，保留 false；跨主进程重启恢复为第二期裁决项。
+
+# 2026-10-26 大纲运行记录导出与共创消息滚动修复
+
+- 文件：[_audit/DEV_LOG_2026-10-26_OUTLINE_EXPORT_AND_MESSAGE_SCROLL_CLOSURE.md](_audit/DEV_LOG_2026-10-26_OUTLINE_EXPORT_AND_MESSAGE_SCROLL_CLOSURE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_OUTLINE_EXPORT_AND_MESSAGE_SCROLL_CLOSURE.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_OUTLINE_EXPORT_AND_MESSAGE_SCROLL_CLOSURE.md)
+- 范围：运行记录导出按钮 `DataCloneError` 静默失效修复；大纲共创消息滚动区普通/虚拟列表滚动恢复；用户滚动意图保护与流式自动跟随节流；导出/复制失败可见反馈。
+- 验证：定向 2 files / 29 tests、`type-check`、`build:vue` 全部通过；源码版与打包版双真实 Electron UI 回归 PASS（导出真实点击产出 `export.json`；消息区静态与生成态滚轮位移均非 0）。
+- 封装：3.108.0 → 3.108.1；安装包 `dist/神意助手-Setup-3.108.1.exe`，231,609,991 bytes，SHA256 `D2AF831266D686D8E1703F80ED3C73D91201310E636EA8A2074E4B921E245782`；3.108.0 安装包与 blockmap 已清理。
+- 诚实边界：未做 NSIS 人工安装路径核验与真实外部供应商长流滚动验证；生成态由应用真实 streaming 测试钩子进入，不依赖供应商内容。
+- 经验回写：经验文件升级 v9.3.0，G1.5 补真实失效区域验证，G1.8 补 Worker 边界 unwrap 与失败可见门禁，G1.9 补滚动意图与自动跟随契约。

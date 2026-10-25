@@ -1,32 +1,55 @@
 {
   "schema": "shenyi.outline-v6-baseline",
   "version": 1,
-  "generatedAt": "2026-10-24T20:15:04.662Z",
+  "generatedAt": "2026-10-25T19:07:41.857Z",
   "build": {
-    "rendererIndexMtime": "2026-10-24T20:14:53.439Z"
+    "rendererIndexMtime": "2026-10-25T18:54:30.439Z"
   },
   "cases": [
     {
-      "case": "single-300000",
-      "chars": 300000,
-      "renderMs": 126.80000007152557,
-      "saveMs": 182.29999995231628,
-      "rendered": true,
+      "case": "count-10000-200",
+      "messageCount": 10000,
+      "charsPerMessage": 200,
+      "totalChars": 2000000,
+      "renderMs": 1378,
+      "saveMs": 41.5,
+      "renderedCount": 12,
+      "virtualized": true,
+      "scrollerHeight": 434,
+      "scrollerScrollHeight": 960972,
       "saveOk": true,
       "failedKeys": [],
       "typing": {
-        "duration": 21.899999976158142,
+        "duration": 133.10000002384186,
         "renderedMarker": true,
-        "length": 54
+        "length": 58
       },
       "metrics": {
-        "longTaskCount": 1,
-        "longTaskTotalMs": 157,
-        "longTaskMaxMs": 157,
+        "longTaskCount": 3,
+        "longTaskTotalMs": 1967,
+        "longTaskMaxMs": 1719,
         "longTasks": [
           {
-            "duration": 157,
-            "startTime": 3095,
+            "duration": 1719,
+            "startTime": 3210,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 125,
+            "startTime": 4995,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 123,
+            "startTime": 5121,
             "attribution": [
               {
                 "name": "unknown"
@@ -35,36 +58,41 @@
           }
         ],
         "frameDelayCount": 1,
-        "frameDelayMaxMs": 498,
-        "frameDelayAvgMs": 498,
+        "frameDelayMaxMs": 2542,
+        "frameDelayAvgMs": 2542,
         "memory": {
-          "usedJSHeapSize": 19300000,
-          "totalJSHeapSize": 37300000,
+          "usedJSHeapSize": 64000000,
+          "totalJSHeapSize": 91700000,
           "jsHeapSizeLimit": 3760000000
         }
       }
     },
     {
-      "case": "single-1000000",
-      "chars": 1000000,
-      "renderMs": 8.900000095367432,
-      "saveMs": 489.6999999284744,
-      "rendered": true,
+      "case": "count-50000-100",
+      "messageCount": 50000,
+      "charsPerMessage": 100,
+      "totalChars": 5000000,
+      "renderMs": 4831.600000023842,
+      "saveMs": 2602.2000000476837,
+      "renderedCount": 12,
+      "virtualized": true,
+      "scrollerHeight": 434,
+      "scrollerScrollHeight": 4800468,
       "saveOk": true,
       "failedKeys": [],
       "typing": {
-        "duration": 11.299999952316284,
+        "duration": 1262,
         "renderedMarker": true,
-        "length": 55
+        "length": 56
       },
       "metrics": {
-        "longTaskCount": 2,
-        "longTaskTotalMs": 599,
-        "longTaskMaxMs": 469,
+        "longTaskCount": 5,
+        "longTaskTotalMs": 10553,
+        "longTaskMaxMs": 6091,
         "longTasks": [
           {
-            "duration": 130,
-            "startTime": 3879,
+            "duration": 6091,
+            "startTime": 8200,
             "attribution": [
               {
                 "name": "unknown"
@@ -72,8 +100,35 @@
             ]
           },
           {
-            "duration": 469,
-            "startTime": 4019,
+            "duration": 1173,
+            "startTime": 14339,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 1354,
+            "startTime": 15528,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 677,
+            "startTime": 16897,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 1258,
+            "startTime": 17589,
             "attribution": [
               {
                 "name": "unknown"
@@ -81,12 +136,84 @@
             ]
           }
         ],
-        "frameDelayCount": 2,
-        "frameDelayMaxMs": 1228,
-        "frameDelayAvgMs": 615,
+        "frameDelayCount": 4,
+        "frameDelayMaxMs": 9040,
+        "frameDelayAvgMs": 3469,
         "memory": {
-          "usedJSHeapSize": 19300000,
-          "totalJSHeapSize": 37300000,
+          "usedJSHeapSize": 64000000,
+          "totalJSHeapSize": 91700000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    },
+    {
+      "case": "events-5000",
+      "count": 5000,
+      "addEventsMs": 92.19999992847443,
+      "exportMs": 88,
+      "eventCount": 5000,
+      "eventLedger": {
+        "totalEvents": 5002,
+        "droppedInfoEvents": 2,
+        "droppedWarnEvents": 0,
+        "droppedErrorEvents": 0
+      },
+      "exportedTotalEvents": 5002,
+      "liveTotalEvents": 5002,
+      "maxSeq": 5002,
+      "jsonChars": 1056999,
+      "typing": {
+        "duration": 5,
+        "renderedMarker": true,
+        "length": 61
+      },
+      "metrics": {
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longTaskMaxMs": 0,
+        "longTasks": [],
+        "frameDelayCount": 1,
+        "frameDelayMaxMs": 10,
+        "frameDelayAvgMs": 10,
+        "memory": {
+          "usedJSHeapSize": 64000000,
+          "totalJSHeapSize": 91700000,
+          "jsHeapSizeLimit": 3760000000
+        }
+      }
+    },
+    {
+      "case": "events-20000",
+      "count": 20000,
+      "addEventsMs": 503,
+      "exportMs": 377.39999997615814,
+      "eventCount": 20000,
+      "eventLedger": {
+        "totalEvents": 20002,
+        "droppedInfoEvents": 2,
+        "droppedWarnEvents": 0,
+        "droppedErrorEvents": 0
+      },
+      "exportedTotalEvents": 20002,
+      "liveTotalEvents": 20002,
+      "maxSeq": 20002,
+      "jsonChars": 4290313,
+      "typing": {
+        "duration": 9.399999976158142,
+        "renderedMarker": true,
+        "length": 59
+      },
+      "metrics": {
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longTaskMaxMs": 0,
+        "longTasks": [],
+        "frameDelayCount": 0,
+        "frameDelayMaxMs": 0,
+        "frameDelayAvgMs": null,
+        "memory": {
+          "usedJSHeapSize": 64000000,
+          "totalJSHeapSize": 91700000,
           "jsHeapSizeLimit": 3760000000
         }
       }
@@ -96,17 +223,19 @@
     "stepTimeoutMs": 120000,
     "globalTimeoutMs": 1800000,
     "runOnly": [
-      "single-300000",
-      "single-1000000"
+      "messages-10000",
+      "messages-50000",
+      "events-5000",
+      "events-20000"
     ]
   },
   "summary": {
-    "totalCases": 2,
+    "totalCases": 4,
     "requiredCases": 7,
     "allCasesExecuted": false,
-    "worstTypingDelayMs": 21.899999976158142,
-    "worstRenderMs": 126.80000007152557,
-    "worstSaveMs": 489.6999999284744,
-    "worstLongTaskMs": 469
+    "worstTypingDelayMs": 1262,
+    "worstRenderMs": 4831.600000023842,
+    "worstSaveMs": 2602.2000000476837,
+    "worstLongTaskMs": 6091
   }
 }
