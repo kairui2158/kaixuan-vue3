@@ -1196,3 +1196,11 @@
 - 封装：3.108.0 → 3.108.1；安装包 `dist/神意助手-Setup-3.108.1.exe`，231,609,991 bytes，SHA256 `D2AF831266D686D8E1703F80ED3C73D91201310E636EA8A2074E4B921E245782`；3.108.0 安装包与 blockmap 已清理。
 - 诚实边界：未做 NSIS 人工安装路径核验与真实外部供应商长流滚动验证；生成态由应用真实 streaming 测试钩子进入，不依赖供应商内容。
 - 经验回写：经验文件升级 v9.3.0，G1.5 补真实失效区域验证，G1.8 补 Worker 边界 unwrap 与失败可见门禁，G1.9 补滚动意图与自动跟随契约。
+
+# 2026-10-26 经验文件 v9.4.0 回归门禁升级
+
+- 文件：[_audit/DEV_LOG_2026-10-26_EXPERIENCE_FILE_V9_4_UPDATE.md](_audit/DEV_LOG_2026-10-26_EXPERIENCE_FILE_V9_4_UPDATE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_EXPERIENCE_FILE_V9_4_UPDATE.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_EXPERIENCE_FILE_V9_4_UPDATE.md)
+- 范围：把 3.108.0 导出静默失效与消息滚动回归提炼为发布级门禁；G1.5 补用户可见回归与引入点追账，G1.12 补发布前真实 UI 回归面最小矩阵。
+- 引入点：导出缺陷定位到 `e3abea2c`（3.106.0）；滚动缺陷为历史结构遗留，首次引入提交未定位并显式登记。
+- 验证：v9.4.0 唯一经验文件、台账七节、总索引与 STACK 指针齐备；`git diff --check` 通过；本轮文档收口提交后工作区干净。

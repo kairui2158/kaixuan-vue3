@@ -24,7 +24,7 @@
 - electron-builder NSIS 打包
 
 ## 规则来源
-- `_audit/神意开发经验总结_v9.md`（v9.0.0）是唯一开发经验规则文件
+- `_audit/神意开发经验总结_v9.md`（v9.4.0）是唯一开发经验规则文件
 - `_audit/DEV_LOG_MASTER_INDEX.md` 是开发日志唯一总索引
 
 ## 已知陷阱
