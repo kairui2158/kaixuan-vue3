@@ -1204,3 +1204,10 @@
 - 范围：把 3.108.0 导出静默失效与消息滚动回归提炼为发布级门禁；G1.5 补用户可见回归与引入点追账，G1.12 补发布前真实 UI 回归面最小矩阵。
 - 引入点：导出缺陷定位到 `e3abea2c`（3.106.0）；滚动缺陷为历史结构遗留，首次引入提交未定位并显式登记。
 - 验证：v9.4.0 唯一经验文件、台账七节、总索引与 STACK 指针齐备；`git diff --check` 通过；本轮文档收口提交后工作区干净。
+
+# 2026-10-26 经验文件 v9.5.0 整理性升级
+
+- 文件：[_audit/DEV_LOG_2026-10-26_EXPERIENCE_FILE_V9_5_UPDATE.md](_audit/DEV_LOG_2026-10-26_EXPERIENCE_FILE_V9_5_UPDATE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_EXPERIENCE_FILE_V9_5_UPDATE.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_EXPERIENCE_FILE_V9_5_UPDATE.md)
+- 范围：适用性审计后的整理性升级；G1.5 从事故流水账瘦回规则本体，G2.11 的 Vite 重启改为条件化运维规则，L3 归档映射外置为 `_audit/神意开发经验总结_v9_L3_ARCHIVE.md`。
+- 验证：S200/S1M 经源码核实仍存在于验证脚本，不移除；主文件版本、STACK 指针、附录映射、台账七节齐备；收尾时补齐命令输出与工作区状态。
