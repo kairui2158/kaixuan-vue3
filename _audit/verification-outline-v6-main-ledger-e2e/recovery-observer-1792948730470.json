@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-25T17:18:50.470Z",
+  "recoveryReloadedAt": 0,
+  "targets": [
+    {
+      "description": "",
+      "devtoolsFrontendUrl": "/devtools/inspector.html?ws=127.0.0.1:9433/devtools/page/BB9242B8C9C4222DA6661CB697C68495",
+      "id": "BB9242B8C9C4222DA6661CB697C68495",
+      "title": "神意助手",
+      "type": "page",
+      "url": "file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+      "webSocketDebuggerUrl": "ws://127.0.0.1:9433/devtools/page/BB9242B8C9C4222DA6661CB697C68495"
+    },
+    {
+      "description": "",
+      "devtoolsFrontendUrl": "/devtools/inspector.html?ws=127.0.0.1:9433/devtools/page/31F81C181E16B97FBFDAD74E9B16745F",
+      "id": "31F81C181E16B97FBFDAD74E9B16745F",
+      "title": "神意助手",
+      "type": "page",
+      "url": "file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+      "webSocketDebuggerUrl": "ws://127.0.0.1:9433/devtools/page/31F81C181E16B97FBFDAD74E9B16745F"
+    }
+  ]
+}

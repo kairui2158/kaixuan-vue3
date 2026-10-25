@@ -158,7 +158,7 @@ function registerResponsivenessTestHandlers(ipcMain, win) {
         if (!owner) return { ok: false, reason: 'wrong_window' }
       }
     if (payload.action === 'block') {
-      const durationMs = Math.min(Math.max(Number(payload.durationMs) || 20_000, 1_000), 30_000)
+      const durationMs = Math.min(Math.max(Number(payload.durationMs) || 20_000, 1_000), 60_000)
       win.webContents
         .executeJavaScript(`(function(){var until=performance.now()+${durationMs};while(performance.now()<until){}})()`, false)
         .catch(function() {})

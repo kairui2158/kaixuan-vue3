@@ -188,6 +188,8 @@ V6 的方向成立，但按原文直接执行会引入新的并发缺陷。V6.1 
 4. 由于 A 层已迁移流所有权，主进程看门狗触发不会丢流，只影响显示。
 5. 崩溃恢复：重启后从 checkpoint 恢复流、trace、聊天状态，用户可选择继续或停止。
 
+> 执行注记（2026-10-26，Phase D 裁决对账）：跨主进程重启的 checkpoint/trace/聊天持久化恢复按用户裁决迁移第二期；本期已闭环的是会话内 orphan 流恢复（保存草稿、丢弃本段、继续接收转新 run），partial 不冒充 assistant 成品。依据：任务台账第 6/7 节 Phase D 条目与 `DEV_LOG_MASTER_INDEX.md` 2026-10-25 记录。原生 `unresponsive/responsive` 监听仍在当前一期范围内，必须真实触发验证，不得用 `renderer_safe_mode` 冒充原生事件。
+
 ## 3. 执行阶段
 
 V6.1 对各 Phase 追加以下通过条件：
@@ -197,6 +199,8 @@ V6.1 对各 Phase 追加以下通过条件：
 - Phase 3 增加：stream registry 必须有 `streamId/windowId/projectId/heartbeat/orphan` 生命周期测试；主进程 ring buffer 有水位测试；模拟渲染冻结 1s/5s/30s 时主进程内存增长有上界；模拟双窗口打开同项目时第二窗口不能接管流；崩溃恢复后的 checkpoint 必须处于 `recovering/partial`，不得自动写成 success。
 - Phase 4 增加：主进程 `unresponsive/responsive/render-process-gone` 三事件必须写入同一 Responsiveness Ledger；安全模式进入/退出有 trace 事件与 UI 可见状态；注入阻塞的测试必须断言输入延迟和取消按钮可用性，而不是只断言日志存在。
 - Phase 5 增加：并发回归必须包含“等待态续跑 + 新任务发起”“渲染冻结 + journal 追加”“渲染崩溃 + 流恢复”“双窗口同项目”“安全模式中复制长文”五类组合场景。
+
+> 执行注记（2026-10-26）：五类场景中“等待态续跑 + 新任务发起”“渲染崩溃 + 流恢复”“双窗口同项目”已由 Phase 1/3/主账本 E2E 覆盖；“渲染冻结 + journal 追加”“安全模式中复制长文”补入 `scripts/verify-outline-v6-phase5-combos-e2e.mjs` 真实 Electron 回归。
 
 ### Phase 0：只读基线与性能采样
 
@@ -247,6 +251,7 @@ V6.1 对各 Phase 追加以下通过条件：
 
 - 模拟渲染阻塞 1s/5s/30s，流继续增长且恢复后无丢字。
 - 模拟渲染崩溃，重启后可从 checkpoint 接续。
+- 跨主进程重启续接按 Phase D 裁决迁移第二期；会话内 checkpoint 恢复已闭环，不得将裁决转移冒充为本期完成。
 - 真实 API 长流验证：使用应用内置默认供应商与 key，SKILL 通过真实 UI 下拉选择。
 - 网络断流、取消、重试、权限拒绝路径全部保留原语义。
 
@@ -269,6 +274,7 @@ V6.1 对各 Phase 追加以下通过条件：
 - 大纲讨论、SKILL/Agent、直写、终稿、取消、重试、回滚、trace 导出、项目切换、重启恢复全链路回归。
 - 真实 UI + 真实 API 长流 + SKILL 加载验证。
 - 经验文件、DEV_LOG、任务台账、版本号、工作区清理同步收尾。
+- 补充组合回归：安全模式中复制 12,000 字长文；渲染冻结期间追加 journal，恢复后 ack、pending 清零、快照与 UI 一致。原生 `unresponsive/responsive` 以真实 Electron 事件为准。
 
 ## 4. 风险与反证
 

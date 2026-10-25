@@ -182,9 +182,9 @@ describe('responsiveness ledger', () => {
     expect(rejected).toEqual({ ok: false, reason: 'wrong_window' })
 
     const block = await testHandler({ sender: webContents }, { action: 'block', durationMs: 60_000 })
-    expect(block).toEqual({ ok: true, action: 'block', durationMs: 30_000 })
+    expect(block).toEqual({ ok: true, action: 'block', durationMs: 60_000 })
     expect(executeJavaScript).toHaveBeenCalledTimes(1)
-    expect(String(executeJavaScript.mock.calls[0][0])).toContain('performance.now()+30000')
+    expect(String(executeJavaScript.mock.calls[0][0])).toContain('performance.now()+60000')
 
     const crash = await testHandler({ sender: webContents }, { action: 'crash' })
     expect(crash).toEqual({ ok: true, action: 'crash' })

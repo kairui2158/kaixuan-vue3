@@ -1178,3 +1178,11 @@
 - 范围：popup/嵌套 popup 响应面递归接线、崩溃后账本 E2E 三类验证器缺陷修复（顶层 `await`、恢复事件时序、失效 Playwright 句柄）、经验文件 v9.1.0、版本 3.106.0。
 - 验证：`electron/ipc/responsivenessLedger.spec.js` 9/9；`verify-outline-v6-main-ledger-e2e.mjs` PASS；全量 212 files / 2296 tests；`type-check`、`build:vue` 通过。
 - 诚实边界：本轮未捕获 Electron 原生 `unresponsive/responsive`，报告保留 false，不冒充通过；未重新执行真实外部供应商 live 长流。
+
+# 2026-10-26 大纲编辑器 V6.3 Phase 5 组合回归与原生事件收口
+
+- 文件：[_audit/DEV_LOG_2026-10-26_OUTLINE_V6_3_PHASE5_COMBO_NATIVE_CLOSURE.md](_audit/DEV_LOG_2026-10-26_OUTLINE_V6_3_PHASE5_COMBO_NATIVE_CLOSURE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md)
+- 范围：Phase D 裁决边界注记、安全模式长文复制、渲染冻结 journal 追加、40/60 秒原生事件实测、测试隔离上限 60 秒。
+- 验证：组合回归 6 项断言全 true；主账本 40/60 秒档 PASS；Phase 4 复跑 9 项断言全 true；`build:vue`、`type-check`、全量 212 files / 2303 tests 全部通过。
+- 诚实边界：当前环境组合下 40/60 秒 busy-wait 未触发 Electron 原生 `unresponsive/responsive`，保留 false；跨主进程重启恢复为第二期裁决项。

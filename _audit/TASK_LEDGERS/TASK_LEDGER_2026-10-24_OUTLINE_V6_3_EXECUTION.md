@@ -105,3 +105,15 @@
 - Phase 5 已闭环：全量回归、DEV_LOG、经验回写、版本 3.105.0、工作区清理与 Git 提交完成。
 - Phase 5 追加收口已闭环：嵌套 popup 注册、崩溃后账本读取、验证器 CDP/句柄/时序三个缺口修复完毕，版本升至 3.106.0。
 - 无未闭环缺口。
+
+## 8. 2026-10-26 Phase 5 组合回归与原生事件实测补账
+
+- 方案裁决对齐：`_audit/PROPOSAL_2026-10-24_OUTLINE_EDITOR_V6_3_NON_BLOCKING.md` 在 F 层、Phase 3、Phase 5 追加执行注记；跨主进程重启 checkpoint 恢复按用户裁决转第二期，本期只认“会话内 orphan 流恢复”闭环，不把裁决转移冒充完成。
+- 组合回归补充通过（2026-10-25）：`node scripts/verify-outline-v6-phase5-combos-e2e.mjs` PASS。安全模式中真实点击复制按钮，10,592 字完整入剪贴板，头尾一致，复制 87.7ms、输入延迟 1.9ms；渲染冻结期间 journal 追加 1 条，恢复后 flush `ok=true`、pending 0、快照 2/2 与 UI 一致、messageId 稳定。证据：`_audit/verification-outline-v6-phase5-combos-e2e/result.json`，6 项断言全 true。
+- 原生事件 40 秒档实测（2026-10-25）：`node scripts/verify-outline-v6-main-ledger-e2e.mjs` PASS，真实阻塞 40 秒；账本记录两窗口 `renderer_safe_mode`、真实 `render-process-gone`、`renderer_recovery_scheduled/reloaded`，双窗口与崩溃窗口均可读。诚实边界：`nativeUnresponsiveCaptured=false`、`nativeResponsiveCaptured=false`。
+- 原生事件 60 秒档实测（2026-10-25）：`OUTLINE_BLOCK_DURATION_MS=60000 node scripts/verify-outline-v6-main-ledger-e2e.mjs` PASS；账本事件与恢复链路完整。诚实边界：在 DevTools 附加 + Windows + 当前 Electron 版本组合下，busy-wait 渲染阻塞未触发 Electron 原生 `unresponsive/responsive`，该项不冒充通过。
+- 测试通道上限：`electron/ipc/responsivenessLedger.js:161` 将测试隔离 block 上限 30,000ms 放宽到 60,000ms，仍仅在 `SHENYI_DATA_DIR` + `SHENYI_ALLOW_TEST_ISOLATION=1` 显式隔离环境注册，生产不暴露。
+- Phase 4 复跑通过（2026-10-25）：`OUTLINE_BLOCK_DURATION_MS=6500 node scripts/verify-outline-v6-phase4-e2e.mjs` PASS，9 项断言全 true；真实 provider 流、真实取消 abort 1 次、安全模式真实点击退出、输入延迟 3.1ms。证据：`_audit/verification-outline-v6-phase4-e2e/result.json`。
+- 本轮验证（2026-10-26）：`npm run type-check` PASS；`npm run test:services` 212 files / 2303 tests 全部 PASS。首次全量跑暴露 `electron/ipc/responsivenessLedger.spec.js:185` 仍锁 30 秒旧断言，已同步为 60,000ms 并复跑通过。
+- 收口：DEV_LOG `_audit/DEV_LOG_2026-10-26_OUTLINE_V6_3_PHASE5_COMBO_NATIVE_CLOSURE.md`；`DEV_LOG_MASTER_INDEX.md` 已登记；版本 3.107.0 → 3.108.0；Git 提交后 `git status --short` 为空。
+- 剩余边界：跨主进程重启恢复为第二期裁决项；Electron 原生 `unresponsive/responsive` 在当前环境组合下未能真实触发，已如实登记为环境边界，不作为产品缺陷冒充通过。

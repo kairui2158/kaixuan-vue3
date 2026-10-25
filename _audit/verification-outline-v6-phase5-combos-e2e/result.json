@@ -1,0 +1,49 @@
+{
+  "schema": "shenyi.outline-v6-phase5-combos-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-25T17:13:20.892Z",
+  "script": "verify-outline-v6-phase5-combos-e2e.mjs",
+  "blockDurationMs": 6500,
+  "measuredBlockedMs": 13487.800000071526,
+  "copyFixture": {
+    "messageId": "outline-msg-0-10f9auv",
+    "contentLength": 10592,
+    "pendingCount": 1
+  },
+  "copyResult": {
+    "safeModeVisible": true,
+    "monitorState": "safe_mode",
+    "inputDisabled": false,
+    "inputValueLength": 1,
+    "inputLatencyMs": 1.899999976158142,
+    "copyLatencyMs": 87.70000004768372,
+    "clipboardLength": 10592,
+    "clipboardHead": "【组合回归长文】安全模式复制内容完整性校验。安全模式复制内容完整性校验。安全模式",
+    "clipboardTail": "模式复制内容完整性校验。安全模式复制内容完整性校验。安全模式复制内容完整性校验。",
+    "stateAfterCopy": "safe_mode"
+  },
+  "journalFixture": {
+    "messageId": "outline-msg-0-d8r1kg",
+    "content": "渲染冻结期间追加的 journal 组合回归消息。",
+    "uiMessageCount": 2,
+    "pendingCount": 1,
+    "lastError": null
+  },
+  "flushResult": {
+    "result": {
+      "ok": true
+    },
+    "pendingCount": 0,
+    "lastError": null,
+    "uiMessageCount": 2,
+    "snapshotMessageCount": 2
+  },
+  "assertions": {
+    "safeModeLongCopyAvailable": true,
+    "safeModeInputAvailable": true,
+    "journalAppendSurvivesRendererFreeze": true,
+    "journalAckClearsPending": true,
+    "journalSnapshotMatchesUi": true,
+    "journalMessageIdStable": true
+  }
+}

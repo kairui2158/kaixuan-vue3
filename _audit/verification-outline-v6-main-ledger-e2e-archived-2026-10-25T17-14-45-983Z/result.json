@@ -1,0 +1,62 @@
+{
+  "schema": "shenyi.outline-v6-main-ledger-e2e",
+  "version": 1,
+  "generatedAt": "2026-10-25T06:17:26.369Z",
+  "script": "verify-outline-v6-main-ledger-e2e.mjs",
+  "blockDurationMs": 22000,
+  "firstWindowLedgerOk": true,
+  "secondWindowLedgerOk": true,
+  "crashedWindowRecovered": true,
+  "events": [
+    {
+      "kind": "renderer_safe_mode",
+      "windowId": 2,
+      "at": 1792909034480
+    },
+    {
+      "kind": "renderer_safe_mode",
+      "windowId": 1,
+      "at": 1792909034485
+    },
+    {
+      "kind": "render-process-gone",
+      "windowId": 1,
+      "at": 1792909038513
+    },
+    {
+      "kind": "renderer_recovery_scheduled",
+      "windowId": 1,
+      "at": 1792909038514
+    },
+    {
+      "kind": "render-process-gone",
+      "windowId": 1,
+      "at": 1792909038524
+    },
+    {
+      "kind": "renderer_recovery_scheduled",
+      "windowId": 1,
+      "at": 1792909038524
+    },
+    {
+      "kind": "renderer_recovery_reloaded",
+      "windowId": 1,
+      "at": 1792909044306
+    },
+    {
+      "kind": "renderer_recovery_reloaded",
+      "windowId": 1,
+      "at": 1792909044485
+    }
+  ],
+  "assertions": {
+    "everyRegisteredWindowCanReadLedger": true,
+    "realBlockObserved": true,
+    "nativeUnresponsiveCaptured": false,
+    "nativeResponsiveCaptured": false,
+    "realRenderProcessGoneCaptured": true,
+    "mainProcessReloadCaptured": true,
+    "crashedWindowLedgerReadableAfterReload": true,
+    "newWindowLedgerReadableAfterCrash": true
+  }
+}

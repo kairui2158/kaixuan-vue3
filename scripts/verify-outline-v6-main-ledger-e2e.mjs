@@ -12,10 +12,10 @@ const DATA_DIR = path.join(PROFILE, 'documents-data')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-outline-v6-main-ledger-e2e')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const CDP_PORT = 9433
-const BLOCK_DURATION_MS = 22_000
-const BLOCK_SETTLE_MS = 26_000
+const BLOCK_DURATION_MS = Number(process.env.OUTLINE_BLOCK_DURATION_MS || 40_000)
+const BLOCK_SETTLE_MS = BLOCK_DURATION_MS + 5_000
 const CRASH_RECOVERY_TIMEOUT_MS = 60_000
-const TOTAL_TIMEOUT_MS = 210_000
+const TOTAL_TIMEOUT_MS = 300_000
 
 const totalDeadline = Date.now() + TOTAL_TIMEOUT_MS
 let timedOut = false
