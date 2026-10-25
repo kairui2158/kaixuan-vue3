@@ -92,8 +92,15 @@
 - Phase 4 三档真实 UI 验证通过（2026-10-25）：`OUTLINE_BLOCK_DURATION_MS=6500` 全部 9 项断言 true，实测阻塞 7285.5ms，输入延迟 1.1ms，取消真实 abort provider 1 次，安全模式真实点击退出；`OUTLINE_BLOCK_DURATION_MS=5500` 全部 9 项断言 true，实测阻塞 6279.3ms，输入延迟 1.2ms，安全模式可见且可退出；`OUTLINE_BLOCK_DURATION_MS=4800` 负向通过，只产生 `renderer_warning`，`safeModeVisible=false`，输入与取消保持可用。证据：`_audit/verification-outline-v6-phase4-e2e-6500/result.json`、`_audit/verification-outline-v6-phase4-e2e-5500/result.json`、`_audit/verification-outline-v6-phase4-e2e-4800/result.json`。
 - Phase 5 回归通过（2026-10-25）：`npm run type-check` exit 0；`npx vitest run` 209 个测试文件、2281 个测试全部 PASS；脚本重构后三档 E2E 全部复跑，不复用历史产物。工作区清理确认 `_data/outline-v6-phase4-e2e-profile` 不存在；证据目录全部保留。
 - Phase 5 收口：DEV_LOG `_audit/DEV_LOG_2026-10-24_OUTLINE_V6_3_PHASE4_5_CLOSURE.md`；经验文件 v9 G1.5 补入“自动恢复状态必须同轮次验证”；版本 3.104.0 → 3.105.0；Git 提交后以 `git status --short` 为空收口。
+- Phase 5 追加收口（2026-10-25）：崩溃后账本读取 E2E 复跑通过。产品缺陷修复：popup 崩溃恢复注册面此前只覆盖第一层新窗口，嵌套 popup 无 `registerResponsivenessHandlers`/`attachWindowResponsivenessListeners`，导致 `responsivenessLedger is not a function`；`electron/main.js` 的 `ensurePopupPreload` 现在在 `did-create-window` 中递归接线子窗口。
+- 验证器缺陷修复 1：`readLedgerOverCdp` 原先向 CDP `Runtime.evaluate` 发送顶层 `await` 表达式，Electron 把该表达式判为语法异常；旧脚本把 `exceptionDetails` 当成“ledger unavailable”，产生假不可读。已改为 `Promise.resolve(...)` + `awaitPromise: true`，并把 `exceptionDetails` 转成显式错误。
+- 验证器缺陷修复 2：崩溃恢复断言原先在事件落账前一次性读取；已改为循环等待主账本出现 `renderer_recovery_reloaded`，再读取恢复窗口。
+- 验证器缺陷修复 3：崩溃后旧 Playwright page 句柄失效，不能再用于截图或开窗；新脚本记录开窗前 CDP target id 集合，增量识别 fresh target，直接从新 target 读账本并 `Page.captureScreenshot`。
+- 验证结果（2026-10-25）：`node scripts/verify-outline-v6-main-ledger-e2e.mjs` PASS；`_audit/verification-outline-v6-main-ledger-e2e/result.json` 中 `everyRegisteredWindowCanReadLedger=true`、`realBlockObserved=true`、`realRenderProcessGoneCaptured=true`、`mainProcessReloadCaptured=true`、`crashedWindowLedgerReadableAfterReload=true`、`newWindowLedgerReadableAfterCrash=true`。诚实边界：22 秒阻塞触发的是应用安全模式与 `render-process-gone`，未等待 Electron 原生 `unresponsive`，因此 `nativeUnresponsiveCaptured=false`、`nativeResponsiveCaptured=false`，该项不冒充通过。
+- 全量回归（2026-10-25）：`npx vitest run` 212 files / 2296 tests 全部 PASS；`npm run type-check` exit 0；`npm run build:vue` exit 0。
 - Phase 0 已闭环。
 - Phase 1-3 已闭环，证据见第 6 节。
 - Phase 4 已闭环：Responsiveness Supervisor、主进程 ledger、可见可退出安全模式、三档真实 UI 验证（6500ms 正向 / 5500ms 边界 / 4800ms 负向）全部通过。
 - Phase 5 已闭环：全量回归、DEV_LOG、经验回写、版本 3.105.0、工作区清理与 Git 提交完成。
+- Phase 5 追加收口已闭环：嵌套 popup 注册、崩溃后账本读取、验证器 CDP/句柄/时序三个缺口修复完毕，版本升至 3.106.0。
 - 无未闭环缺口。

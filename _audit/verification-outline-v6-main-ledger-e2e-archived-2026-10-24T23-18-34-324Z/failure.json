@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-24T23:17:57.063Z",
+  "message": "Error: reading ledger while renderer is blocked timed out after 8000ms",
+  "stack": "Error: reading ledger while renderer is blocked timed out after 8000ms\n    at Timeout.<anonymous> (file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:58:41)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

@@ -305,8 +305,8 @@ async function verifyRingBufferBound(page) {
   const burst = await page.evaluate(async ({ mockUrl }) => {
     let chunkCount = 0
     let bytes = 0
-    const off = window.electronAPI.onProviderNetStreamChunk(payload => {
-      if (payload.signalId !== 'phase3-burst-stream' || payload.event !== 'chunk') return
+    const off = window.electronAPI.onProviderNetStreamFrame(payload => {
+      if (payload.streamId !== 'phase3-burst-stream' || payload.transportEvent !== 'chunk') return
       chunkCount += 1
       bytes += (payload.text || '').length
     })

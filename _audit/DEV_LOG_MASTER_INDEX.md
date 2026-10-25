@@ -1161,3 +1161,11 @@
 - 范围：Responsiveness Supervisor 三档真实 UI 验证（6500ms / 5500ms / 4800ms 负向）、验证器自动恢复竞态修复、全量回归、台账与经验回写、版本 3.105.0、工作区清理与提交。
 - 验证：三档 E2E 全部 PASS；`node --check`、`npm run type-check`、`npx vitest run` 209 files / 2281 tests 全部通过；`_data/outline-v6-phase4-e2e-profile` 不存在。
 - 诚实边界：真实 API 长流与 SKILL 下拉已在 Phase 3 live 验证闭环；本轮 Phase 4 使用本地 mock provider 注入 renderer 阻塞，安全模式行为不依赖供应商内容。经验回写 G1.5。
+
+# 2026-10-25 大纲编辑器 V6.3 崩溃账本收口
+
+- 文件：[_audit/DEV_LOG_2026-10-25_OUTLINE_V6_3_CRASH_LEDGER_CLOSURE.md](_audit/DEV_LOG_2026-10-25_OUTLINE_V6_3_CRASH_LEDGER_CLOSURE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-24_OUTLINE_V6_3_EXECUTION.md)
+- 范围：popup/嵌套 popup 响应面递归接线、崩溃后账本 E2E 三类验证器缺陷修复（顶层 `await`、恢复事件时序、失效 Playwright 句柄）、经验文件 v9.1.0、版本 3.106.0。
+- 验证：`electron/ipc/responsivenessLedger.spec.js` 9/9；`verify-outline-v6-main-ledger-e2e.mjs` PASS；全量 212 files / 2296 tests；`type-check`、`build:vue` 通过。
+- 诚实边界：本轮未捕获 Electron 原生 `unresponsive/responsive`，报告保留 false，不冒充通过；未重新执行真实外部供应商 live 长流。

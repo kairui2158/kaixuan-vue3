@@ -17,13 +17,16 @@ interface ElectronApiBridge {
   outlineJournalFlushAll(): Promise<any> | any
   outlineJournalRestore(projectId: string, snapshot: any): Promise<any> | any
   outlineJournalTestFailureControl(command: { op: 'fail' | 'clear'; operation?: 'apply' | 'flush'; error?: string }): Promise<any> | any
+  providerNetRequest(request: unknown): Promise<any> | any
   providerNetRegistry(): Promise<any> | any
   providerNetHeartbeat(streamId: string): Promise<any> | any
   providerNetSchedulerSnapshot(): Promise<any> | any
-  providerNetStreamFrame: any
+  providerNetStream(payload: unknown): Promise<any> | any
+  providerNetAbort(signalId: string): Promise<any> | any
   onProviderNetStreamFrame(callback: (payload: any) => void): () => void
   responsivenessLedger(): Promise<any> | any
   responsivenessReport(payload: { kind: string; detail?: unknown }): Promise<any> | any
+  responsivenessTestControl(payload: { action: 'block' | 'crash' | 'reload'; durationMs?: number }): Promise<any> | any
   onResponsivenessEvent(callback: (detail: any) => void): () => void
   dialogReadFile(filePath: string): Promise<any> | any
   dialogReadFileAsync(filePath: string): Promise<any> | any

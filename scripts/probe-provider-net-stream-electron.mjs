@@ -98,9 +98,9 @@ async function main() {
 
     const events = await page.evaluate(async ({ baseUrl }) => {
       const received = []
-      const off = window.electronAPI.onProviderNetStreamChunk(payload => {
+      const off = window.electronAPI.onProviderNetStreamFrame(payload => {
         received.push({
-          event: payload.event,
+          transportEvent: payload.transportEvent,
           textLength: typeof payload.text === 'string' ? payload.text.length : null,
           text: typeof payload.text === 'string' ? payload.text : null,
           message: payload.message || null,
@@ -108,6 +108,7 @@ async function main() {
       })
       const streamPromise = window.electronAPI.providerNetStream({
         url: `${baseUrl}/v1/chat/completions/abort`,
+        providerId: 'probe-provider',
         headers: { authorization: 'sk-probe' },
         body: { model: 'probe-model', stream: true },
         signalId: 'probe-signal',
@@ -121,7 +122,7 @@ async function main() {
 
     console.log('===== PROVIDER NET STREAM PROBE =====')
     console.log(JSON.stringify(events, null, 2))
-    const hasCanceled = events.received.some(item => item.event === 'canceled')
+    const hasCanceled = events.received.some(item => item.transportEvent === 'canceled')
     if (!hasCanceled || events.invokeResult?.ok !== false || events.invokeResult?.kind !== 'canceled' || !events.abortResult?.aborted) {
       throw new Error(`probe failed: canceled=${hasCanceled}, invoke=${JSON.stringify(events.invokeResult)}, abort=${JSON.stringify(events.abortResult)}`)
     }

@@ -44,11 +44,11 @@ describe('electron ipc providerNet stream idle watchdog', () => {
       body: {},
     }
     const invocation = streamHandler({ sender }, request)
-    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamChunk', {
-      signalId: 'idle-stream',
-      event: 'start',
+    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'idle-stream',
+      transportEvent: 'start',
       statusCode: 200,
-    }))
+    })))
     return { invocation, abortHandler, sender }
   }
 
@@ -62,11 +62,11 @@ describe('electron ipc providerNet stream idle watchdog', () => {
       slowStreamTolerant: true,
     }
     const invocation = streamHandler({ sender: { send } }, request)
-    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamChunk', {
-      signalId: 'tolerant-stream',
-      event: 'start',
+    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'tolerant-stream',
+      transportEvent: 'start',
       statusCode: 200,
-    }))
+    })))
     return { invocation }
   }
 
@@ -90,9 +90,9 @@ describe('electron ipc providerNet stream idle watchdog', () => {
       message: '流式响应长时间无正文或推理增量，已按内容断流处理',
     })
 
-    expect(send).toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-      signalId: 'idle-stream',
-      event: 'error',
+    expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'idle-stream',
+      transportEvent: 'error',
       message: '流式响应长时间无正文或推理增量，已按内容断流处理',
     }))
   })
@@ -105,7 +105,7 @@ describe('electron ipc providerNet stream idle watchdog', () => {
     const { invocation } = await invokeStream()
     await vi.advanceTimersByTimeAsync(14 * 60_000)
     await expect(invocation).resolves.toEqual({ ok: true, statusCode: 200 })
-    expect(send).toHaveBeenCalledWith('providerNet:streamChunk', { signalId: 'idle-stream', event: 'end' })
+    expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({ streamId: 'idle-stream', transportEvent: 'end' }))
   })
 
   it('reports user cancellation separately from idle timeout', async () => {
@@ -118,10 +118,10 @@ describe('electron ipc providerNet stream idle watchdog', () => {
     const { invocation, abortHandler } = await invokeStream()
     await abortHandler(null, 'idle-stream')
     await expect(invocation).resolves.toEqual({ ok: false, kind: 'canceled', message: '请求已取消' })
-    expect(send).toHaveBeenCalledWith('providerNet:streamChunk', { signalId: 'idle-stream', event: 'canceled' })
+    expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({ streamId: 'idle-stream', transportEvent: 'canceled' }))
   })
 
-  it('emits monotonic checksummed stream frames while preserving legacy chunks', async () => {
+  it('emits monotonic checksummed stream frames without the legacy chunk channel', async () => {
     globalThis.fetch = vi.fn(() => Promise.resolve(createStream({
       chunks: ['data: first\n\n', 'data: second\n\n'],
     })))
@@ -159,12 +159,7 @@ describe('electron ipc providerNet stream idle watchdog', () => {
     expect(new Set(frames.map(frame => frame.cursor)).size).toBe(frames.length)
     const cursors = frames.map(frame => frame.cursor)
     expect(cursors).toEqual([...cursors].sort((a, b) => a - b))
-    expect(send).toHaveBeenCalledWith('providerNet:streamChunk', {
-      signalId: 'frame-stream',
-      event: 'start',
-      statusCode: 200,
-    })
-    expect(send).toHaveBeenCalledWith('providerNet:streamChunk', { signalId: 'frame-stream', event: 'end' })
+    expect(send.mock.calls.filter(call => call[0] === 'providerNet:streamChunk')).toHaveLength(0)
   })
 
 })
@@ -197,11 +192,11 @@ describe('providerNet slow-stream tolerance wiring', () => {
         slowStreamTolerant: true,
       },
     )
-    await vi.waitFor(() => expect(sendTolerant).toHaveBeenCalledWith('providerNet:streamChunk', {
-      signalId: 'wiring-tolerant',
-      event: 'start',
+    await vi.waitFor(() => expect(sendTolerant).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'wiring-tolerant',
+      transportEvent: 'start',
       statusCode: 200,
-    }))
+    })))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(fetchOptions.signal.aborted).toBe(false)
     await handlers.get('providerNet:abort')(null, 'wiring-tolerant')
@@ -280,14 +275,14 @@ describe('providerNet main-process stream watchdog semantics', () => {
       slowStreamTolerant,
       ...BASE_TIMEOUTS,
     })
-    while (!send.mock.calls.some(([channel, payload]) => channel === 'providerNet:streamChunk' && payload.signalId === signalId && payload.event === 'start')) {
+    while (!send.mock.calls.some(([channel, payload]) => channel === 'providerNet:streamFrame' && payload.streamId === signalId && payload.transportEvent === 'start')) {
       await vi.advanceTimersByTimeAsync(0)
     }
-    expect(send).toHaveBeenCalledWith('providerNet:streamChunk', {
-      signalId,
-      event: 'start',
+    expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: signalId,
+      transportEvent: 'start',
       statusCode: 200,
-    })
+    }))
     return { invocation }
   }
 
@@ -301,9 +296,9 @@ describe('providerNet main-process stream watchdog semantics', () => {
     const advance = createHeartbeatLoop({ sender: { id: 101, send } }, 'watchdog-first-output', 20_000)
 
     await advance(BASE_TIMEOUTS.firstOutputTimeoutMs - 1)
-    await expect(send).not.toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-      signalId: 'watchdog-first-output',
-      event: 'error',
+    await expect(send).not.toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'watchdog-first-output',
+      transportEvent: 'error',
     }))
     await vi.advanceTimersByTimeAsync(1)
     await expect(invocation).resolves.toEqual({
@@ -355,9 +350,9 @@ describe('providerNet main-process stream watchdog semantics', () => {
     await createHeartbeatLoop({ sender: { id: 101, send } }, 'watchdog-content-late', 20_000)(BASE_TIMEOUTS.bodyAbsentTimeoutMs + 1_000)
     await registered.get('providerNet:abort')(null, 'watchdog-content-late')
     await expect(invocation).resolves.toEqual({ ok: false, kind: 'canceled', message: '请求已取消' })
-    expect(send).not.toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-      signalId: 'watchdog-content-late',
-      event: 'error',
+    expect(send).not.toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'watchdog-content-late',
+      transportEvent: 'error',
       message: '流式响应长时间未产生正文，已按 reasoning-only 断流处理',
     }))
   })
@@ -423,9 +418,9 @@ describe('providerNet stream ownership registry', () => {
       projectId: 'project-outline',
       body: {},
     })
-    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-      signalId: 'orphan-stream',
-      event: 'chunk',
+    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'orphan-stream',
+      transportEvent: 'chunk',
     })))
     await vi.advanceTimersByTimeAsync(31_000)
     await expect(invocation).resolves.toEqual({ ok: false, kind: 'network', message: '渲染窗口心跳丢失，流已进入恢复检查点' })
@@ -478,11 +473,11 @@ describe('providerNet stream ownership registry', () => {
       providerId: 'provider-a',
       body: {},
     })
-    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamChunk', {
-      signalId: 'scheduler-stream',
-      event: 'start',
+    await vi.waitFor(() => expect(send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'scheduler-stream',
+      transportEvent: 'start',
       statusCode: 200,
-    }))
+    })))
 
     const ownedSnapshot = await registered.get('providerNet:schedulerSnapshot')({ sender: { id: 31, send } })
     expect(ownedSnapshot).toEqual({
@@ -537,17 +532,17 @@ describe('providerNet stream ownership registry', () => {
       body: {},
     }))
     await vi.waitFor(() => {
-      expect(senders[0].send).toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-        signalId: 'scheduler-real-1',
-        event: 'start',
+      expect(senders[0].send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+        streamId: 'scheduler-real-1',
+        transportEvent: 'start',
       }))
-      expect(senders[1].send).toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-        signalId: 'scheduler-real-2',
-        event: 'start',
+      expect(senders[1].send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+        streamId: 'scheduler-real-2',
+        transportEvent: 'start',
       }))
-      expect(senders[2].send).toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-        signalId: 'scheduler-real-3',
-        event: 'queued',
+      expect(senders[2].send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+        streamId: 'scheduler-real-3',
+        transportEvent: 'queued',
         position: 1,
         waiting: 1,
         maxConcurrencyPerProvider: 2,
@@ -564,9 +559,9 @@ describe('providerNet stream ownership registry', () => {
     await registered.get('providerNet:abort')(null, 'scheduler-real-1')
     releases.push(await expect(invocations[0]).resolves.toEqual({ ok: false, kind: 'canceled', message: '请求已取消' }))
     await vi.waitFor(() => {
-      expect(senders[2].send).toHaveBeenCalledWith('providerNet:streamChunk', expect.objectContaining({
-        signalId: 'scheduler-real-3',
-        event: 'start',
+      expect(senders[2].send).toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+        streamId: 'scheduler-real-3',
+        transportEvent: 'start',
         statusCode: 200,
       }))
     })

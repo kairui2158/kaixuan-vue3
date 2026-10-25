@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-24T23:15:13.053Z",
+  "message": "TypeError: Cannot read properties of undefined (reading 'waitForSelector')",
+  "stack": "TypeError: Cannot read properties of undefined (reading 'waitForSelector')\n    at file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:201:38\n    at async withTimeout (file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:55:12)\n    at async file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:201:3",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

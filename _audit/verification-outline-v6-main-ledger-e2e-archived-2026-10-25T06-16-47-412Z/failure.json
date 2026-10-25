@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-25T06:15:50.886Z",
+  "message": "ReferenceError: recoveryPage is not defined",
+  "stack": "ReferenceError: recoveryPage is not defined\n    at file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:530:24\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async withTimeout (file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:56:12)\n    at async file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:529:3",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

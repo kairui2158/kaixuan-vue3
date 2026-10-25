@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-25T01:17:09.931Z",
+  "message": "AssertionError [ERR_ASSERTION]: the main process reloads the crashed window and the recovered surface can read the global ledger",
+  "stack": "AssertionError [ERR_ASSERTION]: the main process reloads the crashed window and the recovered surface can read the global ledger\n    at file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:414:3",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

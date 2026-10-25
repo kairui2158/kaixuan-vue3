@@ -1830,8 +1830,9 @@ function startStreamHeartbeat(signalId: string): () => void {
   return () => clearInterval(timer)
 }
 
-function isStreamOwnerV6Enabled(): boolean {
-  return Boolean((globalThis as any).__SHENYI_STREAM_OWNER_V6__)
+function hasMainNetFrameBridge(): boolean {
+  return typeof window !== 'undefined' &&
+    typeof (window as any).electronAPI?.onProviderNetStreamFrame === 'function'
 }
 
 function hasExternalSchedulerSnapshot(): boolean {
@@ -1912,29 +1913,6 @@ async function mainNetRequestRaw(request: {
   }
 }
 
-function extractProtocolStreamDelta(json: any, protocol: ReturnType<typeof getProviderProtocol>) {
-  const openAIDelta = extractStreamDelta(json)
-  if (openAIDelta.content || openAIDelta.reasoning) return openAIDelta
-  if (json?.type === 'content_block_delta') {
-    return {
-      content: json.delta?.text ?? null,
-      reasoning: json.delta?.thinking ?? null,
-      finishReason: undefined,
-    }
-  }
-  if (json?.type === 'message_delta') {
-    return { content: null, reasoning: null, finishReason: json.delta?.stop_reason }
-  }
-  if (Array.isArray(json?.candidates?.[0]?.content?.parts)) {
-    return {
-      content: protocol.extractText(json),
-      reasoning: null,
-      finishReason: protocol.extractFinishReason(json),
-    }
-  }
-  return { content: null, reasoning: null, finishReason: protocol.extractFinishReason(json) }
-}
-
 async function mainNetStream(
   request: {
     url: string
@@ -1951,9 +1929,6 @@ async function mainNetStream(
   nativeToolExchange = false
 ): Promise<MainNetStreamResult> {
   const signalId = 'provider-net-' + Date.now() + '-' + Math.random().toString(36).slice(2)
-  const chunkQueue: string[] = []
-  const frameQueue: StreamFrame[] = []
-  let resolveChunk: (() => void) | null = null
   let ended = false
   let streamError: string | undefined = undefined
   let canceled = false
@@ -1961,6 +1936,10 @@ async function mainNetStream(
   let reasoningText = ''
   let finishReason: string | undefined
   let streamUsage: Record<string, any> | undefined
+  const frameQueue: StreamFrame[] = []
+  let resolveFrame: (() => void) | null = null
+  let parseState: StreamParseState | undefined
+  let parseBudgetExceeded = false
   const chunkFilter = createThinkingTagStreamFilter()
   const reasoningFilter = createThinkingTagStreamFilter()
   const toolCallState = createStreamToolCallState()
@@ -1973,84 +1952,36 @@ async function mainNetStream(
       const json = JSON.parse(trimmedCandidate)
       if (looksLikePlainJsonResponseBody(json)) plainJsonBody = json
     } catch {
-      // Keep the normal SSE parser for partial or non-JSON responses.
+      // A chunked SSE response can still end as a plain JSON body.
     }
   }
-  const streamOwnerV6 = isStreamOwnerV6Enabled()
-  let parseState: StreamParseState | undefined
-  let parseBudgetExceeded = false
-
-  const offChunk = (window as any).electronAPI.onProviderNetStreamChunk((payload: any) => {
-    if (payload.signalId !== signalId) return
-    if (payload.event === 'chunk' && payload.text) chunkQueue.push(payload.text)
-    if (payload.event === 'end') ended = true
-    if (payload.event === 'canceled') {
+  const offFrame = (window as any).electronAPI.onProviderNetStreamFrame((payload: any) => {
+    if (payload?.streamId !== signalId) return
+    frameQueue.push(payload)
+    if (payload.transportEvent === 'end') ended = true
+    if (payload.transportEvent === 'canceled') {
       canceled = true
       ended = true
     }
-    if (payload.event === 'error') {
+    if (payload.transportEvent === 'error') {
       streamError = payload.message || '主进程流式请求失败'
       ended = true
     }
-    if (payload.event === 'queued' || payload.event === 'started' || payload.event === 'canceled') {
+    if (payload.transportEvent === 'queued' || payload.transportEvent === 'started' || payload.transportEvent === 'canceled') {
       callbacks.onProviderQueue?.({
         providerId: request.providerId || '',
-        status: payload.event,
+        status: payload.transportEvent,
         position: payload.position,
         waiting: payload.waiting,
         maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
       })
     }
-    if (resolveChunk) {
-      const resolve = resolveChunk
-      resolveChunk = null
+    if (resolveFrame) {
+      const resolve = resolveFrame
+      resolveFrame = null
       resolve()
     }
   })
-  const offFrame = streamOwnerV6
-    ? (window as any).electronAPI.onProviderNetStreamFrame((payload: any) => {
-      if (payload?.streamId !== signalId) return
-      frameQueue.push(payload)
-      if (payload.transportEvent === 'end') ended = true
-      if (payload.transportEvent === 'canceled') {
-        canceled = true
-        ended = true
-      }
-      if (payload.transportEvent === 'error') {
-        streamError = payload.message || '主进程流式请求失败'
-        ended = true
-      }
-      if (payload.transportEvent === 'queued') {
-        callbacks.onProviderQueue?.({
-          providerId: request.providerId || '',
-          status: 'queued',
-          position: payload.position,
-          waiting: payload.waiting,
-          maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
-        })
-      }
-      if (payload.transportEvent === 'started') {
-        callbacks.onProviderQueue?.({
-          providerId: request.providerId || '',
-          status: 'started',
-          maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
-        })
-      }
-      if (payload.transportEvent === 'canceled') {
-        callbacks.onProviderQueue?.({
-          providerId: request.providerId || '',
-          status: 'canceled',
-          maxConcurrencyPerProvider: payload.maxConcurrencyPerProvider,
-        })
-      }
-      if (resolveChunk) {
-        const resolve = resolveChunk
-        resolveChunk = null
-        resolve()
-      }
-    })
-    : null
-
   const invoke: Promise<MainNetResult> = (window as any).electronAPI.providerNetStream({
     ...request,
     signalId,
@@ -2066,9 +1997,9 @@ async function mainNetStream(
       // long stream timeout.
       if (result && result.ok === false) {
         ended = true
-        if (resolveChunk) {
-          const resolve = resolveChunk
-          resolveChunk = null
+        if (resolveFrame) {
+          const resolve = resolveFrame
+          resolveFrame = null
           resolve()
         }
       }
@@ -2076,9 +2007,9 @@ async function mainNetStream(
     .catch((error: unknown) => {
       streamError = error instanceof Error ? error.message : String(error)
       ended = true
-      if (resolveChunk) {
-        const resolve = resolveChunk
-        resolveChunk = null
+      if (resolveFrame) {
+        const resolve = resolveFrame
+        resolveFrame = null
         resolve()
       }
   })
@@ -2101,18 +2032,15 @@ async function mainNetStream(
   }
   externalSignal?.addEventListener('abort', abortHandler, { once: true })
 
-  const decoder = new TextDecoder()
-  let buffer = ''
-  let sawFirstByte = false
   const protocol = getProviderProtocol(protocolName)
 
   try {
-    while (streamOwnerV6 ? (!ended || frameQueue.length > 0 || parseBudgetExceeded) : (!ended || chunkQueue.length > 0)) {
-      if (streamOwnerV6 && frameQueue.length === 0 && parseBudgetExceeded) {
+    while (!ended || frameQueue.length > 0 || parseBudgetExceeded) {
+      if (frameQueue.length === 0 && parseBudgetExceeded) {
         parseBudgetExceeded = false
-      } else if (streamOwnerV6 && frameQueue.length === 0 && !ended) {
+      } else if (frameQueue.length === 0 && !ended) {
         await new Promise<void>(resolve => {
-          resolveChunk = resolve
+          resolveFrame = resolve
           setTimeout(resolve, 100)
         })
         if (!ended && timeoutMs && !sawStreamOutput && Date.now() - startedAt > timeoutMs) {
@@ -2120,121 +2048,46 @@ async function mainNetStream(
         }
         continue
       }
-      if (streamOwnerV6 && frameQueue.length === 0) continue
-      if (streamOwnerV6 && frameQueue.length > 0) {
-        const frames = frameQueue.splice(0, frameQueue.length)
-        const parsed = parseStreamFrames(frames, protocolName as never, parseState, { maxDurationMs: 16 })
-        parseState = parsed.state
-        for (const event of parsed.events) {
-          const hasStreamToolProgress = collectStreamToolCalls(event.raw, protocolName, toolCallState)
-          if (hasStreamToolProgress) {
-            if (firstContentAt === null) firstContentAt = Date.now()
-            lastContentAt = Date.now()
-          }
-          if (event.content) {
-            if (firstContentAt === null) firstContentAt = Date.now()
-            lastContentAt = Date.now()
-          }
-          if (event.reasoning) lastReasoningAt = Date.now()
-          if (hasStreamToolProgress) {
-            callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
-          }
-          finishReason = event.finishReason || finishReason
-          if (event.reasoning) {
-            markStreamOutput()
-            const emitted = reasoningFilter.push(event.reasoning)
-            if (emitted) {
-              reasoningText += emitted
-              callbacks.onReasoning?.(emitted)
-            }
-          }
-          if (event.content) {
-            markStreamOutput()
-            fullText += event.content
-            const emitted = chunkFilter.push(event.content)
-            if (emitted) callbacks.onChunk?.(emitted)
-          }
-          if (event.usage) {
-            streamUsage = { ...streamUsage, ...event.usage }
-            callbacks.onUsage?.(streamUsage)
+      if (frameQueue.length === 0) continue
+      const frames = frameQueue.splice(0, frameQueue.length)
+      const parsed = parseStreamFrames(frames, protocolName as never, parseState, { maxDurationMs: 16 })
+      parseState = parsed.state
+      tryCapturePlainToolCallBody(parseState.buffer)
+      for (const event of parsed.events) {
+        const hasStreamToolProgress = collectStreamToolCalls(event.raw, protocolName, toolCallState)
+        if (hasStreamToolProgress) {
+          if (firstContentAt === null) firstContentAt = Date.now()
+          lastContentAt = Date.now()
+        }
+        if (event.content) {
+          if (firstContentAt === null) firstContentAt = Date.now()
+          lastContentAt = Date.now()
+        }
+        if (event.reasoning) lastReasoningAt = Date.now()
+        if (hasStreamToolProgress) {
+          callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
+        }
+        finishReason = event.finishReason || finishReason
+        if (event.reasoning) {
+          markStreamOutput()
+          const emitted = reasoningFilter.push(event.reasoning)
+          if (emitted) {
+            reasoningText += emitted
+            callbacks.onReasoning?.(emitted)
           }
         }
-        if (parsed.state.pendingFrames.length > 0) parseBudgetExceeded = true
-        continue
-      }
-      if (streamOwnerV6) continue
-      if (chunkQueue.length === 0 && !ended) {
-        await new Promise<void>(resolve => {
-          resolveChunk = resolve
-          setTimeout(resolve, 100)
-        })
-        if (!ended) {
-          // The wall-clock timeout is a first-output deadline. Once a stream
-          // has emitted content or reasoning, idle/progress watchdogs own
-          // stall detection; re-checking the total timeout here would kill
-          // an actively streaming long generation.
-          if (timeoutMs && !sawStreamOutput && Date.now() - startedAt > timeoutMs) {
-            throw new DOMException('The operation was aborted', 'AbortError')
-          }
+        if (event.content) {
+          markStreamOutput()
+          fullText += event.content
+          const emitted = chunkFilter.push(event.content)
+          if (emitted) callbacks.onChunk?.(emitted)
         }
-        continue
+        if (event.usage) {
+          streamUsage = { ...streamUsage, ...event.usage }
+          callbacks.onUsage?.(streamUsage)
+        }
       }
-      const text = chunkQueue.shift()
-      if (text == null) continue
-      if (!sawFirstByte) {
-        sawFirstByte = true
-      }
-      buffer += text
-      tryCapturePlainToolCallBody(buffer)
-      const lines = buffer.split('\n')
-      buffer = lines.pop() || ''
-      for (const line of lines) {
-        const trimmed = line.trim()
-        if (!trimmed || !isSSEDataLine(trimmed)) continue
-        const payload = trimmed.slice(6)
-        if (isSSEDone(payload)) continue
-        try {
-          const json = JSON.parse(payload)
-          const hasStreamToolProgress = collectStreamToolCalls(json, protocolName, toolCallState)
-          if (hasStreamToolProgress) {
-            if (firstContentAt === null) firstContentAt = Date.now()
-            lastContentAt = Date.now()
-          }
-          const bodyDelta = extractProtocolStreamDelta(json, protocol)
-          if (bodyDelta.content) {
-            if (firstContentAt === null) firstContentAt = Date.now()
-            lastContentAt = Date.now()
-          }
-          if (bodyDelta.reasoning) lastReasoningAt = Date.now()
-          if (hasStreamToolProgress) {
-            callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
-          }
-          const delta = bodyDelta
-          if (delta.content || delta.reasoning) markStreamOutput()
-          finishReason = delta.finishReason || finishReason
-          if (delta.reasoning) {
-            markStreamOutput()
-            const emitted = reasoningFilter.push(delta.reasoning)
-            if (emitted) {
-              reasoningText += emitted
-              callbacks.onReasoning?.(emitted)
-            }
-          }
-          if (delta.content) {
-            markStreamOutput()
-            fullText += delta.content
-            const emitted = chunkFilter.push(delta.content)
-            if (emitted) callbacks.onChunk?.(emitted)
-          }
-          const usage = protocol.extractUsage(json)
-          if (usage) {
-            // Anthropic streams input/output usage in different SSE frames.
-            // Merge them instead of letting the later frame erase the former.
-            streamUsage = { ...streamUsage, ...usage }
-            callbacks.onUsage?.(streamUsage)
-          }
-        } catch { /* skip non-JSON lines */ }
-      }
+      if (parsed.state.pendingFrames.length > 0) parseBudgetExceeded = true
     }
     if (canceled) {
       throw new DOMException('The operation was aborted', 'AbortError')
@@ -2309,7 +2162,6 @@ async function mainNetStream(
   } finally {
     stopHeartbeat()
     externalSignal?.removeEventListener('abort', abortHandler)
-    if (typeof offChunk === 'function') offChunk()
     if (typeof offFrame === 'function') offFrame()
     if (!streamSettled) {
       ;(window as any).electronAPI.providerNetAbort(signalId).catch(() => {})
@@ -2436,7 +2288,7 @@ export function createAiService(
       reasoning: params.reasoning?.mode === 'off' ? { mode: 'off' } : undefined,
       tools: nativeTools,
     })
-    const useMainNet = hasMainNet()
+    const useMainNet = wantStream ? hasMainNetFrameBridge() : hasMainNet()
     const streamOwnerContext = {
       providerId: provider.id,
       projectId: params.meta?.projectId || null,

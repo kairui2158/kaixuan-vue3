@@ -9,6 +9,13 @@ import { resolveRuntimeBuildFingerprint } from '../services/buildManifest'
 import type { LifecycleStatus } from '../services/stateTransitionGuard'
 import { normalizeUsage as normalizeTraceUsage } from '../services/traceFieldNormalizer'
 import { safeModeActive } from '../services/responsivenessStore'
+import {
+  RUN_TRACE_EXPORT_SCHEMA_VERSION,
+  exportRunTraceToJson as exportRunTraceJson,
+  exportRunTraceToText as exportRunTraceText,
+  maskRunTraceSensitiveText,
+  maskRunTraceSensitiveValue as maskRunTraceSensitiveObject
+} from '../services/runTraceExportService'
 
 export type RunTraceStatus =
   | 'running'
@@ -2909,148 +2916,15 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   }
 
   function maskSensitive(text: string) {
-    return String(text || '')
-      .replace(/(Authorization\s*[:=]\s*Bearer\s+)[^\s"'，。]+/gi, '$1***MASKED***')
-      .replace(/(api[_-]?key\s*[:=]\s*)[^\s"'，。]+/gi, '$1***MASKED***')
-      .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '***MASKED***')
+    return maskRunTraceSensitiveText(text)
   }
 
   function exportRunToText(run: RunTrace) {
-    const snapshot = createExportSnapshot(run)
-    const lines: string[] = [
-      '===== 运行记录 =====',
-      `来源：${snapshot.sourceName}`,
-      `层级：${snapshot.stepName || '-'}`,
-      `模式：${snapshot.mode}`,
-      `状态：${snapshot.status}`,
-      `开始：${formatTime(snapshot.startedAt)}`,
-      `结束：${formatTime(snapshot.endedAt)}`,
-      `耗时：${snapshot.durationMs ?? 0}ms`,
-      `项目：${snapshot.projectName || snapshot.projectId || '-'}`,
-      `供应商：${snapshot.providerName || snapshot.providerId || '-'}`,
-      `模型：${snapshot.model || '-'}`,
-      `技能：${snapshot.skillNames.join('、') || '-'}`,
-      `技能模式：${snapshot.skillMode || '-'}`,
-      snapshot.sessionSnapshot ? '会话快照：导出时会话仍在应用内继续' : '',
-      `状态时间线：${(snapshot.stateHistory || []).map(item => `${item.fromStatus || 'initial'} -> ${item.toStatus}${item.reason ? `(${item.reason})` : ''}`).join('；') || '-'}`,
-      `超时提示：${snapshot.timeoutHint ? JSON.stringify(snapshot.timeoutHint) : '-'}`,
-      '',
-      '===== 时间线 ====='
-    ]
-    snapshot.events.forEach(event => {
-      lines.push(`[${formatTime(event.ts)}] [${event.level}] ${event.label}`)
-      if (event.detail) lines.push(maskSensitive(event.detail))
-    })
-    lines.push('', '===== API 调用 =====')
-    snapshot.apiCalls.forEach(call => {
-      lines.push(
-        `--- api-call-${call.seq} ---`,
-        `状态：${call.status}`,
-        `耗时：${call.durationMs ?? 0}ms`,
-        `finish_reason：${call.finishReason || '-'}`,
-        `convergence_reason：${call.convergenceReason || '-'}`,
-        `技能：${call.skillName || call.skillId || '-'}`,
-        `智能体：${call.agentName || call.agentId || '-'}`,
-        `供应商：${call.providerName || call.providerId || '-'}`,
-        `模型：${call.model || '-'}`,
-        `temperature：${call.temperature ?? '-'}`,
-        `max_tokens：${call.maxTokens ?? '-'}`,
-        '请求消息：'
-      )
-      call.requestMessages.forEach(message => {
-        lines.push(`[${message.role}]`, maskSensitive(message.content))
-      })
-      lines.push('响应全文：', maskSensitive(call.responseText || ''))
-      if (call.streamText) lines.push('流式全文：', maskSensitive(call.streamText))
-      if (call.reasoningText) lines.push('思考过程全文：', maskSensitive(call.reasoningText))
-      if (call.usage) lines.push('usage：', JSON.stringify(call.usage, null, 2))
-      if (call.physicalCalls?.length) {
-        if (call.integrity?.physicalSkipped) {
-          lines.push(`物理请求标记：跳过空载荷（${call.integrity.physicalSkipReason || '-'}）`)
-        }
-        lines.push('物理请求：')
-        call.physicalCalls.forEach(physical => {
-          lines.push(
-            `--- physical-${physical.seq} (${physical.phase}) ---`,
-            `状态：${physical.status}`,
-            `耗时：${physical.durationMs ?? 0}ms`,
-            `finish_reason：${physical.finishReason || '-'}`
-          )
-          physical.requestMessages.forEach(message => {
-            lines.push(`[${message.role}]`, maskSensitive(message.content))
-          })
-          lines.push('响应：', maskSensitive(physical.responseText || ''))
-        })
-      }
-      if (call.toolCalls?.length) {
-        lines.push('工具调用：')
-        call.toolCalls.forEach(tool => {
-          lines.push(
-            `--- ${tool.id} ${tool.name} ---`,
-            `状态：${tool.status}`,
-            `耗时：${tool.durationMs ?? 0}ms`,
-            `协议能力：${tool.toolCapability || '-'}`,
-            `拒绝分类：${tool.rejectionCategory || '-'}`,
-            `错误码：${tool.errorCode || '-'}`,
-            '输入：', JSON.stringify(tool.input, null, 2),
-            '结果：', JSON.stringify(tool.result, null, 2)
-          )
-        })
-      }
-      if (call.error) lines.push('错误原文：', maskSensitive(call.error))
-      if (call.integrity?.physicalMissing) {
-        lines.push(`物理请求标记：缺失（${call.integrity.physicalMissingReason || '-'}）`)
-      }
-    })
-    if (snapshot.promptSnapshots?.length) {
-      lines.push('', '===== 提示词快照 =====')
-      snapshot.promptSnapshots.forEach(promptSnapshot => {
-        lines.push(
-          `--- ${promptSnapshot.id} ---`,
-          `技能：${promptSnapshot.skillName || promptSnapshot.skillId || '-'}`,
-          `模式：${promptSnapshot.mode || '-'}`,
-          `构建时间：${formatTime(promptSnapshot.builtAt)}`
-        )
-        promptSnapshot.finalMessages.forEach(message => {
-          lines.push(`[${message.role}]`, maskSensitive(message.content))
-        })
-      })
-    }
-    if (snapshot.processingReports?.length) {
-      lines.push('', '===== 本地处理报告 =====')
-      snapshot.processingReports.forEach(report => {
-        lines.push(
-          `--- ${report.id} ${report.processor} ${report.stage} ---`,
-          `状态：${report.status}`,
-          `耗时：${report.durationMs ?? 0}ms`
-        )
-        if (report.ruleHits?.length) {
-          lines.push('规则命中：', JSON.stringify(report.ruleHits, null, 2))
-        }
-        if (report.issues?.length) {
-          lines.push('问题：', JSON.stringify(report.issues, null, 2))
-        }
-      })
-    }
-    if (snapshot.folderDiagnostics?.length) {
-      lines.push('', '===== folder SKILL 诊断 =====')
-      snapshot.folderDiagnostics.forEach((item, index) => {
-        lines.push(`--- diagnostic-${index + 1} ---`, JSON.stringify(item, null, 2))
-      })
-    }
-    if (snapshot.error) lines.push('', '===== 运行错误 =====', maskSensitive(snapshot.error))
-    return lines.join('\n')
+    return exportRunTraceText(run)
   }
 
   function exportRunToJson(run: RunTrace) {
-    const snapshot = createExportSnapshot(run)
-    const exportable = (run === snapshot ? JSON.parse(JSON.stringify(snapshot)) : snapshot) as Partial<RunTrace>
-    delete exportable.currentTurnId
-    delete exportable.dirName
-    return {
-      schemaVersion: RUN_TRACE_SCHEMA_VERSION,
-      ...maskSensitiveValue(exportable) as Record<string, unknown>
-    }
+    return exportRunTraceJson(run)
   }
 
   function checkStateIntegrityBeforeClose() {
@@ -3083,26 +2957,6 @@ export const useRunTraceStore = defineStore('runTrace', () => {
    * Exports must preserve that live-session truth instead of synthesizing a
    * terminal status from the latest completed turn.
    */
-  function createExportSnapshot(run: RunTrace): RunTrace {
-    if (run.sessionKind !== 'chat' || run.status !== 'running') return run
-    if (run.currentTurnId || run.apiCalls.some(call => call.status === 'running')) return run
-    const snapshot = JSON.parse(JSON.stringify(run)) as RunTrace
-    snapshot.sessionSnapshot = true
-    return snapshot
-  }
-
-  function maskSensitiveValue(value: unknown): unknown {
-    if (typeof value === 'string') return maskSensitive(value)
-    if (Array.isArray(value)) return value.map(maskSensitiveValue)
-    if (value && typeof value === 'object') {
-      const output: Record<string, unknown> = {}
-      Object.entries(value as Record<string, unknown>).forEach(([key, item]) => {
-        output[key] = maskSensitiveValue(item)
-      })
-      return output
-    }
-    return value
-  }
 
   return {
     runs,

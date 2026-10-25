@@ -264,10 +264,25 @@ function runtimeStore(provider = runtimeProvider) {
   } as any;
 }
 
+let mainNetFrameCursor = 0;
+const resetMainNetFrameCursor = () => { mainNetFrameCursor = 0; };
+const toMainNetFrame = (event: any) => {
+  mainNetFrameCursor += 1;
+  return {
+    streamId: event.signalId,
+    cursor: mainNetFrameCursor,
+    transportEvent: event.event,
+    text: event.text ?? '',
+    message: event.message,
+    timestamp: Date.now(),
+  };
+};
+
 describe('createAiService.callAi', () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
     resetInputTokenCalibration();
+    resetMainNetFrameCursor();
   });
 
   afterEach(() => {
@@ -416,7 +431,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -450,7 +465,7 @@ describe('createAiService.callAi', () => {
           emitCurrentStream([{ event: 'canceled' }]);
           return Promise.resolve();
         }),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -665,7 +680,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: requestMock,
         providerNetStream: vi.fn(),
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: vi.fn(() => () => {}),
+        onProviderNetStreamFrame: vi.fn(() => () => {}),
       },
     });
     const service = createAiService(runtimeStore());
@@ -711,7 +726,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     const emitCurrentStream = (events: any[]) => {
       const signalId = streamMock.mock.calls.at(-1)?.[0]?.signalId;
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce(() => Promise.resolve({
@@ -733,7 +748,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -763,7 +778,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -779,7 +794,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -809,7 +824,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce(() => new Promise((_, reject) => setTimeout(() => reject(new Error('socket hang up')), 2_500)))
@@ -828,7 +843,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -861,13 +876,13 @@ describe('createAiService.callAi', () => {
       .mockImplementationOnce((request: any) => {
         const signalId = request.signalId;
         setTimeout(() => {
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n', signalId });
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n', signalId }));
         }, 500);
         setTimeout(() => {
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n', signalId });
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n', signalId });
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: [DONE]\n\n', signalId });
-          emitMainNetEvent?.({ event: 'end', signalId });
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: [DONE]\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'end', signalId }));
         }, 1_200);
         return Promise.resolve({ ok: true, statusCode: 200, text: '' });
       });
@@ -876,7 +891,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -903,7 +918,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -926,7 +941,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -954,7 +969,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -979,7 +994,7 @@ describe('createAiService.callAi', () => {
           abortCalls.push(signalId);
           return Promise.resolve();
         }),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1017,7 +1032,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -1032,7 +1047,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1070,7 +1085,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -1085,7 +1100,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1125,7 +1140,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -1143,7 +1158,7 @@ describe('createAiService.callAi', () => {
           abortCalls.push(signalId);
           return Promise.resolve();
         }),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1178,7 +1193,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -1190,7 +1205,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1223,7 +1238,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -1251,7 +1266,7 @@ describe('createAiService.callAi', () => {
           abortCalls.push(signalId);
           return Promise.resolve();
         }),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1295,7 +1310,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -1321,7 +1336,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1812,7 +1827,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: requestMock,
         providerNetStream: vi.fn(),
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: vi.fn(() => () => {}),
+        onProviderNetStreamFrame: vi.fn(() => () => {}),
       },
     });
     const service = createAiService(runtimeStore());
@@ -1843,7 +1858,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: requestMock,
         providerNetStream: vi.fn(),
         providerNetAbort: vi.fn(),
-        onProviderNetStreamChunk: vi.fn(() => () => {}),
+        onProviderNetStreamFrame: vi.fn(() => () => {}),
       },
     });
     const entries: any[] = [];
@@ -1960,7 +1975,7 @@ describe('createAiService.callAi', () => {
           { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
           { event: 'chunk', text: 'data: [DONE]\n\n' },
           { event: 'end' },
-        ]) emitMainNetEvent?.({ ...event, signalId });
+        ]) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId }));
         return Promise.resolve({ ok: true, statusCode: 200, text: '' });
       });
     let emitMainNetEvent: ((payload: any) => void) | null = null;
@@ -1972,7 +1987,7 @@ describe('createAiService.callAi', () => {
           abortCalls.push(signalId);
           return Promise.resolve();
         }),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -1991,7 +2006,7 @@ describe('createAiService.callAi', () => {
     // callAi has async setup work before dispatching the main-process stream.
     for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
     const emitMainNetEventNow = emitMainNetEvent as ((payload: any) => void) | null;
-    emitMainNetEventNow?.({ event: 'error', message: '流式响应长时间无输出，已按网络断流处理', signalId: (streamMock.mock.calls[0]![0] as any).signalId });
+    emitMainNetEventNow?.(toMainNetFrame({ event: 'error', message: '流式响应长时间无输出，已按网络断流处理', signalId: (streamMock.mock.calls[0]![0] as any).signalId }));
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -2007,11 +2022,11 @@ describe('createAiService.callAi', () => {
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
         currentSignalId = request.signalId;
-        emitMainNetEvent?.({
+        emitMainNetEvent?.(toMainNetFrame({
           event: 'chunk',
           text: 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n',
           signalId: currentSignalId,
-        });
+        }));
         return Promise.resolve({ ok: true, statusCode: 200, text: '' });
       })
       .mockImplementationOnce((request: any) => {
@@ -2021,7 +2036,7 @@ describe('createAiService.callAi', () => {
           { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
           { event: 'chunk', text: 'data: [DONE]\n\n' },
           { event: 'end' },
-        ]) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+        ]) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
         return Promise.resolve({ ok: true, statusCode: 200, text: '' });
       });
     vi.stubGlobal('window', {
@@ -2032,7 +2047,7 @@ describe('createAiService.callAi', () => {
           abortCalls.push(signalId);
           return Promise.resolve();
         }),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -2057,21 +2072,21 @@ describe('createAiService.callAi', () => {
     const emit = emitMainNetEvent!;
     // Protocol-only frames keep the byte-level watchdog alive but must not
     // reset the content progress watchdog.
-    emit({
+    emit(toMainNetFrame({
       event: 'chunk',
       text: 'data: {"choices":[{"delta":{}}]}\n\n',
       signalId: currentSignalId,
-    });
-    emit({
+    }));
+    emit(toMainNetFrame({
       event: 'chunk',
       text: 'data: {"usage":{"total_tokens":10}}\n\n',
       signalId: currentSignalId,
-    });
-    emit({
+    }));
+    emit(toMainNetFrame({
       event: 'error',
       message: '流式响应长时间无正文或推理增量，已按内容断流处理',
       signalId: currentSignalId,
-    });
+    }));
     await vi.advanceTimersByTimeAsync(2_000);
     await assertion;
     expect(streamMock).toHaveBeenCalledTimes(2);
@@ -2084,7 +2099,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     let currentSignalId = '';
     const emitCurrentStream = (events: any[]) => {
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce((request: any) => {
@@ -2099,7 +2114,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -2134,7 +2149,7 @@ describe('createAiService.callAi', () => {
     let emitMainNetEvent: ((payload: any) => void) | null = null;
     const emitMainNetStream = (events: any[]) => {
       const signalId = streamMock.mock.calls.at(-1)?.[0]?.signalId;
-      for (const event of events) emitMainNetEvent?.({ ...event, signalId });
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId }));
     };
     const streamMock = vi.fn()
       .mockImplementationOnce(() => {
@@ -2156,7 +2171,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -2245,14 +2260,14 @@ describe('createAiService.callAi', () => {
       .mockImplementationOnce((request: any) => {
         const signalId = request.signalId;
         setTimeout(() => {
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":"thinking"}}]}\n\n', signalId });
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n', signalId });
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":"thinking"}}]}\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n', signalId }));
         }, 200);
         setTimeout(() => {
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n', signalId });
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n', signalId });
-          emitMainNetEvent?.({ event: 'chunk', text: 'data: [DONE]\n\n', signalId });
-          emitMainNetEvent?.({ event: 'end', signalId });
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'chunk', text: 'data: [DONE]\n\n', signalId }));
+          emitMainNetEvent?.(toMainNetFrame({ event: 'end', signalId }));
         }, 500);
         return Promise.resolve({ ok: true, statusCode: 200, text: '' });
       });
@@ -2261,7 +2276,7 @@ describe('createAiService.callAi', () => {
         providerNetRequest: vi.fn(),
         providerNetStream: streamMock,
         providerNetAbort: vi.fn(() => Promise.resolve()),
-        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
         },
@@ -2427,24 +2442,20 @@ describe('main-process V6 stream frame owner', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete (globalThis as any).__SHENYI_STREAM_OWNER_V6__;
   });
 
-  function stream() {
-    const emitChunk = vi.fn((_listener: (payload: any) => void) => () => {});
+  function frameStream() {
     const emitFrame = vi.fn((_listener: (payload: any) => void) => () => {});
     return {
       providerNetRequest: vi.fn(),
       providerNetStream: vi.fn((request: any) => Promise.resolve({ ok: true, statusCode: 200, streamOwner: 'v6', request })),
       providerNetAbort: vi.fn(() => Promise.resolve()),
-      onProviderNetStreamChunk: emitChunk,
       onProviderNetStreamFrame: emitFrame,
     };
   }
 
-  it('uses frames and deduplicates by cursor when the V6 owner flag is on', async () => {
-    (globalThis as any).__SHENYI_STREAM_OWNER_V6__ = true;
-    const bridge = stream();
+  it('uses frames and deduplicates by cursor without a compatibility flag', async () => {
+    const bridge = frameStream();
     let frameListener: ((payload: any) => void) | null = null;
     bridge.onProviderNetStreamFrame.mockImplementation((listener: (payload: any) => void) => {
       frameListener = listener;
@@ -2472,19 +2483,24 @@ describe('main-process V6 stream frame owner', () => {
     expect(bridge.providerNetStream).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps the legacy chunk channel when the V6 owner flag is off', async () => {
-    const bridge = stream();
-    let chunkListener: ((payload: any) => void) | null = null;
-    bridge.onProviderNetStreamChunk.mockImplementation((listener: (payload: any) => void) => {
-      chunkListener = listener;
-      return () => { chunkListener = null; };
-    });
-    bridge.providerNetStream.mockImplementation((request: any) => {
-      const listener = chunkListener;
-      listener?.({ signalId: request.signalId, event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"L"}}]}\n\n' });
-      listener?.({ signalId: request.signalId, event: 'end' });
-      return Promise.resolve({ ok: true, statusCode: 200, streamOwner: 'legacy', request });
-    });
+  it('falls back to renderer fetch when the frame bridge is unavailable', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"content":"local"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const fetchMock = vi.fn(() => Promise.resolve(new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    }), { status: 200 })));
+    vi.stubGlobal('fetch', fetchMock);
+    const bridge = {
+      providerNetRequest: vi.fn(),
+      providerNetStream: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200 })),
+      providerNetAbort: vi.fn(() => Promise.resolve()),
+    };
     vi.stubGlobal('window', { electronAPI: bridge });
 
     const service = createAiService(runtimeStore());
@@ -2494,8 +2510,9 @@ describe('main-process V6 stream frame owner', () => {
       stream: true,
       retry: false,
     });
-    expect(result.text).toBe('L');
-    expect(bridge.onProviderNetStreamFrame).not.toHaveBeenCalled();
+    expect(result.text).toBe('local');
+    expect(bridge.providerNetStream).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
 

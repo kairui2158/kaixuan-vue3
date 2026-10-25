@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-24T23:19:18.899Z",
+  "message": "Error: page.waitForSelector: Target crashed \nCall log:\n\u001b[2m  - waiting for locator('#app') to be visible\u001b[22m\n\u001b[2m    - waiting for\" file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html\"\u001b[22m\n",
+  "stack": "page.waitForSelector: Target crashed \nCall log:\n\u001b[2m  - waiting for locator('#app') to be visible\u001b[22m\n\u001b[2m    - waiting for\" file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html\"\u001b[22m\n\n    at D:\\codex\\novel-workshop-vue3\\scripts\\verify-outline-v6-main-ledger-e2e.mjs:276:32\n    at async withTimeout (D:\\codex\\novel-workshop-vue3\\scripts\\verify-outline-v6-main-ledger-e2e.mjs:55:12)\n    at async file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:276:3",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

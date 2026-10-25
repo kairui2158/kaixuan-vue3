@@ -1,37 +1,32 @@
 {
   "schema": "shenyi.outline-v6-baseline",
   "version": 1,
-  "generatedAt": "2026-10-24T00:14:24.938Z",
+  "generatedAt": "2026-10-24T20:15:04.662Z",
   "build": {
-    "rendererIndexMtime": "2026-10-24T00:13:25.215Z"
+    "rendererIndexMtime": "2026-10-24T20:14:53.439Z"
   },
   "cases": [
     {
-      "case": "count-10000-200",
-      "messageCount": 10000,
-      "charsPerMessage": 200,
-      "totalChars": 2000000,
-      "renderMs": 1134.7000000476837,
-      "saveMs": 50,
-      "renderedCount": 12,
-      "virtualized": true,
-      "scrollerHeight": 434,
-      "scrollerScrollHeight": 960972,
+      "case": "single-300000",
+      "chars": 300000,
+      "renderMs": 126.80000007152557,
+      "saveMs": 182.29999995231628,
+      "rendered": true,
       "saveOk": true,
       "failedKeys": [],
       "typing": {
-        "duration": 11.899999976158142,
+        "duration": 21.899999976158142,
         "renderedMarker": true,
-        "length": 56
+        "length": 54
       },
       "metrics": {
         "longTaskCount": 1,
-        "longTaskTotalMs": 1456,
-        "longTaskMaxMs": 1456,
+        "longTaskTotalMs": 157,
+        "longTaskMaxMs": 157,
         "longTasks": [
           {
-            "duration": 1456,
-            "startTime": 3730,
+            "duration": 157,
+            "startTime": 3095,
             "attribution": [
               {
                 "name": "unknown"
@@ -40,41 +35,45 @@
           }
         ],
         "frameDelayCount": 1,
-        "frameDelayMaxMs": 2353,
-        "frameDelayAvgMs": 2353,
+        "frameDelayMaxMs": 498,
+        "frameDelayAvgMs": 498,
         "memory": {
-          "usedJSHeapSize": 64000000,
-          "totalJSHeapSize": 91700000,
+          "usedJSHeapSize": 19300000,
+          "totalJSHeapSize": 37300000,
           "jsHeapSizeLimit": 3760000000
         }
       }
     },
     {
-      "case": "count-50000-100",
-      "messageCount": 50000,
-      "charsPerMessage": 100,
-      "totalChars": 5000000,
-      "renderMs": 5027.599999904633,
-      "saveMs": 20,
-      "renderedCount": 12,
-      "virtualized": true,
-      "scrollerHeight": 434,
-      "scrollerScrollHeight": 4800468,
+      "case": "single-1000000",
+      "chars": 1000000,
+      "renderMs": 8.900000095367432,
+      "saveMs": 489.6999999284744,
+      "rendered": true,
       "saveOk": true,
       "failedKeys": [],
       "typing": {
-        "duration": 15.300000071525574,
+        "duration": 11.299999952316284,
         "renderedMarker": true,
-        "length": 57
+        "length": 55
       },
       "metrics": {
-        "longTaskCount": 1,
-        "longTaskTotalMs": 6318,
-        "longTaskMaxMs": 6318,
+        "longTaskCount": 2,
+        "longTaskTotalMs": 599,
+        "longTaskMaxMs": 469,
         "longTasks": [
           {
-            "duration": 6318,
-            "startTime": 8129,
+            "duration": 130,
+            "startTime": 3879,
+            "attribution": [
+              {
+                "name": "unknown"
+              }
+            ]
+          },
+          {
+            "duration": 469,
+            "startTime": 4019,
             "attribution": [
               {
                 "name": "unknown"
@@ -82,32 +81,32 @@
             ]
           }
         ],
-        "frameDelayCount": 1,
-        "frameDelayMaxMs": 9254,
-        "frameDelayAvgMs": 9254,
+        "frameDelayCount": 2,
+        "frameDelayMaxMs": 1228,
+        "frameDelayAvgMs": 615,
         "memory": {
-          "usedJSHeapSize": 64000000,
-          "totalJSHeapSize": 91700000,
+          "usedJSHeapSize": 19300000,
+          "totalJSHeapSize": 37300000,
           "jsHeapSizeLimit": 3760000000
         }
       }
     }
   ],
   "environment": {
-    "stepTimeoutMs": 240000,
+    "stepTimeoutMs": 120000,
     "globalTimeoutMs": 1800000,
     "runOnly": [
-      "messages-10000",
-      "messages-50000"
+      "single-300000",
+      "single-1000000"
     ]
   },
   "summary": {
     "totalCases": 2,
     "requiredCases": 7,
     "allCasesExecuted": false,
-    "worstTypingDelayMs": 15.300000071525574,
-    "worstRenderMs": 5027.599999904633,
-    "worstSaveMs": 50,
-    "worstLongTaskMs": 6318
+    "worstTypingDelayMs": 21.899999976158142,
+    "worstRenderMs": 126.80000007152557,
+    "worstSaveMs": 489.6999999284744,
+    "worstLongTaskMs": 469
   }
 }

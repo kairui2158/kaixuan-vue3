@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.105.0",
+  "version": "3.106.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -51,7 +51,7 @@
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/test-utils": "^2.5.1",
     "dependency-cruiser": "^18.3.1",
-    "electron": "^33.0.0",
+    "electron": "^33.4.11",
     "electron-builder": "^25.0.0",
     "jsdom": "^30.1.3",
     "playwright": "^1.61.1",

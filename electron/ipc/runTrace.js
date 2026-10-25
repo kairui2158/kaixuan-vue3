@@ -755,6 +755,25 @@ function registerRunTraceHandlers() {
         return { success: true, path: diffDestination, bytes: diffStats.size, mode: 'diff' }
       }
       var mode = payload.mode === 'light' || payload.mode === 'deep' ? payload.mode : 'standard'
+      var exportedText = typeof payload.runText === 'string' ? payload.runText : null
+      if (payload.mode === 'text') {
+        if (exportedText === null) return { success: false, reason: '文本导出缺少已序列化文本' }
+        var textFileName = 'run-trace-text-' + formatTimestamp(Date.now()) + '.txt'
+        var textResult
+        if (process.env.SHENYI_TEST_RUN_TRACE_EXPORT) {
+          textResult = { canceled: false, filePath: path.join(process.env.SHENYI_TEST_RUN_TRACE_EXPORT, textFileName) }
+        } else {
+          textResult = await dialog.showSaveDialog({
+            defaultPath: textFileName,
+            filters: [{ name: 'Text', extensions: ['txt'] }, { name: 'All Files', extensions: ['*'] }]
+          })
+        }
+        if (textResult.canceled || !textResult.filePath) return { success: false, reason: 'canceled' }
+        var textDestination = uniqueExportFile(textResult.filePath)
+        await fs.promises.writeFile(textDestination, exportedText, 'utf8')
+        var textStats = await fs.promises.stat(textDestination)
+        return { success: true, path: textDestination, bytes: textStats.size, mode: 'text' }
+      }
       var run = payload.run || {}
       var exportData = {
         schema: payload.schema || 'shenyi.run-trace',

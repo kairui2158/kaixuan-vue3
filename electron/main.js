@@ -22,6 +22,7 @@ var windowMap = new Map()       // windowId -> { projectId, browserWindow }
 var lockedProjects = new Set()  // projectIds currently held by a window
 var windowCounter = 0
 var ipcHandlersRegistered = false
+var responsivenessTestHandlersRegistered = false
 var windowStateSaveTimers = new Map() // win.id -> debounce timer
 var rendererResourceSamplers = new Map() // win.id -> interval timer
 
@@ -41,6 +42,18 @@ function ensurePopupPreload(win) {
         },
       },
     }
+  })
+  win.webContents.on('did-create-window', function(childWindow) {
+    registerResponsivenessHandlers(ipcMain, childWindow)
+    attachWindowResponsivenessListeners(childWindow, win.id)
+    ensurePopupPreload(childWindow)
+    childWindow.webContents.on('render-process-gone', function(_event, details) {
+      log.error('popup-render-process-gone: parentWindowId=' + win.id +
+        ' reason=' + details.reason + ' exitCode=' + details.exitCode)
+    })
+    childWindow.once('closed', function() {
+      windowMap.delete(childWindow.id)
+    })
   })
 }
 
@@ -111,6 +124,7 @@ const { registerAgentStateHandlers, setDataDir: setAgentStateDataDir } = require
 const {
   attachWindowResponsivenessListeners,
   registerResponsivenessHandlers,
+  registerResponsivenessTestHandlers,
 } = require('./ipc/responsivenessLedger')
 
 function registerApplicationMenu() {
@@ -249,7 +263,6 @@ function createWindow(projectId) {
     registerJiebaHandlers()
     registerIntentEmbeddingHandlers()
     registerAgentStateHandlers()
-
     ipcMain.handle('window:getInitialProjectId', function(event) {
       var wc = event.sender
       for (var entry of windowMap.values()) {
@@ -350,7 +363,11 @@ function createWindow(projectId) {
   startRendererResourceSampler(win)
   windowMap.set(win.id, { windowId: winId, projectId: projectId || null, browserWindow: win })
   if (projectId) lockedProjects.add(projectId)
-  if (!ipcHandlersRegistered || winId === 1) registerResponsivenessHandlers(ipcMain, win)
+  registerResponsivenessHandlers(ipcMain, win)
+  if (!responsivenessTestHandlersRegistered && explicitIsolation) {
+    responsivenessTestHandlersRegistered = true
+    registerResponsivenessTestHandlers(ipcMain, win)
+  }
 
   win.once('ready-to-show', function() {
     win.show()

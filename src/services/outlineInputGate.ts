@@ -19,6 +19,26 @@ export type OutlineInputGateInput = {
   runLease?: 'same_run' | 'new_run' | 'expired' | 'none'
 }
 
+export type OutlineInputGateFlags = {
+  interactiveResponseActive: boolean
+  sendStarting: boolean
+  runLease: 'same_run' | 'new_run' | 'expired' | 'none'
+}
+
+export function createOutlineInputGateFlags(): OutlineInputGateFlags {
+  return {
+    interactiveResponseActive: false,
+    sendStarting: false,
+    runLease: 'none',
+  }
+}
+
+export function resolveOutlineExecutionLocked(
+  input: Pick<OutlineInputGateInput, 'isGenerating' | 'interactiveResponseActive'>,
+): boolean {
+  return input.isGenerating && !input.interactiveResponseActive
+}
+
 export function resolveOutlineInputGate(input: OutlineInputGateInput): OutlineInputGateState {
   if (input.sendStarting) {
     return {

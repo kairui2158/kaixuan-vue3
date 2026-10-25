@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-24T23:36:53.128Z",
+  "message": "AssertionError [ERR_ASSERTION]: the crashed window recovers and can read the global ledger",
+  "stack": "AssertionError [ERR_ASSERTION]: the crashed window recovers and can read the global ledger\n    at file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:392:3",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

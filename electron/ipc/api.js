@@ -540,19 +540,11 @@ function registerProviderNetHandlers(ipc) {
           waiting: queueEvent.waiting,
           maxConcurrencyPerProvider: queueEvent.maxConcurrencyPerProvider,
         })
-        event.sender.send('providerNet:streamChunk', {
-          signalId,
-          event: queueEvent.status,
-          position: queueEvent.position,
-          waiting: queueEvent.waiting,
-          maxConcurrencyPerProvider: queueEvent.maxConcurrencyPerProvider,
-        })
       },
     })
     const slot = await schedulerSlot
     if (slot.canceled) {
       sendStreamFrame('canceled')
-      event.sender.send('providerNet:streamChunk', { signalId, event: 'canceled' })
       return { ok: false, kind: 'canceled', message: '请求已取消' }
     }
     const streamId = signalId
@@ -606,11 +598,6 @@ function registerProviderNetHandlers(ipc) {
           providerErrorSummary: parseErrorBody(body),
         }
       }
-      event.sender.send('providerNet:streamChunk', {
-        signalId,
-        event: 'start',
-        statusCode: response.status,
-      })
       sendStreamFrame('start', { statusCode: response.status })
       streamState.status = 'streaming'
       traceProviderNet(event.sender.id, 'start', {
@@ -627,11 +614,6 @@ function registerProviderNetHandlers(ipc) {
         if (chunk.done) break
         const decodedText = decoder.decode(chunk.value, { stream: true })
         watchdog.markActivity(streamClassifier.push(decodedText))
-        event.sender.send('providerNet:streamChunk', {
-          signalId,
-          event: 'chunk',
-          text: decodedText,
-        })
         sendStreamFrame('chunk', { text: decodedText })
         streamState.bytesReceived += chunk.value ? chunk.value.byteLength : 0
         streamState.chunkCount += 1
@@ -649,7 +631,6 @@ function registerProviderNetHandlers(ipc) {
           bytes: chunk.value ? chunk.value.byteLength : 0,
         })
       }
-      event.sender.send('providerNet:streamChunk', { signalId, event: 'end' })
       sendStreamFrame('end')
       streamState.status = 'completed'
       streamState.checkpoint = createCheckpoint(streamState)
@@ -663,30 +644,18 @@ function registerProviderNetHandlers(ipc) {
       })
       if (e.name === 'AbortError') {
         if (streamAbortState.reason === 'orphaned') {
-          event.sender.send('providerNet:streamChunk', {
-            signalId,
-            event: 'error',
-            message: '渲染窗口心跳丢失，流已进入恢复检查点',
-          })
           sendStreamFrame('error', { message: '渲染窗口心跳丢失，流已进入恢复检查点' })
           return { ok: false, kind: 'network', message: '渲染窗口心跳丢失，流已进入恢复检查点' }
         }
         if (streamAbortState.reason && WATCHDOG_MESSAGES[streamAbortState.reason]) {
           const watchdogMessage = WATCHDOG_MESSAGES[streamAbortState.reason]
-          event.sender.send('providerNet:streamChunk', {
-            signalId,
-            event: 'error',
-            message: watchdogMessage,
-          })
           sendStreamFrame('error', { message: watchdogMessage })
           return { ok: false, kind: 'network', message: watchdogMessage }
         }
-        event.sender.send('providerNet:streamChunk', { signalId, event: 'canceled' })
         sendStreamFrame('canceled')
         streamState.status = 'canceled'
         return { ok: false, kind: 'canceled', message: '请求已取消' }
       }
-      event.sender.send('providerNet:streamChunk', { signalId, event: 'error', message: e.message })
       sendStreamFrame('error', { message: e.message })
       streamState.status = 'error'
       return { ok: false, kind: 'network', message: e.message || '网络错误' }

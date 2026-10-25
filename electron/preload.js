@@ -80,6 +80,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onGetCurrentProjectId: function(callback) { ipcRenderer.on('app:getCurrentProjectId', function() { callback() }) },
   responsivenessLedger: function() { return ipcRenderer.invoke('responsiveness:ledger') },
   responsivenessReport: function(payload) { return ipcRenderer.invoke('responsiveness:report', payload || {}) },
+  responsivenessTestControl: function(payload) { return ipcRenderer.invoke('responsiveness:testControl', payload || {}) },
   onResponsivenessEvent: function(callback) {
     var listener = function(_event, detail) { callback(detail || {}) }
     ipcRenderer.on('app:responsivenessEvent', listener)
@@ -146,11 +147,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   providerNetRegistry: function() { return ipcRenderer.invoke('providerNet:registry') },
   providerNetHeartbeat: function(streamId) { return ipcRenderer.invoke('providerNet:heartbeat', streamId) },
   providerNetSchedulerSnapshot: function() { return ipcRenderer.invoke('providerNet:schedulerSnapshot') },
-  onProviderNetStreamChunk: function(callback) {
-    var listener = function(event, payload) { callback(payload) }
-    ipcRenderer.on('providerNet:streamChunk', listener)
-    return function() { ipcRenderer.removeListener('providerNet:streamChunk', listener) }
-  },
   onProviderNetStreamFrame: function(callback) {
     var listener = function(event, payload) { callback(payload) }
     ipcRenderer.on('providerNet:streamFrame', listener)

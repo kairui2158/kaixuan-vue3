@@ -294,7 +294,7 @@
 <script setup lang="ts">
 import { applyOutlineReplacement } from '../../services/outlineReplace'
 import { computeEditorMatches, type SearchOptions } from '../../services/editorReplace'
-import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
 import {
   useRunTraceStore,
@@ -449,7 +449,11 @@ import {
 import type { ContextMessage } from '../../types/context'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { extractJsonArray } from '../../services/jsonExtraction'
-import { resolveOutlineInputGate } from '../../services/outlineInputGate'
+import {
+  createOutlineInputGateFlags,
+  resolveOutlineExecutionLocked,
+  resolveOutlineInputGate,
+} from '../../services/outlineInputGate'
 import { createTextareaViewport, type EditorViewport } from '../../services/editorViewport'
 import {
   buildMultiCursorEditPlan,
@@ -925,7 +929,7 @@ async function continueOutlineRouting(index: number) {
   } else if (fallback.runId) {
     runTraceStore.finishAwaitingUser(fallback.runId, `resume:${fallback.requestText.slice(0, 80)}`)
     outlineLatestAwaitResumeToken.value = null
-    outlineRunLease.value = 'new_run'
+    outlineInputGateFlags.runLease = 'new_run'
   }
   clearOutlineRoutingState(index)
   await askAi(fallback.requestText, {
@@ -1053,11 +1057,11 @@ function startOutlineRun(
   outlineStreamLength = 0
   const activeRun = outlineRunTraceId ? runTraceStore.getRun(outlineRunTraceId) : null
   if (activeRun?.status === 'running' && runTraceStore.isAwaitingUser(activeRun.id)) {
-    outlineRunLease.value = 'same_run'
+    outlineInputGateFlags.runLease = 'same_run'
   } else if (activeRun?.status === 'running') {
-    outlineRunLease.value = 'expired'
+    outlineInputGateFlags.runLease = 'expired'
   } else {
-    outlineRunLease.value = 'new_run'
+    outlineInputGateFlags.runLease = 'new_run'
     outlineLatestAwaitResumeToken.value = null
   }
   if (
@@ -1157,7 +1161,7 @@ async function runOutlineFinalDraftTurn(options: {
   const releaseRunTracking = beginActiveOutlineRunTracking()
   try {
     isGenerating.value = true
-    outlineInputUnlockedByAgent.value = false
+    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在生成终稿...'
     addOutlineTraceEvent({
       type: 'final-draft-mode-selected',
@@ -1293,7 +1297,7 @@ async function continueOutlineFinalDraft(index: number) {
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
-    outlineInputUnlockedByAgent.value = false
+    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在继续生成终稿...'
     projectStore.updateOutlineChatAt(index, { content: '正在继续生成终稿...' })
     const aiService = await getAiService()
@@ -1433,7 +1437,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
-    outlineInputUnlockedByAgent.value = false
+    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在重试当前终稿分段...'
     projectStore.updateOutlineChatAt(index, { content: '正在重试当前终稿分段...' })
     const aiService = await getAiService()
@@ -1540,7 +1544,7 @@ async function resumeOutlineFinalDraft(index: number) {
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
-    outlineInputUnlockedByAgent.value = false
+    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在恢复终稿检查点...'
     projectStore.updateOutlineChatAt(index, { content: '正在恢复终稿检查点...' })
     const aiService = await getAiService()
@@ -3001,9 +3005,7 @@ const findWholeWord = ref(false)
 const findUseRegex = ref(false)
 const findRef = ref<HTMLInputElement | null>(null)
 const isGenerating = ref(false)
-const outlineInputUnlockedByAgent = ref(false)
-const outlineSendStarting = ref(false)
-const outlineRunLease = ref<'same_run' | 'new_run' | 'expired' | 'none'>('none')
+const outlineInputGateFlags = reactive(createOutlineInputGateFlags())
 const outlineLatestAwaitResumeToken = ref<string | null>(null)
 const outlineInputGate = computed(() => resolveOutlineInputGate({
   isGenerating: isGenerating.value,
@@ -3014,9 +3016,9 @@ const outlineInputGate = computed(() => resolveOutlineInputGate({
   ),
   runId: outlineRunTraceId,
   resumeToken: outlineLatestAwaitResumeToken.value,
-  interactiveResponseActive: outlineInputUnlockedByAgent.value,
-  sendStarting: outlineSendStarting.value,
-  runLease: outlineRunLease.value,
+  interactiveResponseActive: outlineInputGateFlags.interactiveResponseActive,
+  sendStarting: outlineInputGateFlags.sendStarting,
+  runLease: outlineInputGateFlags.runLease,
 }))
 const outlineAwaitingUser = computed(() => outlineInputGate.value.mode === 'resume_run')
 const outlineAwaitBannerText = computed(() => {
@@ -3031,7 +3033,10 @@ const outlineInputBlocked = computed(() =>
 // The send-starting flag only suppresses duplicate UI submits. askAi is part
 // of that same send flow, so execution gating must use the generation state.
 const outlineExecutionLocked = computed(() =>
-  isGenerating.value && outlineInputGate.value.mode !== 'agent_reply'
+  resolveOutlineExecutionLocked({
+    isGenerating: isGenerating.value,
+    interactiveResponseActive: outlineInputGateFlags.interactiveResponseActive,
+  })
 )
 const generationStatus = ref('')
 const streamingContent = ref('')
@@ -4706,11 +4711,11 @@ function insertAtCursor(text: string) {
 }
 
 async function sendMessage() {
-  if (outlineSendStarting.value) return
+  if (outlineInputGateFlags.sendStarting) return
   const text = inputText.value.trim()
   const inputGate = outlineInputGate.value
   if (!text || !inputGate.canSend) return
-  outlineSendStarting.value = true
+  outlineInputGateFlags.sendStarting = true
   try {
     pendingOutlineInputGateDecision = {
       type: 'input-gate-decision',
@@ -4724,7 +4729,7 @@ async function sendMessage() {
       ].join('; '),
     }
     if (inputGate.mode === 'resume_run') {
-      outlineRunLease.value = 'same_run'
+      outlineInputGateFlags.runLease = 'same_run'
     }
   if (isOutlineDeletionAffirmativeInput(text)) {
     const consumed = await consumeOutlineDeletionAffirmativeTurn(text)
@@ -4743,11 +4748,11 @@ async function sendMessage() {
   await scrollToBottom()
   await askAi(text)
   } finally {
-    outlineSendStarting.value = false
+    outlineInputGateFlags.sendStarting = false
     if (outlineShouldPreserveAwaitingRunLease(outlineRunTraceId)) {
-      outlineRunLease.value = 'same_run'
+      outlineInputGateFlags.runLease = 'same_run'
     } else if (inputGate.mode !== 'agent_reply') {
-      outlineRunLease.value = 'none'
+      outlineInputGateFlags.runLease = 'none'
     }
   }
 }
@@ -5048,7 +5053,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   })
   generationController = new AbortController()
   isGenerating.value = true
-  outlineInputUnlockedByAgent.value = false
+  outlineInputGateFlags.interactiveResponseActive = false
   generationStatus.value = '正在连接 API...'
   streamingContent.value = ''
   pendingOutlineDirectWrite.value = null
@@ -5287,7 +5292,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     if (outlineRunTraceId) {
       runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_user')
       outlineLatestAwaitResumeToken.value = awaitingState?.resumeToken || null
-      outlineRunLease.value = 'same_run'
+      outlineInputGateFlags.runLease = 'same_run'
     }
     activeOutlineExecutionPlan = null
     return
@@ -5765,7 +5770,7 @@ async function askPlainAi(
   pendingOutlineDirectWrite.value = null
     outlineFailedWriteBatch = null
     isGenerating.value = true
-    outlineInputUnlockedByAgent.value = false
+  outlineInputGateFlags.interactiveResponseActive = false
   const startedAt = performance.now()
   const requestStartedAt = Date.now()
   let firstChunkSeen = false
@@ -5964,7 +5969,7 @@ async function askPlainAi(
           }
         }
         if (event.type === 'interactive_response' && outlineInputBlocked.value) {
-          outlineInputUnlockedByAgent.value = true
+          outlineInputGateFlags.interactiveResponseActive = true
           addOutlineTraceEvent({
             type: 'input-unlocked-interactive-response',
             level: 'info',
@@ -6689,7 +6694,7 @@ async function continueOutlineMessage(index: number) {
     detail: `已生成 ${snapshot.accumulatedText.length} 字，finish_reason=${snapshot.finishReason}，第 ${snapshot.continuationCount + 1} 次续生成`
   })
   isGenerating.value = true
-  outlineInputUnlockedByAgent.value = false
+  outlineInputGateFlags.interactiveResponseActive = false
   generationStatus.value = '正在续生成…'
   streamingContent.value = snapshot.accumulatedText
   generationController = new AbortController()

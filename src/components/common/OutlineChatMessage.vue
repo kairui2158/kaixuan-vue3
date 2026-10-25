@@ -4,7 +4,12 @@
     :class="message.role"
     :data-message-id="message.messageId || ''"
   >
-    <div ref="bubbleRef" class="ow-msg-bubble" v-html="renderedContent"></div>
+    <div
+      ref="bubbleRef"
+      class="ow-msg-bubble"
+      :data-render-source="renderSource"
+      v-html="renderedContent"
+    ></div>
     <div
       v-if="message.role === 'assistant' && message.routingFallback"
       class="ow-routing-fallback"
@@ -144,8 +149,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { renderMarkdown } from '../../utils/markdownService'
+import {
+  outlineMarkdownContentVersion,
+  renderOutlineMarkdown,
+  type OutlineMarkdownRenderWarning,
+} from '../../services/outlineMarkdownRenderService'
 import { safeModeActive } from '../../services/responsivenessStore'
 import { canContinue } from '../../services/continuation'
+import { useRunTraceStore } from '../../stores/runTrace'
 import RealSkillDiagnosticsPanel from './RealSkillDiagnosticsPanel.vue'
 import EditorDiffLayer from '../editor/EditorDiffLayer.vue'
 import type { EditorDiffHunk } from '../../services/editorDiffHunks'
@@ -193,18 +204,76 @@ const emit = defineEmits<{
 const bubbleRef = ref<HTMLElement | null>(null)
 const stalledRetryProviderId = ref('')
 const messageId = computed(() => String(props.message?.messageId || ''))
+const runTraceStore = useRunTraceStore()
+const renderedContent = ref('')
+const renderSource = ref<'safe' | 'worker' | 'fallback'>('fallback')
+let renderToken = 0
 
-const renderedContent = computed(() => {
-  const content = String(props.message?.content || '')
-  if (safeModeActive.value) return content.replace(/[&<>"']/g, character => ({
+function escapePlainText(content: string): string {
+  return content.replace(/[&<>"']/g, character => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
     "'": '&#39;',
   })[character] || character)
-  return renderMarkdown(content)
-})
+}
+
+function reportMarkdownRenderFallback(warning: OutlineMarkdownRenderWarning): void {
+  const runId = runTraceStore.getRunId('outline')
+  const detail = `messageId=${warning.messageId || 'none'}; contentVersion=${warning.contentVersion}; reason=${warning.reason}${warning.error ? `; error=${warning.error}` : ''}`
+  if (!runId) {
+    console.warn('[outline-markdown-render] fallback without active run: ' + detail)
+    return
+  }
+  runTraceStore.addEvent(runId, {
+    type: 'outline-markdown-render-fallback',
+    level: 'warn',
+    label: '大纲消息渲染降级为主线程',
+    detail,
+  })
+}
+
+async function refreshRenderedContent(): Promise<void> {
+  const content = String(props.message?.content || '')
+  const currentMessageId = messageId.value
+  const contentVersion = outlineMarkdownContentVersion(content)
+  const token = ++renderToken
+
+  if (safeModeActive.value) {
+    renderedContent.value = escapePlainText(content)
+    renderSource.value = 'safe'
+    return
+  }
+
+  if (content.length <= 5000) {
+    renderedContent.value = renderMarkdown(content)
+    renderSource.value = 'fallback'
+  }
+
+  const html = await renderOutlineMarkdown({
+    messageId: currentMessageId,
+    contentVersion,
+    text: content,
+    onWarning: reportMarkdownRenderFallback,
+  })
+  if (token !== renderToken) return
+  if (safeModeActive.value) {
+    renderedContent.value = escapePlainText(content)
+    renderSource.value = 'safe'
+    return
+  }
+  renderedContent.value = html
+  renderSource.value = 'worker'
+}
+
+watch(
+  [messageId, () => String(props.message?.content || ''), safeModeActive],
+  () => {
+    void refreshRenderedContent()
+  },
+  { immediate: true },
+)
 const continuationAvailable = computed(() => Boolean(props.message?.continuation && canContinue(props.message.continuation)))
 const finalDraftTask = computed(() => props.message?.finalDraftTask)
 const finalDraftStalled = computed(() =>

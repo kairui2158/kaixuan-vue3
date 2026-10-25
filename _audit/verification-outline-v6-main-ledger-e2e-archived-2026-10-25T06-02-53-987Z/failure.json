@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-25T05:55:46.379Z",
+  "message": "AssertionError [ERR_ASSERTION]: a new window can read the ledger after the renderer crash",
+  "stack": "AssertionError [ERR_ASSERTION]: a new window can read the ledger after the renderer crash\n    at file:///D:/codex/novel-workshop-vue3/scripts/verify-outline-v6-main-ledger-e2e.mjs:485:3",
+  "evidence": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-outline-v6-main-ledger-e2e"
+}

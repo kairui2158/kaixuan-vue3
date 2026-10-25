@@ -299,6 +299,10 @@ import {
   type RunTraceDiffResult
 } from '../../services/runTraceDiff'
 import {
+  exportRunTraceJsonInWorker,
+  exportRunTraceTextInWorker
+} from '../../services/runTraceExportWorkerService'
+import {
   useRunTraceStore,
   type RunTraceApiCall,
   type RunTraceEvent,
@@ -515,7 +519,11 @@ function sealSelectedRun() {
 async function copyRun() {
   const run = selectedRun.value
   if (!run) return
-  const text = runTraceStore.exportRunToText(run)
+  const text = await exportRunTraceTextInWorker(run)
+  if (text === null) {
+    console.warn('运行记录复制失败：导出 Worker 不可用或超时')
+    return
+  }
   try {
     await navigator.clipboard.writeText(text)
   } catch {
@@ -577,12 +585,17 @@ async function exportDiff() {
 async function exportRun(mode: 'standard' | 'light' | 'deep') {
   const run = selectedRun.value
   if (!run) return
+  const exportedRun = await exportRunTraceJsonInWorker(run)
+  if (!exportedRun) {
+    console.warn('运行记录导出失败：导出 Worker 不可用或超时')
+    return
+  }
   const result = await window.electronAPI?.runTraceExport({
     schema: 'shenyi.run-trace',
     version: 6,
     mode,
     exportedAt: new Date().toISOString(),
-    run: runTraceStore.exportRunToJson(run)
+    run: exportedRun
   })
   if (result && !result.success && result.reason !== 'canceled') {
     console.warn('运行记录导出失败：' + (result.reason || '未知错误'))
