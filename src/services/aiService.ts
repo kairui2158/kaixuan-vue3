@@ -43,7 +43,12 @@ import {
   sanitizeUrlForLog,
   normalizeProviderType,
 } from './providerProtocols'
-import { normalizeProviderResponse } from './providerResponseContract'
+import {
+  classifyProviderSoftFailure,
+  extractSoftProviderErrorBody,
+  normalizeProviderResponse,
+  type ProviderResponseContract,
+} from './providerResponseContract'
 import {
   createStreamFrame,
   parseStreamFrames,
@@ -1120,41 +1125,6 @@ type MainNetStreamResult = {
   raw?: any
 }
 
-const PROVIDER_SOFT_ERROR_PATTERNS = [
-  /quota[_\s-]?(?:exhaust|exceeded|limit)/i,
-  /insufficient[_\s-]?(?:balance|credit|quota)/i,
-  /(?:balance|credit)[_\s-]?(?:exhaust|insufficient)/i,
-  /(?:plan|subscription)[_\s-]?(?:limit|exhaust|expired)/i,
-  /(?:额度|余额|配额|套餐|订阅)(?:已)?(?:耗尽|不足|到期|用完|超限)/,
-  /请(?:充值|续费|升级|购买).{0,24}(?:额度|余额|套餐|配额)?/,
-]
-
-function extractSoftProviderErrorBody(raw: any): { error?: any; message?: string } | null {
-  if (!raw || typeof raw !== 'object') return null
-  if (raw.error || raw.message || raw.msg) return raw
-  if (Array.isArray(raw.choices) && raw.choices.length === 0 && (raw.usage || raw.prompt_tokens || raw.completion_tokens)) {
-    return { message: JSON.stringify(raw).slice(0, 500) }
-  }
-  return null
-}
-
-function hasProviderSoftQuotaError(text: string): boolean {
-  return PROVIDER_SOFT_ERROR_PATTERNS.some(pattern => pattern.test(text))
-}
-
-function hasAbnormalZeroUsage(usage: any, hasText: boolean): boolean {
-  if (!usage || typeof usage !== 'object') return false
-  const inputTokens = Number(usage.inputTokens ?? usage.promptTokens ?? usage.prompt_tokens ?? usage.input_tokens)
-  const outputTokens = Number(usage.outputTokens ?? usage.completion_tokens ?? usage.completionTokens ?? usage.output_tokens)
-  const totalTokens = Number(usage.totalTokens ?? usage.total_tokens ?? usage.totalTokenCount)
-  const allNumbers = [inputTokens, outputTokens, totalTokens].filter(value => Number.isFinite(value))
-  if (allNumbers.length === 0) return false
-  return !hasText
-    && Number.isFinite(totalTokens) && totalTokens > 0
-    && inputTokens === 0
-    && outputTokens === 0
-}
-
 function throwProviderSoftError(
   raw: unknown,
   provider: ProviderLike,
@@ -1162,9 +1132,21 @@ function throwProviderSoftError(
   usage?: any,
   hasText = false
 ): never {
-  const body = extractSoftProviderErrorBody(raw)
-  const summary = body ? extractProviderErrorSummary(body) : ''
-  const quotaText = hasProviderSoftQuotaError(summary) || hasAbnormalZeroUsage(usage, hasText)
+  const contract: ProviderResponseContract = {
+    ok: true,
+    kind: 'ok',
+    transportKind: 'stream',
+    text: hasText ? 'present' : '',
+    reasoning: '',
+    usage,
+    raw,
+    canceled: false,
+  }
+  const classification = classifyProviderSoftFailure(contract)
+  const summary = classification.softError
+    ? extractProviderErrorSummary(extractSoftProviderErrorBody(raw))
+    : ''
+  const quotaText = classification.quota
   const message = quotaText
     ? `quota_exhausted：供应商返回软错误，未产生正文${summary ? `：${summary}` : ''}`
     : `供应商在 HTTP 200 中返回错误结构，未产生正文${summary ? `：${summary}` : ''}`
@@ -2371,11 +2353,19 @@ export function createAiService(
           )
         }
         const usage = normalizeTraceUsage(providerType, streamUsage ?? result.usage)
-        if (
-          (!result.text && !result.reasoning && extractSoftProviderErrorBody(result.raw))
-          || hasProviderSoftQuotaError(extractProviderErrorSummary(result.raw))
-          || (!result.text && !result.reasoning && hasAbnormalZeroUsage(usage, false))
-        ) {
+        const streamContract: ProviderResponseContract = {
+          ok: true,
+          kind: 'ok',
+          transportKind: 'stream',
+          text: result.text,
+          reasoning: result.reasoning,
+          usage,
+          finishReason: result.finishReason,
+          raw: result.raw,
+          canceled: false,
+        }
+        const streamSoftFailure = classifyProviderSoftFailure(streamContract)
+        if (streamSoftFailure.softError || streamSoftFailure.quota || streamSoftFailure.abnormalZeroUsage) {
           throwProviderSoftError(result.raw, provider, params.purpose, usage, Boolean(result.text))
         }
         const finishReason = resolveFinishReason(result.finishReason, usage, maxTokens, Boolean(result.text))
@@ -2385,10 +2375,19 @@ export function createAiService(
       }
     } else {
       const data = mainNetResponse?.raw ?? await resp!.json()
-      if (
-        (!protocol.extractText(data) && !protocol.extractReasoning(data) && extractSoftProviderErrorBody(data))
-        || hasProviderSoftQuotaError(extractProviderErrorSummary(data))
-      ) {
+      const nonStreamContract: ProviderResponseContract = {
+        ok: true,
+        kind: 'ok',
+        transportKind: 'non-stream',
+        text: protocol.extractText(data),
+        reasoning: protocol.extractReasoning(data),
+        usage: protocol.extractUsage(data),
+        finishReason: protocol.extractFinishReason(data),
+        raw: data,
+        canceled: false,
+      }
+      const nonStreamSoftFailure = classifyProviderSoftFailure(nonStreamContract)
+      if (nonStreamSoftFailure.softError || nonStreamSoftFailure.quota) {
         const provisionalText = protocol.extractText(data)
         throwProviderSoftError(
           data,
@@ -2619,13 +2618,25 @@ export function createAiService(
             convergenceReason: 'provider finished with tool_calls but the response payload contained no executable tool calls',
           }
         }
-        if (hasProviderSoftQuotaError(response.text || '')) {
+        const toolLoopContract: ProviderResponseContract = {
+          ok: true,
+          kind: 'ok',
+          transportKind: 'non-stream',
+          text: response.text || '',
+          reasoning: response.reasoning || '',
+          usage: response.usage,
+          finishReason: response.finishReason,
+          raw: { message: response.text || '' },
+          canceled: false,
+        }
+        const toolLoopSoftFailure = classifyProviderSoftFailure(toolLoopContract)
+        if (toolLoopSoftFailure.softError || toolLoopSoftFailure.quota) {
           throwProviderSoftError(
-            { message: response.text },
+            toolLoopContract.raw,
             provider,
             params.purpose,
             response.usage,
-            false,
+            Boolean(toolLoopContract.text),
           )
         }
         lastToolAudit = buildCrossTurnToolAudit({

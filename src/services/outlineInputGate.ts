@@ -25,6 +25,19 @@ export type OutlineInputGateFlags = {
   runLease: 'same_run' | 'new_run' | 'expired' | 'none'
 }
 
+export type OutlineInputEntryKind =
+  | 'send'
+  | 'routing_continue'
+  | 'routing_bypass'
+  | 'budget_resume'
+  | 'regenerate'
+
+export type OutlineEntryDecision = {
+  allowed: boolean
+  deferReason: string | null
+  expectedSendTarget: OutlineInputGateState['sendTarget']
+}
+
 export function createOutlineInputGateFlags(): OutlineInputGateFlags {
   return {
     interactiveResponseActive: false,
@@ -102,5 +115,36 @@ export function resolveOutlineInputGate(input: OutlineInputGateInput): OutlineIn
     disabledReason: null,
     runId: input.runId || null,
     resumeToken: input.resumeToken || null,
+  }
+}
+
+export function resolveOutlineEntryDecision(
+  entry: OutlineInputEntryKind,
+  gate: OutlineInputGateState,
+): OutlineEntryDecision {
+  if (!gate.canSend) {
+    return {
+      allowed: false,
+      deferReason: gate.disabledReason || 'input_blocked',
+      expectedSendTarget: gate.sendTarget,
+    }
+  }
+
+  // A routing confirmation is part of the waiting turn: it must follow the
+  // run lease instead of silently creating a second physical run.
+  if (entry === 'routing_continue' && gate.mode === 'resume_run') {
+    return {
+      allowed: true,
+      deferReason: null,
+      expectedSendTarget: 'resume_run',
+    }
+  }
+
+  return {
+    allowed: true,
+    deferReason: null,
+    expectedSendTarget: gate.mode === 'agent_reply' && entry === 'send'
+      ? 'agent_reply'
+      : 'new_run',
   }
 }

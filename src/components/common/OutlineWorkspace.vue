@@ -209,6 +209,32 @@
             <span class="ow-awaiting-dot"></span>
             <span>{{ outlineAwaitBannerText }}</span>
           </div>
+          <div
+            v-if="outlineStreamRecovery"
+            id="ow-stream-recovery-banner"
+            class="ow-stream-recovery"
+            role="status"
+            aria-live="polite"
+            data-testid="ow-stream-recovery-banner"
+          >
+            <span class="ow-stream-recovery-text">
+              检测到一段流式输出已断开。已保留最近内容，不会自动写入大纲。
+            </span>
+            <div class="ow-stream-recovery-actions">
+              <button
+                type="button"
+                class="ow-stream-recovery-btn primary"
+                data-testid="btn-stream-recovery-save-draft"
+                @click="saveOutlineStreamRecoveryDraft"
+              >保存为草稿</button>
+              <button
+                type="button"
+                class="ow-stream-recovery-btn"
+                data-testid="btn-stream-recovery-discard"
+                @click="discardOutlineStreamRecovery"
+              >丢弃本段</button>
+            </div>
+          </div>
           <div class="ow-input-row">
             <ApiChatInput
               v-model="inputText"
@@ -451,8 +477,12 @@ import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { extractJsonArray } from '../../services/jsonExtraction'
 import {
   createOutlineInputGateFlags,
+  resolveOutlineEntryDecision,
   resolveOutlineExecutionLocked,
   resolveOutlineInputGate,
+  type OutlineEntryDecision,
+  type OutlineInputEntryKind,
+  type OutlineInputGateState,
 } from '../../services/outlineInputGate'
 import { createTextareaViewport, type EditorViewport } from '../../services/editorViewport'
 import {
@@ -889,7 +919,10 @@ function clearOutlineRoutingState(index: number) {
 
 async function continueOutlineRouting(index: number) {
   const message = messages.value[index]
-  if (isGenerating.value || !message?.routingFallback) return
+  const entryGate = outlineInputGate.value
+  const entryDecision = resolveOutlineEntryDecision('routing_continue', entryGate)
+  recordOutlineEntryDecision('routing_continue', entryGate, entryDecision)
+  if (!entryDecision.allowed || !message?.routingFallback) return
   const fallback: OutlineRoutingFallbackBubble = message.routingFallback
   if (!fallback.requestText) return
   recordIntentRoutingConfirmation({
@@ -929,7 +962,11 @@ async function continueOutlineRouting(index: number) {
   } else if (fallback.runId) {
     runTraceStore.finishAwaitingUser(fallback.runId, `resume:${fallback.requestText.slice(0, 80)}`)
     outlineLatestAwaitResumeToken.value = null
-    outlineInputGateFlags.runLease = 'new_run'
+    if (entryDecision.expectedSendTarget === 'resume_run') {
+      outlineInputGateFlags.runLease = 'same_run'
+    } else {
+      outlineInputGateFlags.runLease = 'new_run'
+    }
   }
   clearOutlineRoutingState(index)
   await askAi(fallback.requestText, {
@@ -944,7 +981,10 @@ async function continueOutlineRoutingById(messageId: string) {
 
 async function bypassOutlineRouting(index: number) {
   const message = messages.value[index]
-  if (isGenerating.value || !message?.routingFallback?.requestText) return
+  const entryGate = outlineInputGate.value
+  const entryDecision = resolveOutlineEntryDecision('routing_bypass', entryGate)
+  recordOutlineEntryDecision('routing_bypass', entryGate, entryDecision)
+  if (!entryDecision.allowed || !message?.routingFallback?.requestText) return
   const requestText = message.routingFallback.requestText
   addOutlineTraceEvent({
     type: 'user-bypassed-routing',
@@ -962,7 +1002,10 @@ async function bypassOutlineRoutingById(messageId: string) {
 
 async function extendOutlineBudget(index: number) {
   const message = messages.value[index]
-  if (isGenerating.value || !message?.budgetExhausted?.requestText) return
+  const entryGate = outlineInputGate.value
+  const entryDecision = resolveOutlineEntryDecision('budget_resume', entryGate)
+  recordOutlineEntryDecision('budget_resume', entryGate, entryDecision)
+  if (!entryDecision.allowed || !message?.budgetExhausted?.requestText) return
   const requestText = message.budgetExhausted.requestText
   if (!outlineApiBudget) {
     await appConfirm.alert('本次执行的预算对象已释放，请重新发起请求')
@@ -3005,6 +3048,16 @@ const findWholeWord = ref(false)
 const findUseRegex = ref(false)
 const findRef = ref<HTMLInputElement | null>(null)
 const isGenerating = ref(false)
+interface OutlineStreamRecoveryItem {
+  streamId: string
+  text: string
+  bytesReceived: number
+  checkpointAt: number
+  orphanReason: string | null
+}
+const outlineStreamRecovery = ref<OutlineStreamRecoveryItem | null>(null)
+const outlineStreamRecoveryDismissed = new Set<string>()
+let outlineStreamRecoveryTimer: ReturnType<typeof setInterval> | null = null
 const outlineInputGateFlags = reactive(createOutlineInputGateFlags())
 const outlineLatestAwaitResumeToken = ref<string | null>(null)
 const outlineInputGate = computed(() => resolveOutlineInputGate({
@@ -3030,6 +3083,93 @@ const outlineAwaitBannerText = computed(() => {
 const outlineInputBlocked = computed(() =>
   !outlineInputGate.value.canSend
 )
+
+function normalizeOutlineStreamRecoveryCandidate(stream: any): OutlineStreamRecoveryItem | null {
+  if (!stream || stream.status !== 'orphaned') return null
+  const checkpoint = stream.checkpoint
+  if (!checkpoint || checkpoint.recoveryStatus !== 'recovering' || checkpoint.disposition !== 'partial') return null
+  if (stream.projectId && stream.projectId !== outlineProjectId()) return null
+  if (outlineStreamRecoveryDismissed.has(String(stream.streamId || ''))) return null
+  const text = typeof checkpoint.text === 'string' ? checkpoint.text : ''
+  if (!text.trim()) return null
+  return {
+    streamId: String(stream.streamId || ''),
+    text,
+    bytesReceived: Number(stream.bytesReceived) || 0,
+    checkpointAt: Number(checkpoint.checkpointAt) || Number(stream.orphanedAt) || 0,
+    orphanReason: typeof stream.orphanReason === 'string' ? stream.orphanReason : null,
+  }
+}
+
+async function refreshOutlineStreamRecovery() {
+  if (isGenerating.value) return
+  const providerNet = (window as any).electronAPI?.providerNetRegistry
+  if (typeof providerNet !== 'function') return
+  try {
+    const response = await providerNet()
+    const streams = Array.isArray(response?.streams) ? response.streams : []
+    const candidates: OutlineStreamRecoveryItem[] = []
+    for (const stream of streams) {
+      const candidate = normalizeOutlineStreamRecoveryCandidate(stream)
+      if (candidate) candidates.push(candidate)
+    }
+    const next = candidates.sort((a, b) => b.checkpointAt - a.checkpointAt)[0] || null
+    if (outlineStreamRecovery.value?.streamId !== next?.streamId) {
+      outlineStreamRecovery.value = next
+      if (next) {
+        addOutlineTraceEvent({
+          type: 'stream-recovery-offered',
+          level: 'warn',
+          label: '发现断流恢复候选',
+          detail: JSON.stringify({
+            streamId: next.streamId,
+            bytesReceived: next.bytesReceived,
+            checkpointAt: next.checkpointAt,
+            orphanReason: next.orphanReason,
+          })
+        })
+      }
+    }
+  } catch (error) {
+    console.warn('outline stream recovery refresh failed', error)
+  }
+}
+
+function saveOutlineStreamRecoveryDraft() {
+  const recovery = outlineStreamRecovery.value
+  if (!recovery) return
+  const draft = `[断流草稿 stream=${recovery.streamId}]\n${recovery.text}`
+  inputText.value = inputText.value.trim()
+    ? `${inputText.value}\n\n${draft}`
+    : draft
+  outlineStreamRecoveryDismissed.add(recovery.streamId)
+  outlineStreamRecovery.value = null
+  addOutlineTraceEvent({
+    type: 'stream-recovery-draft-saved',
+    label: '断流内容已保存为草稿',
+    detail: JSON.stringify({
+      streamId: recovery.streamId,
+      draftLength: draft.length,
+      bytesReceived: recovery.bytesReceived,
+    })
+  })
+}
+
+function discardOutlineStreamRecovery() {
+  const recovery = outlineStreamRecovery.value
+  if (!recovery) return
+  outlineStreamRecoveryDismissed.add(recovery.streamId)
+  outlineStreamRecovery.value = null
+  addOutlineTraceEvent({
+    type: 'stream-recovery-discarded',
+    level: 'warn',
+    label: '断流内容已丢弃',
+    detail: JSON.stringify({
+      streamId: recovery.streamId,
+      bytesReceived: recovery.bytesReceived,
+    })
+  })
+}
 // The send-starting flag only suppresses duplicate UI submits. askAi is part
 // of that same send flow, so execution gating must use the generation state.
 const outlineExecutionLocked = computed(() =>
@@ -3420,6 +3560,7 @@ onMounted(async () => {
     })
   }
   await restoreOutlineContinuation()
+  await refreshOutlineStreamRecovery()
   const config = await pipelineStore.readStepConfig(0)
   workspaceAgentId.value = config.agentId
   workspaceSkillIds.value = config.skillIds
@@ -3427,9 +3568,14 @@ onMounted(async () => {
   workspaceSkillAgents.value = migrateSkillAgentBindings(config.skillAgents, { 0: config.skillIds })
   window.addEventListener('diff-locate', handleDiffLocate)
   window.addEventListener('style-analysis-request', handleStyleAnalysisRequest)
+  outlineStreamRecoveryTimer = setInterval(refreshOutlineStreamRecovery, 5000)
 })
 
 onUnmounted(() => {
+  if (outlineStreamRecoveryTimer) {
+    clearInterval(outlineStreamRecoveryTimer)
+    outlineStreamRecoveryTimer = null
+  }
   outlineViewport?.dispose()
   outlineViewport = null
   window.removeEventListener('diff-locate', handleDiffLocate)
@@ -4710,24 +4856,46 @@ function insertAtCursor(text: string) {
   })
 }
 
+function buildOutlineEntryDecisionTrace(
+  gate: OutlineInputGateState,
+  decision: OutlineEntryDecision,
+) {
+  return {
+    type: 'input-gate-decision',
+    level: decision.allowed ? 'info' as const : 'warn' as const,
+    label: '输入门控决策',
+    detail: [
+      `mode=${gate.mode}`,
+      `target=${decision.expectedSendTarget}`,
+      `runId=${gate.runId || 'none'}`,
+      `resumeToken=${gate.resumeToken ? 'present' : 'none'}`,
+      decision.allowed ? '' : `blocked=${decision.deferReason || 'unknown'}`,
+    ].filter(Boolean).join('; '),
+  }
+}
+
+function recordOutlineEntryDecision(
+  entry: OutlineInputEntryKind,
+  gate: OutlineInputGateState,
+  decision: OutlineEntryDecision,
+) {
+  if (decision.allowed) return
+  addOutlineTraceEvent({
+    ...buildOutlineEntryDecisionTrace(gate, decision),
+    detail: `entry=${entry}; ${buildOutlineEntryDecisionTrace(gate, decision).detail}`,
+  })
+}
+
 async function sendMessage() {
   if (outlineInputGateFlags.sendStarting) return
   const text = inputText.value.trim()
   const inputGate = outlineInputGate.value
-  if (!text || !inputGate.canSend) return
+  const entryDecision = resolveOutlineEntryDecision('send', inputGate)
+  recordOutlineEntryDecision('send', inputGate, entryDecision)
+  if (!text || !entryDecision.allowed) return
   outlineInputGateFlags.sendStarting = true
   try {
-    pendingOutlineInputGateDecision = {
-      type: 'input-gate-decision',
-      level: 'info',
-      label: '输入门控决策',
-      detail: [
-        `mode=${inputGate.mode}`,
-        `target=${inputGate.sendTarget}`,
-        `runId=${inputGate.runId || 'none'}`,
-        `resumeToken=${inputGate.resumeToken ? 'present' : 'none'}`,
-      ].join('; '),
-    }
+    pendingOutlineInputGateDecision = buildOutlineEntryDecisionTrace(inputGate, entryDecision)
     if (inputGate.mode === 'resume_run') {
       outlineInputGateFlags.runLease = 'same_run'
     }
@@ -4758,7 +4926,10 @@ async function sendMessage() {
 }
 
 async function regenerateMsg(index: number) {
-  if (isGenerating.value) {
+  const entryGate = outlineInputGate.value
+  const entryDecision = resolveOutlineEntryDecision('regenerate', entryGate)
+  recordOutlineEntryDecision('regenerate', entryGate, entryDecision)
+  if (!entryDecision.allowed) {
     await appConfirm.alert('正在生成中，请等待当前回复完成后再重生成')
     return
   }
@@ -7145,6 +7316,37 @@ function handleUnlockOutline() {
   margin: 0 0 var(--space-2) var(--space-1);
   color: var(--warning);
   font-size: var(--font-size-xs);
+}
+.ow-stream-recovery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-md, 6px);
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+}
+.ow-stream-recovery-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.ow-stream-recovery-btn {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm, 4px);
+  padding: var(--space-1) var(--space-3);
+  background: var(--background, transparent);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.ow-stream-recovery-btn.primary {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.ow-stream-recovery-btn:hover {
+  filter: brightness(0.97);
 }
 .ow-message-scroller {
   height: 100%;

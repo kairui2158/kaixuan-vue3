@@ -1,4 +1,5 @@
 import {
+  extractProviderErrorSummary,
   getProviderProtocol,
   type ProviderType,
 } from './providerProtocols'
@@ -37,6 +38,63 @@ export interface ProviderResponseContract {
   finishReason?: string
   raw?: any
   canceled: boolean
+}
+
+const PROVIDER_SOFT_ERROR_PATTERNS = [
+  /quota[_\s-]?(?:exhaust|exceeded|limit)/i,
+  /insufficient[_\s-]?(?:balance|credit|quota)/i,
+  /(?:balance|credit)[_\s-]?(?:exhaust|insufficient)/i,
+  /(?:plan|subscription)[_\s-]?(?:limit|exhaust|expired)/i,
+  /(?:额度|余额|配额|套餐|订阅)(?:已)?(?:耗尽|不足|到期|用完|超限)/,
+  /请(?:充值|续费|升级|购买).{0,24}(?:额度|余额|套餐|配额)?/,
+]
+
+export interface ProviderSoftFailureClassification {
+  softError: boolean
+  quota: boolean
+  abnormalZeroUsage: boolean
+}
+
+export function extractSoftProviderErrorBody(raw: any): { error?: any; message?: string } | null {
+  if (!raw || typeof raw !== 'object') return null
+  if (raw.error || raw.message || raw.msg) return raw
+  if (Array.isArray(raw.choices) && raw.choices.length === 0 && (raw.usage || raw.prompt_tokens || raw.completion_tokens)) {
+    return { message: JSON.stringify(raw).slice(0, 500) }
+  }
+  return null
+}
+
+function hasProviderSoftQuotaError(text: string): boolean {
+  return PROVIDER_SOFT_ERROR_PATTERNS.some(pattern => pattern.test(text))
+}
+
+function hasAbnormalZeroUsage(usage: any, hasText: boolean): boolean {
+  if (!usage || typeof usage !== 'object') return false
+  const inputTokens = Number(usage.inputTokens ?? usage.promptTokens ?? usage.prompt_tokens ?? usage.input_tokens)
+  const outputTokens = Number(usage.outputTokens ?? usage.completion_tokens ?? usage.completionTokens ?? usage.output_tokens)
+  const totalTokens = Number(usage.totalTokens ?? usage.total_tokens ?? usage.totalTokenCount)
+  const allNumbers = [inputTokens, outputTokens, totalTokens].filter(value => Number.isFinite(value))
+  if (allNumbers.length === 0) return false
+  return !hasText
+    && Number.isFinite(totalTokens) && totalTokens > 0
+    && inputTokens === 0
+    && outputTokens === 0
+}
+
+export function classifyProviderSoftFailure(
+  contract: ProviderResponseContract,
+): ProviderSoftFailureClassification {
+  const body = contract.ok
+    ? extractSoftProviderErrorBody(contract.raw)
+    : null
+  const hasContent = Boolean(contract.text || contract.reasoning)
+  const abnormalZeroUsage = contract.transportKind === 'stream'
+    && hasAbnormalZeroUsage(contract.usage, hasContent)
+  return {
+    softError: Boolean(body) && !hasContent,
+    quota: Boolean(body && hasProviderSoftQuotaError(extractProviderErrorSummary(body))) || abnormalZeroUsage,
+    abnormalZeroUsage,
+  }
 }
 
 export function normalizeProviderResponse(
