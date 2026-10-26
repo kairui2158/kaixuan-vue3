@@ -36,6 +36,7 @@ export interface CompositeProgressEventDetail {
   total: number
   status: CompositeStepState['status']
   attempts: number
+  traceRunId?: string | null
 }
 
 export function dispatchCompositeProgressEvent(detail: CompositeProgressEventDetail): void {
@@ -260,7 +261,8 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
         index: steps.length - 1,
         total: childPaths.length,
         status: stepState.status,
-        attempts: stepState.attempts
+        attempts: stepState.attempts,
+        traceRunId: currentOptions.traceRunId
       })
       let retryCount = 0
 
@@ -276,12 +278,13 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
         })
         stepState.output = result.output
         stepState.diagnostics = result.diagnostics
-        dispatchCompositeProgressEvent({
-          skillId: child.id,
-          index: steps.length - 1,
-          total: childPaths.length,
-          status: stepState.status,
-          attempts: stepState.attempts
+      dispatchCompositeProgressEvent({
+        skillId: child.id,
+        index: steps.length - 1,
+        total: childPaths.length,
+        status: stepState.status,
+        attempts: stepState.attempts,
+        traceRunId: currentOptions.traceRunId
         })
         if (result.apiMeta) lastApiMeta = result.apiMeta
 
@@ -384,7 +387,8 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
             index: steps.length - 1,
             total: childPaths.length,
             status: stepState.status,
-            attempts: stepState.attempts
+            attempts: stepState.attempts,
+            traceRunId: currentOptions.traceRunId
           })
           break
         }
@@ -401,12 +405,13 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
           }
         }
         transition('done', '步骤执行完成')
-        dispatchCompositeProgressEvent({
-          skillId: child.id,
-          index: steps.length - 1,
-          total: childPaths.length,
-          status: stepState.status,
-          attempts: stepState.attempts
+          dispatchCompositeProgressEvent({
+            skillId: child.id,
+            index: steps.length - 1,
+            total: childPaths.length,
+            status: stepState.status,
+            attempts: stepState.attempts,
+            traceRunId: currentOptions.traceRunId
         })
         currentInput = result.output
         output = result.output

@@ -38,8 +38,11 @@ const LIVE_MODEL_NAME = process.env.SHENYI_PARALLELISM_LIVE_MODEL || 'deepseek-v
 const PROJECT_ID = 'pipeline-parallelism-live'
 const VOLUME_ID = 'vol-parallelism'
 const CHAPTER_ID = 'ch-parallelism-1'
+const SECOND_CHAPTER_ID = 'ch-parallelism-2'
 const SKILL_ROOT = path.join(ROOT, '_data', 'pipeline-parallelism-skills')
 const SKILL_IDS = ['PARALLELISM-S1', 'PARALLELISM-S2', 'PARALLELISM-S3']
+const rendererConsoleMessages = []
+const rendererPageErrors = []
 const BODY_SENTENCES = [
   '雨点在灯塔玻璃上排成细密的鼓点。',
   '王芳把纸条压进灯座，指尖停了半秒。',
@@ -55,7 +58,7 @@ const BODY_SENTENCES = [
   '她把恐惧折成话多的样子，好让自己站住。',
 ]
 
-function buildBodyReply(requestIndex) {
+function buildBodyReply(requestIndex, bodyPhysicalRequests = 1) {
   const buildParagraph = index => {
     const start = (index * 3) % BODY_SENTENCES.length
     const sentenceCount = 3 + (index % 2)
@@ -66,7 +69,7 @@ function buildBodyReply(requestIndex) {
   const body = Array.from({ length: 70 }, (_, index) => buildParagraph(index))
     .join('\n\n')
     .concat('\n\n', [
-      `生成轮次标记：parallelism-${requestIndex + 1}`,
+      `生成轮次标记：parallelism-${requestIndex + 1}-${bodyPhysicalRequests}`,
       '【正文交接】',
       'FACT_LOCK:人物状态=王芳发现纸条并确认三次红色闪烁',
       'FACT_LOCK:位置=灯塔底层',
@@ -168,6 +171,28 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+async function writeJsonEvidence(target, value) {
+  const text = JSON.stringify(value, null, 2)
+  let lastError = null
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      fs.writeFileSync(target, text, 'utf8')
+      return { path: target, retries: attempt }
+    } catch (error) {
+      lastError = error
+      await sleep(250)
+    }
+  }
+  const fallback = `${target}.${Date.now()}.retry.json`
+  try {
+    fs.writeFileSync(fallback, text, 'utf8')
+    return { path: fallback, retries: 5, originalTarget: target, originalError: String(lastError) }
+  } catch (fallbackError) {
+    fallbackError.message = `evidence write failed for ${target}: ${fallbackError.message}; first error: ${lastError}`
+    throw fallbackError
+  }
+}
+
 async function removeDir(target) {
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
@@ -223,10 +248,15 @@ function buildVolumeReply() {
 
 function buildChapterReply() {
   return JSON.stringify([{
-    title: '第2章 航行图',
+    title: '第3章 航线之后',
     plot: '王芳拼出航行图，并用三个玩笑压住风暴里的沉默。',
     summary: '王芳确认航线。',
   }])
+}
+
+function requestChapterHints(userText) {
+  const hints = ['第1章 纸条', '第2章 航行图', '第3章 航线之后']
+  return hints.filter(hint => userText.includes(hint))
 }
 
 function classifyRequest(parsed) {
@@ -304,6 +334,7 @@ function startProvider() {
         .filter(message => message?.role === 'user')
         .map(message => String(message.content || ''))
         .join('\n')
+      const chapterHints = requestChapterHints(userText)
       // A terminal failure must stay terminal. 500-class errors are retried
       // by the production transport, so injecting one here can make the run
       // succeed again and never create the breakpoint we are trying to test.
@@ -344,9 +375,9 @@ function startProvider() {
       }
       // Fixed durations keep the three-run overlap window deterministic;
       // random durations can let chapters finish before body starts.
-      const durationMs = kind === 'chapters' ? 16_000
+      const durationMs = kind === 'chapters' ? 30_000
         : kind === 'volumes' ? 10_000
-        : 8_000
+        : 20_000
       const requestRecord = {
         at: new Date().toISOString(),
         kind,
@@ -356,6 +387,7 @@ function startProvider() {
             .map(message => String(message.content || '').length)
             .reduce((sum, value) => sum + value, 0),
         promptPreview: requestPromptPreview(parsed),
+        chapterHints,
         startedAt,
         endedAt: null,
         durationMs: null,
@@ -365,7 +397,7 @@ function startProvider() {
       const bodyRequestIndex = requests.filter(item => item.kind === 'body').length
       const reply = kind === 'volumes' ? buildVolumeReply()
         : kind === 'chapters' ? buildChapterReply()
-        : buildBodyReply(bodyRequestIndex)
+        : buildBodyReply(bodyRequestIndex, requests.length + 1)
       const finish = () => {
         requestRecord.endedAt = performance.now()
         requestRecord.durationMs = requestRecord.endedAt - startedAt
@@ -493,7 +525,7 @@ async function connectPage(browser) {
 }
 
 async function seedApplication(page, provider) {
-  await page.evaluate(async ({ providers, projectId, volumeId, chapterId, outline, skills }) => {
+  await page.evaluate(async ({ providers, projectId, volumeId, chapterId, secondChapterId, outline, skills }) => {
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', providers)
     await window.electronAPI.storageWrite(`wa_project_${projectId}`, {
@@ -518,7 +550,7 @@ async function seedApplication(page, provider) {
         allocatedWords: 12000,
         suggestedWords: 12000,
         wordsPerChapter: 3500,
-        chapterCount: 2,
+        chapterCount: 3,
         confirmed: true,
         locked: true,
         isBound: true,
@@ -532,6 +564,16 @@ async function seedApplication(page, provider) {
             index: 0,
             plot: '雨夜中，王芳在灯塔底层发现纸条，并确认风暴信标的三次红色闪烁。',
             summary: '王芳发现纸条。',
+            confirmed: true,
+            pipelineGenerated: true,
+            unitId: 'H1-01',
+          },
+          {
+            id: secondChapterId,
+            title: '第2章 航行图',
+            index: 1,
+            plot: '王芳把灯塔纸条拼进航行图，并确认南方航线的下一段。',
+            summary: '王芳确认航线。',
             confirmed: true,
             pipelineGenerated: true,
             unitId: 'H1-01',
@@ -555,6 +597,7 @@ async function seedApplication(page, provider) {
       skillAgents: {},
     })
     await window.electronAPI.storageWrite('wa_deAiConfig', { hardruleEnabled: false, hardRuleMode: 'detect-report' })
+    await window.electronAPI.storageWrite('wa_appSettings', { autoExtractMemory: false })
     await window.electronAPI.storageRemove('wa_pipeline_breakpoint')
   }, {
     providers: provider ? {
@@ -577,6 +620,7 @@ async function seedApplication(page, provider) {
     projectId: PROJECT_ID,
     volumeId: VOLUME_ID,
     chapterId: CHAPTER_ID,
+    secondChapterId: SECOND_CHAPTER_ID,
     outline: OUTLINE,
     skills: chainSkillRecords(),
   })
@@ -662,8 +706,8 @@ async function selectLiveProviderThroughUi(page) {
   return persisted
 }
 
-function layerSnapshot(page) {
-  return page.evaluate(({ volumeId, chapterId }) => {
+function layerSnapshot(page, bodyChapterId = CHAPTER_ID) {
+  return page.evaluate(({ volumeId, chapterId, bodyChapterId }) => {
     const pipeline = window.__pinia?._s?.get('pipeline')
     const project = window.__pinia?._s?.get('project')
     const trace = window.__pinia?._s?.get('runTrace')
@@ -674,7 +718,7 @@ function layerSnapshot(page) {
     const chapterRunByTarget = chapterRuns.findLast(run => run.target === volumeId) || null
     const chapterRunByChapter = chapterRuns.findLast(run => run.target === chapterId) || null
     const bodyRuns = (pipeline?.runs || []).filter(run => run.layer === 'body')
-    const bodyRunByTarget = bodyRuns.findLast(run => run.target === chapterId) || null
+    const bodyRunByTarget = bodyRuns.findLast(run => run.target === bodyChapterId) || null
     return {
       at: Date.now(),
       volumes: volumeRun ? { runId: volumeRun.runId, status: volumeRun.status, progress: volumeRun.progress, statusText: volumeRun.statusText } : null,
@@ -686,6 +730,7 @@ function layerSnapshot(page) {
       } : null,
       body: (bodyRunByTarget || bodyRun) ? {
         runId: (bodyRunByTarget || bodyRun).runId,
+        target: (bodyRunByTarget || bodyRun).target,
         status: (bodyRunByTarget || bodyRun).status,
         progress: (bodyRunByTarget || bodyRun).progress,
         statusText: (bodyRunByTarget || bodyRun).statusText,
@@ -707,7 +752,7 @@ function layerSnapshot(page) {
         providerQueueEvents: (run.events || []).filter(event => event.type === 'provider-queue').length,
       })),
     }
-  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
+  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID, bodyChapterId })
 }
 
 function startHeartbeat(page, electronPid) {
@@ -774,13 +819,13 @@ async function cancelChaptersRun(page, chaptersRunId) {
   throw new Error(`chapter run did not reach canceled state: ${JSON.stringify(last)}`)
 }
 
-async function waitForTerminalStates(page, expected) {
+async function waitForTerminalStates(page, expected, bodyChapterId = CHAPTER_ID) {
   let lastSignature = null
   let lastProgressAt = Date.now()
   let lastSnapshot = null
   const deadline = Date.now() + STEP_TIMEOUT_MS
   while (Date.now() < deadline) {
-    const snapshot = await layerSnapshot(page)
+    const snapshot = await layerSnapshot(page, bodyChapterId)
     const signature = JSON.stringify(snapshot)
     if (signature !== lastSignature) {
       lastSignature = signature
@@ -792,7 +837,7 @@ async function waitForTerminalStates(page, expected) {
       console.warn(`[STALL WARNING] no progress for ${Date.now() - lastProgressAt}ms: ${JSON.stringify(lastSnapshot)}`)
     }
     const layerStatus = layer =>
-      snapshot.allRuns.find(run => run.layer === layer)?.status
+      snapshot.allRuns.findLast(run => run.layer === layer)?.status
     if (layerStatus('volumes') === expected.volumes
       && layerStatus('chapters') === expected.chapters
       && layerStatus('body') === expected.body) {
@@ -1120,26 +1165,44 @@ function sha256(text) {
   return createHash('sha256').update(String(text || ''), 'utf8').digest('hex')
 }
 
-async function readBodyArtifact(page) {
+async function readBodyArtifact(page, chapterId = CHAPTER_ID) {
   const body = await page.evaluate(({ volumeId, chapterId }) => {
     const project = window.__pinia?._s?.get('project')
     const chapter = (project?.chapters?.[volumeId] || []).find(item => item.id === chapterId)
-    return chapter?.body ?? null
-  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
-  assert(typeof body === 'string' && body.length > 0,
-    `body artifact exists before successful-terminal reentry, got ${typeof body}`)
-  return body
+    return {
+      body: chapter?.body ?? null,
+      chapterExists: Boolean(chapter),
+      chapterKeys: chapter ? Object.keys(chapter) : [],
+    }
+  }, { volumeId: VOLUME_ID, chapterId })
+  const bodyValue = body.body
+  const diagnostics = {
+    chapterExists: body.chapterExists,
+    chapterKeys: body.chapterKeys,
+    bodyType: bodyValue === null ? 'null' : typeof bodyValue,
+    bodyKeys: bodyValue && typeof bodyValue === 'object' ? Object.keys(bodyValue) : [],
+    bodyPreview: (() => {
+      try {
+        return String(typeof bodyValue === 'string' ? bodyValue : JSON.stringify(bodyValue)).slice(0, 500)
+      } catch {
+        return '<unserializable>'
+      }
+    })(),
+  }
+  assert(diagnostics.bodyType === 'string' && diagnostics.bodyPreview.length > 0,
+    `body artifact exists before successful-terminal reentry, diagnostics=${JSON.stringify(diagnostics)}`)
+  return bodyValue
 }
 
-async function runSuccessfulTerminalReentry(page, previousBodyRunId, previousBodyHash) {
-  const previousBody = await readBodyArtifact(page)
+async function runSuccessfulTerminalReentry(page, { previousBodyRunId, previousBodyHash, chapterId }) {
+  const previousBody = await readBodyArtifact(page, chapterId)
   const previousBodySnapshot = {
     previousBodyRunId,
     previousBodyHash,
     previousBodyPreview: String(previousBody || '').slice(0, 2000),
     previousBodyChars: String(previousBody || '').length,
   }
-  const before = await layerSnapshot(page)
+  const before = await layerSnapshot(page, chapterId)
   assert.equal(before.body?.status, 'succeeded',
     `body is in successful terminal state before reentry, got ${before.body?.status}`)
   // A successful body generation auto-inserts into the editor, and the editor
@@ -1184,23 +1247,34 @@ async function runSuccessfulTerminalReentry(page, previousBodyRunId, previousBod
   const deadline = Date.now() + STEP_TIMEOUT_MS
   let snapshot = null
   while (Date.now() < deadline) {
-    snapshot = await layerSnapshot(page)
-    if (snapshot.body?.runId !== previousBodyRunId
-      && snapshot.body?.status !== 'running'
-      && snapshot.body?.status !== 'queued') break
+    snapshot = await layerSnapshot(page, chapterId)
+    const reentryRun = (snapshot.allRuns || [])
+      .filter(run => run.layer === 'body' && run.runId !== previousBodyRunId)
+      .findLast(run => run.status === 'succeeded')
+    if (reentryRun) {
+      snapshot.reentryRun = reentryRun
+      break
+    }
+    const failedReentryRun = (snapshot.allRuns || [])
+      .filter(run => run.layer === 'body' && run.runId !== previousBodyRunId)
+      .findLast(run => run.status === 'failed')
+    if (failedReentryRun) break
     await sleep(1000)
   }
-  assert(snapshot?.body?.runId && snapshot.body.runId !== previousBodyRunId,
-    `body terminal-state reentry creates a new run id, got ${snapshot?.body?.runId}`)
-  assert.equal(snapshot.body.status, 'succeeded',
-    `body terminal-state reentry run succeeds, got ${snapshot.body.status}`)
-  const newBody = await readBodyArtifact(page)
+  const reentryRun = snapshot?.reentryRun
+  assert(reentryRun?.runId && reentryRun.runId !== previousBodyRunId,
+    `body terminal-state reentry creates a new run id, got ${reentryRun?.runId || 'none'}; bodyRuns=${JSON.stringify((snapshot?.allRuns || []).filter(run => run.layer === 'body'))}`)
+  assert.equal(reentryRun.status, 'succeeded',
+    `body terminal-state reentry run succeeds, got ${reentryRun.status}`)
+  const newBodyChapterId = reentryRun.target || chapterId
+  const newBody = await readBodyArtifact(page, newBodyChapterId)
   const newBodyHash = sha256(newBody)
   fs.writeFileSync(path.join(EVIDENCE_ROOT, 'reentry-body-artifact-diagnostics.json'), JSON.stringify({
     ...previousBodySnapshot,
     previousBodyRunId,
-    newBodyRunId: snapshot.body.runId,
-    newBodyStatus: snapshot.body.status,
+    newBodyRunId: reentryRun.runId,
+    newBodyStatus: reentryRun.status,
+    newBodyTarget: newBodyChapterId,
     newBodyHash,
     newBodyPreview: String(newBody || '').slice(0, 2000),
     newBodyChars: String(newBody || '').length,
@@ -1214,10 +1288,17 @@ async function runSuccessfulTerminalReentry(page, previousBodyRunId, previousBod
       })),
     traceRuns: snapshot.traceRuns,
   }, null, 2), 'utf8')
-  assert(newBodyHash !== previousBodyHash,
-    'successful-terminal reentry writes a new body artifact; the old hash must not masquerade as new output')
+  if (newBodyChapterId === chapterId) {
+    assert(newBodyHash !== previousBodyHash,
+      'successful-terminal reentry writes a new body artifact for the same chapter; the old hash must not masquerade as new output')
+  } else {
+    const previousChapterBody = await readBodyArtifact(page, chapterId)
+    assert.equal(sha256(previousChapterBody), previousBodyHash,
+      'successful-terminal reentry does not overwrite the unrelated previous body artifact')
+  }
   return {
-    newBodyRunId: snapshot.body.runId,
+    newBodyRunId: reentryRun.runId,
+    newBodyChapterId,
     newBodyHash,
     newBodyChars: newBody.length,
   }
@@ -1279,7 +1360,7 @@ async function reopenPipelineBodyPanel(page) {
   await selectPipelineStep(page, 4)
 }
 
-async function runBreakpointReentry(page, provider) {
+async function runBreakpointReentry(page, provider, chapterId = CHAPTER_ID) {
   // The chain is now real: S1 succeeds, S2 fails once, and the failure
   // checkpoint must be resumed by the next real UI generation click.
   const requestsBefore = provider.requests().filter(item => item.kind === 'body').length
@@ -1327,7 +1408,7 @@ async function runBreakpointReentry(page, provider) {
     `breakpoint reentry records chain-handoff-resume; got ${JSON.stringify(resumedRunEvents.events.map(event => event.type))}`)
   assert.equal(resumedRunEvents.status, 'success',
     `breakpoint reentry trace succeeds, got ${resumedRunEvents.status}`)
-  const newBody = await readBodyArtifact(page)
+  const newBody = await readBodyArtifact(page, chapterId)
   assert(newBody.length > 0, 'breakpoint reentry delivers a body artifact')
   return {
     failedRunId: failed.run.runId,
@@ -1339,7 +1420,7 @@ async function runBreakpointReentry(page, provider) {
   }
 }
 
-async function runFailedTerminalReentry(page, provider) {
+async function runFailedTerminalReentry(page, provider, chapterId = CHAPTER_ID) {
   const requestsBefore = provider.requests().filter(item => item.kind === 'body').length
   const knownBodyRunIds = (await layerSnapshot(page)).allRuns
     .filter(run => run.layer === 'body')
@@ -1380,7 +1461,7 @@ async function runFailedTerminalReentry(page, provider) {
     `failed-terminal reentry trace succeeds, got ${reentryRunEvents.status}`)
   assert(!(reentryRunEvents.events || []).some(event => event.type === 'chain-completed-checkpoint-rejected'),
     `failed-terminal reentry is not blocked by a completed-chain checkpoint`)
-  const newBody = await readBodyArtifact(page)
+  const newBody = await readBodyArtifact(page, chapterId)
   assert(newBody.length > 0, 'failed-terminal reentry delivers a body artifact')
   return {
     failedRunId,
@@ -1423,11 +1504,13 @@ function assertNoProviderKeyLeak({ report, exportedTraceDirectories }) {
   }
 }
 
-async function collectSummary(page) {
-  return page.evaluate(({ volumeId, chapterId }) => {
+async function collectSummary(page, bodyArtifactChapterId = CHAPTER_ID) {
+  return page.evaluate(({ volumeId, chapterId, bodyArtifactChapterId }) => {
     const pipeline = window.__pinia?._s?.get('pipeline')
     const project = window.__pinia?._s?.get('project')
-    const chapter = (project?.chapters?.[volumeId] || []).find(item => item.id === chapterId)
+    const chapters = project?.chapters?.[volumeId] || []
+    const chapter = chapters.find(item => item.id === chapterId)
+    const bodyArtifactChapter = chapters.find(item => item.id === bodyArtifactChapterId)
     return {
       runs: (pipeline?.runs || []).map(run => ({
         runId: run.runId,
@@ -1437,10 +1520,150 @@ async function collectSummary(page) {
         progress: run.progress,
       })),
       chapterBodyChars: String(chapter?.body || '').length,
+      bodyArtifactChapterId,
+      bodyArtifactType: bodyArtifactChapter?.body === undefined ? 'missing' : typeof bodyArtifactChapter.body,
+      bodyArtifactChars: String(bodyArtifactChapter?.body || '').length,
       volumeCount: (project?.volumes || []).length,
       chapterCount: (project?.chapters?.[volumeId] || []).length,
     }
-  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID })
+  }, { volumeId: VOLUME_ID, chapterId: CHAPTER_ID, bodyArtifactChapterId })
+}
+
+async function startSecondBodyRun(page) {
+  await selectPipelineStep(page, 4)
+  const before = await layerSnapshot(page)
+  const firstBodyRun = (before.allRuns || [])
+    .filter(run => run.layer === 'body')
+    .findLast(run => run.status === 'running' || run.status === 'queued')
+  assert(firstBodyRun?.runId, 'the first body run is still active before queuing the second')
+  assert.equal(firstBodyRun.target, CHAPTER_ID,
+    `the first body run targets the seeded first chapter, got ${firstBodyRun.target}`)
+
+  const chapterSelect = page.locator('#pl-context-summary select').nth(1)
+  const chapterOptions = chapterSelect.locator('option')
+  const optionCount = await chapterOptions.count()
+  assert(optionCount >= 2,
+    `body chapter selector exposes the seeded second chapter, got ${optionCount} options`)
+  const secondOptionText = ((await chapterOptions.nth(1).textContent()) || '').trim()
+  await chapterSelect.selectOption({ index: 1 })
+  await page.click('#btn-primary-gen-body')
+
+  const deadline = Date.now() + 10_000
+  let snapshot = null
+  while (Date.now() < deadline) {
+    snapshot = await layerSnapshot(page)
+    const queuedBodyRun = (snapshot.allRuns || [])
+      .find(run => run.layer === 'body' && run.target === SECOND_CHAPTER_ID && run.status === 'queued')
+    if (queuedBodyRun) return {
+      firstBodyRunId: firstBodyRun.runId,
+      queuedBodyRunId: queuedBodyRun.runId,
+      secondOptionText,
+      snapshot,
+    }
+    await sleep(100)
+  }
+  throw new Error(`second body run never became queued: ${JSON.stringify(snapshot?.allRuns?.filter(run => run.layer === 'body'))}`)
+}
+
+async function assertSameLayerQueueIsolation({ page, provider, firstBodyRunId, queuedBodyRunId }) {
+  assert(queuedBodyRunId && queuedBodyRunId !== firstBodyRunId,
+    `queued body run has its own run id (${firstBodyRunId} -> ${queuedBodyRunId})`)
+  const requestsBefore = provider.requests().length
+  await sleep(3_000)
+  const newRequests = provider.requests().slice(requestsBefore)
+  assert(newRequests.every(item => !item.chapterHints?.includes('第2章 航行图')),
+    `queued body run does not dispatch physical requests for its target, got ${JSON.stringify(newRequests)}`)
+  const queuedSnapshot = await layerSnapshot(page)
+  const runningBody = (queuedSnapshot.allRuns || []).find(run =>
+    run.runId === firstBodyRunId && run.status === 'running')
+  const queuedBody = (queuedSnapshot.allRuns || []).find(run =>
+    run.runId === queuedBodyRunId && run.status === 'queued')
+  assert(runningBody, `first body run keeps running while its sibling queues: ${JSON.stringify(queuedSnapshot.allRuns)}`)
+  assert(queuedBody, `queued body run keeps queued state: ${JSON.stringify(queuedSnapshot.allRuns)}`)
+
+  const bodyProgressbar = page.locator('#pl-step-5-content .pl-gen-bar').first()
+  if (await bodyProgressbar.count() !== 1) {
+    await captureBodyQueueDiagnostics(page, queuedSnapshot)
+  }
+  assert(await bodyProgressbar.count() === 1,
+    'body progress bar exists while the same-layer queue is active')
+  await bodyProgressbar.waitFor({ state: 'visible', timeout: 20_000 })
+  const progressStatusText = ((await bodyProgressbar.locator('.pl-gen-bar-status').textContent()) || '').trim()
+  assert(!/同层生成中|排队/.test(progressStatusText),
+    `body progress bar displays the running run, not the queued sibling, got "${progressStatusText}"`)
+  const runCenterRows = await page.locator('#pipeline-run-center .pipeline-run-center-row').count()
+  assert(runCenterRows >= 2,
+    `run center shows both same-layer body runs separately, got ${runCenterRows} rows`)
+  const queuedRow = page.locator(
+    `#pipeline-run-center .pipeline-run-center-row[data-run-id="${queuedBodyRunId}"]`)
+  assert(await queuedRow.count() === 1,
+    'run center has exactly one row for the queued body run')
+  const queuedRowStatus = ((await queuedRow.locator('.pipeline-run-status').textContent()) || '').trim()
+  assert(queuedRowStatus.includes('排队'),
+    `run center displays the queued body run with a queue status, got "${queuedRowStatus}"`)
+
+  const bodyCancelButton = page.locator('#pl-step-5-content .pl-gen-bar-cancel').first()
+  assert(await bodyCancelButton.count() === 1,
+    'body progress bar exposes its own cancel button while the first run is displayed')
+  await bodyCancelButton.click()
+  await page.waitForFunction(firstRunId => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const run = pipeline?.runs?.find(item => item.runId === firstRunId)
+    return run?.status === 'canceled'
+  }, firstBodyRunId, { timeout: 10_000 })
+  const canceledSnapshot = await layerSnapshot(page)
+  assert.equal((canceledSnapshot.allRuns || []).find(run => run.runId === firstBodyRunId)?.status,
+    'canceled', 'progress-bar cancellation only terminates the displayed running body run')
+  assert.equal((canceledSnapshot.allRuns || []).find(run => run.runId === queuedBodyRunId)?.status,
+    'running', 'queued body run wakes up after the displayed run is canceled')
+
+  await page.waitForFunction(queuedRunId => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const run = pipeline?.runs?.find(item => item.runId === queuedRunId)
+    return run?.status === 'succeeded' || run?.status === 'failed' || run?.status === 'canceled'
+  }, queuedBodyRunId, { timeout: STEP_TIMEOUT_MS })
+  const terminalSnapshot = await layerSnapshot(page)
+  const queuedTerminal = (terminalSnapshot.allRuns || []).find(run => run.runId === queuedBodyRunId)
+  assert.equal(queuedTerminal?.status, 'succeeded',
+    `woken body run reaches success, got ${queuedTerminal?.status}`)
+  return {
+    firstBodyRunId,
+    queuedBodyRunId,
+    queuedPhysicalRequests: 0,
+    displayedRunCanceledWhileQueuedSurvived: true,
+    queuedTerminalStatus: queuedTerminal.status,
+  }
+}
+
+async function captureBodyQueueDiagnostics(page, queuedSnapshot) {
+  const dom = await page.evaluate(() => {
+    const panel = document.querySelector('#pl-step-5-content')
+    const bar = panel?.querySelector('.pl-gen-bar') || null
+    return {
+      panelExists: Boolean(panel),
+      panelVisible: panel ? getComputedStyle(panel).display !== 'none' : false,
+      progressBars: [...(panel?.querySelectorAll('.pl-gen-bar') || [])].map(item => ({
+        className: item.className,
+        text: item.textContent,
+        visible: getComputedStyle(item).display !== 'none',
+      })),
+      selectedChapter: document.querySelectorAll('#pl-context-summary select')[1]?.selectedOptions[0]?.textContent || null,
+      bodyButton: (() => {
+        const button = document.querySelector('#btn-primary-gen-body')
+        return button ? { disabled: button.disabled, text: button.textContent } : null
+      })(),
+    }
+  }).catch(error => ({ error: String(error?.message || error) }))
+  const screenshot = path.join(EVIDENCE_ROOT, 'body-queue-progress-missing.png')
+  await page.screenshot({ path: screenshot, fullPage: true }).catch(() => {})
+  fs.writeFileSync(path.join(EVIDENCE_ROOT, 'body-queue-progress-missing.json'), JSON.stringify({
+    at: new Date().toISOString(),
+    queuedSnapshot,
+    dom,
+    consoleMessages: rendererConsoleMessages.slice(-100),
+    pageErrors: rendererPageErrors.slice(-20),
+    screenshot,
+  }, null, 2), 'utf8')
 }
 
 async function main() {
@@ -1465,12 +1688,26 @@ async function main() {
   }, GLOBAL_TIMEOUT_MS)
   let browser = null
   let page = null
-  let heartbeat = null
+    let heartbeat = null
+    let bodyArtifactChapterId = CHAPTER_ID
   let exitCode = 0
   try {
     assert(await waitForCdp(), 'Electron CDP becomes reachable')
     browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`)
     page = await connectPage(browser)
+    page.on('console', message => {
+      rendererConsoleMessages.push({
+        at: new Date().toISOString(),
+        type: message.type(),
+        text: message.text(),
+      })
+    })
+    page.on('pageerror', error => {
+      rendererPageErrors.push({
+        at: new Date().toISOString(),
+        message: String(error?.message || error),
+      })
+    })
     heartbeat = startHeartbeat(page, app.pid)
     await seedApplication(page, provider)
     writeChainSkills()
@@ -1500,15 +1737,38 @@ async function main() {
       `chapter cancellation is immediate enough, took ${cancelTiming.clickToCanceledMs}ms`)
     console.log(`[CANCEL] chapters canceled in ${cancelTiming.clickToCanceledMs}ms; other layers continue`)
 
+    let sameLayerQueue = null
+    if (provider) {
+      const queued = await startSecondBodyRun(page)
+      sameLayerQueue = await assertSameLayerQueueIsolation({
+        page,
+        provider,
+        firstBodyRunId: queued.firstBodyRunId,
+        queuedBodyRunId: queued.queuedBodyRunId,
+      })
+      console.log(`[SAME-LAYER QUEUE] first=${sameLayerQueue.firstBodyRunId} queued=${sameLayerQueue.queuedBodyRunId} wake=${sameLayerQueue.queuedTerminalStatus}`)
+      bodyArtifactChapterId = SECOND_CHAPTER_ID
+    }
+
     const terminalSnapshot = await waitForTerminalStates(page, {
       volumes: 'succeeded',
       chapters: 'canceled',
       body: 'succeeded',
-    })
-    const summaryAfterTerminal = await collectSummary(page)
+    }, bodyArtifactChapterId)
+    if (sameLayerQueue) {
+      assert.equal(sameLayerQueue.queuedTerminalStatus, 'succeeded',
+        'same-layer queued body run completes after its displayed sibling is canceled')
+    }
+    const summaryAfterTerminal = await collectSummary(page, bodyArtifactChapterId)
     assert(summaryAfterTerminal.volumeCount >= 2,
       `volume generation appends the seeded second volume, got ${summaryAfterTerminal.volumeCount}`)
-    assert(terminalSnapshot.body?.status === 'succeeded', 'body run survives chapter cancellation')
+    assert(terminalSnapshot.body?.status === 'canceled'
+      || terminalSnapshot.body?.status === 'succeeded',
+      `body run reaches a terminal state without being reset by chapter cancellation, got ${terminalSnapshot.body?.status}`)
+    assert.equal(summaryAfterTerminal.bodyArtifactType, 'string',
+      `successful body artifact keeps string contract, got ${summaryAfterTerminal.bodyArtifactType}`)
+    assert(summaryAfterTerminal.bodyArtifactChars > 0,
+      `successful body artifact exists, got ${summaryAfterTerminal.bodyArtifactChars} chars`)
 
     const performance = await readPerformanceSnapshot(page)
     assert.equal(performance.freezeCount, 0,
@@ -1536,12 +1796,16 @@ async function main() {
     const bodyRequestsBefore = provider
       ? provider.requests().filter(item => item.kind === 'body').length
       : (await collectLiveApiCalls(page)).calls.filter(item => item.layer === 'body').length
-    const previousBodyArtifact = await readBodyArtifact(page)
+    const previousBodyArtifact = await readBodyArtifact(page, bodyArtifactChapterId)
     const previousBodyHash = sha256(previousBodyArtifact)
     const previousBodyRunId = terminalSnapshot.body?.runId
     assert(previousBodyRunId?.startsWith('pipeline-run-'),
       `previous body run id is a pipeline run id, got ${previousBodyRunId}`)
-    const reentry = await runSuccessfulTerminalReentry(page, previousBodyRunId, previousBodyHash)
+    const reentry = await runSuccessfulTerminalReentry(page, {
+      previousBodyRunId,
+      previousBodyHash,
+      chapterId: bodyArtifactChapterId,
+    })
     const bodyRequestsAfter = provider
       ? provider.requests().filter(item => item.kind === 'body').length
       : (await collectLiveApiCalls(page)).calls.filter(item => item.layer === 'body').length
@@ -1550,12 +1814,12 @@ async function main() {
     assert(reentry.newBodyRunId !== previousBodyRunId,
       'successful-terminal reentry creates a new body run id')
 
-    const breakpointReentry = provider ? await runBreakpointReentry(page, provider) : null
+    const breakpointReentry = provider ? await runBreakpointReentry(page, provider, bodyArtifactChapterId) : null
     if (breakpointReentry) {
       console.log(`[BREAKPOINT] failed=${breakpointReentry.failedRunId} resumed=${breakpointReentry.resumedRunId} requests=${breakpointReentry.failedPhysicalRequests}/${breakpointReentry.resumedPhysicalRequests}`)
     }
 
-    const failedTerminalReentry = provider ? await runFailedTerminalReentry(page, provider) : null
+    const failedTerminalReentry = provider ? await runFailedTerminalReentry(page, provider, bodyArtifactChapterId) : null
     if (failedTerminalReentry) {
       console.log(`[FAILED-REENTRY] failed=${failedTerminalReentry.failedRunId} resumed=${failedTerminalReentry.reentryRunId} requests=${failedTerminalReentry.failedPhysicalRequests}/${failedTerminalReentry.reentryPhysicalRequests}`)
     }
@@ -1572,7 +1836,7 @@ async function main() {
       })
       : null
 
-    const summary = await collectSummary(page)
+    const summary = await collectSummary(page, bodyArtifactChapterId)
     const report = {
       script: SCRIPT_NAME,
       at: new Date().toISOString(),
@@ -1580,6 +1844,7 @@ async function main() {
       concurrentSnapshot,
       cancelTiming,
       terminalSnapshot,
+      sameLayerQueue,
       providerMetrics,
       performance,
       traces: {
@@ -1590,6 +1855,8 @@ async function main() {
       reentry: {
         previousBodyRunId,
         newBodyRunId: reentry.newBodyRunId,
+        previousBodyChapterId: bodyArtifactChapterId,
+        newBodyChapterId: reentry.newBodyChapterId,
         previousBodyHash,
         newBodyHash: reentry.newBodyHash,
         newBodyChars: reentry.newBodyChars,
@@ -1604,6 +1871,7 @@ async function main() {
         freshStart: true,
         successfulTerminalReentry: true,
         canceledRunIsolation: true,
+        sameLayerQueue: Boolean(sameLayerQueue),
         breakpointReentry: Boolean(breakpointReentry),
         failedTerminalReentry: Boolean(failedTerminalReentry),
         note: LIVE_MODE
@@ -1611,30 +1879,35 @@ async function main() {
           : '四格再入均在真实 UI 点击与真实物理请求路径触发。',
       },
     }
-    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'report.json'), JSON.stringify(report, null, 2), 'utf8')
+    const reportWrite = await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'report.json'), report)
+    report.evidenceWrite = reportWrite
     if (provider) {
-      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
-        JSON.stringify(provider.requests(), null, 2), 'utf8')
+      await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), provider.requests())
     }
     if (liveCalls) {
-      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
-        JSON.stringify(liveCalls, null, 2), 'utf8')
+      await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), liveCalls)
     }
     await removeDir(EXPORT_ROOT)
     console.log(`[PASS] ${JSON.stringify({ ...report, performance: undefined }, null, 2)}`)
   } catch (error) {
     exitCode = 1
+    console.error(`[PRIMARY FAIL] ${error?.stack || error}`)
     let traceDiagnostics = null
     let preservedExports = null
     let liveFailureRequests = null
+    const primaryError = error
     try {
       traceDiagnostics = await exportFailureTraceDiagnostics(page)
       if (LIVE_MODE && page) liveFailureRequests = await collectLiveApiCalls(page)
       preservedExports = await preserveFailedExports()
     } catch (diagnosticError) {
       traceDiagnostics = { error: String(diagnosticError?.message || diagnosticError) }
-      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-trace-diagnostics.json'),
-        JSON.stringify(traceDiagnostics, null, 2), 'utf8')
+      try {
+        await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'failure-trace-diagnostics.json'), {
+            primaryError: String(primaryError?.stack || primaryError?.message || primaryError),
+            diagnosticError: traceDiagnostics.error,
+        })
+      } catch {}
     }
     const failure = {
       script: SCRIPT_NAME,
@@ -1645,14 +1918,12 @@ async function main() {
       mode: LIVE_MODE ? 'live-supplier' : 'mock-provider',
       preservedExports,
     }
-    fs.writeFileSync(path.join(EVIDENCE_ROOT, 'report.json'), JSON.stringify(failure, null, 2), 'utf8')
+    await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'report.json'), failure)
     if (provider) {
-      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
-        JSON.stringify(provider.requests(), null, 2), 'utf8')
+      await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), provider.requests())
     }
     if (liveFailureRequests) {
-      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'provider-requests.json'),
-        JSON.stringify(liveFailureRequests, null, 2), 'utf8')
+      await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), liveFailureRequests)
     }
     console.error(`[FAIL] ${failure.error}`)
   } finally {

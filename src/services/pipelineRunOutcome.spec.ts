@@ -44,6 +44,30 @@ describe('resolvePipelineRunOutcome', () => {
     expect(outcome.recoveredFromDegraded).toBe(false)
   })
 
+  it('lets the owning pipeline run failure override a locally successful trace', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      pipelineRunStatus: 'failed',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('failed')
+  })
+
+  it('keeps the owning pipeline run cancellation even when API calls report success', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      pipelineRunStatus: 'canceled',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('canceled')
+  })
+
   it('keeps a hard_signal_unresolved body degraded even after artifact acceptance', () => {
     const outcome = resolvePipelineRunOutcome({
       runStatus: '',

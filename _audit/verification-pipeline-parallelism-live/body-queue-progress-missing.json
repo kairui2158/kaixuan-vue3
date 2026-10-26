@@ -1,0 +1,145 @@
+{
+  "at": "2026-10-26T00:58:11.418Z",
+  "queuedSnapshot": {
+    "at": 1792976291283,
+    "volumes": {
+      "runId": "pipeline-run-1792976286971-1",
+      "status": "running",
+      "progress": 10,
+      "statusText": "AI生成卷纲中"
+    },
+    "chapters": {
+      "runId": "pipeline-run-1792976287233-2",
+      "status": "canceled",
+      "progress": 67,
+      "statusText": "canceled"
+    },
+    "body": {
+      "runId": "pipeline-run-1792976287591-3",
+      "status": "running",
+      "progress": 20,
+      "statusText": "已获得供应商槽位，正在请求供应商"
+    },
+    "allRuns": [
+      {
+        "runId": "pipeline-run-1792976286971-1",
+        "layer": "volumes",
+        "target": "all",
+        "status": "running",
+        "progress": 10
+      },
+      {
+        "runId": "pipeline-run-1792976287233-2",
+        "layer": "chapters",
+        "target": "vol-parallelism",
+        "status": "canceled",
+        "progress": 67
+      },
+      {
+        "runId": "pipeline-run-1792976287591-3",
+        "layer": "body",
+        "target": "ch-parallelism-1",
+        "status": "running",
+        "progress": 20
+      },
+      {
+        "runId": "pipeline-run-1792976288239-4",
+        "layer": "body",
+        "target": "ch-parallelism-2",
+        "status": "queued",
+        "progress": 0
+      }
+    ],
+    "chapterCount": 2,
+    "traceRuns": [
+      {
+        "id": "run-1792976287608-28",
+        "pipelineRunId": "pipeline-run-1792976287591-3",
+        "step": 4,
+        "status": "running",
+        "apiCalls": 1,
+        "providerQueueEvents": 1
+      },
+      {
+        "id": "run-1792976287246-14",
+        "pipelineRunId": "pipeline-run-1792976287233-2",
+        "step": 3,
+        "status": "canceled",
+        "apiCalls": 1,
+        "providerQueueEvents": 2
+      },
+      {
+        "id": "run-1792976286992-1",
+        "pipelineRunId": "pipeline-run-1792976286971-1",
+        "step": 2,
+        "status": "running",
+        "apiCalls": 1,
+        "providerQueueEvents": 1
+      }
+    ]
+  },
+  "dom": {
+    "panelExists": true,
+    "panelVisible": true,
+    "progressBars": [],
+    "selectedChapter": "第2章 航行图",
+    "bodyButton": {
+      "disabled": false,
+      "text": "AI生成正文"
+    }
+  },
+  "consoleMessages": [
+    {
+      "at": "2026-10-26T00:58:01.827Z",
+      "type": "log",
+      "text": "[OK] SkillValidators loaded"
+    },
+    {
+      "at": "2026-10-26T00:58:01.833Z",
+      "type": "log",
+      "text": "[OK] SkillExecutionEngine loaded"
+    },
+    {
+      "at": "2026-10-26T00:58:01.926Z",
+      "type": "info",
+      "text": "诊断日志已启动 | {\"level\":2,\"enabled\":true}"
+    },
+    {
+      "at": "2026-10-26T00:58:03.623Z",
+      "type": "log",
+      "text": "[OK] SkillValidators loaded"
+    },
+    {
+      "at": "2026-10-26T00:58:03.625Z",
+      "type": "log",
+      "text": "[OK] SkillExecutionEngine loaded"
+    },
+    {
+      "at": "2026-10-26T00:58:03.649Z",
+      "type": "info",
+      "text": "诊断日志已启动 | {\"level\":2,\"enabled\":true}"
+    },
+    {
+      "at": "2026-10-26T00:58:07.732Z",
+      "type": "log",
+      "text": "[PIPELINE] chain step 1/3 = P1 骨架（文件夹）"
+    },
+    {
+      "at": "2026-10-26T00:58:07.883Z",
+      "type": "error",
+      "text": "AI call: purpose=generate provider=parallelism-provider model=parallelism-model 588ms FAIL | {\"providerId\":\"parallelism-provider\",\"purpose\":\"generate\",\"model\":\"parallelism-model\",\"durationMs\":588,\"skillId\":\"compose\",\"result\":\"用户取消\",\"providerType\":\"openai-compatible\",\"transport\":\"main-process\",\"finalUrl\":\"http://127.0.0.1:2079/v1/chat/completions\"}"
+    },
+    {
+      "at": "2026-10-26T00:58:07.884Z",
+      "type": "error",
+      "text": "API 调用: model=parallelism-model status=error 588ms | {\"model\":\"parallelism-model\",\"tokens\":0,\"elapsed\":588,\"status\":\"error\",\"err\":\"用户取消\"}"
+    },
+    {
+      "at": "2026-10-26T00:58:08.543Z",
+      "type": "warning",
+      "text": "[pipeline] skill step dropped because no run owns the trace {skillId: PARALLELISM-S1, index: 0, total: 1, status: running, traceRunId: run-1792976287608-28}"
+    }
+  ],
+  "pageErrors": [],
+  "screenshot": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-pipeline-parallelism-live\\body-queue-progress-missing.png"
+}

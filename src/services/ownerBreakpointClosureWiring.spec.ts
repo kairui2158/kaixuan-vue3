@@ -32,7 +32,7 @@ describe('owner breakpoint lifecycle closure wiring', () => {
   it('keeps the no-skill compose call a first-class unique body generator step', () => {
     expect(source).toContain("declaredRole: 'generator'")
     expect(source).toContain('composeArtifactContext')
-    expect(source).toContain('currentBodyGeneratorStepIndex.value = 0')
+    expect(source).toContain('setBodyGeneratorStepIndexForRun(pipelineRunId, 0)')
   })
 
   it('passes the orchestrator execution plan into every body API call', () => {
@@ -67,7 +67,7 @@ describe('owner breakpoint lifecycle closure wiring', () => {
 
   it('treats missing body contracts and multi-step generator ledgers as terminal configuration errors', () => {
     expect(source).toContain("type: 'body-chain-contract-missing' | 'body-generator-ledger-missing'")
-    expect(source).toContain('if (step === 4 && !currentBodyChainContract.value && templates.length > 1)')
+    expect(source).toContain('if (step === 4 && !bodyChainContractForRun(pipelineRunId) && templates.length > 1)')
     expect(source).toContain('const bodyChainTotalSteps = getStepSkillTemplates(4).length')
     expect(source).toContain('if (bodyChainTotalSteps > 1 && !bodyChainContract)')
     expect(source).toContain('if (!authoritativeGeneratorMetadata && templates.length > 1)')

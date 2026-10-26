@@ -7,18 +7,26 @@ const pipelineStoreSource = readFileSync(new URL('../stores/pipeline.ts', import
 describe('pipeline progress readers', () => {
   it('production progress bars read per-layer run slots, not the global progress scalar', () => {
     expect(pipelineSource).not.toContain(':progress="pipelineStore.generationProgress"')
-    expect(pipelineSource).toContain(':progress="pipelineStore.activeSettingsRun?.progress ?? 0"')
-    expect(pipelineSource).toContain(':progress="pipelineStore.activeVolumesRun?.progress ?? 0"')
-    expect(pipelineSource).toContain(':progress="pipelineStore.activeChaptersRun?.progress ?? 0"')
-    expect(pipelineSource).toContain(':progress="pipelineStore.activeBodyRun?.progress ?? 0"')
+    expect(pipelineSource).not.toContain(':progress="pipelineStore.activeSettingsRun?.progress ?? 0"')
+    expect(pipelineSource).not.toContain(':progress="pipelineStore.activeVolumesRun?.progress ?? 0"')
+    expect(pipelineSource).not.toContain(':progress="pipelineStore.activeChaptersRun?.progress ?? 0"')
+    expect(pipelineSource).not.toContain(':progress="pipelineStore.activeBodyRun?.progress ?? 0"')
+    expect(pipelineSource).toContain(':progress="displayedRunForStep(1)?.progress ?? 0"')
+    expect(pipelineSource).toContain(':progress="displayedRunForStep(2)?.progress ?? 0"')
+    expect(pipelineSource).toContain(':progress="displayedRunForStep(3)?.progress ?? 0"')
+    expect(pipelineSource).toContain(':progress="displayedRunForStep(4)?.progress ?? 0"')
   })
 
-  it('layer cancel actions target the layer run id', () => {
+  it('layer cancel actions target the displayed run id', () => {
     expect(pipelineSource).not.toContain('@cancel="pipelineStore.cancelGeneration()"')
-    expect(pipelineSource).toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeSettingsRun?.runId)"')
-    expect(pipelineSource).toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeVolumesRun?.runId)"')
-    expect(pipelineSource).toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeChaptersRun?.runId)"')
-    expect(pipelineSource).toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeBodyRun?.runId)"')
+    expect(pipelineSource).not.toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeSettingsRun?.runId)"')
+    expect(pipelineSource).not.toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeVolumesRun?.runId)"')
+    expect(pipelineSource).not.toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeChaptersRun?.runId)"')
+    expect(pipelineSource).not.toContain('@cancel="pipelineStore.cancelGeneration(pipelineStore.activeBodyRun?.runId)"')
+    expect(pipelineSource).toContain('@cancel="cancelDisplayedRun(1)"')
+    expect(pipelineSource).toContain('@cancel="cancelDisplayedRun(2)"')
+    expect(pipelineSource).toContain('@cancel="cancelDisplayedRun(3)"')
+    expect(pipelineSource).toContain('@cancel="cancelDisplayedRun(4)"')
   })
 
   it('cross-layer selectors stay enabled while another layer is running', () => {
@@ -31,10 +39,10 @@ describe('pipeline progress readers', () => {
 
   it('progress feedback visibility is scoped to the owning layer run', () => {
     expect(pipelineSource).not.toContain(':isGenerating="pipelineStore.isGenerating"')
-    expect(pipelineSource).toContain(':isGenerating="Boolean(pipelineStore.activeSettingsRun)"')
-    expect(pipelineSource).toContain(':isGenerating="Boolean(pipelineStore.activeVolumesRun)"')
-    expect(pipelineSource).toContain(':isGenerating="Boolean(pipelineStore.activeChaptersRun)"')
-    expect(pipelineSource).toContain(':isGenerating="Boolean(pipelineStore.activeBodyRun)"')
+    expect(pipelineSource).toContain(':isGenerating="isDisplayedRunCancellable(1)"')
+    expect(pipelineSource).toContain(':isGenerating="isDisplayedRunCancellable(2)"')
+    expect(pipelineSource).toContain(':isGenerating="isDisplayedRunCancellable(3)"')
+    expect(pipelineSource).toContain(':isGenerating="isDisplayedRunCancellable(4)"')
   })
 
   it('chapter continuation is blocked only by the active chapter run for that volume', () => {
@@ -68,5 +76,38 @@ describe('pipeline progress readers', () => {
     expect(pipelineSource).toContain('pipelineStore.reportProviderQueue(pipelineRunId, event)')
     expect(pipelineSource).toContain('function activeRunLabel(')
     expect(pipelineSource).toContain('{{ activeRunLabel(activeRun) }}')
+  })
+
+  it('every pipeline generation path registers trace ownership before trace work begins', () => {
+    const matches = [...pipelineSource.matchAll(/rememberTraceRunOwnership\(trace\.runId,\s*([A-Za-z0-9_]+)RunId\)/g)]
+      .map(match => match[1])
+    expect(matches).toEqual(['settings', 'volumes', 'chapters', 'body'])
+  })
+
+  it('progress bar templates stay inside their layer step panels', () => {
+    const panelIds = ['pl-step-2-content', 'pl-step-3-content', 'pl-step-4-content', 'pl-step-5-content']
+    const panels = new Map<string, string>()
+    for (const panelId of panelIds) {
+      const panelStart = pipelineSource.indexOf(`id="${panelId}"`)
+      expect(panelStart).toBeGreaterThan(-1)
+      const nextPanelStart = panelIds
+        .slice(panelIds.indexOf(panelId) + 1)
+        .map(id => pipelineSource.indexOf(`id="${id}"`, panelStart))
+        .filter(index => index !== -1)
+        .reduce((earliest, index) => Math.min(earliest, index), pipelineSource.length)
+      panels.set(panelId, pipelineSource.slice(panelStart, nextPanelStart))
+    }
+
+    expect(panels.get('pl-step-2-content')).toContain('logContainerId="pl-settings-api-log"')
+    expect(panels.get('pl-step-3-content')).toContain('logContainerId="pl-volume-api-log"')
+    expect(panels.get('pl-step-4-content')).toContain('logContainerId="pl-ch-api-log"')
+    expect(panels.get('pl-step-5-content')).toContain('logContainerId="pl-body-api-log"')
+  })
+
+  it('display runs derive from active run objects, not terminal registry lookups', () => {
+    expect(pipelineSource).toContain('function displayRunForLayer(layer: PipelineLayer)')
+    expect(pipelineSource).toContain('const candidates = pipelineStore.activeRuns')
+    expect(pipelineSource).not.toContain('pipelineStore.getRunStatus(runId) === \x27running\x27')
+    expect(pipelineSource).not.toContain('pipelineStore.getRun(displayed')
   })
 })

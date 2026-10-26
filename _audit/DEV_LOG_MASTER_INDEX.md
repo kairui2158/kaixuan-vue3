@@ -1211,3 +1211,19 @@
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_EXPERIENCE_FILE_V9_5_UPDATE.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_EXPERIENCE_FILE_V9_5_UPDATE.md)
 - 范围：适用性审计后的整理性升级；G1.5 从事故流水账瘦回规则本体，G2.11 的 Vite 重启改为条件化运维规则，L3 归档映射外置为 `_audit/神意开发经验总结_v9_L3_ARCHIVE.md`。
 - 验证：S200/S1M 经源码核实仍存在于验证脚本，不移除；主文件版本、STACK 指针、附录映射、台账七节齐备；收尾时补齐命令输出与工作区状态。
+
+# 2026-10-26 流水线并行 V4 破坏面对账与修复方案
+
+- 文件：[_audit/DEV_LOG_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md](_audit/DEV_LOG_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md)
+- 范围：对账 V3.3 并行交付后的同层 runId 单槽覆盖、假排队、UI 单实例状态、provider 排队错归属与运行中心缺失，形成 V4 P0-P2 修复方案。
+- 用途：把“半成品破坏”与“设计内供应商排队”分开，红灯先行修复并行 UI 契约，防止 mock PASS 继续冒充用户契约完成。
+- 验证：`rg` 复核源码与方案锚点；`git diff --check` 通过；本轮只新增审计文档，无生产代码改动。
+
+# 2026-10-26 流水线并行 V4 执行收口
+
+- 文件：[_audit/DEV_LOG_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md](_audit/DEV_LOG_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_PIPELINE_PARALLELISM_V4_PLAN.md)
+- 范围：用户批准 V4 后落地 run 归属闭包化、真排队激活、per-run UI、PipelineRunCenter、终态归属覆盖与验证器硬化；同层排队 run 物理请求为 0，取消只影响目标 run，四格再入均产生新 runId/新产物。
+- 验证：真实 Electron + mock-provider 全场景 PASS（coverage 六项 true；取消 94ms；provider 6 请求 max concurrency 2；longTask/freeze/slowClick 全 0）；定向 4 files / 61 tests、全量 212 files / 2322 tests、`vue-tsc`、`build:vue` 全部通过。验证器两个自身缺陷（跨章节 hash 假失败、证据写失败掩盖主结果）已定案并修复。
+- 诚实边界：live 外部供应商并行未执行，登记 `untested`；本轮未重新封装，沿用 3.108.1 安装包。经验回写：v9.6.0，G1.5 补断言目标与证据外围规则，G1.17 补第十二类自盲区。

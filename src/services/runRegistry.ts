@@ -68,6 +68,7 @@ export interface CreatePipelineRunInput {
 
 export class PipelineRunRegistry {
   private readonly runsById = new Map<string, PipelineRunContext>()
+  private readonly activationWaiters = new Map<string, Array<(run: PipelineRunContext) => void>>()
   private runSequence = 0
 
   createRun(input: CreatePipelineRunInput = {}): PipelineRunContext {
@@ -108,6 +109,19 @@ export class PipelineRunRegistry {
     return Array.from(this.runsById.values())
   }
 
+  waitForActivation(runId: string): Promise<PipelineRunContext> {
+    const run = this.runsById.get(runId)
+    if (!run) {
+      return Promise.reject(new Error(`waitForActivation requires a known runId: ${runId}`))
+    }
+    if (run.status !== 'queued') return Promise.resolve(run)
+    return new Promise(resolve => {
+      const waiters = this.activationWaiters.get(runId) || []
+      waiters.push(resolve)
+      this.activationWaiters.set(runId, waiters)
+    })
+  }
+
   updateProgress(runId: string, percent: number, statusText?: string): boolean {
     const run = this.runsById.get(runId)
     if (!run) return false
@@ -142,14 +156,14 @@ export class PipelineRunRegistry {
   }
 
   activateQueuedRuns(layer: PipelineRunLayer, target: string): PipelineRunContext[] {
-    const activated: PipelineRunContext[] = []
-    for (const run of this.listRuns()) {
-      if (run.status !== 'queued' || run.layer !== layer || run.target !== target) continue
-      run.status = 'running'
-      run.statusText = 'generating'
-      activated.push(run)
-    }
-    return activated
+    void target
+    if (this.listRuns().some(run => run.status === 'running' && run.layer === layer)) return []
+    const next = this.listRuns().find(run => run.status === 'queued' && run.layer === layer)
+    if (!next) return []
+    next.status = 'running'
+    next.statusText = 'generating'
+    this.resolveActivationWaiters(next)
+    return [next]
   }
 
   succeed(runId: string): boolean {
@@ -184,7 +198,15 @@ export class PipelineRunRegistry {
     run.statusText = status
     run.progressPhase = 'terminal'
     run.endedAt = Date.now()
+    this.resolveActivationWaiters(run)
     return true
+  }
+
+  private resolveActivationWaiters(run: PipelineRunContext): void {
+    const waiters = this.activationWaiters.get(run.runId)
+    if (!waiters?.length) return
+    this.activationWaiters.delete(run.runId)
+    for (const resolve of waiters) resolve(run)
   }
 }
 

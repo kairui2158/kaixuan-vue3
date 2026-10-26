@@ -61,9 +61,9 @@
             <AppIcon v-if="step.completed" name="check" class="pl-step-check" />
           </div>
         </div>
-        
-        
-        
+
+
+
 
         <div class="pl-content-right">
 
@@ -73,6 +73,8 @@
             <button id="btn-ai-names" class="btn-sm btn-secondary" @click="openNaming">AI起名</button>
           </div>
         </div>
+
+        <PipelineRunCenter />
           <PipelineFlow v-if="showFlowView" :steps-with-ids="stepsWithIds" :step-agents="stepAgents" :step-skills="stepSkills" :step-skill-modes="stepSkillModes" @toggle-view="showFlowView = false" />
           <div v-show="!showFlowView" class="pl-step-view">
           <div v-show="pipelineStore.currentStep === 0" id="pl-step-1-content" class="pl-step-panel">
@@ -236,13 +238,13 @@
   v-if="settingsGenerationFeedbackVisible"
   :step="1"
   :visible="settingsGenerationFeedbackVisible"
-  :progress="pipelineStore.activeSettingsRun?.progress ?? 0"
-  :status="pipelineStore.activeSettingsRun?.statusText ?? ''"
-  :logs="settingsGenerationLogs"
-  :skill-steps="activeGenerationFeedbackStep === 1 ? skillStepStates : []"
-  :isGenerating="Boolean(pipelineStore.activeSettingsRun)"
+  :progress="displayedRunForStep(1)?.progress ?? 0"
+  :status="displayedRunStatusText(1)"
+  :logs="displayedLogsForStep(1)"
+  :skill-steps="displayedSkillStepsForStep(1)"
+  :isGenerating="isDisplayedRunCancellable(1)"
   logContainerId="pl-settings-api-log"
-  @cancel="pipelineStore.cancelGeneration(pipelineStore.activeSettingsRun?.runId)"
+  @cancel="cancelDisplayedRun(1)"
   @close="closeSettingsGenerationFeedback"
 />
           </div>
@@ -371,13 +373,13 @@
   v-if="volumeGenerationFeedbackVisible"
   :step="2"
   :visible="volumeGenerationFeedbackVisible"
-  :progress="pipelineStore.activeVolumesRun?.progress ?? 0"
-  :status="pipelineStore.activeVolumesRun?.statusText ?? ''"
-  :logs="volumeGenerationLogs"
-  :skill-steps="activeGenerationFeedbackStep === 2 ? skillStepStates : []"
-  :isGenerating="Boolean(pipelineStore.activeVolumesRun)"
+  :progress="displayedRunForStep(2)?.progress ?? 0"
+  :status="displayedRunStatusText(2)"
+  :logs="displayedLogsForStep(2)"
+  :skill-steps="displayedSkillStepsForStep(2)"
+  :isGenerating="isDisplayedRunCancellable(2)"
   logContainerId="pl-volume-api-log"
-  @cancel="pipelineStore.cancelGeneration(pipelineStore.activeVolumesRun?.runId)"
+  @cancel="cancelDisplayedRun(2)"
   @close="closeVolumeGenerationFeedback"
 />
             <div class="pl-actions">
@@ -515,21 +517,21 @@
                   </div>
                 </div>
               </section>
-            </div>
-         </div>
-<GenerationProgressBar
-  v-if="chapterGenerationFeedbackVisible"
-  :step="3"
-  :visible="chapterGenerationFeedbackVisible"
-  :progress="pipelineStore.activeChaptersRun?.progress ?? 0"
-  :status="pipelineStore.activeChaptersRun?.statusText ?? ''"
-  :logs="chapterGenerationLogs"
-  :skill-steps="activeGenerationFeedbackStep === 3 ? skillStepStates : []"
-  :isGenerating="Boolean(pipelineStore.activeChaptersRun)"
-  logContainerId="pl-ch-api-log"
-  @cancel="pipelineStore.cancelGeneration(pipelineStore.activeChaptersRun?.runId)"
-  @close="closeChapterGenerationFeedback"
-/>
+             </div>
+             <GenerationProgressBar
+               v-if="chapterGenerationFeedbackVisible"
+               :step="3"
+               :visible="chapterGenerationFeedbackVisible"
+               :progress="displayedRunForStep(3)?.progress ?? 0"
+               :status="displayedRunStatusText(3)"
+               :logs="displayedLogsForStep(3)"
+               :skill-steps="displayedSkillStepsForStep(3)"
+               :isGenerating="isDisplayedRunCancellable(3)"
+               logContainerId="pl-ch-api-log"
+               @cancel="cancelDisplayedRun(3)"
+               @close="closeChapterGenerationFeedback"
+             />
+          </div>
           <div v-show="pipelineStore.currentStep === 4" id="pl-step-5-content" class="pl-step-panel">
             <h3>正文</h3>
           <div class="pl-step-tools">
@@ -588,24 +590,24 @@
               <button id="btn-pl-insert-body" class="btn-secondary" @click="insertToEditor" :disabled="!(currentBodyContent || bodyResult)">插入到编辑器</button>
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
-          </div>
-<GenerationProgressBar
-  v-if="bodyGenerationFeedbackVisible"
-  :step="4"
-  :visible="bodyGenerationFeedbackVisible"
-  :progress="pipelineStore.activeBodyRun?.progress ?? 0"
-  :status="pipelineStore.activeBodyRun?.statusText ?? ''"
-  :logs="bodyGenerationLogs"
-  :skill-steps="activeGenerationFeedbackStep === 4 ? skillStepStates : []"
-  :isGenerating="Boolean(pipelineStore.activeBodyRun)"
-  logContainerId="pl-body-api-log"
-  @cancel="pipelineStore.cancelGeneration(pipelineStore.activeBodyRun?.runId)"
-  @close="closeBodyGenerationFeedback"
-/>
+            <GenerationProgressBar
+              v-if="bodyGenerationFeedbackVisible"
+              :step="4"
+              :visible="bodyGenerationFeedbackVisible"
+              :progress="displayedRunForStep(4)?.progress ?? 0"
+              :status="displayedRunStatusText(4)"
+              :logs="displayedLogsForStep(4)"
+              :skill-steps="displayedSkillStepsForStep(4)"
+              :isGenerating="isDisplayedRunCancellable(4)"
+              logContainerId="pl-body-api-log"
+              @cancel="cancelDisplayedRun(4)"
+              @close="closeBodyGenerationFeedback"
+            />
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <div v-if="showAddSettingModal" data-modal-id="pl-add-setting" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pl-add-setting') }">
@@ -773,6 +775,7 @@ import { useConfigExchange } from "../../composables/useConfigExchange"
 import type { PipelineBindingRecord } from "../../services/configExchange"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
+import PipelineRunCenter from "./PipelineRunCenter.vue"
 import GenerationProgressBar from "./GenerationProgressBar.vue"
 import EmptyState from "../common/EmptyState.vue"
 import AppIcon from "../common/AppIcon.vue"
@@ -883,12 +886,6 @@ const runTraceStore = useRunTraceStore()
 const pipelineStyleCard = ref<InstanceType<typeof StyleProfileCard> | null>(null)
 const pipelineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
 let pipelineStyleAnalysisRunId: string | null = null
-const activePipelineRunIds = {
-  settings: '',
-  volumes: '',
-  chapters: '',
-  body: '',
-} as Record<'settings' | 'volumes' | 'chapters' | 'body', string>
 
 function startTrackedGeneration(
   layer: 'settings' | 'volumes' | 'chapters' | 'body',
@@ -901,30 +898,24 @@ function startTrackedGeneration(
   return runId
 }
 
-function activePipelineRunIdForStep(step: number): string {
-  if (step === 1) return activePipelineRunIds.settings
-  if (step === 2) return activePipelineRunIds.volumes
-  if (step === 3) return activePipelineRunIds.chapters
-  if (step === 4) return activePipelineRunIds.body
-  return activePipelineRunIds.volumes
+async function waitForRunnableGeneration(runId: string): Promise<boolean> {
+  await pipelineStore.waitForRunActivation(runId)
+  return !pipelineStore.isGenerationCanceled(runId)
 }
 
-function signalForPipelineRun(step: number, signal?: AbortSignal): AbortSignal | undefined {
-  const runId = activePipelineRunIdForStep(step)
+function signalForPipelineRun(pipelineRunId: string | null | undefined, signal?: AbortSignal): AbortSignal | undefined {
   if (signal) return signal
-  if (!runId) return undefined
-  return pipelineStore.getGenerationSignal(runId)
+  if (!pipelineRunId) return undefined
+  return pipelineStore.getGenerationSignal(pipelineRunId)
 }
 
-function isPipelineRunCanceled(step: number): boolean {
-  const runId = activePipelineRunIdForStep(step)
-  return runId ? pipelineStore.isGenerationCanceled(runId) : false
+function isPipelineRunCanceled(pipelineRunId: string | null | undefined): boolean {
+  return pipelineRunId ? pipelineStore.isGenerationCanceled(pipelineRunId) : false
 }
 
-function updatePipelineRunProgress(step: number, percent: number, detail: string): void {
-  const runId = activePipelineRunIdForStep(step)
-  if (runId) pipelineStore.updateProgress(percent, detail, runId)
-  else console.warn('[pipeline] chain progress dropped because no run is active for step', { step, detail })
+function updatePipelineRunProgress(pipelineRunId: string | null | undefined, percent: number, detail: string): void {
+  if (pipelineRunId) pipelineStore.updateProgress(percent, detail, pipelineRunId)
+  else console.warn('[pipeline] chain progress dropped because no run owns the event', { detail })
 }
 function startStepTrace(
   step: number,
@@ -1000,12 +991,143 @@ const showAddCategory = ref(false)
 const newCategoryName = ref("")
 const selectedSettingCategory = ref("")
 const selectedSettingId = ref("")
-const settingsGenerationLogs = ref<string[]>([])
-const activeGenerationFeedbackStep = ref<1 | 2 | 3 | 4 | null>(null)
+type PipelineLayer = 'settings' | 'volumes' | 'chapters' | 'body'
+type PerRunGenerationUiState = {
+  logs: string[]
+  skillSteps: SkillStepState[]
+  generationVolume?: any
+  bodyChainContract?: BodyArtifactContract | null
+  bodyGeneratorStepIndex?: number | null
+  bodyStepAcceptance?: StepArtifactAcceptanceResult[]
+  bodyFinalStepMetadata?: FinalStepMetadataFlowResult | null
+  active: boolean
+}
+const perRunGenerationUi = reactive(new Map<string, PerRunGenerationUiState>())
+
+function perRunUi(runId: string | null | undefined): PerRunGenerationUiState | null {
+  if (!runId) return null
+  let state = perRunGenerationUi.get(runId)
+  if (!state) {
+    state = { logs: [], skillSteps: [], active: true }
+    perRunGenerationUi.set(runId, state)
+  }
+  return state
+}
+
+function bodyChainContractForRun(runId: string | null | undefined): BodyArtifactContract | null {
+  return perRunUi(runId)?.bodyChainContract || null
+}
+
+function bodyGeneratorStepIndexForRun(runId: string | null | undefined): number | null {
+  return perRunUi(runId)?.bodyGeneratorStepIndex ?? null
+}
+
+function setBodyGeneratorStepIndexForRun(runId: string | null | undefined, value: number | null) {
+  const state = perRunUi(runId)
+  if (state) state.bodyGeneratorStepIndex = value
+}
+
+function rememberBodyFinalStepMetadata(runId: string | null | undefined, flow: FinalStepMetadataFlowResult | null) {
+  const state = perRunUi(runId)
+  if (state) state.bodyFinalStepMetadata = flow
+}
+
+function rememberBodyStepAcceptance(
+  runId: string | null | undefined,
+  stepIndex: number,
+  acceptance: StepArtifactAcceptanceResult
+) {
+  const state = perRunUi(runId)
+  if (!state) return
+  state.bodyStepAcceptance = [
+    ...(state.bodyStepAcceptance || []).filter(item => item.stepIndex !== stepIndex),
+    { ...acceptance, stepIndex }
+  ]
+}
+
+function bodyStepAcceptanceForRun(runId: string | null | undefined): StepArtifactAcceptanceResult[] {
+  return perRunUi(runId)?.bodyStepAcceptance || []
+}
+
+function resetPerRunUi(runId: string | null | undefined) {
+  if (runId) perRunGenerationUi.delete(runId)
+}
+
+function displayRunForLayer(layer: PipelineLayer) {
+  const candidates = pipelineStore.activeRuns
+    .filter(run => run.layer === layer && (run.status === 'running' || run.status === 'queued'))
+  return candidates.find(run => run.status === 'running') || candidates[candidates.length - 1] || null
+}
+
+const displayedSettingsRunId = computed(() => displayRunForLayer('settings')?.runId || null)
+const displayedVolumesRunId = computed(() => displayRunForLayer('volumes')?.runId || null)
+const displayedChaptersRunId = computed(() => displayRunForLayer('chapters')?.runId || null)
+const displayedBodyRunId = computed(() => displayRunForLayer('body')?.runId || null)
+
+function displayedRunForStep(step: number) {
+  if (step === 1) return displayRunForLayer('settings')
+  if (step === 2) return displayRunForLayer('volumes')
+  if (step === 3) return displayRunForLayer('chapters')
+  if (step === 4) return displayRunForLayer('body')
+  return undefined
+}
+
+function displayedLogsForStep(step: number) {
+  const run = displayedRunForStep(step)
+  const state = perRunUi(run?.runId)
+  return state?.logs || []
+}
+
+function displayedSkillStepsForStep(step: number) {
+  const run = displayedRunForStep(step)
+  return perRunUi(run?.runId)?.skillSteps || []
+}
+
+function pipelineLayerForStep(step: number): PipelineLayer | null {
+  if (step === 1) return 'settings'
+  if (step === 2) return 'volumes'
+  if (step === 3) return 'chapters'
+  if (step === 4) return 'body'
+  return null
+}
+
+function pipelineStepForLayer(layer: PipelineLayer): number | null {
+  if (layer === 'settings') return 1
+  if (layer === 'volumes') return 2
+  if (layer === 'chapters') return 3
+  if (layer === 'body') return 4
+  return null
+}
+
+function currentPipelineStepForEvent(traceRunId: string | null | undefined): number | null {
+  if (!traceRunId) return null
+  const pipelineRunId = pipelineStore.getPipelineRunIdForTrace(traceRunId)
+  const layer = pipelineRunId ? pipelineStore.getRun(pipelineRunId)?.layer : null
+  const step = layer ? pipelineStepForLayer(layer) : null
+  return step || (runTraceStore.getRun(traceRunId)?.step ?? null)
+}
+
+function displayedRunStatusText(step: number) {
+  const run = displayedRunForStep(step)
+  if (!run) return ''
+  if (run.status === 'queued') return run.queuedReason || run.statusText || '同层生成中，本任务已排队等待'
+  return run.statusText || ''
+}
+
+function isDisplayedRunCancellable(step: number) {
+  const run = displayedRunForStep(step)
+  return run?.status === 'running' || run?.status === 'queued'
+}
+
+function cancelDisplayedRun(step: number) {
+  const run = displayedRunForStep(step)
+  if (run?.status === 'running' || run?.status === 'queued') {
+    pipelineStore.cancelGeneration(run.runId)
+  }
+}
+
 const settingsGenerationFeedbackVisible = computed(() =>
-  pipelineStore.activeSettingsRun
-    ? activeGenerationFeedbackStep.value === 1
-    : settingsGenerationLogs.value.length > 0
+  displayedSettingsRunId.value !== null || (perRunUi(displayedSettingsRunId.value)?.logs.length || 0) > 0
 )
 
 function openRunTracePanel() {
@@ -1037,20 +1159,14 @@ function legacyLogsFor(run: RunTrace) {
 }
 
 function closeSettingsGenerationFeedback() {
-  settingsGenerationLogs.value = []
-  resetPipelineStepWarningCounts()
-  if (activeGenerationFeedbackStep.value === 1) activeGenerationFeedbackStep.value = null
+  closePerRunFeedback(displayedSettingsRunId.value)
 }
 function closeVolumeGenerationFeedback() {
-  volumeGenerationLogs.value = []
-  resetPipelineStepWarningCounts()
-  if (activeGenerationFeedbackStep.value === 2) activeGenerationFeedbackStep.value = null
+  closePerRunFeedback(displayedVolumesRunId.value)
 }
 
 function closeChapterGenerationFeedback() {
-  chapterGenerationLogs.value = []
-  resetPipelineStepWarningCounts()
-  if (activeGenerationFeedbackStep.value === 3) activeGenerationFeedbackStep.value = null
+  closePerRunFeedback(displayedChaptersRunId.value)
 }
 
 const expandedVolumeIndex = ref(-1)
@@ -1086,34 +1202,37 @@ function volumeStatusClass(vol: any) {
   if (vol?.confirmed) return 'locked'
   return 'editing'
 }
-const volumeGenerationLogs = ref<string[]>([])
-const chapterGenerationLogs = ref<string[]>([])
-const bodyGenerationLogs = ref<string[]>([])
-
 interface SkillStepState {
   skillId: string
   index: number
   status: 'running' | 'done' | 'failed' | 'skipped'
   attempts?: number
 }
-const skillStepStates = ref<SkillStepState[]>([])
+
+type RealSkillProgressDetail = SkillStepState & {
+  total?: number
+  name?: string
+  traceRunId?: string | null
+}
 
 function handleRealSkillPass(event: Event) {
-  const detail = (event as CustomEvent<{
-    skillId: string
-    index: number
-    total: number
-    name: string
-    status: 'running' | 'done' | 'failed' | 'skipped'
-  }>).detail
+  const detail = (event as CustomEvent<RealSkillProgressDetail>).detail
   if (!detail?.skillId) return
   const stepId = `${detail.skillId} · ${detail.name || `第 ${detail.index + 1} 步`}（第 ${detail.index + 1}/${detail.total} 步）`
-  const existing = skillStepStates.value.find(item => item.skillId === stepId)
+  const owningRunId = pipelineStore.getPipelineRunIdForTrace(detail.traceRunId)
+  if (!owningRunId) {
+    console.warn('[pipeline] skill pass dropped because no run owns the trace', detail)
+    return
+  }
+  const step = currentPipelineStepForEvent(detail.traceRunId)
+  if (step === null) return
+  const targetStates = perRunUi(owningRunId)?.skillSteps || []
+  const existing = targetStates.find(item => item.skillId === stepId)
   if (existing) {
     existing.status = detail.status
     return
   }
-  skillStepStates.value.push({
+  targetStates.push({
     skillId: stepId,
     index: detail.index,
     status: detail.status
@@ -1121,14 +1240,22 @@ function handleRealSkillPass(event: Event) {
 }
 
 function handleRealSkillStep(event: Event) {
-  const detail = (event as CustomEvent<SkillStepState>).detail
+  const detail = (event as CustomEvent<RealSkillProgressDetail>).detail
   if (!detail?.skillId) return
-  const existing = skillStepStates.value.find(item => item.skillId === detail.skillId)
+  const owningRunId = pipelineStore.getPipelineRunIdForTrace(detail.traceRunId)
+  if (!owningRunId) {
+    console.warn('[pipeline] skill step dropped because no run owns the trace', detail)
+    return
+  }
+  const step = currentPipelineStepForEvent(detail.traceRunId)
+  if (step === null) return
+  const targetStates = perRunUi(owningRunId)?.skillSteps || []
+  const existing = targetStates.find(item => item.skillId === detail.skillId)
   if (existing) {
     Object.assign(existing, detail)
     return
   }
-  skillStepStates.value.push({ ...detail })
+  targetStates.push({ ...detail })
 }
 
 function handleRealSkillFolderPassInput(event: Event) {
@@ -1154,10 +1281,13 @@ function handleRealSkillFolderPassInput(event: Event) {
   })
 }
 
-function recordPipelineProviderQueue(runId: string | null | undefined, callId: string, event: ProviderQueueEvent) {
+function recordPipelineProviderQueue(
+  runId: string | null | undefined,
+  callId: string,
+  event: ProviderQueueEvent,
+  pipelineRunId?: string | null
+) {
   if (!runId) return
-  const step = providerQueueStepByCallId.get(callId)
-  const pipelineRunId = step !== undefined ? activePipelineRunIdForStep(step) : ''
   if (pipelineRunId) pipelineStore.reportProviderQueue(pipelineRunId, event)
   runTraceStore.addEvent(runId, {
     type: 'provider-queue',
@@ -1171,11 +1301,6 @@ function recordPipelineProviderQueue(runId: string | null | undefined, callId: s
     turnId: callId || undefined,
   })
 }
-const providerQueueStepByCallId = new Map<string, number>()
-function registerProviderQueueStep(callId: string, step: number) {
-  if (callId) providerQueueStepByCallId.set(callId, step)
-}
-
 onMounted(() => {
   window.addEventListener('real-skill:step', handleRealSkillStep)
   window.addEventListener('real-skill:pass', handleRealSkillPass)
@@ -1192,39 +1317,37 @@ const activeVolumeGenerationIndex = ref(-1)
 // The volume that owns the generation currently being executed. Skills use it
 // to resolve layer-accurate template variables instead of reading the body
 // layer's current selectors.
-const currentGenerationVolume = ref<any>(null)
 const volumeGenerationFeedbackVisible = computed(() =>
-  pipelineStore.activeVolumesRun
-    ? activeGenerationFeedbackStep.value === 2
-    : volumeGenerationLogs.value.length > 0
+  displayedVolumesRunId.value !== null || (perRunUi(displayedVolumesRunId.value)?.logs.length || 0) > 0
 )
 const chapterGenerationFeedbackVisible = computed(() =>
-  pipelineStore.activeChaptersRun
-    ? activeGenerationFeedbackStep.value === 3
-    : chapterGenerationLogs.value.length > 0
+  displayedChaptersRunId.value !== null || (perRunUi(displayedChaptersRunId.value)?.logs.length || 0) > 0
 )
 
 const bodyGenerationFeedbackVisible = computed(() =>
-  pipelineStore.activeBodyRun
-    ? activeGenerationFeedbackStep.value === 4
-    : bodyGenerationLogs.value.length > 0
+  displayedBodyRunId.value !== null || (perRunUi(displayedBodyRunId.value)?.logs.length || 0) > 0
 )
 
 function closeBodyGenerationFeedback() {
-  bodyGenerationLogs.value = []
-  resetPipelineStepWarningCounts()
-  if (activeGenerationFeedbackStep.value === 4) activeGenerationFeedbackStep.value = null
+  closePerRunFeedback(displayedBodyRunId.value)
+}
+
+function closePerRunFeedback(runId: string | null) {
+  if (!runId) return
+  resetPerRunUi(runId)
+  resetPipelineStepWarningCountsForRun(runId)
 }
 
 type PipelineStreamOwnership = { runId: string | null; callId: string | null }
 
 function appendPipelineStream(step: number, text: string, ownership: PipelineStreamOwnership) {
-  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
   const clean = (text || '').trim()
   if (!clean) return
+  const logs = logsForPipelineRun(ownership.runId, step)
+  if (!logs) return
   const waitingMarker = '模型思考中，尚未输出正文'
-  const waitingIndex = logs.value.findIndex(item => item === waitingMarker)
-  if (waitingIndex >= 0) logs.value.splice(waitingIndex, 1)
+  const waitingIndex = logs.findIndex(item => item === waitingMarker)
+  if (waitingIndex >= 0) logs.splice(waitingIndex, 1)
   const runId = ownership.runId
   const callId = ownership.callId
   if (runId && callId) {
@@ -1232,26 +1355,27 @@ function appendPipelineStream(step: number, text: string, ownership: PipelineStr
   }
   const preview = clean.length > 500 ? clean.slice(-500) : clean
   const marker = 'API实时输出：'
-  const index = logs.value.findIndex(line => line.startsWith(marker))
+  const index = logs.findIndex(line => line.startsWith(marker))
   const line = marker + preview
-  if (index >= 0) logs.value[index] = line
-  else logs.value.push(line)
+  if (index >= 0) logs[index] = line
+  else logs.push(line)
   autoScrollLog(step)
 }
 
-function appendPipelineReasoning(step: number, text: string) {
-  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
+function appendPipelineReasoning(step: number, text: string, runId: string | null | undefined) {
   const clean = (text || '').trim()
   if (!clean) return
+  const logs = logsForPipelineRun(runId, step)
+  if (!logs) return
   const preview = clean.length > 500 ? clean.slice(-500) : clean
   const marker = '模型思考：'
   const line = marker + preview
-  const index = logs.value.findIndex(item => item.startsWith(marker))
-  if (index >= 0) logs.value[index] = line
-  else logs.value.push(line)
+  const index = logs.findIndex(item => item.startsWith(marker))
+  if (index >= 0) logs[index] = line
+  else logs.push(line)
   const bodyMarker = 'API实时输出：'
-  if (!logs.value.some(item => item.startsWith(bodyMarker))) {
-    logs.value.push('模型思考中，尚未输出正文')
+  if (!logs.some(item => item.startsWith(bodyMarker))) {
+    logs.push('模型思考中，尚未输出正文')
   }
   autoScrollLog(step)
 }
@@ -1285,7 +1409,7 @@ function getPipelineStreamState(step: number, runId: string | null | undefined) 
 
 function renderPipelineStreamState(step: number, state: PipelineStreamState) {
   appendPipelineStream(step, state.text, { runId: state.runId, callId: state.callId })
-  appendPipelineReasoning(step, state.reasoning)
+  appendPipelineReasoning(step, state.reasoning, state.runId)
   const runId = state.runId
   const callId = state.callId
   if (runId && callId) {
@@ -1296,8 +1420,8 @@ function renderPipelineStreamState(step: number, state: PipelineStreamState) {
   state.traceReasoning = ''
 }
 
-function schedulePipelineStreamRender(step: number) {
-  const state = getPipelineStreamState(step, null)
+function schedulePipelineStreamRender(step: number, runId: string | null | undefined) {
+  const state = getPipelineStreamState(step, runId)
   if (state.frameId !== null) return
   state.frameId = window.requestAnimationFrame(() => {
     state.frameId = null
@@ -1325,7 +1449,7 @@ function appendPipelineDelta(step: number, kind: 'text' | 'reasoning', delta: st
     state.traceReasoning += value
   }
   state.dirty = true
-  schedulePipelineStreamRender(step)
+  schedulePipelineStreamRender(step, runId)
 }
 
 function flushPipelineStreamState(step: number, runId: string | null | undefined) {
@@ -1364,6 +1488,7 @@ function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
   }
   return resolvePipelineRunOutcome({
     apiCalls: run.apiCalls,
+    pipelineRunStatus: pipelineStore.getRun(pipelineStore.getPipelineRunIdForTrace(runId) || '')?.status ?? undefined,
     folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
     finalArtifactAccepted,
     hardSignalUnresolved: hardSignalUnresolvedRuns.has(runId)
@@ -1374,12 +1499,18 @@ function traceStatusFromRun(runId: string, finalArtifactAccepted = false): RunTr
   return traceOutcomeFromRun(runId, finalArtifactAccepted).status
 }
 
-function appendStepLog(step: number, line: string) {
-  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
+function appendStepLogForRun(runId: string | null | undefined, step: number, line: string) {
+  const logs = logsForPipelineRun(runId, step)
+  if (!logs) return
   const clean = (line || '').trim()
   if (!clean) return
-  logs.value.push(clean)
+  logs.push(clean)
   autoScrollLog(step)
+}
+
+function logsForPipelineRun(runId: string | null | undefined, step: number): string[] | null {
+  if (!runId) return null
+  return perRunUi(runId)?.logs || null
 }
 
 const pipelineStepWarningCounts = new Map<string, { count: number; lastLine: string }>()
@@ -1400,17 +1531,27 @@ function latestBodyFinishReason(traceRunId: string): string | undefined {
   return undefined
 }
 
-function resetPipelineStepWarningCounts() {
-  pipelineStepWarningCounts.clear()
+function resetPipelineStepWarningCountsForRun(runId: string | null | undefined) {
+  if (!runId) return
+  const prefix = `${runId}:`
+  for (const key of pipelineStepWarningCounts.keys()) {
+    if (key.startsWith(prefix)) pipelineStepWarningCounts.delete(key)
+  }
 }
 
 function appendPipelineChainWarning(input: {
+  runId: string | null | undefined
   step: number
   skillIndex: number
   code: string
   summary: string
 }) {
-  const key = `${input.step}:${input.code}`
+  const runId = input.runId
+  if (!runId) {
+    console.warn('[pipeline] warning dropped because no run owns the event', input)
+    return
+  }
+  const key = `${runId}:${input.step}:${input.code}`
   const existing = pipelineStepWarningCounts.get(key)
   if (!existing) {
     const line = buildPipelineChainWarningLine({
@@ -1420,7 +1561,7 @@ function appendPipelineChainWarning(input: {
       summary: input.summary
     })
     pipelineStepWarningCounts.set(key, { count: 1, lastLine: line })
-    appendStepLog(input.step, line)
+    appendStepLogForRun(runId, input.step, line)
     return
   }
   const next = coalescePipelineStepWarning({
@@ -1428,13 +1569,13 @@ function appendPipelineChainWarning(input: {
     code: input.code,
     state: existing
   })
-  const logs = input.step === 1 ? settingsGenerationLogs : input.step === 2 ? volumeGenerationLogs : input.step === 3 ? chapterGenerationLogs : bodyGenerationLogs
-  const index = logs.value.findIndex(item => item === existing.lastLine)
+  const logs = logsForPipelineRun(runId, input.step) || []
+  const index = logs.findIndex(item => item === existing.lastLine)
   if (index >= 0) {
-    logs.value.splice(index, 1, next.line)
+    logs.splice(index, 1, next.line)
     autoScrollLog(input.step)
   } else {
-    appendStepLog(input.step, next.line)
+    appendStepLogForRun(runId, input.step, next.line)
   }
   pipelineStepWarningCounts.set(key, { count: next.count, lastLine: next.line })
 }
@@ -1453,10 +1594,6 @@ function autoScrollLog(step: number) {
   })
 }
 
-watch(() => settingsGenerationLogs.value.length, () => autoScrollLog(1))
-watch(() => volumeGenerationLogs.value.length, () => autoScrollLog(2))
-watch(() => chapterGenerationLogs.value.length, () => autoScrollLog(3))
-watch(() => bodyGenerationLogs.value.length, () => autoScrollLog(4))
 type MemoryPreviewItem = {
   key: string
   kind: string
@@ -2057,7 +2194,8 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
 async function hydrateFolderTemplates(
   templates: PipelineSkillTemplate[],
   step: number,
-  traceRunId: string | null | undefined = undefined
+  traceRunId: string | null | undefined = undefined,
+  pipelineRunId: string | null | undefined = undefined
 ) {
   const preflight = await preflightFolderSkills(templates.map(t => t.skill))
   if (!preflight.ok) {
@@ -2070,7 +2208,7 @@ async function hydrateFolderTemplates(
         detail
       })
     }
-    appendStepLog(step, `SKILL 路径预检失败：${detail}`)
+    appendStepLogForRun(pipelineRunId, step, `SKILL 路径预检失败：${detail}`)
     throw new Error(detail)
   }
   for (const t of templates) {
@@ -2269,7 +2407,8 @@ async function callValidatedSkill(
     upstreamAnchors?: string[]
     deaiFindings?: Array<{ code?: string; label?: string; message?: string }>
   },
-  traceRunIdParam: string | null | undefined = undefined
+  traceRunIdParam: string | null | undefined = undefined,
+  pipelineRunIdParam: string | null | undefined = undefined
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
   if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
@@ -2372,7 +2511,7 @@ async function callValidatedSkill(
             detail
           })
         }
-        appendStepLog(step, `SKILL 加载失败：${detail}`)
+        appendStepLogForRun(pipelineRunIdParam, step, `SKILL 加载失败：${detail}`)
         throw new Error(detail)
       }
       traceCallId = traceRunId
@@ -2389,7 +2528,6 @@ async function callValidatedSkill(
           deaiPromptVariant: systemPromptSuffix ? deaiVariant : undefined
         })
         : ''
-      registerProviderQueueStep(traceCallId, step)
       logDeaiVariant()
       route = await routeSkill(template.skill, {
         input: prompt,
@@ -2415,7 +2553,7 @@ async function callValidatedSkill(
         skillId: template.id,
         aiService: await getAiService(),
         stream: true,
-        signal: signalForPipelineRun(step),
+        signal: signalForPipelineRun(pipelineRunIdParam),
         timeoutMs,
         finalStepRetry: finalStepRetryParam,
         traceRunId,
@@ -2478,7 +2616,7 @@ async function callValidatedSkill(
             }`,
             detail: JSON.stringify(event)
           })
-          appendStepLog(step, event.message || '模型输出无效，正在切换直出重试')
+          appendStepLogForRun(pipelineRunIdParam, step, event.message || '模型输出无效，正在切换直出重试')
         },
         onRequestBuilt: (messages: Array<{ role: string; content: string }>) => {
           if (traceRunId && traceCallId) {
@@ -2518,7 +2656,7 @@ async function callValidatedSkill(
             outputMs: event.outputMs
           })
         },
-      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, traceCallId, event),
+      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, traceCallId, event, pipelineRunIdParam),
       })
     } catch (error) {
       const folderResult = (error as Error & { folderResult?: RealSkillExecutionResult }).folderResult
@@ -2587,7 +2725,7 @@ async function callValidatedSkill(
             detail: errorMessages
           })
         }
-        appendStepLog(step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
+        appendStepLogForRun(pipelineRunIdParam, step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
       }
       return folderStatus === "degraded" && stepArtifactContext
         ? makeStepArtifactEnvelope({
@@ -2607,7 +2745,7 @@ async function callValidatedSkill(
           detail
         })
       }
-      appendStepLog(step, `SKILL 加载失败：${detail}`)
+      appendStepLogForRun(pipelineRunIdParam, step, `SKILL 加载失败：${detail}`)
       throw new Error(detail)
     }
     throw new Error("folder SKILL 执行失败")
@@ -2654,7 +2792,8 @@ async function callValidatedSkill(
       template.id,
       chainSkillIndex,
       chainSkillCount,
-      traceRunIdParam
+      traceRunIdParam,
+      pipelineRunIdParam
     )
     try {
       validateSkillOutputOrThrow(template, output)
@@ -2947,7 +3086,7 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
           outputMs: event.outputMs,
         })
       },
-      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, apiCallId, event),
+      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, apiCallId, event, undefined),
       meta: { source: 'PipelinePanel.style-analysis' },
     })
     if (traceRunId && apiCallId) {
@@ -3133,7 +3272,7 @@ async function callApiWithAgentVariant(step: number, skillTemplate: string, prom
   return callApiWithAgentVariantOwned(step, skillTemplate, prompt, skillAgentOverride, promptParts, signal, timeoutMs, skillId, chainSkillIndex, chainSkillCount, traceRunIdParam)
 }
 
-async function callApiWithAgentVariantOwned(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null): Promise<string> {
+async function callApiWithAgentVariantOwned(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null, pipelineRunIdParam?: string | null): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
   const provider = providerStore.getProvider(agentConfig?.provider || "")
@@ -3188,7 +3327,6 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     requestMessages,
     deaiPromptVariant: deaiPrompt ? deaiVariant : undefined
   }) : ""
-  registerProviderQueueStep(apiCallId, step)
   try {
       const result = await aiService.callAi({
     purpose: 'generate',
@@ -3235,8 +3373,8 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
             outputMs: event.outputMs
           })
         },
-        onProviderQueue: event => recordPipelineProviderQueue(runId, apiCallId, event),
-    signal: signalForPipelineRun(step, signal),
+        onProviderQueue: event => recordPipelineProviderQueue(runId, apiCallId, event, pipelineRunIdParam),
+    signal: signalForPipelineRun(pipelineRunIdParam, signal),
     timeoutMs,
     retry: true,
     meta: { source: 'PipelinePanel.callApiWithAgent', step, agentId: agentId || undefined, skillId: skillId || undefined }
@@ -3262,7 +3400,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
   } catch (e) {
     if (runId && apiCallId) {
       flushPipelineStreamState(step, runId)
-      const canceled = signal?.aborted || isPipelineRunCanceled(step)
+      const canceled = signal?.aborted || isPipelineRunCanceled(pipelineRunIdParam)
       runTraceStore.finishApiCall(runId, apiCallId, {
         status: canceled ? "canceled" : "failed",
         error: e instanceof Error ? e.message : String(e)
@@ -3287,11 +3425,12 @@ type RunStepSkillsExecutionPlan = {
   }
 }
 
-async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined) {
+async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined, pipelineRunId: string | null | undefined = undefined) {
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
-  if (step === 4 && !currentBodyChainContract.value && templates.length > 1) {
+  const generationVolume = pipelineRunId ? perRunUi(pipelineRunId)?.generationVolume : undefined
+  if (step === 4 && !bodyChainContractForRun(pipelineRunId) && templates.length > 1) {
     recordBodyChainConfigurationError(
       traceRunId || null,
       'body-chain-contract-missing',
@@ -3299,11 +3438,11 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
     )
     throw new Error('正文链缺少契约：多步正文链必须在生成前提供正文契约')
   }
-await hydrateFolderTemplates(templates, step, traceRunId)
+    await hydrateFolderTemplates(templates, step, traceRunId, pipelineRunId)
   const mode = getStepSkillMode(step)
   const skillNames = templates.map((t) => t.name).filter(Boolean);
   try {
-    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates, executionPlan, traceRunId);
+    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates, executionPlan, traceRunId, pipelineRunId);
     execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(result||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
     return result;
   } catch (e) {
@@ -3313,11 +3452,13 @@ await hydrateFolderTemplates(templates, step, traceRunId)
   }
 }
 
-async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined) {
+async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined, pipelineRunId: string | null | undefined = undefined) {
   const templates = hydratedTemplates
   const runId = traceRunId || null
   const mode = getStepSkillMode(step)
-  const baseCtx = buildTemplateContext(step, prompt, undefined, currentGenerationVolume.value)
+  const generationVolume = pipelineRunId ? perRunUi(pipelineRunId)?.generationVolume : undefined
+  const bodyChainContract = bodyChainContractForRun(pipelineRunId)
+  const baseCtx = buildTemplateContext(step, prompt, undefined, generationVolume ?? null)
   const memoryPrompt = formatMemoryPrompt(baseCtx.memoryContext)
   const generationPrompt = appendMemoryPromptOnce(prompt, baseCtx.memoryContext)
   if (mode === "chain" && templates.length > 1) {
@@ -3409,7 +3550,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         })
       }
       if (step === 2) {
-        volumeGenerationLogs.value.push(
+        appendStepLogForRun(pipelineRunId, 2,
           "检测到卷纲断点：将从第" + (startSi + 1) + "步继续（失败步骤会重试）"
         )
       }
@@ -3474,23 +3615,25 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           : templateOwnsPreviousOutput
             ? "template_variable"
             : "inline_block"
-      const bodyStepContext = step === 4 && currentBodyChainContract.value
+      const bodyStepContext = step === 4 && bodyChainContract
         ? {
             stepIndex: si,
             totalSteps: templates.length,
             declaredRole: templateMeta?.chainHandoff?.role || null,
-            targetWords: currentBodyChainContract.value.targetWords
+            targetWords: bodyChainContract.targetWords
           }
         : undefined
+      const bodyGeneratorStepIndex = bodyGeneratorStepIndexForRun(pipelineRunId)
+      const generatorStepIndexes = bodyGeneratorStepIndex === null
+        ? []
+        : [bodyGeneratorStepIndex]
       const finalStepRole = bodyStepContext
         ? resolveFinalStepRole({
             step,
             stepIndex: si,
             totalSteps: templates.length,
             declaredRole: bodyStepContext.declaredRole,
-            generatorStepIndexes: currentBodyGeneratorStepIndex.value === null
-              ? []
-              : [currentBodyGeneratorStepIndex.value]
+            generatorStepIndexes
           })
         : null
       const finalStepMetadataMode = finalStepRole?.mode === 'final_step_ledger'
@@ -3498,6 +3641,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         : 'summary'
       if (finalStepRole?.reason === 'unresolved' && si === templates.length - 1) {
         appendPipelineChainWarning({
+          runId: pipelineRunId,
           step,
           skillIndex: si,
           code: 'final-step-role-unresolved',
@@ -3511,9 +3655,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             detail: JSON.stringify({
               declaredRole: bodyStepContext?.declaredRole || null,
               metadataMode: finalStepMetadataMode,
-              generatorStepIndexes: currentBodyGeneratorStepIndex.value === null
-                ? []
-                : [currentBodyGeneratorStepIndex.value]
+              generatorStepIndexes
             })
           })
         }
@@ -3553,17 +3695,17 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           })
         : false
       if (bodyStepContext && isGeneratorStep) {
-        if (currentBodyGeneratorStepIndex.value === null) {
-          currentBodyGeneratorStepIndex.value = si
+        if (bodyGeneratorStepIndexForRun(pipelineRunId) === null) {
+          setBodyGeneratorStepIndexForRun(pipelineRunId, si)
         }
-        if (currentBodyGeneratorStepIndex.value !== si) {
+        if (bodyGeneratorStepIndexForRun(pipelineRunId) !== si) {
           runTraceStore.addEvent(runId!, {
             type: 'body-generator-step-unresolved',
             level: 'error',
             label: '正文生成步骤无法唯一识别',
             detail: JSON.stringify({
               reason: 'generator_index_changed_within_attempt',
-              previousIndex: currentBodyGeneratorStepIndex.value,
+              previousIndex: bodyGeneratorStepIndexForRun(pipelineRunId),
               currentIndex: si,
               totalSteps: templates.length
             })
@@ -3618,6 +3760,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         )
         if (fullReasonMissing) {
           appendPipelineChainWarning({
+            runId: pipelineRunId,
             step,
             skillIndex: si,
             code: 'chain-full-reason-missing',
@@ -3628,6 +3771,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         if (contractMiss) {
           const contractMissDetail = JSON.stringify(contractMiss)
           appendPipelineChainWarning({
+            runId: pipelineRunId,
             step,
             skillIndex: si,
             code: 'chain-handoff-contract-miss',
@@ -3648,11 +3792,11 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       }
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       if (step === 2) {
-        volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名技能") + "」")
+        appendStepLogForRun(pipelineRunId, 2, "卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名技能") + "」")
       }
   if (step >= 2 && step <= 3) {
         updatePipelineRunProgress(
-          step,
+          pipelineRunId,
           Math.min(65, 15 + Math.round(((si + 1) / templates.length) * 50)),
           "链式生成中：" + (si + 1) + "/" + templates.length
       )
@@ -3686,7 +3830,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           templates.length,
           bodyStepContext,
           finalStepRetry,
-          traceRunId
+          traceRunId,
+          pipelineRunId
         )
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
@@ -3697,6 +3842,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             const removedChars = stepOutput.length - dedupedOutput.length
             stepOutput = dedupedOutput
             appendPipelineChainWarning({
+              runId: pipelineRunId,
               step,
               skillIndex: si,
               code: 'chain-dedupe',
@@ -3725,6 +3871,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           })
         ) {
           appendPipelineChainWarning({
+            runId: pipelineRunId,
             step,
             skillIndex: si,
             code: 'chain-output-echo-repair',
@@ -3760,7 +3907,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             templates.length,
             bodyStepContext,
             finalStepRetry,
-            traceRunId
+            traceRunId,
+            pipelineRunId
           )
         }
         const repairedEchoDiagnostic = detectChainOutputEcho(
@@ -3772,6 +3920,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         })
         if (runId && repairedEchoDiagnostic && repairedEchoWarningLevel === 'warning') {
           appendPipelineChainWarning({
+            runId: pipelineRunId,
             step,
             skillIndex: si,
             code: 'chain-output-echo',
@@ -3786,15 +3935,15 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         }
         if (
           isGeneratorStep &&
-          currentBodyChainContract.value
+          bodyChainContract
         ) {
           const artifactFlow = resolveStepArtifactFlow({
             stepOutput,
             stepIndex: si,
-            contract: currentBodyChainContract.value
+            contract: bodyChainContract
           })
           const acceptance = artifactFlow.acceptance
-          rememberBodyStepAcceptance(si, acceptance)
+          rememberBodyStepAcceptance(pipelineRunId, si, acceptance)
           if (runId) {
             runTraceStore.addEvent(runId, {
               type: 'body-step-acceptance',
@@ -3841,7 +3990,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             authoritativeGeneratorMetadata,
             finalBody: finalGeneration.body
           })
-          rememberBodyFinalStepMetadata(finalStepFlow)
+          rememberBodyFinalStepMetadata(pipelineRunId, finalStepFlow)
           executionPlan?.onFinalStepMetadata?.({
             authoritativeGeneratorMetadata,
             finalStepFlow
@@ -3950,6 +4099,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
                 reason: error instanceof Error ? error.message : String(error)
               })
               appendPipelineChainWarning({
+                runId: pipelineRunId,
                 step,
                 skillIndex: si,
                 code: 'chain-handoff-escalation',
@@ -4001,7 +4151,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               templates.length,
               bodyStepContext,
               finalStepRetry,
-              traceRunId
+              traceRunId,
+              pipelineRunId
             )
             validateSkillOutputOrThrow(t, stepOutput)
             if (si < templates.length - 1) {
@@ -4010,6 +4161,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
                 const removedChars = stepOutput.length - dedupedOutput.length
                 stepOutput = dedupedOutput
                 appendPipelineChainWarning({
+                  runId: pipelineRunId,
                   step,
                   skillIndex: si,
                   code: 'chain-dedupe',
@@ -4031,6 +4183,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             })
             if (runId && echoDiagnostic && escalationEchoWarningLevel === 'warning') {
               appendPipelineChainWarning({
+                runId: pipelineRunId,
                 step,
                 skillIndex: si,
                 code: 'chain-output-echo',
@@ -4171,9 +4324,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   const combined = merged.systemSkill || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
   const folderSkills = templates.filter((t) => t.skill?.format === "folder" && t.skill.folderPath)
   if (folderSkills.length > 1) {
-    appendStepLog(step, `compose 提示：${formatFolderSkillBoundary('compose-multi')}`)
+    appendStepLogForRun(pipelineRunId, step, `compose 提示：${formatFolderSkillBoundary('compose-multi')}`)
   } else if (folderSkills.length === 1 && templates.some((t) => getStepSkillAgentId(step, t.id))) {
-    appendStepLog(step, "compose 提示：并行模式下技能级智能体不会生效，本层将使用智能体配置执行文件夹技能")
+    appendStepLogForRun(pipelineRunId, step, "compose 提示：并行模式下技能级智能体不会生效，本层将使用智能体配置执行文件夹技能")
   }
   let composePrompt = generationPrompt
   let result: string
@@ -4188,16 +4341,16 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     validationRules: templates.flatMap(t => t.validationRules || []),
     retryPolicy: templates.reduce((max, t) => Math.max(max, getSkillMaxAttempts(t.retryPolicy)), 1)
   }
-  const composeArtifactContext = step === 4 && currentBodyChainContract.value
+  const composeArtifactContext = step === 4 && bodyChainContract
     ? {
         stepIndex: 0,
         totalSteps: Math.max(1, templates.length),
         declaredRole: 'generator',
-        targetWords: currentBodyChainContract.value.targetWords
+        targetWords: bodyChainContract.targetWords
       }
     : undefined
   if (composeArtifactContext) {
-    currentBodyGeneratorStepIndex.value = 0
+    setBodyGeneratorStepIndexForRun(pipelineRunId, 0)
     composePrompt += bodyGeneratorContractSentence(composeArtifactContext.targetWords)
   }
   result = await callValidatedSkill(
@@ -4217,16 +4370,17 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     undefined,
     composeArtifactContext,
     undefined,
-    traceRunId
+    traceRunId,
+    pipelineRunId
   )
-  if (composeArtifactContext && currentBodyChainContract.value) {
+  if (composeArtifactContext && bodyChainContract) {
     const artifactFlow = resolveStepArtifactFlow({
       stepOutput: result,
       stepIndex: 0,
-      contract: currentBodyChainContract.value
+      contract: bodyChainContract
     })
     const acceptance = artifactFlow.acceptance
-    rememberBodyStepAcceptance(0, acceptance)
+    rememberBodyStepAcceptance(pipelineRunId, 0, acceptance)
     if (runId) {
       runTraceStore.addEvent(runId, {
         type: 'body-step-acceptance',
@@ -4333,13 +4487,13 @@ function removeSetting(index: number) {
 async function genSettings() {
   if (!projectStore.hasOutline || !projectStore.outlineLocked) return
   const settingsRunId = startTrackedGeneration('settings', 'all', { configSnapshot: await readStepConfigSnapshotForRun() })
+  if (!(await waitForRunnableGeneration(settingsRunId))) return
   const trace = startStepTrace(1, "设定层", "settings", settingsRunId)
+  pipelineStore.rememberTraceRunOwnership(trace.runId, settingsRunId)
   trace.begin()
-  activeGenerationFeedbackStep.value = 1
-  skillStepStates.value = []
+  perRunUi(settingsRunId)!.skillSteps = []
   resetPipelineStreamState(1, trace.runId)
-  settingsGenerationLogs.value = ["已读取大纲锁定状态，准备构造设定生成请求"]
-  activePipelineRunIds.settings = settingsRunId
+  perRunUi(settingsRunId)!.logs = ["已读取大纲锁定状态，准备构造设定生成请求"]
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定", settingsRunId)
   try {
     trace.addEvent({ type: "prompt-built", level: "info", label: "设定层提示词已构建" })
@@ -4347,7 +4501,7 @@ async function genSettings() {
     const prompt = "[已确认大纲]\n" + projectStore.pipelineOutlineText
       + (styleContext ? "\n\n[创作风格]\n" + styleContext : "")
       + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
-    settingsGenerationLogs.value.push("请求已发送：正在等待 API 返回设定内容")
+    perRunUi(settingsRunId)!.logs.push("请求已发送：正在等待 API 返回设定内容")
     const settingsCollection = projectStore.getSettingsCollection()
     const existingSettings = settingsCollection.categories.flatMap(category => {
       const items = settingsCollection.items[category] || []
@@ -4356,7 +4510,7 @@ async function genSettings() {
     const artifact = await generateSettingsArtifact({
       basePrompt: prompt,
       existing: existingSettings,
-      callSettingsApi: (requestPrompt) => runStepSkills(1, requestPrompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。", undefined, trace.runId),
+      callSettingsApi: (requestPrompt) => runStepSkills(1, requestPrompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。", undefined, trace.runId, settingsRunId),
       shouldContinue: () => !pipelineStore.isGenerationCanceled(settingsRunId),
       onAttempt: (attempt) => {
         trace.recordStepObservation('validation', attempt.validationMs)
@@ -4368,12 +4522,12 @@ async function genSettings() {
         })
       }
     })
-    settingsGenerationLogs.value.push("API 已返回：正在解析设定 JSON 并执行应用层契约验收")
+    perRunUi(settingsRunId)!.logs.push("API 已返回：正在解析设定 JSON 并执行应用层契约验收")
     pipelineStore.updateProgress(70, "正在解析设定内容", settingsRunId)
     if (artifact.status !== 'complete') {
       const failure = artifact.errors.join("; ") || "设定项没有可接受输出"
       pipelineStore.failGeneration(failure, settingsRunId)
-      settingsGenerationLogs.value.push("设定契约校验失败：" + failure)
+      perRunUi(settingsRunId)!.logs.push("设定契约校验失败：" + failure)
       return
     }
     if (artifact.accepted.length > 0) {
@@ -4400,7 +4554,7 @@ async function genSettings() {
       if (sc2.categories.length > 0) {
         selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
       }
-      settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
+    perRunUi(settingsRunId)!.logs.push("设定已写入分类并保存到当前项目")
       trace.addEvent({
         type: "settings-artifact-validated",
         level: "info",
@@ -4418,34 +4572,12 @@ async function genSettings() {
     }
     pipelineStore.finishGeneration(settingsRunId)
   } catch (e: any) {
-    settingsGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    perRunUi(settingsRunId)!.logs.push("API 调用失败：" + (e.message || "未知错误"))
     pipelineStore.failGeneration(e.message, settingsRunId)
   } finally {
     const traceStatus = traceStatusFromRun(trace.runId!)
-    activePipelineRunIds.settings = ''
     trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'settings_generation_complete' : 'generation_failed')
   }
-}
-
-const currentBodyChainContract = shallowRef<BodyArtifactContract | null>(null)
-const currentBodyGeneratorStepIndex = shallowRef<number | null>(null)
-const currentBodyStepAcceptance = shallowRef<StepArtifactAcceptanceResult[]>([])
-const currentBodyFinalStepMetadata = shallowRef<FinalStepMetadataFlowResult | null>(null)
-
-function rememberBodyFinalStepMetadata(flow: FinalStepMetadataFlowResult | null) {
-  currentBodyFinalStepMetadata.value = flow
-}
-
-function rememberBodyStepAcceptance(stepIndex: number, acceptance: StepArtifactAcceptanceResult) {
-  const next = currentBodyStepAcceptance.value.filter(item => item.stepIndex !== stepIndex)
-  next.push({ ...acceptance, stepIndex })
-  currentBodyStepAcceptance.value = next
-}
-
-function resetBodyStepAcceptance() {
-  currentBodyStepAcceptance.value = []
-  currentBodyGeneratorStepIndex.value = null
-  currentBodyFinalStepMetadata.value = null
 }
 
 function resolveBodyGeneratorStepIndex(): { index: number | null; role: 'generator' | null } {
@@ -4465,21 +4597,20 @@ function resolveBodyGeneratorStepIndex(): { index: number | null; role: 'generat
 
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
-  activeGenerationFeedbackStep.value = 2
-  skillStepStates.value = []
   // 新项目会从大纲自动生成占位卷；占位卷没有纲要/摘要，不能作为上一卷记忆。
   const previousVolumes = projectStore.volumes.filter(hasVolumeContent)
   const existingCountBeforeGeneration = previousVolumes.length
   activeVolumeGenerationIndex.value = mode === "auto" ? 0 : existingCountBeforeGeneration
-  volumeGenerationLogs.value = [
+  const initialVolumeLog =
     mode === "single" ? "已选择逐卷生成，准备生成下一卷" : mode === "continue" ? "已选择续生成，本次只生成下一卷" : "已选择 AI 生成全卷，准备分析大纲和字数"
-  ]
   const volumesTarget = mode === 'auto' ? 'all' : 'next-volume'
   const volumesRunId = startTrackedGeneration('volumes', volumesTarget, { configSnapshot: await readStepConfigSnapshotForRun() })
+  if (!(await waitForRunnableGeneration(volumesRunId))) return
   const trace = startStepTrace(2, "卷纲层", mode, volumesRunId)
+  pipelineStore.rememberTraceRunOwnership(trace.runId, volumesRunId)
+  appendStepLogForRun(volumesRunId, 2, initialVolumeLog)
   resetPipelineStreamState(2, trace.runId)
   trace.begin()
-  activePipelineRunIds.volumes = volumesRunId
   pipelineStore.updateProgress(10, "AI生成卷纲中", volumesRunId)
   let volumeArtifactDelivered = false
   try {
@@ -4507,7 +4638,7 @@ async function genVolumes(mode: string) {
       totalWords,
       existingVolumes: previousVolumes
     })
-    volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
+    appendStepLogForRun(volumesRunId, 2, "已读取大纲、设定和全书字数，正在构造卷纲请求")
     trace.addEvent({
       type: "prompt-built",
       level: "info",
@@ -4526,13 +4657,13 @@ async function genVolumes(mode: string) {
       outputProtocol: volumeRequestIsFolderChain ? "folder-chain" : "direct-json"
     })
     const basePrompt = prompt
-    volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
+    appendStepLogForRun(volumesRunId, 2, "请求已发送：正在等待 API 返回卷纲内容")
     const batchResult = await generateVolumeBatch({
       contract: volumeContract,
       historyVolumes: previousVolumes,
       basePrompt,
       historyContext: volumeHistoryContext,
-      callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, undefined, "你是卷纲生成专家。基于大纲和设定生成卷纲。", undefined, trace.runId),
+      callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, undefined, "你是卷纲生成专家。基于大纲和设定生成卷纲。", undefined, trace.runId, volumesRunId),
       requestPolicy: volumeRequestIsFolderChain ? "single-volume" : "batch",
       outputProtocol: volumeRequestIsFolderChain ? "folder-chain" : "direct-json",
       shouldContinue: () => !pipelineStore.isGenerationCanceled(volumesRunId),
@@ -4558,12 +4689,12 @@ async function genVolumes(mode: string) {
         })
       }
     })
-    volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
+    appendStepLogForRun(volumesRunId, 2, "API 已返回：正在解析卷纲 JSON 并校验卷数")
     pipelineStore.updateProgress(70, "正在解析卷纲内容", volumesRunId)
     if (batchResult.status !== 'complete') {
       const failure = batchResult.errors.join("; ") || "卷纲批次未能补齐"
       pipelineStore.failGeneration(failure, volumesRunId)
-      volumeGenerationLogs.value.push("卷纲契约校验失败：" + failure)
+      appendStepLogForRun(volumesRunId, 2, "卷纲契约校验失败：" + failure)
       return
     }
     const volumes = batchResult.volumes
@@ -4579,7 +4710,7 @@ async function genVolumes(mode: string) {
           const requestedWords = Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0))
           const clamped = clampVolumeWordsToPlan(requestedWords, volumePlan)
           if (clamped.clamped) {
-            volumeGenerationLogs.value.push(
+            appendStepLogForRun(volumesRunId, 2,
               `第${previousVolumes.length + 1}卷字数 ${requestedWords} 超出剩余预算，已调整为 ${clamped.words}`
             )
             trace.addEvent({
@@ -4631,11 +4762,11 @@ async function genVolumes(mode: string) {
         })]
       }
       await trace.measurePhase('persistence', () => projectStore.saveProject())
-      volumeGenerationLogs.value.push("卷纲已写入卷框并保存到当前项目")
+      appendStepLogForRun(volumesRunId, 2, "卷纲已写入卷框并保存到当前项目")
       const ledger = validateVolumeGenerationLedger(projectStore.volumes.length, effectiveVolumes, mode as VolumeGenerationContract["mode"])
       if (!ledger.valid) {
         pipelineStore.failGeneration(ledger.errors.join("; "), volumesRunId)
-        volumeGenerationLogs.value.push("卷纲台账校验失败：" + ledger.errors.join("; "))
+        appendStepLogForRun(volumesRunId, 2, "卷纲台账校验失败：" + ledger.errors.join("; "))
         return
       }
       trace.addEvent({
@@ -4654,23 +4785,22 @@ async function genVolumes(mode: string) {
       pipelineStore.updateProgress(100, "卷纲生成完成", volumesRunId)
       volumeArtifactDelivered = true
     } else {
-      volumeGenerationLogs.value.push("API 返回内容不是可用的卷纲数组")
+      appendStepLogForRun(volumesRunId, 2, "API 返回内容不是可用的卷纲数组")
       pipelineStore.failGeneration("未能解析卷纲JSON", volumesRunId)
     }
     pipelineStore.finishGeneration(volumesRunId)
   } catch (e: any) {
     const bp = pipelineStore.breakpoint
     if (bp && bp.step === 2 && bp.lastSuccessChainIndex !== undefined) {
-      volumeGenerationLogs.value.push(
+      appendStepLogForRun(volumesRunId, 2,
         "API 调用失败：" + (e.message || "未知错误") + "；已保留断点，下次将从第" + (bp.lastSuccessChainIndex + 2) + "步继续"
       )
     } else {
-      volumeGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+      appendStepLogForRun(volumesRunId, 2, "API 调用失败：" + (e.message || "未知错误"))
     }
     pipelineStore.failGeneration(e.message, volumesRunId)
     trace.addEvent({ type: "failed", level: "error", label: "卷纲运行失败", detail: e.message || "未知错误" })
   } finally {
-    activePipelineRunIds.volumes = ''
     const outcome = traceOutcomeFromRun(trace.runId!, volumeArtifactDelivered)
     if (volumeArtifactDelivered && outcome.recoveredFromDegraded) {
       trace.addEvent({
@@ -4693,25 +4823,26 @@ async function loadOutline() {
   projectStore.saveProject()
 }
 
-async function callChapterApi(prompt: string, traceRunId?: string | null): Promise<string> {
-  const result = await runStepSkills(3, prompt, undefined, "你是章节规划师。请基于大纲、设定和卷纲规划本卷章节。", undefined, traceRunId)
+async function callChapterApi(prompt: string, traceRunId?: string | null, pipelineRunId?: string | null): Promise<string> {
+  const result = await runStepSkills(3, prompt, undefined, "你是章节规划师。请基于大纲、设定和卷纲规划本卷章节。", undefined, traceRunId, pipelineRunId)
   return result
 }
 
 async function genChapters(mode: ChapterGenerationMode) {
   const vol = selectedVolume.value
   if (!vol) return
-  currentGenerationVolume.value = vol
   let batchStopReason: 'batch_complete' | 'all_chapters_complete' = 'all_chapters_complete'
   let plan: ReturnType<typeof planChapterGeneration> | null = null
-  activeGenerationFeedbackStep.value = 3
-  skillStepStates.value = []
   resetPipelineStreamState(3, null)
   const volumeAgentId = getStepAgentId(3)
   const volumeSkillNames = getStepSkillTemplates(3).map(t => t.name).filter(Boolean)
   const volId = vol.id || vol.name
   const chaptersRunId = startTrackedGeneration('chapters', String(volId || vol.name || ''), { configSnapshot: await readStepConfigSnapshotForRun() })
+  if (!(await waitForRunnableGeneration(chaptersRunId))) return
   const trace = startStepTrace(3, "章节层", "chapters", chaptersRunId)
+  pipelineStore.rememberTraceRunOwnership(trace.runId, chaptersRunId)
+  perRunUi(chaptersRunId)!.skillSteps = []
+  perRunUi(chaptersRunId)!.generationVolume = vol
   trace.begin()
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const chapterCountContract = resolveChapterCountContract({
@@ -4730,8 +4861,8 @@ async function genChapters(mode: ChapterGenerationMode) {
       label: "章节口径仲裁失败，已阻止生成",
       detail: JSON.stringify(chapterCountContract)
     })
-    chapterGenerationLogs.value.push("无法开始生成：" + chapterCountContract.message)
-    pipelineStore.failGeneration(chapterCountContract.message)
+    appendStepLogForRun(chaptersRunId, 3, "无法开始生成：" + chapterCountContract.message)
+    pipelineStore.failGeneration(chapterCountContract.message, chaptersRunId)
     return
   }
   const savedBreakpoint = await pipelineStore.refreshBreakpoint()
@@ -4749,15 +4880,14 @@ async function genChapters(mode: ChapterGenerationMode) {
   // breakpoint is missing or belongs to another run. A fresh run starts
   // after the existing chapter list and only appends new, de-duplicated data.
   const existingChapters = persistedChapters.slice()
-  chapterGenerationLogs.value = ["已选择卷「" + vol.name + "」，目标章数：" + totalChapters + "，单章字数：" + wordsPerChapter]
-  chapterGenerationLogs.value.push("智能体：" + (volumeAgentId ? (agentStore.getAgent(volumeAgentId)?.name || volumeAgentId) : "未配置，使用默认生成模型"))
-  chapterGenerationLogs.value.push("Skill：" + (volumeSkillNames.length ? volumeSkillNames.join("、") : "未配置，仅使用章节规划师提示词"))
+  appendStepLogForRun(chaptersRunId, 3, "已选择卷「" + vol.name + "」，目标章数：" + totalChapters + "，单章字数：" + wordsPerChapter)
+  appendStepLogForRun(chaptersRunId, 3, "智能体：" + (volumeAgentId ? (agentStore.getAgent(volumeAgentId)?.name || volumeAgentId) : "未配置，使用默认生成模型"))
+  appendStepLogForRun(chaptersRunId, 3, "Skill：" + (volumeSkillNames.length ? volumeSkillNames.join("、") : "未配置，仅使用章节规划师提示词"))
   if (matchingBreakpoint && persistedChapters.length > 0 && persistedChapters.length < totalChapters) {
-    chapterGenerationLogs.value.push(
+    appendStepLogForRun(chaptersRunId, 3,
       "检测到章节断点：已保存 " + persistedChapters.length + "/" + totalChapters + " 章，将从第" + (persistedChapters.length + 1) + "章继续"
     )
   }
-  activePipelineRunIds.chapters = chaptersRunId
   const resumeCount = matchingBreakpoint
     ? Math.min(Math.max(Number(matchingBreakpoint.chapterCount) || 0, existingChapters.length), totalChapters)
     : Math.min(existingChapters.length, totalChapters)
@@ -4791,11 +4921,11 @@ async function genChapters(mode: ChapterGenerationMode) {
     })
     const volOutline = vol.outline || vol.summary || ""
     if (!volOutline.trim()) {
-      chapterGenerationLogs.value.push("警告：本卷没有卷纲要，章节将只能依据卷名和上游大纲、设定生成")
+      appendStepLogForRun(chaptersRunId, 3, "警告：本卷没有卷纲要，章节将只能依据卷名和上游大纲、设定生成")
     }
     const styleCtxForChapters = getChapterStyleContext(trace.runId)
     if (styleCtxForChapters) {
-      chapterGenerationLogs.value.push("已注入风格与节奏上下文")
+      appendStepLogForRun(chaptersRunId, 3, "已注入风格与节奏上下文")
     }
   const scForChapters = projectStore.getSettingsCollection()
     const settingsProjectionForChapters = getLockedSettingsForLayer('chapter', scForChapters)
@@ -4807,8 +4937,8 @@ async function genChapters(mode: ChapterGenerationMode) {
     plan = planned
     batchStopReason = planned.stopReason
   } catch (error: any) {
-    chapterGenerationLogs.value.push("无法开始生成：" + (error?.message || '未知错误'))
-    pipelineStore.failGeneration(error?.message || '未知章节生成模式')
+    appendStepLogForRun(chaptersRunId, 3, "无法开始生成：" + (error?.message || '未知错误'))
+    pipelineStore.failGeneration(error?.message || '未知章节生成模式', chaptersRunId)
     return
   }
   const batchContracts: ChapterBatchContract[] = collected.length > 0
@@ -4843,7 +4973,7 @@ async function genChapters(mode: ChapterGenerationMode) {
         + "\n\n[本卷总章数]\n" + totalChapters
         + "\n\n[单章字数]\n" + wordsPerChapter
       pipelineStore.updateProgress(Math.round((start / totalChapters) * 100), "生成 " + (start + 1) + "-" + end + "/" + totalChapters, chaptersRunId)
-      chapterGenerationLogs.value.push(
+      appendStepLogForRun(chaptersRunId, 3,
         (phase === 'supplement' ? "补充生成" : "正在生成") + "第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）"
       )
       const batchResult = await generateChapterBatch({
@@ -4851,7 +4981,7 @@ async function genChapters(mode: ChapterGenerationMode) {
         historyTitles: new Set(collected.map(c => String(c.title || '').trim())),
         basePrompt,
         historyContext,
-        callChapterApi: (requestPrompt) => callChapterApi(requestPrompt, trace.runId),
+        callChapterApi: (requestPrompt) => callChapterApi(requestPrompt, trace.runId, chaptersRunId),
         shouldContinue: () => !pipelineStore.isGenerationCanceled(chaptersRunId),
         onAttempt: (attempt) => {
           trace.recordStepObservation('validation', attempt.validationMs)
@@ -4894,7 +5024,7 @@ async function genChapters(mode: ChapterGenerationMode) {
       }))
       projectStore.refreshTree()
       await trace.measurePhase('persistence', () => saveChapterBreakpoint('progress'))
-      chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
+      appendStepLogForRun(chaptersRunId, 3, "已生成 " + collected.length + "/" + totalChapters + " 章")
       trace.addEvent({
         type: "chapter-batch-validated",
         level: "info",
@@ -4915,7 +5045,7 @@ async function genChapters(mode: ChapterGenerationMode) {
       if (!vr.valid) {
         await saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(vr.errors.join("; "), chaptersRunId)
-        chapterGenerationLogs.value.push("章节校验失败：" + vr.errors.join("; "))
+        appendStepLogForRun(chaptersRunId, 3, "章节校验失败：" + vr.errors.join("; "))
         return
       }
       const ledger = validateChapterGenerationLedger(batchContracts, totalChapters, {
@@ -4924,19 +5054,19 @@ async function genChapters(mode: ChapterGenerationMode) {
       if (!ledger.valid) {
         await saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(ledger.errors.join("; "), chaptersRunId)
-        chapterGenerationLogs.value.push("章节台账校验失败：" + ledger.errors.join("; "))
+        appendStepLogForRun(chaptersRunId, 3, "章节台账校验失败：" + ledger.errors.join("; "))
         return
       }
       if (plan!.requiresFullLedger) {
         pipelineStore.updateProgress(100, "章节生成完成", chaptersRunId)
-        chapterGenerationLogs.value.push("章节生成完成，共 " + collected.length + " 章")
+        appendStepLogForRun(chaptersRunId, 3, "章节生成完成，共 " + collected.length + " 章")
       } else {
         pipelineStore.updateProgress(Math.round((collected.length / totalChapters) * 100), "本批生成完成", chaptersRunId)
-        chapterGenerationLogs.value.push("本批生成完成：第 1-" + collected.length + " 章，共 " + totalChapters + " 章。续生成将从第 " + (collected.length + 1) + " 章继续")
+        appendStepLogForRun(chaptersRunId, 3, "本批生成完成：第 1-" + collected.length + " 章，共 " + totalChapters + " 章。续生成将从第 " + (collected.length + 1) + " 章继续")
       }
     } else {
       pipelineStore.failGeneration("未能解析章节JSON", chaptersRunId)
-      chapterGenerationLogs.value.push("AI 返回内容不是可用的章节 JSON")
+      appendStepLogForRun(chaptersRunId, 3, "AI 返回内容不是可用的章节 JSON")
     }
     if (plan!.requiresFullLedger) {
       await pipelineStore.clearBreakpoint()
@@ -4959,11 +5089,9 @@ async function genChapters(mode: ChapterGenerationMode) {
   } catch (e: any) {
     await saveChapterBreakpoint('failed')
     pipelineStore.failGeneration(e.message, chaptersRunId)
-    chapterGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    appendStepLogForRun(chaptersRunId, 3, "API 调用失败：" + (e.message || "未知错误"))
     trace.addEvent({ type: "failed", level: "error", label: "章节运行失败", detail: e.message || "未知错误" })
   } finally {
-    activePipelineRunIds.chapters = ''
-    currentGenerationVolume.value = null
     const traceStatus = traceStatusFromRun(trace.runId!)
     const effectiveStopReason = plan?.stopReason || batchStopReason
     const successReason = effectiveStopReason === 'batch_complete'
@@ -4994,23 +5122,23 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     await pipelineStore.clearBreakpoint(`pipeline:${String(projectStore.currentProjectId || '')}:step-4`)
   }
   const bodyRunId = startTrackedGeneration('body', generationTargetSnapshot.chapterId, { configSnapshot: await readStepConfigSnapshotForRun() })
+  if (!(await waitForRunnableGeneration(bodyRunId))) return
   const trace = startStepTrace(4, "正文层", "body", bodyRunId)
+  pipelineStore.rememberTraceRunOwnership(trace.runId, bodyRunId)
   trace.begin()
-  activePipelineRunIds.body = bodyRunId
   pipelineStore.updateProgress(10, "AI生成正文中", bodyRunId)
-  activeGenerationFeedbackStep.value = 4
-  skillStepStates.value = []
   resetPipelineStreamState(4, trace.runId)
+  perRunUi(bodyRunId)!.skillSteps = []
   const _bodyWordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
-    bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter]
+    appendStepLogForRun(bodyRunId, 4, "已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter)
   let bodyArtifactDelivered = false
   try {
-    bodyGenerationLogs.value.push("正在构建章节执行包…")
+    appendStepLogForRun(bodyRunId, 4, "正在构建章节执行包…")
     const sc = projectStore.getSettingsCollection()
     const settingsProjection = getLockedSettingsForLayer('body', sc)
     trace.addEvent(buildSettingsProjectionTraceEvent('body', settingsProjection))
-    bodyGenerationLogs.value.push("已加载锁定设定 " + settingsProjection.lockedCount + " 项，准备调用 API")
-    bodyGenerationLogs.value.push("降AI方法论已注入（17条生成约束，仅正文层生效）")
+    appendStepLogForRun(bodyRunId, 4, "已加载锁定设定 " + settingsProjection.lockedCount + " 项，准备调用 API")
+    appendStepLogForRun(bodyRunId, 4, "降AI方法论已注入（17条生成约束，仅正文层生效）")
     pipelineStore.updateProgress(20, "API 生成正文中（已注入降AI约束）", bodyRunId)
     const styleCtx = getBodyStyleContext(trace.runId)
     const pacingCtx = pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.pacingParams : ""
@@ -5134,7 +5262,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       chapterId: String(ch.id || `${volId}-chapter-${chapterIndex + 1}`),
       targetWords: _bodyWordsPerChapter
     }
-    currentBodyChainContract.value = bodyChainContract
+    perRunUi(bodyRunId)!.bodyChainContract = bodyChainContract
     const generatorStep = resolveBodyGeneratorStepIndex()
     let previousBodyStepOutputs: ChainBreakpointStepOutput[] = []
     const bodyAttemptMetadataState = {
@@ -5153,16 +5281,21 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       finalStepRole: 'polish',
       totalSteps: getStepSkillTemplates(4).length,
         callBodyApi: (requestPrompt, context) => {
-          const bodyRunId = trace.runId || null
-          currentBodyRunId = bodyRunId
-          const bodyApiStarted = bodyRunId ? runTraceStore.getRun(bodyRunId) : null
+          const pipelineBodyRunId = bodyRunId
+          currentBodyRunId = pipelineBodyRunId
+          const bodyApiStarted = pipelineBodyRunId ? runTraceStore.getRun(trace.runId!) : null
           const bodyApiCallsAtStart = bodyApiStarted?.apiCalls.length ?? 0
           const bodyApiEventsAtStart = bodyApiStarted?.events.length ?? 0
           if (context.chapterId !== generationTargetSnapshot.chapterId) {
             return Promise.reject(new Error('正文目标已变化，本次生成终止'))
           }
-          if (bodyRunId) runTraceStore.resetBodyFeedbackAudits(bodyRunId)
-          resetBodyStepAcceptance()
+          if (trace.runId) runTraceStore.resetBodyFeedbackAudits(trace.runId)
+          const acceptanceState = perRunUi(pipelineBodyRunId)
+          if (acceptanceState) {
+            acceptanceState.bodyStepAcceptance = []
+            acceptanceState.bodyFinalStepMetadata = null
+            acceptanceState.bodyGeneratorStepIndex = null
+          }
           const executionPlan = {
           ...context.executionPlan,
           checkpointTarget: {
@@ -5190,9 +5323,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           undefined,
           "你是小说写作专家。请基于章节剧情点生成正文。",
           executionPlan,
-          trace.runId
+          trace.runId,
+          pipelineBodyRunId
         ).then(text => {
-          if (currentBodyChainContract.value && currentBodyGeneratorStepIndex.value === null) {
+          if (bodyChainContractForRun(pipelineBodyRunId) && bodyGeneratorStepIndexForRun(pipelineBodyRunId) === null) {
             if (trace.runId) {
               runTraceStore.addEvent(trace.runId, {
                 type: 'body-generator-step-unresolved',
@@ -5206,7 +5340,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             }
             throw new Error('正文生成步骤无法唯一识别，禁止向所有步骤注入正文契约')
           }
-          const runAfter = bodyRunId ? runTraceStore.getRun(bodyRunId) : null
+          const runAfter = pipelineBodyRunId ? runTraceStore.getRun(trace.runId!) : null
           const physicalRequests = Math.max(
             0,
             (runAfter?.apiCalls.length ?? bodyApiCallsAtStart) - bodyApiCallsAtStart
@@ -5243,9 +5377,9 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             errors: attempt.errors,
             bodyPreview: (attempt.body || '').slice(0, 200),
             requestFingerprint: attempt.metadata?.requestFingerprint,
-            generatorStepIndex: currentBodyGeneratorStepIndex.value,
+            generatorStepIndex: bodyGeneratorStepIndexForRun(bodyRunId),
             feedbackAudits: currentBodyRunId ? runTraceStore.getBodyFeedbackAudits(currentBodyRunId) : [],
-            stepAcceptanceDecisions: currentBodyStepAcceptance.value.map(item => ({
+            stepAcceptanceDecisions: bodyStepAcceptanceForRun(bodyRunId).map(item => ({
               stepIndex: item.stepIndex,
               callerStatus: item.callerStatus,
               decision: item.decision,
@@ -5260,26 +5394,26 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
                   comparison: bodyAttemptMetadataState.finalStepFlow.comparison
                 }
               : undefined,
-            degradedSteps: currentBodyStepAcceptance.value
+            degradedSteps: bodyStepAcceptanceForRun(bodyRunId)
               .filter(item => item.callerStatus === 'degraded')
               .map(item => ({
                 stepIndex: item.stepIndex,
                 errors: item.errors
               })),
-            rawVsExtractedDelta: currentBodyStepAcceptance.value.reduce((total, item) => (
+            rawVsExtractedDelta: bodyStepAcceptanceForRun(bodyRunId).reduce((total, item) => (
               total + Math.max(0, item.rawWordCount - item.extractedWordCount)
             ), 0)
           })
         })
       }
     })
-    currentBodyChainContract.value = null
+    perRunUi(bodyRunId)!.bodyChainContract = null
     pipelineStore.updateProgress(80, "API 返回完成，正在执行正文契约验收", bodyRunId)
-    bodyGenerationLogs.value.push("API 已返回，正在执行正文契约验收")
+    appendStepLogForRun(bodyRunId, 4, "API 已返回，正在执行正文契约验收")
     if (bodyArtifact.status !== 'complete') {
       const failure = bodyArtifact.errors.join("; ") || "正文未通过验收"
       pipelineStore.failGeneration(failure, bodyRunId)
-      bodyGenerationLogs.value.push("正文契约校验失败：" + failure)
+      appendStepLogForRun(bodyRunId, 4, "正文契约校验失败：" + failure)
       return
     }
     const generationResult = {
@@ -5318,7 +5452,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         })
       }
       pipelineStore.failGeneration(`正文后处理输出未通过契约验收：${postProcessContractValidation.errors.join('；')}`, bodyRunId)
-      bodyGenerationLogs.value.push('后处理契约校验失败，禁止交付改写后的正文')
+      appendStepLogForRun(bodyRunId, 4, '后处理契约校验失败，禁止交付改写后的正文')
       return
     }
     bodyArtifact = {
@@ -5343,7 +5477,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     })
     // P2: 后处理层 — 自动降AI清洗
     if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
-      bodyGenerationLogs.value.push(
+      appendStepLogForRun(bodyRunId, 4,
         deAiStore.hardRuleMode === 'legacy-auto'
           ? "开始降AI硬规则清洗（兼容自动替换模式）…"
           : "开始降AI硬规则检测（只报告，不改写正文）…"
@@ -5358,7 +5492,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           // V55: 兼容模式保留 processBody（只做字符级替换，不重组段落/句子结构）
           const deaiResult = DeAiProcessor.processBody(finalBody, { hardRules: deAiStore.hardRules })
           if (deaiResult && deaiResult.text && deaiResult.text.length > 0) {
-            bodyGenerationLogs.value.push(
+            appendStepLogForRun(bodyRunId, 4,
               "降AI后处理完成：" +
               (deaiResult.stats?.total || 0) + " 处修正" +
               (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
@@ -5441,7 +5575,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
               errors: blocking > 0 ? [`降AI检测存在 ${blocking} 项阻断问题`] : []
             })
           }
-          bodyGenerationLogs.value.push(
+          appendStepLogForRun(bodyRunId, 4,
             "降AI检测完成：需处理 " + blocking + " 项，建议 " + advisory + " 项；正文保持原始生成结果"
           )
           trace.addEvent({
@@ -5471,7 +5605,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             durationMs: Date.now() - deaiStartedAt
           })
           if (deAiStore.hardRuleMode === 'deep-fix') {
-            bodyGenerationLogs.value.push("降AI深度修复执行中（最小编辑 + 保护片段回对 + 完整性门禁）…")
+            appendStepLogForRun(bodyRunId, 4, "降AI深度修复执行中（最小编辑 + 保护片段回对 + 完整性门禁）…")
             pipelineStore.updateProgress(94, "降AI深度修复中", bodyRunId)
             finalBody = await runBodyMinimalEdit(finalBody, report, trace.runId!, bodyRunId)
             const deepFixValidation = validateBodyArtifact(finalBody, bodyChainContract)
@@ -5511,7 +5645,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
                 wordCount: countBodyWords(finalBody)
               })
             }
-            bodyGenerationLogs.value.push(
+            appendStepLogForRun(bodyRunId, 4,
               "降AI深度修复结束；未通过门禁或 API 失败时保留原始正文"
             )
           }
@@ -5519,7 +5653,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       } catch (deaiErr: any) {
         if (pipelineStore.isGenerationCanceled(bodyRunId)) throw deaiErr
         console.warn("[DEAI] post-process failed, using raw body:", deaiErr)
-        bodyGenerationLogs.value.push("降AI后处理跳过：" + (deaiErr?.message || "未知错误"))
+        appendStepLogForRun(bodyRunId, 4, "降AI后处理跳过：" + (deaiErr?.message || "未知错误"))
         runTraceStore.attachProcessingReport(trace.runId!, {
           stage: 'post',
           processor: 'deai',
@@ -5581,7 +5715,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
     const finalWordCount = countBodyWords(finalBody)
-    bodyGenerationLogs.value.push("正文生成完成，字数：" + finalWordCount)
+    appendStepLogForRun(bodyRunId, 4, "正文生成完成，字数：" + finalWordCount)
     trace.addEvent({ type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + finalWordCount })
     // Insert into the editor automatically (same link as old architecture).
     window.dispatchEvent(new CustomEvent("insert-text", {
@@ -5597,10 +5731,9 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     pipelineStore.finishGeneration(bodyRunId)
   } catch (e: any) {
     pipelineStore.failGeneration(e.message, bodyRunId)
-    bodyGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    appendStepLogForRun(bodyRunId, 4, "API 调用失败：" + (e.message || "未知错误"))
     trace.addEvent({ type: "failed", level: "error", label: "正文运行失败", detail: e.message || "未知错误" })
   } finally {
-    activePipelineRunIds.body = ''
     const outcome = traceOutcomeFromRun(trace.runId!, bodyArtifactDelivered)
     if (bodyArtifactDelivered && outcome.recoveredFromDegraded) {
       trace.addEvent({
@@ -5654,7 +5787,6 @@ async function runBodyMinimalEdit(
     model,
     requestMessages
   })
-  registerProviderQueueStep(callId, 4)
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
@@ -5677,7 +5809,7 @@ async function runBodyMinimalEdit(
       error: traceStatus.error
     })
     if (traceStatus.status === 'failed') {
-      appendStepLog(4, traceStatus.error || '降AI深度修复未生成正文，保留原文')
+      appendStepLogForRun(bodyRunId, 4, traceStatus.error || '降AI深度修复未生成正文，保留原文')
       return text
     }
     if (!edited.trim()) {
@@ -5762,7 +5894,6 @@ async function runHardSignalRepair(
     model,
     requestMessages
   })
-  registerProviderQueueStep(callId, 4)
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
@@ -5848,14 +5979,14 @@ async function runProseHardSignalNet(
   })
   if (!scan.detected) return current
 
-  bodyGenerationLogs.value.push(`正文硬信号扫描命中：${Object.entries(scan.counts).filter(([, count]) => count > 0).map(([type, count]) => `${type}=${count}`).join(', ')}`)
+  appendStepLogForRun(bodyRunId, 4, `正文硬信号扫描命中：${Object.entries(scan.counts).filter(([, count]) => count > 0).map(([type, count]) => `${type}=${count}`).join(', ')}`)
   pipelineStore.updateProgress(88, '正文硬信号定点修复中', bodyRunId)
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     const repaired = await runHardSignalRepair(current, scan, traceRunId, attempt, bodyRunId)
     current = repaired.text
     scan = repaired.scan
     if (!scan.detected) {
-      bodyGenerationLogs.value.push(`正文硬信号修复完成，复扫通过（第 ${attempt} 次）`)
+      appendStepLogForRun(bodyRunId, 4, `正文硬信号修复完成，复扫通过（第 ${attempt} 次）`)
       return current
     }
   }
@@ -5866,7 +5997,7 @@ async function runProseHardSignalNet(
     label: '正文硬信号连续两次修复后仍未清空',
     detail: JSON.stringify({ status: 'hard_signal_unresolved', counts: scan.counts })
   })
-  bodyGenerationLogs.value.push('正文硬信号终态：hard_signal_unresolved，已停止继续润色')
+  appendStepLogForRun(bodyRunId, 4, '正文硬信号终态：hard_signal_unresolved，已停止继续润色')
   hardSignalUnresolvedRuns.add(traceRunId)
   return current
 }

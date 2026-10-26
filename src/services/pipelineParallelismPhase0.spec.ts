@@ -84,6 +84,23 @@ describe('V3.3 Phase 0 parallelism red tests', () => {
     expect(pipeline.getRun(chaptersRunId)?.progress).toBe(80)
   })
 
+  it('activeRuns computed reevaluates after registry changes', () => {
+    const pipeline = usePipelineStore()
+    expect(pipeline.activeRuns).toHaveLength(0)
+    expect(pipeline.isGenerating).toBe(false)
+
+    const runId = pipeline.startGeneration('body', 'ch-reactive')
+    pipeline.updateProgress(25, '生成中', runId)
+
+    expect(pipeline.activeRuns.map(run => run.runId)).toEqual([runId])
+    expect(pipeline.activeRuns[0]?.progress).toBe(25)
+    expect(pipeline.isGenerating).toBe(true)
+
+    pipeline.finishGeneration(runId)
+    expect(pipeline.activeRuns).toHaveLength(0)
+    expect(pipeline.isGenerating).toBe(false)
+  })
+
   it('red: terminal events must not be swallowed after cancel', () => {
     const pipeline = usePipelineStore()
     const runId = pipeline.startGeneration()
@@ -514,6 +531,108 @@ describe('V3.3 Phase 0 parallelism red tests', () => {
     expect(unscopedEntryLocks).toEqual([])
   })
 
+  it('red: same-layer runs must not overwrite each other through step slot helpers', async () => {
+    const source = await import('node:fs').then(fs =>
+      fs.readFileSync(new URL('../components/pipeline/PipelinePanel.vue', import.meta.url), 'utf8')
+    )
+
+    // V4 P0-A: a run owns its identity for its whole lifetime. Any per-layer
+    // "current run" slot lets the second run hijack the first run's signal,
+    // cancellation, progress, trace, and provider queue.
+    expect(source).not.toContain('activePipelineRunIds')
+    expect(source).not.toContain('activePipelineRunIdForStep')
+    expect(source).not.toContain('providerQueueStepByCallId')
+  })
+
+  it('red: queued runs must wait for activation before becoming executable', async () => {
+    const pipeline = usePipelineStore()
+    const runningRunId = pipeline.startGeneration('volumes', 'all')
+    const queuedRunId = pipeline.startGeneration('volumes', 'all')
+
+    expect(pipeline.getRunStatus(runningRunId)).toBe('running')
+    expect(pipeline.getRunStatus(queuedRunId)).toBe('queued')
+
+    let activated = false
+    const activation = pipeline.waitForRunActivation(queuedRunId).then(() => {
+      activated = true
+    })
+    await Promise.resolve()
+    expect(activated).toBe(false)
+
+    pipeline.finishGeneration(runningRunId)
+    await vi.waitFor(() => {
+      expect(activated).toBe(true)
+    })
+    expect(pipeline.getRunStatus(queuedRunId)).toBe('running')
+  })
+
+  it('red: cancelGeneration cancels only the requested queued run', async () => {
+    const pipeline = usePipelineStore()
+    const runningRunId = pipeline.startGeneration('chapters', 'volume-1')
+    const firstQueuedRunId = pipeline.startGeneration('chapters', 'volume-2')
+    const secondQueuedRunId = pipeline.startGeneration('chapters', 'volume-3')
+
+    pipeline.cancelGeneration(firstQueuedRunId)
+
+    expect(pipeline.getRunStatus(runningRunId)).toBe('running')
+    expect(pipeline.getRunStatus(firstQueuedRunId)).toBe('canceled')
+    expect(pipeline.getRunStatus(secondQueuedRunId)).toBe('queued')
+  })
+
+  it('red: cancelGeneration activates the next queued run after a running cancellation', async () => {
+    const pipeline = usePipelineStore()
+    const runningRunId = pipeline.startGeneration('body', 'chapter-1')
+    const queuedRunId = pipeline.startGeneration('body', 'chapter-2')
+
+    let activated = false
+    const activation = pipeline.waitForRunActivation(queuedRunId).then(() => {
+      activated = true
+    })
+    await Promise.resolve()
+    expect(activated).toBe(false)
+
+    pipeline.cancelGeneration(runningRunId)
+    await vi.waitFor(() => {
+      expect(activated).toBe(true)
+    })
+    expect(pipeline.getRunStatus(queuedRunId)).toBe('running')
+  })
+
+  it('red: a canceled queued run resolves activation but is not runnable', async () => {
+    const pipeline = usePipelineStore()
+    const runningRunId = pipeline.startGeneration('volumes', 'all')
+    const queuedRunId = pipeline.startGeneration('volumes', 'next-volume')
+
+    const activation = pipeline.waitForRunActivation(queuedRunId)
+    pipeline.cancelGeneration(queuedRunId)
+    const activatedRun = await activation
+
+    // Activation resolves so an awaiting generation function cannot hang, but
+    // the run is terminal and must never issue a trace or physical request.
+    expect(activatedRun.runId).toBe(queuedRunId)
+    expect(pipeline.getRunStatus(queuedRunId)).toBe('canceled')
+    expect(pipeline.isGenerationCanceled(queuedRunId)).toBe(true)
+    expect(pipeline.getRunStatus(runningRunId)).toBe('running')
+  })
+
+  it('red: generation entries must gate execution through the activation helper', async () => {
+    const source = await import('node:fs').then(fs =>
+      fs.readFileSync(new URL('../components/pipeline/PipelinePanel.vue', import.meta.url), 'utf8')
+    )
+
+    expect(source.match(/waitForRunnableGeneration\(/g)?.length).toBeGreaterThanOrEqual(5)
+    expect(source.match(/await\s+pipelineStore\.waitForRunActivation\(/g)?.length).toBe(1)
+  })
+
+  it('red: provider queue ownership must stay explicit and not be guessed by callId', async () => {
+    const source = await import('node:fs').then(fs =>
+      fs.readFileSync(new URL('../components/pipeline/PipelinePanel.vue', import.meta.url), 'utf8')
+    )
+
+    expect(source).not.toContain('providerQueueOwnerByCallId')
+    expect(source).not.toContain('registerProviderQueueOwner')
+  })
+
   it('red: pipeline trace ownership must not read current run pointers', async () => {
     const source = await import('node:fs').then(fs =>
       fs.readFileSync(new URL('../components/pipeline/PipelinePanel.vue', import.meta.url), 'utf8')
@@ -527,6 +646,26 @@ describe('V3.3 Phase 0 parallelism red tests', () => {
     // store's current pointers describe other UI domains and must never be
     // used to attribute pipeline API calls, streams, or diagnostic events.
     expect(currentPointerReads).toEqual([])
+  })
+
+  it('red: trace-to-run ownership survives PipelinePanel remounts', async () => {
+    const pipeline = usePipelineStore()
+    const pipelineRunId = pipeline.startGeneration('body', 'chapter-1')
+    const trace = useRunTraceStore()
+    const traceRunId = trace.startRun({
+      source: 'pipeline',
+      step: 4,
+      stepName: '正文层',
+      mode: 'single',
+      skillNames: [],
+    })
+
+    pipeline.rememberTraceRunOwnership(traceRunId, pipelineRunId)
+
+    // Ownership lives in the store, so a component remount cannot drop
+    // in-flight skill events back onto the console-warning path.
+    expect(pipeline.getPipelineRunIdForTrace(traceRunId)).toBe(pipelineRunId)
+    expect(pipeline.getRun(pipelineRunId)?.status).toBe('running')
   })
 
   it('red: concurrent pipeline streams are isolated by explicit run and call ownership', () => {

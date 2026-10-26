@@ -1,66 +1,72 @@
 {
   "script": "verify-pipeline-parallelism-electron.mjs",
-  "at": "2026-10-23T19:43:56.844Z",
+  "at": "2026-10-26T13:42:30.837Z",
   "result": "PASS",
   "concurrentSnapshot": {
-    "at": 1792784535777,
-    "volumes": null,
-    "chapters": {
-      "runId": "pipeline-run-1792784535565-2",
+    "at": 1793021903191,
+    "volumes": {
+      "runId": "pipeline-run-1793021902793-1",
       "status": "running",
-      "progress": 50,
+      "progress": 10,
+      "statusText": "AI生成卷纲中"
+    },
+    "chapters": {
+      "runId": "pipeline-run-1793021902985-2",
+      "status": "running",
+      "progress": 67,
       "statusText": "已获得供应商槽位，正在请求供应商"
     },
     "body": {
-      "runId": "pipeline-run-1792784535745-3",
+      "runId": "pipeline-run-1793021903165-3",
+      "target": "ch-parallelism-1",
       "status": "running",
       "progress": 10,
       "statusText": "AI生成正文中"
     },
     "allRuns": [
       {
-        "runId": "pipeline-run-1792784535241-1",
+        "runId": "pipeline-run-1793021902793-1",
         "layer": "volumes",
         "target": "all",
         "status": "running",
         "progress": 10
       },
       {
-        "runId": "pipeline-run-1792784535565-2",
+        "runId": "pipeline-run-1793021902985-2",
         "layer": "chapters",
         "target": "vol-parallelism",
         "status": "running",
-        "progress": 50
+        "progress": 67
       },
       {
-        "runId": "pipeline-run-1792784535745-3",
+        "runId": "pipeline-run-1793021903165-3",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "running",
         "progress": 10
       }
     ],
-    "chapterCount": 1,
+    "chapterCount": 2,
     "traceRuns": [
       {
-        "id": "run-1792784535748-28",
-        "pipelineRunId": "pipeline-run-1792784535745-3",
+        "id": "run-1793021903172-28",
+        "pipelineRunId": "pipeline-run-1793021903165-3",
         "step": 4,
         "status": "running",
         "apiCalls": 0,
         "providerQueueEvents": 0
       },
       {
-        "id": "run-1792784535566-14",
-        "pipelineRunId": "pipeline-run-1792784535565-2",
+        "id": "run-1793021902994-14",
+        "pipelineRunId": "pipeline-run-1793021902985-2",
         "step": 3,
         "status": "running",
         "apiCalls": 1,
         "providerQueueEvents": 1
       },
       {
-        "id": "run-1792784535246-1",
-        "pipelineRunId": "pipeline-run-1792784535241-1",
+        "id": "run-1793021902805-1",
+        "pipelineRunId": "pipeline-run-1793021902793-1",
         "step": 2,
         "status": "running",
         "apiCalls": 1,
@@ -69,67 +75,83 @@
     ]
   },
   "cancelTiming": {
-    "clickToCanceledMs": 137
+    "clickToCanceledMs": 94
   },
   "terminalSnapshot": {
-    "at": 1792784561314,
+    "at": 1793021966903,
     "volumes": null,
     "chapters": {
-      "runId": "pipeline-run-1792784535565-2",
+      "runId": "pipeline-run-1793021902985-2",
       "status": "canceled",
-      "progress": 50,
+      "progress": 67,
       "statusText": "canceled"
     },
     "body": {
-      "runId": "pipeline-run-1792784535745-3",
+      "runId": "pipeline-run-1793021903477-4",
+      "target": "ch-parallelism-2",
       "status": "succeeded",
       "progress": 100,
       "statusText": "succeeded"
     },
     "allRuns": [
       {
-        "runId": "pipeline-run-1792784535241-1",
+        "runId": "pipeline-run-1793021902793-1",
         "layer": "volumes",
         "target": "all",
         "status": "succeeded",
         "progress": 100
       },
       {
-        "runId": "pipeline-run-1792784535565-2",
+        "runId": "pipeline-run-1793021902985-2",
         "layer": "chapters",
         "target": "vol-parallelism",
         "status": "canceled",
-        "progress": 50
+        "progress": 67
       },
       {
-        "runId": "pipeline-run-1792784535745-3",
+        "runId": "pipeline-run-1793021903165-3",
         "layer": "body",
         "target": "ch-parallelism-1",
+        "status": "canceled",
+        "progress": 20
+      },
+      {
+        "runId": "pipeline-run-1793021903477-4",
+        "layer": "body",
+        "target": "ch-parallelism-2",
         "status": "succeeded",
         "progress": 100
       }
     ],
-    "chapterCount": 1,
+    "chapterCount": 2,
     "traceRuns": [
       {
-        "id": "run-1792784535748-28",
-        "pipelineRunId": "pipeline-run-1792784535745-3",
+        "id": "run-1793021906550-55",
+        "pipelineRunId": "pipeline-run-1793021903477-4",
         "step": 4,
         "status": "success",
         "apiCalls": 3,
         "providerQueueEvents": 3
       },
       {
-        "id": "run-1792784535566-14",
-        "pipelineRunId": "pipeline-run-1792784535565-2",
+        "id": "run-1793021903172-28",
+        "pipelineRunId": "pipeline-run-1793021903165-3",
+        "step": 4,
+        "status": "failed",
+        "apiCalls": 1,
+        "providerQueueEvents": 2
+      },
+      {
+        "id": "run-1793021902994-14",
+        "pipelineRunId": "pipeline-run-1793021902985-2",
         "step": 3,
         "status": "canceled",
         "apiCalls": 1,
-        "providerQueueEvents": 1
+        "providerQueueEvents": 2
       },
       {
-        "id": "run-1792784535246-1",
-        "pipelineRunId": "pipeline-run-1792784535241-1",
+        "id": "run-1793021902805-1",
+        "pipelineRunId": "pipeline-run-1793021902793-1",
         "step": 2,
         "status": "success",
         "apiCalls": 1,
@@ -137,12 +159,19 @@
       }
     ]
   },
+  "sameLayerQueue": {
+    "firstBodyRunId": "pipeline-run-1793021903165-3",
+    "queuedBodyRunId": "pipeline-run-1793021903477-4",
+    "queuedPhysicalRequests": 0,
+    "displayedRunCanceledWhileQueuedSurvived": true,
+    "queuedTerminalStatus": "succeeded"
+  },
   "providerMetrics": {
-    "requestCount": 5,
+    "requestCount": 6,
     "byKind": {
       "volumes": 1,
       "chapters": 1,
-      "body": 3
+      "body": 4
     },
     "maxConcurrency": 2,
     "overlappedPairs": [
@@ -162,89 +191,104 @@
     "requestDurations": [
       {
         "kind": "volumes",
-        "durationMs": 10014.790599999998
+        "durationMs": 10003.869200000001
       },
       {
         "kind": "chapters",
-        "durationMs": 265.7492000000002
+        "durationMs": 275.6997000000001
       },
       {
         "kind": "body",
-        "durationMs": 8006.6204
+        "durationMs": 2984.6837000000005
       },
       {
         "kind": "body",
-        "durationMs": 8008.9132999999965
+        "durationMs": 20014.1635
       },
       {
         "kind": "body",
-        "durationMs": 8008.7827
+        "durationMs": 20014.5852
+      },
+      {
+        "kind": "body",
+        "durationMs": 20005.10190000001
       }
     ]
   },
   "performance": {
     "longTaskCount": 0,
     "freezeCount": 0,
-    "clickFeedbackCount": 3,
+    "clickFeedbackCount": 4,
     "slowClickFeedbackCount": 0,
+    "safeModeCount": 0,
+    "responsivenessState": "normal",
     "withinBudget": true,
     "thresholds": {
       "longTaskThresholdMs": 200,
       "freezeThresholdMs": 2000,
+      "safeModeThresholdMs": 5000,
       "clickFeedbackBudgetMs": 100
     },
     "events": [
       {
         "kind": "click-feedback",
-        "startTime": 1792784535241,
-        "durationMs": 0,
+        "startTime": 1793021902792,
+        "durationMs": 2,
         "label": "pipeline-run-start:volumes"
       },
       {
         "kind": "click-feedback",
-        "startTime": 1792784535565,
+        "startTime": 1793021902985,
         "durationMs": 0,
         "label": "pipeline-run-start:chapters"
       },
       {
         "kind": "click-feedback",
-        "startTime": 1792784535745,
-        "durationMs": 2,
+        "startTime": 1793021903165,
+        "durationMs": 0,
+        "label": "pipeline-run-start:body"
+      },
+      {
+        "kind": "click-feedback",
+        "startTime": 1793021903477,
+        "durationMs": 0,
         "label": "pipeline-run-start:body"
       }
     ]
   },
   "traces": {
     "volume": {
-      "runId": "run-1792784535246-1",
-      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261024-034215-deep",
+      "runId": "run-1793021902805-1",
+      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261026-213822-deep",
       "status": "success"
     },
     "chapter": {
-      "runId": "run-1792784535566-14",
-      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-章节层-20261024-034215-deep",
+      "runId": "run-1793021902994-14",
+      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-章节层-20261026-213822-deep",
       "status": "canceled"
     },
     "body": {
-      "runId": "run-1792784535748-28",
-      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261024-034215-deep",
+      "runId": "run-1793021906550-55",
+      "directory": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261026-213826-deep",
       "status": "success"
     }
   },
   "reentry": {
-    "previousBodyRunId": "pipeline-run-1792784535745-3",
-    "newBodyRunId": "pipeline-run-1792784561681-4",
-    "previousBodyHash": "c1e1fcfb9e3d063036b4dd4413fbe5e99e8111fc0500b4273dca5ada51d75fd8",
-    "newBodyHash": "0c6fa05e29ced0dbd32e768d94fa78c264a3d5c9789a563440f34915c1cd6de5",
-    "newBodyChars": 4663,
+    "previousBodyRunId": "pipeline-run-1793021903477-4",
+    "newBodyRunId": "pipeline-run-1793021967209-5",
+    "previousBodyChapterId": "ch-parallelism-2",
+    "newBodyChapterId": "ch-parallelism-1",
+    "previousBodyHash": "080d523af05209b149f290f8814bdc5f8432bd51088bc0cfc4eebeaae2683c59",
+    "newBodyHash": "340a841cea3a4cad17568a3a3f3f8032eebef281ff60abf802279ce6ae89e091",
+    "newBodyChars": 4666,
     "bodyPhysicalRequests": {
-      "before": 3,
-      "after": 6
+      "before": 4,
+      "after": 7
     }
   },
   "breakpointReentry": {
-    "failedRunId": "pipeline-run-1792784586437-5",
-    "resumedRunId": "pipeline-run-1792784594771-6",
+    "failedRunId": "pipeline-run-1793022028156-6",
+    "resumedRunId": "pipeline-run-1793022048814-7",
     "failedPhysicalRequests": 2,
     "resumedPhysicalRequests": 2,
     "resumedEventTypes": [
@@ -267,6 +311,8 @@
       "physical-call",
       "provider-queue",
       "physical-call",
+      "run-activity",
+      "physical-call",
       "folder-diagnostics",
       "state-transition",
       "api-success",
@@ -286,6 +332,8 @@
       "physical-call",
       "provider-queue",
       "physical-call",
+      "run-activity",
+      "physical-call",
       "folder-diagnostics",
       "state-transition",
       "api-success",
@@ -299,84 +347,95 @@
       "finished",
       "state-transition"
     ],
-    "finalBodyChars": 4664
+    "finalBodyChars": 4665
   },
   "failedTerminalReentry": {
-    "failedRunId": "pipeline-run-1792784611468-7",
-    "reentryRunId": "pipeline-run-1792784612145-8",
+    "failedRunId": "pipeline-run-1793022089581-8",
+    "reentryRunId": "pipeline-run-1793022090207-9",
     "failedPhysicalRequests": 1,
     "reentryPhysicalRequests": 3,
-    "finalBodyChars": 4664
+    "finalBodyChars": 4665
   },
   "keyLeakCheck": null,
   "mode": "mock-provider",
   "summary": {
     "runs": [
       {
-        "runId": "pipeline-run-1792784535241-1",
+        "runId": "pipeline-run-1793021902793-1",
         "layer": "volumes",
         "target": "all",
         "status": "succeeded",
         "progress": 100
       },
       {
-        "runId": "pipeline-run-1792784535565-2",
+        "runId": "pipeline-run-1793021902985-2",
         "layer": "chapters",
         "target": "vol-parallelism",
         "status": "canceled",
-        "progress": 50
+        "progress": 67
       },
       {
-        "runId": "pipeline-run-1792784535745-3",
+        "runId": "pipeline-run-1793021903165-3",
+        "layer": "body",
+        "target": "ch-parallelism-1",
+        "status": "canceled",
+        "progress": 20
+      },
+      {
+        "runId": "pipeline-run-1793021903477-4",
+        "layer": "body",
+        "target": "ch-parallelism-2",
+        "status": "succeeded",
+        "progress": 100
+      },
+      {
+        "runId": "pipeline-run-1793021967209-5",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "succeeded",
         "progress": 100
       },
       {
-        "runId": "pipeline-run-1792784561681-4",
-        "layer": "body",
-        "target": "ch-parallelism-1",
-        "status": "succeeded",
-        "progress": 100
-      },
-      {
-        "runId": "pipeline-run-1792784586437-5",
+        "runId": "pipeline-run-1793022028156-6",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "failed",
         "progress": 20
       },
       {
-        "runId": "pipeline-run-1792784594771-6",
+        "runId": "pipeline-run-1793022048814-7",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "succeeded",
         "progress": 100
       },
       {
-        "runId": "pipeline-run-1792784611468-7",
+        "runId": "pipeline-run-1793022089581-8",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "failed",
         "progress": 10
       },
       {
-        "runId": "pipeline-run-1792784612145-8",
+        "runId": "pipeline-run-1793022090207-9",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "succeeded",
         "progress": 100
       }
     ],
-    "chapterBodyChars": 4664,
+    "chapterBodyChars": 4667,
+    "bodyArtifactChapterId": "ch-parallelism-2",
+    "bodyArtifactType": "string",
+    "bodyArtifactChars": 4665,
     "volumeCount": 2,
-    "chapterCount": 1
+    "chapterCount": 2
   },
   "coverage": {
     "freshStart": true,
     "successfulTerminalReentry": true,
     "canceledRunIsolation": true,
+    "sameLayerQueue": true,
     "breakpointReentry": true,
     "failedTerminalReentry": true,
     "note": "四格再入均在真实 UI 点击与真实物理请求路径触发。"

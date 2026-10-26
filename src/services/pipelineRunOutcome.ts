@@ -6,6 +6,7 @@ export interface PipelineApiCallLike {
 
 export interface ResolvePipelineRunOutcomeInput {
   runStatus?: string | null
+  pipelineRunStatus?: string | null
   apiCalls?: PipelineApiCallLike[] | null
   folderStatus?: RunTraceStatus | null
   finalArtifactAccepted?: boolean
@@ -27,13 +28,14 @@ export function resolvePipelineRunOutcome(
   const hasCallStatus = (status: string) =>
     apiCalls.some(call => call?.status === status)
 
-  if (runStatus === 'canceled' || hasCallStatus('canceled')) {
+  const owningPipelineStatus = input.pipelineRunStatus || ''
+  if (runStatus === 'canceled' || owningPipelineStatus === 'canceled' || hasCallStatus('canceled')) {
     return { status: 'canceled', recoveredFromDegraded: false, degradedApiCalls }
   }
-  if (runStatus.startsWith('failed') || hasCallStatus('failed')) {
+  if (runStatus.startsWith('failed') || owningPipelineStatus === 'failed' || hasCallStatus('failed')) {
     return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls }
   }
-  if (runStatus.startsWith('blocked') || hasCallStatus('blocked')) {
+  if (runStatus.startsWith('blocked') || owningPipelineStatus === 'blocked' || hasCallStatus('blocked')) {
     return { status: 'blocked', recoveredFromDegraded: false, degradedApiCalls }
   }
   if (input.hardSignalUnresolved) {

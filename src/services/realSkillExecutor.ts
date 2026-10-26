@@ -616,6 +616,7 @@ function dispatchPassEvent(detail: {
   total: number
   name: string
   status: 'running' | 'done' | 'failed' | 'skipped'
+  traceRunId?: string | null
 }) {
   try {
     window.dispatchEvent(new CustomEvent('real-skill:pass', { detail }))
@@ -630,6 +631,7 @@ function dispatchStepEvent(detail: {
   total: number
   status: 'running' | 'done' | 'failed' | 'skipped'
   attempts?: number
+  traceRunId?: string | null
 }) {
   try {
     window.dispatchEvent(new CustomEvent('real-skill:step', { detail }))
@@ -816,9 +818,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     capturedRequestMessages.length = 0
     const passName = pass.name || `第 ${passIndex + 1} 步`
     if (isMultiPass) {
-      dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'running' })
+      dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'running', traceRunId: options.traceRunId })
     } else {
-      dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'running' })
+      dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'running', traceRunId: options.traceRunId })
     }
     const passInput = pass.input === 'previous' && output ? output : currentInput
     const isPreviousInput = pass.input === 'previous' && Boolean(output)
@@ -837,7 +839,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       const budget = options.budget.tryConsume(budgetStep, pkg.meta.apiCallLimit ?? null)
       if (budget.status === 'blocked') {
         if (isMultiPass) {
-          dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed' })
+          dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
         }
         errors.push(budget.reason || 'API 调用预算已耗尽')
         diagnostics.push(diagnostic('error', 'api-budget-blocked', budget.reason || ''))
@@ -1152,7 +1154,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             index: passIndex,
             total: passList.length,
             status: attempt < RETRY_LIMIT ? 'running' : 'failed',
-            attempts: attempt
+            attempts: attempt,
+            traceRunId: options.traceRunId
           })
           continue
         }
@@ -1173,7 +1176,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           usage = result.usage
           finalMaxTokens = result.maxTokens ?? agent?.maxTokens
           if (isMultiPass) {
-            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done' })
+            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done', traceRunId: options.traceRunId })
           }
           break
         }
@@ -1194,7 +1197,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           toolRequestDeltas = (result as CallAiToolResultLike).toolRequestDeltas
           toolAudit = (result as CallAiToolResultLike).toolAudit
           if (isMultiPass) {
-            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done' })
+            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done', traceRunId: options.traceRunId })
           }
           break
         }
@@ -1215,13 +1218,14 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           index: passIndex,
           total: passList.length,
           status: attempt < RETRY_LIMIT ? 'running' : 'failed',
-          attempts: attempt
+          attempts: attempt,
+          traceRunId: options.traceRunId
         })
       } catch (error: any) {
         if (isMultiPass) {
-          dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed' })
+          dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
         } else {
-          dispatchStepEvent({ skillId: pkg.id, index: passIndex, total: passList.length, status: 'failed', attempts: attempt })
+          dispatchStepEvent({ skillId: pkg.id, index: passIndex, total: passList.length, status: 'failed', attempts: attempt, traceRunId: options.traceRunId })
         }
         errors.push(error?.message || 'API 调用失败')
         diagnostics.push(diagnostic('error', 'api-failed', error?.message || ''))
@@ -1270,9 +1274,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       : 0
     if (!retainedCandidate || !retainedCandidate.validation.valid) {
       if (isMultiPass) {
-        dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed' })
+        dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
       } else {
-        dispatchStepEvent({ skillId: pkg.id, index: passIndex, total: passList.length, status: 'failed', attempts: RETRY_LIMIT })
+        dispatchStepEvent({ skillId: pkg.id, index: passIndex, total: passList.length, status: 'failed', attempts: RETRY_LIMIT, traceRunId: options.traceRunId })
       }
       errors.push(`输出未通过校验，已达最大尝试次数 ${RETRY_LIMIT}`)
       if (retainedCandidate && candidateLedger.length > 1) {
@@ -1312,7 +1316,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     }
     currentInput = output
     if (!isMultiPass) {
-      dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'done', attempts: 1 })
+      dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'done', attempts: 1, traceRunId: options.traceRunId })
     }
   }
 

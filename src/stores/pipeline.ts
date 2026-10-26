@@ -16,15 +16,21 @@ export const usePipelineStore = defineStore('pipeline', () => {
   const currentStep = ref(0)  // 0=outline, 1=settings, 2=volumes, 3=chapters, 4=body
   const registry = new PipelineRunRegistry()
   const registryVersion = ref(0)
+  const traceOwnership = new Map<string, string>()
   const runs = computed(() => {
     void registryVersion.value
-    return registry.runs
+    return registry.listRuns().map(run => ({ ...run }))
   })
-  const isGenerating = computed(() => registry.activeRuns.length > 0)
-  const activeRuns = computed(() => registry.activeRuns)
+  const activeRuns = computed(() => {
+    void registryVersion.value
+    return registry.listRuns()
+      .filter(run => run.status === 'running' || run.status === 'queued')
+      .map(run => ({ ...run }))
+  })
+  const isGenerating = computed(() => activeRuns.value.length > 0)
   const generationStatus = computed(() => {
     void registryVersion.value
-    const active = registry.activeRuns
+    const active = activeRuns.value
     if (active.length > 0) return 'generating'
     const failed = registry.listRuns().filter(run => run.status === 'failed')
     if (failed.length > 0) return `failed: ${failed[failed.length - 1].error || failed[failed.length - 1].statusText || 'unknown'}`
@@ -48,7 +54,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
   }
 
   function activeRunForLayer(layer: PipelineRunLayer): PipelineRunContext | undefined {
-    const active = registry.activeRuns.filter(run => run.layer === layer)
+    const active = activeRuns.value.filter(run => run.layer === layer)
     return active.length > 0 ? active[active.length - 1] : undefined
   }
 
@@ -57,9 +63,15 @@ export const usePipelineStore = defineStore('pipeline', () => {
   const activeChaptersRun = computed(() => activeRunForLayer('chapters'))
   const activeBodyRun = computed(() => activeRunForLayer('body'))
   function isTargetGenerating(layer: PipelineRunLayer, target: string): boolean {
-    return registry.activeRuns.some(run =>
+    return activeRuns.value.some(run =>
       run.layer === layer && run.target === target && run.status === 'running'
     )
+  }
+
+  async function waitForRunActivation(runId: string): Promise<PipelineRunContext> {
+    const run = await registry.waitForActivation(runId)
+    notifyRegistryChanged()
+    return run
   }
   const activeLayer = computed<PipelineRunLayer>(() => stepNames[currentStep.value] === 'settings'
     ? 'settings'
@@ -79,15 +91,15 @@ export const usePipelineStore = defineStore('pipeline', () => {
       queuedReason?: string
     } = {},
   ) {
-    const targetBusy = registry.activeRuns.some(item =>
-      item.layer === layer && item.target === target && item.status === 'running'
-    )
+    const layerBusy = activeRuns.value.some(item => item.layer === layer)
     const run = registry.createRun({
       layer,
       target,
       configSnapshot: options.configSnapshot,
-      status: targetBusy ? 'queued' : 'running',
-      queuedReason: targetBusy ? (options.queuedReason || '同一目标已有正在运行的任务') : undefined,
+      status: layerBusy ? 'queued' : 'running',
+      queuedReason: layerBusy
+        ? (options.queuedReason || '该层已有正在运行的任务，本任务已排队')
+        : undefined,
     })
     notifyRegistryChanged()
     return run.runId
@@ -116,14 +128,18 @@ export const usePipelineStore = defineStore('pipeline', () => {
   function finishGeneration(runId?: string) {
     const targetRunId = requireRunId(runId, 'finishGeneration')
     const finished = registry.getRun(targetRunId)
+    const wasActive = finished?.status === 'running' || finished?.status === 'queued'
     registry.succeed(targetRunId)
-    if (finished) registry.activateQueuedRuns(finished.layer, finished.target)
+    if (finished && wasActive) {
+      registry.activateQueuedRuns(finished.layer, finished.target)
+    }
     notifyRegistryChanged()
   }
 
   function failGeneration(error: string, runId?: string) {
     const targetRunId = requireRunId(runId, 'failGeneration')
     const failedRun = registry.getRun(targetRunId)
+    const wasActive = failedRun?.status === 'running' || failedRun?.status === 'queued'
     const failed = registry.fail(targetRunId, error)
     if (!failed) {
       registry.recordRejectedRunEvent(targetRunId, {
@@ -132,37 +148,39 @@ export const usePipelineStore = defineStore('pipeline', () => {
         error,
       })
     }
-    if (failedRun) registry.activateQueuedRuns(failedRun.layer, failedRun.target)
+    if (failedRun && wasActive) {
+      registry.activateQueuedRuns(failedRun.layer, failedRun.target)
+    }
     notifyRegistryChanged()
   }
 
   function cancelGeneration(runId?: string) {
     const targetRunId = requireRunId(runId, 'cancelGeneration')
-    registry.cancel(targetRunId)
     const canceledRun = registry.getRun(targetRunId)
-    if (canceledRun) {
-      registry.listRuns()
-        .filter(run => run.status === 'queued' && run.layer === canceledRun.layer && run.target === canceledRun.target)
-        .forEach(run => registry.cancel(run.runId))
+    const wasRunning = canceledRun?.status === 'running'
+    registry.cancel(targetRunId)
+    // A queued cancellation must not activate a sibling. A running
+    // cancellation frees the layer, so only the next queued run may start.
+    if (wasRunning) {
+      registry.activateQueuedRuns(canceledRun.layer, canceledRun.target)
     }
     notifyRegistryChanged()
     return true
   }
 
   function cancelAllActiveRuns(reason?: string) {
-    const active = registry.activeRuns.map(run => run.runId)
+    const active = activeRuns.value.map(run => run.runId)
     const canceled: string[] = []
     for (const runId of active) {
       const run = registry.getRun(runId)
       if (!registry.cancel(runId)) continue
       canceled.push(runId)
-      // cancelGeneration also removes queued runs bound to the same target.
-      registry.listRuns()
-        .filter(item => item.status === 'queued' && run && item.layer === run.layer && item.target === run.target)
-        .forEach(item => {
-          if (!registry.cancel(item.runId)) return
-          if (!canceled.includes(item.runId)) canceled.push(item.runId)
-        })
+      if (run?.status !== 'running') continue
+      const activated = registry.activateQueuedRuns(run.layer, run.target)
+      for (const item of activated) {
+        if (!canceled.includes(item.runId)) canceled.push(item.runId)
+        if (!registry.cancel(item.runId)) continue
+      }
     }
     notifyRegistryChanged()
     return { reason: reason || '应用关闭，任务已取消', canceledRunIds: canceled }
@@ -193,6 +211,15 @@ export const usePipelineStore = defineStore('pipeline', () => {
 
   function getRun(runId: string) {
     return registry.getRun(runId)
+  }
+
+  function rememberTraceRunOwnership(traceRunId: string | null | undefined, pipelineRunId: string | null | undefined) {
+    if (!traceRunId || !pipelineRunId) return
+    traceOwnership.set(traceRunId, pipelineRunId)
+  }
+
+  function getPipelineRunIdForTrace(traceRunId: string | null | undefined): string | null {
+    return (traceRunId && traceOwnership.get(traceRunId)) || null
   }
 
   function updateRunProgress(event: PipelineRunProgressEvent) {
@@ -446,8 +473,9 @@ export const usePipelineStore = defineStore('pipeline', () => {
     currentStep, isGenerating, activeRuns, generationStatus, breakpoint, chapterProgress, runs,
     activeSettingsRun, activeVolumesRun, activeChaptersRun, activeBodyRun,
     currentStepName,
-    setStep, startGeneration, updateProgress, finishGeneration, failGeneration, cancelGeneration, cancelAllActiveRuns, getGenerationSignal, isGenerationCanceled,
+    setStep, startGeneration, waitForRunActivation, updateProgress, finishGeneration, failGeneration, cancelGeneration, cancelAllActiveRuns, getGenerationSignal, isGenerationCanceled,
     getRun, updateRunProgress, reportProviderQueue, getRunStatus, isTargetGenerating,
+    rememberTraceRunOwnership, getPipelineRunIdForTrace,
     saveBreakpoint, refreshBreakpoint, refreshBreakpointFromStorageKey, clearBreakpoint, updateChapterProgress, clearChapterProgress,
     setStepSkills, getStepSkills, setStepAgents, getStepAgents, setStepModes, getStepModes,
     updateStepConfig, readStepConfig, readStepConfigSnapshot, writeStepConfig
