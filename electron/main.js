@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain, clipboard } = require('electron')
 const path = require('path')
 const fs = require('fs')
+const defaultPaths = require('./defaultPaths')
 
 // electron-log: main process logging infrastructure
 const log = require('electron-log/main')
@@ -14,6 +15,31 @@ log.eventLogger.startLogging()
 if (!app.isPackaged) {
   app.commandLine.appendSwitch('no-sandbox')
   app.commandLine.appendSwitch('remote-allow-origins', '*')
+}
+
+// Must run before the first Electron store/cache access.
+var explicitIsolation = Boolean(process.env.SHENYI_DATA_DIR)
+  && process.env.SHENYI_ALLOW_TEST_ISOLATION === '1'
+var isDevelopmentRuntime = process.env.NODE_ENV === 'development' || !app.isPackaged
+var testUserDataDir = process.env.SHENYI_TEST_USER_DATA_DIR
+  ? path.resolve(process.env.SHENYI_TEST_USER_DATA_DIR)
+  : ''
+var configuredUserDataDir = process.env.SHENYI_USER_DATA_DIR
+  ? path.resolve(process.env.SHENYI_USER_DATA_DIR)
+  : (explicitIsolation ? testUserDataDir : '')
+// app.getPath('userData') creates the default AppData directory as a side
+// effect, so only resolve it after the D-drive path has been selected.
+var fallbackUserDataDir = process.env.APPDATA
+  ? path.join(process.env.APPDATA, 'shenyi-assistant')
+  : path.join(app.getPath('home'), 'AppData', 'Roaming', 'shenyi-assistant')
+try {
+  if (configuredUserDataDir) {
+    app.setPath('userData', configuredUserDataDir)
+  } else {
+    app.setPath('userData', defaultPaths.getUserDataDir(fallbackUserDataDir))
+  }
+} catch (e) {
+  // Keep Electron's default if the configured data drive is unavailable.
 }
 
 // Multi-window support: no single instance lock
@@ -222,7 +248,6 @@ function createWindow(projectId) {
   }
 
   var isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
-  var explicitIsolation = process.env.SHENYI_DATA_DIR && process.env.SHENYI_ALLOW_TEST_ISOLATION === '1'
   var testDataDir = isDev && process.env.SHENYI_TEST_USER_DATA_DIR
     ? path.resolve(process.env.SHENYI_TEST_USER_DATA_DIR)
     : ''
@@ -231,7 +256,7 @@ function createWindow(projectId) {
     : ''
   var docsDir = isolationDataDir || testDataDir || (isDev
     ? path.join(process.cwd(), '_data')
-    : path.join(app.getPath('documents'), '神意助手数据'))
+    : defaultPaths.getDataRoot(app.getPath('documents')))
   var dataDir = docsDir
   var logDir = path.join(app.getPath('userData'), 'logs')
   if (isDev && process.env.SHENYI_TEST_LOG_DIR) {
@@ -243,8 +268,14 @@ function createWindow(projectId) {
   setRunTraceDataDir(dataDir)
   setIntentCorpusDataDir(dataDir)
   setAgentStateDataDir(dataDir)
-  setLegacyDir(path.join(app.getPath('documents'), '写作助手数据'))
+  var legacyDataDir = explicitIsolation
+    ? path.join(dataDir, '_legacy')
+    : defaultPaths.getLegacyDataDir(app.getPath('documents'))
+  setLegacyDir(legacyDataDir)
   setLogDir(logDir)
+  log.info('storage-paths: dataDir=' + dataDir +
+    ' userData=' + app.getPath('userData') +
+    ' legacyDir=' + legacyDataDir)
 
   if (!ipcHandlersRegistered) {
     registerCryptoHandlers()

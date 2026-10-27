@@ -83,4 +83,17 @@ describe('electron ipc storage', () => {
       delete process.env.SHENYI_TEST_STORAGE_REMOVE_FAILURE_KEY
     }
   })
+
+  it('does not migrate real documents data in explicit test isolation', async () => {
+    process.env.SHENYI_DATA_DIR = dataDir
+    process.env.SHENYI_ALLOW_TEST_ISOLATION = '1'
+    try {
+      await handlers.get('storage:list')(null)
+
+      await expect(fs.access(path.join(dataDir, '.migrated'))).rejects.toThrow()
+    } finally {
+      delete process.env.SHENYI_DATA_DIR
+      delete process.env.SHENYI_ALLOW_TEST_ISOLATION
+    }
+  })
 })

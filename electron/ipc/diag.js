@@ -2,6 +2,7 @@ const { ipcMain, app, dialog } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
+const defaultPaths = require('../defaultPaths')
 
 var logDir = ''
 
@@ -28,6 +29,7 @@ function _parseLogLine(line) {
 // storage.json is kept as a legacy fallback.
 function _readProviderList() {
   var candidates = [
+    path.join(defaultPaths.getDataRoot(path.join(os.homedir(), 'Documents')), 'wa_providers.json'),
     path.join(os.homedir(), 'Documents', '神意助手数据', 'wa_providers.json'),
     path.join(app.getPath('userData'), 'storage.json')
   ]

@@ -1,7 +1,7 @@
 const { ipcMain, app, shell } = require('electron')
 const fs = require('fs').promises
+const fsSync = require('fs')
 const path = require('path')
-const os = require('os')
 
 var dataDir = ''
 var legacyDir = ''
@@ -11,8 +11,9 @@ function isConfiguredRemoveFailure(key) {
   return Boolean(key) && process.env.SHENYI_TEST_STORAGE_REMOVE_FAILURE_KEY === key
 }
 
-function getPrimaryDataDir() {
-  return path.join(os.homedir(), 'Documents', '神意助手数据')
+function isExplicitTestIsolation() {
+  return Boolean(process.env.SHENYI_DATA_DIR)
+    && process.env.SHENYI_ALLOW_TEST_ISOLATION === '1'
 }
 
 function safeKey(key) {
@@ -73,12 +74,14 @@ async function recoverBakIfPrimaryMissing(filePath) {
 
 async function migrateOldDataIfNeeded() {
   try {
-    var targetDir = getPrimaryDataDir()
+    if (isExplicitTestIsolation()) return
+    var targetDir = dataDir
     var markerFile = path.join(targetDir, '.migrated')
     try { await fs.access(markerFile); return } catch(e) { /* marker not found */ }
     var candidateDirs = [
       path.join(app.getPath('userData'), 'data'),
-      path.join(app.getPath('documents'), '写作助手数据')
+      path.join(app.getPath('documents'), '写作助手数据'),
+      path.join(app.getPath('documents'), '神意助手数据')
     ]
     var copied = 0
     for (var oldDir of candidateDirs) {
@@ -108,10 +111,9 @@ async function migrateOldDataIfNeeded() {
 function setDataDir(dir) {
   dataDir = dir
   try {
-    fs.mkdir(dataDir, { recursive: true })
+    fsSync.mkdirSync(dataDir, { recursive: true })
   } catch(e) {
-    const fsSync = require('fs')
-    if (!fsSync.existsSync(dataDir)) fsSync.mkdirSync(dataDir, { recursive: true })
+    // setDataDir failure is surfaced by consumers; keep the module load safe.
   }
 }
 

@@ -1,0 +1,236 @@
+{
+  "ok": true,
+  "reports": [
+    {
+      "source": "C:/Users/凯瑞/Documents/神意助手数据",
+      "target": "D:/神意助手数据",
+      "sourceFiles": 1347,
+      "targetFiles": 1886,
+      "differences": [],
+      "extra": [
+        {
+          "relative": "_app-user-data/Code Cache/js/809bedc83986fb4b_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/80ce3a2219142465_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/80d5997df068fb56_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/80d73f4e2f4b367e_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/81588b29edb65753_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/81e429659f454d07_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/82cfbdfa4708524f_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/82eb99d2ed4c5062_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/82fcc236e991acbe_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/83355ff6c3de807c_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8431cd9155302280_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8578c580b31559d9_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/85eef5273ff6a8c7_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/864a4697a373a758_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8654070cb3353748_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/86c175e9d2a8b3c8_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/86eda80cb2cfc7fd_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/86fbd52ec8d5cbfc_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/870143e428f9f8fe_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/87e91c22f1733c4d_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8819a5db441b0c98_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8842e902dc251821_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8a34c3601650e262_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8a441d75b7d9312b_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8ab5abfe82b801e4_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8b4583877eb26edd_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8b6d8772140b1113_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8b861498733df4a3_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8c45d110cbc94033_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8cf6f6af897dada7_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8d01fef6990e8557_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8d5ce70ea7e4158c_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8d5e589efcec0fd2_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8d5ead1fd64ba34a_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8d9822579082be54_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8d9d3213ed23afdf_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8daf12b4721c4077_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8dd3754941deb9e2_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8dfecc5638ba8587_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8e08dfae16aeac21_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8e709092eb8d2324_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8e7d14215a262bf3_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8ea0e5efd0c5d920_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8eb17a96fc9f50a1_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8f7e06d8ec303869_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8fe47b385765e54c_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/8ffd854d06df5338_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/90dbb94d37bcac10_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/913973da25c6dba1_0",
+          "reason": "extra_in_target"
+        },
+        {
+          "relative": "_app-user-data/Code Cache/js/9151f37f1adde63a_0",
+          "reason": "extra_in_target"
+        }
+      ],
+      "differencesCount": 0,
+      "extraCount": 483
+    },
+    {
+      "source": "C:/Users/凯瑞/Documents/写作助手数据",
+      "target": "D:/神意助手数据/_legacy",
+      "sourceFiles": 12,
+      "targetFiles": 12,
+      "differences": [],
+      "extra": [],
+      "differencesCount": 0,
+      "extraCount": 0
+    },
+    {
+      "source": "C:/Users/凯瑞/AppData/Roaming/shenyi-assistant",
+      "target": "D:/神意助手数据/_app-user-data",
+      "sourceFiles": 471,
+      "targetFiles": 471,
+      "differences": [],
+      "extra": [],
+      "differencesCount": 0,
+      "extraCount": 0
+    }
+  ]
+}

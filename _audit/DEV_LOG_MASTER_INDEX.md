@@ -1260,3 +1260,13 @@
 - live 单供应商矩阵：PASS，`requests=3`，三层 model 断言 `deepseek-v4-pro`，三面 `trace-event / apiCall / provider-request` 同源；key 只记录长度与加密状态。
 - 封装：`npm run build` exit 0；安装包 `dist/神意助手-Setup-3.110.1.exe`，231,613,224 bytes，SHA256 `BAACBA570B1C5BF14EAC893265500179CDDAC5993E34FFE785B4F54598EB06D2`；latest.yml 与 exe FileVersion/ProductVersion 均为 3.110.1。
 - 收尾：带路径守卫删除旧 3.110.0 安装包与 blockmap，dist 仅保留当前版本一套。剩余边界仅“本机 live 单一 generate 供应商”与“风格分析 step 0 全局供应商为设计内”。
+
+# 2026-10-28 默认数据存储 C 盘迁移 D 盘收口
+
+- 文件：[_audit/DEV_LOG_2026-10-28_DATA_MIGRATION_C_TO_D.md](_audit/DEV_LOG_2026-10-28_DATA_MIGRATION_C_TO_D.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_DATA_MIGRATION_C_TO_D.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_DATA_MIGRATION_C_TO_D.md)
+- 范围：`electron/defaultPaths.js` 默认数据根单源化，主数据 / Electron userData / legacy 默认迁移至 `D:\神意助手数据`；主进程启动早期设置 userData；修复 `app.getPath('userData')` 读取副作用导致的 `%APPDATA%` 空目录重建；storage 迁移测试隔离；diag、installer、6 个验证脚本路径迁移；新增三组 C->D 哈希对账脚本与定向测试。
+- 验证：`node --check` 全过；定向 2 files / 8 tests 全过；`npm run build` exit 0；安装器 `/S` 真实安装 3.110.2；安装版启动 15 秒 C 盘四个旧位置未重建，日志证明 `dataDir/userData/legacyDir` 全落 D 盘，退出无残留进程；迁移终态对账 `ok:true`，目标文件 1886 / 12 / 471，差异 0。
+- 封装：3.110.2；安装包 `dist/神意助手-Setup-3.110.2.exe`，231,612,595 bytes，SHA256 `687F85DB5BF9B17DE1C86C4697B49C56285B7E530189AC04F996566B76DAF3FC`。
+- 诚实边界：本轮未重跑 live 供应商 API 链路；业务数据零差异由删除 C 盘源前的哈希对账证明；证据目录内第一次打包 blockmap 与最终 blockmap 不一致，已登记为非主证据。
+- 经验回写：经验文件升级 v9.6.4，新增 G2.14 默认存储与跨盘迁移门禁，并补使用路由入口。

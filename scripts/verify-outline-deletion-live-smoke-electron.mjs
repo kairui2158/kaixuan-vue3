@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
 import { chromium } from 'playwright'
+import defaultPaths from '../electron/defaultPaths.js'
 
 const ROOT = path.resolve(process.cwd())
 const LIVE_PROVIDER_PATH = process.env.SHENYI_OUTLINE_LIVE_PROVIDER_PATH
   ? path.resolve(process.env.SHENYI_OUTLINE_LIVE_PROVIDER_PATH)
-  : 'C:/Users/凯瑞/Documents/神意助手数据/wa_providers.json'
+  : path.join(defaultPaths.getDataRoot(path.join(os.homedir(), 'Documents')), 'wa_providers.json')
 const LIVE_PROVIDER_ID = process.env.SHENYI_OUTLINE_LIVE_PROVIDER_ID || 'prov-1788185503573'
 const ELECTRON_EXE = path.join(ROOT, 'node_modules', 'electron', 'dist', 'electron.exe')
 const CDP_PORT = Number(process.env.SHENYI_OUTLINE_LIVE_SMOKE_CDP_PORT || 9391)

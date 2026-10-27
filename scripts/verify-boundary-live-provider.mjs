@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
 import { chromium } from 'playwright'
+import defaultPaths from '../electron/defaultPaths.js'
 
 const ROOT = path.resolve(process.cwd())
 const ELECTRON_EXE = process.env.SHENYI_BOUNDARY_ELECTRON
@@ -14,7 +16,7 @@ const PROFILE = path.join(ROOT, '_data', 'boundary-live-profile')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-boundary-live-provider')
 const LIVE_PROVIDER_PATH = process.env.SHENYI_BOUNDARY_PROVIDER_PATH
   ? path.resolve(process.env.SHENYI_BOUNDARY_PROVIDER_PATH)
-  : 'C:/Users/凯瑞/Documents/神意助手数据/wa_providers.json'
+  : path.join(defaultPaths.getDataRoot(path.join(os.homedir(), 'Documents')), 'wa_providers.json')
 const LIVE_PROVIDER_IDS = (process.env.SHENYI_BOUNDARY_PROVIDER_IDS || '')
   .split(',').map(id => id.trim()).filter(Boolean)
 const EVIDENCE_DIR = process.env.SHENYI_BOUNDARY_EVIDENCE_ROOT

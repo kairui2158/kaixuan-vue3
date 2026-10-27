@@ -1,10 +1,11 @@
 const { app, safeStorage } = require('electron')
 const fs = require('node:fs')
 const path = require('node:path')
+const defaultPaths = require('../electron/defaultPaths')
 
 const configPath = process.argv[2]
   ? path.resolve(process.argv[2])
-  : path.join(app.getPath('documents'), '神意助手数据', 'wa_providers.json')
+  : path.join(defaultPaths.getDataRoot(app.getPath('documents')), 'wa_providers.json')
 
 function describeValue(value) {
   if (typeof value !== 'string' || !value) return 'empty'

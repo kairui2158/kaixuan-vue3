@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
+import defaultPaths from '../electron/defaultPaths.js'
 
 const ROOT = path.resolve(process.cwd())
 const SCRIPT_NAME = 'verify-pipeline-parallelism-electron.mjs'
@@ -32,10 +33,10 @@ const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_DEAD_TIMEOUT_MS ||
 const KEEP_PROFILE = process.env.SHENYI_PARALLELISM_KEEP_PROFILE === '1'
 const REAL_USER_DATA_DIR = process.env.SHENYI_PARALLELISM_REAL_USER_DATA
   ? path.resolve(process.env.SHENYI_PARALLELISM_REAL_USER_DATA)
-  : path.join(process.env.APPDATA || path.join(process.env.USERPROFILE || '', 'AppData', 'Roaming'), 'shenyi-assistant')
+  : defaultPaths.getUserDataDir(path.join(process.env.APPDATA || path.join(process.env.USERPROFILE || '', 'AppData', 'Roaming'), 'shenyi-assistant'))
 const REAL_PROVIDER_CONFIG_PATH = process.env.SHENYI_PARALLELISM_PROVIDER_CONFIG
   ? path.resolve(process.env.SHENYI_PARALLELISM_PROVIDER_CONFIG)
-  : path.join(REAL_USER_DATA_DIR, 'data', 'wa_providers.json')
+  : path.join(defaultPaths.getDataRoot(path.join(process.env.USERPROFILE || '', 'Documents')), 'wa_providers.json')
 const LIVE_PROVIDER_NAME = process.env.SHENYI_PARALLELISM_LIVE_PROVIDER || '全局'
 const LIVE_MODEL_NAME = process.env.SHENYI_PARALLELISM_LIVE_MODEL || 'deepseek-v4-pro'
 

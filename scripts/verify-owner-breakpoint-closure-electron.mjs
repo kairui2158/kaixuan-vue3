@@ -4,6 +4,7 @@ import path from 'node:path'
 import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
+import defaultPaths from '../electron/defaultPaths.js'
 
 const ROOT = path.resolve(process.cwd())
 const SCRIPT_NAME = 'verify-owner-breakpoint-closure-electron.mjs'
@@ -23,11 +24,8 @@ const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_OWNER_BREAKPOINT_DEAD_TIMEOUT_
 const KEEP_PROFILE = process.env.SHENYI_OWNER_BREAKPOINT_KEEP_PROFILE === '1'
 
 function assertIsolatedStorage() {
-  const canonicalDataDir = path.join(
-    process.env.USERPROFILE || process.env.HOME || '',
-    'Documents',
-    '神意助手数据'
-  )
+  const documentsDir = path.join(process.env.USERPROFILE || process.env.HOME || '', 'Documents')
+  const canonicalDataDir = defaultPaths.getDataRoot(documentsDir)
   // The canonical directory may legitimately contain real user checkpoints.
   // This verifier must only reject checkpoints whose owner identity belongs to its synthetic project.
   const breakpointFiles = fs.existsSync(canonicalDataDir)
