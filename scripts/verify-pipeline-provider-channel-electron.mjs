@@ -574,7 +574,7 @@ async function exportTraceEvidence(page, runId, fileName) {
   return result
 }
 
-async function assertRunProviderChannel(page, layer, step) {
+async function assertRunProviderChannel(page, layer, step, providerBridge) {
   const run = await waitForLayerTerminal(page, layer)
   assert.equal(run.status, 'succeeded', `${layer} run succeeds with its layer provider`)
   const trace = await exportTraceEvidence(page, run.runId, `${layer}-trace.json`)
@@ -588,7 +588,28 @@ async function assertRunProviderChannel(page, layer, step) {
     `${layer} trace channel events use ${LAYER_PROVIDERS[layer]}`)
   assert(events.every(event => event.source === 'layer'),
     `${layer} trace channel events report source=layer`)
-  return { run, trace, channelEvents: events }
+  const expectedModel = LIVE_MODE ? LIVE_MODEL_NAME : `${layer}-model`
+  assert(events.every(event => event.model === expectedModel),
+    `${layer} trace channel events use model=${expectedModel}, got ${JSON.stringify(events.map(event => event.model))}`)
+  const apiCalls = (trace.apiCalls || []).filter(call => call.model !== undefined)
+  assert(apiCalls.length > 0, `${layer} trace records apiCall model provenance`)
+  assert(apiCalls.every(call => call.model === expectedModel),
+    `${layer} apiCalls use model=${expectedModel}, got ${JSON.stringify(apiCalls.map(call => call.model))}`)
+  const physicalRequests = ((trace.apiCalls || [])
+    .flatMap(call => call.physicalCalls || [])
+    .filter(physical => physical.requestMessages?.length > 0))
+  assert(physicalRequests.length > 0, `${layer} trace records physical request bodies`)
+  const modelBoundLayers = ['volumes', 'chapters', 'body']
+  if (modelBoundLayers.includes(layer)) {
+    const providerRequests = providerBridge.requests()
+    const layerRequests = LIVE_MODE
+      ? providerRequests
+      : providerRequests.filter(request => request.layer === layer)
+    assert(layerRequests.length > 0, `${layer} physical requests reached the ${layer} provider`)
+    assert(layerRequests.every(request => request.model === expectedModel),
+      `${layer} provider requests use model=${expectedModel}, got ${JSON.stringify(layerRequests.map(request => request.model))}`)
+  }
+  return { run, trace, channelEvents: events, expectedModel }
 }
 
 async function selectPipelineStep(page, stepIndex) {
@@ -726,9 +747,10 @@ async function main() {
     await startLayerRun(page, 2, '#btn-pl-gen-volumes')
     await startLayerRun(page, 3, '#btn-pl-gen-chapters')
     await startLayerRun(page, 4, '#btn-primary-gen-body')
-    const volumeEvidence = await assertRunProviderChannel(page, 'volumes', 2)
-    const chapterEvidence = await assertRunProviderChannel(page, 'chapters', 3)
-    const bodyEvidence = await assertRunProviderChannel(page, 'body', 4)
+    const providerBridge = LIVE_MODE ? liveProxy : providers
+    const volumeEvidence = await assertRunProviderChannel(page, 'volumes', 2, providerBridge)
+    const chapterEvidence = await assertRunProviderChannel(page, 'chapters', 3, providerBridge)
+    const bodyEvidence = await assertRunProviderChannel(page, 'body', 4, providerBridge)
 
     const requests = LIVE_MODE ? liveProxy.requests() : providers.requests()
     assert(requests.length > 0, 'providers observed real application requests')
@@ -759,6 +781,12 @@ async function main() {
         volumes: volumeEvidence.run,
         chapters: chapterEvidence.run,
         body: bodyEvidence.run,
+      },
+      modelAssertions: {
+        volumes: volumeEvidence.expectedModel,
+        chapters: chapterEvidence.expectedModel,
+        body: bodyEvidence.expectedModel,
+        surfaces: ['trace-event', 'apiCall', 'provider-request'],
       },
       requestCount: requests.length,
       mode: LIVE_MODE ? 'live-single-supplier' : 'mock-four-layer-providers',

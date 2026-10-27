@@ -765,9 +765,10 @@ import { useDeAiStore } from "../../stores/deai"
 import { getAiService } from "../../services/aiService"
 import {
   buildPipelineProviderChannelSnapshot,
-  resolvePipelineProviderChannel,
+  resolvePipelineRequestProfile,
   type PipelineProviderChannelLayer,
   type PipelineProviderChannelSnapshot,
+  type PipelineRequestProfile,
 } from "../../services/pipelineProviderChannels"
 import type { ProviderQueueEvent } from "../../services/providerScheduler"
 import { formatSkillFallback, routeSkill } from "../../services/skillRouter"
@@ -916,35 +917,107 @@ function signalForPipelineRun(pipelineRunId: string | null | undefined, signal?:
   return pipelineStore.getGenerationSignal(pipelineRunId)
 }
 
-function resolvePipelineRunProviderChannel(
+function resolvePipelineRunRequestProfile(
   pipelineRunId: string | null | undefined,
   step: number,
-  agentProviderId?: string | null,
-): PipelineProviderChannelSnapshot {
+  agentConfig: { model?: string; provider?: string } | null | undefined,
+): PipelineRequestProfile {
   const layer = pipelineLayerForStep(step)
   if (!layer) throw new Error(`生成流水线第 ${step} 步不属于供应商层通道`)
-  const snapshot = pipelineRunId
+  const frozen = pipelineRunId
     ? pipelineStore.getFrozenProviderChannel<PipelineProviderChannelSnapshot>(pipelineRunId)
     : null
-  const fallback = buildPipelineProviderChannelSnapshot({
+  const profile = resolvePipelineRequestProfile({
     layer,
-    layerProviderId: providerStore.pipelineLayerProviders[layer] ?? null,
-    globalProviderId: providerStore.preferredGenerateProvider?.id ?? null,
-    providerExists: id => Boolean(providerStore.getProvider(id)),
+    layerProviderId: frozen?.layerProviderId ?? providerStore.pipelineLayerProviders[layer] ?? null,
+    globalProviderId: frozen?.globalProviderId ?? providerStore.preferredGenerateProvider?.id ?? null,
+    agent: agentConfig
+      ? { model: agentConfig.model, providerId: agentConfig.provider }
+      : null,
+    getProvider: id => providerStore.getProvider(id) as any,
   })
-  if (!snapshot) return { ...fallback }
-  const resolution = resolvePipelineProviderChannel({
-    layer,
-    layerProviderId: snapshot.layerProviderId,
-    agentProviderId,
-    globalProviderId: snapshot.globalProviderId,
-    providerExists: id => Boolean(providerStore.getProvider(id)),
+  return profile
+}
+
+function assertPipelineRequestProfileUsable(
+  profile: PipelineRequestProfile,
+  runId: string | null | undefined,
+  step: number
+): void {
+  if (!profile.providerMissing && profile.providerId) {
+    // Profile requests continue below to the model checks.
+  } else {
+    const source = profile.source === 'agent'
+      ? 'Agent 显式绑定'
+      : profile.source === 'layer'
+        ? '生成流水线层绑定'
+        : '全局生成供应商'
+    const message = profile.providerId
+      ? `${source}的供应商「${profile.providerId}」不存在，已停止本次生成；请重新绑定后重试。`
+      : `${source}为空，已停止本次生成；请先配置供应商。`
+    if (runId) {
+      runTraceStore.addEvent(runId, {
+        type: 'pipeline-provider-channel-resolved',
+        level: 'error',
+        label: '生成流水线供应商通道不可用',
+        detail: JSON.stringify({ ...profile, step, error: message })
+      })
+    }
+    throw new Error(message)
+  }
+  if (profile.modelMissing) {
+    const message = `供应商「${profile.providerId}」未配置可用模型，已停止本次生成；请先在该供应商中选择模型。`
+    if (runId) {
+      runTraceStore.addEvent(runId, {
+        type: 'pipeline-request-profile-resolved',
+        level: 'error',
+        label: '生成流水线请求形态不可用',
+        detail: JSON.stringify({ ...profile, step, error: message })
+      })
+    }
+    throw new Error(message)
+  }
+  if (!profile.modelSupported) {
+    const message = `Agent 模型「${profile.model}」不属于供应商「${profile.providerId}」，已停止本次生成；请重新绑定 Agent 供应商或选择该供应商支持的模型。`
+    if (runId) {
+      runTraceStore.addEvent(runId, {
+        type: 'agent-model-unsupported',
+        level: 'error',
+        label: 'Agent 模型与供应商不匹配',
+        detail: JSON.stringify({ ...profile, step, error: message })
+      })
+    }
+    throw new Error(message)
+  }
+}
+
+function emitPipelineRequestProfileTrace(
+  profile: PipelineRequestProfile,
+  runId: string | null | undefined,
+  step: number
+): void {
+  if (!runId) return
+  const layer = pipelineLayerForStep(step)
+  const eventProfile = { ...profile, layer }
+  runTraceStore.addEvent(runId, {
+    type: 'pipeline-request-profile-resolved',
+    level: 'info',
+    label: `生成流水线请求形态：${profile.source}`,
+    detail: JSON.stringify({ ...eventProfile, step })
   })
-  return {
-    layer,
-    layerProviderId: snapshot.layerProviderId,
-    globalProviderId: snapshot.globalProviderId,
-    ...resolution,
+  if (profile.modelFallback) {
+    runTraceStore.addEvent(runId, {
+      type: 'agent-model-fallback',
+      level: 'warn',
+      label: 'Agent 未绑定供应商，模型已回退层/全局供应商默认模型',
+        detail: JSON.stringify({
+          step,
+          layer,
+          configuredModel: profile.modelFallback.configuredModel,
+        fallbackModel: profile.model,
+        reason: profile.modelFallback.reason
+      })
+    })
   }
 }
 
@@ -2501,13 +2574,14 @@ async function callValidatedSkill(
     const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
     const agentSource = skillAgentId ? "user-binding" : agentId ? "step-default" : "none"
     const traceRunId = traceRunIdParam
-    const providerChannel = resolvePipelineRunProviderChannel(
+    const requestProfile = resolvePipelineRunRequestProfile(
       pipelineRunIdParam,
       step,
-      agentConfig?.provider,
+      agentConfig,
     )
-    assertPipelineProviderChannelUsable(providerChannel, traceRunId, step)
-    const fallbackProviderId = providerChannel.providerId
+    assertPipelineRequestProfileUsable(requestProfile, traceRunId, step)
+    emitPipelineRequestProfileTrace(requestProfile, traceRunId, step)
+    const fallbackProviderId = requestProfile.providerId
     const systemPromptSuffix = resolveDeaiPromptForChainStep(step, chainSkillIndex, chainSkillCount)
     let traceCallId = ''
     const startedAt = Date.now()
@@ -2614,7 +2688,7 @@ async function callValidatedSkill(
           agentName: agentConfig?.name || agentId || undefined,
           providerId: fallbackProviderId || undefined,
           providerName: providerStore.getProvider(fallbackProviderId)?.name,
-          model: resolveStepProviderModel(step, agentConfig as any, traceRunId),
+          model: requestProfile.model,
           requestMessages: [{ role: 'user', content: prompt }],
           deaiPromptVariant: systemPromptSuffix ? deaiVariant : undefined
         })
@@ -2625,7 +2699,7 @@ async function callValidatedSkill(
           type: 'pipeline-provider-channel-resolved',
           level: 'info',
           label: `生成流水线供应商通道：${template.name || template.id}`,
-          detail: JSON.stringify(providerChannel)
+          detail: JSON.stringify({ ...requestProfile, layer: pipelineLayerForStep(step), step })
         })
       }
       route = await routeSkill(template.skill, {
@@ -2646,12 +2720,16 @@ async function callValidatedSkill(
         templateVariables,
         validateOutputSchema,
         purpose: "generate",
+        providerModel: requestProfile.model,
+        providerModelSource: 'caller-profile',
+        providerModelFallback: requestProfile.modelFallback,
+        providerModelMissing: requestProfile.modelMissing,
         userPromptSuffix: prompt.includes('【终步重试协议】')
           ? prompt.slice(prompt.indexOf('【终步重试协议】'))
           : undefined,
         budget: createApiCallBudget(8),
         providerId: fallbackProviderId || undefined,
-        providerSource: providerChannel.source,
+        providerSource: requestProfile.source,
         skillId: template.id,
         aiService: await getAiService(),
         stream: true,
@@ -2906,30 +2984,6 @@ async function callValidatedSkill(
     }
   }
   throw currentError instanceof Error ? currentError : new Error("技能输出校验失败")
-}
-
-function resolveStepProviderModel(step: number, agentConfig: { model?: unknown; provider?: unknown; name?: unknown; id?: unknown } | null | undefined, traceRunIdParam?: string | null): string {
-  const provider = providerStore.getProvider(String(agentConfig?.provider || providerStore.preferredGenerateProvider?.id || "")) || providerStore.preferredGenerateProvider
-  const selectedModel = provider?.selectedModel || provider?.models?.[0] || ''
-  const agentModel = String(agentConfig?.model || '').trim()
-  if (agentModel) return agentModel
-  const runId = traceRunIdParam || null
-  if (runId) {
-    runTraceStore.addEvent(runId, {
-      type: 'agent-model-fallback',
-      level: 'warn',
-      label: `Agent 模型未显式配置，已回退供应商默认模型`,
-      detail: JSON.stringify({
-        step,
-        agentId: agentConfig?.id || undefined,
-        agentName: agentConfig?.name || undefined,
-        configuredModel: agentConfig?.model ?? null,
-        fallbackModel: selectedModel,
-        fallbackSource: provider?.selectedModel ? 'provider.selectedModel' : 'provider.models[0]'
-      })
-    })
-  }
-  return selectedModel
 }
 
 function getStepSkillMode(step: number): string {
@@ -3355,10 +3409,6 @@ function prevStep() {
   }
 }
 
-async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string): Promise<string> {
-  return callApiWithAgentVariant(step, skillTemplate, prompt, skillAgentOverride, promptParts, signal, timeoutMs, skillId)
-}
-
 async function callApiWithAgentVariant(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null): Promise<string> {
   return callApiWithAgentVariantOwned(step, skillTemplate, prompt, skillAgentOverride, promptParts, signal, timeoutMs, skillId, chainSkillIndex, chainSkillCount, traceRunIdParam)
 }
@@ -3366,18 +3416,15 @@ async function callApiWithAgentVariant(step: number, skillTemplate: string, prom
 async function callApiWithAgentVariantOwned(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null, pipelineRunIdParam?: string | null): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
-  const providerChannel = resolvePipelineRunProviderChannel(
+  const requestProfile = resolvePipelineRunRequestProfile(
     pipelineRunIdParam,
     step,
-    agentConfig?.provider,
+    agentConfig,
   )
-  assertPipelineProviderChannelUsable(providerChannel, traceRunIdParam, step)
-  const activeProvider = providerStore.getProvider(providerChannel.providerId) || null
-  const model = resolveStepProviderModel(
-    step,
-    { ...(agentConfig || {}) as any, provider: providerChannel.providerId },
-    traceRunIdParam,
-  )
+  assertPipelineRequestProfileUsable(requestProfile, traceRunIdParam, step)
+  emitPipelineRequestProfileTrace(requestProfile, traceRunIdParam, step)
+  const activeProvider = providerStore.getProvider(requestProfile.providerId) || null
+  const model = requestProfile.model
   const temperature = agentConfig?.temperature ?? activeProvider?.temperature ?? 0.7
   const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || null
  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
@@ -3400,12 +3447,12 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
   const aiService = await getAiService()
   const runId = traceRunIdParam || null
   if (runId) {
-    runTraceStore.addEvent(runId, {
-      type: 'pipeline-provider-channel-resolved',
-      level: 'info',
-      label: `生成流水线供应商通道：${skillId || `step-${step}`}`,
-      detail: JSON.stringify(providerChannel)
-    })
+      runTraceStore.addEvent(runId, {
+        type: 'pipeline-provider-channel-resolved',
+        level: 'info',
+        label: `生成流水线供应商通道：${skillId || `step-${step}`}`,
+        detail: JSON.stringify({ ...requestProfile, layer: pipelineLayerForStep(step), step })
+      })
   }
   if (runId && deaiPrompt) {
     runTraceStore.addEvent(runId, {
@@ -3437,8 +3484,8 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
   const requestAi = (requestMessages: Array<{ role: string; content: string }>) =>
     aiService.callAi({
     purpose: 'generate',
-    providerId: providerChannel.providerId || undefined,
-    meta: { source: 'PipelinePanel.callApiWithAgentVariantOwned', providerSource: providerChannel.source },
+    providerId: requestProfile.providerId || undefined,
+    meta: { source: 'PipelinePanel.callApiWithAgentVariantOwned', providerSource: requestProfile.source, modelSource: 'caller-profile' },
     messages: requestMessages,
     model,
     temperature,
@@ -5963,8 +6010,9 @@ async function runBodyMinimalEdit(
   bodyRunId: string
 ): Promise<string> {
   if (!report?.findings?.length) return text
-  const providerChannel = resolvePipelineRunProviderChannel(bodyRunId, 4, null)
-  assertPipelineProviderChannelUsable(providerChannel, traceRunId, 4)
+  const requestProfile = resolvePipelineRunRequestProfile(bodyRunId, 4, null)
+  assertPipelineRequestProfileUsable(requestProfile, traceRunId, 4)
+  emitPipelineRequestProfileTrace(requestProfile, traceRunId, 4)
 
   const spans = DeAiProcessor.extractProtectedSpans(text, {})
   const reportText = report.findings.map((item: any) =>
@@ -5984,8 +6032,8 @@ async function runBodyMinimalEdit(
     { role: 'user', content: text }
   ]
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
-  const provider = providerStore.getProvider(providerChannel.providerId)
-  const model = provider?.selectedModel || provider?.models?.[0] || ''
+  const provider = providerStore.getProvider(requestProfile.providerId)
+  const model = requestProfile.model
   const aiService = await getAiService()
   const callId = runTraceStore.startApiCall(traceRunId, {
     step: 4,
@@ -5998,7 +6046,7 @@ async function runBodyMinimalEdit(
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
-      providerId: providerChannel.providerId || undefined,
+      providerId: requestProfile.providerId || undefined,
       messages,
       model: model || undefined,
       stream: false,
@@ -6079,8 +6127,9 @@ async function runHardSignalRepair(
   const finding = scan.findings[0]
   if (!finding) return { text, scan, repaired: false }
   if (finding.origin === 'provider') return { text, scan, repaired: false }
-  const providerChannel = resolvePipelineRunProviderChannel(bodyRunId, 4, null)
-  assertPipelineProviderChannelUsable(providerChannel, traceRunId, 4)
+  const requestProfile = resolvePipelineRunRequestProfile(bodyRunId, 4, null)
+  assertPipelineRequestProfileUsable(requestProfile, traceRunId, 4)
+  emitPipelineRequestProfileTrace(requestProfile, traceRunId, 4)
 
   const repairWindow = buildHardSignalRepairWindow(text, finding)
   const repairPrompt = buildHardSignalRepairPrompt(repairWindow.text, finding)
@@ -6094,8 +6143,8 @@ async function runHardSignalRepair(
     { role: 'user', content: repairPrompt }
   ]
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
-  const provider = providerStore.getProvider(providerChannel.providerId)
-  const model = provider?.selectedModel || provider?.models?.[0] || ''
+  const provider = providerStore.getProvider(requestProfile.providerId)
+  const model = requestProfile.model
   const aiService = await getAiService()
   const callId = runTraceStore.startApiCall(traceRunId, {
     step: 4,
@@ -6108,7 +6157,7 @@ async function runHardSignalRepair(
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
-      providerId: providerChannel.providerId || undefined,
+      providerId: requestProfile.providerId || undefined,
       messages,
       model: model || undefined,
       stream: false,

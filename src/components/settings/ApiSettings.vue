@@ -48,9 +48,10 @@
         <button class="btn-sm btn-secondary" @click="exportConfig">导出配置</button>
         <button class="btn-sm btn-secondary" @click="importConfig">导入配置</button>
       </div>
+      <div v-if="importMessage" class="config-import-feedback" :class="importMessageClass">{{ importMessage }}</div>
       <div id="pipeline-provider-channel-settings" class="pipeline-channel-settings">
         <h4>生成流水线层通道</h4>
-        <p class="pipeline-channel-hint">为设定、卷纲、章节、正文分别指定供应商；未指定时跟随全局生成供应商。</p>
+        <p class="pipeline-channel-hint">为设定、卷纲、章节、正文分别指定供应商；未指定时跟随全局生成供应商。运行开始时会冻结选择，运行中修改设置不影响本次生成。</p>
         <div
           v-for="channel in pipelineChannelOptions"
           :key="channel.layer"
@@ -65,7 +66,12 @@
             @change="setPipelineLayerProvider(channel.layer, ($event.target as HTMLSelectElement).value)"
           >
             <option value="">跟随全局生成供应商</option>
-            <option v-for="p in providerStore.providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option
+              v-for="p in providerStore.providers"
+              :key="p.id"
+              :value="p.id"
+              :disabled="!providerSupportsGenerate(p)"
+            >{{ providerOptionLabel(p) }}</option>
           </select>
           <span
             v-if="pipelineLayerProviderMissing(channel.layer)"
@@ -219,6 +225,7 @@ const fetchingModels = ref(false)
 const testingConn = ref(false)
 const connStatus = ref('')
 const fetchMsg = ref('')
+const importMessage = ref('')
 
 const pipelineChannelOptions: Array<{ layer: 'settings' | 'volumes' | 'chapters' | 'body'; label: string }> = [
   { layer: 'settings', label: '设定层' },
@@ -256,6 +263,12 @@ const fetchMsgClass = computed(() => {
   if (fetchMsg.value.includes('成功') || fetchMsg.value.includes('OK')) return 'fetch-ok'
   if (fetchMsg.value.includes('失败') || fetchMsg.value.includes('error')) return 'fetch-fail'
   return ''
+})
+
+const importMessageClass = computed(() => {
+  if (importMessage.value.includes('失败')) return 'fetch-fail'
+  if (importMessage.value.includes('未导入')) return 'fetch-fail'
+  return 'fetch-ok'
 })
 
 const purposeOptions: { value: Provider['purpose'][number]; label: string }[] = [
@@ -309,6 +322,17 @@ function hasPurpose(id: string, purpose: Provider['purpose'][number]): boolean {
   if (purpose === 'verify') return providerStore.verifyProvider === id
   if (purpose === 'detect') return providerStore.detectProvider === id
   return false
+}
+
+function providerSupportsGenerate(provider: Provider): boolean {
+  const purposes = Array.isArray(provider.purpose) ? provider.purpose : [provider.purpose]
+  return purposes.includes('generate')
+}
+
+function providerOptionLabel(provider: Provider): string {
+  return providerSupportsGenerate(provider)
+    ? provider.name
+    : `${provider.name}（不可作为生成通道）`
 }
 
 function togglePurpose(id: string, purpose: Provider['purpose'][number]) {
@@ -453,7 +477,11 @@ async function testConnection() {
 }
 
 function exportConfig() {
-  const data = JSON.stringify(providerStore.providers, null, 2)
+  const data = JSON.stringify({
+    providers: providerStore.providers,
+    generateProvider: providerStore.generateProvider,
+    pipelineLayerProviders: providerStore.pipelineLayerProviders,
+  }, null, 2)
   const blob = new Blob([data], { type: "application/json" })
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
@@ -463,7 +491,42 @@ function exportConfig() {
   URL.revokeObjectURL(url)
 }
 
+function normalizeImportedLayerProviders(value: unknown): Partial<Record<'settings' | 'volumes' | 'chapters' | 'body', string | null>> {
+  const source = value && typeof value === 'object' ? value as Record<string, unknown> : {}
+  const result: Partial<Record<'settings' | 'volumes' | 'chapters' | 'body', string | null>> = {}
+  for (const layer of pipelineChannelOptions.map(option => option.layer)) {
+    const raw = source[layer]
+    if (typeof raw !== 'string') continue
+    const trimmed = raw.trim()
+    result[layer] = trimmed || null
+  }
+  return result
+}
+
+function importProviderBindings(value: unknown, providers: Provider[]): void {
+  const data = value && typeof value === 'object' ? value as Record<string, unknown> : {}
+  const generateProvider = typeof data.generateProvider === 'string' ? data.generateProvider.trim() : ''
+  if (generateProvider) {
+    providerStore.setGenerateProvider(generateProvider)
+  }
+
+  const importedLayers = normalizeImportedLayerProviders(data.pipelineLayerProviders)
+  const missingLayers: string[] = []
+  for (const option of pipelineChannelOptions) {
+    const providerId = importedLayers[option.layer]
+    if (providerId === undefined) continue
+    if (providerId && !providers.some(provider => provider.id === providerId)) {
+      missingLayers.push(`${option.label}绑定 ${providerId} 未导入到现有供应商，请重新选择`)
+    }
+    providerStore.setPipelineLayerProvider(option.layer, providerId)
+  }
+  if (missingLayers.length > 0) {
+    importMessage.value = `导入完成，但有绑定需要处理：${missingLayers.join('；')}。`
+  }
+}
+
 function importConfig() {
+  importMessage.value = ''
   const input = document.createElement("input")
   input.type = "file"
   input.accept = ".json"
@@ -476,7 +539,9 @@ function importConfig() {
       const providers = Array.isArray(data) ? data : data.providers
       if (!Array.isArray(providers)) throw new Error('导入内容不是供应商数组')
       providers.forEach((p: Provider) => providerStore.addProvider({ ...p, contextWindowTokens: Number(p.contextWindowTokens) > 0 ? Math.floor(Number(p.contextWindowTokens)) : 0 }))
+      importProviderBindings(data, providers)
     } catch (err) {
+      importMessage.value = `导入失败: ${(err as Error)?.message || String(err)}`
       console.error("import failed", err)
     }
   }

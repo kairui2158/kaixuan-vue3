@@ -447,6 +447,66 @@ describe('realSkillExecutor single pass', () => {
     }))
   })
 
+  it('does not send an unbound agent model to the layer provider', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: 'ok',
+      finishReason: 'stop',
+      providerId: 'provider-layer',
+    }))
+    const result = await executeRealSkill({
+      folderPath: '',
+      input: 'input',
+      agent: { model: 'agent-model' },
+      purpose: 'generate',
+      providerId: 'provider-layer',
+      providerSource: 'layer',
+      providerModel: 'layer-model',
+      providerModelSource: 'caller-profile',
+      providerModelFallback: { reason: 'agent-model-without-provider', configuredModel: 'agent-model' },
+      budget: { tryConsume: () => ({ status: 'allowed' }) },
+      aiService: { callAi },
+    } as any)
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
+      providerId: 'provider-layer',
+      model: 'layer-model',
+      meta: expect.objectContaining({
+        providerSource: 'layer',
+        modelSource: 'caller-profile',
+      }),
+    }))
+  })
+
+  it('fails before the request when the resolved provider has no model', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: 'ok' }))
+    const result = await executeRealSkill({
+      folderPath: '',
+      input: 'input',
+      agent: null,
+      purpose: 'generate',
+      providerId: 'provider-layer',
+      providerModel: '',
+      providerModelMissing: true,
+      budget: { tryConsume: () => ({ status: 'allowed' }) },
+      aiService: { callAi },
+    } as any)
+
+    expect(result.status).toBe('failed')
+    expect(callAi).not.toHaveBeenCalled()
+    expect(result.errors[0]).toContain('未配置可用模型')
+  })
+
   it('recovers when the direct-output retry produces a body', async () => {
     const eventSpy = vi.fn()
     loadRealSkillMock.mockResolvedValueOnce({

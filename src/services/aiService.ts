@@ -252,6 +252,8 @@ export interface CallAiParams {
     ctxTurns?: number
     /** Single-source pipeline provider channel provenance for diagnostics. */
     providerSource?: 'agent' | 'layer' | 'global'
+    /** Model provenance for pipeline requests resolved by the caller. */
+    modelSource?: string
   }
   /** Stream callback contract: receives only the newly emitted text for this chunk. */
   onChunk?: (text: string) => void

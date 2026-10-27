@@ -65,3 +65,13 @@
 - 构建命令：`npm run build`（`vite build`、`vite build --config vite.protocols.config.mts`、`electron-builder --win`）exit 0。
 - 回归：构建前 `npx vue-tsc --noEmit` exit 0；`npx vitest run` 218 files / 2361 tests 全部通过；`package.json` / `package-lock.json` JSON 解析通过。
 - 收尾清理复核：旧 `3.109.0.exe`、旧 blockmap、`_data/pipeline-provider-channel-profile`、`_data/pipeline-provider-channel-live-profile` 均不存在；`dist` 仅保留 3.110.0 一套安装包。mock/live 证据目录为不可再生的本轮验收证据，按验证门保留。
+
+## 9. 3.110.1 模型轴收口
+
+- 交付：`resolvePipelineRequestProfile` 统一解析层供应商模型与 Agent 模型，输出 `model / modelSource / modelMissing / modelSupported / modelFallback`。Agent 显式 provider+model 优先；Agent 只填 model 时回退层供应商，并记录 `agent-model-fallback` trace；Agent model 不在层供应商清单时显式 request-blocking 失败；供应商无模型清单时标记 `modelMissing`。
+- 执行合同：`realSkillExecutor` 新增 `providerModel / providerModelSource / providerModelFallback / providerModelMissing`，只有流水线显式传入且解析为空时才在请求前失败；非流水线旧调用不误伤。
+- 消费线：PipelinePanel folder、非 folder agent 变体、正文最小修复、硬信号修复四条路径全部迁移 profile；`pipeline-provider-channel-resolved` 与 `agent-model-fallback` trace 补 `layer + step`。
+- UI/配置：层绑定只允许选择 generate 用途供应商；导出/导入包含 `providers / generateProvider / pipelineLayerProviders`；缺失绑定导入后显示页面警告，兼容旧纯数组格式。
+- 验证器：`verify-pipeline-provider-channel-electron.mjs` 升级为三面同源断言，trace 事件、apiCall 与物理请求体必须同 layer 同 model；profile 事件补 `layer` 字段并修复 `providers` 作用域缺陷。
+- 回归：`npx vitest run src/services/pipelineProviderChannels.spec.ts src/services/realSkillExecutor.spec.ts` 70/70；`ApiSettings.spec.ts` 3/3；`npm run type-check` exit 0；`npm run test:services` 219 files / 2370 tests 全部通过；`npm run build:vue` 成功；`npm run verify:provider-channel-electron` PASS，`requests=3`，三层模型断言在 report 中。
+- 诚实边界：本轮 live 单供应商矩阵未重跑；上版 3.110.0 live PASS 证明 providerId 路由，本轮新增 model 轴由 mock 四供应商矩阵与三面同源断言证明。风格分析 step 0 辅助路径仍走全局供应商，属设计内。

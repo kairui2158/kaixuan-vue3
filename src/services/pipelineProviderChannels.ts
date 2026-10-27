@@ -32,6 +32,30 @@ export interface PipelineProviderChannelResolution {
   providerMissing: boolean
 }
 
+export interface PipelineRequestProfileAgent {
+  model?: string | null
+  providerId?: string | null
+}
+
+export interface PipelineRequestProfileProvider {
+  selectedModel?: string | null
+  models?: Array<string | null> | null
+}
+
+export interface PipelineRequestProfile {
+  providerId: string
+  source: PipelineProviderChannelSource
+  model: string
+  modelSource: 'agent' | 'provider-selected' | 'provider-first-listed'
+  providerMissing: boolean
+  modelMissing: boolean
+  modelSupported: boolean
+  modelFallback?: {
+    reason: 'agent-model-without-provider'
+    configuredModel: string
+  }
+}
+
 export function resolvePipelineProviderChannel(
   input: PipelineProviderChannelInput
 ): PipelineProviderChannelResolution {
@@ -59,6 +83,60 @@ export function resolvePipelineProviderChannel(
     providerId: globalProviderId,
     source: 'global',
     providerMissing: Boolean(globalProviderId) && !exists(globalProviderId),
+  }
+}
+
+export function resolvePipelineRequestProfile(input: {
+  layer: PipelineProviderChannelLayer
+  layerProviderId?: string | null
+  globalProviderId?: string | null
+  agent?: PipelineRequestProfileAgent | null
+  getProvider?: (providerId: string) => PipelineRequestProfileProvider | null | undefined
+}): PipelineRequestProfile {
+  const channel = resolvePipelineProviderChannel({
+    ...input,
+    agentProviderId: input.agent?.providerId,
+  })
+  const provider = input.getProvider?.(channel.providerId) || null
+  const providerModels = (provider?.models || [])
+    .map(model => String(model || '').trim())
+    .filter(Boolean)
+  const providerModel = String(provider?.selectedModel || '').trim()
+  const agentModel = String(input.agent?.model || '').trim()
+  const agentOwnsProvider = channel.source === 'agent'
+
+  if (agentModel && agentOwnsProvider) {
+    return {
+      ...channel,
+      model: agentModel,
+      modelSource: 'agent',
+      modelMissing: false,
+      modelSupported: providerModels.length === 0 || providerModels.includes(agentModel),
+    }
+  }
+
+  if (agentModel && !agentOwnsProvider) {
+    const fallbackModel = providerModel || providerModels[0] || ''
+    return {
+      ...channel,
+      model: fallbackModel,
+      modelSource: 'provider-selected',
+      modelMissing: !fallbackModel,
+      modelSupported: Boolean(fallbackModel),
+      modelFallback: {
+        reason: 'agent-model-without-provider',
+        configuredModel: agentModel,
+      },
+    }
+  }
+
+  const selectedModel = providerModel || providerModels[0] || ''
+  return {
+    ...channel,
+    model: selectedModel,
+    modelSource: 'provider-selected',
+    modelMissing: !selectedModel,
+    modelSupported: Boolean(selectedModel),
   }
 }
 

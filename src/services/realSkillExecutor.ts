@@ -927,6 +927,15 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             defaultPhysicalPhase?: PhysicalCallPhase
           }
         ) => {
+          const resolvedProviderModel = options.providerModel !== undefined
+            ? String(options.providerModel || '')
+            : (agent?.model || undefined)
+          if (options.providerModel !== undefined && !resolvedProviderModel) {
+            throw Object.assign(
+              new Error(`供应商「${options.providerId || '默认供应商'}」未配置可用模型，已停止本次请求；请先在该供应商中选择模型。`),
+              { requestProfileBlocked: true }
+            )
+          }
           const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
           const callBudget = options.budget.tryConsume(
             `${budgetStep}${promptSuffix ? ':direct-retry' : ''}`,
@@ -952,7 +961,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           onPhysicalCall: options.onPhysicalCall as any,
           onProviderQueue: options.onProviderQueue,
           retry: true,
-          model: agent?.model || undefined,
+          model: resolvedProviderModel,
           temperature: attempt === RETRY_LIMIT
             ? Math.min((agent?.temperature ?? 0.7) + 0.05, 1.0)
             : agent?.temperature,
@@ -970,7 +979,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             skillId: pkg.id,
             agentId: agent?.id,
             step: attempt,
-            providerSource: agent?.providerId ? 'agent' : options.providerSource
+            providerSource: agent?.providerId ? 'agent' : options.providerSource,
+            modelSource: options.providerModelSource
           },
             ...(options.tools?.length
             ? { tools: options.tools, toolPolicy: options.toolPolicy }

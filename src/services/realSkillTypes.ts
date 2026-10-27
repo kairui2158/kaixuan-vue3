@@ -177,6 +177,11 @@ export interface RealSkillAgentContext {
   id?: string
 }
 
+export interface RealSkillProviderModelFallback {
+  reason: 'agent-model-without-provider'
+  configuredModel: string
+}
+
 export interface RealSkillExecuteOptions {
   folderPath: string
   input: string
@@ -194,6 +199,11 @@ export interface RealSkillExecuteOptions {
     readableTargets?: string[]
   }
   agent?: RealSkillAgentContext | null
+  /** Caller-resolved request profile model; the executor must not recombine provider and model. */
+  providerModel?: string
+  providerModelSource?: 'caller-profile'
+  providerModelFallback?: RealSkillProviderModelFallback
+  providerModelMissing?: boolean
   /** App-level prompt appended after the folder template (for example body-layer DEAI rules). */
   systemPromptSuffix?: string
   /** App-owned retry feedback appended to the user prompt, never authored by SKILL guidance. */

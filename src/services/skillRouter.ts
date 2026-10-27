@@ -24,6 +24,10 @@ export interface SkillRouteOptions {
   agent?: RealSkillAgentContext | null
   purpose?: 'rewrite' | 'verify' | 'generate'
   providerId?: string
+  providerModel?: string
+  providerModelSource?: 'caller-profile'
+  providerModelFallback?: { reason: 'agent-model-without-provider'; configuredModel: string }
+  providerModelMissing?: boolean
   providerSource?: RealSkillExecuteOptions['providerSource']
   budget: { tryConsume: (step: string, skillLimit?: number | null) => any }
   skillId?: string
@@ -175,6 +179,10 @@ export async function routeSkill(
     agentSource: options.agentSource,
     purpose: options.purpose,
     providerId: options.providerId,
+    providerModel: options.providerModel,
+    providerModelSource: options.providerModelSource,
+    providerModelFallback: options.providerModelFallback,
+    providerModelMissing: options.providerModelMissing,
     providerSource: options.providerSource,
     budget: options.budget,
     skillId: options.skillId || skill.id,
