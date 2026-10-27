@@ -1245,3 +1245,12 @@
 - 验证：`npx vitest run` 218 files / 2361 tests 全部通过；`npx vue-tsc --noEmit` exit 0；mock 四供应商矩阵 PASS（三层请求分别携带 `local-volumes / local-chapters / local-body`）；live 真实供应商 PASS（三层 run succeeded，`successfulRequests:3`，正文 2642 字首轮低于 2800 字后按失败指标重试成功，key 仅记录长度不落明文）。
 - 诚实边界：live 环境仅有一个 generate 供应商，四层分流由 mock 四供应商矩阵证明；风格分析为 step 0 辅助路径，不属于四层通道目标；V3.3 并行骨架未改动。
 - 封装与经验：版本 3.110.0；经验文件 v9.6.2，G1.5 新增供应商通道验证判则。安装包与哈希见 DEV_LOG 第 8 节。
+
+# 2026-10-28 分层供应商通道 3.110.1 模型轴收口
+
+- 文件：[_audit/DEV_LOG_2026-10-28_PIPELINE_LAYER_PROVIDER_CHANNELS.md](_audit/DEV_LOG_2026-10-28_PIPELINE_LAYER_PROVIDER_CHANNELS.md) 第 9 节
+- 台账：[_audit/TASK_LEDGERS/2026-10-27_PIPELINE_LAYER_PROVIDER_CHANNELS.md](_audit/TASK_LEDGERS/2026-10-27_PIPELINE_LAYER_PROVIDER_CHANNELS.md)
+- 范围：`resolvePipelineRequestProfile` 统一 provider/model 轴、Agent 模型回退与不支持显式失败、四条流水线消费线迁移、设置页 generate 用途约束、导出/导入层绑定、验证器三面同源 model 断言。
+- 验证：`pipelineProviderChannels.spec.ts + realSkillExecutor.spec.ts` 70/70；`ApiSettings.spec.ts` 3/3；`type-check` exit 0；`test:services` 219 files / 2370 tests 全部通过；`build:vue` 成功；`verify:provider-channel-electron` PASS，`requests=3`，trace / apiCall / 物理请求体三层 model 断言同源。
+- 诚实边界：live 单供应商矩阵本轮未重跑，3.110.0 live PASS 继续证明 providerId 路由，本轮 model 轴由 mock 四供应商矩阵证明；风格分析 step 0 仍走全局供应商，属设计内；3.110.1 安装包未重新封装。
+- 版本与经验：package/package-lock 均为 3.110.1；经验文件 v9.6.3，G1.5 追加 providerId+model 三面同源与“断言先红后绿”判则。

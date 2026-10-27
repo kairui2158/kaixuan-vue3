@@ -75,3 +75,4 @@
 - 验证器：`verify-pipeline-provider-channel-electron.mjs` 升级为三面同源断言，trace 事件、apiCall 与物理请求体必须同 layer 同 model；profile 事件补 `layer` 字段并修复 `providers` 作用域缺陷。
 - 回归：`npx vitest run src/services/pipelineProviderChannels.spec.ts src/services/realSkillExecutor.spec.ts` 70/70；`ApiSettings.spec.ts` 3/3；`npm run type-check` exit 0；`npm run test:services` 219 files / 2370 tests 全部通过；`npm run build:vue` 成功；`npm run verify:provider-channel-electron` PASS，`requests=3`，三层模型断言在 report 中。
 - 诚实边界：本轮 live 单供应商矩阵未重跑；上版 3.110.0 live PASS 证明 providerId 路由，本轮新增 model 轴由 mock 四供应商矩阵与三面同源断言证明。风格分析 step 0 辅助路径仍走全局供应商，属设计内。
+- 经验回写：v9.6.2 -> v9.6.3，G1.5 追加供应商通道 `providerId + model` 三面同源断言与“新断言先红后绿”判则；MASTER_INDEX 已登记 3.110.1 收口。
