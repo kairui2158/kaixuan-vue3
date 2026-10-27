@@ -1236,3 +1236,12 @@
 - 验证：live 并行 PASS（9 run、17 application calls、15 physical requests、max concurrency 2、取消 103ms）；性能账本 PASS（freeze/slowClick/longTask 全 0，供应商等待 1,735,168ms，本地开销 3,559ms）；13 脚本 PASS 或预期负向；`type-check`、213 files / 2338 tests 全部通过。
 - 封装：3.109.0；安装包 `dist/神意助手-Setup-3.109.0.exe`，231,611,286 bytes，SHA256 `3BEFB473CF9DE943DBCA07BAF6DF523CFFE2375BE3601BE22553FA0E3A38FD55`。
 - 诚实边界：本轮不重跑完整打包与人工安装路径；供应商额度/503/用户取消属于外部边界。经验回写 v9.6.1。
+
+# 2026-10-28 生成流水线分层供应商通道收口
+
+- 文件：[_audit/DEV_LOG_2026-10-28_PIPELINE_LAYER_PROVIDER_CHANNELS.md](_audit/DEV_LOG_2026-10-28_PIPELINE_LAYER_PROVIDER_CHANNELS.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-27_PIPELINE_LAYER_PROVIDER_CHANNELS.md](_audit/TASK_LEDGERS/2026-10-27_PIPELINE_LAYER_PROVIDER_CHANNELS.md)
+- 范围：四层供应商通道配置与持久化、Agent > 层 > 全局单源路由、显式绑定失效请求前失败、run 级快照冻结、trace/DiagLogger 来源观测、设置页真实 UI、mock 四供应商与 live 单供应商双验证。
+- 验证：`npx vitest run` 218 files / 2361 tests 全部通过；`npx vue-tsc --noEmit` exit 0；mock 四供应商矩阵 PASS（三层请求分别携带 `local-volumes / local-chapters / local-body`）；live 真实供应商 PASS（三层 run succeeded，`successfulRequests:3`，正文 2642 字首轮低于 2800 字后按失败指标重试成功，key 仅记录长度不落明文）。
+- 诚实边界：live 环境仅有一个 generate 供应商，四层分流由 mock 四供应商矩阵证明；风格分析为 step 0 辅助路径，不属于四层通道目标；V3.3 并行骨架未改动。
+- 封装与经验：版本 3.110.0；经验文件 v9.6.2，G1.5 新增供应商通道验证判则。安装包与哈希见 DEV_LOG 第 8 节。

@@ -169,6 +169,8 @@ export interface RealSkillExecutionResult {
 export interface RealSkillAgentContext {
   systemPrompt?: string
   model?: string
+  /** Explicit provider binding; routed through callAi without silent fallback. */
+  providerId?: string
   temperature?: number
   /** null means the request intentionally omitted the output limit. */
   maxTokens?: number | null
@@ -211,6 +213,10 @@ export interface RealSkillExecuteOptions {
   /** Live pipeline variables injected into folder template.md placeholders. */
   templateVariables?: Record<string, unknown>
   purpose?: 'rewrite' | 'verify' | 'generate'
+  /** Layer-level provider channel resolved by the pipeline caller. */
+  providerId?: string
+  /** Source of the effective provider binding; kept for request-level diagnostics. */
+  providerSource?: 'agent' | 'layer' | 'global'
   budget: { tryConsume: (step: string, skillLimit?: number | null) => ApiBudgetDecisionLike }
   skillId?: string
   aiService?: {

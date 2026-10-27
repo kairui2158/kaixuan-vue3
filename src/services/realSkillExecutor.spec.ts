@@ -68,6 +68,55 @@ function createPackage(overrides: Record<string, unknown> = {}) {
 }
 
 describe('realSkillExecutor single pass', () => {
+  it('routes the layer provider and records its source in call metadata', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      providerId: 'provider-layer',
+      providerSource: 'layer',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
+      providerId: 'provider-layer',
+      meta: expect.objectContaining({ providerSource: 'layer' })
+    }))
+  })
+
+  it('lets an explicit agent provider override the layer provider', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      providerId: 'provider-layer',
+      providerSource: 'layer',
+      agent: { providerId: 'provider-agent' },
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
+      providerId: 'provider-agent',
+      meta: expect.objectContaining({ providerSource: 'agent' })
+    }))
+  })
+
   it('counts repeated prompt marker blocks in the user prompt only', () => {
     const counts = countRepeatedPromptBlocks(
       '[style reference]\n样本\n\n--- text ---\n[大纲]\n正文\n[大纲]\n[已生成卷事实清单]\n第一卷\n[已生成卷事实清单]\n第二卷'
@@ -342,6 +391,60 @@ describe('realSkillExecutor single pass', () => {
       maxTokens: 1000
     })
     expect(result.status).toBe('failed')
+  })
+
+  it('routes folder calls through the explicit agent provider without silent fallback', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: 'ok',
+      finishReason: 'stop',
+      providerId: 'provider-agent',
+    }))
+    const result = await executeRealSkill({
+      folderPath: '',
+      input: 'input',
+      agent: { providerId: 'provider-agent' },
+      purpose: 'generate',
+      providerId: 'provider-layer',
+      budget: { tryConsume: () => ({ status: 'allowed' }) },
+      aiService: { callAi },
+    } as any)
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
+      providerId: 'provider-agent',
+    }))
+  })
+
+  it('routes folder calls through the layer provider when the agent has no binding', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: 'ok',
+      finishReason: 'stop',
+      providerId: 'provider-layer',
+    }))
+    const result = await executeRealSkill({
+      folderPath: '',
+      input: 'input',
+      agent: null,
+      purpose: 'generate',
+      providerId: 'provider-layer',
+      budget: { tryConsume: () => ({ status: 'allowed' }) },
+      aiService: { callAi },
+    } as any)
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
+      providerId: 'provider-layer',
+    }))
   })
 
   it('recovers when the direct-output retry produces a body', async () => {

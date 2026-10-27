@@ -1,0 +1,368 @@
+{
+  "id": "run-1793123716875-23",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 3,
+  "stepName": "章节层",
+  "mode": "chapters",
+  "projectId": "pipeline-provider-channel-ui",
+  "projectName": "层通道真实UI验证",
+  "providerId": "provider-chapters",
+  "providerName": "chapters通道供应商",
+  "model": "chapters-model",
+  "skillNames": [],
+  "skillMode": "compose",
+  "pipelineRunId": "pipeline-run-1793123716869-2",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "63367bdc028f",
+    "buildTime": "2026-10-27T17:23:03.513Z"
+  },
+  "startedAt": 1793123716875,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "chapters_generation_complete",
+      "recordedAt": 1793123716952
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1793123716875-24",
+      "ts": 1793123716875,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 章节层运行"
+    },
+    {
+      "id": "event-1793123716892-25",
+      "ts": 1793123716892,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "章节层执行参数已构建",
+      "detail": "{\"volume\":\"第一卷 层通道\",\"totalChapters\":2,\"wordsPerChapter\":3500,\"resumeCount\":1}"
+    },
+    {
+      "id": "event-1793123716892-26",
+      "ts": 1793123716892,
+      "seq": 3,
+      "type": "chapter-count-arbitration",
+      "level": "info",
+      "label": "章节口径单源仲裁",
+      "detail": "{\"totalChapters\":2,\"source\":\"configured_chapter_count\",\"configuredChapterCount\":2,\"wordEstimatedCount\":4,\"declaredChapterCount\":0,\"conflict\":false,\"message\":\"卷「第一卷 层通道」未声明章数，按应用配置2章执行\"}"
+    },
+    {
+      "id": "event-1793123716893-27",
+      "ts": 1793123716893,
+      "seq": 4,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"chapter\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1793123716893-28",
+      "ts": 1793123716893,
+      "seq": 5,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"chapter\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1793123716896-29",
+      "ts": 1793123716896,
+      "seq": 6,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":3,\"configuredModel\":null,\"fallbackModel\":\"chapters-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1793123716896-30",
+      "ts": 1793123716896,
+      "seq": 7,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：compose",
+      "detail": "{\"layer\":\"chapters\",\"layerProviderId\":\"provider-chapters\",\"globalProviderId\":\"provider-global\",\"providerId\":\"provider-chapters\",\"source\":\"layer\",\"providerMissing\":false}"
+    },
+    {
+      "id": "event-1793123716896-32",
+      "ts": 1793123716896,
+      "seq": 8,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"chapters-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1793123716897-34",
+      "ts": 1793123716897,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1793123716897-35",
+      "ts": 1793123716897,
+      "seq": 10,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1793123716897-33",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1793123716897-36",
+      "ts": 1793123716897,
+      "seq": 11,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / chapters-model"
+    },
+    {
+      "id": "event-1793123716902-37",
+      "ts": 1793123716902,
+      "seq": 12,
+      "turnId": "api-1793123716896-31",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"provider-chapters\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1793123716914-38",
+      "ts": 1793123716914,
+      "seq": 13,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / chapters-model / stop"
+    },
+    {
+      "id": "event-1793123716914-39",
+      "ts": 1793123716914,
+      "seq": 14,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1793123716896-31 seq=1"
+    },
+    {
+      "id": "event-1793123716914-40",
+      "ts": 1793123716914,
+      "seq": 15,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / chapters-model"
+    },
+    {
+      "id": "event-1793123716918-41",
+      "ts": 1793123716918,
+      "seq": 16,
+      "type": "chapter-batch-attempt",
+      "level": "info",
+      "label": "章节批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":1,\"errors\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1793123716937-42",
+      "ts": 1793123716937,
+      "seq": 17,
+      "type": "chapter-batch-validated",
+      "level": "info",
+      "label": "章节批次验收通过",
+      "detail": "{\"batchIndex\":1,\"expectedStart\":2,\"expectedEnd\":2,\"requestedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1793123716952-43",
+      "ts": 1793123716952,
+      "seq": 18,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "chapters_generation_complete"
+    },
+    {
+      "id": "event-1793123716952-44",
+      "ts": 1793123716952,
+      "seq": 19,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "chapters_generation_complete / run=run-1793123716875-23"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1793123716896-31",
+      "seq": 1,
+      "step": 3,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "provider-chapters",
+      "providerName": "chapters通道供应商",
+      "model": "chapters-model",
+      "temperature": 0.1,
+      "maxTokens": 8192,
+      "requestMessages": [
+        {
+          "role": "system",
+          "content": "你是专业小说创作助手。"
+        },
+        {
+          "role": "user",
+          "content": "[全书大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[章节规划约束]\n（暂无设定）\n\n[卷纲]\n第一卷 层通道 - 王芳在灯塔发现纸条。\n\n[本卷总章数]\n2\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 层通道》\n\n[上一章事实]\n第1章《第1章 层通道》\n王芳确认纸条。\n\n生成第2章到第2章，共1章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为1。"
+        }
+      ],
+      "responseText": "[{\"title\":\"第2章 航线\",\"plot\":\"王芳确认纸条。\",\"summary\":\"确认纸条。\"}]",
+      "streamText": "",
+      "reasoningText": "",
+      "status": "success",
+      "startedAt": 1793123716896,
+      "physicalCalls": [
+        {
+          "id": "physical-1793123716897-33",
+          "physicalCallId": "physical-1793123716896-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "你是专业小说创作助手。"
+            },
+            {
+              "role": "user",
+              "content": "[全书大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[章节规划约束]\n（暂无设定）\n\n[卷纲]\n第一卷 层通道 - 王芳在灯塔发现纸条。\n\n[本卷总章数]\n2\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 层通道》\n\n[上一章事实]\n第1章《第1章 层通道》\n王芳确认纸条。\n\n生成第2章到第2章，共1章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为1。"
+            }
+          ],
+          "responseText": "[{\"title\":\"第2章 航线\",\"plot\":\"王芳确认纸条。\",\"summary\":\"确认纸条。\"}]",
+          "streamText": "[{\"title\":\"第2章 航线\",\"plot\":\"王芳确认纸条。\",\"summary\":\"确认纸条。\"}]",
+          "reasoningText": "",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 5,
+            "totalTokens": 15
+          },
+          "usageUnavailable": false,
+          "startedAt": 1793123716897,
+          "durationMs": 16,
+          "firstTokenMs": 15,
+          "outputMs": 1,
+          "endedAt": 1793123716914,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": 8192,
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 114,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 114 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 114,
+            "actualInputTokens": 10,
+            "driftRatio": -0.9122807017543859,
+            "correctedRatio": 0.08771929824561403
+          },
+          "firstContentAt": 1793123716912,
+          "lastContentAt": 1793123716912,
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1793123716897,
+      "finishReason": "stop",
+      "durationMs": 17,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 16,
+        "firstTokenSumMs": 15,
+        "outputSumMs": 1,
+        "minFirstTokenMs": 15,
+        "maxFirstTokenMs": 15,
+        "localOverheadMs": 1
+      },
+      "usage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15
+      },
+      "usageUnavailable": false,
+      "endedAt": 1793123716914,
+      "semantic": {
+        "conversationId": "run-1793123716875-23",
+        "usage": {
+          "inputTokens": 10,
+          "outputTokens": 5,
+          "totalTokens": 15
+        }
+      }
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "eventLedger": {
+    "totalEvents": 19,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "stepPhaseTiming": {
+    "validation": 1,
+    "persistence": 18
+  },
+  "dirName": "run-trace-章节层-20261028-015516",
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 16,
+    "firstTokenSumMs": 15,
+    "outputSumMs": 1,
+    "localOverheadSumMs": 1,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 15,
+    "outputSumMs": 1,
+    "validationSumMs": 1,
+    "persistenceSumMs": 18,
+    "repeatedPromptBlocks": {},
+    "contextChars": 256,
+    "outputChars": 55,
+    "physicalDurationSumMs": 16
+  },
+  "endedAt": 1793123716952,
+  "durationMs": 77
+}

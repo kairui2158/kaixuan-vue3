@@ -250,6 +250,8 @@ export interface CallAiParams {
     /** Eval case id for with/baseline grading runs. */
     caseId?: string
     ctxTurns?: number
+    /** Single-source pipeline provider channel provenance for diagnostics. */
+    providerSource?: 'agent' | 'layer' | 'global'
   }
   /** Stream callback contract: receives only the newly emitted text for this chunk. */
   onChunk?: (text: string) => void
@@ -1581,6 +1583,8 @@ export interface DiagnosticLogLike {
     retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
     /** null records an undeclared output limit; a number records the effective wire limit. */
     maxTokens?: number | null
+    /** Pipeline provider channel provenance: agent | layer | global. */
+    providerSource?: 'agent' | 'layer' | 'global'
   }): void
 }
 
@@ -1609,6 +1613,8 @@ function logRequest(
     retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
     /** null records an undeclared output limit; a number records the effective wire limit. */
     maxTokens?: number | null
+    /** Pipeline provider channel provenance: agent | layer | global. */
+    providerSource?: 'agent' | 'layer' | 'global'
   }
 ) {
   if (logger) {
@@ -1634,6 +1640,7 @@ function logRequest(
       downgradeReason: params.downgradeReason,
       retryStrategy: params.retryStrategy,
       maxTokens: params.maxTokens,
+      providerSource: params.providerSource,
     })
   }
   // Push to DiagLogger for real-time DiagLogPanel display.
@@ -1660,8 +1667,9 @@ function logRequest(
         providerErrorSummary: params.providerErrorSummary,
         toolCapability: params.toolCapability,
         downgradeReason: params.downgradeReason,
-        retryStrategy: params.retryStrategy,
-        maxTokens: params.maxTokens,
+      retryStrategy: params.retryStrategy,
+      providerSource: params.providerSource,
+      maxTokens: params.maxTokens,
       }
     )
     if (typeof _diag.trackApiCall === 'function') {
@@ -3813,7 +3821,7 @@ export function createAiService(
       // Closing the same running physical record prevents a canceled request
       // from leaving a perpetual running physical call in the trace.
       reportPhysical(currentPhysicalAttempt, 'canceled')
-      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl })
+      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl, providerSource: params.meta?.providerSource })
       throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
     }
 
@@ -3893,7 +3901,7 @@ export function createAiService(
         }
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
-        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerType, transport, finalUrl })
+        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerType, transport, finalUrl, providerSource: params.meta?.providerSource })
         reportPhysical(attempt, 'success', result, undefined, undefined, undefined, {
           firstContentAt: streamFirstContentAt === null ? undefined : streamFirstContentAt,
           lastContentAt: streamLastContentAt === null ? undefined : streamLastContentAt,
@@ -4234,7 +4242,7 @@ export function createAiService(
           }
           const durationMs = Date.now() - startTime
           const _hbModel = resolveModel(provider, params.model)
-          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage })
+          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerSource: params.meta?.providerSource })
           reportPhysical(hbAttempt, 'success', result, undefined, 'heartbeat_retry')
           return {
             text: finalText,

@@ -763,6 +763,12 @@ import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
 import { useDeAiStore } from "../../stores/deai"
 import { getAiService } from "../../services/aiService"
+import {
+  buildPipelineProviderChannelSnapshot,
+  resolvePipelineProviderChannel,
+  type PipelineProviderChannelLayer,
+  type PipelineProviderChannelSnapshot,
+} from "../../services/pipelineProviderChannels"
 import type { ProviderQueueEvent } from "../../services/providerScheduler"
 import { formatSkillFallback, routeSkill } from "../../services/skillRouter"
 import { formatPreflightFailure, preflightFolderSkills } from "../../services/pipelineSkillPreflight"
@@ -908,6 +914,63 @@ function signalForPipelineRun(pipelineRunId: string | null | undefined, signal?:
   if (signal) return signal
   if (!pipelineRunId) return undefined
   return pipelineStore.getGenerationSignal(pipelineRunId)
+}
+
+function resolvePipelineRunProviderChannel(
+  pipelineRunId: string | null | undefined,
+  step: number,
+  agentProviderId?: string | null,
+): PipelineProviderChannelSnapshot {
+  const layer = pipelineLayerForStep(step)
+  if (!layer) throw new Error(`生成流水线第 ${step} 步不属于供应商层通道`)
+  const snapshot = pipelineRunId
+    ? pipelineStore.getFrozenProviderChannel<PipelineProviderChannelSnapshot>(pipelineRunId)
+    : null
+  const fallback = buildPipelineProviderChannelSnapshot({
+    layer,
+    layerProviderId: providerStore.pipelineLayerProviders[layer] ?? null,
+    globalProviderId: providerStore.preferredGenerateProvider?.id ?? null,
+    providerExists: id => Boolean(providerStore.getProvider(id)),
+  })
+  if (!snapshot) return { ...fallback }
+  const resolution = resolvePipelineProviderChannel({
+    layer,
+    layerProviderId: snapshot.layerProviderId,
+    agentProviderId,
+    globalProviderId: snapshot.globalProviderId,
+    providerExists: id => Boolean(providerStore.getProvider(id)),
+  })
+  return {
+    layer,
+    layerProviderId: snapshot.layerProviderId,
+    globalProviderId: snapshot.globalProviderId,
+    ...resolution,
+  }
+}
+
+function assertPipelineProviderChannelUsable(
+  channel: PipelineProviderChannelSnapshot,
+  runId: string | null | undefined,
+  step: number,
+): void {
+  if (!channel.providerMissing && channel.providerId) return
+  const source = channel.source === 'agent'
+    ? 'Agent 显式绑定'
+    : channel.source === 'layer'
+      ? '生成流水线层绑定'
+      : '全局生成供应商'
+  const message = channel.providerId
+    ? `${source}的供应商「${channel.providerId}」不存在，已停止本次生成；请重新绑定后重试。`
+    : `${source}为空，已停止本次生成；请先配置供应商。`
+  if (runId) {
+    runTraceStore.addEvent(runId, {
+      type: 'pipeline-provider-channel-resolved',
+      level: 'error',
+      label: '生成流水线供应商通道不可用',
+      detail: JSON.stringify({ ...channel, step, error: message })
+    })
+  }
+  throw new Error(message)
 }
 
 function isPipelineRunCanceled(pipelineRunId: string | null | undefined): boolean {
@@ -1084,7 +1147,7 @@ function displayedSkillStepsForStep(step: number) {
   return perRunUi(run?.runId)?.skillSteps || []
 }
 
-function pipelineLayerForStep(step: number): PipelineLayer | null {
+function pipelineLayerForStep(step: number): PipelineLayer | PipelineProviderChannelLayer | null {
   if (step === 1) return 'settings'
   if (step === 2) return 'volumes'
   if (step === 3) return 'chapters'
@@ -2254,6 +2317,18 @@ async function readStepConfigSnapshotForRun(
   }
 }
 
+function buildProviderChannelConfigSnapshot(
+  layer: PipelineProviderChannelLayer,
+): PipelineProviderChannelSnapshot {
+  const snapshot = buildPipelineProviderChannelSnapshot({
+    layer,
+    layerProviderId: providerStore.pipelineLayerProviders[layer] ?? null,
+    globalProviderId: providerStore.preferredGenerateProvider?.id ?? null,
+    providerExists: id => Boolean(providerStore.getProvider(id)),
+  })
+  return snapshot
+}
+
 function buildCheckpointOwnerKey(
   projectId: string,
   step: number,
@@ -2426,7 +2501,13 @@ async function callValidatedSkill(
     const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
     const agentSource = skillAgentId ? "user-binding" : agentId ? "step-default" : "none"
     const traceRunId = traceRunIdParam
-    const fallbackProviderId = activeProviderId()
+    const providerChannel = resolvePipelineRunProviderChannel(
+      pipelineRunIdParam,
+      step,
+      agentConfig?.provider,
+    )
+    assertPipelineProviderChannelUsable(providerChannel, traceRunId, step)
+    const fallbackProviderId = providerChannel.providerId
     const systemPromptSuffix = resolveDeaiPromptForChainStep(step, chainSkillIndex, chainSkillCount)
     let traceCallId = ''
     const startedAt = Date.now()
@@ -2539,11 +2620,20 @@ async function callValidatedSkill(
         })
         : ''
       logDeaiVariant()
+      if (traceRunId) {
+        runTraceStore.addEvent(traceRunId, {
+          type: 'pipeline-provider-channel-resolved',
+          level: 'info',
+          label: `生成流水线供应商通道：${template.name || template.id}`,
+          detail: JSON.stringify(providerChannel)
+        })
+      }
       route = await routeSkill(template.skill, {
         input: prompt,
         agent: agentConfig ? {
           id: agentId,
           model: agentConfig.model,
+          providerId: agentConfig.provider,
           temperature: agentConfig.temperature,
           maxTokens: agentConfig.maxTokens,
           systemPrompt: agentConfig.systemPrompt
@@ -2560,6 +2650,8 @@ async function callValidatedSkill(
           ? prompt.slice(prompt.indexOf('【终步重试协议】'))
           : undefined,
         budget: createApiCallBudget(8),
+        providerId: fallbackProviderId || undefined,
+        providerSource: providerChannel.source,
         skillId: template.id,
         aiService: await getAiService(),
         stream: true,
@@ -2814,17 +2906,6 @@ async function callValidatedSkill(
     }
   }
   throw currentError instanceof Error ? currentError : new Error("技能输出校验失败")
-}
-
-function activeProviderId(): string {
-  const agentConfig = getStepAgentConfig(0)
-  return agentConfig?.provider || providerStore.preferredGenerateProvider?.id || ''
-}
-
-function activeProviderModel(): string {
-  const agentConfig = getStepAgentConfig(0)
-  const provider = providerStore.getProvider(agentConfig?.provider || "") || providerStore.preferredGenerateProvider
-  return agentConfig?.model || provider?.selectedModel || provider?.models?.[0] || ''
 }
 
 function resolveStepProviderModel(step: number, agentConfig: { model?: unknown; provider?: unknown; name?: unknown; id?: unknown } | null | undefined, traceRunIdParam?: string | null): string {
@@ -3285,10 +3366,18 @@ async function callApiWithAgentVariant(step: number, skillTemplate: string, prom
 async function callApiWithAgentVariantOwned(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null, pipelineRunIdParam?: string | null): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
-  const provider = providerStore.getProvider(agentConfig?.provider || "")
-  const preferredProvider = providerStore.preferredGenerateProvider
-  const activeProvider = provider || preferredProvider
-  const model = resolveStepProviderModel(step, agentConfig as any, traceRunIdParam)
+  const providerChannel = resolvePipelineRunProviderChannel(
+    pipelineRunIdParam,
+    step,
+    agentConfig?.provider,
+  )
+  assertPipelineProviderChannelUsable(providerChannel, traceRunIdParam, step)
+  const activeProvider = providerStore.getProvider(providerChannel.providerId) || null
+  const model = resolveStepProviderModel(
+    step,
+    { ...(agentConfig || {}) as any, provider: providerChannel.providerId },
+    traceRunIdParam,
+  )
   const temperature = agentConfig?.temperature ?? activeProvider?.temperature ?? 0.7
   const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || null
  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
@@ -3310,6 +3399,14 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
   const aiService = await getAiService()
   const runId = traceRunIdParam || null
+  if (runId) {
+    runTraceStore.addEvent(runId, {
+      type: 'pipeline-provider-channel-resolved',
+      level: 'info',
+      label: `生成流水线供应商通道：${skillId || `step-${step}`}`,
+      detail: JSON.stringify(providerChannel)
+    })
+  }
   if (runId && deaiPrompt) {
     runTraceStore.addEvent(runId, {
       type: 'deai-prompt-variant',
@@ -3340,6 +3437,8 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
   const requestAi = (requestMessages: Array<{ role: string; content: string }>) =>
     aiService.callAi({
     purpose: 'generate',
+    providerId: providerChannel.providerId || undefined,
+    meta: { source: 'PipelinePanel.callApiWithAgentVariantOwned', providerSource: providerChannel.source },
     messages: requestMessages,
     model,
     temperature,
@@ -3383,11 +3482,10 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
             outputMs: event.outputMs
           })
         },
-        onProviderQueue: event => recordPipelineProviderQueue(runId, apiCallId, event, pipelineRunIdParam),
+    onProviderQueue: event => recordPipelineProviderQueue(runId, apiCallId, event, pipelineRunIdParam),
     signal: signalForPipelineRun(pipelineRunIdParam, signal),
     timeoutMs,
-    retry: true,
-    meta: { source: 'PipelinePanel.callApiWithAgent', step, agentId: agentId || undefined, skillId: skillId || undefined }
+    retry: true
     })
   const makeContinuationMessages = (output: string): Array<{ role: string; content: string }> => {
     const tail = output.length > 1200 ? output.slice(-1200) : output
@@ -4567,7 +4665,13 @@ function removeSetting(index: number) {
 
 async function genSettings() {
   if (!projectStore.hasOutline || !projectStore.outlineLocked) return
-  const settingsRunId = startTrackedGeneration('settings', 'all', { configSnapshot: await readStepConfigSnapshotForRun() })
+  const settingsProviderChannel = buildProviderChannelConfigSnapshot('settings')
+  const settingsConfigSnapshot = {
+    ...(await readStepConfigSnapshotForRun()),
+    pipelineProviderChannel: settingsProviderChannel,
+    pipelineProviderChannels: { settings: settingsProviderChannel },
+  }
+  const settingsRunId = startTrackedGeneration('settings', 'all', { configSnapshot: settingsConfigSnapshot })
   if (!(await waitForRunnableGeneration(settingsRunId))) return
   const trace = startStepTrace(1, "设定层", "settings", settingsRunId)
   trace.begin()
@@ -4685,7 +4789,13 @@ async function genVolumes(mode: string) {
   const initialVolumeLog =
     mode === "single" ? "已选择逐卷生成，准备生成下一卷" : mode === "continue" ? "已选择续生成，本次只生成下一卷" : "已选择 AI 生成全卷，准备分析大纲和字数"
   const volumesTarget = mode === 'auto' ? 'all' : 'next-volume'
-  const volumesRunId = startTrackedGeneration('volumes', volumesTarget, { configSnapshot: await readStepConfigSnapshotForRun() })
+  const volumesProviderChannel = buildProviderChannelConfigSnapshot('volumes')
+  const volumesConfigSnapshot = {
+    ...(await readStepConfigSnapshotForRun()),
+    pipelineProviderChannel: volumesProviderChannel,
+    pipelineProviderChannels: { volumes: volumesProviderChannel },
+  }
+  const volumesRunId = startTrackedGeneration('volumes', volumesTarget, { configSnapshot: volumesConfigSnapshot })
   if (!(await waitForRunnableGeneration(volumesRunId))) return
   const trace = startStepTrace(2, "卷纲层", mode, volumesRunId)
   trace.begin()
@@ -4918,7 +5028,13 @@ async function genChapters(mode: ChapterGenerationMode) {
   const volumeAgentId = getStepAgentId(3)
   const volumeSkillNames = getStepSkillTemplates(3).map(t => t.name).filter(Boolean)
   const volId = vol.id || vol.name
-  const chaptersRunId = startTrackedGeneration('chapters', String(volId || vol.name || ''), { configSnapshot: await readStepConfigSnapshotForRun() })
+  const chaptersProviderChannel = buildProviderChannelConfigSnapshot('chapters')
+  const chaptersConfigSnapshot = {
+    ...(await readStepConfigSnapshotForRun()),
+    pipelineProviderChannel: chaptersProviderChannel,
+    pipelineProviderChannels: { chapters: chaptersProviderChannel },
+  }
+  const chaptersRunId = startTrackedGeneration('chapters', String(volId || vol.name || ''), { configSnapshot: chaptersConfigSnapshot })
   if (!(await waitForRunnableGeneration(chaptersRunId))) return
   const trace = startStepTrace(3, "章节层", "chapters", chaptersRunId)
   trace.begin()
@@ -5202,7 +5318,13 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   if (legacyBodyBreakpoint) {
     await pipelineStore.clearBreakpoint(`pipeline:${String(projectStore.currentProjectId || '')}:step-4`)
   }
-  const bodyRunId = startTrackedGeneration('body', generationTargetSnapshot.chapterId, { configSnapshot: await readStepConfigSnapshotForRun() })
+  const bodyProviderChannel = buildProviderChannelConfigSnapshot('body')
+  const bodyConfigSnapshot = {
+    ...(await readStepConfigSnapshotForRun()),
+    pipelineProviderChannel: bodyProviderChannel,
+    pipelineProviderChannels: { body: bodyProviderChannel },
+  }
+  const bodyRunId = startTrackedGeneration('body', generationTargetSnapshot.chapterId, { configSnapshot: bodyConfigSnapshot })
   if (!(await waitForRunnableGeneration(bodyRunId))) return
   const trace = startStepTrace(4, "正文层", "body", bodyRunId)
   trace.begin()
@@ -5841,6 +5963,8 @@ async function runBodyMinimalEdit(
   bodyRunId: string
 ): Promise<string> {
   if (!report?.findings?.length) return text
+  const providerChannel = resolvePipelineRunProviderChannel(bodyRunId, 4, null)
+  assertPipelineProviderChannelUsable(providerChannel, traceRunId, 4)
 
   const spans = DeAiProcessor.extractProtectedSpans(text, {})
   const reportText = report.findings.map((item: any) =>
@@ -5860,7 +5984,7 @@ async function runBodyMinimalEdit(
     { role: 'user', content: text }
   ]
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
-  const provider = providerStore.getProvider(activeProviderId()) || providerStore.preferredGenerateProvider
+  const provider = providerStore.getProvider(providerChannel.providerId)
   const model = provider?.selectedModel || provider?.models?.[0] || ''
   const aiService = await getAiService()
   const callId = runTraceStore.startApiCall(traceRunId, {
@@ -5874,6 +5998,7 @@ async function runBodyMinimalEdit(
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
+      providerId: providerChannel.providerId || undefined,
       messages,
       model: model || undefined,
       stream: false,
@@ -5954,6 +6079,8 @@ async function runHardSignalRepair(
   const finding = scan.findings[0]
   if (!finding) return { text, scan, repaired: false }
   if (finding.origin === 'provider') return { text, scan, repaired: false }
+  const providerChannel = resolvePipelineRunProviderChannel(bodyRunId, 4, null)
+  assertPipelineProviderChannelUsable(providerChannel, traceRunId, 4)
 
   const repairWindow = buildHardSignalRepairWindow(text, finding)
   const repairPrompt = buildHardSignalRepairPrompt(repairWindow.text, finding)
@@ -5967,7 +6094,7 @@ async function runHardSignalRepair(
     { role: 'user', content: repairPrompt }
   ]
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
-  const provider = providerStore.getProvider(activeProviderId()) || providerStore.preferredGenerateProvider
+  const provider = providerStore.getProvider(providerChannel.providerId)
   const model = provider?.selectedModel || provider?.models?.[0] || ''
   const aiService = await getAiService()
   const callId = runTraceStore.startApiCall(traceRunId, {
@@ -5981,6 +6108,7 @@ async function runHardSignalRepair(
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
+      providerId: providerChannel.providerId || undefined,
       messages,
       model: model || undefined,
       stream: false,

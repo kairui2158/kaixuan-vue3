@@ -48,6 +48,31 @@
         <button class="btn-sm btn-secondary" @click="exportConfig">导出配置</button>
         <button class="btn-sm btn-secondary" @click="importConfig">导入配置</button>
       </div>
+      <div id="pipeline-provider-channel-settings" class="pipeline-channel-settings">
+        <h4>生成流水线层通道</h4>
+        <p class="pipeline-channel-hint">为设定、卷纲、章节、正文分别指定供应商；未指定时跟随全局生成供应商。</p>
+        <div
+          v-for="channel in pipelineChannelOptions"
+          :key="channel.layer"
+          class="pipeline-channel-row"
+        >
+          <label :for="`pipeline-provider-${channel.layer}`">{{ channel.label }}</label>
+          <select
+            :id="`pipeline-provider-${channel.layer}`"
+            :data-pipeline-layer="channel.layer"
+            class="input-field"
+            :value="pipelineLayerProviderId(channel.layer)"
+            @change="setPipelineLayerProvider(channel.layer, ($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">跟随全局生成供应商</option>
+            <option v-for="p in providerStore.providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+          </select>
+          <span
+            v-if="pipelineLayerProviderMissing(channel.layer)"
+            class="pipeline-channel-warning"
+          >供应商已不存在，请重新选择</span>
+        </div>
+      </div>
     </div>
     <!-- View 2: Provider Edit -->
     <div v-else id="provider-edit-view" class="provider-edit-view">
@@ -194,6 +219,26 @@ const fetchingModels = ref(false)
 const testingConn = ref(false)
 const connStatus = ref('')
 const fetchMsg = ref('')
+
+const pipelineChannelOptions: Array<{ layer: 'settings' | 'volumes' | 'chapters' | 'body'; label: string }> = [
+  { layer: 'settings', label: '设定层' },
+  { layer: 'volumes', label: '卷纲层' },
+  { layer: 'chapters', label: '章节层' },
+  { layer: 'body', label: '正文层' },
+]
+
+function pipelineLayerProviderId(layer: 'settings' | 'volumes' | 'chapters' | 'body'): string {
+  return providerStore.pipelineLayerProviders[layer] || ''
+}
+
+function pipelineLayerProviderMissing(layer: 'settings' | 'volumes' | 'chapters' | 'body'): boolean {
+  const id = pipelineLayerProviderId(layer)
+  return Boolean(id) && !providerStore.providers.some(provider => provider.id === id)
+}
+
+function setPipelineLayerProvider(layer: 'settings' | 'volumes' | 'chapters' | 'body', providerId: string): void {
+  providerStore.setPipelineLayerProvider(layer, providerId || null)
+}
 
 const contextWindowHint = computed(() => {
   const value = Number(editingProvider.value?.contextWindowTokens)
@@ -637,6 +682,25 @@ function importConfig() {
 .stream-toggle { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-md); color: var(--text-secondary); cursor: pointer; }
 .stream-toggle input { cursor: pointer; }
 .config-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-bottom: 12px; }
+
+.pipeline-channel-settings {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--settings-card-bg);
+}
+.pipeline-channel-settings h4 { margin: 0 0 var(--space-2); color: var(--text-primary); }
+.pipeline-channel-hint { margin: 0 0 var(--space-4); color: var(--text-muted); font-size: var(--font-size-sm); }
+.pipeline-channel-row {
+  display: grid;
+  grid-template-columns: 96px minmax(180px, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.pipeline-channel-row label { color: var(--text-primary); font-size: var(--font-size-sm); }
+.pipeline-channel-warning { grid-column: 2; color: var(--danger); font-size: var(--font-size-xs); }
 
 /* === Edit View === */
 .provider-edit-view { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-7); background: var(--settings-card-bg); border: 1px solid var(--settings-card-border); border-radius: var(--radius-md); }

@@ -67,7 +67,7 @@ function findProviderById(store: ProviderStoreLike, providerId?: string): Provid
 
 /**
  * Resolves a provider for the given purpose.
- * An explicit request-level providerId wins; an unknown id falls back to purpose routing.
+ * An explicit request-level providerId wins and must exist; an unknown id is an error.
  * Returns { provider, providerId } or throws with a clear Chinese message.
  */
 export function resolveProvider(
@@ -75,8 +75,12 @@ export function resolveProvider(
   purpose: ProviderPurpose,
   providerId?: string
 ): ResolvedProvider {
-  const explicit = findProviderById(store, providerId)
-  if (explicit) {
+  const requestedProviderId = (providerId || '').trim()
+  if (requestedProviderId) {
+    const explicit = findProviderById(store, requestedProviderId)
+    if (!explicit) {
+      throw new Error(`未找到指定供应商：${requestedProviderId}。请检查供应商配置或重新绑定。`)
+    }
     assertUsableProviderCredential(explicit)
     return { provider: explicit, providerId: explicit.id }
   }

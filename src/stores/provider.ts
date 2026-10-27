@@ -2,6 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 import { normalizeProviderType } from '../services/providerProtocols'
+import {
+  normalizePipelineLayerProviders,
+  type PipelineProviderChannelLayer,
+} from '../services/pipelineProviderChannels'
 
 export type ProviderProtocolType =
   | 'openai-compatible'
@@ -40,6 +44,7 @@ export const useProviderStore = defineStore('provider', () => {
   const generateProvider = ref<string | null>(null)
   const verifyProvider = ref<string | null>(null)
   const detectProvider = ref<string | null>(null)
+  const pipelineLayerProviders = ref<Partial<Record<PipelineProviderChannelLayer, string | null>>>({})
 
   const activeGenerateProvider = computed(() =>
     providers.value.find(p => p.id === generateProvider.value)
@@ -90,8 +95,9 @@ async function loadProviders() {
         }
       }
       generateProvider.value = data.generateProvider || null
-     verifyProvider.value = data.verifyProvider || null
+      verifyProvider.value = data.verifyProvider || null
       detectProvider.value = data.detectProvider || null
+      pipelineLayerProviders.value = normalizePipelineLayerProviders(data.pipelineLayerProviders)
       // Normalize legacy purpose string to array
       providers.value.forEach(function(p) {
         if (typeof p.purpose === 'string') p.purpose = [p.purpose]
@@ -106,6 +112,7 @@ async function loadProviders() {
 async function saveProviders() {
   // Encrypt API keys before saving (migrated from old architecture renderer_v2.js L40-42)
   var copy = JSON.parse(JSON.stringify(providers.value))
+  var pipelineLayerSnapshot = JSON.parse(JSON.stringify(pipelineLayerProviders.value))
   if (window.electronAPI && typeof window.electronAPI.encrypt === 'function') {
     for (const p of copy) {
       if (p.apiKey && p.apiKey.indexOf('enc:') !== 0) {
@@ -117,7 +124,8 @@ async function saveProviders() {
     providers: copy,
     generateProvider: generateProvider.value,
     verifyProvider: verifyProvider.value,
-    detectProvider: detectProvider.value
+    detectProvider: detectProvider.value,
+    pipelineLayerProviders: pipelineLayerSnapshot
   })
 }
 
@@ -141,6 +149,18 @@ async function saveProviders() {
     if (generateProvider.value === id) generateProvider.value = null
     if (verifyProvider.value === id) verifyProvider.value = null
     if (detectProvider.value === id) detectProvider.value = null
+    for (const layer of Object.keys(pipelineLayerProviders.value) as PipelineProviderChannelLayer[]) {
+      if (pipelineLayerProviders.value[layer] === id) pipelineLayerProviders.value[layer] = null
+    }
+    saveProviders()
+  }
+
+  function setPipelineLayerProvider(layer: PipelineProviderChannelLayer, providerId: string | null) {
+    const next = normalizePipelineLayerProviders({
+      ...pipelineLayerProviders.value,
+      [layer]: providerId,
+    })
+    pipelineLayerProviders.value = next
     saveProviders()
   }
 
@@ -197,10 +217,11 @@ function getActiveProviders(): Provider[] {
 }
 
   return {
-    providers, generateProvider, verifyProvider, detectProvider,
+    providers, generateProvider, verifyProvider, detectProvider, pipelineLayerProviders,
     activeGenerateProvider, activeVerifyProvider, activeDetectProvider,
     loadProviders, saveProviders, addProvider, updateProvider,
-    removeProvider, setGenerateProvider, setVerifyProvider, setDetectProvider, fetchModels,
+    removeProvider, setGenerateProvider, setVerifyProvider, setDetectProvider,
+    setPipelineLayerProvider, fetchModels,
     testConnection, getProvider, preferredGenerateProvider,
     getGenerateProvider, getVerifyProvider, getDetectProvider, getActiveProviders
   }

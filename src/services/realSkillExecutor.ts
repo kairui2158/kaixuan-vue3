@@ -937,6 +937,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           }
           return (await aiService.callAi({
             purpose: options.purpose || 'rewrite',
+            providerId: agent?.providerId || options.providerId || undefined,
             messages,
             // Keep the caller's stream contract. Leaving undefined lets
             // aiService apply its purpose-based generate/rewrite default.
@@ -968,7 +969,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             readableTargets: options.toolContext?.readableTargets,
             skillId: pkg.id,
             agentId: agent?.id,
-            step: attempt
+            step: attempt,
+            providerSource: agent?.providerId ? 'agent' : options.providerSource
           },
             ...(options.tools?.length
             ? { tools: options.tools, toolPolicy: options.toolPolicy }

@@ -23,6 +23,8 @@ export interface SkillRouteOptions {
   chainUpstreamContext?: string
   agent?: RealSkillAgentContext | null
   purpose?: 'rewrite' | 'verify' | 'generate'
+  providerId?: string
+  providerSource?: RealSkillExecuteOptions['providerSource']
   budget: { tryConsume: (step: string, skillLimit?: number | null) => any }
   skillId?: string
   aiService?: {
@@ -172,6 +174,8 @@ export async function routeSkill(
     agent: options.agent,
     agentSource: options.agentSource,
     purpose: options.purpose,
+    providerId: options.providerId,
+    providerSource: options.providerSource,
     budget: options.budget,
     skillId: options.skillId || skill.id,
     aiService: options.aiService,
