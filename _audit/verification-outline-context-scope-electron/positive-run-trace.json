@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1792640162386-1",
+  "id": "run-1793044846488-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -13,34 +13,35 @@
   "model": "context-scope-model",
   "skillNames": [],
   "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793044846472-1",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T03:27:46.288Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T19:57:23.421Z"
   },
-  "startedAt": 1792640162386,
+  "startedAt": 1793044846488,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "body_generation_complete",
-      "recordedAt": 1792640162576
+      "recordedAt": 1793044846687
     }
   ],
   "events": [
     {
-      "id": "event-1792640162386-2",
-      "ts": 1792640162386,
+      "id": "event-1793044846490-2",
+      "ts": 1793044846490,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792640162396-3",
-      "ts": 1792640162396,
+      "id": "event-1793044846493-3",
+      "ts": 1793044846493,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -48,8 +49,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792640162399-4",
-      "ts": 1792640162399,
+      "id": "event-1793044846495-4",
+      "ts": 1793044846495,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -57,8 +58,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792640162402-5",
-      "ts": 1792640162402,
+      "id": "event-1793044846499-5",
+      "ts": 1793044846499,
       "seq": 4,
       "type": "context_scope",
       "level": "info",
@@ -66,8 +67,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第12章 纸条\",\"unitId\":\"D1-03\",\"mode\":\"unit_closure\",\"permanentCount\":2,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":319,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792640162403-6",
-      "ts": 1792640162403,
+      "id": "event-1793044846500-6",
+      "ts": 1793044846500,
       "seq": 5,
       "type": "memory_context",
       "level": "info",
@@ -75,8 +76,8 @@
       "detail": "{\"chapterId\":\"chapter-context-12\",\"unitId\":\"D1-03\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792640162404-7",
-      "ts": 1792640162404,
+      "id": "event-1793044846501-7",
+      "ts": 1793044846501,
       "seq": 6,
       "type": "prompt-built",
       "level": "info",
@@ -84,8 +85,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第12章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1792640162414-8",
-      "ts": 1792640162414,
+      "id": "event-1793044846508-8",
+      "ts": 1793044846508,
       "seq": 7,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -93,8 +94,8 @@
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"context-scope-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792640162450-9",
-      "ts": 1792640162450,
+      "id": "event-1793044846540-9",
+      "ts": 1793044846540,
       "seq": 8,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -102,8 +103,8 @@
       "detail": "{\"variant\":\"methodology-compose\",\"charCount\":2012}"
     },
     {
-      "id": "event-1792640162451-11",
-      "ts": 1792640162451,
+      "id": "event-1793044846541-11",
+      "ts": 1793044846541,
       "seq": 9,
       "type": "api-start",
       "level": "info",
@@ -111,8 +112,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"context-scope-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792640162459-13",
-      "ts": 1792640162459,
+      "id": "event-1793044846548-13",
+      "ts": 1793044846548,
       "seq": 10,
       "type": "run-activity",
       "level": "info",
@@ -124,22 +125,22 @@
       }
     },
     {
-      "id": "event-1792640162459-14",
-      "ts": 1792640162459,
+      "id": "event-1793044846548-14",
+      "ts": 1793044846548,
       "seq": 11,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792640162457-12",
+        "physicalCallId": "physical-1793044846548-12",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792640162459-15",
-      "ts": 1792640162459,
+      "id": "event-1793044846548-15",
+      "ts": 1793044846548,
       "seq": 12,
       "type": "physical-call",
       "level": "info",
@@ -147,144 +148,118 @@
       "detail": "normal / compose / context-scope-model"
     },
     {
-      "id": "event-1792640162460-16",
-      "ts": 1792640162460,
+      "id": "event-1793044846555-16",
+      "ts": 1793044846555,
       "seq": 13,
-      "turnId": "api-1792640162450-10",
+      "turnId": "api-1793044846541-10",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"context-scope-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792640162510-17",
-      "ts": 1792640162510,
+      "id": "event-1793044846610-17",
+      "ts": 1793044846610,
       "seq": 14,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1"
-      }
-    },
-    {
-      "id": "event-1792640162524-18",
-      "ts": 1792640162524,
-      "seq": 15,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / compose / context-scope-model / stop"
     },
     {
-      "id": "event-1792640162525-19",
-      "ts": 1792640162525,
-      "seq": 16,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1/terminal"
-      }
-    },
-    {
-      "id": "event-1792640162526-20",
-      "ts": 1792640162526,
-      "seq": 17,
+      "id": "event-1793044846611-18",
+      "ts": 1793044846611,
+      "seq": 15,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792640162450-10 seq=1"
+      "detail": "apiCall=api-1793044846541-10 seq=1"
     },
     {
-      "id": "event-1792640162526-21",
-      "ts": 1792640162526,
-      "seq": 18,
+      "id": "event-1793044846612-19",
+      "ts": 1793044846612,
+      "seq": 16,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / context-scope-model"
     },
     {
-      "id": "event-1792640162534-22",
-      "ts": 1792640162534,
-      "seq": 19,
+      "id": "event-1793044846621-20",
+      "ts": 1793044846621,
+      "seq": 17,
       "type": "body-step-acceptance",
       "level": "info",
       "label": "正文生成步骤 1/1 统一验收",
       "detail": "{\"stepIndex\":0,\"callerStatus\":\"success\",\"rawWordCount\":3001,\"extractedWordCount\":3000,\"metadata\":{},\"metadataDelta\":1,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[],\"contractErrors\":[]}"
     },
     {
-      "id": "event-1792640162536-23",
-      "ts": 1792640162536,
-      "seq": 20,
+      "id": "event-1793044846625-21",
+      "ts": 1793044846625,
+      "seq": 18,
       "type": "body-artifact-attempt",
       "level": "info",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-context-12-attempt-1-leu9tu58\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3000,\"targetWords\":3000,\"ratio\":1,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_e969e754\",\"outputHash\":\"fnv1a32_e27aacf5\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":3001,\"extractedWordCount\":3000,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":1}"
+      "detail": "{\"attemptId\":\"chapter-context-12-attempt-1-2bq2xwg2\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3000,\"targetWords\":3000,\"ratio\":1,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯\",\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_e969e754\",\"outputHash\":\"fnv1a32_e27aacf5\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":3001,\"extractedWordCount\":3000,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":1}"
     },
     {
-      "id": "event-1792640162538-24",
-      "ts": 1792640162538,
-      "seq": 21,
+      "id": "event-1793044846627-22",
+      "ts": 1793044846627,
+      "seq": 19,
       "type": "hard_signal_scan",
       "level": "info",
       "label": "正文硬信号扫描通过",
       "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
     },
     {
-      "id": "event-1792640162543-25",
-      "ts": 1792640162543,
-      "seq": 22,
+      "id": "event-1793044846631-23",
+      "ts": 1793044846631,
+      "seq": 20,
       "type": "contract_review",
       "level": "info",
       "label": "卷契约语义审查",
       "detail": "{\"status\":\"contract_safe\",\"detected\":false,\"findings\":[]}"
     },
     {
-      "id": "event-1792640162550-26",
-      "ts": 1792640162550,
-      "seq": 23,
+      "id": "event-1793044846632-24",
+      "ts": 1793044846632,
+      "seq": 21,
       "type": "body-artifact-validated",
       "level": "info",
       "label": "正文批次验收通过",
       "detail": "{\"chapterId\":\"chapter-context-12\",\"targetWords\":3000,\"wordCount\":3000,\"ratio\":1,\"status\":\"complete\",\"repairAttempts\":0}"
     },
     {
-      "id": "event-1792640162573-27",
-      "ts": 1792640162573,
-      "seq": 24,
+      "id": "event-1793044846683-25",
+      "ts": 1793044846683,
+      "seq": 22,
       "type": "write",
       "level": "info",
       "label": "正文已写入项目",
       "detail": "字数 3000"
     },
     {
-      "id": "event-1792640162576-28",
-      "ts": 1792640162576,
-      "seq": 25,
+      "id": "event-1793044846687-26",
+      "ts": 1793044846687,
+      "seq": 23,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "body_generation_complete"
     },
     {
-      "id": "event-1792640162576-29",
-      "ts": 1792640162576,
-      "seq": 26,
+      "id": "event-1793044846687-27",
+      "ts": 1793044846687,
+      "seq": 24,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "body_generation_complete / run=run-1792640162386-1"
+      "detail": "body_generation_complete / run=run-1793044846488-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792640162450-10",
+      "id": "api-1793044846541-10",
       "seq": 1,
       "step": 4,
       "skillId": "compose",
@@ -300,17 +275,12 @@
         }
       },
       "deaiPromptVariant": "methodology-compose",
-      "streamText": {
-        "__payload": {
-          "id": "payload-003"
-        }
-      },
       "status": "success",
-      "startedAt": 1792640162450,
+      "startedAt": 1793044846541,
       "physicalCalls": [
         {
-          "id": "physical-1792640162457-12",
-          "physicalCallId": "physical-1792640162453-0",
+          "id": "physical-1793044846548-12",
+          "physicalCallId": "physical-1793044846542-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -321,7 +291,7 @@
           },
           "streamText": {
             "__payload": {
-              "id": "payload-004"
+              "id": "payload-003"
             }
           },
           "finishReason": "stop",
@@ -331,11 +301,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792640162458,
-          "durationMs": 69,
-          "firstTokenMs": 54,
-          "outputMs": 15,
-          "endedAt": 1792640162524,
+          "startedAt": 1793044846548,
+          "durationMs": 65,
+          "firstTokenMs": 59,
+          "outputMs": 6,
+          "endedAt": 1793044846609,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -350,25 +320,24 @@
             "driftRatio": -0.992,
             "correctedRatio": 0.008
           },
-          "firstContentAt": 1792640162509,
-          "lastContentAt": 1792640162509,
+          "firstContentAt": 1793044846603,
+          "lastContentAt": 1793044846603,
           "heartbeat": false,
           "responseTextPayloadRef": "payload-002",
           "responseTextPreview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
         }
       ],
-      "lastExecutionActivityAt": 1792640162510,
-      "lastStreamActivityAt": 1792640162510,
+      "lastExecutionActivityAt": 1793044846548,
       "finishReason": "stop",
-      "durationMs": 66,
+      "durationMs": 62,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 69,
-        "firstTokenSumMs": 54,
-        "outputSumMs": 15,
-        "minFirstTokenMs": 54,
-        "maxFirstTokenMs": 54,
+        "physicalDurationSumMs": 65,
+        "firstTokenSumMs": 59,
+        "outputSumMs": 6,
+        "minFirstTokenMs": 59,
+        "maxFirstTokenMs": 59,
         "localOverheadMs": -3
       },
       "usage": {
@@ -377,9 +346,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792640162526,
+      "endedAt": 1793044846611,
       "semantic": {
-        "conversationId": "run-1792640162386-1",
+        "conversationId": "run-1793044846488-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -403,7 +372,7 @@
       "sha256": "d2fa5163c62fa00516c6b0b4af9768605e9b2e86aff07fc2a6daa8b4b7129f8a",
       "duplicateCount": 2,
       "artifactRole": "final",
-      "createdAt": 1792640162968
+      "createdAt": 1793044847126
     },
     {
       "id": "payload-002",
@@ -414,42 +383,37 @@
       "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
       "duplicateCount": 2,
       "artifactRole": "final",
-      "createdAt": 1792640162968
+      "createdAt": 1793044847126
     },
     {
       "id": "payload-003",
       "kind": "stream",
       "file": "003-stream.json",
-      "bytes": 20182,
-      "chars": 6742,
-      "sha256": "23fbbfe5ab0732e0bde13e67425050d4ee428fe16a86deac831786890dc6dbc7",
-      "duplicateCount": 1,
-      "artifactRole": "final",
-      "createdAt": 1792640162968
-    },
-    {
-      "id": "payload-004",
-      "kind": "stream",
-      "file": "004-stream.json",
       "bytes": 10091,
       "chars": 3371,
       "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
       "duplicateCount": 1,
       "artifactRole": "final",
-      "createdAt": 1792640162968
+      "createdAt": 1793044847126
     }
   ],
+  "eventLedger": {
+    "totalEvents": 24,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
   "stepPhaseTiming": {
     "validation": 1,
-    "persistence": 21
+    "persistence": 50
   },
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 69,
-    "firstTokenSumMs": 54,
-    "outputSumMs": 15,
+    "physicalDurationSumMs": 65,
+    "firstTokenSumMs": 59,
+    "outputSumMs": 6,
     "localOverheadSumMs": -3,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
@@ -463,20 +427,20 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 54,
-    "outputSumMs": 15,
+    "firstTokenSumMs": 59,
+    "outputSumMs": 6,
     "validationSumMs": 1,
-    "persistenceSumMs": 21,
+    "persistenceSumMs": 50,
     "repeatedPromptBlocks": {},
     "contextChars": 2583,
     "outputChars": 3371,
-    "physicalDurationSumMs": 69
+    "physicalDurationSumMs": 65
   },
-  "endedAt": 1792640162575,
-  "durationMs": 189,
+  "endedAt": 1793044846687,
+  "durationMs": 199,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1792640162450-10",
+      "apiCallId": "api-1793044846541-10",
       "seq": 1,
       "status": "success",
       "response": {
@@ -487,16 +451,9 @@
         "chars": 3371,
         "preview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
       },
-      "stream": {
-        "ref": "payload-003",
-        "file": "003-stream.json",
-        "sha256": "23fbbfe5ab0732e0bde13e67425050d4ee428fe16a86deac831786890dc6dbc7",
-        "bytes": 20182,
-        "chars": 6742
-      },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1792640162453-0",
+          "physicalCallId": "physical-1793044846542-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -509,8 +466,8 @@
             "preview": "{\"body\":\"雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯芯旁，火光第一次稳定下来。雨停在灯塔外。林照把纸条贴在灯"
           },
           "stream": {
-            "ref": "payload-004",
-            "file": "004-stream.json",
+            "ref": "payload-003",
+            "file": "003-stream.json",
             "sha256": "3b7cc0068ae8034b53194a271d83e95dafe593bcaa11aba5e7fbf5547256b7f2",
             "bytes": 10091,
             "chars": 3371

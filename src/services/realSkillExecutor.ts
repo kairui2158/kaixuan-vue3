@@ -1074,7 +1074,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
               : result.text,
             reasoning: continuation.reasoning || result.reasoning,
             usage: continuation.usage || result.usage,
-            finishReason: continuation.finishReason || result.finishReason
+            // Only a completed continuation clears the provider truncation signal;
+            // a second length result means the run is still physically truncated.
+            finishReason: continuationValidity.usable && continuationValidity.kind === 'usable'
+              ? continuation.finishReason
+              : result.finishReason
           }
           if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
             diagnostics.push(diagnostic('warning', 'generation-truncated-after-continuation', '续写后输出仍不完整，已保留可用正文'))

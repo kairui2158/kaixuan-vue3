@@ -287,7 +287,12 @@ function createProviderNetWatchdog(options) {
         }
         if (kind === 'reasoning') {
           state.sawReasoning = true
-          armTimer('bodyAbsentTimer', bodyAbsentTimeoutMs, 'body_absent', state.onTrigger)
+          // The body-absent budget starts at the first reasoning delta. Later
+          // reasoning activity proves the provider is alive, but it must not
+          // extend the deadline for producing body content.
+          if (state.bodyAbsentTimer == null) {
+            armTimer('bodyAbsentTimer', bodyAbsentTimeoutMs, 'body_absent', state.onTrigger)
+          }
           armTimer('progressTimer', progressTimeoutMs, 'progress', state.onTrigger)
         }
       }
@@ -579,6 +584,12 @@ function registerProviderNetHandlers(ipc) {
       })
       controller.abort(kind)
     }
+    // The watchdog owns liveness from the moment the physical request starts.
+    // Waiting for response headers leaves a provider that never answers
+    // outside every timeout, which is exactly the connection stall observed
+    // in live chapter runs.
+    watchdog.bind(onWatchdogTrigger)
+    watchdog.arm(onWatchdogTrigger)
     try {
       const response = await fetch(request.url, {
         method: 'POST',
@@ -607,8 +618,6 @@ function registerProviderNetHandlers(ipc) {
       const decoder = new TextDecoder()
       const reader = response.body.getReader()
       const streamClassifier = createProviderStreamActivityClassifier()
-      watchdog.bind(onWatchdogTrigger)
-      watchdog.arm(onWatchdogTrigger)
       while (true) {
         const chunk = await reader.read()
         if (chunk.done) break

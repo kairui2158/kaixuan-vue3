@@ -63,6 +63,7 @@ export interface CreatePipelineRunInput {
   configSnapshot?: Record<string, unknown>
   statusText?: string
   status?: PipelineRunStatus
+  error?: string
   queuedReason?: string
 }
 
@@ -85,6 +86,7 @@ export class PipelineRunRegistry {
       controller: new AbortController(),
       startedAt: Date.now(),
       queuedReason: input.queuedReason,
+      error: input.error,
     }
     this.runsById.set(run.runId, run)
     if (run.status === 'queued') {

@@ -437,8 +437,10 @@ async function main() {
     assert.equal(state.runStatus, 'success', `run succeeds, got ${state.runStatus}`)
     assert.equal(state.isGenerating, false, 'generation lock is released')
     assert(lockedDuringRun, 'UI lock state was captured while generating')
-    assert.equal(lockedDuringRun.volumeSelect, true, 'volume selector is locked while generating')
-    assert.equal(lockedDuringRun.chapterSelect, true, 'chapter selector is locked while generating')
+    // V4 parallel semantics: cross-layer controls remain usable; only the
+    // same-target generate action is locked for this body run.
+    assert.equal(lockedDuringRun.volumeSelect, false, 'volume selector stays usable during cross-layer parallel runs')
+    assert.equal(lockedDuringRun.chapterSelect, false, 'chapter selector stays usable during cross-layer parallel runs')
     assert.equal(lockedDuringRun.generateButton, true, 'generate button is locked while generating')
     const attempts = (run?.events || [])
       .filter(event => event.type === 'body-artifact-attempt')

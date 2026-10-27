@@ -24,10 +24,15 @@ const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_BODY_CONTRACT_STALLED_TIMEO
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_BODY_CONTRACT_DEAD_TIMEOUT_MS || 45_000)
 const KEEP_PROFILE = process.env.SHENYI_BODY_CONTRACT_KEEP_PROFILE === '1'
 let activeProvider = null
+let lastTraceRun = null
 
 const PROJECT_ID = 'body-contract-degraded-gate'
 const VOLUME_ID = 'vol-body-contract-degraded'
 const CHAPTER_ID = 'ch-body-contract-degraded'
+const BODY_BREAKPOINT_OWNER_KEYS = [
+  `pipeline:${PROJECT_ID}:step-4:chapter-${CHAPTER_ID}`,
+  `pipeline:${PROJECT_ID}:step-4`,
+]
 const TARGET_WORDS = 3500
 const MIN_WORDS = Math.round(TARGET_WORDS * 0.8)
 const SKILL_IDS = ['BODY-GATE-S1', 'BODY-GATE-S2', 'BODY-GATE-S3']
@@ -73,6 +78,15 @@ const S3_OUTPUT = [
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function clearBodyBreakpoints(page) {
+  const removed = await page.evaluate(keys => Promise.all([
+    window.electronAPI.storageRemove('wa_pipeline_breakpoint'),
+    ...keys.map(key => window.electronAPI.storageRemove(`wa_pipeline_breakpoint_owner_${key}`)),
+  ]), BODY_BREAKPOINT_OWNER_KEYS)
+  assert(removed.every(result => result !== false),
+    `failed to clear body contract breakpoint storage: ${JSON.stringify(removed)}`)
 }
 
 async function removeDir(target) {
@@ -474,6 +488,7 @@ function currentRunSnapshot(page) {
       apiCalls: (run?.apiCalls || []).length,
       runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
+      hasFinishedEvent: (run?.events || []).some(event => event?.type === 'finished' || event?.type === 'canceled'),
       progress: pipeline?.activeBodyRun?.progress ?? null,
       status: pipeline?.activeBodyRun?.statusText || null,
       pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
@@ -521,6 +536,7 @@ function startHeartbeat(page, electronPid) {
 }
 
 async function runBodyThroughUi(page) {
+  await clearBodyBreakpoints(page)
   const previousClose = page.locator('.pl-gen-bar-close')
   if (await previousClose.count()) {
     await previousClose.first().click()
@@ -550,7 +566,7 @@ async function runBodyThroughUi(page) {
     } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
       console.warn(`[STALL WARNING] body run unchanged for ${Date.now() - lastProgressAt}ms`)
     }
-    if (!state.isGenerating && state.runStatus && state.runStatus !== 'running') {
+    if (!state.isGenerating && state.runStatus && state.runStatus !== 'running' && state.hasFinishedEvent) {
       return state
     }
     await sleep(500)
@@ -559,7 +575,7 @@ async function runBodyThroughUi(page) {
 }
 
 async function currentRun(page) {
-  return page.evaluate(({ chapterId }) => {
+  const result = await page.evaluate(({ chapterId }) => {
     const trace = window.__pinia?._s?.get('runTrace')
     const project = window.__pinia?._s?.get('project')
     const run = [...(trace?.runs || [])]
@@ -570,6 +586,8 @@ async function currentRun(page) {
       .find(item => item?.id === chapterId)
     return { run, body: String(chapter?.body || '') }
   }, { chapterId: CHAPTER_ID })
+  lastTraceRun = result.run
+  return result
 }
 
 function parseDetail(value) {
@@ -956,7 +974,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch(async error => {
   console.error('[FAIL]', error)
   try {
     if (activeProvider) {
@@ -964,6 +982,12 @@ main().catch(error => {
       fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-provider-requests.json'),
         JSON.stringify(activeProvider.requests(), null, 2), 'utf8')
       console.log(`[FAIL EVIDENCE] ${path.join(EVIDENCE_ROOT, 'failure-provider-requests.json')}`)
+    }
+    if (lastTraceRun) {
+      fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
+      fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-trace-run.json'),
+        JSON.stringify(lastTraceRun, null, 2), 'utf8')
+      console.log(`[FAIL EVIDENCE] ${path.join(EVIDENCE_ROOT, 'failure-trace-run.json')}`)
     }
   } catch (evidenceError) {
     console.error('[FAIL EVIDENCE ERROR]', evidenceError)

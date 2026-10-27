@@ -1,0 +1,6 @@
+{"at":"2026-10-26T19:57:44.602Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":34128,"frame":1}
+{"at":"2026-10-26T19:57:45.609Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":34128,"frame":2}
+{"at":"2026-10-26T19:57:46.675Z","running":[{"id":"run-1793044666448-1","source":"pipeline","stepName":"卷纲层","events":14,"apiCalls":1}],"pipelineStatus":null,"isGenerating":true,"electronPid":34128,"frame":3}
+{"at":"2026-10-26T19:57:47.702Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":34128,"frame":4}
+{"at":"2026-10-26T19:57:48.722Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":34128,"frame":5}
+{"at":"2026-10-26T19:57:49.731Z","running":[{"id":"run-1793044669392-71","source":"home","stepName":"主页共创","events":42,"apiCalls":1}],"pipelineStatus":null,"isGenerating":false,"electronPid":34128,"frame":6}

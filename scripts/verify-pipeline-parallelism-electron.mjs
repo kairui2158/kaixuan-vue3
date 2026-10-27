@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import http from 'node:http'
+import https from 'node:https'
 import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
@@ -29,10 +30,13 @@ const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_PARALLELISM_HEARTBEAT_IN
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_STALLED_TIMEOUT_MS || 30_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_PARALLELISM_DEAD_TIMEOUT_MS || 60_000)
 const KEEP_PROFILE = process.env.SHENYI_PARALLELISM_KEEP_PROFILE === '1'
+const REAL_USER_DATA_DIR = process.env.SHENYI_PARALLELISM_REAL_USER_DATA
+  ? path.resolve(process.env.SHENYI_PARALLELISM_REAL_USER_DATA)
+  : path.join(process.env.APPDATA || path.join(process.env.USERPROFILE || '', 'AppData', 'Roaming'), 'shenyi-assistant')
 const REAL_PROVIDER_CONFIG_PATH = process.env.SHENYI_PARALLELISM_PROVIDER_CONFIG
   ? path.resolve(process.env.SHENYI_PARALLELISM_PROVIDER_CONFIG)
-  : path.join(process.env.USERPROFILE || '', 'Documents', '神意助手数据', 'wa_providers.json')
-const LIVE_PROVIDER_NAME = process.env.SHENYI_PARALLELISM_LIVE_PROVIDER || '新供应商'
+  : path.join(REAL_USER_DATA_DIR, 'data', 'wa_providers.json')
+const LIVE_PROVIDER_NAME = process.env.SHENYI_PARALLELISM_LIVE_PROVIDER || '全局'
 const LIVE_MODEL_NAME = process.env.SHENYI_PARALLELISM_LIVE_MODEL || 'deepseek-v4-pro'
 
 const PROJECT_ID = 'pipeline-parallelism-live'
@@ -281,7 +285,7 @@ function requestPromptPreview(parsed) {
     .slice(0, 500)
 }
 
-function readLiveProviderConfig() {
+function readLiveProviderConfig(proxyBaseUrl = '') {
   assert(LIVE_MODE, 'readLiveProviderConfig only runs in live mode')
   assert(fs.existsSync(REAL_PROVIDER_CONFIG_PATH),
     `live provider config exists: ${REAL_PROVIDER_CONFIG_PATH}`)
@@ -290,17 +294,22 @@ function readLiveProviderConfig() {
   const selected = providers.find(item => item.name === LIVE_PROVIDER_NAME)
     || providers.find(item => item.id === config.generateProvider)
   assert(selected, `configured real provider found: ${LIVE_PROVIDER_NAME}`)
-  assert.equal(selected.providerType, 'openai-compatible',
-    `live provider is openai-compatible, got ${selected.providerType}`)
   assert(String(selected.apiKey || '').length > 20,
     'live provider key is present; the verifier never logs its value')
   const liveKeyState = String(selected.apiKey || '').startsWith('enc:')
     ? 'encrypted'
     : 'plaintext'
+  assert.equal(liveKeyState, 'encrypted',
+    `live provider key is DPAPI-protected in the source profile, got ${liveKeyState}`)
   return {
     ...config,
     providers: [{
       ...selected,
+      ...(proxyBaseUrl ? {
+        baseUrl: proxyBaseUrl,
+        models: [LIVE_MODEL_NAME, ...selected.models.filter(item => item !== LIVE_MODEL_NAME)],
+        selectedModel: LIVE_MODEL_NAME,
+      } : {}),
       name: LIVE_PROVIDER_NAME === selected.name
         ? selected.name
         : `${LIVE_PROVIDER_NAME} (${selected.name})`,
@@ -310,6 +319,135 @@ function readLiveProviderConfig() {
     detectProvider: null,
     __liveKeyState: liveKeyState,
   }
+}
+
+function decryptLiveProviderKeyOnce({ encrypted } = {}) {
+  assert(LIVE_MODE, 'decryptLiveProviderKeyOnce only runs in live mode')
+  assert(fs.existsSync(REAL_USER_DATA_DIR),
+    `real application userData exists: ${REAL_USER_DATA_DIR}`)
+  const script = path.join(ROOT, 'scripts', 'decrypt-provider-key.cjs')
+  const result = execFileSync(ELECTRON_EXE, [
+    script,
+    ...(encrypted ? ['--encrypted', encrypted] : [
+      '--config', REAL_PROVIDER_CONFIG_PATH,
+      '--name', LIVE_PROVIDER_NAME,
+    ]),
+    '--user-data', REAL_USER_DATA_DIR,
+    '--decrypt',
+  ], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    timeout: 30_000,
+    windowsHide: true,
+  })
+  const lines = String(result).split('\n').filter(line => line.trim())
+  const payload = JSON.parse(lines[lines.length - 1])
+  assert.equal(payload.result, 'ok', `provider key bridge helper succeeds: ${payload.message || payload.result}`)
+  assert.equal(payload.keyState, 'decrypted',
+    `provider key bridge decrypts under the real userData profile, got ${payload.keyState}`)
+  assert(Number(payload.keyLength) > 20,
+    `provider key bridge returns a usable key, got ${payload.keyLength} chars`)
+  return { keyState: payload.keyState, keyLength: payload.keyLength, apiKey: payload.apiKey }
+}
+
+function startLiveFailureProxy({ targetBaseUrl, apiKey }) {
+  const requests = []
+  const failures = []
+  let proxyPort = 0
+  const server = http.createServer((request, response) => {
+    const target = new URL(request.url || '/', targetBaseUrl)
+    const chunks = []
+    request.on('data', chunk => chunks.push(chunk))
+    request.on('error', () => response.destroy())
+    request.on('end', () => {
+      const bodyText = Buffer.concat(chunks).toString('utf8')
+      const parsed = (() => { try { return JSON.parse(bodyText) } catch { return {} } })()
+      const kind = classifyRequest(parsed)
+      const userText = (parsed.messages || [])
+        .filter(message => message?.role === 'user')
+        .map(message => String(message.content || ''))
+        .join('\n')
+      const failureMatchesStep = failureStep => {
+        if (failureStep == null) return true
+        if (failureStep === 1) return !userText.includes('chain step ')
+        return userText.includes(`chain step ${failureStep}/`)
+      }
+      const failureIndex = failures.findIndex(item =>
+        (!item.kind || item.kind === kind) && failureMatchesStep(item.step))
+      const failure = failureIndex >= 0 ? failures.splice(failureIndex, 1)[0] : null
+      if (failure) {
+        requests.push({
+          at: new Date().toISOString(),
+          kind,
+          failed: true,
+          failure: failure.failure,
+          status: failure.status || 401,
+          messageChars: (parsed.messages || [])
+            .map(message => String(message.content || '').length)
+            .reduce((sum, value) => sum + value, 0),
+        })
+        response.writeHead(failure.status || 401, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({
+          error: {
+            type: failure.failure,
+            code: failure.failure,
+            message: failure.message || `injected ${failure.failure} failure`,
+          },
+        }))
+        return
+      }
+
+      const headers = { ...request.headers, host: target.host }
+      if (apiKey) headers.authorization = `Bearer ${apiKey}`
+      delete headers['content-length']
+      const upstream = https.request(target, {
+        method: request.method,
+        headers,
+      })
+      const record = {
+        at: new Date().toISOString(),
+        kind,
+        model: parsed.model || null,
+        messageChars: (parsed.messages || [])
+          .map(message => String(message.content || '').length)
+          .reduce((sum, value) => sum + value, 0),
+        status: null,
+        durationMs: null,
+      }
+      const startedAt = performance.now()
+      upstream.on('response', upstreamResponse => {
+        record.status = upstreamResponse.statusCode || 0
+        response.writeHead(upstreamResponse.statusCode || 502, upstreamResponse.headers)
+        upstreamResponse.pipe(response)
+      })
+      upstream.on('error', error => {
+        record.status = 502
+        record.error = String(error?.message || error)
+        if (!response.headersSent) {
+          response.writeHead(502, { 'content-type': 'application/json; charset=utf-8' })
+          response.end(JSON.stringify({ error: { message: record.error } }))
+        } else response.destroy()
+      })
+      response.on('finish', () => {
+        record.durationMs = performance.now() - startedAt
+        requests.push(record)
+      })
+      upstream.end(bodyText)
+    })
+  })
+  return new Promise(resolve => {
+    server.listen(0, '127.0.0.1', () => {
+      proxyPort = server.address().port
+      resolve({
+        port: proxyPort,
+        baseUrl: `http://127.0.0.1:${proxyPort}/v1`,
+        apiKey,
+        requests: () => requests.map(item => ({ ...item })),
+        enqueueFailure: failure => { failures.push(failure) },
+        close: () => new Promise(done => server.close(() => done())),
+      })
+    })
+  })
 }
 
 function startProvider() {
@@ -524,8 +662,20 @@ async function connectPage(browser) {
   return page
 }
 
-async function seedApplication(page, provider) {
-  await page.evaluate(async ({ providers, projectId, volumeId, chapterId, secondChapterId, outline, skills }) => {
+async function seedApplication(page, {
+  mockProvider = null,
+  liveProxy = null,
+  liveBridge = null,
+} = {}) {
+  const sourceLiveBridge = mockProvider || liveProxy ? null : {
+    sourceUserData: REAL_USER_DATA_DIR,
+    ...decryptLiveProviderKeyOnce(),
+  }
+  const effectiveLiveBridge = liveBridge || sourceLiveBridge
+  await page.evaluate(async ({ providers, liveBridgeKey, projectId, volumeId, chapterId, secondChapterId, outline, skills }) => {
+    if (!liveBridgeKey || providers.providers?.length !== 1) {
+      throw new Error('live bridge targets exactly one provider')
+    }
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', providers)
     await window.electronAPI.storageWrite(`wa_project_${projectId}`, {
@@ -600,7 +750,7 @@ async function seedApplication(page, provider) {
     await window.electronAPI.storageWrite('wa_appSettings', { autoExtractMemory: false })
     await window.electronAPI.storageRemove('wa_pipeline_breakpoint')
   }, {
-    providers: provider ? {
+    providers: mockProvider ? {
       providers: [{
         id: 'parallelism-provider',
         name: 'Pipeline Parallelism Provider',
@@ -616,7 +766,8 @@ async function seedApplication(page, provider) {
         streamMode: true,
       }],
       generateProvider: 'parallelism-provider',
-    } : readLiveProviderConfig(),
+    } : readLiveProviderConfig(liveProxy?.baseUrl),
+    liveBridgeKey: effectiveLiveBridge?.apiKey || null,
     projectId: PROJECT_ID,
     volumeId: VOLUME_ID,
     chapterId: CHAPTER_ID,
@@ -627,17 +778,58 @@ async function seedApplication(page, provider) {
   await page.reload({ waitUntil: 'domcontentloaded' })
   await page.waitForSelector('#app', { timeout: 20_000 })
   await sleep(1500)
-  if (provider) {
+  if (mockProvider) {
     await page.evaluate(() => document.querySelector('.project-modal-content .btn-close')?.click())
     await sleep(400)
   } else {
-    await selectLiveProviderThroughUi(page)
+    await selectLiveProviderThroughUi(page, effectiveLiveBridge)
     await sleep(400)
   }
 }
 
-async function selectLiveProviderThroughUi(page) {
+async function selectLiveProviderThroughUi(page, liveBridge) {
   const expectedModel = LIVE_MODEL_NAME
+  assert(liveBridge?.apiKey,
+    'live provider bridge exposes a decrypted key for verifier-profile re-encryption')
+  const reencryptedKey = await page.evaluate(async ({ decryptedKey }) => {
+    if (!decryptedKey || typeof decryptedKey !== 'string') {
+      throw new Error('live bridge key is missing in the verifier context')
+    }
+    const store = window.__pinia?._s?.get('provider')
+    const selected = (store?.providers || []).find(item => item.id === store?.generateProvider)
+    const apiKey = String(selected?.apiKey || '')
+    if (!apiKey.startsWith('enc:')) return 'plaintext-or-missing'
+    try {
+      // The source profile's DPAPI blob is not portable. Re-encrypt the
+      // bridge-decrypted key inside the verifier profile, persist it, and then
+      // exercise the production decrypt path in loadProviders().
+      const encryptedHere = String(await window.electronAPI.encrypt(decryptedKey))
+      if (!encryptedHere.startsWith('enc:')) return 'encrypt-unavailable'
+      const decryptedHere = String(await window.electronAPI.decrypt(encryptedHere))
+      if (decryptedHere !== decryptedKey || decryptedHere.startsWith('enc:')) {
+        return 'decrypt-roundtrip-failed'
+      }
+      // Pinia state contains reactive proxies, which Electron IPC cannot clone.
+      const plainProviders = JSON.parse(JSON.stringify(store?.providers || []))
+      await window.electronAPI.storageWrite('wa_providers', {
+        generateProvider: store?.generateProvider || null,
+        verifyProvider: store?.verifyProvider || null,
+        detectProvider: store?.detectProvider || null,
+        providers: plainProviders.map(item =>
+          item.id === selected.id ? { ...item, apiKey: encryptedHere } : item),
+      })
+      await store.loadProviders()
+      const reloaded = (store?.providers || []).find(item => item.id === store?.generateProvider)
+      const reloadedKey = String(reloaded?.apiKey || '')
+      if (reloadedKey !== decryptedKey) return 'production-decrypt-failed'
+      if (reloadedKey.startsWith('enc:')) return 'production-decrypt-kept-encrypted'
+      return encryptedHere.startsWith('enc:') ? 'reencrypted' : 'plaintext'
+    } catch (error) {
+      return `threw:${String(error?.message || error)}`
+    }
+  }, { decryptedKey: liveBridge.apiKey })
+  assert.equal(reencryptedKey, 'reencrypted',
+    `live provider key is re-encrypted inside the verifier profile, got ${reencryptedKey}`)
   await page.evaluate(() => {
     document.querySelector('.project-modal-content .btn-close')?.click()
     document.querySelector('.modal-overlay .btn-close')?.click()
@@ -1351,6 +1543,11 @@ async function startBodyReentry(page) {
   return { previousBodyRunId }
 }
 
+function bodyRequestCount(provider) {
+  assert(provider, 'request-count helper requires an injectable provider')
+  return provider.requests().filter(item => item.kind === 'body').length
+}
+
 async function reopenPipelineBodyPanel(page) {
   const panelAlreadyOpen = await page.locator('#pipeline-panel').isVisible()
   if (!panelAlreadyOpen) {
@@ -1363,7 +1560,7 @@ async function reopenPipelineBodyPanel(page) {
 async function runBreakpointReentry(page, provider, chapterId = CHAPTER_ID) {
   // The chain is now real: S1 succeeds, S2 fails once, and the failure
   // checkpoint must be resumed by the next real UI generation click.
-  const requestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  const requestsBefore = bodyRequestCount(provider)
   provider.enqueueFailure({
     kind: 'body',
     step: 2,
@@ -1382,7 +1579,7 @@ async function runBreakpointReentry(page, provider, chapterId = CHAPTER_ID) {
     timeoutMs: STEP_TIMEOUT_MS,
   })
   const failedRunEvents = await readLatestBodyRunEvents(page, failed.run.runId)
-  const requestsAfterFailure = provider.requests().filter(item => item.kind === 'body').length
+  const requestsAfterFailure = bodyRequestCount(provider)
   assert(requestsAfterFailure > requestsBefore,
     `failed breakpoint attempt issues a real physical request (${requestsBefore} -> ${requestsAfterFailure})`)
   assert((failedRunEvents.events || []).some(event => event.type === 'failed' || event.type === 'error'),
@@ -1390,7 +1587,7 @@ async function runBreakpointReentry(page, provider, chapterId = CHAPTER_ID) {
   assert((failedRunEvents.events || []).some(event => event.type === 'api-failed'),
     `failed breakpoint run records its API failure trace event`)
 
-  const resumeRequestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  const resumeRequestsBefore = bodyRequestCount(provider)
   await reopenPipelineBodyPanel(page)
   await page.click('#btn-primary-gen-body')
   const resumed = await waitForBodyTerminalState(page, {
@@ -1401,7 +1598,7 @@ async function runBreakpointReentry(page, provider, chapterId = CHAPTER_ID) {
   assert(resumed.run.runId !== failed.run.runId,
     `breakpoint reentry creates a new run id (${failed.run.runId} -> ${resumed.run.runId})`)
   const resumedRunEvents = await readLatestBodyRunEvents(page, resumed.run.runId)
-  const resumeRequestsAfter = provider.requests().filter(item => item.kind === 'body').length
+  const resumeRequestsAfter = bodyRequestCount(provider)
   assert(resumeRequestsAfter > resumeRequestsBefore,
     `breakpoint reentry issues new physical requests (${resumeRequestsBefore} -> ${resumeRequestsAfter})`)
   assert((resumedRunEvents.events || []).some(event => event.type === 'chain-handoff-resume'),
@@ -1421,7 +1618,7 @@ async function runBreakpointReentry(page, provider, chapterId = CHAPTER_ID) {
 }
 
 async function runFailedTerminalReentry(page, provider, chapterId = CHAPTER_ID) {
-  const requestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  const requestsBefore = bodyRequestCount(provider)
   const knownBodyRunIds = (await layerSnapshot(page)).allRuns
     .filter(run => run.layer === 'body')
     .map(run => run.runId)
@@ -1439,11 +1636,11 @@ async function runFailedTerminalReentry(page, provider, chapterId = CHAPTER_ID) 
     timeoutMs: STEP_TIMEOUT_MS,
   })
   const failedRunId = failed.run.runId
-  const requestsAfterFailure = provider.requests().filter(item => item.kind === 'body').length
+  const requestsAfterFailure = bodyRequestCount(provider)
   assert(requestsAfterFailure > requestsBefore,
     `failed terminal attempt issues a real physical request (${requestsBefore} -> ${requestsAfterFailure})`)
 
-  const reentryRequestsBefore = provider.requests().filter(item => item.kind === 'body').length
+  const reentryRequestsBefore = bodyRequestCount(provider)
   await reopenPipelineBodyPanel(page)
   await page.click('#btn-primary-gen-body')
   const succeeded = await waitForBodyTerminalState(page, {
@@ -1453,7 +1650,7 @@ async function runFailedTerminalReentry(page, provider, chapterId = CHAPTER_ID) 
   })
   assert(succeeded.run.runId !== failedRunId,
     `failed-terminal reentry creates a new run id (${failedRunId} -> ${succeeded.run.runId})`)
-  const reentryRequestsAfter = provider.requests().filter(item => item.kind === 'body').length
+  const reentryRequestsAfter = bodyRequestCount(provider)
   assert(reentryRequestsAfter > reentryRequestsBefore,
     `failed-terminal reentry issues new physical requests (${reentryRequestsBefore} -> ${reentryRequestsAfter})`)
   const reentryRunEvents = await readLatestBodyRunEvents(page, succeeded.run.runId)
@@ -1475,6 +1672,8 @@ async function runFailedTerminalReentry(page, provider, chapterId = CHAPTER_ID) 
 function assertNoProviderKeyLeak({ report, exportedTraceDirectories }) {
   const encConfig = LIVE_MODE ? readLiveProviderConfig() : null
   const encryptedKeys = encConfig ? encConfig.providers.map(item => String(item.apiKey || '')) : []
+  const isolatedBridge = LIVE_MODE ? decryptLiveProviderKeyOnce() : null
+  const decryptedKey = isolatedBridge?.apiKey || null
   const files = [
     { name: 'report.json', text: JSON.stringify(report || {}) },
     { name: 'electron-run.log', text: fs.existsSync(RUN_LOG_PATH) ? fs.readFileSync(RUN_LOG_PATH, 'utf8') : '' },
@@ -1492,6 +1691,9 @@ function assertNoProviderKeyLeak({ report, exportedTraceDirectories }) {
     for (const key of encryptedKeys) {
       if (key && file.text.includes(key)) findings.push(`${file.name}: encrypted provider key`)
     }
+    if (decryptedKey && file.text.includes(decryptedKey)) {
+      findings.push(`${file.name}: decrypted provider key`)
+    }
     if (/(sk-[A-Za-z0-9_-]{12,}|Bearer\s+[A-Za-z0-9._-]{12,})/.test(file.text)) {
       findings.push(`${file.name}: plaintext provider key pattern`)
     }
@@ -1500,6 +1702,7 @@ function assertNoProviderKeyLeak({ report, exportedTraceDirectories }) {
   return {
     checkedFiles: files.map(file => file.name),
     checkedEncryptedKeyCount: encryptedKeys.length,
+    checkedDecryptedKey: Boolean(decryptedKey),
     plaintextPatternFound: false,
   }
 }
@@ -1568,11 +1771,13 @@ async function startSecondBodyRun(page) {
 async function assertSameLayerQueueIsolation({ page, provider, firstBodyRunId, queuedBodyRunId }) {
   assert(queuedBodyRunId && queuedBodyRunId !== firstBodyRunId,
     `queued body run has its own run id (${firstBodyRunId} -> ${queuedBodyRunId})`)
-  const requestsBefore = provider.requests().length
+  const requestsBefore = provider ? provider.requests().length : 0
   await sleep(3_000)
-  const newRequests = provider.requests().slice(requestsBefore)
-  assert(newRequests.every(item => !item.chapterHints?.includes('第2章 航行图')),
-    `queued body run does not dispatch physical requests for its target, got ${JSON.stringify(newRequests)}`)
+  if (provider) {
+    const newRequests = provider.requests().slice(requestsBefore)
+    assert(newRequests.every(item => !item.chapterHints?.includes('第2章 航行图')),
+      `queued body run does not dispatch physical requests for its target, got ${JSON.stringify(newRequests)}`)
+  }
   const queuedSnapshot = await layerSnapshot(page)
   const runningBody = (queuedSnapshot.allRuns || []).find(run =>
     run.runId === firstBodyRunId && run.status === 'running')
@@ -1679,7 +1884,19 @@ async function main() {
   fs.mkdirSync(EXPORT_ROOT, { recursive: true })
 
   const provider = LIVE_MODE ? null : await startProvider()
-  if (provider) console.log(`[PROVIDER] http://127.0.0.1:${provider.port}`)
+  let liveProxy = null
+  let liveBridge = null
+  if (provider) {
+    console.log(`[PROVIDER] http://127.0.0.1:${provider.port}`)
+  } else {
+    liveBridge = decryptLiveProviderKeyOnce()
+    const liveConfig = readLiveProviderConfig()
+    liveProxy = await startLiveFailureProxy({
+      targetBaseUrl: liveConfig.providers[0].baseUrl,
+      apiKey: liveBridge.apiKey,
+    })
+    console.log(`[LIVE PROXY] http://127.0.0.1:${liveProxy.port} -> ${liveConfig.providers[0].baseUrl}`)
+  }
   const app = startElectron()
   const timeout = setTimeout(() => {
     console.error(`[FATAL] global timeout ${GLOBAL_TIMEOUT_MS}ms`)
@@ -1709,7 +1926,7 @@ async function main() {
       })
     })
     heartbeat = startHeartbeat(page, app.pid)
-    await seedApplication(page, provider)
+    await seedApplication(page, { mockProvider: provider, liveProxy, liveBridge })
     writeChainSkills()
 
     await page.click('#btn-pipeline')
@@ -1738,11 +1955,11 @@ async function main() {
     console.log(`[CANCEL] chapters canceled in ${cancelTiming.clickToCanceledMs}ms; other layers continue`)
 
     let sameLayerQueue = null
-    if (provider) {
+    if (provider || liveProxy) {
       const queued = await startSecondBodyRun(page)
       sameLayerQueue = await assertSameLayerQueueIsolation({
         page,
-        provider,
+        provider: provider || liveProxy,
         firstBodyRunId: queued.firstBodyRunId,
         queuedBodyRunId: queued.queuedBodyRunId,
       })
@@ -1783,6 +2000,12 @@ async function main() {
     if (provider) {
       providerMetrics = assertProviderRequests(provider.requests())
       console.log(`[PROVIDER] requests=${providerMetrics.requestCount} maxConcurrency=${providerMetrics.maxConcurrency}`)
+    } else if (liveProxy) {
+      const proxyRequests = liveProxy.requests()
+      assert(proxyRequests.length > 0,
+        'live proxy observed at least one real provider request')
+      assert(proxyRequests.every(item => item.model === LIVE_MODEL_NAME),
+        `live requests use the configured real model, got ${JSON.stringify(proxyRequests.map(item => item.model))}`)
     }
 
     const volumeRun = await exportLayerRun(page, 2)
@@ -1793,9 +2016,10 @@ async function main() {
     assertExportedTrace({ step: 4, run: bodyRun.run, expectedStatus: 'success' })
     assertProviderQueueEvidence({ volumeRun: volumeRun.run, bodyRun: bodyRun.run })
 
+    const requestProvider = provider || liveProxy
     const bodyRequestsBefore = provider
-      ? provider.requests().filter(item => item.kind === 'body').length
-      : (await collectLiveApiCalls(page)).calls.filter(item => item.layer === 'body').length
+      ? bodyRequestCount(provider)
+      : bodyRequestCount(liveProxy)
     const previousBodyArtifact = await readBodyArtifact(page, bodyArtifactChapterId)
     const previousBodyHash = sha256(previousBodyArtifact)
     const previousBodyRunId = terminalSnapshot.body?.runId
@@ -1806,20 +2030,22 @@ async function main() {
       previousBodyHash,
       chapterId: bodyArtifactChapterId,
     })
-    const bodyRequestsAfter = provider
-      ? provider.requests().filter(item => item.kind === 'body').length
-      : (await collectLiveApiCalls(page)).calls.filter(item => item.layer === 'body').length
+    const bodyRequestsAfter = bodyRequestCount(requestProvider)
     assert(bodyRequestsAfter > bodyRequestsBefore,
       `successful-terminal reentry issues a new physical body request (${bodyRequestsBefore} -> ${bodyRequestsAfter})`)
     assert(reentry.newBodyRunId !== previousBodyRunId,
       'successful-terminal reentry creates a new body run id')
 
-    const breakpointReentry = provider ? await runBreakpointReentry(page, provider, bodyArtifactChapterId) : null
+    const breakpointReentry = (provider || liveProxy)
+      ? await runBreakpointReentry(page, provider || liveProxy, bodyArtifactChapterId)
+      : null
     if (breakpointReentry) {
       console.log(`[BREAKPOINT] failed=${breakpointReentry.failedRunId} resumed=${breakpointReentry.resumedRunId} requests=${breakpointReentry.failedPhysicalRequests}/${breakpointReentry.resumedPhysicalRequests}`)
     }
 
-    const failedTerminalReentry = provider ? await runFailedTerminalReentry(page, provider, bodyArtifactChapterId) : null
+    const failedTerminalReentry = (provider || liveProxy)
+      ? await runFailedTerminalReentry(page, provider || liveProxy, bodyArtifactChapterId)
+      : null
     if (failedTerminalReentry) {
       console.log(`[FAILED-REENTRY] failed=${failedTerminalReentry.failedRunId} resumed=${failedTerminalReentry.reentryRunId} requests=${failedTerminalReentry.failedPhysicalRequests}/${failedTerminalReentry.reentryPhysicalRequests}`)
     }
@@ -1875,7 +2101,7 @@ async function main() {
         breakpointReentry: Boolean(breakpointReentry),
         failedTerminalReentry: Boolean(failedTerminalReentry),
         note: LIVE_MODE
-          ? 'live 供应商矩阵覆盖真实 UI 启动、三层并发、取消隔离、成功终态再入；断点/失败终态再入由 mock 报告保留为可注入故障的互补证据。'
+          ? 'live 供应商矩阵覆盖真实 UI 启动、三层并发、取消隔离、同层排队、成功终态再入、断点恢复、失败终态再入；故障注入发生在本地代理层，成功请求仍由真实供应商完成。'
           : '四格再入均在真实 UI 点击与真实物理请求路径触发。',
       },
     }
@@ -1883,8 +2109,12 @@ async function main() {
     report.evidenceWrite = reportWrite
     if (provider) {
       await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), provider.requests())
-    }
-    if (liveCalls) {
+    } else if (liveProxy) {
+      await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), {
+        proxyRequests: liveProxy.requests(),
+        applicationCalls: liveCalls,
+      })
+    } else if (liveCalls) {
       await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), liveCalls)
     }
     await removeDir(EXPORT_ROOT)
@@ -1898,7 +2128,9 @@ async function main() {
     const primaryError = error
     try {
       traceDiagnostics = await exportFailureTraceDiagnostics(page)
-      if (LIVE_MODE && page) liveFailureRequests = await collectLiveApiCalls(page)
+      if (LIVE_MODE && page) {
+        liveFailureRequests = await collectLiveApiCalls(page)
+      }
       preservedExports = await preserveFailedExports()
     } catch (diagnosticError) {
       traceDiagnostics = { error: String(diagnosticError?.message || diagnosticError) }
@@ -1921,6 +2153,11 @@ async function main() {
     await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'report.json'), failure)
     if (provider) {
       await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), provider.requests())
+    } else if (liveProxy) {
+      await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), {
+        proxyRequests: liveProxy.requests(),
+        applicationCalls: liveFailureRequests,
+      })
     }
     if (liveFailureRequests) {
       await writeJsonEvidence(path.join(EVIDENCE_ROOT, 'provider-requests.json'), liveFailureRequests)
@@ -1932,6 +2169,7 @@ async function main() {
     await browser.close().catch(() => {})
     closeElectron(app)
     await provider?.close()
+    await liveProxy?.close()
     if (!KEEP_PROFILE) await removeDir(PROFILE)
   }
   process.exit(exitCode)

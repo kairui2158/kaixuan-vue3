@@ -1,5 +1,5 @@
 {
-  "id": "run-1792641493717-1",
+  "id": "run-1793041040114-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -15,34 +15,35 @@
     "降级输出实测（文件夹）"
   ],
   "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793041040094-1",
   "status": "failed",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T03:43:59.563Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T18:54:26.923Z"
   },
-  "startedAt": 1792641493717,
+  "startedAt": 1793041040114,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
       "reason": "generation_failed",
-      "recordedAt": 1792641494003
+      "recordedAt": 1793041040399
     }
   ],
   "events": [
     {
-      "id": "event-1792641493718-2",
-      "ts": 1792641493718,
+      "id": "event-1793041040114-2",
+      "ts": 1793041040114,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792641493730-3",
-      "ts": 1792641493730,
+      "id": "event-1793041040117-3",
+      "ts": 1793041040117,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -50,8 +51,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792641493731-4",
-      "ts": 1792641493731,
+      "id": "event-1793041040119-4",
+      "ts": 1793041040119,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -59,8 +60,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792641493734-5",
-      "ts": 1792641493734,
+      "id": "event-1793041040123-5",
+      "ts": 1793041040123,
       "seq": 4,
       "type": "context_scope",
       "level": "info",
@@ -68,8 +69,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":1,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":227,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792641493735-6",
-      "ts": 1792641493735,
+      "id": "event-1793041040124-6",
+      "ts": 1793041040124,
       "seq": 5,
       "type": "memory_context",
       "level": "info",
@@ -77,8 +78,8 @@
       "detail": "{\"chapterId\":\"chapter-owner-breakpoint-failure-1\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792641493736-7",
-      "ts": 1792641493736,
+      "id": "event-1793041040126-7",
+      "ts": 1793041040126,
       "seq": 6,
       "type": "prompt-built",
       "level": "info",
@@ -86,8 +87,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1792641493781-8",
-      "ts": 1792641493781,
+      "id": "event-1793041040190-8",
+      "ts": 1793041040190,
       "seq": 7,
       "type": "chain-context-slim",
       "level": "info",
@@ -95,8 +96,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792641493785-9",
-      "ts": 1792641493785,
+      "id": "event-1793041040195-9",
+      "ts": 1793041040195,
       "seq": 8,
       "type": "chain-step",
       "level": "info",
@@ -104,8 +105,8 @@
       "detail": "S1（文本）"
     },
     {
-      "id": "event-1792641493788-10",
-      "ts": 1792641493788,
+      "id": "event-1793041040200-10",
+      "ts": 1793041040200,
       "seq": 9,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -113,8 +114,8 @@
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792641493817-11",
-      "ts": 1792641493817,
+      "id": "event-1793041040211-11",
+      "ts": 1793041040211,
       "seq": 10,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -122,8 +123,8 @@
       "detail": "{\"skillIndex\":0,\"totalSkillCount\":2,\"variant\":\"methodology\",\"charCount\":2012}"
     },
     {
-      "id": "event-1792641493818-13",
-      "ts": 1792641493818,
+      "id": "event-1793041040212-13",
+      "ts": 1793041040212,
       "seq": 11,
       "type": "api-start",
       "level": "info",
@@ -131,8 +132,8 @@
       "detail": "{\"skillName\":\"S1\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792641493826-15",
-      "ts": 1792641493826,
+      "id": "event-1793041040225-15",
+      "ts": 1793041040225,
       "seq": 12,
       "type": "run-activity",
       "level": "info",
@@ -144,22 +145,22 @@
       }
     },
     {
-      "id": "event-1792641493826-16",
-      "ts": 1792641493826,
+      "id": "event-1793041040225-16",
+      "ts": 1793041040225,
       "seq": 13,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792641493825-14",
+        "physicalCallId": "physical-1793041040225-14",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641493826-17",
-      "ts": 1792641493826,
+      "id": "event-1793041040225-17",
+      "ts": 1793041040225,
       "seq": 14,
       "type": "physical-call",
       "level": "info",
@@ -167,18 +168,18 @@
       "detail": "normal / S1 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641493826-18",
-      "ts": 1792641493826,
+      "id": "event-1793041040233-18",
+      "ts": 1793041040233,
       "seq": 15,
-      "turnId": "api-1792641493818-12",
+      "turnId": "api-1793041040211-12",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641493874-19",
-      "ts": 1792641493874,
+      "id": "event-1793041040287-19",
+      "ts": 1793041040287,
       "seq": 16,
       "type": "physical-call",
       "level": "info",
@@ -186,134 +187,108 @@
       "detail": "normal / S1 / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641493875-20",
-      "ts": 1792641493875,
+      "id": "event-1793041040292-20",
+      "ts": 1793041040292,
       "seq": 17,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1"
-      }
-    },
-    {
-      "id": "event-1792641493876-21",
-      "ts": 1792641493876,
-      "seq": 18,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1/terminal"
-      }
-    },
-    {
-      "id": "event-1792641493877-22",
-      "ts": 1792641493877,
-      "seq": 19,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792641493818-12 seq=1"
+      "detail": "apiCall=api-1793041040211-12 seq=1"
     },
     {
-      "id": "event-1792641493877-23",
-      "ts": 1792641493877,
-      "seq": 20,
+      "id": "event-1793041040293-21",
+      "ts": 1793041040293,
+      "seq": 18,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "S1 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641493881-25",
-      "ts": 1792641493881,
-      "seq": 21,
+      "id": "event-1793041040300-23",
+      "ts": 1793041040300,
+      "seq": 19,
       "type": "processing-report",
       "level": "info",
       "label": "本地处理完成：chain-handoff",
       "detail": "post"
     },
     {
-      "id": "event-1792641493882-26",
-      "ts": 1792641493882,
-      "seq": 22,
+      "id": "event-1793041040301-24",
+      "ts": 1793041040301,
+      "seq": 20,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 1/2 Handoff",
       "detail": "{\"artifactId\":\"handoff-0-965bffb5\",\"sourceStep\":0,\"sourceSkillId\":\"OWNER-BP-FAIL-S1\",\"outputHash\":\"965bffb5\",\"fullTextLength\":27,\"delivery\":\"full_text\",\"excerptLength\":27,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792641493892-27",
-      "ts": 1792641493893,
-      "seq": 23,
+      "id": "event-1793041040315-25",
+      "ts": 1793041040315,
+      "seq": 21,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 2/2 上下文决策",
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792641493894-28",
-      "ts": 1792641493894,
-      "seq": 24,
+      "id": "event-1793041040315-26",
+      "ts": 1793041040315,
+      "seq": 22,
       "type": "chain-handoff-delivery",
       "level": "info",
       "label": "链式步骤 2/2 上游交付决策",
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":27,\"deliveredLength\":27,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:owner-bp-degraded\",\"skillName\":\"降级输出实测（文件夹）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792641493895-29",
-      "ts": 1792641493895,
-      "seq": 25,
+      "id": "event-1793041040316-27",
+      "ts": 1793041040316,
+      "seq": 23,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 2/2",
       "detail": "降级输出实测（文件夹）"
     },
     {
-      "id": "event-1792641493895-30",
-      "ts": 1792641493895,
-      "seq": 26,
+      "id": "event-1793041040316-28",
+      "ts": 1793041040316,
+      "seq": 24,
       "type": "agent-model-fallback",
       "level": "warn",
       "label": "Agent 模型未显式配置，已回退供应商默认模型",
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792641493896-32",
-      "ts": 1792641493896,
-      "seq": 27,
+      "id": "event-1793041040317-30",
+      "ts": 1793041040317,
+      "seq": 25,
       "type": "api-start",
       "level": "info",
       "label": "第 2 次 API 调用开始",
       "detail": "{\"skillName\":\"降级输出实测（文件夹）\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792641493896-33",
-      "ts": 1792641493896,
-      "seq": 28,
+      "id": "event-1793041040317-31",
+      "ts": 1793041040317,
+      "seq": 26,
       "type": "deai-prompt-variant",
       "level": "info",
       "label": "降AI注入变体：链步骤 2/2",
       "detail": "{\"skillIndex\":1,\"totalSkillCount\":2,\"variant\":\"polish\",\"charCount\":254}"
     },
     {
-      "id": "event-1792641493901-34",
-      "ts": 1792641493901,
-      "seq": 29,
+      "id": "event-1793041040326-32",
+      "ts": 1793041040326,
+      "seq": 27,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1",
-      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":553,\"userPromptLength\":714,\"systemPromptLength\":350,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":553,\"userPromptLength\":714,\"systemPromptLength\":350,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793041040114-1\",\"traceCallId\":\"api-1793041040317-29\"}"
     },
     {
-      "id": "event-1792641493903-36",
-      "ts": 1792641493903,
-      "seq": 30,
+      "id": "event-1793041040327-34",
+      "ts": 1793041040327,
+      "seq": 28,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -324,69 +299,69 @@
       }
     },
     {
-      "id": "event-1792641493903-37",
-      "ts": 1792641493903,
-      "seq": 31,
+      "id": "event-1793041040327-35",
+      "ts": 1793041040327,
+      "seq": 29,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792641493902-35",
+        "physicalCallId": "physical-1793041040327-33",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641493903-38",
-      "ts": 1792641493903,
-      "seq": 32,
+      "id": "event-1793041040328-36",
+      "ts": 1793041040328,
+      "seq": 30,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / 降级输出实测（文件夹） / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641493903-39",
-      "ts": 1792641493903,
-      "seq": 33,
-      "turnId": "api-1792641493896-31",
+      "id": "event-1793041040329-37",
+      "ts": 1793041040329,
+      "seq": 31,
+      "turnId": "api-1793041040317-29",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641493916-40",
-      "ts": 1792641493916,
-      "seq": 34,
+      "id": "event-1793041040343-38",
+      "ts": 1793041040343,
+      "seq": 32,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / 降级输出实测（文件夹） / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641493922-41",
-      "ts": 1792641493922,
-      "seq": 35,
+      "id": "event-1793041040346-39",
+      "ts": 1793041040346,
+      "seq": 33,
       "type": "schema-retry-feedback-composed",
       "level": "info",
       "label": "结构化重试反馈已单源合成：降级输出实测（文件夹）",
       "detail": "{\"candidateChars\":41,\"feedbackChars\":312,\"anchorCount\":1,\"previewChars\":41,\"suppressedCandidateChars\":0}"
     },
     {
-      "id": "event-1792641493924-42",
-      "ts": 1792641493924,
-      "seq": 36,
+      "id": "event-1793041040348-40",
+      "ts": 1793041040348,
+      "seq": 34,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1（重试）",
-      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":553,\"userPromptLength\":714,\"systemPromptLength\":664,\"sampleCount\":3,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":553,\"userPromptLength\":714,\"systemPromptLength\":664,\"sampleCount\":3,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793041040114-1\",\"traceCallId\":\"api-1793041040317-29\"}"
     },
     {
-      "id": "event-1792641493925-44",
-      "ts": 1792641493925,
-      "seq": 37,
+      "id": "event-1793041040349-42",
+      "ts": 1793041040349,
+      "seq": 35,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -397,82 +372,69 @@
       }
     },
     {
-      "id": "event-1792641493926-45",
-      "ts": 1792641493926,
-      "seq": 38,
+      "id": "event-1793041040349-43",
+      "ts": 1793041040349,
+      "seq": 36,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=2 / heartbeat=false / schema_retry",
       "payload": {
-        "physicalCallId": "physical-1792641493925-43",
+        "physicalCallId": "physical-1793041040349-41",
         "seq": 2,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641493926-46",
-      "ts": 1792641493926,
-      "seq": 39,
+      "id": "event-1793041040349-44",
+      "ts": 1793041040349,
+      "seq": 37,
       "type": "physical-call",
       "level": "info",
       "label": "第 2 次物理请求进行中",
       "detail": "schema_retry / 降级输出实测（文件夹） / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641493927-47",
-      "ts": 1792641493927,
-      "seq": 40,
-      "turnId": "api-1792641493896-31",
+      "id": "event-1793041040355-45",
+      "ts": 1793041040355,
+      "seq": 38,
+      "turnId": "api-1793041040317-29",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641493933-48",
-      "ts": 1792641493933,
-      "seq": 41,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=2",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=2"
-      }
-    },
-    {
-      "id": "event-1792641493942-49",
-      "ts": 1792641493942,
-      "seq": 42,
+      "id": "event-1793041040360-46",
+      "ts": 1793041040360,
+      "seq": 39,
       "type": "physical-call",
       "level": "info",
       "label": "第 2 次物理请求完成",
       "detail": "schema_retry / 降级输出实测（文件夹） / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641493943-50",
-      "ts": 1792641493943,
-      "seq": 43,
+      "id": "event-1793041040361-47",
+      "ts": 1793041040361,
+      "seq": 40,
       "type": "schema-retry-feedback-composed",
       "level": "info",
       "label": "结构化重试反馈已单源合成：降级输出实测（文件夹）",
       "detail": "{\"candidateChars\":41,\"feedbackChars\":312,\"anchorCount\":1,\"previewChars\":41,\"suppressedCandidateChars\":0}"
     },
     {
-      "id": "event-1792641493944-51",
-      "ts": 1792641493944,
-      "seq": 44,
+      "id": "event-1793041040362-48",
+      "ts": 1793041040362,
+      "seq": 41,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1（重试）",
-      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":553,\"userPromptLength\":714,\"systemPromptLength\":664,\"sampleCount\":3,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false}"
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":553,\"userPromptLength\":714,\"systemPromptLength\":664,\"sampleCount\":3,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793041040114-1\",\"traceCallId\":\"api-1793041040317-29\"}"
     },
     {
-      "id": "event-1792641493950-53",
-      "ts": 1792641493950,
-      "seq": 45,
+      "id": "event-1793041040363-50",
+      "ts": 1793041040363,
+      "seq": 42,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -483,171 +445,158 @@
       }
     },
     {
-      "id": "event-1792641493950-54",
-      "ts": 1792641493950,
-      "seq": 46,
+      "id": "event-1793041040363-51",
+      "ts": 1793041040363,
+      "seq": 43,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=3 / heartbeat=false / schema_retry",
       "payload": {
-        "physicalCallId": "physical-1792641493947-52",
+        "physicalCallId": "physical-1793041040363-49",
         "seq": 3,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641493951-55",
-      "ts": 1792641493951,
-      "seq": 47,
+      "id": "event-1793041040363-52",
+      "ts": 1793041040363,
+      "seq": 44,
       "type": "physical-call",
       "level": "info",
       "label": "第 3 次物理请求进行中",
       "detail": "schema_retry / 降级输出实测（文件夹） / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641493951-56",
-      "ts": 1792641493951,
-      "seq": 48,
-      "turnId": "api-1792641493896-31",
+      "id": "event-1793041040369-53",
+      "ts": 1793041040369,
+      "seq": 45,
+      "turnId": "api-1793041040317-29",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641493966-57",
-      "ts": 1792641493966,
-      "seq": 49,
+      "id": "event-1793041040375-54",
+      "ts": 1793041040375,
+      "seq": 46,
       "type": "physical-call",
       "level": "info",
       "label": "第 3 次物理请求完成",
       "detail": "schema_retry / 降级输出实测（文件夹） / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641493966-58",
-      "ts": 1792641493966,
-      "seq": 50,
+      "id": "event-1793041040375-55",
+      "ts": 1793041040375,
+      "seq": 47,
       "type": "schema-retry-feedback-composed",
       "level": "info",
       "label": "结构化重试反馈已单源合成：降级输出实测（文件夹）",
       "detail": "{\"candidateChars\":41,\"feedbackChars\":312,\"anchorCount\":1,\"previewChars\":41,\"suppressedCandidateChars\":0}"
     },
     {
-      "id": "event-1792641493972-59",
-      "ts": 1792641493972,
-      "seq": 51,
+      "id": "event-1793041040377-56",
+      "ts": 1793041040377,
+      "seq": 48,
       "type": "body-feedback-audit",
       "level": "info",
       "label": "正文修复反馈审计：候选全文已抑制",
       "detail": "{\"channel\":\"schema\",\"candidateChars\":41,\"feedbackChars\":312,\"anchorCount\":1,\"previewChars\":41,\"suppressedCandidateChars\":0}"
     },
     {
-      "id": "event-1792641493973-60",
-      "ts": 1792641493973,
-      "seq": 52,
+      "id": "event-1793041040377-57",
+      "ts": 1793041040377,
+      "seq": 49,
       "type": "folder-diagnostics",
       "level": "info",
       "label": "记录 folder SKILL 诊断"
     },
     {
-      "id": "event-1792641493974-61",
-      "ts": 1792641493974,
-      "seq": 53,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=2/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=2/terminal"
-      }
-    },
-    {
-      "id": "event-1792641493974-62",
-      "ts": 1792641493974,
-      "seq": 54,
+      "id": "event-1793041040378-58",
+      "ts": 1793041040378,
+      "seq": 50,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → degraded",
-      "detail": "apiCall=api-1792641493896-31 seq=2"
+      "detail": "apiCall=api-1793041040317-29 seq=2"
     },
     {
-      "id": "event-1792641493974-63",
-      "ts": 1792641493974,
-      "seq": 55,
+      "id": "event-1793041040378-59",
+      "ts": 1793041040378,
+      "seq": 51,
       "type": "api-degraded",
       "level": "warn",
       "label": "第 2 次 API 调用完成（降级）",
       "detail": "降级输出实测（文件夹） / owner-breakpoint-failure-model / folder SKILL 降级完成，已保留可用输出"
     },
     {
-      "id": "event-1792641493974-64",
-      "ts": 1792641493974,
-      "seq": 56,
+      "id": "event-1793041040378-60",
+      "ts": 1793041040378,
+      "seq": 52,
       "type": "folder-skill-degraded-with-error",
       "level": "warn",
       "label": "SKILL「降级输出实测（文件夹）」降级但保留有效输出",
       "detail": "第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength；第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength；第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength；输出未通过校验，已达最大尝试次数 3"
     },
     {
-      "id": "event-1792641493980-65",
-      "ts": 1792641493980,
-      "seq": 57,
+      "id": "event-1793041040380-61",
+      "ts": 1793041040380,
+      "seq": 53,
       "type": "body-step-acceptance",
       "level": "error",
       "label": "正文生成步骤 2/2 统一验收",
       "detail": "{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"rawWordCount\":6,\"extractedWordCount\":5,\"metadata\":{},\"metadataDelta\":1,\"decision\":\"reject\",\"reason\":\"contract_failed\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[\"第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"输出未通过校验，已达最大尝试次数 3\"],\"contractErrors\":[\"正文过短：5字，要求不低于2400字\"]}"
     },
     {
-      "id": "event-1792641493981-66",
-      "ts": 1792641493981,
-      "seq": 58,
+      "id": "event-1793041040380-62",
+      "ts": 1793041040380,
+      "seq": 54,
       "type": "body-generator-step-rejected",
       "level": "error",
       "label": "正文生成步骤 2/2 拒绝流转",
       "detail": "{\"reason\":\"degraded_plus_contract_failure\",\"errors\":[\"第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：5字，要求不低于2400字\"]}"
     },
     {
-      "id": "event-1792641494000-67",
-      "ts": 1792641494000,
-      "seq": 59,
+      "id": "event-1793041040395-63",
+      "ts": 1793041040395,
+      "seq": 55,
       "type": "body-artifact-attempt",
       "level": "error",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-failure-1-attempt-1-auxrirtt\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"正文生成步骤验收失败（degraded_plus_contract_failure）：第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength；第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength；第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength；输出未通过校验，已达最大尝试次数 3；正文过短：5字，要求不低于2400字\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[{\"schema\":{\"candidateChars\":41,\"feedbackChars\":312,\"anchorCount\":1,\"previewChars\":41,\"suppressedCandidateChars\":0},\"finalStep\":null}],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"decision\":\"reject\",\"reason\":\"contract_failed\",\"rawWordCount\":6,\"extractedWordCount\":5,\"errors\":[\"第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：5字，要求不低于2400字\"]}],\"degradedSteps\":[{\"stepIndex\":1,\"errors\":[\"第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：5字，要求不低于2400字\"]}],\"rawVsExtractedDelta\":1}"
+      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-failure-1-attempt-1-626c0j22\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"正文生成步骤验收失败（degraded_plus_contract_failure）：第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength；第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength；第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength；输出未通过校验，已达最大尝试次数 3；正文过短：5字，要求不低于2400字\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"decision\":\"reject\",\"reason\":\"contract_failed\",\"rawWordCount\":6,\"extractedWordCount\":5,\"errors\":[\"第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：5字，要求不低于2400字\"]}],\"degradedSteps\":[{\"stepIndex\":1,\"errors\":[\"第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\\n$.body 长度小于 minLength\",\"输出未通过校验，已达最大尝试次数 3\",\"正文过短：5字，要求不低于2400字\"]}],\"rawVsExtractedDelta\":1}"
     },
     {
-      "id": "event-1792641494000-68",
-      "ts": 1792641494000,
-      "seq": 60,
+      "id": "event-1793041040396-64",
+      "ts": 1793041040396,
+      "seq": 56,
       "type": "failed",
       "level": "error",
       "label": "正文运行失败",
       "detail": "正文生成步骤验收失败（degraded_plus_contract_failure）：第 1/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength；第 2/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength；第 3/3 次输出未通过校验：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength；输出未通过校验，已达最大尝试次数 3；正文过短：5字，要求不低于2400字"
     },
     {
-      "id": "event-1792641494003-69",
-      "ts": 1792641494003,
-      "seq": 61,
+      "id": "event-1793041040398-65",
+      "ts": 1793041040398,
+      "seq": 57,
       "type": "finished",
       "level": "error",
       "label": "运行失败",
       "detail": "generation_failed"
     },
     {
-      "id": "event-1792641494003-70",
-      "ts": 1792641494003,
-      "seq": 62,
+      "id": "event-1793041040399-66",
+      "ts": 1793041040399,
+      "seq": 58,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1792641493717-1"
+      "detail": "generation_failed / run=run-1793041040114-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792641493818-12",
+      "id": "api-1793041040211-12",
       "seq": 1,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S1",
@@ -669,14 +618,14 @@
       ],
       "deaiPromptVariant": "methodology",
       "responseText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
+      "streamText": "",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792641493818,
+      "startedAt": 1793041040211,
       "physicalCalls": [
         {
-          "id": "physical-1792641493825-14",
-          "physicalCallId": "physical-1792641493820-0",
+          "id": "physical-1793041040225-14",
+          "physicalCallId": "physical-1793041040219-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -700,11 +649,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641493825,
-          "durationMs": 50,
-          "firstTokenMs": 44,
+          "startedAt": 1793041040225,
+          "durationMs": 64,
+          "firstTokenMs": 58,
           "outputMs": 6,
-          "endedAt": 1792641493874,
+          "endedAt": 1793041040287,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -719,23 +668,22 @@
             "driftRatio": -0.9914236706689536,
             "correctedRatio": 0.008576329331046312
           },
-          "firstContentAt": 1792641493867,
-          "lastContentAt": 1792641493867,
+          "firstContentAt": 1793041040281,
+          "lastContentAt": 1793041040281,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792641493875,
-      "lastStreamActivityAt": 1792641493875,
+      "lastExecutionActivityAt": 1793041040225,
       "finishReason": "stop",
-      "durationMs": 50,
+      "durationMs": 64,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 50,
-        "firstTokenSumMs": 44,
+        "physicalDurationSumMs": 64,
+        "firstTokenSumMs": 58,
         "outputSumMs": 6,
-        "minFirstTokenMs": 44,
-        "maxFirstTokenMs": 44,
+        "minFirstTokenMs": 58,
+        "maxFirstTokenMs": 58,
         "localOverheadMs": 0
       },
       "usage": {
@@ -744,9 +692,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792641493876,
+      "endedAt": 1793041040292,
       "semantic": {
-        "conversationId": "run-1792641493717-1",
+        "conversationId": "run-1793041040114-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -755,7 +703,7 @@
       }
     },
     {
-      "id": "api-1792641493896-31",
+      "id": "api-1793041040317-29",
       "seq": 2,
       "step": 4,
       "skillId": "folder:owner-bp-degraded",
@@ -775,14 +723,14 @@
       ],
       "deaiPromptVariant": "polish",
       "responseText": "{\"body\":\"degraded but usable short body\"}",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。{\"body\":\"degraded but usable short body\"}{\"body\":\"degraded but usable short body\"}{\"body\":\"degraded but usable short body\"}{\"body\":\"degraded but usable short body\"}",
+      "streamText": "",
       "reasoningText": "",
       "status": "degraded",
-      "startedAt": 1792641493896,
+      "startedAt": 1793041040317,
       "physicalCalls": [
         {
-          "id": "physical-1792641493902-35",
-          "physicalCallId": "physical-1792641493902-0",
+          "id": "physical-1793041040327-33",
+          "physicalCallId": "physical-1793041040327-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -806,11 +754,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641493902,
-          "durationMs": 13,
-          "firstTokenMs": 11,
+          "startedAt": 1793041040327,
+          "durationMs": 15,
+          "firstTokenMs": 13,
           "outputMs": 2,
-          "endedAt": 1792641493916,
+          "endedAt": 1793041040343,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -825,13 +773,13 @@
             "driftRatio": -0.9696969696969697,
             "correctedRatio": 0.030303030303030304
           },
-          "firstContentAt": 1792641493913,
-          "lastContentAt": 1792641493913,
+          "firstContentAt": 1793041040340,
+          "lastContentAt": 1793041040340,
           "heartbeat": false
         },
         {
-          "id": "physical-1792641493925-43",
-          "physicalCallId": "physical-1792641493924-0",
+          "id": "physical-1793041040349-41",
+          "physicalCallId": "physical-1793041040348-0",
           "seq": 2,
           "phase": "schema_retry",
           "status": "success",
@@ -855,11 +803,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641493925,
-          "durationMs": 17,
-          "firstTokenMs": 13,
-          "outputMs": 4,
-          "endedAt": 1792641493941,
+          "startedAt": 1793041040349,
+          "durationMs": 11,
+          "firstTokenMs": 10,
+          "outputMs": 1,
+          "endedAt": 1793041040360,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -874,13 +822,13 @@
             "driftRatio": -0.975669099756691,
             "correctedRatio": 0.024330900243309004
           },
-          "firstContentAt": 1792641493937,
-          "lastContentAt": 1792641493937,
+          "firstContentAt": 1793041040358,
+          "lastContentAt": 1793041040358,
           "heartbeat": false
         },
         {
-          "id": "physical-1792641493947-52",
-          "physicalCallId": "physical-1792641493944-0",
+          "id": "physical-1793041040363-49",
+          "physicalCallId": "physical-1793041040362-0",
           "seq": 3,
           "phase": "schema_retry",
           "status": "success",
@@ -904,11 +852,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641493947,
-          "durationMs": 18,
-          "firstTokenMs": 16,
-          "outputMs": 2,
-          "endedAt": 1792641493966,
+          "startedAt": 1793041040363,
+          "durationMs": 11,
+          "firstTokenMs": 10,
+          "outputMs": 1,
+          "endedAt": 1793041040374,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -923,25 +871,24 @@
             "driftRatio": -0.975669099756691,
             "correctedRatio": 0.024330900243309004
           },
-          "firstContentAt": 1792641493963,
-          "lastContentAt": 1792641493963,
+          "firstContentAt": 1793041040373,
+          "lastContentAt": 1793041040373,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792641493974,
-      "lastStreamActivityAt": 1792641493974,
-      "durationMs": 79,
+      "lastExecutionActivityAt": 1793041040363,
+      "durationMs": 62,
       "timingLedger": {
         "physicalCallCount": 3,
         "retryPhysicalCallCount": 2,
-        "physicalDurationSumMs": 48,
-        "firstTokenSumMs": 40,
-        "outputSumMs": 8,
-        "minFirstTokenMs": 11,
-        "maxFirstTokenMs": 16,
-        "localOverheadMs": 31,
-        "requestBuildMs": 3,
-        "schemaValidateMs": 3,
+        "physicalDurationSumMs": 37,
+        "firstTokenSumMs": 33,
+        "outputSumMs": 4,
+        "minFirstTokenMs": 10,
+        "maxFirstTokenMs": 13,
+        "localOverheadMs": 25,
+        "requestBuildMs": 1,
+        "schemaValidateMs": 2,
         "retryMs": 0,
         "postProcessMs": 0,
         "schemaRetryCount": 2,
@@ -954,27 +901,33 @@
         }
       },
       "error": "folder SKILL 降级完成，已保留可用输出",
-      "endedAt": 1792641493974
+      "endedAt": 1793041040378
     }
   ],
   "sessionKind": "task",
   "promptSnapshots": [],
   "processingReports": [
     {
-      "id": "processing-1792641493881-24",
+      "id": "processing-1793041040300-22",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
       "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。",
       "outputPreview": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
       "output": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
-      "startedAt": 1792641493881,
-      "endedAt": 1792641493881,
+      "startedAt": 1793041040299,
+      "endedAt": 1793041040299,
       "durationMs": 0
     }
   ],
   "payloads": [],
-  "dirName": "run-trace-正文层-20261022-115813",
+  "eventLedger": {
+    "totalEvents": 58,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "dirName": "run-trace-正文层-20261027-025720",
   "folderDiagnostics": [
     {
       "status": "degraded",
@@ -990,43 +943,43 @@
           "type": "info",
           "code": "folder-template-priority",
           "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
-          "at": "2026-10-22T03:58:13.898Z"
+          "at": "2026-10-26T18:57:20.321Z"
         },
         {
           "type": "info",
           "code": "folder-template-variables-missing",
           "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
-          "at": "2026-10-22T03:58:13.899Z"
+          "at": "2026-10-26T18:57:20.321Z"
         },
         {
           "type": "warning",
           "code": "schema-validation-failed",
           "message": "尝试 1/3：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength",
-          "at": "2026-10-22T03:58:13.922Z"
+          "at": "2026-10-26T18:57:20.347Z"
         },
         {
           "type": "warning",
           "code": "schema-validation-failed",
           "message": "尝试 2/3：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength",
-          "at": "2026-10-22T03:58:13.943Z"
+          "at": "2026-10-26T18:57:20.362Z"
         },
         {
           "type": "warning",
           "code": "schema-validation-failed",
           "message": "尝试 3/3：$.requiredMissingField 缺少必填字段\n$.body 长度小于 minLength",
-          "at": "2026-10-22T03:58:13.966Z"
+          "at": "2026-10-26T18:57:20.375Z"
         },
         {
           "type": "warning",
           "code": "schema-validation-best-candidate-retained",
           "message": "重试耗尽后保留第 1/3 次候选（2 项失败）",
-          "at": "2026-10-22T03:58:13.967Z"
+          "at": "2026-10-26T18:57:20.376Z"
         },
         {
           "type": "error",
           "code": "schema-validation-exhausted",
           "message": "输出未通过校验，已达最大尝试次数",
-          "at": "2026-10-22T03:58:13.967Z"
+          "at": "2026-10-26T18:57:20.376Z"
         }
       ],
       "folderPackageCache": true,
@@ -1094,8 +1047,8 @@
           }
         ],
         "timingLedger": {
-          "requestBuildMs": 3,
-          "schemaValidateMs": 3,
+          "requestBuildMs": 1,
+          "schemaValidateMs": 2,
           "retryMs": 0,
           "postProcessMs": 0,
           "schemaRetryCount": 2,
@@ -1115,12 +1068,12 @@
     "apiCallCount": 2,
     "physicalCallCount": 4,
     "retryPhysicalCallCount": 2,
-    "physicalDurationSumMs": 98,
-    "firstTokenSumMs": 84,
-    "outputSumMs": 14,
-    "localOverheadSumMs": 31,
-    "requestBuildSumMs": 3,
-    "schemaValidateSumMs": 3,
+    "physicalDurationSumMs": 101,
+    "firstTokenSumMs": 91,
+    "outputSumMs": 10,
+    "localOverheadSumMs": 25,
+    "requestBuildSumMs": 1,
+    "schemaValidateSumMs": 2,
     "retrySumMs": 0,
     "postProcessSumMs": 0,
     "repeatedPromptBlocks": {
@@ -1132,14 +1085,14 @@
     }
   },
   "stepTimingLedger": {
-    "promptBuildMs": 3,
+    "promptBuildMs": 1,
     "apiCallCount": 2,
     "physicalCallCount": 4,
     "retryCallCount": 2,
     "schemaRetryCallCount": 2,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 84,
-    "outputSumMs": 14,
+    "firstTokenSumMs": 91,
+    "outputSumMs": 10,
     "postProcessSumMs": 0,
     "repeatedPromptBlocks": {
       "[已生成卷事实清单]": 0,
@@ -1150,8 +1103,8 @@
     },
     "contextChars": 3740,
     "outputChars": 68,
-    "physicalDurationSumMs": 98
+    "physicalDurationSumMs": 101
   },
-  "endedAt": 1792641494002,
-  "durationMs": 285
+  "endedAt": 1793041040398,
+  "durationMs": 284
 }

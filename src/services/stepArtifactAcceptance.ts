@@ -227,6 +227,15 @@ function normalizeFactText(value: string): string {
   return String(value || '').replace(/[\s，。；、！？"'（）()【】\[\]]/g, '')
 }
 
+function hasGenerationLedger(metadata: GenerationMetadata | null | undefined): boolean {
+  if (!metadata) return false
+  if (Array.isArray(metadata.extractedMeta) && metadata.extractedMeta.length > 0) return true
+  return ['sourceRefs', 'coveredItems', 'status', 'runId', 'reports'].some(field => {
+    const value = metadata[field]
+    return Array.isArray(value) ? value.length > 0 : value != null && value !== ''
+  })
+}
+
 export function resolveFinalStepMetadataFlow(
   input: FinalStepMetadataFlowInput
 ): FinalStepMetadataFlowResult {
@@ -432,6 +441,22 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
       validation,
       downstreamPayload: null,
       errors: [...degradedErrors, ...validation.errors]
+    }
+  }
+
+  if (input.callerStatus === 'degraded' && !hasGenerationLedger(generation.metadata)) {
+    return {
+      decision: 'reject',
+      reason: 'contract_failed',
+      callerStatus: input.callerStatus,
+      extractedBody,
+      metadata: generation.metadata,
+      rawWordCount,
+      extractedWordCount,
+      metadataDelta,
+      validation,
+      downstreamPayload: null,
+      errors: [...degradedErrors, '降级候选缺少【正文交接】账本，禁止无权威元数据流转']
     }
   }
 

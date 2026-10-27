@@ -2313,6 +2313,63 @@ describe('runTrace store', () => {
       expect(seqs).toEqual([...seqs].sort((a, b) => a - b))
       store.setMemoryLimits(previous)
     })
+
+    it('keeps contract audit events when compacting info events', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ maxEvents: 8 })
+      const runId = store.startRun({ step: 3, stepName: '章节层', mode: 'batch', skillNames: [] })
+
+      store.addEvent(runId, {
+        type: 'chain-step',
+        level: 'info',
+        label: '链式步骤 1/3',
+        detail: '骨架'
+      })
+      store.addEvent(runId, {
+        type: 'chapter-batch-validated',
+        level: 'info',
+        label: '章节批次验收通过',
+        detail: '{"batchIndex":0,"requestedCount":5}'
+      })
+      store.addEvent(runId, {
+        type: 'chapter-count-arbitration',
+        level: 'info',
+        label: '章节口径单源仲裁',
+        detail: '{"totalChapters":12}'
+      })
+      store.addEvent(runId, {
+        type: 'folder-pass-input',
+        level: 'info',
+        label: 'Folder pass 输入口径 1',
+        detail: '{"passIndex":0,"inputMode":"original","userPromptLength":100,"systemPromptLength":50}'
+      })
+      store.addEvent(runId, {
+        type: 'chain-context-slim',
+        level: 'info',
+        label: '链式步骤 1/3 上下文决策',
+        detail: '{"decision":"full","measurement":"upstream_prompt_only"}'
+      })
+      store.addEvent(runId, {
+        type: 'deai-prompt-variant',
+        level: 'info',
+        label: '降AI注入变体：链步骤 1/3',
+        detail: '{"skillIndex":0,"totalSkillCount":3,"variant":"methodology"}'
+      })
+      for (let i = 0; i < 30; i++) {
+        store.addEvent(runId, { type: 'noise-' + i, level: 'info', label: '噪声' + i })
+      }
+
+      const run = store.getRun(runId)!
+      expect(run.events.some(event => event.type === 'chain-step')).toBe(true)
+      expect(run.events.some(event => event.type === 'chapter-batch-validated')).toBe(true)
+      expect(run.events.some(event => event.type === 'chapter-count-arbitration')).toBe(true)
+      expect(run.events.some(event => event.type === 'folder-pass-input')).toBe(true)
+      expect(run.events.some(event => event.type === 'chain-context-slim')).toBe(true)
+      expect(run.events.some(event => event.type === 'deai-prompt-variant')).toBe(true)
+      expect(run.events.some(event => event.type === 'chapter-count-arbitration-failed')).toBe(false)
+      expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThan(0)
+      store.setMemoryLimits(previous)
+    })
   })
   it('throttles stream activity events while preserving the full stream response', () => {
     vi.useFakeTimers()
@@ -2577,6 +2634,9 @@ describe('runTrace store', () => {
       status: 'running',
       requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
     })
+    const initialActivityAt = store.getRun(runId)!.apiCalls
+      .find(item => item.id === callId)!.lastExecutionActivityAt
+    vi.advanceTimersByTime(15_000)
     store.appendPhysicalCall(runId, callId, {
       physicalCallId: 'physical-1',
       phase: 'normal',
@@ -2584,6 +2644,8 @@ describe('runTrace store', () => {
       heartbeat: true,
       requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
     })
+    const afterHeartbeat = store.getRun(runId)!.apiCalls.find(item => item.id === callId)!
+    expect(afterHeartbeat.lastExecutionActivityAt).toBeGreaterThan(initialActivityAt ?? 0)
     store.appendPhysicalCall(runId, callId, {
       physicalCallId: 'physical-2',
       phase: 'tool_iteration',

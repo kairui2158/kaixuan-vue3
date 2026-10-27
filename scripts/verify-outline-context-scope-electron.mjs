@@ -15,6 +15,7 @@ const PROFILE = path.join(ROOT, '_data', 'outline-context-scope-profile')
 const DATA_DIR = path.join(PROFILE, 'documents-data')
 const EXPORT_ROOT = path.join(PROFILE, 'run-trace-exports')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-outline-context-scope-electron')
+const EVIDENCE_ARCHIVE_ROOT = path.join(ROOT, '_audit', 'verification-outline-context-scope-electron-archive')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const HEARTBEAT_PATH = path.join(EVIDENCE_ROOT, 'heartbeat.jsonl')
 const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_CONTEXT_SCOPE_GLOBAL_TIMEOUT_MS || 10 * 60_000)
@@ -95,6 +96,16 @@ function assertFreshRendererBuild() {
     fs.statSync(path.join(ROOT, 'dist-renderer', name)).mtimeMs < newestSourceMs)
   assert.equal(staleBundles.length, 0,
     `renderer build is stale: ${staleBundles.join(', ')}`)
+}
+
+function archivePreviousEvidence() {
+  if (!fs.existsSync(EVIDENCE_ROOT)) return null
+  fs.mkdirSync(EVIDENCE_ARCHIVE_ROOT, { recursive: true })
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const target = path.join(EVIDENCE_ARCHIVE_ROOT, timestamp)
+  fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
+  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  return target
 }
 
 function startElectron() {
@@ -287,12 +298,13 @@ async function seedApplication(page, provider, { projectId, outline, unitId, plo
   await sleep(300)
 }
 
-function snapshot(page) {
-  return page.evaluate(() => {
+function snapshot(page, startedAfter = 0) {
+  return page.evaluate(startedAfter => {
     const pipeline = window.__pinia?._s?.get('pipeline')
     const trace = window.__pinia?._s?.get('runTrace')
     const run = [...(trace?.runs || [])]
       .filter(item => item.source === 'pipeline' && item.step === 4 && item.stepName === '正文层')
+      .filter(item => !startedAfter || item.startedAt >= startedAfter)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
     const lastBodyLog = (window.__pinia?._s?.get('executionLog')?.logs || []).at(-1)?.message || null
     return {
@@ -306,8 +318,9 @@ function snapshot(page) {
       pipelineRunStatus: pipeline?.activeBodyRun?.status || null,
       isGenerating: Boolean(pipeline?.isGenerating),
       lastBodyLog,
+      runError: run?.error || null,
     }
-  })
+  }, startedAfter)
 }
 
 function startHeartbeat(page, electronPid) {
@@ -341,6 +354,7 @@ async function runBodyThroughUi(page) {
     return Boolean(select && select.options.length > 0)
   }, null, { timeout: 20_000 })
   await chapterSelect.selectOption({ index: 0 })
+  const startedAfter = Date.now()
   await page.click('#btn-primary-gen-body')
 
   let lastSignature = null
@@ -348,7 +362,7 @@ async function runBodyThroughUi(page) {
   let lastSnapshot = null
   const deadline = Date.now() + STEP_TIMEOUT_MS
   while (Date.now() < deadline) {
-    const state = await snapshot(page)
+    const state = await snapshot(page, startedAfter)
     const signature = JSON.stringify(state)
     if (signature !== lastSignature) {
       lastSignature = signature
@@ -360,7 +374,9 @@ async function runBodyThroughUi(page) {
     } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
       console.warn(`[STALL WARNING] body generation unchanged for ${Date.now() - lastProgressAt}ms`)
     }
-    if (!state.isGenerating && state.runStatus && state.runStatus !== 'running') return state
+    if (!state.isGenerating && state.runStatus && state.runStatus !== 'running') {
+      return { state, startedAfter }
+    }
     await sleep(500)
   }
   throw new Error(`body generation did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
@@ -371,11 +387,12 @@ function parseDetail(value) {
   try { return JSON.parse(value) } catch { return { raw: value } }
 }
 
-async function contextScopeEvents(page) {
-  return page.evaluate(parse => {
+async function contextScopeEvents(page, startedAfter) {
+  return page.evaluate(({ startedAfter, parse }) => {
     const trace = window.__pinia?._s?.get('runTrace')
     const run = [...(trace?.runs || [])]
       .filter(item => item.source === 'pipeline' && item.step === 4 && item.stepName === '正文层')
+      .filter(item => !startedAfter || item.startedAt >= startedAfter)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
     return (run?.events || [])
       .filter(event => event.type === 'context_scope')
@@ -384,14 +401,15 @@ async function contextScopeEvents(page) {
       if (typeof value !== 'string') return value || {}
       try { return JSON.parse(value) } catch { return { raw: value } }
     }
-  })
+  }, { startedAfter, parse: null })
 }
 
-async function exportLatestBodyRun(page) {
-  return page.evaluate(async exportRoot => {
+async function exportLatestBodyRun(page, startedAfter) {
+  return page.evaluate(async ({ exportRoot, startedAfter }) => {
     const store = window.__pinia?._s?.get('runTrace')
     const run = [...(store?.runs || [])]
       .filter(item => item.source === 'pipeline' && item.step === 4 && item.stepName === '正文层')
+      .filter(item => !startedAfter || item.startedAt >= startedAfter)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
     if (!run) return null
     const result = await window.electronAPI.runTraceExport({
@@ -402,7 +420,7 @@ async function exportLatestBodyRun(page) {
       payloadDirectoryHint: exportRoot,
     })
     return { runId: run.id, result }
-  }, EXPORT_ROOT)
+  }, { exportRoot: EXPORT_ROOT, startedAfter })
 }
 
 function readExportedRun(exported) {
@@ -430,9 +448,9 @@ async function runCase(provider, { projectId, outline, unitId, plot, expected })
     await seedApplication(page, provider, { projectId, outline, unitId, plot })
     const heartbeat = startHeartbeat(page, electronProcess.pid)
     try {
-      const state = await runBodyThroughUi(page)
-      const events = await contextScopeEvents(page)
-      const exported = await exportLatestBodyRun(page)
+      const { state, startedAfter } = await runBodyThroughUi(page)
+      const events = await contextScopeEvents(page, startedAfter)
+      const exported = await exportLatestBodyRun(page, startedAfter)
       const { run, directory } = exported ? readExportedRun(exported) : { run: null, directory: null }
       return {
         page,
@@ -475,10 +493,11 @@ async function assertPositiveRun(result) {
 
 function assertMissingUnitFailure(result) {
   assert.equal(result.state.runStatus, 'failed', 'scoped outline with missing unit fails explicitly')
-  assert(result.state.status?.includes('正文上下文闭包构建失败'),
-    `failure names the closure error, got ${result.state.status}`)
-  assert(result.state.status?.includes('unit_not_found'),
-    `failure contains the unit_not_found error code, got ${result.state.status}`)
+  const failureText = `${result.state.status || ''} ${result.state.runError || ''}`
+  assert(failureText.includes('正文上下文闭包构建失败'),
+    `failure names the closure error, got ${JSON.stringify(result.state)}`)
+  assert(failureText.includes('unit_not_found'),
+    `failure contains the unit_not_found error code, got ${JSON.stringify(result.state)}`)
   assert(result.state.isGenerating === false, 'failed run does not stay in generating state')
   assert.equal(result.events.length, 0, 'failed run does not emit a fake context_scope event')
   assert(result.exportedRun === null || result.exportedRun.status === 'failed',
@@ -505,6 +524,8 @@ async function assertLegacyFallbackRun(result) {
 
 async function main() {
   assertFreshRendererBuild()
+  const archivedEvidence = archivePreviousEvidence()
+  if (archivedEvidence) console.log(`[EVIDENCE ARCHIVED] ${archivedEvidence}`)
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
@@ -592,7 +613,7 @@ async function main() {
         case: 'scoped_missing_unit_fails_without_silent_fallback',
         runId: negative.state.runId,
         status: negative.state.runStatus,
-        failure: negative.state.status,
+        failure: negative.state.runError,
         requestCount: provider.requests().length,
       })
       if (negative.exportDirectory) {

@@ -14,6 +14,7 @@ const CDP_PORT = Number(process.env.SHENYI_HARD_SIGNAL_CDP_PORT || 9363)
 const PROFILE = path.join(ROOT, '_data', 'hard-signal-stop-net-profile')
 const DATA_DIR = path.join(PROFILE, 'documents-data')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-hard-signal-stop-net-electron')
+const EVIDENCE_ARCHIVE_ROOT = path.join(ROOT, '_audit', 'verification-hard-signal-stop-net-electron-archive')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const HEARTBEAT_PATH = path.join(EVIDENCE_ROOT, 'heartbeat.jsonl')
 const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_HARD_SIGNAL_GLOBAL_TIMEOUT_MS || 10 * 60_000)
@@ -93,6 +94,16 @@ function assertFreshRendererBuild() {
   const staleBundles = bundleNames.filter(name =>
     fs.statSync(path.join(ROOT, 'dist-renderer', name)).mtimeMs < newestSourceMs)
   assert.equal(staleBundles.length, 0, `renderer build is stale: ${staleBundles.join(', ')}`)
+}
+
+function archivePreviousEvidence() {
+  if (!fs.existsSync(EVIDENCE_ROOT)) return null
+  fs.mkdirSync(EVIDENCE_ARCHIVE_ROOT, { recursive: true })
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const target = path.join(EVIDENCE_ARCHIVE_ROOT, timestamp)
+  fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
+  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  return target
 }
 
 function startElectron() {
@@ -421,14 +432,48 @@ async function assertRepairRun(result) {
 }
 
 async function assertUnresolvedRun(result) {
+  const diagnostics = {
+    runStatus: result.state.runStatus,
+    hardSignalEvents: result.run.events.filter(event => event.type === 'hard_signal_scan').map(event => parseDetail(event.detail)),
+    apiCalls: (result.run.apiCalls || []).map(call => ({
+      step: call.step,
+      status: call.status,
+      finishReason: call.finishReason,
+      physicalCalls: (call.physicalCalls || []).map(physical => ({
+        phase: physical.phase,
+        status: physical.status,
+        finishReason: physical.finishReason,
+      })),
+    })),
+    requestCount: result.requests.length,
+    requests: result.requests.map(request => {
+      let body = null
+      try { body = JSON.parse(request.bodyText) } catch {}
+      return {
+        url: request.url,
+        stream: body?.stream,
+        model: body?.model,
+        messageCount: body?.messages?.length,
+      }
+    }),
+  }
+  fs.writeFileSync(path.join(EVIDENCE_ROOT, 'unresolved-diagnostics.json'),
+    JSON.stringify(diagnostics, null, 2), 'utf8')
   assert.equal(result.state.runStatus, 'degraded',
-    `provider truncation reaches degraded terminal, got ${result.state.runStatus}`)
+    `provider truncation and truncated continuation reach degraded terminal, got ${result.state.runStatus}; diagnostics written to _audit/verification-hard-signal-stop-net-electron/unresolved-diagnostics.json`)
   const events = result.run.events.filter(event => event.type === 'hard_signal_scan')
   assert(events.length >= 2, 'unresolved run records the provider scan and the terminal event')
   const terminal = parseDetail(events.at(-1).detail)
   assert.equal(terminal.status, 'hard_signal_unresolved', 'terminal status is hard_signal_unresolved')
   assert.equal(terminal.counts.truncated, 1, 'provider truncation remains counted')
-  assert.equal(result.requests.length, 1, 'provider-level truncation never triggers a local repair request')
+  assert.equal(result.requests.length, 2,
+    'provider truncation allows one controlled continuation, never a local repair request')
+  const continuationRequest = JSON.parse(result.requests[1].bodyText)
+  assert(continuationRequest.messages.some(message =>
+    String(message.content || '').includes('从中断处自然续写')),
+    'second request is the controlled continuation')
+  assert(!continuationRequest.messages.some(message =>
+    String(message.content || '').includes('定点修复')), 'continuation is not a local hard-signal repair')
   assert(result.body.includes(CLEAN_BODY), 'provider text is still persisted for user recovery')
 }
 
@@ -475,6 +520,8 @@ async function runCase(provider, { projectId, responses }) {
 
 async function main() {
   assertFreshRendererBuild()
+  const archivedEvidence = archivePreviousEvidence()
+  if (archivedEvidence) console.log(`[EVIDENCE ARCHIVED] ${archivedEvidence}`)
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
@@ -538,7 +585,10 @@ async function main() {
 
     const unresolved = await runCase(provider, {
       projectId: 'hard-signal-provider-truncation',
-      responses: [{ body: CLEAN_BODY, finishReason: 'length' }],
+      responses: [
+        { body: CLEAN_BODY, finishReason: 'length' },
+        { body: CLEAN_BODY, finishReason: 'length' },
+      ],
     })
     try {
       await assertUnresolvedRun(unresolved)

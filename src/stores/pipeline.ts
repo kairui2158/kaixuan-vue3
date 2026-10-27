@@ -214,7 +214,10 @@ export const usePipelineStore = defineStore('pipeline', () => {
   }
 
   function rememberTraceRunOwnership(traceRunId: string | null | undefined, pipelineRunId: string | null | undefined) {
-    if (!traceRunId || !pipelineRunId) return
+    if (!pipelineRunId) return
+    if (!traceRunId) {
+      throw new Error('pipeline trace ownership requires a started trace run id')
+    }
     traceOwnership.set(traceRunId, pipelineRunId)
   }
 

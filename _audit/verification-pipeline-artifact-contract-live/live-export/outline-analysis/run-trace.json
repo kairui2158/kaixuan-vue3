@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1792683120249-3",
+  "id": "run-1793059984597-3",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 0,
@@ -17,30 +17,30 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T09:41:32.702Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T23:20:43.404Z"
   },
-  "startedAt": 1792683120249,
+  "startedAt": 1793059984597,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "degraded",
       "reason": "结构化分析结果未通过校验",
-      "recordedAt": 1792683129015
+      "recordedAt": 1793059987033
     }
   ],
   "events": [
     {
-      "id": "event-1792683120249-4",
-      "ts": 1792683120249,
+      "id": "event-1793059984598-4",
+      "ts": 1793059984598,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 大纲风格分析运行"
     },
     {
-      "id": "event-1792683120250-6",
-      "ts": 1792683120250,
+      "id": "event-1793059984600-6",
+      "ts": 1793059984600,
       "seq": 2,
       "type": "api-start",
       "level": "info",
@@ -48,8 +48,8 @@
       "detail": "{\"skillName\":\"创作风格 AI 分析\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792683120259-10",
-      "ts": 1792683120259,
+      "id": "event-1793059984616-10",
+      "ts": 1793059984616,
       "seq": 3,
       "type": "run-activity",
       "level": "info",
@@ -61,22 +61,22 @@
       }
     },
     {
-      "id": "event-1792683120259-11",
-      "ts": 1792683120259,
+      "id": "event-1793059984616-11",
+      "ts": 1793059984616,
       "seq": 4,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792683120259-9",
+        "physicalCallId": "physical-1793059984615-9",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792683120260-12",
-      "ts": 1792683120260,
+      "id": "event-1793059984616-12",
+      "ts": 1793059984616,
       "seq": 5,
       "type": "physical-call",
       "level": "info",
@@ -84,64 +84,54 @@
       "detail": "normal / 创作风格 AI 分析 / deepseek-v4-pro"
     },
     {
-      "id": "event-1792683120260-13",
-      "ts": 1792683120260,
+      "id": "event-1793059987028-13",
+      "ts": 1793059987028,
       "seq": 6,
-      "turnId": "api-1792683120250-5",
-      "type": "provider-queue",
-      "level": "info",
-      "label": "已获得供应商槽位",
-      "detail": "{\"providerId\":\"pipeline-artifact-live-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
-    },
-    {
-      "id": "event-1792683129012-14",
-      "ts": 1792683129012,
-      "seq": 7,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / 创作风格 AI 分析 / deepseek-v4-pro / stop"
     },
     {
-      "id": "event-1792683129013-15",
-      "ts": 1792683129013,
-      "seq": 8,
+      "id": "event-1793059987030-14",
+      "ts": 1793059987030,
+      "seq": 7,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792683120250-5 seq=1"
+      "detail": "apiCall=api-1793059984599-5 seq=1"
     },
     {
-      "id": "event-1792683129014-16",
-      "ts": 1792683129014,
-      "seq": 9,
+      "id": "event-1793059987030-15",
+      "ts": 1793059987030,
+      "seq": 8,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "创作风格 AI 分析 / deepseek-v4-pro"
     },
     {
-      "id": "event-1792683129015-17",
-      "ts": 1792683129015,
-      "seq": 10,
+      "id": "event-1793059987033-16",
+      "ts": 1793059987033,
+      "seq": 9,
       "type": "finished",
       "level": "warn",
       "label": "运行完成（降级）",
       "detail": "结构化分析结果未通过校验"
     },
     {
-      "id": "event-1792683129015-18",
-      "ts": 1792683129015,
-      "seq": 11,
+      "id": "event-1793059987033-17",
+      "ts": 1793059987033,
+      "seq": 10,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → degraded",
-      "detail": "run=run-1792683120249-3"
+      "detail": "run=run-1793059984597-3"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792683120250-5",
+      "id": "api-1793059984599-5",
       "seq": 1,
       "step": 0,
       "skillName": "创作风格 AI 分析",
@@ -157,11 +147,11 @@
         }
       },
       "status": "success",
-      "startedAt": 1792683120250,
+      "startedAt": 1793059984599,
       "physicalCalls": [
         {
-          "id": "physical-1792683120259-9",
-          "physicalCallId": "physical-1792683120254-0",
+          "id": "physical-1793059984615-9",
+          "physicalCallId": "physical-1793059984604-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -178,9 +168,9 @@
             "reasoningOutputTokens": 0
           },
           "usageUnavailable": false,
-          "startedAt": 1792683120259,
-          "durationMs": 8755,
-          "endedAt": 1792683129012,
+          "startedAt": 1793059984615,
+          "durationMs": 2418,
+          "endedAt": 1793059987028,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": null,
@@ -190,14 +180,14 @@
           "responseTextPreview": "{\n  \"positioning\": {\n    \"coreTemperament\": [],\n    \"genreTags\": [],\n    \"oneLinePositioning\": \"\"\n  },\n  \"styleTags\": \"\",\n  \"pacingParams\": \"\",\n  \"positiveRules\": []\n}"
         }
       ],
-      "lastExecutionActivityAt": 1792683120259,
+      "lastExecutionActivityAt": 1793059984616,
       "finishReason": "stop",
-      "durationMs": 8756,
+      "durationMs": 2420,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 8755,
-        "localOverheadMs": 1
+        "physicalDurationSumMs": 2418,
+        "localOverheadMs": 2
       },
       "usage": {
         "inputTokens": 302,
@@ -206,9 +196,9 @@
         "reasoningOutputTokens": 0
       },
       "usageUnavailable": false,
-      "endedAt": 1792683129013,
+      "endedAt": 1793059987029,
       "semantic": {
-        "conversationId": "run-1792683120249-3",
+        "conversationId": "run-1793059984597-3",
         "usage": {
           "inputTokens": 302,
           "outputTokens": 51,
@@ -233,7 +223,7 @@
       "sha256": "6b37d160eb99a2fe3a3a906d8caacddf5eb52c4240f455279954b44d2f168cb2",
       "duplicateCount": 2,
       "artifactRole": "intermediate",
-      "createdAt": 1792683129488
+      "createdAt": 1793059987838
     },
     {
       "id": "payload-002",
@@ -244,17 +234,23 @@
       "sha256": "10bdff6131096f3dd538c56bdbe3898e35d3cd419db02cc08e72ee05f9943728",
       "duplicateCount": 2,
       "artifactRole": "intermediate",
-      "createdAt": 1792683129488
+      "createdAt": 1793059987838
     }
   ],
+  "eventLedger": {
+    "totalEvents": 10,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 8755,
+    "physicalDurationSumMs": 2418,
     "firstTokenSumMs": 0,
     "outputSumMs": 0,
-    "localOverheadSumMs": 1,
+    "localOverheadSumMs": 2,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -270,14 +266,14 @@
     "repeatedPromptBlocks": {},
     "contextChars": 464,
     "outputChars": 167,
-    "physicalDurationSumMs": 8755
+    "physicalDurationSumMs": 2418
   },
-  "endedAt": 1792683129015,
-  "durationMs": 8766,
+  "endedAt": 1793059987033,
+  "durationMs": 2436,
   "error": "结构化分析结果未通过校验",
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1792683120250-5",
+      "apiCallId": "api-1793059984599-5",
       "seq": 1,
       "status": "success",
       "response": {
@@ -290,7 +286,7 @@
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1792683120254-0",
+          "physicalCallId": "physical-1793059984604-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",

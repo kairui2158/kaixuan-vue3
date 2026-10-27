@@ -15,10 +15,15 @@ const PROFILE = path.join(ROOT, '_data', 'reasoning-only-stall-profile')
 const DATA_DIR = path.join(PROFILE, 'documents-data')
 const EXPORT_ROOT = path.join(PROFILE, 'run-trace-exports')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-reasoning-only-stall-electron')
+const EVIDENCE_ARCHIVE_ROOT = path.join(ROOT, '_audit', 'verification-reasoning-only-stall-electron-archive')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const HEARTBEAT_PATH = path.join(EVIDENCE_ROOT, 'heartbeat.jsonl')
 const PROJECT_ID = 'reasoning-only-stall-volume'
-const BODY_ABSENT_TIMEOUT_MS = Number(process.env.SHENYI_BODY_ABSENT_TIMEOUT_MS || 15_000)
+const BODY_ABSENT_TIMEOUT_MS = Number(
+  process.env.SHENYI_BODY_ABSENT_TIMEOUT_MS
+    || process.env.SHENYI_PROVIDER_NET_BODY_ABSENT_TIMEOUT_MS
+    || 15_000,
+)
 const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_REASONING_STALL_GLOBAL_TIMEOUT_MS || 5 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_REASONING_STALL_DEAD_TIMEOUT_MS || 45_000)
 const KEEP_PROFILE = process.env.SHENYI_REASONING_STALL_KEEP_PROFILE === '1'
@@ -76,6 +81,16 @@ function assertFreshRendererBuild() {
   assert.equal(staleBundles.length, 0, `renderer build is stale: ${staleBundles.join(', ')}`)
 }
 
+function archivePreviousEvidence() {
+  if (!fs.existsSync(EVIDENCE_ROOT)) return null
+  fs.mkdirSync(EVIDENCE_ARCHIVE_ROOT, { recursive: true })
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const target = path.join(EVIDENCE_ARCHIVE_ROOT, timestamp)
+  fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
+  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  return target
+}
+
 function startElectron() {
   const child = spawn(ELECTRON_EXE, [
     '.',
@@ -91,7 +106,7 @@ function startElectron() {
       SHENYI_DATA_DIR: DATA_DIR,
       SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'),
       SHENYI_TEST_RUN_TRACE_EXPORT: EXPORT_ROOT,
-      SHENYI_BODY_ABSENT_TIMEOUT_MS: String(BODY_ABSENT_TIMEOUT_MS),
+      SHENYI_PROVIDER_NET_BODY_ABSENT_TIMEOUT_MS: String(BODY_ABSENT_TIMEOUT_MS),
     },
     windowsHide: false,
   })
@@ -140,12 +155,6 @@ async function connectPage(browser) {
   }
   assert(page, 'renderer page reachable')
   return page
-}
-
-async function installBuildTimeOverride(page) {
-  await page.addInitScript(timeoutMs => {
-    window.__SHENYI_AI_SERVICE_TEST_OVERRIDES__ = { bodyAbsentTimeoutMs: timeoutMs }
-  }, BODY_ABSENT_TIMEOUT_MS)
 }
 
 function sse(payload) {
@@ -259,9 +268,6 @@ async function seedApplication(page, provider) {
   await sleep(1200)
   await page.evaluate(() => document.querySelector('.project-modal-content .btn-close')?.click())
   await sleep(300)
-  await page.evaluate(timeoutMs => {
-    window.__SHENYI_AI_SERVICE_TEST_OVERRIDES__ = { bodyAbsentTimeoutMs: timeoutMs }
-  }, BODY_ABSENT_TIMEOUT_MS)
 }
 
 function currentSnapshot(page) {
@@ -444,6 +450,8 @@ function assertRun(run, directory) {
 
 async function main() {
   assertFreshRendererBuild()
+  const archivedEvidence = archivePreviousEvidence()
+  if (archivedEvidence) console.log(`[EVIDENCE ARCHIVED] ${archivedEvidence}`)
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
@@ -470,7 +478,6 @@ async function main() {
     page.on('console', message => {
       if (message.type() === 'error') console.error(`[PAGE ERROR] ${String(message.text()).slice(0, 600)}`)
     })
-    await installBuildTimeOverride(page)
     await page.waitForSelector('#app', { timeout: 20_000 })
     await sleep(1200)
     await seedApplication(page, provider)

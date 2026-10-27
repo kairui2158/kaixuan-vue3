@@ -1,0 +1,2 @@
+{"at":"2026-10-22T03:33:05.175Z","runId":null,"runStatus":null,"events":0,"apiCalls":0,"runningApiCalls":0,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"bodyLength":0,"electronPid":17200,"frame":1}
+{"at":"2026-10-22T03:33:06.184Z","runId":"run-1792639985997-1","runStatus":"running","events":11,"apiCalls":1,"runningApiCalls":1,"lastEventType":"deai-prompt-variant","progress":null,"status":"API 生成正文中（已注入降AI约束）","pipelineRunStatus":null,"isGenerating":true,"bodyLength":0,"electronPid":17200,"frame":2}

@@ -1227,3 +1227,12 @@
 - 范围：用户批准 V4 后落地 run 归属闭包化、真排队激活、per-run UI、PipelineRunCenter、终态归属覆盖与验证器硬化；同层排队 run 物理请求为 0，取消只影响目标 run，四格再入均产生新 runId/新产物。
 - 验证：真实 Electron + mock-provider 全场景 PASS（coverage 六项 true；取消 94ms；provider 6 请求 max concurrency 2；longTask/freeze/slowClick 全 0）；定向 4 files / 61 tests、全量 212 files / 2322 tests、`vue-tsc`、`build:vue` 全部通过。验证器两个自身缺陷（跨章节 hash 假失败、证据写失败掩盖主结果）已定案并修复。
 - 诚实边界：live 外部供应商并行未执行，登记 `untested`；本轮未重新封装，沿用 3.108.1 安装包。经验回写：v9.6.0，G1.5 补断言目标与证据外围规则，G1.17 补第十二类自盲区。
+
+# 2026-10-27 客户可交付版本 3.109.0 收口
+
+- 文件：[_audit/DEV_LOG_2026-10-27_customer-ready-release-3-109-0.md](_audit/DEV_LOG_2026-10-27_customer-ready-release-3-109-0.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_RELEASE_CLOSURE.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-26_RELEASE_CLOSURE.md)
+- 范围：live 供应商真实并行、真实性能采样、13 个历史脚本对账、R5 无工具直写链负向门禁、3.109.0 封装核验、台账/经验/索引/仓库收口。
+- 验证：live 并行 PASS（9 run、17 application calls、15 physical requests、max concurrency 2、取消 103ms）；性能账本 PASS（freeze/slowClick/longTask 全 0，供应商等待 1,735,168ms，本地开销 3,559ms）；13 脚本 PASS 或预期负向；`type-check`、213 files / 2338 tests 全部通过。
+- 封装：3.109.0；安装包 `dist/神意助手-Setup-3.109.0.exe`，231,611,286 bytes，SHA256 `3BEFB473CF9DE943DBCA07BAF6DF523CFFE2375BE3601BE22553FA0E3A38FD55`。
+- 诚实边界：本轮不重跑完整打包与人工安装路径；供应商额度/503/用户取消属于外部边界。经验回写 v9.6.1。

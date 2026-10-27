@@ -78,10 +78,20 @@ describe('pipeline progress readers', () => {
     expect(pipelineSource).toContain('{{ activeRunLabel(activeRun) }}')
   })
 
-  it('every pipeline generation path registers trace ownership before trace work begins', () => {
+  it('every pipeline generation path registers trace ownership after the trace run starts', () => {
     const matches = [...pipelineSource.matchAll(/rememberTraceRunOwnership\(trace\.runId,\s*([A-Za-z0-9_]+)RunId\)/g)]
       .map(match => match[1])
     expect(matches).toEqual(['settings', 'volumes', 'chapters', 'body'])
+
+    const invalidOrder = pipelineSource.match(
+      /rememberTraceRunOwnership\(trace\.runId,\s*[A-Za-z0-9_]+RunId\)\s*\n\s*trace\.begin\(\)/
+    )
+    expect(invalidOrder).toBeNull()
+
+    const validOrder = pipelineSource.matchAll(
+      /trace\.begin\(\)\s*\n\s*pipelineStore\.rememberTraceRunOwnership\(trace\.runId,\s*[A-Za-z0-9_]+RunId\)/g
+    )
+    expect([...validOrder]).toHaveLength(4)
   })
 
   it('progress bar templates stay inside their layer step panels', () => {

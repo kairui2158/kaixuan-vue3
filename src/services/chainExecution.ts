@@ -49,7 +49,7 @@ export interface BodyContractStepInput {
 export function bodyGeneratorContractSentence(targetWords: unknown): string {
   if (!Number(targetWords)) return ''
   const { targetWords: target, minWords: min, maxWords: max } = resolveProseWordContract({ targetWords })
-  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。只输出正文本身。`
+  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。正文本体后必须追加【正文交接】区块。`
 }
 
 export const MEMORY_PROMPT_HEADER = "[相关记忆]"

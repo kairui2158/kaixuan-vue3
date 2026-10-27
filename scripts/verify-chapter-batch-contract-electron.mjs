@@ -32,6 +32,8 @@ const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_GLOBAL_TIME
 const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_HEARTBEAT_INTERVAL_MS || 10_000)
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_STALLED_TIMEOUT_MS || 5 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_CHAPTER_CONTRACT_DEAD_TIMEOUT_MS || 15 * 60_000)
+const RUNNING_CALL_LIVENESS_GRACE_MS = Number(
+  process.env.SHENYI_CHAPTER_CONTRACT_RUNNING_CALL_LIVENESS_GRACE_MS || 30_000)
 const KEEP_PROFILE = process.env.SHENYI_CHAPTER_CONTRACT_KEEP_PROFILE === '1'
 const { safeStorage } = require('electron')
 
@@ -332,6 +334,8 @@ function currentRunSnapshot(page) {
     return {
       runId: run?.id || null,
       runStatus: run?.status || null,
+      eventLedgerTotal: run?.eventLedger?.totalEvents ?? null,
+      droppedInfoEvents: run?.eventLedger?.droppedInfoEvents ?? null,
       events: (run?.events || []).length,
       lastEventType: (run?.events || []).at(-1)?.type || null,
       apiCalls: (run?.apiCalls || []).length,
@@ -353,7 +357,8 @@ function currentRunSnapshot(page) {
           responseChars: String(call.responseText || call.streamText || '').length,
           reasoningChars: String(call.reasoningText || '').length,
           lastStreamActivityAgoMs: call.lastStreamActivityAt ? Date.now() - call.lastStreamActivityAt : null,
-          lastExecutionActivityAgoMs: call.lastExecutionActivityAt ? Date.now() - call.lastExecutionActivityAt : null
+          lastExecutionActivityAgoMs: call.lastExecutionActivityAt ? Date.now() - call.lastExecutionActivityAt : null,
+          startedAgoMs: call.startedAt ? Date.now() - call.startedAt : null
         })) || [],
     }
   })
@@ -381,6 +386,30 @@ function startHeartbeat(page, electronPid) {
   }
 }
 
+function progressSignature(snapshot) {
+  const normalized = {
+    ...snapshot,
+    callActivity: (snapshot.callActivity || []).map(call => ({
+      status: call.status,
+      durationMs: call.durationMs,
+      responseChars: call.responseChars,
+      reasoningChars: call.reasoningChars,
+      startedAgoBucketMs: call.startedAgoMs == null ? null : Math.floor(call.startedAgoMs / 30_000),
+    })),
+  }
+  return JSON.stringify(normalized)
+}
+
+function assertRunningCallsHaveFreshActivity(snapshot) {
+  const stalled = (snapshot.callActivity || []).filter(call =>
+    call.status === 'running'
+    && (call.startedAgoMs ?? Number.POSITIVE_INFINITY) >= RUNNING_CALL_LIVENESS_GRACE_MS
+    && call.lastStreamActivityAgoMs == null
+    && call.lastExecutionActivityAgoMs == null)
+  assert.equal(stalled.length, 0,
+    `running API calls expose liveness timestamps: ${JSON.stringify(stalled)}`)
+}
+
 async function waitForChapterCompletion(page) {
   let lastSignature = null
   let lastProgressAt = Date.now()
@@ -388,13 +417,17 @@ async function waitForChapterCompletion(page) {
   const deadline = Date.now() + STEP_TIMEOUT_MS
   while (Date.now() < deadline) {
     const snapshot = await currentRunSnapshot(page)
-    const signature = JSON.stringify(snapshot)
+    assertRunningCallsHaveFreshActivity(snapshot)
+    const signature = progressSignature(snapshot)
     if (signature !== lastSignature) {
       lastSignature = signature
       lastProgressAt = Date.now()
       lastSnapshot = snapshot
     } else if (Date.now() - lastProgressAt >= DEAD_TIMEOUT_MS) {
-      throw new Error(`chapter generation has no progress for ${DEAD_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+      const failure = new Error(
+        `chapter generation has no progress for ${DEAD_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+      failure.exportIncompleteTrace = true
+      throw failure
     } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
       console.warn(`[STALL WARNING] no progress for ${Date.now() - lastProgressAt}ms: ${JSON.stringify(lastSnapshot)}`)
     }
@@ -407,7 +440,10 @@ async function waitForChapterCompletion(page) {
     }
     await sleep(1000)
   }
-  throw new Error(`chapter generation did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+  const failure = new Error(
+    `chapter generation did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+  failure.exportIncompleteTrace = true
+  throw failure
 }
 
 async function exportLatestRun(page) {
@@ -729,6 +765,10 @@ async function main() {
   const electronProcess = startElectron()
   let browser = null
   let heartbeat = null
+  let electronExit = null
+  electronProcess.on('close', (code, signal) => {
+    electronExit = { code, signal }
+  })
   try {
     assert(await waitForCdp(), 'CDP reachable')
     browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`)
@@ -768,6 +808,14 @@ async function main() {
     assertExportedRun({ run, payloads })
     console.log(`[EXPORT] ${exported.result.path}`)
     console.log('===== CHAPTER BATCH CONTRACT ELECTRON LIVE PASSED =====')
+  } catch (error) {
+    await exportFailureEvidence({
+      page: browser ? await connectPage(browser).catch(() => null) : null,
+      error,
+      electronExitCode: electronProcess.exitCode,
+      electronSignal: null,
+    })
+    throw error
   } finally {
     heartbeat?.stop()
     clearTimeout(watchdog)
@@ -778,6 +826,29 @@ async function main() {
       await removeDir(PROFILE)
       await removeDir(EXPORT_ROOT)
     }
+  }
+}
+
+async function exportFailureEvidence({ page, error, electronExitCode, electronSignal }) {
+  const diagnostics = {
+    at: new Date().toISOString(),
+    error: error ? String(error?.message || error) : null,
+    electronExitCode,
+    electronSignal,
+  }
+  try {
+    const exported = await exportLatestRun(page)
+    diagnostics.traceExportPath = exported.result?.path || null
+    diagnostics.runId = exported.runId || null
+    if (exported.result?.path) {
+      fs.cpSync(exported.result.path,
+        path.join(EVIDENCE_ROOT, 'failure-trace'), { recursive: true })
+    }
+  } catch (exportError) {
+    diagnostics.traceExportError = String(exportError?.message || exportError)
+  }
+  fs.writeFileSync(path.join(EVIDENCE_ROOT, 'failure-diagnostics.json'),
+    JSON.stringify(diagnostics, null, 2), 'utf8')
 }
 
 async function exportRunningTraceForTimeout(page) {
@@ -798,7 +869,6 @@ async function archivePreviousEvidence() {
   fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
   await removeDir(EVIDENCE_ROOT)
   console.log(`[EVIDENCE] archived previous run to ${target}`)
-}
 }
 
 main().catch(error => {

@@ -1,0 +1,344 @@
+{
+  "schema": "shenyi.run-trace",
+  "version": 2,
+  "exportedAt": "2026-10-26T16:18:10.553Z",
+  "run": {
+    "schemaVersion": 19,
+    "id": "run-1793031459873-1",
+    "source": "pipeline",
+    "sourceName": "生成流水线",
+    "step": 2,
+    "stepName": "卷纲层",
+    "mode": "auto",
+    "projectId": "pipeline-parallelism-live",
+    "projectName": "三层并行真实UI实测",
+    "providerId": "parallelism-provider",
+    "providerName": "Pipeline Parallelism Provider",
+    "model": "parallelism-model",
+    "skillNames": [],
+    "skillMode": "compose",
+    "pipelineRunId": "pipeline-run-1793031459860-1",
+    "status": "failed",
+    "runtimeFingerprint": {
+      "source": "vite-manifest",
+      "manifestVersion": "1",
+      "commit": "8c5a3038b296",
+      "buildTime": "2026-10-26T15:27:27.118Z"
+    },
+    "startedAt": 1793031459873,
+    "stateHistory": [
+      {
+        "fromStatus": "running",
+        "toStatus": "failed",
+        "reason": "generation_failed",
+        "recordedAt": 1793031460207
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1793031459874-2",
+        "ts": 1793031459874,
+        "seq": 1,
+        "type": "started",
+        "level": "info",
+        "label": "开始生成流水线 卷纲层运行"
+      },
+      {
+        "id": "event-1793031459875-3",
+        "ts": 1793031459875,
+        "seq": 2,
+        "type": "settings-projection-composed",
+        "level": "info",
+        "label": "设定锁定投影已组装",
+        "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+      },
+      {
+        "id": "event-1793031459876-4",
+        "ts": 1793031459876,
+        "seq": 3,
+        "type": "prompt-built",
+        "level": "info",
+        "label": "卷纲层提示词已构建",
+        "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":88000,\"remainingVolumes\":1,\"currentVolumeBudget\":88000,\"conflicts\":[],\"mode\":\"auto\"}"
+      },
+      {
+        "id": "event-1793031459877-5",
+        "ts": 1793031459877,
+        "seq": 4,
+        "type": "style-semantics-merged",
+        "level": "info",
+        "label": "风格语义已仲裁合并",
+        "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+      },
+      {
+        "id": "event-1793031459888-6",
+        "ts": 1793031459888,
+        "seq": 5,
+        "type": "agent-model-fallback",
+        "level": "warn",
+        "label": "Agent 模型未显式配置，已回退供应商默认模型",
+        "detail": "{\"step\":2,\"configuredModel\":null,\"fallbackModel\":\"parallelism-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+      },
+      {
+        "id": "event-1793031459925-8",
+        "ts": 1793031459925,
+        "seq": 6,
+        "type": "api-start",
+        "level": "info",
+        "label": "第 1 次 API 调用开始",
+        "detail": "{\"skillName\":\"compose\",\"model\":\"parallelism-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+      },
+      {
+        "id": "event-1793031459930-10",
+        "ts": 1793031459930,
+        "seq": 7,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/compose",
+        "payload": {
+          "source": "physical_call_running",
+          "detail": "1/compose"
+        }
+      },
+      {
+        "id": "event-1793031459930-11",
+        "ts": 1793031459930,
+        "seq": 8,
+        "type": "long-request-in-progress",
+        "level": "info",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "payload": {
+          "physicalCallId": "physical-1793031459929-9",
+          "seq": 1,
+          "heartbeat": false
+        }
+      },
+      {
+        "id": "event-1793031459930-12",
+        "ts": 1793031459930,
+        "seq": 9,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / compose / parallelism-model"
+      },
+      {
+        "id": "event-1793031459946-13",
+        "ts": 1793031459946,
+        "seq": 10,
+        "turnId": "api-1793031459925-7",
+        "type": "provider-queue",
+        "level": "info",
+        "label": "已获得供应商槽位",
+        "detail": "{\"providerId\":\"parallelism-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+      },
+      {
+        "id": "event-1793031460194-28",
+        "ts": 1793031460194,
+        "seq": 11,
+        "type": "physical-call",
+        "level": "error",
+        "label": "第 1 次物理请求失败",
+        "detail": "normal / compose / parallelism-model / Invalid token (request id: 202610261617401597076088268d9d6bNtNdP6j)"
+      },
+      {
+        "id": "event-1793031460201-29",
+        "ts": 1793031460201,
+        "seq": 12,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → failed",
+        "detail": "apiCall=api-1793031459925-7 seq=1"
+      },
+      {
+        "id": "event-1793031460201-30",
+        "ts": 1793031460201,
+        "seq": 13,
+        "type": "api-failed",
+        "level": "error",
+        "label": "第 1 次 API 调用失败",
+        "detail": "compose / parallelism-model / Invalid token (request id: 202610261617401597076088268d9d6bNtNdP6j)"
+      },
+      {
+        "id": "event-1793031460204-31",
+        "ts": 1793031460204,
+        "seq": 14,
+        "type": "volume-batch-attempt",
+        "level": "error",
+        "label": "卷纲批次验收",
+        "detail": "{\"repairAttempt\":0,\"status\":\"error\",\"requestedCount\":1,\"acceptedCount\":0,\"missingStart\":2,\"missingCount\":1,\"errors\":[\"Invalid token (request id: 202610261617401597076088268d9d6bNtNdP6j)\"]}"
+      },
+      {
+        "id": "event-1793031460204-32",
+        "ts": 1793031460204,
+        "seq": 15,
+        "type": "failed",
+        "level": "error",
+        "label": "卷纲运行失败",
+        "detail": "Invalid token (request id: 202610261617401597076088268d9d6bNtNdP6j)"
+      },
+      {
+        "id": "event-1793031460207-33",
+        "ts": 1793031460207,
+        "seq": 16,
+        "type": "finished",
+        "level": "error",
+        "label": "运行失败",
+        "detail": "generation_failed"
+      },
+      {
+        "id": "event-1793031460207-34",
+        "ts": 1793031460207,
+        "seq": 17,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → failed",
+        "detail": "generation_failed / run=run-1793031459873-1"
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1793031459925-7",
+        "seq": 1,
+        "step": 2,
+        "skillId": "compose",
+        "skillName": "compose",
+        "providerId": "parallelism-provider",
+        "providerName": "Pipeline Parallelism Provider",
+        "model": "parallelism-model",
+        "temperature": 0.1,
+        "maxTokens": 8192,
+        "requestMessages": {
+          "__payload": {
+            "id": "payload-001"
+          }
+        },
+        "responseText": "",
+        "status": "failed",
+        "startedAt": 1793031459925,
+        "physicalCalls": [
+          {
+            "id": "physical-1793031459929-9",
+            "physicalCallId": "physical-1793031459927-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "failed",
+            "requestMessages": {
+              "__payload": {
+                "id": "payload-001"
+              }
+            },
+            "responseText": "",
+            "startedAt": 1793031459930,
+            "durationMs": 265,
+            "endedAt": 1793031460194,
+            "error": "Invalid token (request id: 202610261617401597076088268d9d6bNtNdP6j)",
+            "toolsEnabled": false,
+            "toolsDowngraded": false,
+            "maxTokens": 8192,
+            "providerContextWindowTokens": 128000,
+            "estimatedInputTokens": 238,
+            "contextBudgetDecision": "fits",
+            "contextBudgetReason": "上下文可容纳：输入 238 / 可用 119808",
+            "usageReconciliation": {
+              "status": "unavailable",
+              "estimatedInputTokens": 238
+            },
+            "heartbeat": false
+          }
+        ],
+        "lastExecutionActivityAt": 1793031459930,
+        "durationMs": 275,
+        "timingLedger": {
+          "physicalCallCount": 1,
+          "retryPhysicalCallCount": 0,
+          "physicalDurationSumMs": 265,
+          "localOverheadMs": 10
+        },
+        "error": "Invalid token (request id: 202610261617401597076088268d9d6bNtNdP6j)",
+        "endedAt": 1793031460201
+      }
+    ],
+    "sessionKind": "task",
+    "promptSnapshots": [],
+    "processingReports": [],
+    "payloads": [
+      {
+        "id": "payload-001",
+        "kind": "request",
+        "file": "001-request.json",
+        "bytes": 1292,
+        "chars": 756,
+        "sha256": "d589883244dc1f72bcb5a6e8496cd7a0c89f75d9b7655a00dbe51d2dc2458b46",
+        "duplicateCount": 2,
+        "artifactRole": "intermediate",
+        "createdAt": 1793031490554
+      }
+    ],
+    "eventLedger": {
+      "totalEvents": 17,
+      "droppedInfoEvents": 0,
+      "droppedWarnEvents": 0,
+      "droppedErrorEvents": 0
+    },
+    "timingLedger": {
+      "apiCallCount": 1,
+      "physicalCallCount": 1,
+      "retryPhysicalCallCount": 0,
+      "physicalDurationSumMs": 265,
+      "firstTokenSumMs": 0,
+      "outputSumMs": 0,
+      "localOverheadSumMs": 10,
+      "requestBuildSumMs": 0,
+      "schemaValidateSumMs": 0,
+      "retrySumMs": 0,
+      "postProcessSumMs": 0,
+      "repeatedPromptBlocks": {}
+    },
+    "stepTimingLedger": {
+      "promptBuildMs": 0,
+      "apiCallCount": 1,
+      "physicalCallCount": 1,
+      "retryCallCount": 0,
+      "continuationCallCount": 0,
+      "repeatedPromptBlocks": {},
+      "contextChars": 627,
+      "physicalDurationSumMs": 265
+    },
+    "endedAt": 1793031460207,
+    "durationMs": 334,
+    "apiResponseIndex": [
+      {
+        "apiCallId": "api-1793031459925-7",
+        "seq": 1,
+        "status": "failed",
+        "physicalCalls": [
+          {
+            "physicalCallId": "physical-1793031459927-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "failed"
+          }
+        ]
+      }
+    ],
+    "payloadIntegrityWarnings": []
+  },
+  "exportMode": "deep",
+  "payloadDirectoryHint": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports",
+  "payloadDirectory": "payloads",
+  "payloadCount": 1,
+  "payloadVerification": {
+    "total": 1,
+    "missing": [],
+    "hashMismatch": [],
+    "ok": true
+  },
+  "apiResponseIndexVerification": {
+    "total": 1,
+    "brokenRefs": [],
+    "ok": true
+  }
+}

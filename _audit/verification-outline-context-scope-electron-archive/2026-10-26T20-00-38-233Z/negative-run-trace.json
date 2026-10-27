@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1793044362470-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "正文层",
+  "mode": "body",
+  "projectId": "context-scope-missing-unit-negative",
+  "projectName": "作用域上下文闭包实测",
+  "skillNames": [],
+  "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793044362462-1",
+  "status": "failed",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T19:52:00.256Z"
+  },
+  "startedAt": 1793044362470,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "failed",
+      "reason": "generation_failed / 正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲",
+      "recordedAt": 1793044362478
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1793044362471-2",
+      "ts": 1793044362471,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 正文层运行"
+    },
+    {
+      "id": "event-1793044362472-3",
+      "ts": 1793044362472,
+      "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1793044362474-4",
+      "ts": 1793044362474,
+      "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1793044362477-5",
+      "ts": 1793044362477,
+      "seq": 4,
+      "type": "failed",
+      "level": "error",
+      "label": "正文运行失败",
+      "detail": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲"
+    },
+    {
+      "id": "event-1793044362478-6",
+      "ts": 1793044362478,
+      "seq": 5,
+      "type": "finished",
+      "level": "error",
+      "label": "运行失败",
+      "detail": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲 / generation_failed"
+    },
+    {
+      "id": "event-1793044362478-7",
+      "ts": 1793044362478,
+      "seq": 6,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "generation_failed / run=run-1793044362470-1"
+    }
+  ],
+  "apiCalls": [],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "eventLedger": {
+    "totalEvents": 6,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "timingLedger": {
+    "apiCallCount": 0,
+    "physicalCallCount": 0,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 0,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": 0,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 0,
+    "physicalCallCount": 0,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "endedAt": 1793044362478,
+  "durationMs": 8,
+  "error": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲",
+  "apiResponseIndex": [],
+  "payloadIntegrityWarnings": []
+}

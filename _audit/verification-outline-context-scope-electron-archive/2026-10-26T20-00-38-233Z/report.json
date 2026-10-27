@@ -1,0 +1,57 @@
+{
+  "schema": "shenyi.outline-context-scope.electron",
+  "version": 1,
+  "generatedAt": "2026-10-26T19:52:15.290Z",
+  "script": "verify-outline-context-scope-electron.mjs",
+  "cases": [
+    {
+      "case": "unit_closure_real_ui",
+      "runId": "run-1793044343036-1",
+      "status": "success",
+      "contextScope": {
+        "volume": "第一卷 雨夜",
+        "chapter": "第12章 纸条",
+        "unitId": "D1-03",
+        "mode": "unit_closure",
+        "permanentCount": 2,
+        "unitCount": 1,
+        "undeclaredCount": 0,
+        "closureBytes": 319,
+        "targetBytes": 12000,
+        "maxBytes": 24000,
+        "trimmed": [],
+        "warnings": [],
+        "degradedReason": null
+      },
+      "requestCount": 1
+    },
+    {
+      "case": "legacy_outline_records_explicit_fallback",
+      "runId": "run-1793044352652-1",
+      "status": "success",
+      "contextScope": {
+        "volume": "第一卷 雨夜",
+        "chapter": "第12章 纸条",
+        "unitId": "D1-03",
+        "mode": "legacy_outline_no_scope",
+        "permanentCount": 0,
+        "unitCount": 0,
+        "undeclaredCount": 0,
+        "closureBytes": 202,
+        "targetBytes": 12000,
+        "maxBytes": 24000,
+        "trimmed": [],
+        "warnings": [],
+        "degradedReason": "legacy_outline_no_scope"
+      },
+      "requestCount": 2
+    },
+    {
+      "case": "scoped_missing_unit_fails_without_silent_fallback",
+      "runId": "run-1793044362470-1",
+      "status": "failed",
+      "failure": null,
+      "requestCount": 2
+    }
+  ]
+}

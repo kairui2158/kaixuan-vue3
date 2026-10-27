@@ -668,6 +668,14 @@ describe('V3.3 Phase 0 parallelism red tests', () => {
     expect(pipeline.getRun(pipelineRunId)?.status).toBe('running')
   })
 
+  it('red: ownership registration fails fast when the trace run has not started', () => {
+    const pipeline = usePipelineStore()
+    const pipelineRunId = pipeline.startGeneration('body', 'chapter-1')
+
+    expect(() => pipeline.rememberTraceRunOwnership(null, pipelineRunId))
+      .toThrow('pipeline trace ownership requires a started trace run id')
+  })
+
   it('red: concurrent pipeline streams are isolated by explicit run and call ownership', () => {
     const trace = useRunTraceStore()
     const firstRunId = trace.startRun({

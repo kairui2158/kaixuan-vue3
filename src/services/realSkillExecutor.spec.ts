@@ -435,6 +435,58 @@ describe('realSkillExecutor single pass', () => {
     }))
   })
 
+  it('keeps the original length signal when the continuation is still truncated', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: '卷纲开头，主角进入北境。',
+      finishReason: 'length'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(result.apiMeta?.finishReason).toBe('length')
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'generation-truncated-after-continuation'
+    }))
+  })
+
+  it('marks the run degraded when the continuation is still truncated', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) {
+        return { text: '卷纲开头，主角进入北境。', finishReason: 'length' }
+      }
+      return { text: '主角进入北境。随后敌军压境。', finishReason: 'length' }
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('degraded')
+    expect(result.apiMeta?.finishReason).toBe('length')
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'generation-truncated-after-continuation'
+    }))
+  })
+
   it('sends only the bounded output tail in a continuation request', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),

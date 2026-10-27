@@ -1,0 +1,79 @@
+{
+  "schema": "shenyi.settings-lock-projection.electron",
+  "version": 1,
+  "generatedAt": "2026-10-26T20:00:25.730Z",
+  "script": "verify-settings-lock-projection-electron.mjs",
+  "projectId": "settings-lock-projection",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T19:57:23.421Z"
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realDomClicks": "#pl-bound-settings-list .pl-setting-card button / .pl-sc-category-actions button",
+    "storageUsedOnlyForSeedData": true,
+    "providerRequestsPersisted": true,
+    "noInjectionImpersonation": true
+  },
+  "assertions": {
+    "schemaMigration": {
+      "from": 3,
+      "to": 4,
+      "legacyIsBoundBecomesLocked": true,
+      "draftStaysDraft": true
+    },
+    "lockLifecycle": {
+      "singleLock": true,
+      "singleUnlock": true,
+      "batchLock": true
+    },
+    "styleArbitration": {
+      "singleBlockPerLayer": true,
+      "profilePriority": true,
+      "conflictKeptAsThemeTone": true,
+      "oldStyleLabelsRemoved": true,
+      "traceWarnOnConflict": true
+    },
+    "volumeProjection": {
+      "lockedCount": 64,
+      "draftExcludedCount": 0,
+      "marker": "[设定规划约束]",
+      "policyVersion": 2,
+      "budgetTrimmed": true,
+      "characterLineKept": true
+    },
+    "chapterProjection": {
+      "lockedCount": 64,
+      "draftExcludedCount": 0,
+      "marker": "[章节规划约束]",
+      "policyVersion": 2,
+      "budgetTrimmed": true,
+      "characterLineKept": true
+    },
+    "bodyProjection": {
+      "lockedCount": 63,
+      "draftExcludedCount": 1,
+      "marker": "[正文执行约束]",
+      "policyVersion": 2,
+      "budgetTrimmed": true,
+      "characterLineKept": true
+    },
+    "memoryConflictPriority": {
+      "conflictDetected": true,
+      "memoryKept": true,
+      "overridePrefixApplied": true,
+      "priorityNoteAppended": true,
+      "traceWarn": true
+    },
+    "homeProjection": {
+      "marker": "[当前上下文设定]",
+      "includesWangFang": true,
+      "excludesDraftLinZhou": true
+    }
+  },
+  "heartbeatFrames": 6,
+  "heartbeatDurationMs": 5767,
+  "archiveIssues": []
+}

@@ -36,6 +36,15 @@ describe('streamContract', () => {
     expect(result.state).toMatchObject({ cursor: 3, buffer: '', duplicateFrames: 0, invalidFrames: 0 })
   })
 
+  it('preserves OpenAI-compatible finish_reason across main-process stream frames', () => {
+    const result = parseStreamFrames([
+      frame(1, 'data: {"choices":[{"delta":{"content":"正文片段"}}]}\n\n'),
+      frame(2, 'data: {"choices":[{"delta":{},"finish_reason":"length"}],"usage":{"completion_tokens":20}}\n\n'),
+    ], 'openai-compatible')
+
+    expect(result.events[1]).toMatchObject({ finishReason: 'length', usage: { completion_tokens: 20 } })
+  })
+
   it('deduplicates replayed frames by cursor after recovery', () => {
     const first = parseStreamFrames([
       frame(1, 'data: {"choices":[{"delta":{"content":"A"}}]}\n\n'),

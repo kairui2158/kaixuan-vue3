@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1793031873286-14",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 3,
+  "stepName": "章节层",
+  "mode": "chapters",
+  "projectId": "pipeline-parallelism-live",
+  "projectName": "三层并行真实UI实测",
+  "providerId": "parallelism-provider",
+  "providerName": "Pipeline Parallelism Provider",
+  "model": "parallelism-model",
+  "skillNames": [],
+  "skillMode": "compose",
+  "pipelineRunId": "pipeline-run-1793031873274-2",
+  "status": "canceled",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T15:27:27.118Z"
+  },
+  "startedAt": 1793031873286,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "canceled",
+      "reason": "generation_failed",
+      "recordedAt": 1793031873733
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1793031873286-15",
+      "ts": 1793031873286,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 章节层运行"
+    },
+    {
+      "id": "event-1793031873314-16",
+      "ts": 1793031873314,
+      "seq": 2,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "章节层执行参数已构建",
+      "detail": "{\"volume\":\"第一卷 灯塔航线\",\"totalChapters\":3,\"wordsPerChapter\":3500,\"resumeCount\":2}"
+    },
+    {
+      "id": "event-1793031873314-17",
+      "ts": 1793031873314,
+      "seq": 3,
+      "type": "chapter-count-arbitration",
+      "level": "info",
+      "label": "章节口径单源仲裁",
+      "detail": "{\"totalChapters\":3,\"source\":\"configured_chapter_count\",\"configuredChapterCount\":3,\"wordEstimatedCount\":4,\"declaredChapterCount\":0,\"conflict\":false,\"message\":\"卷「第一卷 灯塔航线」未声明章数，按应用配置3章执行\"}"
+    },
+    {
+      "id": "event-1793031873314-18",
+      "ts": 1793031873314,
+      "seq": 4,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"chapter\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1793031873315-19",
+      "ts": 1793031873315,
+      "seq": 5,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"chapter\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1793031873318-20",
+      "ts": 1793031873318,
+      "seq": 6,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":3,\"configuredModel\":null,\"fallbackModel\":\"parallelism-model\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1793031873318-22",
+      "ts": 1793031873318,
+      "seq": 7,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"parallelism-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1793031873319-24",
+      "ts": 1793031873319,
+      "seq": 8,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1793031873319-25",
+      "ts": 1793031873319,
+      "seq": 9,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1793031873319-23",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1793031873319-26",
+      "ts": 1793031873319,
+      "seq": 10,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / parallelism-model"
+    },
+    {
+      "id": "event-1793031873343-27",
+      "ts": 1793031873343,
+      "seq": 11,
+      "turnId": "api-1793031873318-21",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"parallelism-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1793031873485-29",
+      "ts": 1793031873485,
+      "seq": 12,
+      "type": "physical-call",
+      "level": "error",
+      "label": "第 1 次物理请求失败",
+      "detail": "normal / compose / parallelism-model / 503: 分组 default 下模型 parallelism-model 无可用渠道（distributor） (request id: 202610261624334609703398268d9d6OELCzVpj)"
+    },
+    {
+      "id": "event-1793031873692-43",
+      "ts": 1793031873692,
+      "seq": 13,
+      "type": "physical-call",
+      "level": "error",
+      "label": "第 1 次物理请求失败",
+      "detail": "normal / compose / parallelism-model"
+    },
+    {
+      "id": "event-1793031873703-44",
+      "ts": 1793031873703,
+      "seq": 14,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → canceled",
+      "detail": "apiCall=api-1793031873318-21 seq=1"
+    },
+    {
+      "id": "event-1793031873703-45",
+      "ts": 1793031873703,
+      "seq": 15,
+      "type": "api-canceled",
+      "level": "error",
+      "label": "第 1 次 API 调用取消",
+      "detail": "compose / parallelism-model / 用户取消"
+    },
+    {
+      "id": "event-1793031873708-46",
+      "ts": 1793031873708,
+      "seq": 16,
+      "type": "chapter-batch-attempt",
+      "level": "error",
+      "label": "章节批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"error\",\"requestedCount\":1,\"acceptedCount\":0,\"missingStart\":3,\"missingCount\":1,\"warnings\":[],\"errors\":[\"用户取消\"]}"
+    },
+    {
+      "id": "event-1793031873727-47",
+      "ts": 1793031873727,
+      "seq": 17,
+      "type": "failed",
+      "level": "error",
+      "label": "章节运行失败",
+      "detail": "用户取消"
+    },
+    {
+      "id": "event-1793031873733-48",
+      "ts": 1793031873733,
+      "seq": 18,
+      "type": "canceled",
+      "level": "error",
+      "label": "运行取消",
+      "detail": "generation_failed"
+    },
+    {
+      "id": "event-1793031873733-49",
+      "ts": 1793031873733,
+      "seq": 19,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → canceled",
+      "detail": "generation_failed / run=run-1793031873286-14"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1793031873318-21",
+      "seq": 1,
+      "step": 3,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "parallelism-provider",
+      "providerName": "Pipeline Parallelism Provider",
+      "model": "parallelism-model",
+      "temperature": 0.1,
+      "maxTokens": 8192,
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "responseText": "",
+      "status": "canceled",
+      "startedAt": 1793031873318,
+      "physicalCalls": [
+        {
+          "id": "physical-1793031873319-23",
+          "physicalCallId": "physical-1793031873318-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "canceled",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "responseText": "",
+          "startedAt": 1793031873319,
+          "durationMs": 372,
+          "endedAt": 1793031873692,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": 8192,
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 244,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 244 / 可用 119808",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 244
+          },
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1793031873319,
+      "durationMs": 384,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 372,
+        "localOverheadMs": 12
+      },
+      "error": "用户取消",
+      "endedAt": 1793031873702
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 1398,
+      "chars": 670,
+      "sha256": "c0678f77678406b8b7b45d8f9bd1103dc06c601f02f6a91560c02ee842ad862a",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793031883468
+    }
+  ],
+  "eventLedger": {
+    "totalEvents": 19,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 372,
+    "firstTokenSumMs": 0,
+    "outputSumMs": 0,
+    "localOverheadSumMs": 12,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "repeatedPromptBlocks": {},
+    "contextChars": 532,
+    "physicalDurationSumMs": 372
+  },
+  "endedAt": 1793031873733,
+  "durationMs": 447,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1793031873318-21",
+      "seq": 1,
+      "status": "canceled",
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1793031873318-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "canceled"
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

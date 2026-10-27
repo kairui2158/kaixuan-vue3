@@ -6,6 +6,7 @@ export interface PipelineApiCallLike {
 
 export interface ResolvePipelineRunOutcomeInput {
   runStatus?: string | null
+  runError?: string | null
   pipelineRunStatus?: string | null
   apiCalls?: PipelineApiCallLike[] | null
   folderStatus?: RunTraceStatus | null
@@ -17,12 +18,14 @@ export interface PipelineRunOutcome {
   status: RunTraceStatus
   recoveredFromDegraded: boolean
   degradedApiCalls: number
+  error?: string
 }
 
 export function resolvePipelineRunOutcome(
   input: ResolvePipelineRunOutcomeInput
 ): PipelineRunOutcome {
   const runStatus = input.runStatus || ''
+  const runError = input.runError || ''
   const apiCalls = Array.isArray(input.apiCalls) ? input.apiCalls : []
   const degradedApiCalls = apiCalls.filter(call => call?.status === 'degraded').length
   const hasCallStatus = (status: string) =>
@@ -33,7 +36,7 @@ export function resolvePipelineRunOutcome(
     return { status: 'canceled', recoveredFromDegraded: false, degradedApiCalls }
   }
   if (runStatus.startsWith('failed') || owningPipelineStatus === 'failed' || hasCallStatus('failed')) {
-    return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls }
+    return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls, error: runError || undefined }
   }
   if (runStatus.startsWith('blocked') || owningPipelineStatus === 'blocked' || hasCallStatus('blocked')) {
     return { status: 'blocked', recoveredFromDegraded: false, degradedApiCalls }

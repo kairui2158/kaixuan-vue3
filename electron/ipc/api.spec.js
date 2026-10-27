@@ -308,6 +308,71 @@ describe('providerNet main-process stream watchdog semantics', () => {
     })
   })
 
+  it('aborts a never-resolving fetch before response headers arrive', async () => {
+    globalThis.fetch = vi.fn((_url, options) => new Promise((_resolve, reject) => {
+      options.signal.addEventListener('abort', () => {
+        reject(new DOMException('The operation was aborted.', 'AbortError'))
+      })
+    }))
+
+    const signalId = 'watchdog-connecting-timeout'
+    const invocation = registered.get('providerNet:stream')({ sender: { id: 101, send } }, {
+      url: 'https://example.test/v1/chat/completions',
+      signalId,
+      providerId: 'provider-watchdog-connecting',
+      body: {},
+      ...BASE_TIMEOUTS,
+    })
+    const heartbeat = createHeartbeatLoop({ sender: { id: 101, send } }, signalId, 20_000)
+
+    await vi.advanceTimersByTimeAsync(BASE_TIMEOUTS.idleTimeoutMs - 1)
+    await expect(send).not.toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'watchdog-connecting-timeout',
+      transportEvent: 'error',
+    }))
+    await vi.advanceTimersByTimeAsync(1)
+    clearInterval(heartbeat.timer)
+
+    await expect(invocation).resolves.toEqual({
+      ok: false,
+      kind: 'network',
+      message: '流式响应长时间无输出，已按网络断流处理',
+    })
+  })
+
+  it('aborts a never-resolving tolerant fetch on first_output timeout', async () => {
+    globalThis.fetch = vi.fn((_url, options) => new Promise((_resolve, reject) => {
+      options.signal.addEventListener('abort', () => {
+        reject(new DOMException('The operation was aborted.', 'AbortError'))
+      })
+    }))
+
+    const signalId = 'watchdog-connecting-tolerant'
+    const invocation = registered.get('providerNet:stream')({ sender: { id: 101, send } }, {
+      url: 'https://example.test/v1/chat/completions',
+      signalId,
+      providerId: 'provider-watchdog-connecting-tolerant',
+      body: {},
+      slowStreamTolerant: true,
+      ...BASE_TIMEOUTS,
+    })
+    const heartbeat = createHeartbeatLoop({ sender: { id: 101, send } }, signalId, 20_000)
+
+    await vi.advanceTimersByTimeAsync(BASE_TIMEOUTS.firstOutputTimeoutMs - 1)
+    await expect(send).not.toHaveBeenCalledWith('providerNet:streamFrame', expect.objectContaining({
+      streamId: 'watchdog-connecting-tolerant',
+      transportEvent: 'error',
+    }))
+    await vi.advanceTimersByTimeAsync(1)
+    clearInterval(heartbeat.timer)
+
+    await expect(invocation).resolves.toEqual({
+      ok: false,
+      kind: 'network',
+      message: '慢流请求首字超时，已按网络断流处理',
+    })
+  })
+
   it('reports progress timeout when only transport heartbeats continue', async () => {
     const { invocation } = await invokeStalledStream({
       signalId: 'watchdog-progress',
@@ -333,6 +398,52 @@ describe('providerNet main-process stream watchdog semantics', () => {
     })
 
     await createHeartbeatLoop({ sender: { id: 101, send } }, 'watchdog-body-absent', 20_000)(BASE_TIMEOUTS.idleTimeoutMs + 1_000)
+    await expect(invocation).resolves.toEqual({
+      ok: false,
+      kind: 'network',
+      message: '流式响应长时间未产生正文，已按 reasoning-only 断流处理',
+    })
+  })
+
+  it('does not let repeated reasoning deltas extend the body_absent deadline', async () => {
+    let emitDelta
+    globalThis.fetch = vi.fn((_url, options) => new Promise(resolve => {
+      const stream = new ReadableStream({
+        start(controller) {
+          const encoder = new TextEncoder()
+          emitDelta = () => controller.enqueue(encoder.encode(
+            classifyDelta({ choices: [{ delta: { reasoning_content: '仍在思考' } }] })
+          ))
+          emitDelta()
+          options.signal.addEventListener('abort', () => {
+            controller.error(new DOMException('The operation was aborted.', 'AbortError'))
+          })
+        },
+      })
+      resolve(new Response(stream, { status: 200 }))
+    }))
+
+    const signalId = 'watchdog-body-absent-repeated'
+    const invocation = registered.get('providerNet:stream')({ sender: { id: 101, send } }, {
+      url: 'https://example.test/v1/chat/completions',
+      signalId,
+      providerId: 'provider-watchdog-body-repeated',
+      body: {},
+      ...BASE_TIMEOUTS,
+    })
+    while (!send.mock.calls.some(([channel, payload]) =>
+      channel === 'providerNet:streamFrame' && payload.streamId === signalId && payload.transportEvent === 'start')) {
+      await vi.advanceTimersByTimeAsync(0)
+    }
+    const heartbeat = createHeartbeatLoop({ sender: { id: 101, send } }, signalId, 20_000)
+
+    await vi.advanceTimersByTimeAsync(BASE_TIMEOUTS.bodyAbsentTimeoutMs - 2_000)
+    emitDelta()
+    await vi.advanceTimersByTimeAsync(1_000)
+    emitDelta()
+    await vi.advanceTimersByTimeAsync(BASE_TIMEOUTS.bodyAbsentTimeoutMs + 1_000)
+    clearInterval(heartbeat.timer)
+
     await expect(invocation).resolves.toEqual({
       ok: false,
       kind: 'network',

@@ -1,0 +1,6 @@
+{"at":"2026-10-26T20:00:19.963Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":51648,"frame":1}
+{"at":"2026-10-26T20:00:20.973Z","running":[],"pipelineStatus":null,"isGenerating":false,"electronPid":51648,"frame":2}
+{"at":"2026-10-26T20:00:22.011Z","running":[{"id":"run-1793044821918-1","source":"pipeline","stepName":"卷纲层","events":5,"apiCalls":0}],"pipelineStatus":null,"isGenerating":true,"electronPid":51648,"frame":3}
+{"at":"2026-10-26T20:00:23.130Z","running":[{"id":"run-1793044822979-22","source":"pipeline","stepName":"章节层","events":15,"apiCalls":1}],"pipelineStatus":null,"isGenerating":true,"electronPid":51648,"frame":4}
+{"at":"2026-10-26T20:00:24.217Z","running":[{"id":"run-1793044824093-43","source":"pipeline","stepName":"正文层","events":22,"apiCalls":1}],"pipelineStatus":null,"isGenerating":true,"electronPid":51648,"frame":5}
+{"at":"2026-10-26T20:00:25.239Z","running":[{"id":"run-1793044824941-71","source":"home","stepName":"主页共创","events":42,"apiCalls":1}],"pipelineStatus":null,"isGenerating":false,"electronPid":51648,"frame":6}

@@ -935,7 +935,16 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   const runDirNameById = new Map<string, string>()
   const saveRunQueuesById = new Map<string, Promise<unknown>>()
   const pendingStreamSaveTimersByRunId = new Map<string, ReturnType<typeof setTimeout>>()
-  const STREAM_SAVE_INTERVAL_MS = 5000
+const STREAM_SAVE_INTERVAL_MS = 5000
+const RETAINED_AUDIT_EVENT_TYPES = new Set([
+  'chain-step',
+  'chain-context-slim',
+  'deai-prompt-variant',
+  'folder-pass-input',
+  'chapter-batch-validated',
+  'chapter-count-arbitration',
+  'chapter-count-arbitration-failed',
+])
   // Bounded renderer memory for a single run. requestMessages are already
   // memory-mapped by aiService; stream events and one run's event list are the
   // remaining unbounded growth paths. Payload export keeps full artifacts on disk.
@@ -1517,7 +1526,9 @@ export const useRunTraceStore = defineStore('runTrace', () => {
 
   function evictExcessEvents(run: RunTrace) {
     if (run.events.length <= runTraceMaxEvents) return
-    const protectedCount = run.events.filter(event => event.level !== 'info').length
+    const isProtected = (event: RunTraceEvent) =>
+      event.level !== 'info' || RETAINED_AUDIT_EVENT_TYPES.has(String(event.type || ''))
+    const protectedCount = run.events.filter(isProtected).length
     if (protectedCount >= runTraceMaxEvents - 1) return
     const evictableInfoCount = run.events.length - protectedCount
     const evictInfoCount = Math.min(
@@ -1528,7 +1539,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const ledger = ensureEventLedger(run)
     let remainingEvictions = evictInfoCount
     run.events = run.events.filter(event => {
-      if (remainingEvictions <= 0 || event.level !== 'info') return true
+      if (remainingEvictions <= 0 || isProtected(event)) return true
       remainingEvictions -= 1
       ledger.droppedInfoEvents += 1
       return false
@@ -1783,6 +1794,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
         detail: [existing.phase, call.skillName, call.model, existing.finishReason, existing.error].filter(Boolean).join(' / ')
       })
       if (existing.status === 'running') {
+        call.lastExecutionActivityAt = Date.now()
         reportRunActivity(runId, input.heartbeat ? 'physical_call_heartbeat' : 'physical_call_running', `${existing.seq}/${call.skillName || call.id}`)
         reportLongRequestInProgress(runId, existing)
       }

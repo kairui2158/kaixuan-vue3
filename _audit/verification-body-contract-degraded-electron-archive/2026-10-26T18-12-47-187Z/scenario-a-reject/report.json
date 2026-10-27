@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-a-reject",
+  "runId": "run-1793037865740-1",
+  "runStatus": "failed",
+  "requestCount": 4,
+  "heartbeatFrames": 1,
+  "screenshots": [
+    "scenario-a-rejected.png"
+  ]
+}

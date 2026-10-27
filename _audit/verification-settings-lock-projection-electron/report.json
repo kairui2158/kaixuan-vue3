@@ -1,14 +1,14 @@
 {
   "schema": "shenyi.settings-lock-projection.electron",
   "version": 1,
-  "generatedAt": "2026-10-22T09:54:13.218Z",
+  "generatedAt": "2026-10-27T10:52:57.153Z",
   "script": "verify-settings-lock-projection-electron.mjs",
   "projectId": "settings-lock-projection",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T09:41:32.702Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-27T09:58:53.846Z"
   },
   "hardRules": {
     "visibleElectron": true,
@@ -73,6 +73,7 @@
       "excludesDraftLinZhou": true
     }
   },
-  "heartbeatFrames": 6,
-  "heartbeatDurationMs": 6051
+  "heartbeatFrames": 5,
+  "heartbeatDurationMs": 4732,
+  "archiveIssues": []
 }

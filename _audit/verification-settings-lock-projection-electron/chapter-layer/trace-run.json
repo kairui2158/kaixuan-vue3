@@ -1,5 +1,5 @@
 {
-  "id": "run-1792662850434-24",
+  "id": "run-1793098374547-22",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 3,
@@ -12,34 +12,35 @@
   "model": "settings-lock-model",
   "skillNames": [],
   "skillMode": "compose",
+  "pipelineRunId": "pipeline-run-1793098374525-2",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T09:41:32.702Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-27T09:58:53.846Z"
   },
-  "startedAt": 1792662850434,
+  "startedAt": 1793098374547,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "chapters_generation_complete",
-      "recordedAt": 1792662850540
+      "recordedAt": 1793098374678
     }
   ],
   "events": [
     {
-      "id": "event-1792662850434-25",
-      "ts": 1792662850434,
+      "id": "event-1793098374547-23",
+      "ts": 1793098374547,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 章节层运行"
     },
     {
-      "id": "event-1792662850476-26",
-      "ts": 1792662850476,
+      "id": "event-1793098374584-24",
+      "ts": 1793098374584,
       "seq": 2,
       "type": "prompt-built",
       "level": "info",
@@ -47,8 +48,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"totalChapters\":4,\"wordsPerChapter\":3500,\"resumeCount\":1}"
     },
     {
-      "id": "event-1792662850477-27",
-      "ts": 1792662850477,
+      "id": "event-1793098374584-25",
+      "ts": 1793098374584,
       "seq": 3,
       "type": "chapter-count-arbitration",
       "level": "info",
@@ -56,8 +57,8 @@
       "detail": "{\"totalChapters\":4,\"source\":\"word_estimate\",\"configuredChapterCount\":0,\"wordEstimatedCount\":4,\"declaredChapterCount\":0,\"conflict\":false,\"message\":\"卷「第一卷 雨夜」未声明章数，按12000字/每章3500字推算4章\"}"
     },
     {
-      "id": "event-1792662850479-28",
-      "ts": 1792662850479,
+      "id": "event-1793098374586-26",
+      "ts": 1793098374586,
       "seq": 4,
       "type": "style-semantics-merged",
       "level": "warn",
@@ -65,8 +66,8 @@
       "detail": "{\"layer\":\"chapter\",\"sources\":{\"profileStyle\":true,\"settingsStyle\":true},\"profileHash\":\"8d10321a\",\"settingsHash\":\"a57df29d\",\"duplicateLineCount\":0,\"conflictLineCount\":1,\"settingsProjectionHash\":\"4ed56d8e\"}"
     },
     {
-      "id": "event-1792662850481-29",
-      "ts": 1792662850481,
+      "id": "event-1793098374587-27",
+      "ts": 1793098374587,
       "seq": 5,
       "type": "settings-projection-composed",
       "level": "info",
@@ -74,8 +75,8 @@
       "detail": "{\"layer\":\"chapter\",\"policyVersion\":2,\"lockedCount\":64,\"draftExcludedCount\":0,\"projectionChars\":1480,\"contentHash\":\"4ed56d8e\",\"categoryDistribution\":{\"character\":2,\"item\":27,\"style\":2},\"includedReasons\":[\"locked:王芳\",\"locked:林舟\",\"locked:人物基调\",\"locked:主题基调\",\"locked:灯塔备件01\",\"locked:灯塔备件02\",\"locked:灯塔备件03\",\"locked:灯塔备件04\",\"locked:灯塔备件05\",\"locked:灯塔备件06\",\"locked:灯塔备件07\",\"locked:灯塔备件08\",\"locked:灯塔备件09\",\"locked:灯塔备件10\",\"locked:灯塔备件11\",\"locked:灯塔备件12\",\"locked:灯塔备件13\",\"locked:灯塔备件14\",\"locked:灯塔备件15\",\"locked:灯塔备件16\",\"locked:灯塔备件17\",\"locked:灯塔备件18\",\"locked:灯塔备件19\",\"locked:灯塔备件20\",\"locked:灯塔备件21\",\"locked:灯塔备件22\",\"locked:灯塔备件23\",\"locked:灯塔备件24\",\"locked:灯塔备件25\",\"locked:灯塔备件26\",\"locked:灯塔备件27\",\"locked:灯塔备件28\",\"locked:灯塔备件29\",\"locked:灯塔备件30\",\"locked:灯塔备件31\",\"locked:灯塔备件32\",\"locked:灯塔备件33\",\"locked:灯塔备件34\",\"locked:灯塔备件35\",\"locked:灯塔备件36\",\"locked:灯塔备件37\",\"locked:灯塔备件38\",\"locked:灯塔备件39\",\"locked:灯塔备件40\",\"locked:灯塔备件41\",\"locked:灯塔备件42\",\"locked:灯塔备件43\",\"locked:灯塔备件44\",\"locked:灯塔备件45\",\"locked:灯塔备件46\",\"locked:灯塔备件47\",\"locked:灯塔备件48\",\"locked:灯塔备件49\",\"locked:灯塔备件50\",\"locked:灯塔备件51\",\"locked:灯塔备件52\",\"locked:灯塔备件53\",\"locked:灯塔备件54\",\"locked:灯塔备件55\",\"locked:灯塔备件56\",\"locked:灯塔备件57\",\"locked:灯塔备件58\",\"locked:灯塔备件59\",\"locked:灯塔备件60\"],\"excludedReasons\":[],\"trimmedReasons\":[\"layer_budget_trim:item:物品 - 灯塔备件60 - 编号60的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件59 - 编号59的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件58 - 编号58的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件57 - 编号57的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件56 - 编号56的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件55 - 编号55的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件54 - 编号54的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件53 - 编号53的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件52 - 编号52的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件51 - 编号51的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件50 - 编号50的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件49 - 编号49的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件48 - 编号48的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件47 - 编号47的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件46 - 编号46的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件45 - 编号45的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件44 - 编号44的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件43 - 编号43的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件42 - 编号42的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件41 - 编号41的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件40 - 编号40的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件39 - 编号39的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件38 - 编号38的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件37 - 编号37的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件36 - 编号36的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件35 - 编号35的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件34 - 编号34的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件33 - 编号33的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件32 - 编号32的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件31 - 编号31的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件30 - 编号30的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件29 - 编号29的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\",\"layer_budget_trim:item:物品 - 灯塔备件28 - 编号28的旧铜制信标部件，长期存放在灯塔底层，只有王芳知道它的用途。\"],\"warnings\":[]}"
     },
     {
-      "id": "event-1792662850487-30",
-      "ts": 1792662850487,
+      "id": "event-1793098374596-28",
+      "ts": 1793098374596,
       "seq": 6,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -83,8 +84,8 @@
       "detail": "{\"step\":3,\"configuredModel\":null,\"fallbackModel\":\"settings-lock-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792662850488-32",
-      "ts": 1792662850488,
+      "id": "event-1793098374596-30",
+      "ts": 1793098374596,
       "seq": 7,
       "type": "api-start",
       "level": "info",
@@ -92,8 +93,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"settings-lock-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792662850489-34",
-      "ts": 1792662850489,
+      "id": "event-1793098374597-32",
+      "ts": 1793098374597,
       "seq": 8,
       "type": "run-activity",
       "level": "info",
@@ -105,22 +106,22 @@
       }
     },
     {
-      "id": "event-1792662850489-35",
-      "ts": 1792662850489,
+      "id": "event-1793098374597-33",
+      "ts": 1793098374597,
       "seq": 9,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792662850489-33",
+        "physicalCallId": "physical-1793098374597-31",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792662850489-36",
-      "ts": 1792662850489,
+      "id": "event-1793098374597-34",
+      "ts": 1793098374597,
       "seq": 10,
       "type": "physical-call",
       "level": "info",
@@ -128,108 +129,82 @@
       "detail": "normal / compose / settings-lock-model"
     },
     {
-      "id": "event-1792662850489-37",
-      "ts": 1792662850489,
+      "id": "event-1793098374609-35",
+      "ts": 1793098374609,
       "seq": 11,
-      "turnId": "api-1792662850488-31",
+      "turnId": "api-1793098374596-29",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"settings-lock-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792662850499-38",
-      "ts": 1792662850499,
+      "id": "event-1793098374628-36",
+      "ts": 1793098374628,
       "seq": 12,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1"
-      }
-    },
-    {
-      "id": "event-1792662850504-39",
-      "ts": 1792662850504,
-      "seq": 13,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / compose / settings-lock-model / stop"
     },
     {
-      "id": "event-1792662850505-40",
-      "ts": 1792662850505,
-      "seq": 14,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1/terminal"
-      }
-    },
-    {
-      "id": "event-1792662850505-41",
-      "ts": 1792662850505,
-      "seq": 15,
+      "id": "event-1793098374629-37",
+      "ts": 1793098374629,
+      "seq": 13,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792662850488-31 seq=1"
+      "detail": "apiCall=api-1793098374596-29 seq=1"
     },
     {
-      "id": "event-1792662850506-42",
-      "ts": 1792662850506,
-      "seq": 16,
+      "id": "event-1793098374629-38",
+      "ts": 1793098374629,
+      "seq": 14,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / settings-lock-model"
     },
     {
-      "id": "event-1792662850509-43",
-      "ts": 1792662850509,
-      "seq": 17,
+      "id": "event-1793098374635-39",
+      "ts": 1793098374635,
+      "seq": 15,
       "type": "chapter-batch-attempt",
       "level": "info",
       "label": "章节批次验收",
       "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":3,\"acceptedCount\":3,\"missingStart\":2,\"missingCount\":3,\"validationMs\":1,\"errors\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792662850534-44",
-      "ts": 1792662850534,
-      "seq": 18,
+      "id": "event-1793098374664-40",
+      "ts": 1793098374664,
+      "seq": 16,
       "type": "chapter-batch-validated",
       "level": "info",
       "label": "章节批次验收通过",
       "detail": "{\"batchIndex\":1,\"expectedStart\":2,\"expectedEnd\":4,\"requestedCount\":3,\"actualCount\":3,\"repairAttempts\":0,\"status\":\"complete\"}"
     },
     {
-      "id": "event-1792662850540-45",
-      "ts": 1792662850540,
-      "seq": 19,
+      "id": "event-1793098374678-41",
+      "ts": 1793098374678,
+      "seq": 17,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "chapters_generation_complete"
     },
     {
-      "id": "event-1792662850540-46",
-      "ts": 1792662850540,
-      "seq": 20,
+      "id": "event-1793098374678-42",
+      "ts": 1793098374678,
+      "seq": 18,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "chapters_generation_complete / run=run-1792662850434-24"
+      "detail": "chapters_generation_complete / run=run-1793098374547-22"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792662850488-31",
+      "id": "api-1793098374596-29",
       "seq": 1,
       "step": 3,
       "skillId": "compose",
@@ -250,14 +225,14 @@
         }
       ],
       "responseText": "[{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}]",
-      "streamText": "[{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}][{\"title\":\"第2章 航行图\",\"plot\":\"王芳在第2章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第2段航行图。\"},{\"title\":\"第3章 航行图（3）\",\"plot\":\"王芳在第3章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第3段航行图。\"},{\"title\":\"第4章 航行图（4）\",\"plot\":\"王芳在第4章拼出航行图，并用三个玩笑压住林舟的沉默。\",\"summary\":\"王芳拼出第4段航行图。\"}]",
+      "streamText": "",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792662850488,
+      "startedAt": 1793098374596,
       "physicalCalls": [
         {
-          "id": "physical-1792662850489-33",
-          "physicalCallId": "physical-1792662850489-0",
+          "id": "physical-1793098374597-31",
+          "physicalCallId": "physical-1793098374596-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -281,11 +256,11 @@
             "totalTokens": 36
           },
           "usageUnavailable": false,
-          "startedAt": 1792662850489,
-          "durationMs": 14,
-          "firstTokenMs": 9,
-          "outputMs": 5,
-          "endedAt": 1792662850504,
+          "startedAt": 1793098374597,
+          "durationMs": 32,
+          "firstTokenMs": 30,
+          "outputMs": 2,
+          "endedAt": 1793098374628,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -300,23 +275,22 @@
             "driftRatio": -0.9817351598173516,
             "correctedRatio": 0.0182648401826484
           },
-          "firstContentAt": 1792662850498,
-          "lastContentAt": 1792662850498,
+          "firstContentAt": 1793098374626,
+          "lastContentAt": 1793098374626,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792662850499,
-      "lastStreamActivityAt": 1792662850499,
+      "lastExecutionActivityAt": 1793098374597,
       "finishReason": "stop",
-      "durationMs": 13,
+      "durationMs": 31,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 14,
-        "firstTokenSumMs": 9,
-        "outputSumMs": 5,
-        "minFirstTokenMs": 9,
-        "maxFirstTokenMs": 9,
+        "physicalDurationSumMs": 32,
+        "firstTokenSumMs": 30,
+        "outputSumMs": 2,
+        "minFirstTokenMs": 30,
+        "maxFirstTokenMs": 30,
         "localOverheadMs": -1
       },
       "usage": {
@@ -325,9 +299,9 @@
         "totalTokens": 36
       },
       "usageUnavailable": false,
-      "endedAt": 1792662850505,
+      "endedAt": 1793098374628,
       "semantic": {
-        "conversationId": "run-1792662850434-24",
+        "conversationId": "run-1793098374547-22",
         "usage": {
           "inputTokens": 12,
           "outputTokens": 24,
@@ -340,18 +314,24 @@
   "promptSnapshots": [],
   "processingReports": [],
   "payloads": [],
+  "eventLedger": {
+    "totalEvents": 18,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
   "stepPhaseTiming": {
     "validation": 1,
-    "persistence": 25
+    "persistence": 28
   },
-  "dirName": "run-trace-章节层-20261022-175410",
+  "dirName": "run-trace-章节层-20261027-185254",
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 14,
-    "firstTokenSumMs": 9,
-    "outputSumMs": 5,
+    "physicalDurationSumMs": 32,
+    "firstTokenSumMs": 30,
+    "outputSumMs": 2,
     "localOverheadSumMs": -1,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
@@ -365,15 +345,15 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 9,
-    "outputSumMs": 5,
+    "firstTokenSumMs": 30,
+    "outputSumMs": 2,
     "validationSumMs": 1,
-    "persistenceSumMs": 25,
+    "persistenceSumMs": 28,
     "repeatedPromptBlocks": {},
     "contextChars": 2085,
     "outputChars": 247,
-    "physicalDurationSumMs": 14
+    "physicalDurationSumMs": 32
   },
-  "endedAt": 1792662850540,
-  "durationMs": 106
+  "endedAt": 1793098374678,
+  "durationMs": 131
 }

@@ -1,5 +1,6 @@
 import {
   extractStreamDelta,
+  extractFinishReason,
   isSSEDataLine,
   isSSEDone,
 } from './providerAdapter'
@@ -76,7 +77,12 @@ export function createStreamFrame(
 
 function protocolStreamDelta(json: any, protocolName: ProviderType) {
   const openAIDelta = extractStreamDelta(json)
-  if (json?.choices) return openAIDelta
+  if (json?.choices) {
+    return {
+      ...openAIDelta,
+      finishReason: extractFinishReason(json),
+    }
+  }
   if (json?.type === 'content_block_delta') {
     return {
       content: json.delta?.text ?? null,

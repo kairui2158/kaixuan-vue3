@@ -1,24 +1,24 @@
 # 流水线耗时账本 Phase 2 真实运行分析
 
-- Run ID: run-1792674247049-1
+- Run ID: run-1793095165641-1
 - 状态: success
 - API call: 12
-- 物理请求: 14（重试 2）
+- 物理请求: 13（重试 1）
 - 失败 API call: 0
 
 ## Top 3
 
-1. 模型流式输出: 3,657,081ms，占物理耗时+本地候选合计的 98.3%（口径: 结论）
-2. 模型首 token 等待: 64,123ms，占物理耗时+本地候选合计的 1.7%（口径: 结论）
-3. 本地/编排等待候选: 501ms，占物理耗时+本地候选合计的 0.0%（口径: 候选线索）
+1. 模型流式输出: 3,025,560ms，占物理耗时+本地候选合计的 97.5%（口径: 结论）
+2. 模型首 token 等待: 78,005ms，占物理耗时+本地候选合计的 2.5%（口径: 结论）
+3. 本地/编排等待候选: 557ms，占物理耗时+本地候选合计的 0.0%（口径: 候选线索）
 
 ## 全量指标
 
-- 模型流式输出 (outputSumMs): 3,657,081ms — 结论
-- 模型首 token 等待 (firstTokenSumMs): 64,123ms — 结论
-- 本地/编排等待候选 (localOverheadSumMs): 501ms — 候选线索
-- 后处理 (postProcessSumMs): 69ms — 结论
-- 请求构建 (requestBuildSumMs): 17ms — 结论
+- 模型流式输出 (outputSumMs): 3,025,560ms — 结论
+- 模型首 token 等待 (firstTokenSumMs): 78,005ms — 结论
+- 本地/编排等待候选 (localOverheadSumMs): 557ms — 候选线索
+- 后处理 (postProcessSumMs): 61ms — 结论
+- 请求构建 (requestBuildSumMs): 8ms — 结论
 - schema 校验 (schemaValidateSumMs): 0ms — 结论
 - 重试处理 (retrySumMs): 0ms — 候选线索
 

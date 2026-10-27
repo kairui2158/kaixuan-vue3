@@ -37,7 +37,7 @@ function bodyGeneratorContractSentence(targetWords) {
   if (!Number.isFinite(target) || target <= 0) return ''
   const min = Math.round(target * 0.8)
   const max = target * 2
-  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。只输出正文本身。`
+  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。正文本体后必须追加【正文交接】区块。`
 }
 
 const SKILL_SOURCES = [

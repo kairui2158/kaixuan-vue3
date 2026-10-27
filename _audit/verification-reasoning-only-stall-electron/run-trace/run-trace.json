@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1792662882389-1",
+  "id": "run-1793046410820-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 2,
@@ -13,34 +13,35 @@
   "model": "reasoning-only-model",
   "skillNames": [],
   "skillMode": "compose",
+  "pipelineRunId": "pipeline-run-1793046410809-1",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T09:41:32.702Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T20:11:54.104Z"
   },
-  "startedAt": 1792662882389,
+  "startedAt": 1793046410821,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "all_volumes_generation_complete",
-      "recordedAt": 1792662897513
+      "recordedAt": 1793046426104
     }
   ],
   "events": [
     {
-      "id": "event-1792662882389-2",
-      "ts": 1792662882389,
+      "id": "event-1793046410821-2",
+      "ts": 1793046410821,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 卷纲层运行"
     },
     {
-      "id": "event-1792662882412-3",
-      "ts": 1792662882412,
+      "id": "event-1793046410825-3",
+      "ts": 1793046410825,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -48,8 +49,8 @@
       "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792662882412-4",
-      "ts": 1792662882412,
+      "id": "event-1793046410825-4",
+      "ts": 1793046410825,
       "seq": 3,
       "type": "prompt-built",
       "level": "info",
@@ -57,8 +58,8 @@
       "detail": "{\"plannedVolumeCount\":1,\"generatedVolumeCount\":0,\"allocatedWords\":0,\"remainingWords\":100000,\"remainingVolumes\":1,\"currentVolumeBudget\":100000,\"conflicts\":[],\"mode\":\"auto\"}"
     },
     {
-      "id": "event-1792662882413-5",
-      "ts": 1792662882413,
+      "id": "event-1793046410826-5",
+      "ts": 1793046410826,
       "seq": 4,
       "type": "style-semantics-merged",
       "level": "info",
@@ -66,8 +67,8 @@
       "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792662882422-6",
-      "ts": 1792662882422,
+      "id": "event-1793046410840-6",
+      "ts": 1793046410840,
       "seq": 5,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -75,8 +76,8 @@
       "detail": "{\"step\":2,\"configuredModel\":null,\"fallbackModel\":\"reasoning-only-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792662882439-8",
-      "ts": 1792662882439,
+      "id": "event-1793046410876-8",
+      "ts": 1793046410876,
       "seq": 6,
       "type": "api-start",
       "level": "info",
@@ -84,8 +85,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"reasoning-only-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792662882444-10",
-      "ts": 1792662882444,
+      "id": "event-1793046410882-10",
+      "ts": 1793046410882,
       "seq": 7,
       "type": "run-activity",
       "level": "info",
@@ -97,22 +98,22 @@
       }
     },
     {
-      "id": "event-1792662882444-11",
-      "ts": 1792662882444,
+      "id": "event-1793046410882-11",
+      "ts": 1793046410882,
       "seq": 8,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792662882443-9",
+        "physicalCallId": "physical-1793046410881-9",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792662882444-12",
-      "ts": 1792662882444,
+      "id": "event-1793046410882-12",
+      "ts": 1793046410882,
       "seq": 9,
       "type": "physical-call",
       "level": "info",
@@ -120,18 +121,18 @@
       "detail": "normal / compose / reasoning-only-model"
     },
     {
-      "id": "event-1792662882444-13",
-      "ts": 1792662882444,
+      "id": "event-1793046410888-13",
+      "ts": 1793046410888,
       "seq": 10,
-      "turnId": "api-1792662882439-7",
+      "turnId": "api-1793046410875-7",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"reasoning-only-stall-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792662897451-14",
-      "ts": 1792662897451,
+      "id": "event-1793046425886-14",
+      "ts": 1793046425886,
       "seq": 11,
       "type": "physical-call",
       "level": "info",
@@ -139,8 +140,8 @@
       "detail": "normal / compose / reasoning-only-model"
     },
     {
-      "id": "event-1792662897452-15",
-      "ts": 1792662897452,
+      "id": "event-1793046425886-15",
+      "ts": 1793046425886,
       "seq": 12,
       "type": "run-activity",
       "level": "info",
@@ -152,8 +153,8 @@
       }
     },
     {
-      "id": "event-1792662897452-16",
-      "ts": 1792662897452,
+      "id": "event-1793046425977-16",
+      "ts": 1793046425977,
       "seq": 13,
       "type": "physical-call",
       "level": "error",
@@ -161,8 +162,8 @@
       "detail": "normal / compose / reasoning-only-model / 流式响应长时间未产生正文，已按 reasoning-only 断流处理"
     },
     {
-      "id": "event-1792662897453-18",
-      "ts": 1792662897453,
+      "id": "event-1793046425977-18",
+      "ts": 1793046425977,
       "seq": 14,
       "type": "run-activity",
       "level": "info",
@@ -174,22 +175,22 @@
       }
     },
     {
-      "id": "event-1792662897453-19",
-      "ts": 1792662897453,
+      "id": "event-1793046425977-19",
+      "ts": 1793046425977,
       "seq": 15,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=2 / heartbeat=false / retry",
       "payload": {
-        "physicalCallId": "physical-1792662897452-17",
+        "physicalCallId": "physical-1793046425977-17",
         "seq": 2,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792662897453-20",
-      "ts": 1792662897453,
+      "id": "event-1793046425977-20",
+      "ts": 1793046425977,
       "seq": 16,
       "type": "physical-call",
       "level": "info",
@@ -197,117 +198,91 @@
       "detail": "retry / compose / reasoning-only-model"
     },
     {
-      "id": "event-1792662897453-21",
-      "ts": 1792662897453,
+      "id": "event-1793046425983-21",
+      "ts": 1793046425983,
       "seq": 17,
-      "turnId": "api-1792662882439-7",
+      "turnId": "api-1793046410875-7",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"reasoning-only-stall-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792662897465-22",
-      "ts": 1792662897465,
+      "id": "event-1793046426003-22",
+      "ts": 1793046426003,
       "seq": 18,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1"
-      }
-    },
-    {
-      "id": "event-1792662897472-23",
-      "ts": 1792662897472,
-      "seq": 19,
       "type": "physical-call",
       "level": "info",
       "label": "第 2 次物理请求完成",
       "detail": "retry / compose / reasoning-only-model / stop"
     },
     {
-      "id": "event-1792662897473-24",
-      "ts": 1792662897473,
-      "seq": 20,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1/terminal"
-      }
-    },
-    {
-      "id": "event-1792662897474-25",
-      "ts": 1792662897474,
-      "seq": 21,
+      "id": "event-1793046426005-23",
+      "ts": 1793046426005,
+      "seq": 19,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792662882439-7 seq=1"
+      "detail": "apiCall=api-1793046410875-7 seq=1"
     },
     {
-      "id": "event-1792662897474-26",
-      "ts": 1792662897474,
-      "seq": 22,
+      "id": "event-1793046426005-24",
+      "ts": 1793046426005,
+      "seq": 20,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / reasoning-only-model"
     },
     {
-      "id": "event-1792662897480-27",
-      "ts": 1792662897480,
-      "seq": 23,
+      "id": "event-1793046426012-25",
+      "ts": 1793046426012,
+      "seq": 21,
       "type": "volume-batch-attempt",
       "level": "info",
       "label": "卷纲批次验收",
       "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":1,\"missingCount\":1,\"validationMs\":1,\"errors\":[]}"
     },
     {
-      "id": "event-1792662897510-28",
-      "ts": 1792662897510,
-      "seq": 24,
+      "id": "event-1793046426097-26",
+      "ts": 1793046426097,
+      "seq": 22,
       "type": "volume-batch-validated",
       "level": "info",
       "label": "卷纲批次验收通过",
       "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
     },
     {
-      "id": "event-1792662897510-29",
-      "ts": 1792662897510,
-      "seq": 25,
+      "id": "event-1793046426098-27",
+      "ts": 1793046426098,
+      "seq": 23,
       "type": "write",
       "level": "info",
       "label": "卷纲已写入项目",
       "detail": "写入 1 卷"
     },
     {
-      "id": "event-1792662897513-30",
-      "ts": 1792662897513,
-      "seq": 26,
+      "id": "event-1793046426104-28",
+      "ts": 1793046426104,
+      "seq": 24,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "all_volumes_generation_complete"
     },
     {
-      "id": "event-1792662897513-31",
-      "ts": 1792662897513,
-      "seq": 27,
+      "id": "event-1793046426104-29",
+      "ts": 1793046426104,
+      "seq": 25,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "all_volumes_generation_complete / run=run-1792662882389-1"
+      "detail": "all_volumes_generation_complete / run=run-1793046410820-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792662882439-7",
+      "id": "api-1793046410875-7",
       "seq": 1,
       "step": 2,
       "skillId": "compose",
@@ -322,22 +297,17 @@
           "id": "payload-001"
         }
       },
-      "streamText": {
+      "reasoningText": {
         "__payload": {
           "id": "payload-003"
         }
       },
-      "reasoningText": {
-        "__payload": {
-          "id": "payload-004"
-        }
-      },
       "status": "success",
-      "startedAt": 1792662882439,
+      "startedAt": 1793046410876,
       "physicalCalls": [
         {
-          "id": "physical-1792662882443-9",
-          "physicalCallId": "physical-1792662882440-0",
+          "id": "physical-1793046410881-9",
+          "physicalCallId": "physical-1793046410878-0",
           "seq": 1,
           "phase": "normal",
           "status": "failed",
@@ -349,14 +319,14 @@
           "responseText": "",
           "reasoningText": {
             "__payload": {
-              "id": "payload-004"
+              "id": "payload-003"
             }
           },
-          "startedAt": 1792662882443,
-          "durationMs": 15010,
-          "firstTokenMs": 42,
-          "outputMs": 14968,
-          "endedAt": 1792662897452,
+          "startedAt": 1793046410881,
+          "durationMs": 15097,
+          "firstTokenMs": 74,
+          "outputMs": 15023,
+          "endedAt": 1793046425977,
           "error": "流式响应长时间未产生正文，已按 reasoning-only 断流处理",
           "toolsEnabled": false,
           "toolsDowngraded": false,
@@ -370,13 +340,13 @@
             "estimatedInputTokens": 205
           },
           "interruptionCode": "reasoning_only_stalled",
-          "lastReasoningAt": 1792662896534,
-          "bodyAbsentMs": 15006,
+          "lastReasoningAt": 1793046424990,
+          "bodyAbsentMs": 15091,
           "heartbeat": true
         },
         {
-          "id": "physical-1792662897452-17",
-          "physicalCallId": "physical-1792662882440-1",
+          "id": "physical-1793046425977-17",
+          "physicalCallId": "physical-1793046410878-1",
           "seq": 2,
           "phase": "retry",
           "status": "success",
@@ -387,7 +357,7 @@
           },
           "streamText": {
             "__payload": {
-              "id": "payload-005"
+              "id": "payload-004"
             }
           },
           "finishReason": "stop",
@@ -397,11 +367,11 @@
             "totalTokens": 300
           },
           "usageUnavailable": false,
-          "startedAt": 1792662897453,
-          "durationMs": 20,
-          "firstTokenMs": 12,
+          "startedAt": 1793046425977,
+          "durationMs": 25,
+          "firstTokenMs": 17,
           "outputMs": 8,
-          "endedAt": 1792662897472,
+          "endedAt": 1793046426003,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "retryStrategy": "thinking_disabled",
@@ -417,27 +387,26 @@
             "driftRatio": -0.5121951219512195,
             "correctedRatio": 0.4878048780487805
           },
-          "firstContentAt": 1792662897464,
-          "lastContentAt": 1792662897464,
-          "lastReasoningAt": 1792662896535,
+          "firstContentAt": 1793046425994,
+          "lastContentAt": 1793046425994,
+          "lastReasoningAt": 1793046424990,
           "heartbeat": false,
           "responseTextPayloadRef": "payload-002",
           "responseTextPreview": "[{\"name\":\"第一卷 风暴起点\",\"outline\":\"旧信揭开灯塔秘密，主角在南方航线选择信任同伴，完成第一次远航。\",\"summary\":\"灯塔旧信与风暴航线推动第一卷冲突收束。\",\"allocatedWords\":60000,\"readerExpectations\":\"读者期待看到主角第一次主动承担风险。\",\"mainPlotLine\":\"旧信、灯塔与远航准备\",\"unlockMilestone\":\"灯塔底层的航行图被解锁。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
         }
       ],
-      "lastExecutionActivityAt": 1792662897466,
-      "lastStreamActivityAt": 1792662897466,
+      "lastExecutionActivityAt": 1793046425977,
       "finishReason": "stop",
-      "durationMs": 15028,
+      "durationMs": 15121,
       "timingLedger": {
         "physicalCallCount": 2,
         "retryPhysicalCallCount": 1,
-        "physicalDurationSumMs": 15030,
-        "firstTokenSumMs": 54,
-        "outputSumMs": 14976,
-        "minFirstTokenMs": 12,
-        "maxFirstTokenMs": 42,
-        "localOverheadMs": -2
+        "physicalDurationSumMs": 15122,
+        "firstTokenSumMs": 91,
+        "outputSumMs": 15031,
+        "minFirstTokenMs": 17,
+        "maxFirstTokenMs": 74,
+        "localOverheadMs": -1
       },
       "usage": {
         "inputTokens": 100,
@@ -445,9 +414,9 @@
         "totalTokens": 300
       },
       "usageUnavailable": false,
-      "endedAt": 1792662897474,
+      "endedAt": 1793046426005,
       "semantic": {
-        "conversationId": "run-1792662882389-1",
+        "conversationId": "run-1793046410820-1",
         "usage": {
           "inputTokens": 100,
           "outputTokens": 200,
@@ -471,7 +440,7 @@
       "sha256": "b83a5cc30e7ed928d56dfd8b3bbc3f897461cc8a2ca424ac711c6e35b56d1326",
       "duplicateCount": 3,
       "artifactRole": "final",
-      "createdAt": 1792662897722
+      "createdAt": 1793046426383
     },
     {
       "id": "payload-002",
@@ -482,54 +451,49 @@
       "sha256": "ef6343d7396172595d461abcc875344316ea5f4a4e3ccd0627fc4fdd1eabf727",
       "duplicateCount": 2,
       "artifactRole": "final",
-      "createdAt": 1792662897722
+      "createdAt": 1793046426383
     },
     {
       "id": "payload-003",
-      "kind": "stream",
-      "file": "003-stream.json",
-      "bytes": 946,
-      "chars": 558,
-      "sha256": "f0da92e76a9ec108586153ed7b39789eac305992757eb1be8a250733dce1d51d",
-      "duplicateCount": 1,
-      "artifactRole": "final",
-      "createdAt": 1792662897722
-    },
-    {
-      "id": "payload-004",
       "kind": "reasoning",
-      "file": "004-reasoning.json",
+      "file": "003-reasoning.json",
       "bytes": 153,
       "chars": 51,
       "sha256": "98ffcd28a9e7c544c73fcaee6262cd8782d18551703b0bbdc2fd1711b0a93462",
       "duplicateCount": 2,
       "artifactRole": "intermediate",
-      "createdAt": 1792662897722
+      "createdAt": 1793046426383
     },
     {
-      "id": "payload-005",
+      "id": "payload-004",
       "kind": "stream",
-      "file": "005-stream.json",
+      "file": "004-stream.json",
       "bytes": 473,
       "chars": 279,
       "sha256": "ef6343d7396172595d461abcc875344316ea5f4a4e3ccd0627fc4fdd1eabf727",
       "duplicateCount": 1,
       "artifactRole": "final",
-      "createdAt": 1792662897722
+      "createdAt": 1793046426383
     }
   ],
+  "eventLedger": {
+    "totalEvents": 25,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
   "stepPhaseTiming": {
     "validation": 1,
-    "persistence": 29
+    "persistence": 82
   },
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 2,
     "retryPhysicalCallCount": 1,
-    "physicalDurationSumMs": 15030,
-    "firstTokenSumMs": 54,
-    "outputSumMs": 14976,
-    "localOverheadSumMs": -2,
+    "physicalDurationSumMs": 15122,
+    "firstTokenSumMs": 91,
+    "outputSumMs": 15031,
+    "localOverheadSumMs": -1,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -542,20 +506,20 @@
     "physicalCallCount": 2,
     "retryCallCount": 1,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 54,
-    "outputSumMs": 14976,
+    "firstTokenSumMs": 91,
+    "outputSumMs": 15031,
     "validationSumMs": 1,
-    "persistenceSumMs": 29,
+    "persistenceSumMs": 82,
     "repeatedPromptBlocks": {},
     "contextChars": 555,
     "outputChars": 279,
-    "physicalDurationSumMs": 15030
+    "physicalDurationSumMs": 15122
   },
-  "endedAt": 1792662897513,
-  "durationMs": 15124,
+  "endedAt": 1793046426104,
+  "durationMs": 15283,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1792662882439-7",
+      "apiCallId": "api-1793046410875-7",
       "seq": 1,
       "status": "success",
       "response": {
@@ -566,36 +530,29 @@
         "chars": 279,
         "preview": "[{\"name\":\"第一卷 风暴起点\",\"outline\":\"旧信揭开灯塔秘密，主角在南方航线选择信任同伴，完成第一次远航。\",\"summary\":\"灯塔旧信与风暴航线推动第一卷冲突收束。\",\"allocatedWords\":60000,\"readerExpectations\":\"读者期待看到主角第一次主动承担风险。\",\"mainPlotLine\":\"旧信、灯塔与远航准备\",\"unlockMilestone\":\"灯塔底层的航行图被解锁。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
       },
-      "stream": {
-        "ref": "payload-003",
-        "file": "003-stream.json",
-        "sha256": "f0da92e76a9ec108586153ed7b39789eac305992757eb1be8a250733dce1d51d",
-        "bytes": 946,
-        "chars": 558
-      },
       "reasoning": {
-        "ref": "payload-004",
-        "file": "004-reasoning.json",
+        "ref": "payload-003",
+        "file": "003-reasoning.json",
         "sha256": "98ffcd28a9e7c544c73fcaee6262cd8782d18551703b0bbdc2fd1711b0a93462",
         "bytes": 153,
         "chars": 51
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1792662882440-0",
+          "physicalCallId": "physical-1793046410878-0",
           "seq": 1,
           "phase": "normal",
           "status": "failed",
           "reasoning": {
-            "ref": "payload-004",
-            "file": "004-reasoning.json",
+            "ref": "payload-003",
+            "file": "003-reasoning.json",
             "sha256": "98ffcd28a9e7c544c73fcaee6262cd8782d18551703b0bbdc2fd1711b0a93462",
             "bytes": 153,
             "chars": 51
           }
         },
         {
-          "physicalCallId": "physical-1792662882440-1",
+          "physicalCallId": "physical-1793046410878-1",
           "seq": 2,
           "phase": "retry",
           "status": "success",
@@ -608,8 +565,8 @@
             "preview": "[{\"name\":\"第一卷 风暴起点\",\"outline\":\"旧信揭开灯塔秘密，主角在南方航线选择信任同伴，完成第一次远航。\",\"summary\":\"灯塔旧信与风暴航线推动第一卷冲突收束。\",\"allocatedWords\":60000,\"readerExpectations\":\"读者期待看到主角第一次主动承担风险。\",\"mainPlotLine\":\"旧信、灯塔与远航准备\",\"unlockMilestone\":\"灯塔底层的航行图被解锁。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]"
           },
           "stream": {
-            "ref": "payload-005",
-            "file": "005-stream.json",
+            "ref": "payload-004",
+            "file": "004-stream.json",
             "sha256": "ef6343d7396172595d461abcc875344316ea5f4a4e3ccd0627fc4fdd1eabf727",
             "bytes": 473,
             "chars": 279

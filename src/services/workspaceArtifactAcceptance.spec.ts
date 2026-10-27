@@ -67,7 +67,7 @@ describe('acceptWorkspaceArtifact', () => {
   it('accepts a valid degraded body draft with warnings', () => {
     const body = '字'.repeat(80)
     const result = acceptWorkspaceArtifact({
-      rawOutput: body,
+      rawOutput: `${body}\n\n【正文交接】\nFACT_LOCK:人物状态=安全\n【正文交接结束】`,
       callerStatus: 'degraded',
       degradedErrors: ['部分流失败'],
       contract: {
@@ -78,8 +78,9 @@ describe('acceptWorkspaceArtifact', () => {
     expect(result).toMatchObject({
       decision: 'accept',
       terminalStatus: 'success_with_warnings',
-      downstreamPayload: body,
     })
+    expect((result.downstreamPayload as string).startsWith(body)).toBe(true)
+    expect((result.downstreamPayload as string).includes('【正文交接】')).toBe(false)
     expect(result.warnings).toContain('部分流失败')
   })
 

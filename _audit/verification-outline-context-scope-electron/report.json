@@ -1,12 +1,12 @@
 {
   "schema": "shenyi.outline-context-scope.electron",
   "version": 1,
-  "generatedAt": "2026-10-22T03:35:54.721Z",
+  "generatedAt": "2026-10-26T20:00:38.272Z",
   "script": "verify-outline-context-scope-electron.mjs",
   "cases": [
     {
       "case": "unit_closure_real_ui",
-      "runId": "run-1792640162386-1",
+      "runId": "run-1793044846488-1",
       "status": "success",
       "contextScope": {
         "volume": "第一卷 雨夜",
@@ -27,7 +27,7 @@
     },
     {
       "case": "legacy_outline_records_explicit_fallback",
-      "runId": "run-1792640171818-1",
+      "runId": "run-1793044856145-1",
       "status": "success",
       "contextScope": {
         "volume": "第一卷 雨夜",
@@ -48,9 +48,9 @@
     },
     {
       "case": "scoped_missing_unit_fails_without_silent_fallback",
-      "runId": "run-1792640180663-1",
+      "runId": "run-1793044866255-1",
       "status": "failed",
-      "failure": "failed: 正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲",
+      "failure": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲",
       "requestCount": 2
     }
   ]

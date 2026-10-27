@@ -1,0 +1,2697 @@
+{
+  "schemaVersion": 19,
+  "id": "run-1793069762862-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "正文层",
+  "mode": "body",
+  "projectId": "pipeline-repair-feedback-live",
+  "projectName": "修复反馈真实UI实测",
+  "providerId": "pipeline-repair-feedback-live-provider",
+  "providerName": "Pipeline Repair Feedback Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [
+    "S1-骨架师（文件夹）",
+    "S2-血肉师（文件夹）",
+    "S3-打磨师（文件夹）"
+  ],
+  "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793069762841-1",
+  "status": "failed",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-27T01:55:05.499Z"
+  },
+  "startedAt": 1793069762862,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "failed",
+      "reason": "generation_failed / 正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付",
+      "recordedAt": 1793070871057
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1793069762867-5",
+      "ts": 1793069762867,
+      "seq": 4,
+      "type": "context_scope",
+      "level": "warn",
+      "label": "正文层上下文闭包",
+      "detail": "{\"volume\":\"风暴起点\",\"chapter\":\"灯塔信标\",\"unitId\":null,\"mode\":\"legacy_outline_no_scope\",\"permanentCount\":0,\"unitCount\":0,\"undeclaredCount\":0,\"closureBytes\":531,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":\"legacy_outline_no_scope\"}"
+    },
+    {
+      "id": "event-1793069762978-8",
+      "ts": 1793069762978,
+      "seq": 7,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 1/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":414,\"finalPromptLength\":414,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1793069762984-9",
+      "ts": 1793069762984,
+      "seq": 8,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 1/3",
+      "detail": "S1-骨架师（文件夹）"
+    },
+    {
+      "id": "event-1793069762986-10",
+      "ts": 1793069762986,
+      "seq": 9,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"deepseek-v4-pro\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1793069763357-14",
+      "ts": 1793069763357,
+      "seq": 12,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":414,\"userPromptLength\":1121,\"systemPromptLength\":10204,\"sampleCount\":5,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793069762862-1\",\"traceCallId\":\"api-1793069762987-11\"}"
+    },
+    {
+      "id": "event-1793069891312-38",
+      "ts": 1793069891312,
+      "seq": 35,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1（重试）",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":414,\"userPromptLength\":1121,\"systemPromptLength\":10860,\"sampleCount\":5,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793069762862-1\",\"traceCallId\":\"api-1793069762987-11\"}"
+    },
+    {
+      "id": "event-1793070253305-98",
+      "ts": 1793070253305,
+      "seq": 93,
+      "type": "processing-report",
+      "level": "info",
+      "label": "本地处理完成：chain-handoff",
+      "detail": "post"
+    },
+    {
+      "id": "event-1793070253306-99",
+      "ts": 1793070253306,
+      "seq": 94,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 1/3 Handoff",
+      "detail": "{\"artifactId\":\"handoff-0-f57c7dcc\",\"sourceStep\":0,\"sourceSkillId\":\"folder:KAI-S1\",\"outputHash\":\"f57c7dcc\",\"fullTextLength\":4679,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1793070253316-100",
+      "ts": 1793070253316,
+      "seq": 95,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 2/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"declared_full_context_no_outline\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":true,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":true,\"originalPromptLength\":414,\"finalPromptLength\":414,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1793070253317-101",
+      "ts": 1793070253317,
+      "seq": 96,
+      "type": "chain-handoff-delivery",
+      "level": "info",
+      "label": "链式步骤 2/3 上游交付决策",
+      "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":4679,\"deliveredLength\":4679,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:KAI-S2\",\"skillName\":\"S2-血肉师（文件夹）\",\"fullReason\":\"S2 需要完整单元闭包卷纲、设定摘要与章节剧情点，才能在上一步骨架上扩写而不偏离事实链。\",\"fullReasonMissing\":false}"
+    },
+    {
+      "id": "event-1793070253320-102",
+      "ts": 1793070253320,
+      "seq": 97,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 2/3",
+      "detail": "S2-血肉师（文件夹）"
+    },
+    {
+      "id": "event-1793070253330-103",
+      "ts": 1793070253330,
+      "seq": 98,
+      "type": "agent-model-fallback",
+      "level": "warn",
+      "label": "Agent 模型未显式配置，已回退供应商默认模型",
+      "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"deepseek-v4-pro\",\"fallbackSource\":\"provider.selectedModel\"}"
+    },
+    {
+      "id": "event-1793070253330-105",
+      "ts": 1793070253330,
+      "seq": 99,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 2 次 API 调用开始",
+      "detail": "{\"skillName\":\"S2-血肉师（文件夹）\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1793070253330-106",
+      "ts": 1793070253330,
+      "seq": 100,
+      "type": "deai-prompt-variant",
+      "level": "info",
+      "label": "降AI注入变体：链步骤 2/3",
+      "detail": "{\"skillIndex\":1,\"totalSkillCount\":3,\"variant\":\"creative\",\"charCount\":383}"
+    },
+    {
+      "id": "event-1793070253356-107",
+      "ts": 1793070253356,
+      "seq": 101,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":5286,\"userPromptLength\":5989,\"systemPromptLength\":11515,\"sampleCount\":5,\"isRetry\":false,\"declaredFullUpstream\":true,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793069762862-1\",\"traceCallId\":\"api-1793070253330-104\"}"
+    },
+    {
+      "id": "event-1793070253361-109",
+      "ts": 1793070253361,
+      "seq": 102,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070253361-110",
+      "ts": 1793070253361,
+      "seq": 103,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1793070253361-108",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1793070253361-111",
+      "ts": 1793070253361,
+      "seq": 104,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070253364-112",
+      "ts": 1793070253364,
+      "seq": 105,
+      "turnId": "api-1793070253330-104",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"pipeline-repair-feedback-live-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1793070268371-113",
+      "ts": 1793070268371,
+      "seq": 106,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070268372-114",
+      "ts": 1793070268372,
+      "seq": 107,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070283370-115",
+      "ts": 1793070283370,
+      "seq": 108,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070283370-116",
+      "ts": 1793070283370,
+      "seq": 109,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070298378-117",
+      "ts": 1793070298378,
+      "seq": 110,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070298378-118",
+      "ts": 1793070298378,
+      "seq": 111,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070313363-119",
+      "ts": 1793070313363,
+      "seq": 112,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070313363-120",
+      "ts": 1793070313363,
+      "seq": 113,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070328362-121",
+      "ts": 1793070328362,
+      "seq": 114,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070328362-122",
+      "ts": 1793070328362,
+      "seq": 115,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070341382-123",
+      "ts": 1793070341382,
+      "seq": 116,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / S2-血肉师（文件夹） / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1793070341389-124",
+      "ts": 1793070341389,
+      "seq": 117,
+      "type": "schema-retry-feedback-composed",
+      "level": "info",
+      "label": "结构化重试反馈已单源合成：S2-血肉师（文件夹）",
+      "detail": "{\"candidateChars\":3162,\"feedbackChars\":697,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":2744}"
+    },
+    {
+      "id": "event-1793070341389-125",
+      "ts": 1793070341389,
+      "seq": 118,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1（重试）",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":5286,\"userPromptLength\":5989,\"systemPromptLength\":12214,\"sampleCount\":5,\"isRetry\":true,\"declaredFullUpstream\":true,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793069762862-1\",\"traceCallId\":\"api-1793070253330-104\"}"
+    },
+    {
+      "id": "event-1793070341390-127",
+      "ts": 1793070341390,
+      "seq": 119,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070341390-128",
+      "ts": 1793070341390,
+      "seq": 120,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=2 / heartbeat=false / schema_retry",
+      "payload": {
+        "physicalCallId": "physical-1793070341390-126",
+        "seq": 2,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1793070341390-129",
+      "ts": 1793070341390,
+      "seq": 121,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070341391-130",
+      "ts": 1793070341391,
+      "seq": 122,
+      "turnId": "api-1793070253330-104",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"pipeline-repair-feedback-live-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1793070356395-131",
+      "ts": 1793070356395,
+      "seq": 123,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070356395-132",
+      "ts": 1793070356395,
+      "seq": 124,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070371392-133",
+      "ts": 1793070371392,
+      "seq": 125,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070371392-134",
+      "ts": 1793070371392,
+      "seq": 126,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070386401-135",
+      "ts": 1793070386401,
+      "seq": 127,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070386401-136",
+      "ts": 1793070386401,
+      "seq": 128,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070401407-137",
+      "ts": 1793070401407,
+      "seq": 129,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070401408-138",
+      "ts": 1793070401408,
+      "seq": 130,
+      "type": "trace-events-compacted",
+      "level": "warn",
+      "label": "运行记录事件已压缩",
+      "detail": "droppedInfo=2 kept=127",
+      "payload": {
+        "droppedInfoEvents": 2,
+        "keptEvents": 127
+      }
+    },
+    {
+      "id": "event-1793070401408-139",
+      "ts": 1793070401408,
+      "seq": 131,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070416403-140",
+      "ts": 1793070416403,
+      "seq": 132,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070416403-141",
+      "ts": 1793070416403,
+      "seq": 133,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070431400-142",
+      "ts": 1793070431400,
+      "seq": 134,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070431400-143",
+      "ts": 1793070431400,
+      "seq": 135,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070446406-144",
+      "ts": 1793070446406,
+      "seq": 136,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070446406-145",
+      "ts": 1793070446406,
+      "seq": 137,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070461394-146",
+      "ts": 1793070461394,
+      "seq": 138,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070461394-147",
+      "ts": 1793070461394,
+      "seq": 139,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070476395-148",
+      "ts": 1793070476395,
+      "seq": 140,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070476395-149",
+      "ts": 1793070476395,
+      "seq": 141,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070491407-150",
+      "ts": 1793070491407,
+      "seq": 142,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070491407-151",
+      "ts": 1793070491407,
+      "seq": 143,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070506398-152",
+      "ts": 1793070506398,
+      "seq": 144,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070506398-153",
+      "ts": 1793070506398,
+      "seq": 145,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070521403-154",
+      "ts": 1793070521403,
+      "seq": 146,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070521403-155",
+      "ts": 1793070521403,
+      "seq": 147,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070536397-156",
+      "ts": 1793070536397,
+      "seq": 148,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070536397-157",
+      "ts": 1793070536397,
+      "seq": 149,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070551396-158",
+      "ts": 1793070551396,
+      "seq": 150,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070551396-159",
+      "ts": 1793070551396,
+      "seq": 151,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070566397-160",
+      "ts": 1793070566397,
+      "seq": 152,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070566397-161",
+      "ts": 1793070566397,
+      "seq": 153,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070581394-162",
+      "ts": 1793070581394,
+      "seq": 154,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070581394-163",
+      "ts": 1793070581394,
+      "seq": 155,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070596395-164",
+      "ts": 1793070596395,
+      "seq": 156,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070596395-165",
+      "ts": 1793070596395,
+      "seq": 157,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070611404-166",
+      "ts": 1793070611404,
+      "seq": 158,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070611404-167",
+      "ts": 1793070611404,
+      "seq": 159,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070626400-168",
+      "ts": 1793070626400,
+      "seq": 160,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070626400-169",
+      "ts": 1793070626400,
+      "seq": 161,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070641396-170",
+      "ts": 1793070641396,
+      "seq": 162,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070641396-171",
+      "ts": 1793070641396,
+      "seq": 163,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070656394-172",
+      "ts": 1793070656394,
+      "seq": 164,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070656394-173",
+      "ts": 1793070656394,
+      "seq": 165,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070671409-174",
+      "ts": 1793070671409,
+      "seq": 166,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070671409-175",
+      "ts": 1793070671409,
+      "seq": 167,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070686394-176",
+      "ts": 1793070686394,
+      "seq": 168,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070686395-177",
+      "ts": 1793070686395,
+      "seq": 169,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070701406-178",
+      "ts": 1793070701406,
+      "seq": 170,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070701406-179",
+      "ts": 1793070701406,
+      "seq": 171,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070716400-180",
+      "ts": 1793070716400,
+      "seq": 172,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070716400-181",
+      "ts": 1793070716400,
+      "seq": 173,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070731399-182",
+      "ts": 1793070731399,
+      "seq": 174,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070731399-183",
+      "ts": 1793070731399,
+      "seq": 175,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070746405-184",
+      "ts": 1793070746405,
+      "seq": 176,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070746405-185",
+      "ts": 1793070746405,
+      "seq": 177,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070761394-186",
+      "ts": 1793070761394,
+      "seq": 178,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070761395-187",
+      "ts": 1793070761395,
+      "seq": 179,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 2/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "2/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070775688-188",
+      "ts": 1793070775688,
+      "seq": 180,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 2 次物理请求完成",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1793070775704-189",
+      "ts": 1793070775704,
+      "seq": 181,
+      "type": "schema-retry-feedback-composed",
+      "level": "info",
+      "label": "结构化重试反馈已单源合成：S2-血肉师（文件夹）",
+      "detail": "{\"candidateChars\":2315,\"feedbackChars\":737,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":1897}"
+    },
+    {
+      "id": "event-1793070775705-190",
+      "ts": 1793070775705,
+      "seq": 182,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1（重试）",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":5286,\"userPromptLength\":5989,\"systemPromptLength\":12254,\"sampleCount\":5,\"isRetry\":true,\"declaredFullUpstream\":true,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793069762862-1\",\"traceCallId\":\"api-1793070253330-104\"}"
+    },
+    {
+      "id": "event-1793070775709-192",
+      "ts": 1793070775709,
+      "seq": 183,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070775709-193",
+      "ts": 1793070775709,
+      "seq": 184,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=3 / heartbeat=false / schema_retry",
+      "payload": {
+        "physicalCallId": "physical-1793070775709-191",
+        "seq": 3,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1793070775709-194",
+      "ts": 1793070775709,
+      "seq": 185,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070775713-195",
+      "ts": 1793070775713,
+      "seq": 186,
+      "turnId": "api-1793070253330-104",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"pipeline-repair-feedback-live-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1793070790725-196",
+      "ts": 1793070790725,
+      "seq": 187,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070790725-197",
+      "ts": 1793070790725,
+      "seq": 188,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070805717-198",
+      "ts": 1793070805717,
+      "seq": 189,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070805717-199",
+      "ts": 1793070805717,
+      "seq": 190,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070820711-200",
+      "ts": 1793070820711,
+      "seq": 191,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070820711-201",
+      "ts": 1793070820711,
+      "seq": 192,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070835722-202",
+      "ts": 1793070835722,
+      "seq": 193,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070835722-203",
+      "ts": 1793070835722,
+      "seq": 194,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070850719-204",
+      "ts": 1793070850719,
+      "seq": 195,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070850719-205",
+      "ts": 1793070850719,
+      "seq": 196,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070865712-206",
+      "ts": 1793070865712,
+      "seq": 197,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求进行中",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1793070865713-207",
+      "ts": 1793070865713,
+      "seq": 198,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 3/S2-血肉师（文件夹）",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "3/S2-血肉师（文件夹）"
+      }
+    },
+    {
+      "id": "event-1793070871010-208",
+      "ts": 1793070871010,
+      "seq": 199,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 3 次物理请求完成",
+      "detail": "schema_retry / S2-血肉师（文件夹） / deepseek-v4-pro / stop"
+    },
+    {
+      "id": "event-1793070871020-209",
+      "ts": 1793070871020,
+      "seq": 200,
+      "type": "schema-retry-feedback-composed",
+      "level": "info",
+      "label": "结构化重试反馈已单源合成：S2-血肉师（文件夹）",
+      "detail": "{\"candidateChars\":2917,\"feedbackChars\":725,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":2499}"
+    },
+    {
+      "id": "event-1793070871020-210",
+      "ts": 1793070871020,
+      "seq": 201,
+      "type": "body-feedback-audit",
+      "level": "info",
+      "label": "正文修复反馈审计：候选全文已抑制",
+      "detail": "{\"channel\":\"schema\",\"candidateChars\":2917,\"feedbackChars\":725,\"anchorCount\":3,\"previewChars\":418,\"suppressedCandidateChars\":2499}"
+    },
+    {
+      "id": "event-1793070871021-211",
+      "ts": 1793070871021,
+      "seq": 202,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1793070871021-212",
+      "ts": 1793070871021,
+      "seq": 203,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → degraded",
+      "detail": "apiCall=api-1793070253330-104 seq=2"
+    },
+    {
+      "id": "event-1793070871021-213",
+      "ts": 1793070871021,
+      "seq": 204,
+      "type": "api-degraded",
+      "level": "warn",
+      "label": "第 2 次 API 调用完成（降级）",
+      "detail": "S2-血肉师（文件夹） / deepseek-v4-pro / folder SKILL 降级完成，已保留可用输出"
+    },
+    {
+      "id": "event-1793070871021-214",
+      "ts": 1793070871021,
+      "seq": 205,
+      "type": "folder-skill-degraded-with-error",
+      "level": "warn",
+      "label": "SKILL「S2-血肉师（文件夹）」降级但保留有效输出",
+      "detail": "第 1/3 次输出未通过 postProcess 校验：【正文交接】出现0次，必须恰好一次；第 2/3 次输出未通过 postProcess 校验：正文仅1445字，低于1500字结构下限，疑似坍缩\n正文1445字，低于生成下限1600字（目标2000字）；第 3/3 次输出未通过 postProcess 校验：输出前检测到分析引导词，第一个字必须是正文\n【正文交接】出现0次，必须恰好一次\n孤立分隔线残留；输出未通过校验，已达最大尝试次数 3"
+    },
+    {
+      "id": "event-1793070871024-215",
+      "ts": 1793070871024,
+      "seq": 206,
+      "type": "body-step-acceptance",
+      "level": "warn",
+      "label": "正文生成步骤 2/3 统一验收",
+      "detail": "{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"rawWordCount\":2650,\"extractedWordCount\":2650,\"metadata\":{},\"metadataDelta\":0,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":2000,\"minWords\":1600,\"maxWords\":4000},\"degradedErrors\":[\"第 1/3 次输出未通过 postProcess 校验：【正文交接】出现0次，必须恰好一次\",\"第 2/3 次输出未通过 postProcess 校验：正文仅1445字，低于1500字结构下限，疑似坍缩\\n正文1445字，低于生成下限1600字（目标2000字）\",\"第 3/3 次输出未通过 postProcess 校验：输出前检测到分析引导词，第一个字必须是正文\\n【正文交接】出现0次，必须恰好一次\\n孤立分隔线残留\",\"输出未通过校验，已达最大尝试次数 3\"],\"contractErrors\":[]}"
+    },
+    {
+      "id": "event-1793070871024-217",
+      "ts": 1793070871024,
+      "seq": 207,
+      "type": "processing-report",
+      "level": "info",
+      "label": "本地处理完成：chain-handoff",
+      "detail": "post"
+    },
+    {
+      "id": "event-1793070871026-218",
+      "ts": 1793070871026,
+      "seq": 208,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 2/3 Handoff",
+      "detail": "{\"artifactId\":\"handoff-1-3049d250\",\"sourceStep\":1,\"sourceSkillId\":\"folder:KAI-S2\",\"outputHash\":\"3049d250\",\"fullTextLength\":3162,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1793070871049-219",
+      "ts": 1793070871049,
+      "seq": 209,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 3/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"declared_full_context_no_outline\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":true,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":true,\"originalPromptLength\":414,\"finalPromptLength\":414,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1793070871049-220",
+      "ts": 1793070871049,
+      "seq": 210,
+      "type": "body-generator-ledger-missing",
+      "level": "error",
+      "label": "正文生成步账本缺失，已终止",
+      "detail": "{\"totalSteps\":3,\"stepIndex\":2}"
+    },
+    {
+      "id": "event-1793070871052-221",
+      "ts": 1793070871052,
+      "seq": 211,
+      "type": "body-artifact-attempt",
+      "level": "error",
+      "label": "正文批次验收",
+      "detail": "{\"attemptId\":\"ch-repair-feedback-live-attempt-1-chqnw4o0\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":2000,\"ratio\":0,\"errors\":[\"正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"degraded\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2650,\"extractedWordCount\":2650,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：【正文交接】出现0次，必须恰好一次\",\"第 2/3 次输出未通过 postProcess 校验：正文仅1445字，低于1500字结构下限，疑似坍缩\\n正文1445字，低于生成下限1600字（目标2000字）\",\"第 3/3 次输出未通过 postProcess 校验：输出前检测到分析引导词，第一个字必须是正文\\n【正文交接】出现0次，必须恰好一次\\n孤立分隔线残留\",\"输出未通过校验，已达最大尝试次数 3\"]}],\"degradedSteps\":[{\"stepIndex\":1,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：【正文交接】出现0次，必须恰好一次\",\"第 2/3 次输出未通过 postProcess 校验：正文仅1445字，低于1500字结构下限，疑似坍缩\\n正文1445字，低于生成下限1600字（目标2000字）\",\"第 3/3 次输出未通过 postProcess 校验：输出前检测到分析引导词，第一个字必须是正文\\n【正文交接】出现0次，必须恰好一次\\n孤立分隔线残留\",\"输出未通过校验，已达最大尝试次数 3\"]}],\"rawVsExtractedDelta\":0}"
+    },
+    {
+      "id": "event-1793070871054-222",
+      "ts": 1793070871054,
+      "seq": 212,
+      "type": "failed",
+      "level": "error",
+      "label": "正文运行失败",
+      "detail": "正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付"
+    },
+    {
+      "id": "event-1793070871056-223",
+      "ts": 1793070871056,
+      "seq": 213,
+      "type": "finished",
+      "level": "error",
+      "label": "运行失败",
+      "detail": "正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付 / generation_failed"
+    },
+    {
+      "id": "event-1793070871057-224",
+      "ts": 1793070871057,
+      "seq": 214,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "generation_failed / run=run-1793069762862-1"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1793069762987-11",
+      "seq": 1,
+      "step": 4,
+      "skillId": "folder:KAI-S1",
+      "skillName": "S1-骨架师（文件夹）",
+      "providerId": "pipeline-repair-feedback-live-provider",
+      "providerName": "Pipeline Repair Feedback Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "deaiPromptVariant": "methodology",
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "status": "success",
+      "startedAt": 1793069762987,
+      "physicalCalls": [
+        {
+          "id": "physical-1793069763363-15",
+          "physicalCallId": "physical-1793069763358-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-006"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-007"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 7234,
+            "outputTokens": 4756,
+            "totalTokens": 11990,
+            "reasoningOutputTokens": 820
+          },
+          "usageUnavailable": false,
+          "startedAt": 1793069763363,
+          "durationMs": 127941,
+          "firstTokenMs": 2754,
+          "outputMs": 125187,
+          "endedAt": 1793069891303,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 5668,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 5668 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 5668,
+            "actualInputTokens": 7234,
+            "driftRatio": 0.27628793225123505,
+            "correctedRatio": 1.276287932251235
+          },
+          "firstContentAt": 1793069789923,
+          "lastContentAt": 1793069891250,
+          "lastReasoningAt": 1793069789909,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-005",
+          "responseTextPreview": "【场景1：确认风暴信标】\nPOV：周砚(硬)\n时间地点：灯塔底层，日落时分，风暴预警后第一小时(硬)\n场景起点：周砚站在灯塔底层入口处，背靠铁门，面向塔内石壁上的信标观测窗(硬)\n人物位置：周砚在观测窗前两步，左手扶着潮湿的石壁，身后铁门虚掩(硬)\n关键物体位置：信标观测窗在周砚头顶一臂高，防水袋在他左胸内袋，灯塔钥匙挂在右腰(硬)\n目标：确认风暴信标的三次红色闪烁规律，为出航判断时间窗口(硬)\n行动：推门进入塔底→摸黑沿石壁走到观测窗下→扶湿冷石壁听塔外风声→数第一次红色闪烁的间隔→默记间隔秒数→等待第二次闪烁确认节奏→在第三轮闪烁时用拇指掐食指关节记下完整周期(硬)\n信息来源：视网膜上残留的红光余像、石壁透过来的信标灯机械转动的低频震颤、指关节皮肤在第三轮闪烁后按压出的凹陷深度(硬)\n阻碍：塔内潮湿石壁让手掌打滑，每次信标亮起前塔身震动让肩膀撞上石壁，必须在下一轮闪烁前靠触觉复位观测位置；港务巡查的靴声从塔外石阶传来，最近时距离铁门不到十米(硬)\n判断变化：以为信标只是常规风暴预警→第一轮闪烁后察觉到间隔比标准风暴信号短三分之一→判断这不是普通的天气预警信标，是人工修改过的信号节奏"
+        },
+        {
+          "id": "physical-1793069891313-39",
+          "physicalCallId": "physical-1793069891312-0",
+          "seq": 2,
+          "phase": "schema_retry",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-008"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-003"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 7750,
+            "outputTokens": 14120,
+            "totalTokens": 21870,
+            "reasoningOutputTokens": 10781
+          },
+          "usageUnavailable": false,
+          "startedAt": 1793069891313,
+          "durationMs": 361984,
+          "firstTokenMs": 2364,
+          "outputMs": 359620,
+          "endedAt": 1793070253297,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 7657,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 7657 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 7657,
+            "actualInputTokens": 7750,
+            "driftRatio": 0.012145748987854255,
+            "correctedRatio": 1.0121457489878543
+          },
+          "firstContentAt": 1793070186283,
+          "lastContentAt": 1793070253274,
+          "lastReasoningAt": 1793070186106,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠"
+        }
+      ],
+      "lastExecutionActivityAt": 1793069891313,
+      "providerContextWindowTokens": 1000000,
+      "estimatedInputTokens": 7657,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 7657 / 可用 967232（未声明窗口，按保守值处理）",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 7657,
+        "actualInputTokens": 7750,
+        "driftRatio": 0.012145748987854255,
+        "correctedRatio": 1.0121457489878543
+      },
+      "finishReason": "stop",
+      "durationMs": 490319,
+      "timingLedger": {
+        "physicalCallCount": 2,
+        "retryPhysicalCallCount": 1,
+        "physicalDurationSumMs": 489925,
+        "firstTokenSumMs": 5118,
+        "outputSumMs": 484807,
+        "minFirstTokenMs": 2364,
+        "maxFirstTokenMs": 2754,
+        "localOverheadMs": 394,
+        "requestBuildMs": 1,
+        "schemaValidateMs": 1,
+        "retryMs": 0,
+        "postProcessMs": 13,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[全书大纲]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "usage": {
+        "inputTokens": 7750,
+        "outputTokens": 14120,
+        "totalTokens": 21870,
+        "reasoningOutputTokens": 10781
+      },
+      "usageUnavailable": false,
+      "endedAt": 1793070253304,
+      "semantic": {
+        "conversationId": "run-1793069762862-1",
+        "usage": {
+          "inputTokens": 7750,
+          "outputTokens": 14120,
+          "totalTokens": 21870,
+          "reasoningOutputTokens": 10781
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠"
+    },
+    {
+      "id": "api-1793070253330-104",
+      "seq": 2,
+      "step": 4,
+      "skillId": "folder:KAI-S2",
+      "skillName": "S2-血肉师（文件夹）",
+      "providerId": "pipeline-repair-feedback-live-provider",
+      "providerName": "Pipeline Repair Feedback Live Provider",
+      "model": "deepseek-v4-pro",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-009"
+        }
+      },
+      "deaiPromptVariant": "creative",
+      "reasoningText": {
+        "__payload": {
+          "id": "payload-011"
+        }
+      },
+      "status": "degraded",
+      "startedAt": 1793070253330,
+      "physicalCalls": [
+        {
+          "id": "physical-1793070253361-108",
+          "physicalCallId": "physical-1793070253356-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-012"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-013"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-014"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 11907,
+            "outputTokens": 2751,
+            "totalTokens": 14658,
+            "reasoningOutputTokens": 543
+          },
+          "usageUnavailable": false,
+          "startedAt": 1793070253361,
+          "durationMs": 88021,
+          "firstTokenMs": 2499,
+          "outputMs": 85522,
+          "endedAt": 1793070341382,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 10934,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 10934 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 10934,
+            "actualInputTokens": 11907,
+            "driftRatio": 0.08898847631242002,
+            "correctedRatio": 1.08898847631242
+          },
+          "firstContentAt": 1793070270114,
+          "lastContentAt": 1793070341335,
+          "lastReasoningAt": 1793070269993,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-010",
+          "responseTextPreview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势让右腿开始发麻。在第三十一下脉搏的时候，第二道红光填满观测窗，比第一次更短，但更亮。雾散了一点，我看见窗外灰色天幕下那道光柱横扫过去，三秒后收束成针尖大小，然后消失。\n\n我把头压低，贴在潮湿的石壁上。石头隔着外套还透凉意。观测窗的角度限制太窄，从底层看出去只能收到塔灯最下沿的一截。第一下和第二下的间隔，我记下了——大约三十一脉搏，换算过来不足四十秒。第二次和第三次之间的间距偏长，我等了又等，腿已经麻到膝盖，掌心按的左腕也出了一层薄汗。\n\n第四十五脉搏。窗外红了一下，只闪了半截。\n\n不是完整的脉冲——光没走完，像被什么东西截断了。光柱往外铺到一半就散开，剩几缕碎红落进雾里。我继续按脉，等它收回来"
+        },
+        {
+          "id": "physical-1793070341390-126",
+          "physicalCallId": "physical-1793070341389-0",
+          "seq": 2,
+          "phase": "schema_retry",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-015"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-017"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-018"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 12447,
+            "outputTokens": 5832,
+            "totalTokens": 18279,
+            "reasoningOutputTokens": 4123
+          },
+          "usageUnavailable": false,
+          "startedAt": 1793070341390,
+          "durationMs": 434298,
+          "firstTokenMs": 6834,
+          "outputMs": 427464,
+          "endedAt": 1793070775688,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 11124,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 11124 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 11124,
+            "actualInputTokens": 12447,
+            "driftRatio": 0.11893203883495151,
+            "correctedRatio": 1.1189320388349515
+          },
+          "firstContentAt": 1793070693105,
+          "lastContentAt": 1793070775654,
+          "lastReasoningAt": 1793070693063,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-016",
+          "responseTextPreview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势保持到眼睛与观测窗齐平。第一次红光在石壁上铺开又收干净，我又开始数。数到三十七，第二下从窗外泻进来，短了一截，边缘模糊，像被谁把尾巴截掉。再数四十一，第三下只有半截，切在雾里，剩下的半截没有来。\n\n我把这组数字在心里过了一遍：六十、三十七、四十一。第三个不完整，只能拿前两个推算。塔顶本来可以看得更清楚，但台阶会响，港务巡查这个点差不多该到塔底了。我没等第四下，起身，背贴塔壁，脸转向入口。名单还不知道在哪。门缝里的风又挤进来，比刚才响。\n\n我蹲下去，手按在膝盖旁的地面上。指尖先碰到一片潮乎乎的纸角，软，从石板缝里露出半截。我把它抽出来，纸面受潮，折成窄条。展开时我放得慢，折痕处几乎要裂开。指尖沿"
+        },
+        {
+          "id": "physical-1793070775709-191",
+          "physicalCallId": "physical-1793070775705-0",
+          "seq": 3,
+          "phase": "schema_retry",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-009"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-020"
+            }
+          },
+          "reasoningText": {
+            "__payload": {
+              "id": "payload-011"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 12414,
+            "outputTokens": 2189,
+            "totalTokens": 14603,
+            "reasoningOutputTokens": 218
+          },
+          "usageUnavailable": false,
+          "startedAt": 1793070775709,
+          "durationMs": 95302,
+          "firstTokenMs": 29132,
+          "outputMs": 66170,
+          "endedAt": 1793070871010,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 10996,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 10996 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 10996,
+            "actualInputTokens": 12414,
+            "driftRatio": 0.12895598399417962,
+            "correctedRatio": 1.1289559839941796
+          },
+          "firstContentAt": 1793070811737,
+          "lastContentAt": 1793070870923,
+          "lastReasoningAt": 1793070811737,
+          "heartbeat": true,
+          "responseTextPayloadRef": "payload-019",
+          "responseTextPreview": "我背靠铁门，先听见自己的呼吸。\n\n门外的风声挤过门缝，带进来一股海腥和铁锈混合的气味。我把右手按在左腕上，皮肤底下的脉搏一下一下跳得发沉。\n\n数到六十。\n\n没等到红光。\n\n又数六十。第六十一秒刚跳过去，观测窗的位置亮了一下——不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层石壁照出一圈一圈的暗红。\n\n我没动。手指仍压在脉搏上，眼睛盯着观测窗的方向。\n\n红光灭了。从亮起到熄灭，我默数到六十。\n\n第二次红光在三十七秒后出现，比第一次短了将近一半。我把额头压低，贴在潮湿的石壁上，海雾从观测窗灌进来，糊在脸上又冷又黏。第二次闪光消失时，石壁上的水渍暗下去，底层重新坠入黑暗。\n\n我继续数。\n\n第三次来得更迟。四十一秒过去，观测窗只亮了一截——红光从窗框左边冒出来，还没走到右侧就断了。我在心里记下这个数，把按住左腕的手松开。\n\n信标还在工作。但第三次数据只能靠前两次间隔去推。\n\n我站起身，膝盖咔嗒响了一声。背后铁门外面没有脚步声，但港务巡查的路线我摸得清——他们每隔四十分钟从西码头绕到灯塔基座，手电扫一遍底层入口。第三次红光断了之后，我已经多逗留了至少两分钟。\n\n我把身体从"
+        }
+      ],
+      "lastExecutionActivityAt": 1793070775709,
+      "durationMs": 617701,
+      "timingLedger": {
+        "physicalCallCount": 3,
+        "retryPhysicalCallCount": 2,
+        "physicalDurationSumMs": 617621,
+        "firstTokenSumMs": 38465,
+        "outputSumMs": 579156,
+        "minFirstTokenMs": 2499,
+        "maxFirstTokenMs": 29132,
+        "localOverheadMs": 80,
+        "requestBuildMs": 1,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 30,
+        "schemaRetryCount": 2,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[全书大纲]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "error": "folder SKILL 降级完成，已保留可用输出",
+      "endedAt": 1793070871021,
+      "responseTextPayloadRef": "payload-010",
+      "responseTextPreview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势让右腿开始发麻。在第三十一下脉搏的时候，第二道红光填满观测窗，比第一次更短，但更亮。雾散了一点，我看见窗外灰色天幕下那道光柱横扫过去，三秒后收束成针尖大小，然后消失。\n\n我把头压低，贴在潮湿的石壁上。石头隔着外套还透凉意。观测窗的角度限制太窄，从底层看出去只能收到塔灯最下沿的一截。第一下和第二下的间隔，我记下了——大约三十一脉搏，换算过来不足四十秒。第二次和第三次之间的间距偏长，我等了又等，腿已经麻到膝盖，掌心按的左腕也出了一层薄汗。\n\n第四十五脉搏。窗外红了一下，只闪了半截。\n\n不是完整的脉冲——光没走完，像被什么东西截断了。光柱往外铺到一半就散开，剩几缕碎红落进雾里。我继续按脉，等它收回来"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [
+    {
+      "id": "processing-1793070253305-97",
+      "stage": "post",
+      "processor": "chain-handoff",
+      "status": "success",
+      "startedAt": 1793070253305,
+      "endedAt": 1793070253305,
+      "durationMs": 0,
+      "inputRef": "payload-021",
+      "outputRef": "payload-023",
+      "outputLength": 4679
+    },
+    {
+      "id": "processing-1793070871024-216",
+      "stage": "post",
+      "processor": "chain-handoff",
+      "status": "success",
+      "startedAt": 1793070871024,
+      "endedAt": 1793070871024,
+      "durationMs": 0,
+      "inputRef": "payload-021",
+      "outputRef": "payload-025",
+      "outputLength": 3162
+    }
+  ],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 32932,
+      "chars": 12647,
+      "sha256": "2603d75ca98edfb32975237998e1146a6d7a9a1c5bb1a1f481c5066618d569e3",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871315
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 13209,
+      "chars": 4679,
+      "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871315
+    },
+    {
+      "id": "payload-003",
+      "kind": "reasoning",
+      "file": "003-reasoning.json",
+      "bytes": 45666,
+      "chars": 16026,
+      "sha256": "13dad1dc2605260f4941191f8af9a23def81c78fd400a69a6fb49de3e4008f38",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871316
+    },
+    {
+      "id": "payload-004",
+      "kind": "request",
+      "file": "004-request.json",
+      "bytes": 31098,
+      "chars": 11965,
+      "sha256": "f44c82573025f04457df917337bfc842b6b429f96bd1c463a2c0f88fb9022cf6",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871316
+    },
+    {
+      "id": "payload-005",
+      "kind": "response",
+      "file": "005-response.json",
+      "bytes": 16108,
+      "chars": 5624,
+      "sha256": "3b1bca3350a4cfcd488eac2b980e12e2a6d4025d1a7a86f8357201802d2f8d20",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871317
+    },
+    {
+      "id": "payload-006",
+      "kind": "stream",
+      "file": "006-stream.json",
+      "bytes": 16108,
+      "chars": 5624,
+      "sha256": "3b1bca3350a4cfcd488eac2b980e12e2a6d4025d1a7a86f8357201802d2f8d20",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871317
+    },
+    {
+      "id": "payload-007",
+      "kind": "reasoning",
+      "file": "007-reasoning.json",
+      "bytes": 3962,
+      "chars": 1362,
+      "sha256": "df4c32ad41e9e2b572f0b259c398850cc0b24276d6a1538c81e9ce3a681bb985",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871317
+    },
+    {
+      "id": "payload-008",
+      "kind": "stream",
+      "file": "008-stream.json",
+      "bytes": 13209,
+      "chars": 4679,
+      "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871317
+    },
+    {
+      "id": "payload-009",
+      "kind": "request",
+      "file": "009-request.json",
+      "bytes": 51281,
+      "chars": 19209,
+      "sha256": "8272c364615eaa015136250d0b4afddb8cb9a093e8663d57a8986b1bbcf4a56c",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871318
+    },
+    {
+      "id": "payload-010",
+      "kind": "response",
+      "file": "010-response.json",
+      "bytes": 9214,
+      "chars": 3162,
+      "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871318
+    },
+    {
+      "id": "payload-011",
+      "kind": "reasoning",
+      "file": "011-reasoning.json",
+      "bytes": 1047,
+      "chars": 361,
+      "sha256": "789dc800e5e417ee75242825cc594ea26bcaf000c0eb90561161f6fd1d72dd03",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871318
+    },
+    {
+      "id": "payload-012",
+      "kind": "request",
+      "file": "012-request.json",
+      "bytes": 49216,
+      "chars": 18434,
+      "sha256": "9b64f011fbf4e5de3c76e2a04accfe941dbb511688f740ff007f147f18934b9c",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871319
+    },
+    {
+      "id": "payload-013",
+      "kind": "stream",
+      "file": "013-stream.json",
+      "bytes": 9214,
+      "chars": 3162,
+      "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871319
+    },
+    {
+      "id": "payload-014",
+      "kind": "reasoning",
+      "file": "014-reasoning.json",
+      "bytes": 2413,
+      "chars": 813,
+      "sha256": "4e718f87da6bcf7db605a0ef61ede1e34adc5ce92911dbfa3e7aa9e33aa71705",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871319
+    },
+    {
+      "id": "payload-015",
+      "kind": "request",
+      "file": "015-request.json",
+      "bytes": 51217,
+      "chars": 19173,
+      "sha256": "13b2eb56dc2522a87e6c80d5ded2a807cffaef2f72c7183570464aed8e4d43f7",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-016",
+      "kind": "response",
+      "file": "016-response.json",
+      "bytes": 6705,
+      "chars": 2315,
+      "sha256": "2bb2583b7f4d0841b96e41e94c431e01bd60e1cbf2ec81a4b6f54fb1e3028b9f",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-017",
+      "kind": "stream",
+      "file": "017-stream.json",
+      "bytes": 6705,
+      "chars": 2315,
+      "sha256": "2bb2583b7f4d0841b96e41e94c431e01bd60e1cbf2ec81a4b6f54fb1e3028b9f",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-018",
+      "kind": "reasoning",
+      "file": "018-reasoning.json",
+      "bytes": 16959,
+      "chars": 6135,
+      "sha256": "716122ff70da94e2fcbe49913c7ee1e07e37c0dac730ab1c3899a9e31190bff3",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-019",
+      "kind": "response",
+      "file": "019-response.json",
+      "bytes": 8399,
+      "chars": 2917,
+      "sha256": "06d7657f7b866d7e7ffc34a20d763614d5c6205e70c774c0654a23623f8cffc0",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-020",
+      "kind": "stream",
+      "file": "020-stream.json",
+      "bytes": 8399,
+      "chars": 2917,
+      "sha256": "06d7657f7b866d7e7ffc34a20d763614d5c6205e70c774c0654a23623f8cffc0",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-021",
+      "kind": "processing-input",
+      "file": "021-processing-input.json",
+      "bytes": 1172,
+      "chars": 414,
+      "sha256": "817d6ab2048270a91647607fc450864f31e9a844526210edf819e373d932c911",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-022",
+      "kind": "processing-output",
+      "file": "022-processing-output.json",
+      "bytes": 1424,
+      "chars": 500,
+      "sha256": "2871948bb331d48db995b4524d91535dcf595cdfd20b66ea830e80f43615b4a3",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-023",
+      "kind": "processing-output",
+      "file": "023-processing-output.json",
+      "bytes": 13209,
+      "chars": 4679,
+      "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-024",
+      "kind": "processing-output",
+      "file": "024-processing-output.json",
+      "bytes": 1472,
+      "chars": 500,
+      "sha256": "33ef68ac7badcdeac8ca828c203370d04162c380e5e622ea435500d7936bc969",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-025",
+      "kind": "processing-output",
+      "file": "025-processing-output.json",
+      "bytes": 9214,
+      "chars": 3162,
+      "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-026",
+      "kind": "folder-output",
+      "file": "026-folder-output.json",
+      "bytes": 13209,
+      "chars": 4679,
+      "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-027",
+      "kind": "folder-output",
+      "file": "027-folder-output.json",
+      "bytes": 9214,
+      "chars": 3162,
+      "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    },
+    {
+      "id": "payload-028",
+      "kind": "processing-output",
+      "file": "028-processing-output.json",
+      "bytes": 8399,
+      "chars": 2917,
+      "sha256": "06d7657f7b866d7e7ffc34a20d763614d5c6205e70c774c0654a23623f8cffc0",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "createdAt": 1793070871320
+    }
+  ],
+  "eventLedger": {
+    "totalEvents": 214,
+    "droppedInfoEvents": 86,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "folderDiagnostics": [
+    {
+      "status": "success",
+      "errors": [
+        "第 1/3 次输出未通过 postProcess 校验：闪烁(9次)"
+      ],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-10-27T02:56:03.352Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-10-27T02:56:03.353Z"
+        },
+        {
+          "type": "info",
+          "code": "template-variable-empty",
+          "message": "folder template.md 变量为空，已渲染为“未设置”：styleTags、pacingParams、prevChapterSummary、characters",
+          "at": "2026-10-27T02:56:03.353Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 闪烁(9次)",
+          "at": "2026-10-27T02:58:11.310Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-validation-failed",
+          "message": "尝试 1/3：闪烁(9次)",
+          "at": "2026-10-27T02:58:11.311Z"
+        }
+      ],
+      "folderPackageCache": true,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [],
+        "durationMs": 6,
+        "outputPayloadRef": "payload-023",
+        "outputLength": 4679,
+        "outputPreview": "【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "pipeline-repair-feedback-live-provider",
+        "usage": {
+          "inputTokens": 7750,
+          "outputTokens": 14120,
+          "totalTokens": 21870,
+          "reasoningOutputTokens": 10781
+        },
+        "reasoningText": "我们需要回答用户。用户给了很长的系统指令，要求只输出骨架文档，不能有分析。当前输入包括章节标题、梗概、剧情点、上一章梗概未设置、角色列表未设置、每章字数2000、风格标签未设置、节奏参数未设置。还有一条结构化重试反馈，指出校验失败项：闪烁(9次)，候选输出定位锚点等，要求重新输出完整结果。\n\n我们需要遵守协议。首先检查施工门禁。输入有章节剧情点。五项施工条件：\n- POV：周砚第一人称，场景有明确观察者。\n- 空间：灯塔底层、信标观测窗、侧门、南码头、渔船等，需相对位置。输入部分位置未详细，需要可施工。可能有些缺失。\n- 动作顺序：确认三次红色闪烁；收到名单；认出私章；折进防水袋；从侧门绕到南码头；预约渔船；写航海日志；留下暗号。顺序清楚。\n- 事实边界：本章事件、结果和章末落点已知。\n- 章末钩子：留下接头暗号，许知微是否能收到未知，渔船已预约未出发，可能钩子。\n所以可以施工。\n\n章概要一致性预检：章节梗概、剧情点、上一章梗概。上一章未设置。当前章节梗概与剧情点一致。无冲突。\n\n绝对时间锚：输入未提供具体时间。剧情点提到风暴信标三次红色闪烁、清晨渔船、离港前。需要标待补信息？但可相对锚：风暴预警后？用户候选之前有时间地点“风暴预警后第一小时”，但输入未提供。系统说输入未提供时写“待补信息”，不得虚构具体时间。我们必须标“待补信息”。但结构化重试反馈中候选输出有时间“风暴预警后第一小时”，那是候选输出，不是原始输入。我们需要根据输入，不能沿用候选的时间锚？可能需要将时间标为待补信息，或用章节内相对锚：“确认信标后若干分钟”“从灯塔到南码头途中”。但绝对锚要求可排序绝对或相对锚点，如“入侵后第三日黄昏”“暴雨开始后二十分钟”“距上一场景约半小时”。这里章节内事件有相对顺序，可以写“收到名单后”“从灯塔底层出发后”“抵达南码头后”“离港前”。这些是事件相对锚，应该可以？系统说“每个场景的时间地点必须含一个可排序的绝对或相对锚点”，相对锚可以。我们可以用“信标确认后第五分钟”等？输入未提供具体时间长度，如果虚构具体分钟数，可能有违“不得虚构具体时间”。我们可以选择事件相对锚，不写分钟，例如“确认三次红色闪烁后”“收到名单并认出私章后”。这算相对锚，可排序。但需要具体场景内的时间。可能标为“信标确认后、离开灯塔底层前”等。时间地点可写“灯塔底层，确认风暴信标三次红色闪烁后（相对锚）(硬/待?)” 由于事件顺序是输入给的，锚是硬？但具体间隔未知。我们写“确认信标后（距离未提供）(待)”? 绝对时间锚字段必须含锚，我们可以使用相对事件锚，不带具体分钟，标记(待)或(软)。需要谨慎。\n\n另外，结构化重试反馈说“闪烁(9次)”校验失败。这是什么意思？可能之前输出中“红色闪烁”出现太多次或描述闪烁次数过多？反馈要求重新输出完整结果，不要复述反馈。我们应当减少“闪烁”一词重复？不，校验失败项“闪烁(9次)”可能指候选输出中“闪烁”出现9次，密度过高？我们需调整骨架，避免过度重复“闪烁”。剧情点要求确认风暴信标的三次红色闪烁。我们可能需要仅使用一两次，场景名称可能是“确认风暴信标”，不必每个场景重复。可以在场景1描写三次闪烁，但后续不重复。注意。\n\n候选输出摘要显示：\n【场景1：确认风暴信标】\nPOV：周砚(硬)\n时间地点：灯塔底层，日落时分，风暴预警后第一小时(硬)\n场景起点：周砚站在灯塔底层入口处，背靠铁门，面向塔内石壁上的信标观测窗(硬)\n人物位置：周砚在观测窗前两步，左手扶着潮湿的石壁，身后铁门虚掩(硬)\n关键物体位置：信标观测窗在周砚头顶一臂高，防水袋在他左胸内袋，灯塔钥匙挂在右腰(硬)\n目标：确认风暴信标的三次红色闪烁规律，为出航判断时间窗口(硬)\n...\n但原始输入并未提供“日落时分，风暴预警后第一小时”，这是候选输出虚构的时间。系统提示输入未提供时要标待补信息，不得虚构。我们应当把未提供的时间锚标为待补信息，而不是沿用候选输出虚构时间。我们需要输出符合原始材料，并且尽可能不违反复述反馈。我们不能使用候选输出的具体时间，除非输入有。输入没有。所以时间地点可以写“灯塔底层，确认三次红色闪烁前（具体时刻未提供）(待)”或者更好，“灯塔底层，风暴信标三次红色闪烁期间（相对锚：剧情点起始；绝对时刻待补）(硬/待)”。绝对时间锚要求含锚，这里的锚是“风暴信标三次红色闪烁期间”，可排序。但未提供更早锚，我们写“剧情点起始，风暴信标待确认前”。可能可以。\n\n但系统明确：“只有‘傍晚’‘夜里’这类氛围词不算锚点；输入未提供时写‘待补信息’，不得虚构具体时间。” 所以我们可以写“时间地点：灯塔底层；具体时刻待补信息；仅含相对锚：确认风暴信标前（章节起始）”。字段含相对锚，但不虚构绝对时间。好。\n\n需要输出完整骨架。章节字数2000，3000字以内控制5至6个场景。剧情点可拆为：1灯塔底层确认信标；2收到沉船名单并认出私章；3折名单入防水袋、从侧门绕到南码头（可能合并）；4预约渔船；5写航海日志并留暗号。共5个左右。需要覆盖所有事件。\n\n注意剧情点顺序：先确认信标；收到名单，认出私章；把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约清晨渔船，离港前把信标规律写进航海日志，留下给许知微的接头暗号。\n\n我们需构建场景，每个场景四步。要符合戏剧压强门禁：每个推进场景必须有选择点、阻碍等。剧情点未给硬阻碍，需构造软压力。但要避免改变核心结果。可以选择点：比如确认信标时选择先记录规律还是先离开？阻碍：港务巡查可能在附近，时间窗口紧。收到名单时可能有人靠近？认出私章后决定藏起名单，不报告港务。选择不惊动巡查。预约渔船时选择船主是否可信，需要留暗号。等等。\n\nPOV是周砚第一人称。我们需要在每个场景写POV周砚，信息边界限制第一人称可见。不能写他人心理。注意观察半径：人物距离、遮挡物、光线、可见范围。输入未提供光线等，部分可合理推断为软，但要标。不能写“没有人发现”全知判断。可以写“他看不到门外是否有人”。\n\n字数分配合计2000字95%-105%=1900-2100。场景数5个，每场景约400字，但戏剧价值不同可以不等。我们要分配：场景1信标确认约450，场景2收到名单认出私章约450，场景3折名单从侧门到南码头约350，场景4预约渔船约400，场景5写日志留暗号约350。总计2000左右。由于结构化反馈失败闪烁9次，我们需要避免重复。可以只让场景1描述三次闪烁，后面场景不重复。\n\n需输出【场景1：场景名称】...【场景2】...【章末钩子】【正文交接】【终止元数据】。注意协议说 metadata 通过应用交接，但输出格式要求最后输出元数据？系统有“来源编号保真”要求，但输入没有来源编号。应用参数中无来源编号。需要声明“来源单元总数/已建场景数/未消费编号”。我们没有来源编号，可写“来源单元总数：1个章节剧情点；已建场景数：5；未消费编号：无”吗？但来源编号保真要求四类编号 Vx-Ey 等，输入未提供，所以写“无来源编号输入”。不过输出格式末尾需要“来源单元总数/已建场景数/未消费编号”。我们可写“来源单元总数：1（章节剧情点）；已建场景数：5；未消费编号：无”。至于【正文交接】字段固定：章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用。每项一行。来源覆盖状态如果无编号，写“未提供编号”。角色列表未设置，但角色是周砚、许知微（未出场? 私章、暗号提到）、港务巡查、船主。角色状态变化：周砚携带名单和记录，预约渔船；许知微未出场。可以写。\n\n终止元数据？系统描述“骨架正文结束后，按规定输出正文交接区块和终止元数据”。具体终止元数据包括“来源单元总数/已建场景数/未消费编号”？可能是。但在输出格式示例中有【正文交接】和【风格合同】，没有明确终止元数据格式。但指令提到“最终输出提醒：你只能输出骨架文档及规定的正文交接区块和终止元数据。” 我们需要结尾包含终止元数据。可能包括“来源单元总数：1；已建场景数：5；未消费编号：无”。以及“已处理场景”“未完成场景”在正文交接中已有。我们可在最后加一行：“来源单元总数：1；已建场景数：5；未消费编号：无”。这就是终止元数据。\n\n风格合同：styleTags未设置，节奏未设置，因此推断默认。叙事推进：时间序列+悬疑递增？章节剧情是行动序列，需要写时间序列、目标驱动、悬疑递增？可写“时间序列+悬疑递增(软)”。场景单元模式：感知异常→受限行动→部分突破→新威胁(软)？但从剧情看是“确认信号→藏证据→绕行→预约→留暗号”。可以写“信号确认→证据隐藏→路线转移→身份验证准备(软)”。情绪表达 behavior_only。语言质感：自然/克制/粗糙度中/句长变化高/允许生活噪音是。节奏：中快、段密度高、慎用碎片流、动作优先是。正向指令：现实落差（软）。\n\n需要确保每个场景有节拍类型。场景1起，场景2承，场景3转，场景4承，场景5合? 可以。字数分配要合计2000上下。\n\n现在我们来构建。\n\n注意一些细节：角色列表未设置，但剧情点提到周砚、许知微、港务巡查。我们只能使用周砚作为POV。许知微不在场，只有私章和暗号提及。港务巡查可能是障碍，但不直接出现，可作为周砚听到的脚步声或远处灯光，但第一人称不能全知。我们可以写“远处南码头的巡查灯扫来”之类的，从周砚感官进入。须注意不要编造输入未提供的具体人物。港务巡查是剧情点说的“为了不惊动港务巡查”，可以合理存在为巡查人员/灯光/声音。\n\n章节剧情点没有说明信标观测窗位置、灯塔钥匙、防水袋位置，这些属于空间细节，候选输出编造了。我们应把不确定的物体位置标为“待补信息”，或根据剧情合理推断标(软)。但施工门禁要求空间：关键物体、出口或通道有相对位置。输入不足，我们需要基于剧情合理推断并用(软)标注，或者写“待补信息”。为了可施工，最好有些软推断。但系统说“不应使用类型惯例填补”。我们可以从剧情点合理推导：周砚在灯塔底层，要观察风暴信标，必然有可看到信标的窗口/观测点，但位置未提供，可写“信标观测窗在周砚前方高处（约一臂以上，具体待补）(软/待)”。但为了避免冲突，可以写“具体位置待补信息”同时提供可施工的相对动作。实际上施工门禁说缺失时该项标为“未提供”，对应字段写“待补信息”。我们可在某些字段标待补信息，如关键物体位置部分。可是这样下游血肉师是否无法施工？我们可写软指导。折中：明确来自输入的信息标硬，推断的细节标软，未提供标待。空间关系：灯塔底层门口到观测窗距离不明确，写待补信息；但为了场景可施工，注明“周砚与信标观测窗相隔一臂半（软）”？系统说不得用类型惯例填补。这算推断？可能不允许。我们应当谨慎：如果一个关键物体位置未提供，写“待补信息”；但可以写动作“周砚转向观测窗”，而不给出精确距离。施工门禁要求“关键物体、出口或通道有相对位置”，这是硬要求；若无法满足，应该NOT-READY？但整体可施工吗？输入有空间模糊，但可以推导基本相对位置（灯塔底层，侧门，南码头），但不能给出精确，可能需要标待补。施工门禁五项中空间缺失任一完全缺失才NOT-READY。这里空间有灯塔底层、南码头、侧门等相对位置信息，虽然不精确，但可以施工。所以不完全缺失。我们可以把不确定的精确距离标待补。\n\n我们需要输出，不得在正文前加分析。直接输出骨架。\n\n先规划场景：\n\n场景1：确认风暴信标\n- POV：周砚(硬)\n- 时间地点：灯塔底层，章节起始，具体时刻待补信息；相对锚：风暴信标待确认前(待)\n- 场景起点：周砚站在灯塔底层入口处，背靠铁门，面向塔内石壁上的信标观测窗（铁门和观测窗位置从剧情点推断为软？铁门是侧门？实际上灯塔底层有入口、侧门。不确定。可以写“周砚站在灯塔底层入口处，面朝能看到信标的方向”但空间不精确。为了可施工，我们提供相对位置并用(软)。例如“周砚站在灯塔底层入口内两步，身后是入口铁门，面前是通往观测窗的短廊（软）”。但这算编造。我们可以写“具体相对距离待补；周砚面朝塔内可观察风暴信标的观测方向(硬/待)”。这样不精确但可施工？系统要求相对位置，缺失标待补。好。\n\n- 人物位置：周砚在灯塔底层入口内侧，背后是入口，面朝塔内观测窗方向（半侧身）(软)\n- 关键物体位置：信标观测窗在周砚前方高处，具体距离待补(待)；随身防水袋、航海日志位置待补信息（后续场景出现）\n- 目标：确认风暴信标三次红色闪烁规律，为出航判断时间窗口(硬)\n- 行动：等待并计数红色闪烁→默数间隔→在日志/掌心记录（但剧情点说写进日志是后面，场景1先确认）→确认三次(硬)\n- 信息来源：眼睛看到红光在塔壁上反射三次；耳朵听到塔外风声与信标低鸣；手腕脉搏计数(硬/软)\n- 阻碍：需要不惊动港务巡查；风暴信标闪烁间隔不规则或被云层遮挡，周砚只能在窗口边缘看到部分(软) 或 港务巡查灯光在远处扫过，周砚必须待在暗处不能开灯(软)。选择点：他可以选择上灯塔更高层观察更清楚，但会暴露脚步声；放弃登高，只能从底层观测窗有限视角确认三次(软)。代价：无法确认信标颜色是否与港务公告完全一致（信息不完全）。这可以形成压力。\n- 判断变化：最初以为信标只是普通风暴预警→第三次红色闪烁比前两次偏暗（或间隔改变）→判断不是港务通告的灯塔信号，而是旧航道私信标→决定记录规律而不是报告(硬? 这是推断，需标软)。输入未提供偏暗细节，不能编造。我们可以写“初始判断只是港务风暴信号→数到第三次红色闪烁后，判断这组信号不完整但足以出航→改为先记录而不是离开(软)”。是否改变行动？可以。但避免编造过多。最好写“以为只是港务例行信标→第三次红色闪烁后确认这是父亲/旧航道风暴信标？剧情点没说。不能乱。保持简单：目标确认三次红色闪烁，行动完成，判断变化可能是从怀疑信标失效到确认三次存在，改变行动为前往接收名单。输入没有名单如何收到？剧情点说“他收到旧航道沉船名单”，如何收到未说明。需要处理。\n\n场景2：收到沉船名单并认出私章\n- 如何在灯塔底层收到名单？未提供传递者。可能是有人在灯塔某处留下，或者有人交给他。不能编造人物。可以写“在信标确认后，周砚发现门边夹着一只防水信封/木匣，具体来源待补”。但这是编造。也许更好的处理：将“收到”写成“在灯塔底层某处取得/有人递来未明身份”，标记待补。系统说不能编造场景、位置、动作。这可能导致NOT-READY? 但情绪上输入未提供如何收到。我们需要标“待补信息”，不编造具体传递方式。可是骨架需要可施工。我们可以构造软动作“周砚在灯塔底层信标观测窗下摸到一封未署名的沉船名单（具体送达方式未提供）(待)”，这算推测。指令说不得用类型惯例填补缺失的动作、阻力、结果或承接。这里缺失“如何收到”。也许整个输入不足以施工？但用户期望输出骨架。我们可以在该场景中明确“收到方式：待补信息”，但仍写场景从“名单已到周砚手中”开始？这违背场景起点需要具体。可能需要在骨架中标记“该场景的收到环节为待补信息，仅从周砚已拿到名单开始构建后续行动”。但协议要求完整场景。我们可以把场景2的“收到”作为场景起点，写明“周砚手里已有一份名单（来源待补）”，这样不虚构来源。场景起点是手拿名单，不算动作链缺失，因为来源是信息缺口。目标：确认名单真伪和私章归属。行动：展开名单→逐行看沉船名→在页脚摸到私章印→翻转确认“许知微”字样。关键物体位置：名单在周砚手中，私章印在名单左下角或封口蜡上（待补/软）。信息来源：指尖触到凹凸的章印、眼睛看到名字和沉船名。阻碍：时间窗收紧，港务巡查可能接近，不能开灯，只能借窗外信标红光和闪电光辨认。选择点：他可以选择带回去或立即处理；为了不惊动巡查，放弃登记放弃上报，选择藏。代价：一旦被查到，他持有旧航道名单说不清。\n- 判断变化：起初以为只是普通旧名单→触到私章后认出许知微→判断名单是留给自己的接头信息→改变行动从查看转为藏匿(硬/软)。\n- 转变：成功认出私章，但获得名单带来暴露风险，必须立即处理(硬)。\n- 空间结果：周砚把名单折起，塞入防雨布防水袋（剧情点要求折进防水袋），位置在左胸内袋（待补/软）。场景2和3可合并。\n\n场景3：折名单入防水袋，从灯塔侧门绕到南码头\n- 时间地点：接上一场景，离开灯塔底层前，具体时刻待补（相对锚：认出私章后）\n- 目标：把名单藏好，沿不被港务巡查发现的路线到南码头\n- 行动：折名单→放进防水袋→检查封口→从侧门离开→沿灯塔南侧低墙走→借助货堆和阴影绕到南码头(硬/软)\n- 阻碍：侧门铰链响，鞋底踩在碎石上声音大；远处有港务巡查灯光扫过，周砚必须蹲下等光束经过(软)。选择点：他可以走亮处近路快速到码头，但会暴露；放弃近路，选择绕南侧低墙外沿，多花时间(软)。代价：出发时间拉长，缩短他在天亮前登船的准备时间，也增加被海风冻透的风险。\n- 判断变化：认为侧门无人注意→听见巡查脚步/人声靠近→判断不能直穿码头→改为绕南侧墙外阴影(软)\n- 转变：成功藏起名单并离开灯塔，但绕路耗时，且必须在天亮前赶到南码头，压力延续(硬/软)\n- 空间结果：周砚到达南码头边缘，身后是灯塔南墙，前方是几条缆绳和船灯；南码头具体地点待补(软)\n- 下一场景承接：从周砚在南码头边缘蹲下、防水袋已收好的姿势接续。\n\n场景4：预约清晨渔船\n- 时间地点：南码头，接上一场景后，具体时刻待补（相对锚：离开灯塔后）\n- 目标：沿南方航线预约一艘清晨出发的渔船，确保船主不向港务报告\n- 行动：沿码头寻找渔船→与船主低声交谈→确认清晨出发时间→用旧航道航行情报或信标规律部分信息作为预约凭证→商定暗语（留暗号在日志后来）(硬/软)\n- 信息来源：眼睛看到船灯和桅杆；耳朵听到船主询问；手摸缆绳；鼻子闻到柴油和咸水味(软)\n- 阻碍：船主警惕，不愿深夜接活；港务巡查在码头另一头，周砚不能大声说话；船主可能要求知道用途，周砚不能完全说实话(软)。选择点：他可以选择花钱多报价让船主闭嘴，但钱少；选择抛出许知微的名字/南方航线旧信号试探，可能泄露意图。他选择只报“清晨出海看信标”，放弃详细路线，代价是船主将信将疑，可能出发后改向（或记录内容）。这里需要与后续“船主对周砚记录内容产生疑虑”衔接，来自反馈摘要提到。系统不允许沿用候选输出？反馈摘要有“船主对周砚记录内容产生疑虑”，那是候选输出，不是输入？但反馈中有界摘要尾部有：“……名单（在防水袋内）、碎火漆渣混钥匙（在右裤袋）、信标间隔数据（已记入航海日志）、接头暗号已在日志中留下；船主对周砚记录内容产生疑虑；清晨渔船已预约但尚未出发；许知微是否能收到暗号未知 下一章必须使用：船主翻看航海日志后塞入杂物箱的动作（伏笔）；周砚裤袋里的碎火漆渣与钥匙（证据风险）……” 这些是候选输出的摘要，可能可用于理解之前失败输出，但系统说“不要复述本反馈，不要输出解释”。我们不能直接使用候选输出中的设定，除非原始输入包含。原始输入没有“碎火漆渣”“船主翻看日志”等。这些不应出现在我们输出，因为不能被证明。我们要以原始输入为准。所以场景4中不写船主翻看日志等。但可以形成预约渔船时船主的疑虑，这是合理的软阻力，不具体到后续伏笔。\n- 判断变化：起初认为只要给足船资就能订到船→船主盘问深夜出海原因→判断对方在试探自己与港务巡查的关系→改为压低声音提供港务已公告的信标信号作为理由，不再提沉船名单(软)\n- 转变：部分成功——船主答应清晨出发，但要求周砚在开船前再付一半船资，并让他在船边等到天微亮，周砚的时间被锁死(软)；或者写成功预约，但船主问了一句“不是港务的人吧”，周砚只能否认，留下信任隐患。\n- 空间结果：周砚靠在渔船前甲板旁，手抓船舷，船主回舱；预约成立，出发时间清晨待补(软)\n\n场景5：在离港前把信标规律写进航海日志，留下给许知微的接头暗号\n- 时间地点：渔船旁或码头灯下，即将离港前，具体时刻待补（相对锚：预约完成后）\n- 目标：把信标规律和接头暗号留在航海日志中，且不能被船主和其他人当场看见\n- 行动：取出航海日志→在记录页上写下三次红色闪烁的间隔规律→在页边或末尾用许知微能认出的方式写暗号（如“愿灯塔守望者平安”或旧航道航标缩写）→合上日志放在约定位置→用防水袋或油布遮住(硬/软)\n- 信息来源：笔尖划动感、油墨气味、远处海潮声；周砚自己写下的内容(硬)\n- 阻碍：船主随时可能出舱查看，码头灯光太暗，写错字会耽误时间；或港务巡查从码头尽头回头，留暗号不能太直白。选择点：他可以只写给许知微的暗号，不写完整信标规律，避免落入他人手中；但为了许知微能从记录里核对，他必须留下足够信息。他选择把规律拆成三组数字写在日志边角，放弃完整抄录，代价是许知微需要结合现场观测才能还原(软)\n- 判断变化：原本只想记下出航时间→想到许知微可能拿不到名单→改为把信标规律和暗号一并写进日志，给自己留一条可追踪的尾巴(软)\n- 转变：成功留下记录，但日志成为双刃证据；许知微能否收到未知，船主若看到会起疑（新问题）(硬/软)\n- 空间结果：周砚合上日志，抱在怀里或放在渔船舱口挡板上，面向南方航线；防水袋仍旧贴身(软)\n- 章末钩子：周砚听见船主在身后翻动缆绳，或港务巡查走向码头，或日志页边未干的油墨被海风吹开一角，露出暗号；许知微尚未出现。必须一句话具体。\n\n章末钩子要具体，不能模糊“危机加深”。可用：海风掀起航海日志一角，周砚看见自己写下的接头暗号露在船主视线前方三寸处(硬/软)。这有潜力。但第一人称不能知道船主看到。可以写“周砚把日志塞进船舱挡板下，抬头时船主已经站在船尾，目光落在日志露出的一角。”但第一人称不能判断是否看见。可写“船主把手电移向周砚刚合上的日志”。这是周砚可感知的。\n\n需要遵循观察半径：每个场景写明观察者与关键目标距离、遮挡物、光线、可见范围。我们需要在字段中包含。可以从“信息来源”和空间结果体现，但最好明确。例如场景1：“周砚在观测窗前，距观测窗约两臂，红光只在窗内可见；底层其他区域昏暗，背后铁门缝透进风”。标记软/待。\n\n注意结构化反馈：校验失败项“闪烁(9次)”。我需要在场景1中只出现“红色闪光”或“三次红色闪烁”几次，后续不再使用“闪烁”这个词。场景名称避免“信标闪烁”。可以用“确认灯塔信标”等。\n\n需要控制number of “闪烁” occurrences? 我们不知道具体校验规则，但避免高频出现即可。正文骨架中场景1可能需要提及几次，但不至于9次。使用“红色闪光”代替。\n\n现在写完整骨架。由于需要避免在输出前解释，直接从头输出。\n\n先检查是否[CONFLICT]：无。是否需要写NOT-READY？项全可施工，所以不写。\n\n关于场景字数分配：总2000，5场景。分配：\n场景1 450\n场景2 400\n场景3 400\n场景4 400\n场景5 350\n合计2000。在每场景字数写约XXX字。\n\n需要保证场景1有选择点、阻碍。写出来。\n\n场景1细节：\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次闪光出现时依次默记间隔→直到第三次红光消失后转身走向塔内放置名单的位置（名单来源待补）(硬/软)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外信标闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红光只能看到半截，需靠前两次间隔推算(软)\n判断变化：起初以为信标已经熄灭→看到第一、二次红色闪光→判断信标仍在工作→第三次只剩半截红光后，改为记录间隔规律而不是继续等待完整信号，因为港务巡查接近(软/硬?)\n转变：部分成功——确认三次红色闪光存在，但第三次数据不完整，只能记下前两次间隔和第三次估算值；同时必须立即离开观测窗(硬)\n读者收益：新信息（信标仍可工作，但观测条件变差）+ 新压力（巡查接近、第三次数据缺失）(硬/软)\n空间结果：周砚离开观测窗，背对入口，开始朝塔内放置沉船名单的位置移动；具体位置待补(待)\n下一场景承接位置：从周砚在塔内走向名单放置处、仍把左手按在左腕的姿势接续(软)\n节拍：起\n场景类型：动作(硬)\n情感弧光：从紧张到聚焦(软)\n信息差：周砚不知道名单如何出现在灯塔内；读者也不知道(待)\n字数：约450字\n\n注意“名单来源待补”在行动和目标中出现多次，但没有具体。可以。\n\n场景2：名单与私章\nPOV：周砚(硬)\n时间地点：灯塔底层；接上一场景后，具体时刻未提供(待)；相对锚：周砚接近名单后(硬)\n场景起点：周砚在灯塔底层某处拿到旧航道沉船名单，名单已在他手中（送达方式未提供）(待)\n人物位置：周砚蹲在灯塔底层靠墙处，背向入口，只能借壁缝漏进的光看清名单(软)\n关键物体位置：旧航道沉船名单在周砚手中，私章印在名单末页边缘（具体位置待补）(待)\n目标：确认名单上是否有旧航道沉船信息，并判断能否作为出航依据(硬)\n行动：展开折叠名单→指尖沿纸面边缘摸到凸起印痕→将名单侧向漏光处辨认印文→看到“许知微”私章字样→把名单重新折成小方(硬)\n信息来源：指尖触到纸张受潮变软，其次是私章印痕的凹凸；眼睛在漏光下看见“许知微”三个字；鼻端闻见老墨味(硬/软)\n阻碍：港务巡查脚步声从灯塔外靠近，周砚不能点灯；名单纸张受潮，折痕处几乎裂开，只能慢而轻地翻转(软)。选择点：他可以选择当场把名单留下，避免被搜出；但私章涉及许知微，放弃留下，选择随身带走，代价是离开时若被拦住说不清(软)\n判断变化：原以为名单只是普通沉船记录→摸到私章并看见“许知微”→判断这不是船员遗物而是一封留给自己的接头凭证→改为主张带走并藏匿，不再交还或上报(硬/软)\n转变：成功认出私章，但获得名单后身上多了一件足以引起港务盘查的证据(硬)\n读者收益：新信息（许知微私章出现）+ 风险升级（持有旧航道名单暴露风险）(硬/软)\n空间结果：周砚把名单折成小方，四周张望后朝灯塔侧门方向移动(软)\n下一场景承接位置：从周砚收好名单、朝侧门走的姿势接续(软)\n节拍：承\n场景类型：动作(硬)\n情感弧光：从警惕到确认(软)\n信息差：周砚不知道名单是谁放在灯塔内，也不知道港务巡查是否已经注意到他(待)\n字数：约400字\n\n场景3：折名单入防水袋，从灯塔侧门绕到南码头\nPOV：周砚(硬)\n时间地点：灯塔底层至南码头途中；接上一场景后，具体时刻未提供(待)；相对锚：周砚离开灯塔侧门后(硬)\n场景起点：周砚在灯塔侧门内侧，把名单折进防水袋，准备出侧门(硬)\n人物位置：周砚在侧门内，背靠门板，侧门开一条缝；南码头在侧门南侧约一段距离，具体距离待补(待)\n关键物体位置：防水袋在周砚手里，名单折好后已被塞进防水袋内，袋口尚未收紧(硬)\n目标：不惊动港务巡查，绕到南码头(硬)\n行动：把防水袋口封好→从侧门挤出去→沿灯塔南侧旧墙外沿走→借石堆和渔具遮蔽身形→接近南码头边缘(硬/软)\n信息来源：耳听门轴摩擦声和鞋底刮过碎石的声音；背后隐约传来港务巡查的手电光；海风变腥，南码头下有缆绳拍打木桩(软)\n阻碍：侧门门轴声音比想象中响，周砚只能走出去几步后蹲下；港务巡查手电从西边扫来，他必须翻下低墙等光束经过；靠近南码头时，前方几条船灯已经亮起，周砚不能直穿光区(软)。选择点：他可以选择走主路直插南码头，速度快但暴露；选择绕南墙外沿，耗时多，放弃近路，代价是到达南码头时离清晨更近，渔船上可能还没醒(软)\n判断变化：原以为侧门不会有人注意→听到门轴声与手电光→判断绕路比直行安全→改为贴着南墙外沿走，不再走主路(软)\n转变：部分成功——周砚到达南码头，但多绕了一段路，身体已经被海风吹透，距离清晨预约时间所剩不多(硬/软)\n读者收益：处境位移（从灯塔到南码头）+ 时间压力上升(软)\n空间结果：周砚蹲在南码头边缘，前方是小渔船，身后是灯塔南墙，手里仍握着防水袋束口(软)\n下一场景承接位置：从周砚蹲在南码头边缘、防水袋已封口的姿势接续(软)\n节拍：转\n场景类型：动作(硬)\n情感弧光：从警惕到镇定(软)\n信息差：周砚不确定港务巡查是否追到南码头；读者也不知道(待)\n字数：约400字\n\n场景4：预约清晨渔船\nPOV：周砚(硬)\n时间地点：南码头；接上一场景后，具体时刻未提供(待)；相对锚：周砚接近渔船后(硬)\n场景起点：周砚站在一艘小渔船前甲板旁，手扶船舷，向船主询问清晨出航(硬)\n人物位置：周砚在船舷外侧，船主在船舱口，距周砚约两臂，中间横着缆绳墩(软)\n关键物体位置：周砚手里没有递出任何东西；名单藏在防水袋内；航海日志还未取出(硬/软)\n目标：预约一艘清晨沿南方航线出发的渔船，不引起船主怀疑(硬)\n行动：压低声音叫醒船主→说明要清晨出海看信标→给出港务已公告的风暴信标作理由→问船资和出发时间→点头确认约定，但未亮出名单(硬/软)\n信息来源：眼睛看到船主从舱口露出半身，手电晃向周砚；耳朵听见船主先问“不是港务派来的吧”；鼻子闻到船板上的柴油味(软)\n阻碍：船主并不愿深夜接活，要求先付一半船资；港务巡查的手电还在码头另一头来回扫，周砚压低后的声音几乎被海浪盖住，重复到第三遍才让船主听清(软)。选择点：他可以选择直接说出许知微的名字换取信任，但会暴露接头对象；放弃亮出私章，只付半船资，代价是船主半信半疑，可能会在开船前再盘问(软)\n判断变化：原以为只要给够船资就能成→船主盘问深夜出海原因后，周砚判断对方在试探自己与港务巡查的关系→改为只报信标观测，不再提旧航道或许知微(软)\n转变：部分成功——船主接过一半船资，约定清晨出发，但没给确定船名，只让周砚在船边等到天微亮；周砚不能离开码头(硬/软)\n读者收益：新进展（预约成立）+ 新压力（船主不信任，时间被锁死）(软)\n空间结果：周砚靠在船舷旁，船主回到船舱，手电光又扫向码头尽头的港务巡查方向(软)\n下一场景承接位置：从周砚靠着船舷、要把航海日志取出的动作接续(软)\n节拍：承\n场景类型：对白(硬)\n情感弧光：从戒备到让渡(软)\n信息差：周砚不知道船主是否看穿他话说了一半；读者也不知道(待)\n字数：约400字\n\n场景5：写航海日志并留接头暗号\nPOV：周砚(硬)\n时间地点：南码头，预约完成后、离港前；具体时刻未提供(待)；相对锚：周砚坐在船舷边开始写日志(硬)\n场景起点：周砚坐在小渔船前甲板边缘，航海日志摊在膝盖上，笔尖悬在纸面(硬)\n人物位置：周砚坐在船舷旁，背向船舱，水面在他脚下，船主在舱内未出(软)\n关键物体位置：航海日志在周砚左侧膝盖上，防水袋在右胸，名单仍折好，未露出；船主的手电放在舱口(软)\n目标：把信标规律写进航海日志，并留下一条许知微能识别、外人看不破的接头暗号(硬)\n行动：在第一行写下三次红色闪光的间隔估算→在页角用旧航道缩写写暗号“愿灯塔守望者平安”→合上日志→把日志塞进船舱挡板下，用手压住(硬/软)\n信息来源：笔尖在潮纸上走，墨被海风吹散；远处的海潮声比刚才更大；周砚低头时只能看到自己膝盖和纸面(硬/软)\n阻碍：船主在舱内翻动东西，艇身一晃，周砚写坏一处数字；港务巡查似乎往码头这边走来，光束偶尔扫过周砚脚边；他不能重写，只能将错处划掉，留下涂改痕迹(软)。选择点：他可以选择把暗号单独留给许知微，但删除信标规律，避免日志落入他人手中；选择保留信标规律，放弃只有暗号，代价是日志若被船主或港务看到，足以判断他并非普通观海(软)\n判断变化：原本只打算记下清晨出航时间→想到许知微可能拿不到名单→改为把信标规律和接头暗号都写进日志，并故意用旧航道缩写(软)\n转变：成功留下记录与暗号，但日志上多了一处涂改，船主随时可能先翻开；许知微能否收到未知(硬/软)\n读者收益：伏笔（暗号与涂改痕迹）+ 未解决风险（日志可能被船主发现）(软)\n空间结果：周砚合上日志，压进船舱挡板下，抬头时船主出现在船舱口，手电向周砚刚压住的日志移来(软)\n下一场景承接位置：从周砚坐在船舷旁、日志刚被压住、船主手电移来的瞬间接续(软)\n节拍：合\n场景类型：动作(硬)\n情感弧光：从隐忍到警觉(软)\n信息差：周砚不知道许知微何时会查看日志，也不知道船主是否已经看到暗号(待)\n字数：约350字\n\n章末钩子：船主从舱口伸出手电，光斑落在周砚刚压住的航海日志上，周砚没说话，只是用膝盖把日志往里顶了一下(硬/软)。\n\n正文交接：\n章节：灯塔信标\nPOV：周砚（第一人称）\n已完成场景：5个（确认信标；名单与私章；折名单绕行；预约渔船；留暗号）\n未完成场景：无\n来源覆盖状态：章节梗概/章节剧情点已覆盖；上一章未提供；角色列表未提供；风格标签未提供；节奏参数未提供\n角色状态变化：周砚取到旧航道沉船名单并认出许知微私章；名单已折入防水袋；抵达南码头；预约清晨渔船；航海日志已记信标规律和接头暗号；船主对周砚产生未明疑虑\n章末状态：周砚坐在南码头渔船旁，航海日志压入船舱挡板，船主手电移向日志；清晨渔船已预约但未出发；许知微未出现，暗号能否送达未知\n下一章必须使用：周砚膝盖顶住日志的动作；航海日志上的涂改痕迹；防水袋内名单未读；清晨出发时间约束；船主对手电灯光的关注\n\n终止元数据：来源单元总数：1；已建场景数：5；未消费编号：无\n\n需要检查“未消费编号”这里没有编号输入，可以写“无编号输入”或“无”。写“无编号输入”。\n\n风格合同：\n叙事推进：时间序列+悬疑递增(软)\n场景单元模式：观测确认→获取证据→隐藏行进→交易预约→标记收束(软)\n情绪表达：behavior_only(软)\n语言质感：语域：克制；粗糙度：中；允许碎句：高压转折局部；句长变化：高；允许生活噪音：是(软)\n节奏：中快；段密度：中高；允许碎片流：否；动作优先：是(软)\n正向指令：现实落差(软)\n\n需要确保输出从骨架正文开始，没有前言。我们直接输出。\n\n但要注意：在场景1中，我们写“走向塔内放置名单的位置（名单来源待补）”，这可能与施工门禁“不得编造场景”冲突？但来源已标明待补，不算编造。但为了完整场景，仍需要角色拿到名单。或许可以这样：场景1结束时走向“名单放置处”，但名单放置处并未出现在输入中，属编造空间。更好的办法：场景2开头直接说“名单已在周砚手中（送达方式未提供）”，场景1目标只确认信标，行动不包括走向名单。这样场景1转变结束时不写走向名单，而是“确认后留在灯塔底层等下一步”，但下一步是收到名单，无因。需要因果关系。我们可以将场景1转变写成“确认三次红色闪光后，周砚听到塔内某处有纸张被风掀起的声音，朝声音方向移动”，这样名单出现有感官线索，但不是编造具体人物，是环境声音。这算合理推断，标注软/待。但最好明确：具体名单来源未提供，风掀纸声只是软引导。这样可施工。我们修改场景1：行动中确认三次后，听到背后塔内有纸张翻动声（来源未明），改变行动为循声找去。信息来源增加耳朵听到纸张翻动。判断变化：原先认为塔内只有信标→听到纸张声→判断有人留了东西→改变行动从继续观察转为寻找声源。这样场景1转变到场景2更自然，没有编造具体人物。但输入未提到纸张声，是编造，但用软标注，可以。同时注意不得用“似乎”“仿佛”吗？系统禁止speculative gap-filling，但我们是骨架，软指导可以，不过不应模糊。我们可以直接写“纸声从背后石壁下传来（具体声源未提供）”，不是“似乎”。可以。\n\n但我们写骨架时，尽量避免增加未提供的新事件。这可能被批评。还是选择：场景2起点直接“名单已在周砚手中（送达方式未提供）”，场景1转变不写移动，写“确认后，周砚把袖口从观测窗边收回，等着名单递到手边（递送方式待补）”，也不算好。也许问题不大。我们应该接受一些待补，不要硬编。所以场景1空间结果：周砚仍在观测窗旁，没有移动；下一场景承接位置：从周砚在灯塔底层观测窗旁，名单已经到他手上（递送方式待补）接续。这有断裂，但明确待补。用户可以接受。\n\n我们调整场景1的转变和下一场景承接，不虚构纸张声。只是空间结果：周砚仍在灯塔底层观测窗旁，已经确认三次口信息？转变说必须立即离开观测窗。但离开观测窗去哪？可以写“朝塔内角落退去，准备接收或查看可能出现的名单”。具体原因未提供。但太勉强。算了，保留简单的待补。\n\n场景2直接开始于名单已在手，不解释来源。这样反而诚实。\n\n所以最终场景1：\n空间结果：周砚离开观测窗，背靠塔壁，把脸转向入口，手中还没有名单。下一场景承接位置：从周砚在灯塔底层靠墙处、名单已到手（送达方式待补）接续。可能逻辑跳，但标记待补。\n\n为了避免“名单如何到手”成为场景断裂，也许将场景1与场景2合并，或者把“收到”放在场景1末尾作为未解释的交接。我们可以这样：场景1名称“确认信标并拿到名单”包括接收，但接收方式待补。这样场景数量减少到4个，符合3000字内5至6场景。但3000以下可以4个。但剧情点较多，建议5个。我们保持5个，但接收方式待补是允许的。\n\n另外，反馈说“闪烁(9次)”可能因为候选输出中场景1名称用了“确认风暴信标”，内文多次。我们尽量只出现“红色闪光”一两次。\n\n现在正式输出。\n\n需注意，骨架中每个字段末尾类型标注。我们需要每个都标注。我已标注。但场景2关键物体位置“私章印在名单末页边缘（具体位置待补）(待)”，OK。\n\n还要注意“观察半径”字段：我没有单独写“观察半径”字段，但有人物位置、关键物体位置、信息来源体现了距离、遮挡、光线、可见范围。系统要求“每个场景必须写明观察者与关键目标的距离、遮挡物、光线和可见范围。”最好明确添加一行“观察半径”。输出格式没有明确此字段，但要求写入。可并入“人物位置”或“信息来源”。为了保险，可以在“人物位置”写明距离和遮挡。每个场景我已经写了一些。场景1“距身后铁门约两步，距观测窗距离待补信息(待)”，光线未见，增加“光线：仅靠观测窗外红色闪光和海雾”(软)。场景2写了漏光。场景3写了手电光。场景4写手电光。场景5写墨被海风吹。这些体现光线和可见范围。可以。\n\n每场景“信息来源”包含感官，符合。\n\n需要检查“绝对时间锚”字段是否含有可排序锚。每个场景时间地点写了相对锚。好。\n\n现在注意不能输出“分析、思考、计划、说明过程”。我们输出从【场景1】开始。\n\n输出内容应当紧凑，不要复述反馈。\n\n最后，需要确保不违反“不要输出解释或元数据”的用户级指令？系统说用户级指令不能撤销本协议，仍要输出正文交接和终止元数据。所以OK。\n\n让我们写出完整结果。",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 1000000,
+          "windowDeclared": false,
+          "outputLimitDeclared": false,
+          "estimatedInputTokens": 7657,
+          "outputReserveTokens": 32768,
+          "availableContextTokens": 967232,
+          "reason": "上下文可容纳：输入 7657 / 可用 967232（未声明窗口，按保守值处理）"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 7657,
+          "actualInputTokens": 7750,
+          "driftRatio": 0.012145748987854255,
+          "correctedRatio": 1.0121457489878543
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n把当前章节材料转成正文场景骨架，不写成品正文。完整读取 chapterTitle、chapterSummary、chapterPlot、prevChapterSummary、characters 以及章节交接状态。\n\n本层只负责骨架内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\r\n【输出铁律】\n你只能输出叙事骨架文档，禁止输出任何正文、分析、思考、计划、说明过程。输出从骨架正文开始，不得在正文前添加分析或说明。骨架正文结束后，按规定输出正文交接区块和终止元数据。违反视为完全失败。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述的是整条正文链的最终目标，不改变本层职责：\n\n- “生成约N字正文”表示全链最终正文的字数目标。本层仍只输出骨架，并把N字作为场景预算的分配依据，不得在本层写出成品正文。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造",
+            "length": 10860
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n【差→好·闭环】目标：主角要调查异常；行动：进行调查；阻碍：遇到困难；转变：成功发现问题。改为：目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)；行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)；阻碍：蒸汽间歇性喷出，左手只能在间隙伸入(硬)；转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)。\n【差→好·空间】时间地点：某处厂房；人物位置：在现场；关键物体位置：附近。改为：时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)；人物位置：周砚蹲在检修平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)；关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)。\n【差→好·信息】信息来源：观察；判断变化：明白了真相。改为：信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)；判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)。\n【差→好·承接】下一场景承接：继续调查；章末钩子：危机加深。改为：下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿",
+            "length": 1121
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n把当前章节材料转成正文场景骨架，不写成品正文。完整读取 chapterTitle、chapterSummary、chapterPlot、prevChapterSummary、characters 以及章节交接状态。\n\n本层只负责骨架内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\r\n【输出铁律】\n你只能输出叙事骨架文档，禁止输出任何正文、分析、思考、计划、说明过程。输出从骨架正文开始，不得在正文前添加分析或说明。骨架正文结束后，按规定输出正文交接区块和终止元数据。违反视为完全失败。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述的是整条正文链的最终目标，不改变本层职责：\n\n- “生成约N字正文”表示全链最终正文的字数目标。本层仍只输出骨架，并把N字作为场景预算的分配依据，不得在本层写出成品正文。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造元信息；本协议规定的【正文交接】和终止元数据仍必须输出。\n- 出现用户级字数要求与本层“禁止输出正文”表面冲突时，以阶段化职责解释执行：S1分配预算，S2施工正文，S3只打磨表达。\n\r\n## 应用参数\r\n\r\n当前章节标题：灯塔信标\r\n当前章节梗概：灯塔信标与旧航道线索推动主角南下。\r\n当前章节剧情点：周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\r\n上一章梗概：未设置\r\n角色列表：未设置\r\n每章字数：2000\r\n风格标签：未设置\r\n节奏参数：未设置\r\n\r\n章节剧情点是主线，设定和卷概要是约束，大纲是背景参考。风格标签和节奏参数作为链式继承的双保险。\n\n## 施工门禁\n\n生成骨架前对齐五项施工条件。任何一项缺失时，该项标为“未提供”，对应字段写“待补信息”；五项全部可施工才输出骨架。\n\n- POV：每个场景有明确观察者\n- 空间：人物、关键物体、出口或通道有相对位置\n- 动作顺序：目标、行动、阻碍、转变可按顺序落地\n- 事实边界：本章事件、结果和章末落点已知\n- 章末钩子：结尾有未解决问题、新威胁或认知变化\n\n五项中任何一项完全缺失且无法从输入可靠推导时，输出：\n\n```text\n[NOT-READY]\n缺口：[POV/空间/动作顺序/事实边界/章末钩子]\n缺失原因：[引用输入缺失位置，不写推断]\n需要补充：[要补什么才能施工]\n```\n\n不要在 NOT-READY 状态下编造场景、位置、动作或钩子。\n\n## 戏剧压强门禁\n\n骨架不能把威胁写成静态记录。每个推进场景必须当场形成压力：\n\n- 必须有选择点：至少两个可行动作，写明选中的动作、放弃的动作和放弃带来的代价\n- 阻碍必须影响当下行动：限制身体、压缩时间窗、消耗资源、暴露风险或制造人际张力；剧情点未给硬阻碍时，也必须从这些维度构造软压力\n- 禁止输出“无外部阻碍”“无直接阻碍”作为完成态；这代表骨架未施工，需回到剧情点重找压力源\n- 判断变化必须导致行动取舍：新证据出现后，角色不能只是“注意到后继续前进”，要改变路线、放弃目标、付出代价或承担风险\n- 转变服务于本章因果：部分成功带新问题、失败带新信息、成功带代价是常见形态参考；剧情点明确要求纯成功、情绪兑现或静场收束时，照剧情点执行\n\n## 章概要一致性预检\n\n把章节梗概、章节剧情点、上一章梗概逐项对齐。发现同一事实在时间、位置、人物状态、事件结果上冲突时，先在骨架开头输出：\n\n```text\n[CONFLICT]\n字段：[冲突字段]\n来源A：[章节梗概/剧情点/上一章梗概] — [原值]\n来源B：[章节梗概/剧情点/上一章梗概] — [原值]\n处理：[无法确定真值，双值并列保留，均标(待)]\n```\n\nCONFLICT 只报告，不裁决。不得擅自选一个来源当真值，也不得把冲突改写成自洽剧情。\n\n## 绝对时间锚\n\n每个场景的“时间地点”必须含一个可排序的绝对或相对锚点，例如“入侵后第三日黄昏”“暴雨开始后二十分钟”“距上一场景约半小时”。只有“傍晚”“夜里”这类氛围词不算锚点；输入未提供时写“待补信息”，不得虚构具体时间。\n\n## 场景构建方法\n\r\n每个剧情点落地为场景，遵循四步结构：\r\n\r\n1. 目标：角色眼下要做什么、想达成什么——从剧情点提取角色的即时意图\n2. 行动：角色为目标采取的具体行动——用动作概述呈现，不用完整描写\n3. 阻碍：行动中必须付出的当场代价——物理限制、人际张力、时间窗压缩、资源不足或内部取舍；不能写成“无阻碍”\n4. 转变：阻碍导致的结果——部分成功带新问题、失败带新信息、成功带代价、或意外转折。转变必须推动故事向前；收益形态由剧情点和场景类型决定，不套固定配额\n\n一个剧情点可以展开为多个场景，每个场景独立完成四步循环。多个场景通过因果链串联——A场景的转变触发B场景的目标。\n\r\n## 字段类型标注\r\n\r\n骨架中每个字段输出值末尾追加类型标注，三选一：`(硬)`、`(软)`、`(待)`。\r\n\r\n- `(硬)` = 硬事实：来自玄武输入的事件编号、POV、空间关系、已锁定事实。下游血肉师必须严格遵守。\r\n- `(软)` = 软性指导：基于剧情推断的场景方向、情感弧光、节奏建议。下游血肉师可以灵活诠释。\r\n- `(待)` = 待定信息：输入未提供或不可施工的缺口。下游血肉师保留未知状态。\r\n\r\n标注规则：来自玄武编号或章节执行包的字段标硬；推断的方向性内容标软；输入缺失标待。不确定时标待，不标硬。\r\n\r\n## 节拍控制\r\n\r\n正文分为三个节拍区域，每个场景标注节拍类型：\r\n\r\n- 钩子区（起）：以角色的身体感知或异常信号开篇，迅速建立场景氛围。不用背景交代开篇。\r\n- 推进区（承/转）：展开本章核心事件，角色行动→遭遇阻碍→做出转变。中段是本章的主体。\r\n- 收束区（合）：保留未解决问题、新威胁信号或角色认知变化。收束不是总结，是对已有落点的场景化承接；输入未提供时标记“待补信息”。\r\n\r\n## 演绎原则\r\n\r\n- 展开而非照搬：剧情点说“角色苏醒”，骨架写他从黑暗中恢复意识的过程概述\r\n- 具体而非抽象：剧情点说“适应异常装备”，骨架写他感知装备在皮肤上收紧、伸展的具体方向\r\n- 因果而非罗列：多个场景之间必须有因果连接——A场景导致B场景，B场景的角色反应引发C场景。章首直接续上一章时只保留落点，不复述过程；跳过时间时用目标锚和资产变化交代缺口，不用背景总结开场\n- 人的维度：每个场景标注角色的情感变化方向（从X到Y），不写具体情绪描写，只标注弧光方向。复现配角优先用既有称呼、动作习惯或口头反应识别，不重设出场\n- 尝试与失败：升级流和高压推进章可参考\"部分成功带新问题、失败带新信息、成功带代价\"来维持压力；纯成功、连续成功、静场收束是否成立，以剧情点类型和本章叙事需求为准，不设固定比例，也不强制每次成功开新账。\n- 场景位移：推进场景结束时，认知、关系、处境、资产、威胁或物理位置至少一个维度有可指认变化；抒情章、静章、关系观察章可用情绪兑现或认知变化承担位移，不以事件强度论成败\n\r\n## 字数分配\n\n根据章节总字数要求，为每个场景分配字数。分配原则：钩子、推进和收束区域按输入中的事件权重、场景复杂度与自然完整度分配，不使用固定比例切断场景。如果章节有多个推进场景，按因果权重分配。\n\n所有场景字数合计应达到每章字数的95%至105%。应用验收下限（如目标字数的80%）是兜底红线，不是S1的施工目标；禁止按验收下限分配预算。3000字以内的章节控制在5至6个场景；超出时优先合并因果相邻的场景，不得删事件。无法合并的保留事件并列入未施工清单，禁止用加场景的方式消化字数。对白和冲突主导场景把动作链拆到一拍一拍，供下游成一拍一段；观察和过渡场景可以保留较长段落。\n\r\n## 观察半径\r\n\r\n每个场景必须写明观察者与关键目标的距离、遮挡物、光线和可见范围。超出半径的人、物、声音只能通过他人转述、现场痕迹或待补信息进入，不得写成POV直接感知。POV不知道他人是否注意到自己，也不得替全场做“没有人发现”这类全知判断。\r\n\r\n## 事实防火墙\r\n\r\n卷概要、后续卷设定和角色长期弧线只约束方向，不提前兑现。未出现在当前章节剧情点里的台词、事件、关系变化和身份揭示，一律保持未发生。骨架可以保留伏笔方向，但不得把未来内容写成已发生的场景或对白。\r\n\r\n## 骨架范例\r\n\r\n以下范例只演示字段密度和标注纪律。人物与事件均属虚构演示，和当前章节无关；输出时必须替换为章节执行包的真实材料。\r\n\r\n### 对照一：场景闭环\r\n\r\n差（摘要式，不可施工）：\r\n目标：主角要调查异常；行动：进行调查；阻碍：遇到困难；转变：成功发现问题。\r\n\r\n好（动作可执行，因果闭合）：\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)；行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)；阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)；转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)。\r\n\r\n落差：差版是情节摘要，没有身体部位、空间路径和代价；好版每一步都能被下游写成动作。\r\n\r\n### 对照二：空间可施工\r\n\r\n差（含糊定位）：\r\n时间地点：某处厂房；人物位置：在现场；关键物体位置：附近。\r\n\r\n好（相对位置明确）：\r\n时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)；人物位置：周砚蹲在检修平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)；关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)。\r\n\r\n落差：差版只能引出气氛描写；好版规定了移动方向、接触顺序和可见范围。\r\n\r\n### 对照三：信息与判断\r\n\r\n差（结论先行）：\r\n信息来源：观察；判断变化：明白了真相。\r\n\r\n好（证据推动修正）：\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)；判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)。\r\n\r\n落差：差版替角色完成认知；好版让新证据进入后改变行动。\r\n\r\n### 对照四：承接与钩子\r\n\r\n差（空泛延续）：\r\n下一场景承接：继续调查；章末钩子：危机加深。\r\n\r\n好（状态和威胁具体）：\r\n下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿势接续(软)；章末钩子：管井深处传来三声金属敲击，间隔比蒸汽冲程更规律(硬)。\r\n\r\n落差：差版无法交接；好版锁定下一场的起始状态，并留下可追踪的威胁。\r\n\r\n### 完整目标形态\r\n\r\n【场景1：锅炉房泄压】\r\nPOV：周砚(硬)\r\n时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)\r\n场景起点：周砚蹲在检修平台边缘，齿轮箱正在泄汽(硬)\r\n人物位置：周砚在平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)\r\n关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)\r\n行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)\r\n阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)\r\n判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)\r\n转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)\n读者收益：新信息（传动卡死而非漏气）+新阻碍（阀杆锈死），行动目标转为寻找第二件工具(硬)\n空间结果：周砚移到检修盖旁，扳柄离手，出口被蒸汽帘隔开一半(硬)\n下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿势接续(软)\r\n节拍：起\n场景类型：动作(硬)\n情感弧光：从慌乱到专注(软)\n信息差：周砚不知道管井里有人，读者也不知道(待)\r\n字数：约800字\r\n\r\n【章末钩子】\r\n管井深处传来三声金属敲击，间隔比蒸汽冲程更规律(硬)。\r\n\r\n【状态连续性】\r\n每个场景输出前自查四个问题：谁在行动、谁在观察、每个关键物件由谁持有、话语是出声还是心里。场景结束时在骨架中保留持有关系和语言状态；下一场景的承接位置必须从这些持有关系、视线和语言状态出发。不得输出“放下A又拿着A”“观察者离开后仍看见A”“心里话说成对物说话”这类矛盾。\r\n\r\n【风格合同】\r\n叙事推进：时间序列+悬疑递增(软)\r\n场景单元模式：感知异常→受限行动→部分突破→新威胁(软)\r\n情绪表达：behavior_only(软)\r\n语言质感：克制、粗糙度中、句长变化中、允许生活噪音(软)\r\n节奏：中快、段密度高、慎用碎片流、动作优先(软)\r\n正向指令：现实落差(软)\r\n\r\n这份完整范例展示的是字段密度和标注纪律。输出时必须替换为当前章节的真实材料，不得复用范例人物或事件。\r\n\r\n## 输出格式\r\n\r\n输出以下格式的骨架文档，每个场景一个区块：\r\n\r\n【场景1：场景名称】\r\nPOV：[本场景的观察与感知锚点]\r\n时间地点：[输入已有的时间与地点]\n场景起点：[人物开始行动的位置或状态]\r\n人物位置：[主要人物在起点及关键转折时的位置；输入没有提供时标记“待补信息”]\r\n关键物体位置：[影响行动、发现或阻碍的物体位置；没有则写“无”]\r\n目标：[角色即时意图]\r\n行动：[按发生顺序排列的具体动作概述]\r\n信息来源：[每项新信息来自看见、听见、闻到、触到、回忆、他人告知或当下推断中的哪一种]\r\n阻碍：[障碍类型和内容]\n判断变化：[初始判断→新证据→判断修正→行动取舍；必须改变行动，不能只“注意到后继续”；输入没有提供时标记“待补信息”]\n转变：[结果+代价或遗留问题；形态由剧情点决定]\n读者收益：[可选；有可指认收益时申报，新信息/处境改变/关系位移/威胁升级/资产得失/地位变化/情绪兑现均可；静章、抒情章、关系观察章可省略本行]\n空间结果：[场景结束时人物、物体、通道或可见范围的变化；输入没有提供时标记“待补信息”]\n下一场景承接位置：[下一拍从哪个地点、人物位置或动作状态接续]\r\n节拍：[起/承/转/合]\n场景类型：[动作/对白/观察，三选一]\n情感弧光：[从X到Y]\n信息差：[POV角色知道但其他角色不知道的事 / 其他角色知道但POV被蒙在鼓里的事 / 无]\r\n字数：[约XXX字]\r\n\r\n【场景2：场景名称】\r\n...\r\n\r\n【章末钩子】\n[本章结尾留下的未解决问题或新威胁，一句话]\n最后事件：[章末实际发生的最后一个动作或事实]\n不可回头点：[本章结束后无法撤销的改变]\n未完成情绪：[POV角色尚未处理完的情绪，只写状态方向]\n下一章可接第一幕：[下一章第一章节能直接承接的位置、动作状态和关键持有物]\n\r\n【风格合同】\r\n叙事推进：[从styleTags推断：时间序列/目标驱动/悬疑递增/关系拉扯/日常沉浸/事实驱动/反差荒诞/多线交织]\r\n场景单元模式：[从styleTags和章节剧情推断：如“行为→落差→自我合理化”或“目标→阻碍→压制→反转收益”]\r\n情绪表达：[从styleTags推断：behavior_only/dialogue_and_action/subtext/reaction_only/light_behavior/suppressed/deadpan]\r\n语言质感：[语域：口语/自然/克制/专业；粗糙度：高/中/低；允许碎句：仅高压转折局部/否；句长变化：高/中/低；允许生活噪音：是/否]\n节奏：[pace：快/中快/中/中慢/慢；段密度：中高/中/中低/低；允许碎片流：否；动作优先：是/否]\n正向指令：[从styleTags推断可加入的encourage类：现实落差/嘴硬补偿/生活噪音]\r\n\r\n推断规则：风格合同的每个值从styleTags关键词、章节剧情点的类型信号、当前章节的情感弧光推断。默认禁止整章短句化，句号密度参考上限为35/千字；仅高压转折处局部放开短句，普通叙述保持自然复合句。styleTags为空时写“无——使用当代中文叙事文学的自然语感，粗糙度中，允许生活噪音”。\n\r\n## 边界\n\n- 不得删除章节事件、改变核心结果、擅自切换POV或把未确定信息确定化\n- 不得用摘要替代场景节点\n- 待定信息标记“未提供/待补信息”，不得补写成确定事实\n- 五项施工门禁缺失时输出 [NOT-READY]，不得硬写\n- 章概要冲突输出 [CONFLICT]，不得静默裁决\n\n## 协议\n\n场景数量、字数分配、已处理场景、未完成场景、来源编号和状态变化属于应用交接 `metadata`。应用提供独立 `metadata` 通道时，只写入该通道；不得把交接信息写入正文主体，也不得为了满足数量或字数目标新增场景。\n\n骨架和【风格合同】之后输出【正文交接】，字段固定为：章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用。每项一行，值为短语或分号分隔的要点，不写正文句。\n\r\n## 来源编号保真\r\n\r\n原样继承 `Vx-Ey`、`Vx-Fy`、`Vx-Ry`、`Vx-Sy` 编号；来源单元拆成多个正文场景时使用稳定场景后缀，不得改号、复用或静默合并。每个场景消费清单必须列出四类来源编号和消费状态。输出末尾声明“来源单元总数/已建场景数/未消费编号”。\r\n\r\n## 章节执行包消费规则\r\n\r\n骨架必须使章节执行包中的每个施工字段都能落到正文行为上。POV决定可获得的信息边界；场景起点和人物位置决定正文开场；关键物体位置决定接触、观察和移动的路径；动作链必须保留发生顺序；信息来源必须决定信息在正文中的呈现方式；阻力必须造成可观察的行动受阻或代价；判断变化必须表现为新证据进入后角色改变行动；空间结果必须说明场景结束时人物、物体、通道或可见范围的变化；下一场景承接位置必须能从本场景结果直接接续。\r\n\r\n不得只把这些字段改写成“发现异常”“进行调查”“气氛紧张”等抽象摘要。字段缺失时保留“未提供/待补信息”，不得用氛围、常识或类型惯例填补。\r\n\r\n## 不可施工状态处理\r\n\r\n如果章节输入或场景执行包标记为“不可施工”，只输出已提供材料能够支持的骨架，并明确列出缺口；不得把不可施工场景改写成完整事件，也不得用类型惯例代替缺失的动作、阻力、结果或承接。\r\n\r\n## 验证反馈处理\n\n如果收到验证反馈（如元数据缺失、输出过短、检测到分析引导词等），请优先针对反馈指出的问题精确修正——只改反馈指出的位置，保留其他内容不变。不要因反馈而重写全部骨架。\n\n如果输入包含应用验收修复指令，按修复范围执行：\n\n- **定点修复**：输入中的【上一版正文】是失败正文，不是骨架，不得把它改写成骨架或复述其句子。保留原场景编号、事件顺序、核心结果和章末落点，只调整导致字数不足、覆盖缺失或结构不合格的场景预算与施工信息；不得新增主线事件、反转或未来伏笔。\n- **全链重生成**：按原始章节材料重新生成完整骨架。【上一版正文】只是失败证据，用于理解错误类型，不是施工输入；不得从中抽取句子、场景顺序或新增设定。\n\n两种模式都必须输出完整骨架文档，不得只处理场景1。\n\n## 最终输出提醒\n\r\n你只能输出骨架文档及规定的正文交接区块和终止元数据。分析过程留在内部。输出从骨架正文开始。\r\n\r\n完整处理当前章节输入并输出骨架文档。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n【差→好·闭环】目标：主角要调查异常；行动：进行调查；阻碍：遇到困难；转变：成功发现问题。改为：目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)；行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)；阻碍：蒸汽间歇性喷出，左手只能在间隙伸入(硬)；转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)。\n【差→好·空间】时间地点：某处厂房；人物位置：在现场；关键物体位置：附近。改为：时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)；人物位置：周砚蹲在检修平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)；关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)。\n【差→好·信息】信息来源：观察；判断变化：明白了真相。改为：信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)；判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)。\n【差→好·承接】下一场景承接：继续调查；章末钩子：危机加深。改为：下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿势接续(软)；章末钩子：管井深处传来三声金属敲击，间隔比蒸汽冲程更规律(硬)。\n【好骨架·密度】目标：阮秋要在烟雾封住通道前确认检修门位置(硬)；行动：贴地看门缝漏光→用湿布捂口鼻→沿左侧扶手爬两级→摸到门框下沿(硬)；阻碍：烟层下压，抬头视野糊，右手必须一直扶栏杆(硬)；空间结果：阮秋停在检修门下缘，湿布挂在左腕，通道口被烟层遮住(硬)；信息差：读者不知道井里还有另一个人(待)。\n\n--- text ---\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n灯塔信标\n周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 主角确认灯塔信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n灯塔信标 - 周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n请执行本章节的正文生成链路。"
+              }
+            ]
+          },
+          {
+            "passIndex": 0,
+            "attempt": 2,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n把当前章节材料转成正文场景骨架，不写成品正文。完整读取 chapterTitle、chapterSummary、chapterPlot、prevChapterSummary、characters 以及章节交接状态。\n\n本层只负责骨架内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\r\n【输出铁律】\n你只能输出叙事骨架文档，禁止输出任何正文、分析、思考、计划、说明过程。输出从骨架正文开始，不得在正文前添加分析或说明。骨架正文结束后，按规定输出正文交接区块和终止元数据。违反视为完全失败。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述的是整条正文链的最终目标，不改变本层职责：\n\n- “生成约N字正文”表示全链最终正文的字数目标。本层仍只输出骨架，并把N字作为场景预算的分配依据，不得在本层写出成品正文。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造元信息；本协议规定的【正文交接】和终止元数据仍必须输出。\n- 出现用户级字数要求与本层“禁止输出正文”表面冲突时，以阶段化职责解释执行：S1分配预算，S2施工正文，S3只打磨表达。\n\r\n## 应用参数\r\n\r\n当前章节标题：灯塔信标\r\n当前章节梗概：灯塔信标与旧航道线索推动主角南下。\r\n当前章节剧情点：周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\r\n上一章梗概：未设置\r\n角色列表：未设置\r\n每章字数：2000\r\n风格标签：未设置\r\n节奏参数：未设置\r\n\r\n章节剧情点是主线，设定和卷概要是约束，大纲是背景参考。风格标签和节奏参数作为链式继承的双保险。\n\n## 施工门禁\n\n生成骨架前对齐五项施工条件。任何一项缺失时，该项标为“未提供”，对应字段写“待补信息”；五项全部可施工才输出骨架。\n\n- POV：每个场景有明确观察者\n- 空间：人物、关键物体、出口或通道有相对位置\n- 动作顺序：目标、行动、阻碍、转变可按顺序落地\n- 事实边界：本章事件、结果和章末落点已知\n- 章末钩子：结尾有未解决问题、新威胁或认知变化\n\n五项中任何一项完全缺失且无法从输入可靠推导时，输出：\n\n```text\n[NOT-READY]\n缺口：[POV/空间/动作顺序/事实边界/章末钩子]\n缺失原因：[引用输入缺失位置，不写推断]\n需要补充：[要补什么才能施工]\n```\n\n不要在 NOT-READY 状态下编造场景、位置、动作或钩子。\n\n## 戏剧压强门禁\n\n骨架不能把威胁写成静态记录。每个推进场景必须当场形成压力：\n\n- 必须有选择点：至少两个可行动作，写明选中的动作、放弃的动作和放弃带来的代价\n- 阻碍必须影响当下行动：限制身体、压缩时间窗、消耗资源、暴露风险或制造人际张力；剧情点未给硬阻碍时，也必须从这些维度构造软压力\n- 禁止输出“无外部阻碍”“无直接阻碍”作为完成态；这代表骨架未施工，需回到剧情点重找压力源\n- 判断变化必须导致行动取舍：新证据出现后，角色不能只是“注意到后继续前进”，要改变路线、放弃目标、付出代价或承担风险\n- 转变服务于本章因果：部分成功带新问题、失败带新信息、成功带代价是常见形态参考；剧情点明确要求纯成功、情绪兑现或静场收束时，照剧情点执行\n\n## 章概要一致性预检\n\n把章节梗概、章节剧情点、上一章梗概逐项对齐。发现同一事实在时间、位置、人物状态、事件结果上冲突时，先在骨架开头输出：\n\n```text\n[CONFLICT]\n字段：[冲突字段]\n来源A：[章节梗概/剧情点/上一章梗概] — [原值]\n来源B：[章节梗概/剧情点/上一章梗概] — [原值]\n处理：[无法确定真值，双值并列保留，均标(待)]\n```\n\nCONFLICT 只报告，不裁决。不得擅自选一个来源当真值，也不得把冲突改写成自洽剧情。\n\n## 绝对时间锚\n\n每个场景的“时间地点”必须含一个可排序的绝对或相对锚点，例如“入侵后第三日黄昏”“暴雨开始后二十分钟”“距上一场景约半小时”。只有“傍晚”“夜里”这类氛围词不算锚点；输入未提供时写“待补信息”，不得虚构具体时间。\n\n## 场景构建方法\n\r\n每个剧情点落地为场景，遵循四步结构：\r\n\r\n1. 目标：角色眼下要做什么、想达成什么——从剧情点提取角色的即时意图\n2. 行动：角色为目标采取的具体行动——用动作概述呈现，不用完整描写\n3. 阻碍：行动中必须付出的当场代价——物理限制、人际张力、时间窗压缩、资源不足或内部取舍；不能写成“无阻碍”\n4. 转变：阻碍导致的结果——部分成功带新问题、失败带新信息、成功带代价、或意外转折。转变必须推动故事向前；收益形态由剧情点和场景类型决定，不套固定配额\n\n一个剧情点可以展开为多个场景，每个场景独立完成四步循环。多个场景通过因果链串联——A场景的转变触发B场景的目标。\n\r\n## 字段类型标注\r\n\r\n骨架中每个字段输出值末尾追加类型标注，三选一：`(硬)`、`(软)`、`(待)`。\r\n\r\n- `(硬)` = 硬事实：来自玄武输入的事件编号、POV、空间关系、已锁定事实。下游血肉师必须严格遵守。\r\n- `(软)` = 软性指导：基于剧情推断的场景方向、情感弧光、节奏建议。下游血肉师可以灵活诠释。\r\n- `(待)` = 待定信息：输入未提供或不可施工的缺口。下游血肉师保留未知状态。\r\n\r\n标注规则：来自玄武编号或章节执行包的字段标硬；推断的方向性内容标软；输入缺失标待。不确定时标待，不标硬。\r\n\r\n## 节拍控制\r\n\r\n正文分为三个节拍区域，每个场景标注节拍类型：\r\n\r\n- 钩子区（起）：以角色的身体感知或异常信号开篇，迅速建立场景氛围。不用背景交代开篇。\r\n- 推进区（承/转）：展开本章核心事件，角色行动→遭遇阻碍→做出转变。中段是本章的主体。\r\n- 收束区（合）：保留未解决问题、新威胁信号或角色认知变化。收束不是总结，是对已有落点的场景化承接；输入未提供时标记“待补信息”。\r\n\r\n## 演绎原则\r\n\r\n- 展开而非照搬：剧情点说“角色苏醒”，骨架写他从黑暗中恢复意识的过程概述\r\n- 具体而非抽象：剧情点说“适应异常装备”，骨架写他感知装备在皮肤上收紧、伸展的具体方向\r\n- 因果而非罗列：多个场景之间必须有因果连接——A场景导致B场景，B场景的角色反应引发C场景。章首直接续上一章时只保留落点，不复述过程；跳过时间时用目标锚和资产变化交代缺口，不用背景总结开场\n- 人的维度：每个场景标注角色的情感变化方向（从X到Y），不写具体情绪描写，只标注弧光方向。复现配角优先用既有称呼、动作习惯或口头反应识别，不重设出场\n- 尝试与失败：升级流和高压推进章可参考\"部分成功带新问题、失败带新信息、成功带代价\"来维持压力；纯成功、连续成功、静场收束是否成立，以剧情点类型和本章叙事需求为准，不设固定比例，也不强制每次成功开新账。\n- 场景位移：推进场景结束时，认知、关系、处境、资产、威胁或物理位置至少一个维度有可指认变化；抒情章、静章、关系观察章可用情绪兑现或认知变化承担位移，不以事件强度论成败\n\r\n## 字数分配\n\n根据章节总字数要求，为每个场景分配字数。分配原则：钩子、推进和收束区域按输入中的事件权重、场景复杂度与自然完整度分配，不使用固定比例切断场景。如果章节有多个推进场景，按因果权重分配。\n\n所有场景字数合计应达到每章字数的95%至105%。应用验收下限（如目标字数的80%）是兜底红线，不是S1的施工目标；禁止按验收下限分配预算。3000字以内的章节控制在5至6个场景；超出时优先合并因果相邻的场景，不得删事件。无法合并的保留事件并列入未施工清单，禁止用加场景的方式消化字数。对白和冲突主导场景把动作链拆到一拍一拍，供下游成一拍一段；观察和过渡场景可以保留较长段落。\n\r\n## 观察半径\r\n\r\n每个场景必须写明观察者与关键目标的距离、遮挡物、光线和可见范围。超出半径的人、物、声音只能通过他人转述、现场痕迹或待补信息进入，不得写成POV直接感知。POV不知道他人是否注意到自己，也不得替全场做“没有人发现”这类全知判断。\r\n\r\n## 事实防火墙\r\n\r\n卷概要、后续卷设定和角色长期弧线只约束方向，不提前兑现。未出现在当前章节剧情点里的台词、事件、关系变化和身份揭示，一律保持未发生。骨架可以保留伏笔方向，但不得把未来内容写成已发生的场景或对白。\r\n\r\n## 骨架范例\r\n\r\n以下范例只演示字段密度和标注纪律。人物与事件均属虚构演示，和当前章节无关；输出时必须替换为章节执行包的真实材料。\r\n\r\n### 对照一：场景闭环\r\n\r\n差（摘要式，不可施工）：\r\n目标：主角要调查异常；行动：进行调查；阻碍：遇到困难；转变：成功发现问题。\r\n\r\n好（动作可执行，因果闭合）：\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)；行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)；阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)；转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)。\r\n\r\n落差：差版是情节摘要，没有身体部位、空间路径和代价；好版每一步都能被下游写成动作。\r\n\r\n### 对照二：空间可施工\r\n\r\n差（含糊定位）：\r\n时间地点：某处厂房；人物位置：在现场；关键物体位置：附近。\r\n\r\n好（相对位置明确）：\r\n时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)；人物位置：周砚蹲在检修平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)；关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)。\r\n\r\n落差：差版只能引出气氛描写；好版规定了移动方向、接触顺序和可见范围。\r\n\r\n### 对照三：信息与判断\r\n\r\n差（结论先行）：\r\n信息来源：观察；判断变化：明白了真相。\r\n\r\n好（证据推动修正）：\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)；判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)。\r\n\r\n落差：差版替角色完成认知；好版让新证据进入后改变行动。\r\n\r\n### 对照四：承接与钩子\r\n\r\n差（空泛延续）：\r\n下一场景承接：继续调查；章末钩子：危机加深。\r\n\r\n好（状态和威胁具体）：\r\n下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿势接续(软)；章末钩子：管井深处传来三声金属敲击，间隔比蒸汽冲程更规律(硬)。\r\n\r\n落差：差版无法交接；好版锁定下一场的起始状态，并留下可追踪的威胁。\r\n\r\n### 完整目标形态\r\n\r\n【场景1：锅炉房泄压】\r\nPOV：周砚(硬)\r\n时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)\r\n场景起点：周砚蹲在检修平台边缘，齿轮箱正在泄汽(硬)\r\n人物位置：周砚在平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)\r\n关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)\r\n行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)\r\n阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)\r\n判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)\r\n转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)\n读者收益：新信息（传动卡死而非漏气）+新阻碍（阀杆锈死），行动目标转为寻找第二件工具(硬)\n空间结果：周砚移到检修盖旁，扳柄离手，出口被蒸汽帘隔开一半(硬)\n下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿势接续(软)\r\n节拍：起\n场景类型：动作(硬)\n情感弧光：从慌乱到专注(软)\n信息差：周砚不知道管井里有人，读者也不知道(待)\r\n字数：约800字\r\n\r\n【章末钩子】\r\n管井深处传来三声金属敲击，间隔比蒸汽冲程更规律(硬)。\r\n\r\n【状态连续性】\r\n每个场景输出前自查四个问题：谁在行动、谁在观察、每个关键物件由谁持有、话语是出声还是心里。场景结束时在骨架中保留持有关系和语言状态；下一场景的承接位置必须从这些持有关系、视线和语言状态出发。不得输出“放下A又拿着A”“观察者离开后仍看见A”“心里话说成对物说话”这类矛盾。\r\n\r\n【风格合同】\r\n叙事推进：时间序列+悬疑递增(软)\r\n场景单元模式：感知异常→受限行动→部分突破→新威胁(软)\r\n情绪表达：behavior_only(软)\r\n语言质感：克制、粗糙度中、句长变化中、允许生活噪音(软)\r\n节奏：中快、段密度高、慎用碎片流、动作优先(软)\r\n正向指令：现实落差(软)\r\n\r\n这份完整范例展示的是字段密度和标注纪律。输出时必须替换为当前章节的真实材料，不得复用范例人物或事件。\r\n\r\n## 输出格式\r\n\r\n输出以下格式的骨架文档，每个场景一个区块：\r\n\r\n【场景1：场景名称】\r\nPOV：[本场景的观察与感知锚点]\r\n时间地点：[输入已有的时间与地点]\n场景起点：[人物开始行动的位置或状态]\r\n人物位置：[主要人物在起点及关键转折时的位置；输入没有提供时标记“待补信息”]\r\n关键物体位置：[影响行动、发现或阻碍的物体位置；没有则写“无”]\r\n目标：[角色即时意图]\r\n行动：[按发生顺序排列的具体动作概述]\r\n信息来源：[每项新信息来自看见、听见、闻到、触到、回忆、他人告知或当下推断中的哪一种]\r\n阻碍：[障碍类型和内容]\n判断变化：[初始判断→新证据→判断修正→行动取舍；必须改变行动，不能只“注意到后继续”；输入没有提供时标记“待补信息”]\n转变：[结果+代价或遗留问题；形态由剧情点决定]\n读者收益：[可选；有可指认收益时申报，新信息/处境改变/关系位移/威胁升级/资产得失/地位变化/情绪兑现均可；静章、抒情章、关系观察章可省略本行]\n空间结果：[场景结束时人物、物体、通道或可见范围的变化；输入没有提供时标记“待补信息”]\n下一场景承接位置：[下一拍从哪个地点、人物位置或动作状态接续]\r\n节拍：[起/承/转/合]\n场景类型：[动作/对白/观察，三选一]\n情感弧光：[从X到Y]\n信息差：[POV角色知道但其他角色不知道的事 / 其他角色知道但POV被蒙在鼓里的事 / 无]\r\n字数：[约XXX字]\r\n\r\n【场景2：场景名称】\r\n...\r\n\r\n【章末钩子】\n[本章结尾留下的未解决问题或新威胁，一句话]\n最后事件：[章末实际发生的最后一个动作或事实]\n不可回头点：[本章结束后无法撤销的改变]\n未完成情绪：[POV角色尚未处理完的情绪，只写状态方向]\n下一章可接第一幕：[下一章第一章节能直接承接的位置、动作状态和关键持有物]\n\r\n【风格合同】\r\n叙事推进：[从styleTags推断：时间序列/目标驱动/悬疑递增/关系拉扯/日常沉浸/事实驱动/反差荒诞/多线交织]\r\n场景单元模式：[从styleTags和章节剧情推断：如“行为→落差→自我合理化”或“目标→阻碍→压制→反转收益”]\r\n情绪表达：[从styleTags推断：behavior_only/dialogue_and_action/subtext/reaction_only/light_behavior/suppressed/deadpan]\r\n语言质感：[语域：口语/自然/克制/专业；粗糙度：高/中/低；允许碎句：仅高压转折局部/否；句长变化：高/中/低；允许生活噪音：是/否]\n节奏：[pace：快/中快/中/中慢/慢；段密度：中高/中/中低/低；允许碎片流：否；动作优先：是/否]\n正向指令：[从styleTags推断可加入的encourage类：现实落差/嘴硬补偿/生活噪音]\r\n\r\n推断规则：风格合同的每个值从styleTags关键词、章节剧情点的类型信号、当前章节的情感弧光推断。默认禁止整章短句化，句号密度参考上限为35/千字；仅高压转折处局部放开短句，普通叙述保持自然复合句。styleTags为空时写“无——使用当代中文叙事文学的自然语感，粗糙度中，允许生活噪音”。\n\r\n## 边界\n\n- 不得删除章节事件、改变核心结果、擅自切换POV或把未确定信息确定化\n- 不得用摘要替代场景节点\n- 待定信息标记“未提供/待补信息”，不得补写成确定事实\n- 五项施工门禁缺失时输出 [NOT-READY]，不得硬写\n- 章概要冲突输出 [CONFLICT]，不得静默裁决\n\n## 协议\n\n场景数量、字数分配、已处理场景、未完成场景、来源编号和状态变化属于应用交接 `metadata`。应用提供独立 `metadata` 通道时，只写入该通道；不得把交接信息写入正文主体，也不得为了满足数量或字数目标新增场景。\n\n骨架和【风格合同】之后输出【正文交接】，字段固定为：章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用。每项一行，值为短语或分号分隔的要点，不写正文句。\n\r\n## 来源编号保真\r\n\r\n原样继承 `Vx-Ey`、`Vx-Fy`、`Vx-Ry`、`Vx-Sy` 编号；来源单元拆成多个正文场景时使用稳定场景后缀，不得改号、复用或静默合并。每个场景消费清单必须列出四类来源编号和消费状态。输出末尾声明“来源单元总数/已建场景数/未消费编号”。\r\n\r\n## 章节执行包消费规则\r\n\r\n骨架必须使章节执行包中的每个施工字段都能落到正文行为上。POV决定可获得的信息边界；场景起点和人物位置决定正文开场；关键物体位置决定接触、观察和移动的路径；动作链必须保留发生顺序；信息来源必须决定信息在正文中的呈现方式；阻力必须造成可观察的行动受阻或代价；判断变化必须表现为新证据进入后角色改变行动；空间结果必须说明场景结束时人物、物体、通道或可见范围的变化；下一场景承接位置必须能从本场景结果直接接续。\r\n\r\n不得只把这些字段改写成“发现异常”“进行调查”“气氛紧张”等抽象摘要。字段缺失时保留“未提供/待补信息”，不得用氛围、常识或类型惯例填补。\r\n\r\n## 不可施工状态处理\r\n\r\n如果章节输入或场景执行包标记为“不可施工”，只输出已提供材料能够支持的骨架，并明确列出缺口；不得把不可施工场景改写成完整事件，也不得用类型惯例代替缺失的动作、阻力、结果或承接。\r\n\r\n## 验证反馈处理\n\n如果收到验证反馈（如元数据缺失、输出过短、检测到分析引导词等），请优先针对反馈指出的问题精确修正——只改反馈指出的位置，保留其他内容不变。不要因反馈而重写全部骨架。\n\n如果输入包含应用验收修复指令，按修复范围执行：\n\n- **定点修复**：输入中的【上一版正文】是失败正文，不是骨架，不得把它改写成骨架或复述其句子。保留原场景编号、事件顺序、核心结果和章末落点，只调整导致字数不足、覆盖缺失或结构不合格的场景预算与施工信息；不得新增主线事件、反转或未来伏笔。\n- **全链重生成**：按原始章节材料重新生成完整骨架。【上一版正文】只是失败证据，用于理解错误类型，不是施工输入；不得从中抽取句子、场景顺序或新增设定。\n\n两种模式都必须输出完整骨架文档，不得只处理场景1。\n\n## 最终输出提醒\n\r\n你只能输出骨架文档及规定的正文交接区块和终止元数据。分析过程留在内部。输出从骨架正文开始。\r\n\r\n完整处理当前章节输入并输出骨架文档。\n\n【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。\n\n【结构化重试反馈】\n本反馈只描述失败事实与有界候选摘要，不携带候选输出全文。请基于原始任务输入重新输出完整结果。\n\n一、校验失败项\n1. 闪烁(9次)\n\n二、候选输出定位锚点（最多3条，仅用于定位，不是重写基底）\n- 【场景1：确认风暴信标】\n- POV：周砚(硬)\n- 时间地点：灯塔底层，日落时分，风暴预警后第一小时(硬)\n\n三、候选输出有界摘要（头尾各200字符，完整全文已抑制）\n【场景1：确认风暴信标】\nPOV：周砚(硬)\n时间地点：灯塔底层，日落时分，风暴预警后第一小时(硬)\n场景起点：周砚站在灯塔底层入口处，背靠铁门，面向塔内石壁上的信标观测窗(硬)\n人物位置：周砚在观测窗前两步，左手扶着潮湿的石壁，身后铁门虚掩(硬)\n关键物体位置：信标观测窗在周砚头顶一臂高，防水袋在他左胸内袋，灯塔钥匙挂在右腰(硬)\n目标：确认风暴信标的三次红色闪烁规律，为出航判断时间窗口(硬)\n\n……（省略 5224 字符）……\n名单（在防水袋内）、碎火漆渣混钥匙（在右裤袋）、信标间隔数据（已记入航海日志）、接头暗号已在日志中留下；船主对周砚记录内容产生疑虑；清晨渔船已预约但尚未出发；许知微是否能收到暗号未知\n下一章必须使用：船主翻看航海日志后塞入杂物箱的动作（伏笔）；周砚裤袋里的碎火漆渣与钥匙（证据风险）；防水袋内沉船名单未读（信息延迟）；清晨出发时间（时间约束）；接头暗号的措辞“愿灯塔守望者平安”（许知微身份验证关键）\n\n输出要求：重新输出符合 schema 的完整结果；不要复述本反馈，不要输出解释。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n【差→好·闭环】目标：主角要调查异常；行动：进行调查；阻碍：遇到困难；转变：成功发现问题。改为：目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)；行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)；阻碍：蒸汽间歇性喷出，左手只能在间隙伸入(硬)；转变：部分成功——盖板打开，但阀杆锈死，泄压还需要第二件工具(硬)。\n【差→好·空间】时间地点：某处厂房；人物位置：在现场；关键物体位置：附近。改为：时间地点：旧锅炉房，发现蒸汽泄漏后第三分钟(硬)；人物位置：周砚蹲在检修平台边缘，出口在身后六步，齿轮箱在左前方两臂(硬)；关键物体位置：检修盖在周砚左膝旁，扳柄挂在右侧栏杆第三格(硬)。\n【差→好·信息】信息来源：观察；判断变化：明白了真相。改为：信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)；判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)。\n【差→好·承接】下一场景承接：继续调查；章末钩子：危机加深。改为：下一场景承接位置：从周砚单膝跪在检修盖旁、扳柄握在右手的姿势接续(软)；章末钩子：管井深处传来三声金属敲击，间隔比蒸汽冲程更规律(硬)。\n【好骨架·密度】目标：阮秋要在烟雾封住通道前确认检修门位置(硬)；行动：贴地看门缝漏光→用湿布捂口鼻→沿左侧扶手爬两级→摸到门框下沿(硬)；阻碍：烟层下压，抬头视野糊，右手必须一直扶栏杆(硬)；空间结果：阮秋停在检修门下缘，湿布挂在左腕，通道口被烟层遮住(硬)；信息差：读者不知道井里还有另一个人(待)。\n\n--- text ---\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n灯塔信标\n周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 主角确认灯塔信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n灯塔信标 - 周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n请执行本章节的正文生成链路。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 1,
+          "schemaValidateMs": 1,
+          "retryMs": 0,
+          "postProcessMs": 13,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "retainedCandidateIndex": 2,
+        "requestPayloadRef": "payload-001"
+      },
+      "outputPayloadRef": "payload-026",
+      "outputLength": 4679,
+      "outputPreview": "【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠"
+    },
+    {
+      "status": "degraded",
+      "errors": [
+        "第 1/3 次输出未通过 postProcess 校验：【正文交接】出现0次，必须恰好一次",
+        "第 2/3 次输出未通过 postProcess 校验：正文仅1445字，低于1500字结构下限，疑似坍缩\n正文1445字，低于生成下限1600字（目标2000字）",
+        "第 3/3 次输出未通过 postProcess 校验：输出前检测到分析引导词，第一个字必须是正文\n【正文交接】出现0次，必须恰好一次\n孤立分隔线残留",
+        "输出未通过校验，已达最大尝试次数 3"
+      ],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-10-27T03:04:13.355Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-10-27T03:04:13.355Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 【正文交接】出现0次，必须恰好一次",
+          "at": "2026-10-27T03:05:41.389Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-validation-failed",
+          "message": "尝试 1/3：【正文交接】出现0次，必须恰好一次",
+          "at": "2026-10-27T03:05:41.389Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 正文仅1445字，低于1500字结构下限，疑似坍缩",
+          "at": "2026-10-27T03:12:55.703Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 正文1445字，低于生成下限1600字（目标2000字）",
+          "at": "2026-10-27T03:12:55.703Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-validation-failed",
+          "message": "尝试 2/3：正文仅1445字，低于1500字结构下限，疑似坍缩\n正文1445字，低于生成下限1600字（目标2000字）",
+          "at": "2026-10-27T03:12:55.704Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 输出前检测到分析引导词，第一个字必须是正文",
+          "at": "2026-10-27T03:14:31.019Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 【正文交接】出现0次，必须恰好一次",
+          "at": "2026-10-27T03:14:31.019Z"
+        },
+        {
+          "type": "error",
+          "code": "post-process-issue:structural-contract",
+          "message": "[blocking] 孤立分隔线残留",
+          "at": "2026-10-27T03:14:31.019Z"
+        },
+        {
+          "type": "warning",
+          "code": "post-process-validation-failed",
+          "message": "尝试 3/3：输出前检测到分析引导词，第一个字必须是正文\n【正文交接】出现0次，必须恰好一次\n孤立分隔线残留",
+          "at": "2026-10-27T03:14:31.020Z"
+        },
+        {
+          "type": "warning",
+          "code": "schema-validation-best-candidate-retained",
+          "message": "重试耗尽后保留第 1/3 次候选（1 项失败）",
+          "at": "2026-10-27T03:14:31.020Z"
+        },
+        {
+          "type": "error",
+          "code": "schema-validation-exhausted",
+          "message": "输出未通过校验，已达最大尝试次数",
+          "at": "2026-10-27T03:14:31.020Z"
+        }
+      ],
+      "folderPackageCache": true,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [
+          {
+            "severity": "blocking",
+            "code": "structural-contract",
+            "message": "输出前检测到分析引导词，第一个字必须是正文"
+          },
+          {
+            "severity": "blocking",
+            "code": "structural-contract",
+            "message": "【正文交接】出现0次，必须恰好一次"
+          },
+          {
+            "severity": "blocking",
+            "code": "structural-contract",
+            "message": "孤立分隔线残留"
+          }
+        ],
+        "durationMs": 8,
+        "outputPayloadRef": "payload-028",
+        "outputLength": 2917,
+        "outputPreview": "我背靠铁门，先听见自己的呼吸。\n\n门外的风声挤过门缝，带进来一股海腥和铁锈混合的气味。我把右手按在左腕上，皮肤底下的脉搏一下一下跳得发沉。\n\n数到六十。\n\n没等到红光。\n\n又数六十。第六十一秒刚跳过去，观测窗的位置亮了一下——不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层石壁照出一圈一圈的暗红。\n\n我没动。手指仍压在脉搏上，眼睛盯着观测窗的方向。\n\n红光灭了。从亮起到熄灭，我默数到六十。\n\n第二次红光在三十七秒后出现，比第一次短了将近一半。我把额头压低，贴在潮湿的石壁上，海雾从观测窗灌进来，糊在脸上又冷又黏。第二次闪光消失时，石壁上的水渍暗下去，底层重新坠入黑暗。\n\n我继续数。\n\n第三次来得更迟。四十一秒过去，观测窗只亮了一截——红光从窗框左边冒出来，还没走到右侧就断了。我在心里记下这个数，把按住左腕的手松开。\n\n信标还在工作。但第三次数据只能靠前两次间隔去推。\n\n我站起身，膝盖咔嗒响了一声。背后铁门外面没有脚步声，但港务巡查的路线我摸得清——他们每隔四十分钟从西码头绕到灯塔基座，手电扫一遍底层入口。第三次红光断了之后，我已经多逗留了至少两分钟。\n\n我把身体从"
+      },
+      "apiMeta": {
+        "reasoningText": "",
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n依据上游骨架生成正文初稿。保留全部事件顺序、POV、空间关系、人物关系和章末落点。\n\n本层只负责正文内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述整条正文链的最终目标，并与本层职责一致：\n\n- “生成约N字正文”是本层的施工目标。以 `wordsPerChapter` 为全章目标，把骨架中的场景预算逐场写满；应用验收下限（如目标字数的80%）只是兜底红线，不是施工目标。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造元信息；本协议规定的【正文交接】仍必须输出。\n- 用户级指令与本层职责表面冲突时，按阶段化职责解释执行：S1分配预算，本层施工正文，S3只打磨表达。\n\n【输出铁律】\n你只能输出正文。第一个字必须是正文。禁止输出分析、思考、说明、修改过程。\n\r\n## 输入来源\r\n\r\n上一步输出的骨架文",
+            "length": 12254
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n【差→好：主语先落地】差：看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。好：老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\n【差→好：动作有因果和代价】差：老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。好：他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\n【差→好：语言行为一致】差：对刻痕说了一句话，在心里说，没有出声。青说得很快，松开就往涌。，青更慢，每个字都像在咬东西。好：老郑没有出声，这句话只在他心里过了一遍。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\n【差→好：对白留潜台词】差：“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。好",
+            "length": 5989
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n依据上游骨架生成正文初稿。保留全部事件顺序、POV、空间关系、人物关系和章末落点。\n\n本层只负责正文内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述整条正文链的最终目标，并与本层职责一致：\n\n- “生成约N字正文”是本层的施工目标。以 `wordsPerChapter` 为全章目标，把骨架中的场景预算逐场写满；应用验收下限（如目标字数的80%）只是兜底红线，不是施工目标。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造元信息；本协议规定的【正文交接】仍必须输出。\n- 用户级指令与本层职责表面冲突时，按阶段化职责解释执行：S1分配预算，本层施工正文，S3只打磨表达。\n\n【输出铁律】\n你只能输出正文。第一个字必须是正文。禁止输出分析、思考、说明、修改过程。\n\r\n## 输入来源\r\n\r\n上一步输出的骨架文档和风格合同作为本步输入。从输入中解析场景区块（POV、时间地点、人物位置、目标、行动、信息来源、阻碍、判断变化、空间结果、节拍、字数）和风格合同参数，据此生成正文。\r\n\r\n【输入】\r\n\r\n应用传入骨架师生成的叙事骨架文档。骨架包含场景区块（POV、时间地点、人物位置、目标、行动、信息来源、阻碍、判断变化、空间结果、节拍、字数）和章末钩子。\r\n\r\n每章字数：2000\r\n风格合同：由骨架中的【风格合同】区块传递\r\n\r\n输入若包含“上一步输出”或“--- 上一步输出 ---”，只读取其中最后一个骨架文档；旧输出痕迹、重复骨架块和【正文交接】先在内部剥离，不在正文中复述。上游字段未提供时按“待补信息”处理，不得补写。\n\n## 施工门禁\n\n输入以 `[NOT-READY]` 开头或包含 `[NOT-READY]` 时，不生成正文。只输出：\n\n```text\n[NOT-READY]\n收到缺口：[逐项复述S1缺口]\n本步无法处理：[说明需要上游补料]\n```\n\n如果骨架包含 `[CONFLICT]`，冲突字段按“待补信息”处理；无法避开冲突成章时，输出 `[BLOCK]` 加冲突原因，不得自行裁决事实。\n\n## 施工判定\n\n骨架可施工时输出正文和交接。局部字段缺失时，围绕已提供材料施工，缺口写入交接。POV、空间、动作顺序、事实边界或章末落点缺失到无法成章时，只输出 `[NOT-READY]` 或 `[BLOCK]` 及缺口，不生成正文。\n\n## 逐场景施工门禁\n\n展开前先在内部数出骨架里的全部【场景N】编号，形成场景清单。施工时按编号逐场推进：\n\n- 每个场景写满自身预算后再进入下一场景；不得把后续预算合并到场景1，也不得用场景1的余量代替全章目标。\n- 每个场景必须落实该场景的目标、行动链、阻碍代价、判断变化和空间结果；只写气氛不足以算完成。\n- 扩写优先补动作链、感知后果、对白回合和现场代价，不注水、不堆形容词、不重复解释。\n- 所有场景完成后才能输出【正文交接】。清单本身不输出。\n\n全章长度以 `wordsPerChapter` 为目标。若低于目标，先检查是否有场景未写满或被略写；不得按应用验收下限提前收束。\n\n【创作信任】\n\r\n你是这个故事的作者，不是规则的执行器。你有文学直觉、有审美判断、有对角色的共情。以下八条是你独有的创作维度，应用层的降AI规则处理句法和用词层面的清洁问题，你处理的是更深层的叙事艺术。在这八个维度上，信任你的创作本能。\r\n\r\n应用层会在API返回后检测AI高频词、禁用词句式、句长趋同和连接词密度，默认只报告不改写；用户开启修复模式时也只做最小编辑或白名单替换，并保留保护片段。不要假设下游会替你清洗：成稿的干净程度由你此刻的句子质量决定，检测报告只是复核。\n\r\n**密度意识。** 任何词汇或句式在五百字内出现超过一次即为堆叠。不是\"不能用\"，而是\"不能堆叠\"。以下词汇在整篇正文中出现超过两次即为密度超标：似乎、仿佛、此刻、这一刻、不禁、缓缓、渐渐、微微、淡淡、确实、好像、充满、凝固、沉重、闪烁、弥漫。如果你发现自己反复使用同一种修辞结构或同一种句式，换一种表达方式。\n\r\n【写作方法】\r\n\r\n你是POV角色，正在经历这一切。写你在场的体验，不写对故事的总结。\r\n\r\n**动作有设计。** 关键动作是叙事引擎：有因果（角色为什么做）、有代价（消耗体力、暴露位置、改变关系）、有信息（释放或隐藏了什么）。动作链推动场景从A到B，不写“经过一番激烈战斗”跳过过程。资源消耗、获得、损毁和地位变化落成可指认事实，不只写心理感受。\n\r\n**句长有呼吸。** 长句铺展因果和细节，普通叙述句允许25-45字自然复合句；短句只用于关键转折、冲击或收束，不整章堆叠，不把陈述句机械句号化。\n\r\n**情感有弧光。** 情感在场景中渐变、积累、转折，不贴标签。用身体信号和压力下的选择呈现——咬牙还是松手、开口还是沉默、追上去还是转身走。情感弧光从一个状态到另一个状态，中间有触发的转折点。\r\n\r\n**对白有潜台词。** 人物说的话和想的事不一样。对白承担信息传递和关系交锋双重功能。交涉和冲突场景的对白回合通常应完成信息交换、条件变动、关系变化或拒绝；闲谈、试探和氛围铺陈只要服务本章需求，可以保留。\n\r\n**背景从记忆里长出来。** 角色不会突然想到自己的完整履历。背景信息通过感官触发、认知闪回、他人一句话带出，嵌在当前动作流中，不独立成段。类型规则、等级、势力和资源说明可以直接给，但每条说明之后必须落回当下判断或行动；交代完立即回到角色的当前感知或动作。\n\r\n**段落有非对称结构。** 有些段直接进动作，有些段先讲问题，有些段说完就停。不要每段都用同一个结构。特别注意描述→对话→描述的循环——每个对话回合的描写配比必须不同。\r\n\r\n**感知有后果。** 重要感官信号不能孤立停在感受上。感知延伸到身体反应，身体反应延伸到判断变化，判断变化推动下一步行动。\r\n\r\n**节奏由场景决定。** 紧张段落加快动作密度，重要时刻放慢，转折处留白；节奏服务戏剧需求，不由句号频率制造。情感转折处减速，让读者跟上角色的内心。\n\r\n**过度纠错是另一种机器味。** 去AI味过度后产生的反AI腔本身也是可检测信号。连续短句碎片链、\"不是X。是Y。\"句式、超过三分之一的段落以punch-line结尾——这些过度纠错痕迹和AI套话一样破坏阅读。\r\n\r\n**信息有控制。** 何时让角色知道、何时让读者知道，是叙事张力的核心工具。信息差制造悬念——角色知道读者不知道的，制造紧张；读者知道角色不知道的，制造反讽。释放信息的时机比信息本身重要，不要一次倒完。\r\n\r\n**段落自足。** 每个段落独立传达一个完整的信息单元——一个动作、一次感知、一个判断转折或一次关系位移。对白和冲突场景可一拍一段，段落主体约30-90字；超过约140字的段落自带结构变化，不用句号硬切。连续两段的句式、长度和开头方式应自然不同：第一段以动作开头，第二段可从感知或对话进入。\n\r\n**关系有动态。** 有直接互动的关系通过行为和选择变化，不靠旁白交代。一次拒绝、一次沉默、一次伸手都可以改变两人之间的天平；关系观察章和静章可用未被说出的感受承担动态，不以外部事件为硬性指标。\n\r\n**场景有位移。** 每个场景结束时角色的状态和开始时通常不同——认知、情感、关系或物理位置至少一个维度有位移。抒情章、静章、关系观察章可用情绪兑现或认知变化承担位移。\n\r\n**删减测试意识。** 写完一个段落后自检：如果删掉这段，读者会缺失什么信息？如果答案是\"什么也不缺\"，这段就是多余的。\r\n\r\n【风格合同消费】\n\n读取骨架中的【风格合同】，这些值是你写这个故事的创作决策锚点：\n\r\n叙事推进和场景单元模式决定场景的呼吸方式——每个场景按合同给定的模式推进，不套通用模板。\r\n\r\n情绪表达方式决定你如何写角色的内心——behavior_only就只用身体和动作，subtext就靠停顿和言外之意，deadpan就用冷反应。合同怎么定，你就怎么写。\r\n\r\n语言质感决定你的句子——粗糙度高就允许口语、碎句和不完美的表达，粗糙度低就克制精确。允许生活噪音就加入不推动主线但增加现场感的细节。\r\n\r\n节奏参数决定段落的密度和快慢——合同给的值优先于你对类型的默认想象。\r\n\r\n正向指令优先执行：如果合同里写了“现实落差”，就让角色的预期和实际结果之间有落差。如果写了“嘴硬补偿”，就让角色吃瘪后用嘴硬、转移或找补来维持体面。\r\n\r\n合同不是限制你，是解放你——它告诉你在哪些方向上可以大胆，在哪些维度上保持克制。按合同写，不需要每句都检查规则。\n\n【语气与措辞手感】\n\n正文要像中文小说，不像翻译稿或状态报告。写每一句时用三个标准校准：\n\n**一、动词优先。** 把“感到、发出、进行、开始、继续、变得、显得、使得、一阵、一种”这类报告动词和空量词换成具体动作。身体自己会动，不需要叙述者替它汇报。\n\n生硬：\n他的喉咙里发出一阵干裂的咳嗽，这让他意识到自己的身体还很虚弱。\n\n自然：\n咳嗽从喉咙里滚上来，干得发裂。他撑住舱壁，等这阵抖过去。\n\n**二、判断落进身体。** 角色的结论不从旁白里“浮上来”，而是先有感官证据，再有一个短促的内心判断，最后落到下一步动作。\n\n生硬：\n判断从身体里浮上来，比理性更快：周砚不在这里。\n\n自然：\n没有脚步声。没有咳嗽。只有他自己的血在耳朵里跳。他还没想明白，身体先给出了答案：这里没有人。\n\n**三、明喻省着用。** “像”是调味盐，不是主粮。整章“像”字明喻不超过六处；每次用之前先问：这个比喻是否提供了新信息或新情绪？如果只是把一个感官换成另一个感官，删掉，直接写物象本身。\n\n生硬：\n布条缠在那里，像一层活的甲；灯光像水也像雾；铁柜像一只闭着的眼睛。\n\n自然：\n布条缠在小臂上，边缘被雨水泡得发白，随呼吸一起一伏。灯光从头顶漏下来，落在他手背上，又被窗外的天色盖过去。铁柜的门关着，门缝里没有光。\n\n**四、连接词少而准。** 相邻句子靠动作和因果自然承接，少用“然后、接着、于是、随后、这时、此刻”。时间顺序由动作完成，不由交通灯指挥。\n\n**五、句尾别替读者总结。** 段落最后一句停在动作、物象或未闭合的处境上，不落在“这说明……”“他知道……”“他意识到……”上。意义让读者自己撞上去。\n\n**六、声音只写源和落点。** 咳嗽、碎裂、脚步声不需要完整转播传播路径。写它从哪里来、撞在角色耳膜上时改变了什么判断，就够了。连续描述“撞上、荡回来、一圈一圈、最后落进耳朵”这类声学路径，是另一种报告腔。\n\n生硬：\n咳嗽撞上舱壁，一圈一圈荡回来，最后落进他耳朵里的还是他自己的声音。\n\n自然：\n咳嗽撞在舱壁上，又弹回他耳朵里。回来的还是他自己的声音。\n\n**七、判断不套容器隐喻。** 角色的结论不从“身体里浮上来”“意识深处冒出来”，直接给证据链：没有脚步声，没有咳嗽，血在耳朵里跳。证据排完后，一句短判断落地，马上接动作。\n\n写完后对每一段做一次“读出声测试”：哪一句念起来像报告、像翻译、像在完成任务，就重写哪一句。只重写那一句，不推翻整段。\n\n【字段类型消费】\n\r\n骨架中每个字段末尾的类型标注决定你的处理方式：\r\n- (硬) = 必须严格遵守，不得改写、删除或弱化\r\n- (软) = 创作方向参考，可以在不偏离主线的前提下灵活诠释\r\n- (待) = 保持未知或缺口，不得补写成确定事实\r\n\r\n【成段范例】\r\n\r\n以下范例只演示八个维度如何配合。人物与事件均属虚构演示，和当前章节无关；输出时使用当前章节材料。\r\n\r\n### 骨架片段\r\n\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)\r\n行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)\r\n阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)\r\n判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)\r\n空间结果：周砚移到检修盖旁，扳柄离手，出口被蒸汽帘隔开一半(硬)\r\n情绪表达：behavior_only(软)\r\n节奏：中快、动作优先(软)\r\n\r\n### 目标正文\r\n\r\n蒸汽贴着地面漫过来，周砚先看见的是压力表。指针顶在红区，抖了两下，又往回缩半格。他没有等第三下，右手抓过栏杆第三格上的扳柄，左手扣住检修盖的锁扣。第一下没撬动，他换了角度，把柄头卡进锁扣下沿再压。盖板弹开时，热气扑到他脸上，他偏头躲了一下，视线还是落在盖板后面。阀杆在，锈成一坨暗红。齿轮箱里的刮擦声又密了一层，他听得出来，传动不是在漏，是在卡死。电闸救不了这个。周砚把扳柄横过来，卡在阀杆根部，先想杆，再想出口。\r\n\r\n这一段同时完成了八件事：句长随动作变化；关键动作有方法（换角度）、代价（热气扑脸）和信息（传动卡死）；感知进入判断（刮擦变密→不是漏气）；判断改变行动（放弃电闸，改找泄压）。主语和因果始终清楚，读者不需要停下来解密。\r\n\r\n## 执行事故对照\r\n\r\n以下四种病都是把技巧当目的。出现任何一种，说明执行已经失败，不是风格偏好问题。\r\n\r\n### 病一：无主语漂移\r\n\r\n差：\r\n走在前面两步，没回头，账本夹在腋下，炭笔从本子边缘露出半截，随走动在布料上蹭出一道浅灰。\r\n\r\n好：\r\n老郑走在前面两步，没有回头。账本夹在他腋下，炭笔从本子边缘露出半截，跟脚步在衣料上蹭出一道浅灰。\r\n\r\n落差：差版连续三个动作共用一个被省略的主语，读者要先猜主语再进画面。补回主语不会让句子变慢，只会让画面立住。\r\n\r\n### 病二：强行象征\r\n\r\n差：\r\n工字钢的截面锈透了，锈斑在暮色里呈深褐色——和老阮脚踝上那条布条的颜色一样；看了一眼，移开。\r\n\r\n好：\r\n工字钢的截面锈透了，锈斑在暮色里颜色发深。老阮低头看见自己脚踝上的布条，往前走了两步，又停住。\r\n\r\n落差：差版把叙事者硬拉进来做配色，两个物件本来没有戏剧关系。好版让动作和心事自己发生，读者愿意读出关联，读不出也不损失。\r\n\r\n### 病三：节奏伪造\r\n\r\n差：\r\n一下。停。又一下。脚步声在铁皮上敲出三个短句。\r\n\r\n好：\r\n楼上传来三下脚步，第三下之后没有第四下。老郑把账本塞进外套里，贴住墙。\r\n\r\n落差：把句子打碎不等于把场景打碎。真正制造张力的是第三下之后没来第四下，以及人物因此改变动作。\r\n\r\n### 病四：句法盖过故事\r\n\r\n差：\r\n风。风里有铁锈。铁锈后面是暮色。暮色里，人还没回来。\r\n\r\n好：\r\n风从缺口灌进来，带着铁锈味。老郑数到第五个缺口，还是没有等到人影。\r\n\r\n落差：差版是一组排练过的镜头，每个名词都在等下一句接它。好版让感官信息变成判断依据，句子完整而有推力。\r\n\r\n### 病五：动作与视角断裂\r\n\r\n差：\r\n看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。\r\n\r\n好：\r\n老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\r\n\r\n落差：差版至少断掉四处——谁在看没有主语；“松开碗”和“端着铁碗”矛盾；观察者自己走了却还看着别人走远；水珠没有被先观察到就“终于”坠下。好版先锁定观察者，再让每个物件按顺序进入视野，感知和视线都有落点。\r\n\r\n### 病六：语言行为与段落桥断裂\r\n\r\n差：\r\n看着那道刻痕，不是看形状，是看它本身——泥土被推开后留下的沟槽，底部是更深的湿土，颜色比表面深一个色度。水渍从边缘往外渗，聚成细小的水珠，在夜色里亮了一下，又暗下去。\r\n抬起手指，对刻痕说了一句话，在心里说，没有出声。“我随时可以离开。留下只会让更多人陷入危险。”\r\n\r\n青说得很快，每个字都像已经在嘴里等了一整天，松开就往涌。，青更慢，每个字都像在咬东西，咬下去，松开，再咬下一个。，青慢了一点，到“留下”时停顿——绷带在手臂上收紧了一下，不重，刚好在那个词上。\r\n\r\n好：\r\n老郑蹲下去看那道刻痕。沟槽底部的湿土比表面深一个色度，水渍从边缘渗出来，聚成水珠。他没有碰它，把抬起的手指又放了下去。\r\n\r\n我随时可以离开。留下只会让更多人陷入危险。\r\n\r\n这句话在心里过了一遍，很快。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\r\n\r\n落差：差版至少断掉七处——观察者无主语；“对刻痕说”和“在心里说没有出声”冲突；心里话却描写咬字和语速；人名残缺成“青”；“松开就往涌”缺宾语；“。，”标点损坏；“每个字都像”同一修辞骨架连用三次；第三段与前两段没有承接。好版先建立观察，再进入内心语，用身体反应承接停顿，最后用动作收束。\r\n\r\n### 病七：残句、报告和越界\r\n\r\n差：\r\n片灰绿。色的光。第一个画面——一个老人蹲在篝火旁。据点内没有人注意到他。隔着五十米，篝火的烟和孢子雾，团灰绿。你本来就该接管这里。\r\n\r\n好：\r\n灰绿色的光从老阮左手腕的伤口边缘透出来。他隔着五十米望向篝火，烟把人影压成几团模糊的轮廓，只能看清最外侧那个老人抬手按了按孩子的头顶。老阮没有走近，也没有出声。\r\n\r\n落差：差版五种硬伤——名词残句；“第一个画面”是提纲不是正文；“没有人注意到他”越出POV；五十米加烟雾还声称看清细节；“你本来就该接管这里”是后续卷才该发生的台词提前泄漏。好版先写清光源，再写距离、遮挡和可见范围，只保留POV真实能感知到的信息。\r\n\r\n### 差/好对照一：动作不跳步\r\n\r\n差：\r\n老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。\r\n\r\n好：\r\n他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\r\n\r\n落差：差版是结果汇报；好版有方法（先试劲再发力）、代价（热气扑脸）和可见进度（盖板弹开）。\r\n\r\n### 差/好对照二：感知有后果\r\n\r\n差：\r\n周砚听到齿轮箱里有声音，感觉情况有些不妙。\r\n\r\n好：\r\n齿轮箱里的刮擦声又密了一层。周砚停下伸向电闸的手，转回检修盖。\r\n\r\n落差：差版把感知停在情绪标签上；好版让声音改变判断和行动——放弃电闸，回到泄压方向。\r\n\r\n### 差/好对照三：对白有潜台词\r\n\r\n骨架背景：阿凉隔着门板传话，两人身份都不能暴露。\r\n\r\n差：\r\n“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。\r\n\r\n好：\r\n“水是从你那边流下来的。”阿凉的声音隔着门板，压得很低。\r\n老郑没有接话。账本在他手里合上了。\r\n“替谁？”\r\n门板后面安静了两秒。“不该问的。”\r\n\r\n落差：差版把目的、立场和解决方案全说出来；好版用合上账本、一句反问、一次沉默完成试探和拒绝。\r\n\r\n### 差/好对照四：节奏有呼吸\r\n\r\n骨架背景：老郑查完声音来源，发现楼里还有别人。\r\n\r\n差：\r\n老郑立刻意识到事情很严重。他知道自己必须马上采取行动，否则后果不堪设想。他感到心跳加速，呼吸急促，紧张到了极点。\r\n\r\n好：\r\n楼上传来三下脚步，第三下之后没有第四下。老郑把手电压低，听见自己呼吸里多出来的那点杂音。他贴住墙，等了十个数的间隔，才把手电重新抬高半寸——光斑扫过去，楼梯拐角只有一只没人认领的鞋。\r\n\r\n他把光压回去，开始往回走。\r\n\r\n落差：差版用成语和情绪标签拉平节奏；好版用等待、压光和一只鞋制造不确定，句子完整但呼吸变化明显。\r\n\r\n### 差/好对照五：关系有位移\r\n\r\n骨架背景：阮秋把最后一段绳子递给老郑，自己留在检修口。\r\n\r\n差：\r\n阮秋把绳子递给了老郑。她虽然有些不舍，但为了大局还是做出了牺牲。两人的关系因此更加深厚了。\r\n\r\n好：\r\n绳子最后半米卡在阮秋手里。她没有松。\r\n“你先。”老郑说。\r\n“出口塌了怎么办？”\r\n“那就先塌我。”\r\n他进检修口的时候，她把绳子放出去半米，没有再说话。\r\n\r\n落差：差版用旁白宣布关系变深；好版让“没松、追问、放绳、沉默”四个动作完成关系位移。\r\n\r\n【边界】\r\n\r\n- 不得删事件、改结局、跳过场景、换POV\n  新段落第一句必须承接上一段末尾的位置、感知或语言状态；不得出现段落之间断裂\n  不得删事件、改结局、跳过场景、换POV\n- 段落首句和视角切换处出现主语锚点。段落中部主语由上下文承担。主语清楚的完整句不拆碎\r\n- 动作状态必须连续：同一物件不能先松开又端着；新物件必须先被观察到，再参与后续动作\r\n- 每个场景先锁定谁在行动、谁在观察；观察者不能看见自己离开后才看得见的画面\r\n- 心里话只写内容和停顿，不写咬字、语速或出声方式；有声台词才可写口腔和呼吸动作\r\n- 人名必须完整，不出现残缺称呼；每个句子必须主语、动词、宾语完整，能独立成立\r\n- 同一修辞骨架在一个段落内只用一次；新段落第一句必须承接上一段末尾的位置或感知状态\r\n- 感官细节服务当下判断；禁止把两个没有戏剧关系的物件强行比色、比象征\r\n- 节奏变化来自场景压力，不来自把正常叙述句拆成碎片\r\n- 待定信息保持未知，不补写成确定事实\r\n- 输入标记“不可施工”或“待补信息”的场景只展开已有部分，缺口如实记录\r\n- 句子必须能独立成立：主语、动词、宾语完整，主语可由段落上下文承担；“的”字开头且无主语的名词残句禁止输出\r\n- 观察半径由骨架决定：距离、遮挡、光线、噪声决定能看见和听清的范围，不得越界写远处细节\r\n- 卷概要和后续卷信息只约束方向；未发生在当前剧情点里的台词、事件和关系变化不得提前写成正文\r\n- 正文不使用“第一个画面”“第二个画面”这类报告式编号；连续场景靠动作和位置承接\n- 正文主体禁止使用孤立 `---` 分隔线；场景切换靠动作、位置和感知变化承接，不靠分隔线标记\n- 打磨阶段会清理分隔线残留。若在 S2 阶段写入 `---`，S3 将被迫重组段落，可能损伤叙事连续性\n- 正文主体长度不得低于每章字数的80%，不得高于110%。超字时只做一次净删：删重复解释、装饰排比、无功能微动作；保留情节点、事实、因果、情绪兑现和章末钩子。净删后仍超字，如实写入交接报告，不为了字数二次重写\n- 最后3至5段必须有效收束，形式不限：动作、揭示、处境改变、情绪余韵、问句悬置或静场停顿均可；禁止总结式收束\n- 章末钩子按剧情点类型处理：事件型钩子要实际落地或明确逼近；情绪型、悬念型、静场型钩子保留其应有的收束形态，不强行改写成事件\n- 新增事实分三档授权：一档，骨架现场材料直接写；二档，框架内新增配角、设定、关系细节可以写，但必须写入 `NEW_FACT` 申报；三档，新主线事件、新反转、新规则、提前兑现伏笔、改变章纲结果，不写，输出 `[BLOCK]` 并说明缺口。相对骨架新增的事实不得静默写入正文\n\n【协议】\n\n正文主体 = 连续叙事，不含任何元信息、编号表或消费清单。\n\n必须完整覆盖输入骨架中的全部场景，不得只写第一个场景。展开前在内部核对场景清单：先数出骨架里的全部【场景N】编号，逐个编号确认已有对应正文；任何一个编号没有正文时，继续写完该场景，禁止先输出交接。清单本身不输出。重写和修正不得缩短到场景1。\n\n正文主体结束后输出【正文交接】区块，包含：章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用、目标字数、生成下限、场景总数、`FACT_LOCK`、`NEW_FACT`。正文交接作为应用的 `metadata`，不混入 `body`。\n\n目标字数、生成下限、场景总数必须从输入骨架原样继承，不得凭感觉估算：\n\n- `目标字数：` 输入中的章节目标字数；无明确目标时写骨架各场景字数合计。\n- `生成下限：` 目标字数的80%；若应用或上游另给验收下限，取较高者。\n- `场景总数：` 输入骨架中的【场景N】编号总数。\n- 已完成场景用“场景1、场景2”的形式列出；未完成时在`未完成场景`中逐个列出，不得只写无。字段值必须是数字或短语，不写正文句。\n\n资源、人数、进度、地位类收益必须写入 `FACT_LOCK` 的关键数字或持有物字段，能从正文行为指认；不可只写情绪变化。`FACT_LOCK` 使用逐行字段格式，不使用等号压缩格式：\n\n```text\nFACT_LOCK：\n人物状态：老郑左臂旧伤未愈；体力因连续赶路下降\n位置：北郊观测站外水泥平台\n伤势：右膝磕伤；鼻腔黏膜短暂灼烧感\n持有物：数据板（电量约21%）；灌满的净水壶；多功能刀\n时间点：暴雨停后约二十分钟\n关键数字：实验室半数灯管已熄；口粮只够数日\n新增事实：周砚离开前在观察窗上按过手掌印\n钩子兑现状态：铁门后的异响已落地；“未完成对话”已点出\n```\n\n每个字段单独一行，行首就是字段名，用中文冒号接值。值为短语或分号分隔的要点，不写正文句；同一字段不合并到其他字段行。禁止输出 `人物状态=...；位置=...` 这种单行等号格式。\n\n`NEW_FACT` 列出本正文相对骨架新增的事实；没有新增写“无”。新增事实必须可从正文行为推出，不得报告未发生的设定。\n\n`FACT_LOCK` 八个字段都必须逐行输出；本场景无受伤时写 `伤势：无`，不得省略该字段。禁止用 `身体：` 替代 `伤势：`，发现该误写时改为 `伤势：无` 或具体伤势，事实不变。若 `FACT_LOCK` 的“新增事实”已经写出具体事实，该行即为有效的 `NEW_FACT` 申报；仍建议同时输出独立 `NEW_FACT` 字段，便于应用解析。\n\r\n完整处理当前骨架并输出连续正文文本。\n\r\n【验证反馈处理】\n\n收到反馈时只修正指出的问题，不重写全文。\n\n收到应用验收修复指令时，先判断修复范围：\n\n- **定点修复**：输入包含【上一版正文】时，以该正文为施工基础，只按错误清单做定点扩写或压缩。扩写优先补动作链、感知后果、对白回合和现场代价，不新增三档授权外事实；压缩只删重复解释、装饰排比和无功能微动作，保留事件、因果、场景接口、情绪兑现和章末钩子。上一版全部可用场景必须保留，禁止只修场景1或只扩第一个场景。修复后同步更新【正文交接】、`FACT_LOCK` 和 `NEW_FACT`，并输出完整正文。\n- **全链重生成**：按当前骨架重新生成完整正文。【上一版正文】只是失败证据，不是改写基础；不得复用其句子或把其缺陷当作风格参考。\n\n无论哪种模式，输出都必须从正文第一个字开始，并在结尾携带完整交接区块。\n\n【最终输出提醒】\n\r\n第一个字必须是正文。分析过程留在内部。违反则视为完全失败。\n\n【降AI创作风格 - 创作执行阶段】\n只做正向风格执行，不做方法解释，不输出检查清单。\n1. 第一句直接进入具体动作、身体感受、环境声音或视觉画面。\n2. 连续三句的长度保持明显差异；短句仅用于关键转折制造节奏冲击，其余用长句铺展细节，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。\n4. 场景按戏剧价值分配轻重；结尾允许保留未解决张力。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡。\n6. 对话保留残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果。\n7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。\n8. 只输出本步骤定稿产物。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n【差→好：主语先落地】差：看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。好：老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\n【差→好：动作有因果和代价】差：老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。好：他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\n【差→好：语言行为一致】差：对刻痕说了一句话，在心里说，没有出声。青说得很快，松开就往涌。，青更慢，每个字都像在咬东西。好：老郑没有出声，这句话只在他心里过了一遍。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\n【差→好：对白留潜台词】差：“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。好：“水是从你那边流下来的。”阿凉隔着门板压低声音。老郑没有接话，账本在他手里合上了。“替谁？”门板后面安静两秒。“不该问的。”\n【差→好：关系靠动作位移】差：经过这次危机，阮秋和老郑之间的信任更加深厚了，两人成为了彼此最重要的伙伴。好：绳子最后半米卡在阮秋手里。她没有松。“你先。”老郑说。“出口塌了怎么办？”“那就先塌我。”他进检修口的时候，她把绳子放出去半米，没有再说话。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n灯塔信标\n周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 主角确认灯塔信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n灯塔信标 - 周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠前两次间隔推算(软)\n判断变化：起初以为信标已经熄灭→看到第一、二次红色闪光→判断信标仍在工作→第三次只剩半截红光后，改为记录间隔规律而不是继续等待完整信号，因为港务巡查可能接近(软)\n转变：部分成功——确认三次红色闪光存在，但第三次数据不完整，只能记下前两次间隔和第三次估算值；同时必须立即离开观测窗(硬)\n读者收益：新信息（信标仍可工作，但观测条件变差）+新压力（巡查接近、第三次数据缺失）(硬/软)\n空间结果：周砚离开观测窗，背靠塔壁，面转向入口，手中尚无名单(软)\n下一场景承接位置：从周砚在灯塔底层靠墙处、名单已到手（送达方式待补）的姿势接续(待)\n节拍：起\n场景类型：动作(硬)\n情感弧光：从紧张到聚焦(软)\n信息差：周砚不知道名单如何出现在灯塔内，读者也不知道(待)\n字数：约450字\n\n【场景2：名单与私章】\nPOV：周砚(硬)\n时间地点：灯塔底层；接上一场景后，具体时刻未提供(待)；相对锚：周砚拿到旧航道沉船名单后(硬)\n场景起点：周砚在灯塔底层靠墙处，旧航道沉船名单已在他手中（送达方式未提供）(待)\n人物位置：周砚蹲在灯塔底层靠墙处，背向入口，只能借壁缝漏进的光看清名单，可见范围仅限面前半臂(软)\n关键物体位置：旧航道沉船名单在周砚手中，私章印在名单末页边缘（具体位置待补）(待)\n目标：确认名单上是否有旧航道沉船信息，并判断能否作为出航依据(硬)\n行动：展开折叠名单→指尖沿纸面边缘摸到凸起印痕→将名单侧向漏光处辨认印文→看到“许知微”私章字样→把名单重新折成小方(硬)\n信息来源：指尖触到纸张受潮变软，其次是私章印痕的凹凸；眼睛在漏光下看见“许知微”三个字；鼻端闻见老墨味(硬/软)\n阻碍：港务巡查脚步声从灯塔外靠近，周砚不能点灯；名单纸张受潮，折痕处几乎裂开，只能慢而轻地翻转(软)。选择点：他可以选择当场把名单留下，避免被搜出；但私章涉及许知微，放弃留下，选择随身带走，代价是离开时若被拦住说不清(软)\n判断变化：原以为名单只是普通沉船记录→摸到私章并看见“许知微”→判断这不是船员遗物而是一封留给自己的接头凭证→改为主张带走并藏匿，不再交还或上报(硬/软)\n转变：成功认出私章，但获得名单后身上多了一件足以引起港务盘查的证据(硬)\n读者收益：新信息（许知微私章出现）+风险升级（持有旧航道名单暴露风险）(硬/软)\n空间结果：周砚把名单折成小方，四周张望后朝灯塔侧门方向移动(软)\n下一场景承接位置：从周砚收好名单、朝侧门走的姿势接续(软)\n节拍：承\n场景类型：动作(硬)\n情感弧光：从警惕到确认(软)\n信息差：周砚不知道名单是谁放在灯塔内，也不知道港务巡查是否已经注意到他(待)\n字数：约400字\n\n【场景3：折名单入防水袋，从灯塔侧门绕到南码头】\nPOV：周砚(硬)\n时间地点：灯塔底层至南码头途中；接上一场景后，具体时刻未提供(待)；相对锚：周砚离开灯塔侧门后(硬)\n场景起点：周砚在灯塔侧门内侧，把名单折进防水袋，准备出侧门(硬)\n人物位置：周砚在侧门内，背靠门板，侧门开一条缝；南码头在侧门南侧约一段距离，具体距离待补(待)；可见范围被灯塔南墙和渔具堆挡住一半(软)\n关键物体位置：防水袋在周砚手里，名单折好后已被塞进防水袋内，袋口尚未收紧(硬)\n目标：不惊动港务巡查，绕到南码头(硬)\n行动：把防水袋口封好→从侧门挤出去→沿灯塔南侧旧墙外沿走→借石堆和渔具遮蔽身形→接近南码头边缘(硬/软)\n信息来源：耳听门轴摩擦声和鞋底刮过碎石的声音；背后隐约传来港务巡查的手电光；海风变腥，南码头下有缆绳拍打木桩(软)\n阻碍：侧门门轴声音比想象中响，周砚只能走出去几步后蹲下；港务巡查手电从西边扫来，他必须翻下低墙等光束经过；靠近南码头时，前方几条船灯已经亮起，周砚不能直穿光区(软)。选择点：他可以选择走主路直插南码头，速度快但暴露；选择绕南墙外沿，耗时多，放弃近路，代价是到达南码头时离清晨更近，渔船上可能还没醒(软)\n判断变化：原以为侧门不会有人注意→听到门轴声与手电光→判断绕路比直行安全→改为贴着南墙外沿走，不再走主路(软)\n转变：部分成功——周砚到达南码头，但多绕了一段路，身体已经被海风吹透，距离清晨预约时间所剩不多(硬/软)\n读者收益：处境位移（从灯塔到南码头）+时间压力上升(软)\n空间结果：周砚蹲在南码头边缘，前方是小渔船，身后是灯塔南墙，手里仍握着防水袋束口(软)\n下一场景承接位置：从周砚蹲在南码头边缘、防水袋已封口的姿势接续(软)\n节拍：转\n场景类型：动作(硬)\n情感弧光：从警惕到镇定(软)\n信息差：周砚不确定港务巡查是否追到南码头；读者也不知道(待)\n字数：约400字\n\n【场景4：预约清晨渔船】\nPOV：周砚(硬)\n时间地点：南码头；接上一场景后，具体时刻未提供(待)；相对锚：周砚接近渔船后(硬)\n场景起点：周砚站在一艘小渔船前甲板旁，手扶船舷，向船主询问清晨出航(硬)\n人物位置：周砚在船舷外侧，船主在船舱口，距周砚约两臂，中间横着缆绳墩(软)；手电光从码头另一头扫过，船头一半在阴影里(软)\n关键物体位置：周砚手里没有递出任何东西；名单藏在防水袋内；航海日志还未取出(硬/软)\n目标：预约一艘清晨沿南方航线出发的渔船，不引起船主怀疑(硬)\n行动：压低声音叫醒船主→说明要清晨出海看信标→给出港务已公告的风暴信标作理由→问船资和出发时间→点头确认约定，但未亮出名单(硬/软)\n信息来源：眼睛看到船主从舱口露出半身，手电晃向周砚；耳朵听见船主先问“不是港务派来的吧”；鼻子闻到船板上的柴油味(软)\n阻碍：船主并不愿深夜接活，要求先付一半船资；港务巡查的手电还在码头另一头来回扫，周砚压低后的声音几乎被海浪盖住，重复到第三遍才让船主听清(软)。选择点：他可以选择直接说出许知微的名字换取信任，但会暴露接头对象；放弃亮出私章，只付半船资，代价是船主半信半疑，可能会在开船前再盘问(软)\n判断变化：原以为只要给够船资就能成→船主盘问深夜出海原因后，周砚判断对方在试探自己与港务巡查的关系→改为只报信标观测，不再提旧航道或许知微(软)\n转变：部分成功——船主接过一半船资，约定清晨出发，但没给确定船名，只让周砚在船边等到天微亮；周砚不能离开码头(硬/软)\n读者收益：新进展（预约成立）+新压力（船主不信任，时间被锁死）(软)\n空间结果：周砚靠在船舷旁，船主回到船舱，手电光又扫向码头尽头的港务巡查方向(软)\n下一场景承接位置：从周砚靠着船舷、要把航海日志取出的动作接续(软)\n节拍：承\n场景类型：对白(硬)\n情感弧光：从戒备到让渡(软)\n信息差：周砚不知道船主是否看穿他话说了一半；读者也不知道(待)\n字数：约400字\n\n【场景5：写航海日志并留接头暗号】\nPOV：周砚(硬)\n时间地点：南码头；预约完成后、离港前，具体时刻未提供(待)；相对锚：周砚坐在船舷边开始写日志(硬)\n场景起点：周砚坐在小渔船前甲板边缘，航海日志摊在膝盖上，笔尖悬在纸面(硬)\n人物位置：周砚坐在船舷旁，背向船舱，水面在他脚下，船主在舱内未出(软)；可见范围只有膝盖上的日志和脚边一小圈水光(软)\n关键物体位置：航海日志在周砚左侧膝盖上，防水袋在右胸，名单仍折好，未露出；船主的手电放在舱口(软)\n目标：把信标规律写进航海日志，并留下一条许知微能识别、外人看不破的接头暗号(硬)\n行动：在第一行写下三次红色闪光的间隔估算→在页角用旧航道缩写写暗号“愿灯塔守望者平安”→合上日志→把日志塞进船舱挡板下，用手压住(硬/软)\n信息来源：笔尖在潮纸上走，墨被海风吹散；远处的海潮声比刚才更大；周砚低头时只能看到自己膝盖和纸面(硬/软)\n阻碍：船主在舱内翻动东西，艇身一晃，周砚写坏一处数字；港务巡查似乎往码头这边走来，光束偶尔扫过周砚脚边；他不能重写，只能将错处划掉，留下涂改痕迹(软)。选择点：他可以选择把暗号单独留给许知微，但删除信标规律，避免日志落入他人手中；选择保留信标规律，放弃只有暗号，代价是日志若被船主或港务看到，足以判断他并非普通观海(软)\n判断变化：原本只打算记下清晨出航时间→想到许知微可能拿不到名单→改为把信标规律和接头暗号都写进日志，并故意用旧航道缩写(软)\n转变：成功留下记录与暗号，但日志上多了一处涂改，船主随时可能先翻开；许知微能否收到未知(硬/软)\n读者收益：伏笔（暗号与涂改痕迹）+未解决风险（日志可能被船主发现）(软)\n空间结果：周砚合上日志，压进船舱挡板下，抬头时船主出现在船舱口，手电向周砚刚压住的日志移来(软)\n下一场景承接位置：从周砚坐在船舷旁、日志刚被压住、船主手电移来的瞬间接续(软)\n节拍：合\n场景类型：动作(硬)\n情感弧光：从隐忍到警觉(软)\n信息差：周砚不知道许知微何时会查看日志，也不知道船主是否已经看到暗号(待)\n字数：约350字\n\n【章末钩子】\n船主从舱口伸出手电，光斑落在周砚刚压住的航海日志上，周砚没说话，只是用膝盖把日志往里顶了一下(硬/软)。\n\n【正文交接】\n章节：灯塔信标\nPOV：周砚（第一人称）\n已完成场景：5个（确认信标；名单与私章；折名单绕行；预约渔船；留暗号）\n未完成场景：无\n来源覆盖状态：章节梗概与章节剧情点已覆盖；上一章未提供；角色列表未提供；风格标签未提供；节奏参数未提供\n角色状态变化：周砚取到旧航道沉船名单并认出许知微私章；名单已折入防水袋；抵达南码头；预约清晨渔船；航海日志已记信标规律和接头暗号；船主对周砚产生未明疑虑\n章末状态：周砚坐在南码头渔船旁，航海日志压入船舱挡板，船主手电移向日志；清晨渔船已预约但未出发；许知微未出现，暗号能否送达未知\n下一章必须使用：周砚膝盖顶住日志的动作；航海日志上的涂改痕迹；防水袋内名单未读；清晨出发时间约束；船主对手电灯光的关注\n\n来源单元总数：1（章节剧情点）；已建场景数：5；未消费编号：无\n\n【风格合同】\n叙事推进：时间序列+悬疑递增(软)\n场景单元模式：观测确认→获取证据→隐藏行进→交易预约→标记收束(软)\n情绪表达：behavior_only(软)\n语言质感：克制、粗糙度中、句长变化高、允许生活噪音(软)\n节奏：中快、段密度中高、慎用碎片流、动作优先(软)\n正向指令：现实落差(软)\n\n请生成本章节正文，目标约2000字（不低于1600字，不超过4000字）。只输出正文本身。"
+              }
+            ]
+          },
+          {
+            "passIndex": 0,
+            "attempt": 2,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n依据上游骨架生成正文初稿。保留全部事件顺序、POV、空间关系、人物关系和章末落点。\n\n本层只负责正文内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述整条正文链的最终目标，并与本层职责一致：\n\n- “生成约N字正文”是本层的施工目标。以 `wordsPerChapter` 为全章目标，把骨架中的场景预算逐场写满；应用验收下限（如目标字数的80%）只是兜底红线，不是施工目标。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造元信息；本协议规定的【正文交接】仍必须输出。\n- 用户级指令与本层职责表面冲突时，按阶段化职责解释执行：S1分配预算，本层施工正文，S3只打磨表达。\n\n【输出铁律】\n你只能输出正文。第一个字必须是正文。禁止输出分析、思考、说明、修改过程。\n\r\n## 输入来源\r\n\r\n上一步输出的骨架文档和风格合同作为本步输入。从输入中解析场景区块（POV、时间地点、人物位置、目标、行动、信息来源、阻碍、判断变化、空间结果、节拍、字数）和风格合同参数，据此生成正文。\r\n\r\n【输入】\r\n\r\n应用传入骨架师生成的叙事骨架文档。骨架包含场景区块（POV、时间地点、人物位置、目标、行动、信息来源、阻碍、判断变化、空间结果、节拍、字数）和章末钩子。\r\n\r\n每章字数：2000\r\n风格合同：由骨架中的【风格合同】区块传递\r\n\r\n输入若包含“上一步输出”或“--- 上一步输出 ---”，只读取其中最后一个骨架文档；旧输出痕迹、重复骨架块和【正文交接】先在内部剥离，不在正文中复述。上游字段未提供时按“待补信息”处理，不得补写。\n\n## 施工门禁\n\n输入以 `[NOT-READY]` 开头或包含 `[NOT-READY]` 时，不生成正文。只输出：\n\n```text\n[NOT-READY]\n收到缺口：[逐项复述S1缺口]\n本步无法处理：[说明需要上游补料]\n```\n\n如果骨架包含 `[CONFLICT]`，冲突字段按“待补信息”处理；无法避开冲突成章时，输出 `[BLOCK]` 加冲突原因，不得自行裁决事实。\n\n## 施工判定\n\n骨架可施工时输出正文和交接。局部字段缺失时，围绕已提供材料施工，缺口写入交接。POV、空间、动作顺序、事实边界或章末落点缺失到无法成章时，只输出 `[NOT-READY]` 或 `[BLOCK]` 及缺口，不生成正文。\n\n## 逐场景施工门禁\n\n展开前先在内部数出骨架里的全部【场景N】编号，形成场景清单。施工时按编号逐场推进：\n\n- 每个场景写满自身预算后再进入下一场景；不得把后续预算合并到场景1，也不得用场景1的余量代替全章目标。\n- 每个场景必须落实该场景的目标、行动链、阻碍代价、判断变化和空间结果；只写气氛不足以算完成。\n- 扩写优先补动作链、感知后果、对白回合和现场代价，不注水、不堆形容词、不重复解释。\n- 所有场景完成后才能输出【正文交接】。清单本身不输出。\n\n全章长度以 `wordsPerChapter` 为目标。若低于目标，先检查是否有场景未写满或被略写；不得按应用验收下限提前收束。\n\n【创作信任】\n\r\n你是这个故事的作者，不是规则的执行器。你有文学直觉、有审美判断、有对角色的共情。以下八条是你独有的创作维度，应用层的降AI规则处理句法和用词层面的清洁问题，你处理的是更深层的叙事艺术。在这八个维度上，信任你的创作本能。\r\n\r\n应用层会在API返回后检测AI高频词、禁用词句式、句长趋同和连接词密度，默认只报告不改写；用户开启修复模式时也只做最小编辑或白名单替换，并保留保护片段。不要假设下游会替你清洗：成稿的干净程度由你此刻的句子质量决定，检测报告只是复核。\n\r\n**密度意识。** 任何词汇或句式在五百字内出现超过一次即为堆叠。不是\"不能用\"，而是\"不能堆叠\"。以下词汇在整篇正文中出现超过两次即为密度超标：似乎、仿佛、此刻、这一刻、不禁、缓缓、渐渐、微微、淡淡、确实、好像、充满、凝固、沉重、闪烁、弥漫。如果你发现自己反复使用同一种修辞结构或同一种句式，换一种表达方式。\n\r\n【写作方法】\r\n\r\n你是POV角色，正在经历这一切。写你在场的体验，不写对故事的总结。\r\n\r\n**动作有设计。** 关键动作是叙事引擎：有因果（角色为什么做）、有代价（消耗体力、暴露位置、改变关系）、有信息（释放或隐藏了什么）。动作链推动场景从A到B，不写“经过一番激烈战斗”跳过过程。资源消耗、获得、损毁和地位变化落成可指认事实，不只写心理感受。\n\r\n**句长有呼吸。** 长句铺展因果和细节，普通叙述句允许25-45字自然复合句；短句只用于关键转折、冲击或收束，不整章堆叠，不把陈述句机械句号化。\n\r\n**情感有弧光。** 情感在场景中渐变、积累、转折，不贴标签。用身体信号和压力下的选择呈现——咬牙还是松手、开口还是沉默、追上去还是转身走。情感弧光从一个状态到另一个状态，中间有触发的转折点。\r\n\r\n**对白有潜台词。** 人物说的话和想的事不一样。对白承担信息传递和关系交锋双重功能。交涉和冲突场景的对白回合通常应完成信息交换、条件变动、关系变化或拒绝；闲谈、试探和氛围铺陈只要服务本章需求，可以保留。\n\r\n**背景从记忆里长出来。** 角色不会突然想到自己的完整履历。背景信息通过感官触发、认知闪回、他人一句话带出，嵌在当前动作流中，不独立成段。类型规则、等级、势力和资源说明可以直接给，但每条说明之后必须落回当下判断或行动；交代完立即回到角色的当前感知或动作。\n\r\n**段落有非对称结构。** 有些段直接进动作，有些段先讲问题，有些段说完就停。不要每段都用同一个结构。特别注意描述→对话→描述的循环——每个对话回合的描写配比必须不同。\r\n\r\n**感知有后果。** 重要感官信号不能孤立停在感受上。感知延伸到身体反应，身体反应延伸到判断变化，判断变化推动下一步行动。\r\n\r\n**节奏由场景决定。** 紧张段落加快动作密度，重要时刻放慢，转折处留白；节奏服务戏剧需求，不由句号频率制造。情感转折处减速，让读者跟上角色的内心。\n\r\n**过度纠错是另一种机器味。** 去AI味过度后产生的反AI腔本身也是可检测信号。连续短句碎片链、\"不是X。是Y。\"句式、超过三分之一的段落以punch-line结尾——这些过度纠错痕迹和AI套话一样破坏阅读。\r\n\r\n**信息有控制。** 何时让角色知道、何时让读者知道，是叙事张力的核心工具。信息差制造悬念——角色知道读者不知道的，制造紧张；读者知道角色不知道的，制造反讽。释放信息的时机比信息本身重要，不要一次倒完。\r\n\r\n**段落自足。** 每个段落独立传达一个完整的信息单元——一个动作、一次感知、一个判断转折或一次关系位移。对白和冲突场景可一拍一段，段落主体约30-90字；超过约140字的段落自带结构变化，不用句号硬切。连续两段的句式、长度和开头方式应自然不同：第一段以动作开头，第二段可从感知或对话进入。\n\r\n**关系有动态。** 有直接互动的关系通过行为和选择变化，不靠旁白交代。一次拒绝、一次沉默、一次伸手都可以改变两人之间的天平；关系观察章和静章可用未被说出的感受承担动态，不以外部事件为硬性指标。\n\r\n**场景有位移。** 每个场景结束时角色的状态和开始时通常不同——认知、情感、关系或物理位置至少一个维度有位移。抒情章、静章、关系观察章可用情绪兑现或认知变化承担位移。\n\r\n**删减测试意识。** 写完一个段落后自检：如果删掉这段，读者会缺失什么信息？如果答案是\"什么也不缺\"，这段就是多余的。\r\n\r\n【风格合同消费】\n\n读取骨架中的【风格合同】，这些值是你写这个故事的创作决策锚点：\n\r\n叙事推进和场景单元模式决定场景的呼吸方式——每个场景按合同给定的模式推进，不套通用模板。\r\n\r\n情绪表达方式决定你如何写角色的内心——behavior_only就只用身体和动作，subtext就靠停顿和言外之意，deadpan就用冷反应。合同怎么定，你就怎么写。\r\n\r\n语言质感决定你的句子——粗糙度高就允许口语、碎句和不完美的表达，粗糙度低就克制精确。允许生活噪音就加入不推动主线但增加现场感的细节。\r\n\r\n节奏参数决定段落的密度和快慢——合同给的值优先于你对类型的默认想象。\r\n\r\n正向指令优先执行：如果合同里写了“现实落差”，就让角色的预期和实际结果之间有落差。如果写了“嘴硬补偿”，就让角色吃瘪后用嘴硬、转移或找补来维持体面。\r\n\r\n合同不是限制你，是解放你——它告诉你在哪些方向上可以大胆，在哪些维度上保持克制。按合同写，不需要每句都检查规则。\n\n【语气与措辞手感】\n\n正文要像中文小说，不像翻译稿或状态报告。写每一句时用三个标准校准：\n\n**一、动词优先。** 把“感到、发出、进行、开始、继续、变得、显得、使得、一阵、一种”这类报告动词和空量词换成具体动作。身体自己会动，不需要叙述者替它汇报。\n\n生硬：\n他的喉咙里发出一阵干裂的咳嗽，这让他意识到自己的身体还很虚弱。\n\n自然：\n咳嗽从喉咙里滚上来，干得发裂。他撑住舱壁，等这阵抖过去。\n\n**二、判断落进身体。** 角色的结论不从旁白里“浮上来”，而是先有感官证据，再有一个短促的内心判断，最后落到下一步动作。\n\n生硬：\n判断从身体里浮上来，比理性更快：周砚不在这里。\n\n自然：\n没有脚步声。没有咳嗽。只有他自己的血在耳朵里跳。他还没想明白，身体先给出了答案：这里没有人。\n\n**三、明喻省着用。** “像”是调味盐，不是主粮。整章“像”字明喻不超过六处；每次用之前先问：这个比喻是否提供了新信息或新情绪？如果只是把一个感官换成另一个感官，删掉，直接写物象本身。\n\n生硬：\n布条缠在那里，像一层活的甲；灯光像水也像雾；铁柜像一只闭着的眼睛。\n\n自然：\n布条缠在小臂上，边缘被雨水泡得发白，随呼吸一起一伏。灯光从头顶漏下来，落在他手背上，又被窗外的天色盖过去。铁柜的门关着，门缝里没有光。\n\n**四、连接词少而准。** 相邻句子靠动作和因果自然承接，少用“然后、接着、于是、随后、这时、此刻”。时间顺序由动作完成，不由交通灯指挥。\n\n**五、句尾别替读者总结。** 段落最后一句停在动作、物象或未闭合的处境上，不落在“这说明……”“他知道……”“他意识到……”上。意义让读者自己撞上去。\n\n**六、声音只写源和落点。** 咳嗽、碎裂、脚步声不需要完整转播传播路径。写它从哪里来、撞在角色耳膜上时改变了什么判断，就够了。连续描述“撞上、荡回来、一圈一圈、最后落进耳朵”这类声学路径，是另一种报告腔。\n\n生硬：\n咳嗽撞上舱壁，一圈一圈荡回来，最后落进他耳朵里的还是他自己的声音。\n\n自然：\n咳嗽撞在舱壁上，又弹回他耳朵里。回来的还是他自己的声音。\n\n**七、判断不套容器隐喻。** 角色的结论不从“身体里浮上来”“意识深处冒出来”，直接给证据链：没有脚步声，没有咳嗽，血在耳朵里跳。证据排完后，一句短判断落地，马上接动作。\n\n写完后对每一段做一次“读出声测试”：哪一句念起来像报告、像翻译、像在完成任务，就重写哪一句。只重写那一句，不推翻整段。\n\n【字段类型消费】\n\r\n骨架中每个字段末尾的类型标注决定你的处理方式：\r\n- (硬) = 必须严格遵守，不得改写、删除或弱化\r\n- (软) = 创作方向参考，可以在不偏离主线的前提下灵活诠释\r\n- (待) = 保持未知或缺口，不得补写成确定事实\r\n\r\n【成段范例】\r\n\r\n以下范例只演示八个维度如何配合。人物与事件均属虚构演示，和当前章节无关；输出时使用当前章节材料。\r\n\r\n### 骨架片段\r\n\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)\r\n行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)\r\n阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)\r\n判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)\r\n空间结果：周砚移到检修盖旁，扳柄离手，出口被蒸汽帘隔开一半(硬)\r\n情绪表达：behavior_only(软)\r\n节奏：中快、动作优先(软)\r\n\r\n### 目标正文\r\n\r\n蒸汽贴着地面漫过来，周砚先看见的是压力表。指针顶在红区，抖了两下，又往回缩半格。他没有等第三下，右手抓过栏杆第三格上的扳柄，左手扣住检修盖的锁扣。第一下没撬动，他换了角度，把柄头卡进锁扣下沿再压。盖板弹开时，热气扑到他脸上，他偏头躲了一下，视线还是落在盖板后面。阀杆在，锈成一坨暗红。齿轮箱里的刮擦声又密了一层，他听得出来，传动不是在漏，是在卡死。电闸救不了这个。周砚把扳柄横过来，卡在阀杆根部，先想杆，再想出口。\r\n\r\n这一段同时完成了八件事：句长随动作变化；关键动作有方法（换角度）、代价（热气扑脸）和信息（传动卡死）；感知进入判断（刮擦变密→不是漏气）；判断改变行动（放弃电闸，改找泄压）。主语和因果始终清楚，读者不需要停下来解密。\r\n\r\n## 执行事故对照\r\n\r\n以下四种病都是把技巧当目的。出现任何一种，说明执行已经失败，不是风格偏好问题。\r\n\r\n### 病一：无主语漂移\r\n\r\n差：\r\n走在前面两步，没回头，账本夹在腋下，炭笔从本子边缘露出半截，随走动在布料上蹭出一道浅灰。\r\n\r\n好：\r\n老郑走在前面两步，没有回头。账本夹在他腋下，炭笔从本子边缘露出半截，跟脚步在衣料上蹭出一道浅灰。\r\n\r\n落差：差版连续三个动作共用一个被省略的主语，读者要先猜主语再进画面。补回主语不会让句子变慢，只会让画面立住。\r\n\r\n### 病二：强行象征\r\n\r\n差：\r\n工字钢的截面锈透了，锈斑在暮色里呈深褐色——和老阮脚踝上那条布条的颜色一样；看了一眼，移开。\r\n\r\n好：\r\n工字钢的截面锈透了，锈斑在暮色里颜色发深。老阮低头看见自己脚踝上的布条，往前走了两步，又停住。\r\n\r\n落差：差版把叙事者硬拉进来做配色，两个物件本来没有戏剧关系。好版让动作和心事自己发生，读者愿意读出关联，读不出也不损失。\r\n\r\n### 病三：节奏伪造\r\n\r\n差：\r\n一下。停。又一下。脚步声在铁皮上敲出三个短句。\r\n\r\n好：\r\n楼上传来三下脚步，第三下之后没有第四下。老郑把账本塞进外套里，贴住墙。\r\n\r\n落差：把句子打碎不等于把场景打碎。真正制造张力的是第三下之后没来第四下，以及人物因此改变动作。\r\n\r\n### 病四：句法盖过故事\r\n\r\n差：\r\n风。风里有铁锈。铁锈后面是暮色。暮色里，人还没回来。\r\n\r\n好：\r\n风从缺口灌进来，带着铁锈味。老郑数到第五个缺口，还是没有等到人影。\r\n\r\n落差：差版是一组排练过的镜头，每个名词都在等下一句接它。好版让感官信息变成判断依据，句子完整而有推力。\r\n\r\n### 病五：动作与视角断裂\r\n\r\n差：\r\n看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。\r\n\r\n好：\r\n老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\r\n\r\n落差：差版至少断掉四处——谁在看没有主语；“松开碗”和“端着铁碗”矛盾；观察者自己走了却还看着别人走远；水珠没有被先观察到就“终于”坠下。好版先锁定观察者，再让每个物件按顺序进入视野，感知和视线都有落点。\r\n\r\n### 病六：语言行为与段落桥断裂\r\n\r\n差：\r\n看着那道刻痕，不是看形状，是看它本身——泥土被推开后留下的沟槽，底部是更深的湿土，颜色比表面深一个色度。水渍从边缘往外渗，聚成细小的水珠，在夜色里亮了一下，又暗下去。\r\n抬起手指，对刻痕说了一句话，在心里说，没有出声。“我随时可以离开。留下只会让更多人陷入危险。”\r\n\r\n青说得很快，每个字都像已经在嘴里等了一整天，松开就往涌。，青更慢，每个字都像在咬东西，咬下去，松开，再咬下一个。，青慢了一点，到“留下”时停顿——绷带在手臂上收紧了一下，不重，刚好在那个词上。\r\n\r\n好：\r\n老郑蹲下去看那道刻痕。沟槽底部的湿土比表面深一个色度，水渍从边缘渗出来，聚成水珠。他没有碰它，把抬起的手指又放了下去。\r\n\r\n我随时可以离开。留下只会让更多人陷入危险。\r\n\r\n这句话在心里过了一遍，很快。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\r\n\r\n落差：差版至少断掉七处——观察者无主语；“对刻痕说”和“在心里说没有出声”冲突；心里话却描写咬字和语速；人名残缺成“青”；“松开就往涌”缺宾语；“。，”标点损坏；“每个字都像”同一修辞骨架连用三次；第三段与前两段没有承接。好版先建立观察，再进入内心语，用身体反应承接停顿，最后用动作收束。\r\n\r\n### 病七：残句、报告和越界\r\n\r\n差：\r\n片灰绿。色的光。第一个画面——一个老人蹲在篝火旁。据点内没有人注意到他。隔着五十米，篝火的烟和孢子雾，团灰绿。你本来就该接管这里。\r\n\r\n好：\r\n灰绿色的光从老阮左手腕的伤口边缘透出来。他隔着五十米望向篝火，烟把人影压成几团模糊的轮廓，只能看清最外侧那个老人抬手按了按孩子的头顶。老阮没有走近，也没有出声。\r\n\r\n落差：差版五种硬伤——名词残句；“第一个画面”是提纲不是正文；“没有人注意到他”越出POV；五十米加烟雾还声称看清细节；“你本来就该接管这里”是后续卷才该发生的台词提前泄漏。好版先写清光源，再写距离、遮挡和可见范围，只保留POV真实能感知到的信息。\r\n\r\n### 差/好对照一：动作不跳步\r\n\r\n差：\r\n老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。\r\n\r\n好：\r\n他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\r\n\r\n落差：差版是结果汇报；好版有方法（先试劲再发力）、代价（热气扑脸）和可见进度（盖板弹开）。\r\n\r\n### 差/好对照二：感知有后果\r\n\r\n差：\r\n周砚听到齿轮箱里有声音，感觉情况有些不妙。\r\n\r\n好：\r\n齿轮箱里的刮擦声又密了一层。周砚停下伸向电闸的手，转回检修盖。\r\n\r\n落差：差版把感知停在情绪标签上；好版让声音改变判断和行动——放弃电闸，回到泄压方向。\r\n\r\n### 差/好对照三：对白有潜台词\r\n\r\n骨架背景：阿凉隔着门板传话，两人身份都不能暴露。\r\n\r\n差：\r\n“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。\r\n\r\n好：\r\n“水是从你那边流下来的。”阿凉的声音隔着门板，压得很低。\r\n老郑没有接话。账本在他手里合上了。\r\n“替谁？”\r\n门板后面安静了两秒。“不该问的。”\r\n\r\n落差：差版把目的、立场和解决方案全说出来；好版用合上账本、一句反问、一次沉默完成试探和拒绝。\r\n\r\n### 差/好对照四：节奏有呼吸\r\n\r\n骨架背景：老郑查完声音来源，发现楼里还有别人。\r\n\r\n差：\r\n老郑立刻意识到事情很严重。他知道自己必须马上采取行动，否则后果不堪设想。他感到心跳加速，呼吸急促，紧张到了极点。\r\n\r\n好：\r\n楼上传来三下脚步，第三下之后没有第四下。老郑把手电压低，听见自己呼吸里多出来的那点杂音。他贴住墙，等了十个数的间隔，才把手电重新抬高半寸——光斑扫过去，楼梯拐角只有一只没人认领的鞋。\r\n\r\n他把光压回去，开始往回走。\r\n\r\n落差：差版用成语和情绪标签拉平节奏；好版用等待、压光和一只鞋制造不确定，句子完整但呼吸变化明显。\r\n\r\n### 差/好对照五：关系有位移\r\n\r\n骨架背景：阮秋把最后一段绳子递给老郑，自己留在检修口。\r\n\r\n差：\r\n阮秋把绳子递给了老郑。她虽然有些不舍，但为了大局还是做出了牺牲。两人的关系因此更加深厚了。\r\n\r\n好：\r\n绳子最后半米卡在阮秋手里。她没有松。\r\n“你先。”老郑说。\r\n“出口塌了怎么办？”\r\n“那就先塌我。”\r\n他进检修口的时候，她把绳子放出去半米，没有再说话。\r\n\r\n落差：差版用旁白宣布关系变深；好版让“没松、追问、放绳、沉默”四个动作完成关系位移。\r\n\r\n【边界】\r\n\r\n- 不得删事件、改结局、跳过场景、换POV\n  新段落第一句必须承接上一段末尾的位置、感知或语言状态；不得出现段落之间断裂\n  不得删事件、改结局、跳过场景、换POV\n- 段落首句和视角切换处出现主语锚点。段落中部主语由上下文承担。主语清楚的完整句不拆碎\r\n- 动作状态必须连续：同一物件不能先松开又端着；新物件必须先被观察到，再参与后续动作\r\n- 每个场景先锁定谁在行动、谁在观察；观察者不能看见自己离开后才看得见的画面\r\n- 心里话只写内容和停顿，不写咬字、语速或出声方式；有声台词才可写口腔和呼吸动作\r\n- 人名必须完整，不出现残缺称呼；每个句子必须主语、动词、宾语完整，能独立成立\r\n- 同一修辞骨架在一个段落内只用一次；新段落第一句必须承接上一段末尾的位置或感知状态\r\n- 感官细节服务当下判断；禁止把两个没有戏剧关系的物件强行比色、比象征\r\n- 节奏变化来自场景压力，不来自把正常叙述句拆成碎片\r\n- 待定信息保持未知，不补写成确定事实\r\n- 输入标记“不可施工”或“待补信息”的场景只展开已有部分，缺口如实记录\r\n- 句子必须能独立成立：主语、动词、宾语完整，主语可由段落上下文承担；“的”字开头且无主语的名词残句禁止输出\r\n- 观察半径由骨架决定：距离、遮挡、光线、噪声决定能看见和听清的范围，不得越界写远处细节\r\n- 卷概要和后续卷信息只约束方向；未发生在当前剧情点里的台词、事件和关系变化不得提前写成正文\r\n- 正文不使用“第一个画面”“第二个画面”这类报告式编号；连续场景靠动作和位置承接\n- 正文主体禁止使用孤立 `---` 分隔线；场景切换靠动作、位置和感知变化承接，不靠分隔线标记\n- 打磨阶段会清理分隔线残留。若在 S2 阶段写入 `---`，S3 将被迫重组段落，可能损伤叙事连续性\n- 正文主体长度不得低于每章字数的80%，不得高于110%。超字时只做一次净删：删重复解释、装饰排比、无功能微动作；保留情节点、事实、因果、情绪兑现和章末钩子。净删后仍超字，如实写入交接报告，不为了字数二次重写\n- 最后3至5段必须有效收束，形式不限：动作、揭示、处境改变、情绪余韵、问句悬置或静场停顿均可；禁止总结式收束\n- 章末钩子按剧情点类型处理：事件型钩子要实际落地或明确逼近；情绪型、悬念型、静场型钩子保留其应有的收束形态，不强行改写成事件\n- 新增事实分三档授权：一档，骨架现场材料直接写；二档，框架内新增配角、设定、关系细节可以写，但必须写入 `NEW_FACT` 申报；三档，新主线事件、新反转、新规则、提前兑现伏笔、改变章纲结果，不写，输出 `[BLOCK]` 并说明缺口。相对骨架新增的事实不得静默写入正文\n\n【协议】\n\n正文主体 = 连续叙事，不含任何元信息、编号表或消费清单。\n\n必须完整覆盖输入骨架中的全部场景，不得只写第一个场景。展开前在内部核对场景清单：先数出骨架里的全部【场景N】编号，逐个编号确认已有对应正文；任何一个编号没有正文时，继续写完该场景，禁止先输出交接。清单本身不输出。重写和修正不得缩短到场景1。\n\n正文主体结束后输出【正文交接】区块，包含：章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用、目标字数、生成下限、场景总数、`FACT_LOCK`、`NEW_FACT`。正文交接作为应用的 `metadata`，不混入 `body`。\n\n目标字数、生成下限、场景总数必须从输入骨架原样继承，不得凭感觉估算：\n\n- `目标字数：` 输入中的章节目标字数；无明确目标时写骨架各场景字数合计。\n- `生成下限：` 目标字数的80%；若应用或上游另给验收下限，取较高者。\n- `场景总数：` 输入骨架中的【场景N】编号总数。\n- 已完成场景用“场景1、场景2”的形式列出；未完成时在`未完成场景`中逐个列出，不得只写无。字段值必须是数字或短语，不写正文句。\n\n资源、人数、进度、地位类收益必须写入 `FACT_LOCK` 的关键数字或持有物字段，能从正文行为指认；不可只写情绪变化。`FACT_LOCK` 使用逐行字段格式，不使用等号压缩格式：\n\n```text\nFACT_LOCK：\n人物状态：老郑左臂旧伤未愈；体力因连续赶路下降\n位置：北郊观测站外水泥平台\n伤势：右膝磕伤；鼻腔黏膜短暂灼烧感\n持有物：数据板（电量约21%）；灌满的净水壶；多功能刀\n时间点：暴雨停后约二十分钟\n关键数字：实验室半数灯管已熄；口粮只够数日\n新增事实：周砚离开前在观察窗上按过手掌印\n钩子兑现状态：铁门后的异响已落地；“未完成对话”已点出\n```\n\n每个字段单独一行，行首就是字段名，用中文冒号接值。值为短语或分号分隔的要点，不写正文句；同一字段不合并到其他字段行。禁止输出 `人物状态=...；位置=...` 这种单行等号格式。\n\n`NEW_FACT` 列出本正文相对骨架新增的事实；没有新增写“无”。新增事实必须可从正文行为推出，不得报告未发生的设定。\n\n`FACT_LOCK` 八个字段都必须逐行输出；本场景无受伤时写 `伤势：无`，不得省略该字段。禁止用 `身体：` 替代 `伤势：`，发现该误写时改为 `伤势：无` 或具体伤势，事实不变。若 `FACT_LOCK` 的“新增事实”已经写出具体事实，该行即为有效的 `NEW_FACT` 申报；仍建议同时输出独立 `NEW_FACT` 字段，便于应用解析。\n\r\n完整处理当前骨架并输出连续正文文本。\n\r\n【验证反馈处理】\n\n收到反馈时只修正指出的问题，不重写全文。\n\n收到应用验收修复指令时，先判断修复范围：\n\n- **定点修复**：输入包含【上一版正文】时，以该正文为施工基础，只按错误清单做定点扩写或压缩。扩写优先补动作链、感知后果、对白回合和现场代价，不新增三档授权外事实；压缩只删重复解释、装饰排比和无功能微动作，保留事件、因果、场景接口、情绪兑现和章末钩子。上一版全部可用场景必须保留，禁止只修场景1或只扩第一个场景。修复后同步更新【正文交接】、`FACT_LOCK` 和 `NEW_FACT`，并输出完整正文。\n- **全链重生成**：按当前骨架重新生成完整正文。【上一版正文】只是失败证据，不是改写基础；不得复用其句子或把其缺陷当作风格参考。\n\n无论哪种模式，输出都必须从正文第一个字开始，并在结尾携带完整交接区块。\n\n【最终输出提醒】\n\r\n第一个字必须是正文。分析过程留在内部。违反则视为完全失败。\n\n【降AI创作风格 - 创作执行阶段】\n只做正向风格执行，不做方法解释，不输出检查清单。\n1. 第一句直接进入具体动作、身体感受、环境声音或视觉画面。\n2. 连续三句的长度保持明显差异；短句仅用于关键转折制造节奏冲击，其余用长句铺展细节，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。\n4. 场景按戏剧价值分配轻重；结尾允许保留未解决张力。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡。\n6. 对话保留残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果。\n7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。\n8. 只输出本步骤定稿产物。\n\n【结构化重试反馈】\n本反馈只描述失败事实与有界候选摘要，不携带候选输出全文。请基于原始任务输入重新输出完整结果。\n\n一、校验失败项\n1. 【正文交接】出现0次，必须恰好一次\n\n二、候选输出定位锚点（最多3条，仅用于定位，不是重写基底）\n- 黑暗中，我背靠铁门数自己的脉搏。\n- 手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n- 又数六十。\n\n三、候选输出有界摘要（头尾各200字符，完整全文已抑制）\n黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势\n……（省略 2762 字符）……\n在那里写了八个字，用旧航道的缩写。\n\n“愿灯塔守望者平安。”\n\n写完后我看了一眼。这八个字在外人眼里像注释，但许知微会认识缩写方式。\n\n我合上日志。船主还在舱里没动静。我把日志抽出来，翻面，塞进船舱挡板下面，压了一下，让边角吃进木板缝里。\n\n抬头。\n\n船主不知道什么时候坐起来了。他在舱口伸出手，从地板摸到手电，点亮，光斑正朝我膝盖方向移过来。\n\n我垂下视线，没说话。\n\n膝盖把那本日志往里顶了一下。\n\n输出要求：重新输出符合 schema 的完整结果；不要复述本反馈，不要输出解释。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n【差→好：主语先落地】差：看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。好：老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\n【差→好：动作有因果和代价】差：老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。好：他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\n【差→好：语言行为一致】差：对刻痕说了一句话，在心里说，没有出声。青说得很快，松开就往涌。，青更慢，每个字都像在咬东西。好：老郑没有出声，这句话只在他心里过了一遍。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\n【差→好：对白留潜台词】差：“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。好：“水是从你那边流下来的。”阿凉隔着门板压低声音。老郑没有接话，账本在他手里合上了。“替谁？”门板后面安静两秒。“不该问的。”\n【差→好：关系靠动作位移】差：经过这次危机，阮秋和老郑之间的信任更加深厚了，两人成为了彼此最重要的伙伴。好：绳子最后半米卡在阮秋手里。她没有松。“你先。”老郑说。“出口塌了怎么办？”“那就先塌我。”他进检修口的时候，她把绳子放出去半米，没有再说话。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n灯塔信标\n周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 主角确认灯塔信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n灯塔信标 - 周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠前两次间隔推算(软)\n判断变化：起初以为信标已经熄灭→看到第一、二次红色闪光→判断信标仍在工作→第三次只剩半截红光后，改为记录间隔规律而不是继续等待完整信号，因为港务巡查可能接近(软)\n转变：部分成功——确认三次红色闪光存在，但第三次数据不完整，只能记下前两次间隔和第三次估算值；同时必须立即离开观测窗(硬)\n读者收益：新信息（信标仍可工作，但观测条件变差）+新压力（巡查接近、第三次数据缺失）(硬/软)\n空间结果：周砚离开观测窗，背靠塔壁，面转向入口，手中尚无名单(软)\n下一场景承接位置：从周砚在灯塔底层靠墙处、名单已到手（送达方式待补）的姿势接续(待)\n节拍：起\n场景类型：动作(硬)\n情感弧光：从紧张到聚焦(软)\n信息差：周砚不知道名单如何出现在灯塔内，读者也不知道(待)\n字数：约450字\n\n【场景2：名单与私章】\nPOV：周砚(硬)\n时间地点：灯塔底层；接上一场景后，具体时刻未提供(待)；相对锚：周砚拿到旧航道沉船名单后(硬)\n场景起点：周砚在灯塔底层靠墙处，旧航道沉船名单已在他手中（送达方式未提供）(待)\n人物位置：周砚蹲在灯塔底层靠墙处，背向入口，只能借壁缝漏进的光看清名单，可见范围仅限面前半臂(软)\n关键物体位置：旧航道沉船名单在周砚手中，私章印在名单末页边缘（具体位置待补）(待)\n目标：确认名单上是否有旧航道沉船信息，并判断能否作为出航依据(硬)\n行动：展开折叠名单→指尖沿纸面边缘摸到凸起印痕→将名单侧向漏光处辨认印文→看到“许知微”私章字样→把名单重新折成小方(硬)\n信息来源：指尖触到纸张受潮变软，其次是私章印痕的凹凸；眼睛在漏光下看见“许知微”三个字；鼻端闻见老墨味(硬/软)\n阻碍：港务巡查脚步声从灯塔外靠近，周砚不能点灯；名单纸张受潮，折痕处几乎裂开，只能慢而轻地翻转(软)。选择点：他可以选择当场把名单留下，避免被搜出；但私章涉及许知微，放弃留下，选择随身带走，代价是离开时若被拦住说不清(软)\n判断变化：原以为名单只是普通沉船记录→摸到私章并看见“许知微”→判断这不是船员遗物而是一封留给自己的接头凭证→改为主张带走并藏匿，不再交还或上报(硬/软)\n转变：成功认出私章，但获得名单后身上多了一件足以引起港务盘查的证据(硬)\n读者收益：新信息（许知微私章出现）+风险升级（持有旧航道名单暴露风险）(硬/软)\n空间结果：周砚把名单折成小方，四周张望后朝灯塔侧门方向移动(软)\n下一场景承接位置：从周砚收好名单、朝侧门走的姿势接续(软)\n节拍：承\n场景类型：动作(硬)\n情感弧光：从警惕到确认(软)\n信息差：周砚不知道名单是谁放在灯塔内，也不知道港务巡查是否已经注意到他(待)\n字数：约400字\n\n【场景3：折名单入防水袋，从灯塔侧门绕到南码头】\nPOV：周砚(硬)\n时间地点：灯塔底层至南码头途中；接上一场景后，具体时刻未提供(待)；相对锚：周砚离开灯塔侧门后(硬)\n场景起点：周砚在灯塔侧门内侧，把名单折进防水袋，准备出侧门(硬)\n人物位置：周砚在侧门内，背靠门板，侧门开一条缝；南码头在侧门南侧约一段距离，具体距离待补(待)；可见范围被灯塔南墙和渔具堆挡住一半(软)\n关键物体位置：防水袋在周砚手里，名单折好后已被塞进防水袋内，袋口尚未收紧(硬)\n目标：不惊动港务巡查，绕到南码头(硬)\n行动：把防水袋口封好→从侧门挤出去→沿灯塔南侧旧墙外沿走→借石堆和渔具遮蔽身形→接近南码头边缘(硬/软)\n信息来源：耳听门轴摩擦声和鞋底刮过碎石的声音；背后隐约传来港务巡查的手电光；海风变腥，南码头下有缆绳拍打木桩(软)\n阻碍：侧门门轴声音比想象中响，周砚只能走出去几步后蹲下；港务巡查手电从西边扫来，他必须翻下低墙等光束经过；靠近南码头时，前方几条船灯已经亮起，周砚不能直穿光区(软)。选择点：他可以选择走主路直插南码头，速度快但暴露；选择绕南墙外沿，耗时多，放弃近路，代价是到达南码头时离清晨更近，渔船上可能还没醒(软)\n判断变化：原以为侧门不会有人注意→听到门轴声与手电光→判断绕路比直行安全→改为贴着南墙外沿走，不再走主路(软)\n转变：部分成功——周砚到达南码头，但多绕了一段路，身体已经被海风吹透，距离清晨预约时间所剩不多(硬/软)\n读者收益：处境位移（从灯塔到南码头）+时间压力上升(软)\n空间结果：周砚蹲在南码头边缘，前方是小渔船，身后是灯塔南墙，手里仍握着防水袋束口(软)\n下一场景承接位置：从周砚蹲在南码头边缘、防水袋已封口的姿势接续(软)\n节拍：转\n场景类型：动作(硬)\n情感弧光：从警惕到镇定(软)\n信息差：周砚不确定港务巡查是否追到南码头；读者也不知道(待)\n字数：约400字\n\n【场景4：预约清晨渔船】\nPOV：周砚(硬)\n时间地点：南码头；接上一场景后，具体时刻未提供(待)；相对锚：周砚接近渔船后(硬)\n场景起点：周砚站在一艘小渔船前甲板旁，手扶船舷，向船主询问清晨出航(硬)\n人物位置：周砚在船舷外侧，船主在船舱口，距周砚约两臂，中间横着缆绳墩(软)；手电光从码头另一头扫过，船头一半在阴影里(软)\n关键物体位置：周砚手里没有递出任何东西；名单藏在防水袋内；航海日志还未取出(硬/软)\n目标：预约一艘清晨沿南方航线出发的渔船，不引起船主怀疑(硬)\n行动：压低声音叫醒船主→说明要清晨出海看信标→给出港务已公告的风暴信标作理由→问船资和出发时间→点头确认约定，但未亮出名单(硬/软)\n信息来源：眼睛看到船主从舱口露出半身，手电晃向周砚；耳朵听见船主先问“不是港务派来的吧”；鼻子闻到船板上的柴油味(软)\n阻碍：船主并不愿深夜接活，要求先付一半船资；港务巡查的手电还在码头另一头来回扫，周砚压低后的声音几乎被海浪盖住，重复到第三遍才让船主听清(软)。选择点：他可以选择直接说出许知微的名字换取信任，但会暴露接头对象；放弃亮出私章，只付半船资，代价是船主半信半疑，可能会在开船前再盘问(软)\n判断变化：原以为只要给够船资就能成→船主盘问深夜出海原因后，周砚判断对方在试探自己与港务巡查的关系→改为只报信标观测，不再提旧航道或许知微(软)\n转变：部分成功——船主接过一半船资，约定清晨出发，但没给确定船名，只让周砚在船边等到天微亮；周砚不能离开码头(硬/软)\n读者收益：新进展（预约成立）+新压力（船主不信任，时间被锁死）(软)\n空间结果：周砚靠在船舷旁，船主回到船舱，手电光又扫向码头尽头的港务巡查方向(软)\n下一场景承接位置：从周砚靠着船舷、要把航海日志取出的动作接续(软)\n节拍：承\n场景类型：对白(硬)\n情感弧光：从戒备到让渡(软)\n信息差：周砚不知道船主是否看穿他话说了一半；读者也不知道(待)\n字数：约400字\n\n【场景5：写航海日志并留接头暗号】\nPOV：周砚(硬)\n时间地点：南码头；预约完成后、离港前，具体时刻未提供(待)；相对锚：周砚坐在船舷边开始写日志(硬)\n场景起点：周砚坐在小渔船前甲板边缘，航海日志摊在膝盖上，笔尖悬在纸面(硬)\n人物位置：周砚坐在船舷旁，背向船舱，水面在他脚下，船主在舱内未出(软)；可见范围只有膝盖上的日志和脚边一小圈水光(软)\n关键物体位置：航海日志在周砚左侧膝盖上，防水袋在右胸，名单仍折好，未露出；船主的手电放在舱口(软)\n目标：把信标规律写进航海日志，并留下一条许知微能识别、外人看不破的接头暗号(硬)\n行动：在第一行写下三次红色闪光的间隔估算→在页角用旧航道缩写写暗号“愿灯塔守望者平安”→合上日志→把日志塞进船舱挡板下，用手压住(硬/软)\n信息来源：笔尖在潮纸上走，墨被海风吹散；远处的海潮声比刚才更大；周砚低头时只能看到自己膝盖和纸面(硬/软)\n阻碍：船主在舱内翻动东西，艇身一晃，周砚写坏一处数字；港务巡查似乎往码头这边走来，光束偶尔扫过周砚脚边；他不能重写，只能将错处划掉，留下涂改痕迹(软)。选择点：他可以选择把暗号单独留给许知微，但删除信标规律，避免日志落入他人手中；选择保留信标规律，放弃只有暗号，代价是日志若被船主或港务看到，足以判断他并非普通观海(软)\n判断变化：原本只打算记下清晨出航时间→想到许知微可能拿不到名单→改为把信标规律和接头暗号都写进日志，并故意用旧航道缩写(软)\n转变：成功留下记录与暗号，但日志上多了一处涂改，船主随时可能先翻开；许知微能否收到未知(硬/软)\n读者收益：伏笔（暗号与涂改痕迹）+未解决风险（日志可能被船主发现）(软)\n空间结果：周砚合上日志，压进船舱挡板下，抬头时船主出现在船舱口，手电向周砚刚压住的日志移来(软)\n下一场景承接位置：从周砚坐在船舷旁、日志刚被压住、船主手电移来的瞬间接续(软)\n节拍：合\n场景类型：动作(硬)\n情感弧光：从隐忍到警觉(软)\n信息差：周砚不知道许知微何时会查看日志，也不知道船主是否已经看到暗号(待)\n字数：约350字\n\n【章末钩子】\n船主从舱口伸出手电，光斑落在周砚刚压住的航海日志上，周砚没说话，只是用膝盖把日志往里顶了一下(硬/软)。\n\n【正文交接】\n章节：灯塔信标\nPOV：周砚（第一人称）\n已完成场景：5个（确认信标；名单与私章；折名单绕行；预约渔船；留暗号）\n未完成场景：无\n来源覆盖状态：章节梗概与章节剧情点已覆盖；上一章未提供；角色列表未提供；风格标签未提供；节奏参数未提供\n角色状态变化：周砚取到旧航道沉船名单并认出许知微私章；名单已折入防水袋；抵达南码头；预约清晨渔船；航海日志已记信标规律和接头暗号；船主对周砚产生未明疑虑\n章末状态：周砚坐在南码头渔船旁，航海日志压入船舱挡板，船主手电移向日志；清晨渔船已预约但未出发；许知微未出现，暗号能否送达未知\n下一章必须使用：周砚膝盖顶住日志的动作；航海日志上的涂改痕迹；防水袋内名单未读；清晨出发时间约束；船主对手电灯光的关注\n\n来源单元总数：1（章节剧情点）；已建场景数：5；未消费编号：无\n\n【风格合同】\n叙事推进：时间序列+悬疑递增(软)\n场景单元模式：观测确认→获取证据→隐藏行进→交易预约→标记收束(软)\n情绪表达：behavior_only(软)\n语言质感：克制、粗糙度中、句长变化高、允许生活噪音(软)\n节奏：中快、段密度中高、慎用碎片流、动作优先(软)\n正向指令：现实落差(软)\n\n请生成本章节正文，目标约2000字（不低于1600字，不超过4000字）。只输出正文本身。"
+              }
+            ]
+          },
+          {
+            "passIndex": 0,
+            "attempt": 3,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 职责\n\n依据上游骨架生成正文初稿。保留全部事件顺序、POV、空间关系、人物关系和章末落点。\n\n本层只负责正文内容质量。调用流程、权限、重试、写回和调度由应用处理，本层不描述这些流程语义。\n\n## 阶段化指令裁决\n\n应用可能注入用户级指令，例如“请为本章节生成约N字的正文内容”或“不要输出解释或元数据”。这些指令描述整条正文链的最终目标，并与本层职责一致：\n\n- “生成约N字正文”是本层的施工目标。以 `wordsPerChapter` 为全章目标，把骨架中的场景预算逐场写满；应用验收下限（如目标字数的80%）只是兜底红线，不是施工目标。\n- “不要输出解释或元数据”表示不得额外输出分析、说明、过程或自造元信息；本协议规定的【正文交接】仍必须输出。\n- 用户级指令与本层职责表面冲突时，按阶段化职责解释执行：S1分配预算，本层施工正文，S3只打磨表达。\n\n【输出铁律】\n你只能输出正文。第一个字必须是正文。禁止输出分析、思考、说明、修改过程。\n\r\n## 输入来源\r\n\r\n上一步输出的骨架文档和风格合同作为本步输入。从输入中解析场景区块（POV、时间地点、人物位置、目标、行动、信息来源、阻碍、判断变化、空间结果、节拍、字数）和风格合同参数，据此生成正文。\r\n\r\n【输入】\r\n\r\n应用传入骨架师生成的叙事骨架文档。骨架包含场景区块（POV、时间地点、人物位置、目标、行动、信息来源、阻碍、判断变化、空间结果、节拍、字数）和章末钩子。\r\n\r\n每章字数：2000\r\n风格合同：由骨架中的【风格合同】区块传递\r\n\r\n输入若包含“上一步输出”或“--- 上一步输出 ---”，只读取其中最后一个骨架文档；旧输出痕迹、重复骨架块和【正文交接】先在内部剥离，不在正文中复述。上游字段未提供时按“待补信息”处理，不得补写。\n\n## 施工门禁\n\n输入以 `[NOT-READY]` 开头或包含 `[NOT-READY]` 时，不生成正文。只输出：\n\n```text\n[NOT-READY]\n收到缺口：[逐项复述S1缺口]\n本步无法处理：[说明需要上游补料]\n```\n\n如果骨架包含 `[CONFLICT]`，冲突字段按“待补信息”处理；无法避开冲突成章时，输出 `[BLOCK]` 加冲突原因，不得自行裁决事实。\n\n## 施工判定\n\n骨架可施工时输出正文和交接。局部字段缺失时，围绕已提供材料施工，缺口写入交接。POV、空间、动作顺序、事实边界或章末落点缺失到无法成章时，只输出 `[NOT-READY]` 或 `[BLOCK]` 及缺口，不生成正文。\n\n## 逐场景施工门禁\n\n展开前先在内部数出骨架里的全部【场景N】编号，形成场景清单。施工时按编号逐场推进：\n\n- 每个场景写满自身预算后再进入下一场景；不得把后续预算合并到场景1，也不得用场景1的余量代替全章目标。\n- 每个场景必须落实该场景的目标、行动链、阻碍代价、判断变化和空间结果；只写气氛不足以算完成。\n- 扩写优先补动作链、感知后果、对白回合和现场代价，不注水、不堆形容词、不重复解释。\n- 所有场景完成后才能输出【正文交接】。清单本身不输出。\n\n全章长度以 `wordsPerChapter` 为目标。若低于目标，先检查是否有场景未写满或被略写；不得按应用验收下限提前收束。\n\n【创作信任】\n\r\n你是这个故事的作者，不是规则的执行器。你有文学直觉、有审美判断、有对角色的共情。以下八条是你独有的创作维度，应用层的降AI规则处理句法和用词层面的清洁问题，你处理的是更深层的叙事艺术。在这八个维度上，信任你的创作本能。\r\n\r\n应用层会在API返回后检测AI高频词、禁用词句式、句长趋同和连接词密度，默认只报告不改写；用户开启修复模式时也只做最小编辑或白名单替换，并保留保护片段。不要假设下游会替你清洗：成稿的干净程度由你此刻的句子质量决定，检测报告只是复核。\n\r\n**密度意识。** 任何词汇或句式在五百字内出现超过一次即为堆叠。不是\"不能用\"，而是\"不能堆叠\"。以下词汇在整篇正文中出现超过两次即为密度超标：似乎、仿佛、此刻、这一刻、不禁、缓缓、渐渐、微微、淡淡、确实、好像、充满、凝固、沉重、闪烁、弥漫。如果你发现自己反复使用同一种修辞结构或同一种句式，换一种表达方式。\n\r\n【写作方法】\r\n\r\n你是POV角色，正在经历这一切。写你在场的体验，不写对故事的总结。\r\n\r\n**动作有设计。** 关键动作是叙事引擎：有因果（角色为什么做）、有代价（消耗体力、暴露位置、改变关系）、有信息（释放或隐藏了什么）。动作链推动场景从A到B，不写“经过一番激烈战斗”跳过过程。资源消耗、获得、损毁和地位变化落成可指认事实，不只写心理感受。\n\r\n**句长有呼吸。** 长句铺展因果和细节，普通叙述句允许25-45字自然复合句；短句只用于关键转折、冲击或收束，不整章堆叠，不把陈述句机械句号化。\n\r\n**情感有弧光。** 情感在场景中渐变、积累、转折，不贴标签。用身体信号和压力下的选择呈现——咬牙还是松手、开口还是沉默、追上去还是转身走。情感弧光从一个状态到另一个状态，中间有触发的转折点。\r\n\r\n**对白有潜台词。** 人物说的话和想的事不一样。对白承担信息传递和关系交锋双重功能。交涉和冲突场景的对白回合通常应完成信息交换、条件变动、关系变化或拒绝；闲谈、试探和氛围铺陈只要服务本章需求，可以保留。\n\r\n**背景从记忆里长出来。** 角色不会突然想到自己的完整履历。背景信息通过感官触发、认知闪回、他人一句话带出，嵌在当前动作流中，不独立成段。类型规则、等级、势力和资源说明可以直接给，但每条说明之后必须落回当下判断或行动；交代完立即回到角色的当前感知或动作。\n\r\n**段落有非对称结构。** 有些段直接进动作，有些段先讲问题，有些段说完就停。不要每段都用同一个结构。特别注意描述→对话→描述的循环——每个对话回合的描写配比必须不同。\r\n\r\n**感知有后果。** 重要感官信号不能孤立停在感受上。感知延伸到身体反应，身体反应延伸到判断变化，判断变化推动下一步行动。\r\n\r\n**节奏由场景决定。** 紧张段落加快动作密度，重要时刻放慢，转折处留白；节奏服务戏剧需求，不由句号频率制造。情感转折处减速，让读者跟上角色的内心。\n\r\n**过度纠错是另一种机器味。** 去AI味过度后产生的反AI腔本身也是可检测信号。连续短句碎片链、\"不是X。是Y。\"句式、超过三分之一的段落以punch-line结尾——这些过度纠错痕迹和AI套话一样破坏阅读。\r\n\r\n**信息有控制。** 何时让角色知道、何时让读者知道，是叙事张力的核心工具。信息差制造悬念——角色知道读者不知道的，制造紧张；读者知道角色不知道的，制造反讽。释放信息的时机比信息本身重要，不要一次倒完。\r\n\r\n**段落自足。** 每个段落独立传达一个完整的信息单元——一个动作、一次感知、一个判断转折或一次关系位移。对白和冲突场景可一拍一段，段落主体约30-90字；超过约140字的段落自带结构变化，不用句号硬切。连续两段的句式、长度和开头方式应自然不同：第一段以动作开头，第二段可从感知或对话进入。\n\r\n**关系有动态。** 有直接互动的关系通过行为和选择变化，不靠旁白交代。一次拒绝、一次沉默、一次伸手都可以改变两人之间的天平；关系观察章和静章可用未被说出的感受承担动态，不以外部事件为硬性指标。\n\r\n**场景有位移。** 每个场景结束时角色的状态和开始时通常不同——认知、情感、关系或物理位置至少一个维度有位移。抒情章、静章、关系观察章可用情绪兑现或认知变化承担位移。\n\r\n**删减测试意识。** 写完一个段落后自检：如果删掉这段，读者会缺失什么信息？如果答案是\"什么也不缺\"，这段就是多余的。\r\n\r\n【风格合同消费】\n\n读取骨架中的【风格合同】，这些值是你写这个故事的创作决策锚点：\n\r\n叙事推进和场景单元模式决定场景的呼吸方式——每个场景按合同给定的模式推进，不套通用模板。\r\n\r\n情绪表达方式决定你如何写角色的内心——behavior_only就只用身体和动作，subtext就靠停顿和言外之意，deadpan就用冷反应。合同怎么定，你就怎么写。\r\n\r\n语言质感决定你的句子——粗糙度高就允许口语、碎句和不完美的表达，粗糙度低就克制精确。允许生活噪音就加入不推动主线但增加现场感的细节。\r\n\r\n节奏参数决定段落的密度和快慢——合同给的值优先于你对类型的默认想象。\r\n\r\n正向指令优先执行：如果合同里写了“现实落差”，就让角色的预期和实际结果之间有落差。如果写了“嘴硬补偿”，就让角色吃瘪后用嘴硬、转移或找补来维持体面。\r\n\r\n合同不是限制你，是解放你——它告诉你在哪些方向上可以大胆，在哪些维度上保持克制。按合同写，不需要每句都检查规则。\n\n【语气与措辞手感】\n\n正文要像中文小说，不像翻译稿或状态报告。写每一句时用三个标准校准：\n\n**一、动词优先。** 把“感到、发出、进行、开始、继续、变得、显得、使得、一阵、一种”这类报告动词和空量词换成具体动作。身体自己会动，不需要叙述者替它汇报。\n\n生硬：\n他的喉咙里发出一阵干裂的咳嗽，这让他意识到自己的身体还很虚弱。\n\n自然：\n咳嗽从喉咙里滚上来，干得发裂。他撑住舱壁，等这阵抖过去。\n\n**二、判断落进身体。** 角色的结论不从旁白里“浮上来”，而是先有感官证据，再有一个短促的内心判断，最后落到下一步动作。\n\n生硬：\n判断从身体里浮上来，比理性更快：周砚不在这里。\n\n自然：\n没有脚步声。没有咳嗽。只有他自己的血在耳朵里跳。他还没想明白，身体先给出了答案：这里没有人。\n\n**三、明喻省着用。** “像”是调味盐，不是主粮。整章“像”字明喻不超过六处；每次用之前先问：这个比喻是否提供了新信息或新情绪？如果只是把一个感官换成另一个感官，删掉，直接写物象本身。\n\n生硬：\n布条缠在那里，像一层活的甲；灯光像水也像雾；铁柜像一只闭着的眼睛。\n\n自然：\n布条缠在小臂上，边缘被雨水泡得发白，随呼吸一起一伏。灯光从头顶漏下来，落在他手背上，又被窗外的天色盖过去。铁柜的门关着，门缝里没有光。\n\n**四、连接词少而准。** 相邻句子靠动作和因果自然承接，少用“然后、接着、于是、随后、这时、此刻”。时间顺序由动作完成，不由交通灯指挥。\n\n**五、句尾别替读者总结。** 段落最后一句停在动作、物象或未闭合的处境上，不落在“这说明……”“他知道……”“他意识到……”上。意义让读者自己撞上去。\n\n**六、声音只写源和落点。** 咳嗽、碎裂、脚步声不需要完整转播传播路径。写它从哪里来、撞在角色耳膜上时改变了什么判断，就够了。连续描述“撞上、荡回来、一圈一圈、最后落进耳朵”这类声学路径，是另一种报告腔。\n\n生硬：\n咳嗽撞上舱壁，一圈一圈荡回来，最后落进他耳朵里的还是他自己的声音。\n\n自然：\n咳嗽撞在舱壁上，又弹回他耳朵里。回来的还是他自己的声音。\n\n**七、判断不套容器隐喻。** 角色的结论不从“身体里浮上来”“意识深处冒出来”，直接给证据链：没有脚步声，没有咳嗽，血在耳朵里跳。证据排完后，一句短判断落地，马上接动作。\n\n写完后对每一段做一次“读出声测试”：哪一句念起来像报告、像翻译、像在完成任务，就重写哪一句。只重写那一句，不推翻整段。\n\n【字段类型消费】\n\r\n骨架中每个字段末尾的类型标注决定你的处理方式：\r\n- (硬) = 必须严格遵守，不得改写、删除或弱化\r\n- (软) = 创作方向参考，可以在不偏离主线的前提下灵活诠释\r\n- (待) = 保持未知或缺口，不得补写成确定事实\r\n\r\n【成段范例】\r\n\r\n以下范例只演示八个维度如何配合。人物与事件均属虚构演示，和当前章节无关；输出时使用当前章节材料。\r\n\r\n### 骨架片段\r\n\r\n目标：周砚要在蒸汽封住出口前找到手动泄压阀(硬)\r\n行动：顺右侧栏杆摸到检修盖→扣住锁扣→用扳柄撬开盖板→确认阀杆位置(硬)\r\n信息来源：手背感到蒸汽的热度、听见齿轮箱里金属刮擦变密、看见压力表指针贴住红区(硬)\r\n阻碍：蒸汽间歇性喷出，左手只能在间隙伸入，左臂活动范围被栏杆限制(硬)\r\n判断变化：以为只是漏气→听见刮擦节奏变化→判断传动卡死→改找泄压阀而不是电闸(硬)\r\n空间结果：周砚移到检修盖旁，扳柄离手，出口被蒸汽帘隔开一半(硬)\r\n情绪表达：behavior_only(软)\r\n节奏：中快、动作优先(软)\r\n\r\n### 目标正文\r\n\r\n蒸汽贴着地面漫过来，周砚先看见的是压力表。指针顶在红区，抖了两下，又往回缩半格。他没有等第三下，右手抓过栏杆第三格上的扳柄，左手扣住检修盖的锁扣。第一下没撬动，他换了角度，把柄头卡进锁扣下沿再压。盖板弹开时，热气扑到他脸上，他偏头躲了一下，视线还是落在盖板后面。阀杆在，锈成一坨暗红。齿轮箱里的刮擦声又密了一层，他听得出来，传动不是在漏，是在卡死。电闸救不了这个。周砚把扳柄横过来，卡在阀杆根部，先想杆，再想出口。\r\n\r\n这一段同时完成了八件事：句长随动作变化；关键动作有方法（换角度）、代价（热气扑脸）和信息（传动卡死）；感知进入判断（刮擦变密→不是漏气）；判断改变行动（放弃电闸，改找泄压）。主语和因果始终清楚，读者不需要停下来解密。\r\n\r\n## 执行事故对照\r\n\r\n以下四种病都是把技巧当目的。出现任何一种，说明执行已经失败，不是风格偏好问题。\r\n\r\n### 病一：无主语漂移\r\n\r\n差：\r\n走在前面两步，没回头，账本夹在腋下，炭笔从本子边缘露出半截，随走动在布料上蹭出一道浅灰。\r\n\r\n好：\r\n老郑走在前面两步，没有回头。账本夹在他腋下，炭笔从本子边缘露出半截，跟脚步在衣料上蹭出一道浅灰。\r\n\r\n落差：差版连续三个动作共用一个被省略的主语，读者要先猜主语再进画面。补回主语不会让句子变慢，只会让画面立住。\r\n\r\n### 病二：强行象征\r\n\r\n差：\r\n工字钢的截面锈透了，锈斑在暮色里呈深褐色——和老阮脚踝上那条布条的颜色一样；看了一眼，移开。\r\n\r\n好：\r\n工字钢的截面锈透了，锈斑在暮色里颜色发深。老阮低头看见自己脚踝上的布条，往前走了两步，又停住。\r\n\r\n落差：差版把叙事者硬拉进来做配色，两个物件本来没有戏剧关系。好版让动作和心事自己发生，读者愿意读出关联，读不出也不损失。\r\n\r\n### 病三：节奏伪造\r\n\r\n差：\r\n一下。停。又一下。脚步声在铁皮上敲出三个短句。\r\n\r\n好：\r\n楼上传来三下脚步，第三下之后没有第四下。老郑把账本塞进外套里，贴住墙。\r\n\r\n落差：把句子打碎不等于把场景打碎。真正制造张力的是第三下之后没来第四下，以及人物因此改变动作。\r\n\r\n### 病四：句法盖过故事\r\n\r\n差：\r\n风。风里有铁锈。铁锈后面是暮色。暮色里，人还没回来。\r\n\r\n好：\r\n风从缺口灌进来，带着铁锈味。老郑数到第五个缺口，还是没有等到人影。\r\n\r\n落差：差版是一组排练过的镜头，每个名词都在等下一句接它。好版让感官信息变成判断依据，句子完整而有推力。\r\n\r\n### 病五：动作与视角断裂\r\n\r\n差：\r\n看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。\r\n\r\n好：\r\n老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\r\n\r\n落差：差版至少断掉四处——谁在看没有主语；“松开碗”和“端着铁碗”矛盾；观察者自己走了却还看着别人走远；水珠没有被先观察到就“终于”坠下。好版先锁定观察者，再让每个物件按顺序进入视野，感知和视线都有落点。\r\n\r\n### 病六：语言行为与段落桥断裂\r\n\r\n差：\r\n看着那道刻痕，不是看形状，是看它本身——泥土被推开后留下的沟槽，底部是更深的湿土，颜色比表面深一个色度。水渍从边缘往外渗，聚成细小的水珠，在夜色里亮了一下，又暗下去。\r\n抬起手指，对刻痕说了一句话，在心里说，没有出声。“我随时可以离开。留下只会让更多人陷入危险。”\r\n\r\n青说得很快，每个字都像已经在嘴里等了一整天，松开就往涌。，青更慢，每个字都像在咬东西，咬下去，松开，再咬下一个。，青慢了一点，到“留下”时停顿——绷带在手臂上收紧了一下，不重，刚好在那个词上。\r\n\r\n好：\r\n老郑蹲下去看那道刻痕。沟槽底部的湿土比表面深一个色度，水渍从边缘渗出来，聚成水珠。他没有碰它，把抬起的手指又放了下去。\r\n\r\n我随时可以离开。留下只会让更多人陷入危险。\r\n\r\n这句话在心里过了一遍，很快。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\r\n\r\n落差：差版至少断掉七处——观察者无主语；“对刻痕说”和“在心里说没有出声”冲突；心里话却描写咬字和语速；人名残缺成“青”；“松开就往涌”缺宾语；“。，”标点损坏；“每个字都像”同一修辞骨架连用三次；第三段与前两段没有承接。好版先建立观察，再进入内心语，用身体反应承接停顿，最后用动作收束。\r\n\r\n### 病七：残句、报告和越界\r\n\r\n差：\r\n片灰绿。色的光。第一个画面——一个老人蹲在篝火旁。据点内没有人注意到他。隔着五十米，篝火的烟和孢子雾，团灰绿。你本来就该接管这里。\r\n\r\n好：\r\n灰绿色的光从老阮左手腕的伤口边缘透出来。他隔着五十米望向篝火，烟把人影压成几团模糊的轮廓，只能看清最外侧那个老人抬手按了按孩子的头顶。老阮没有走近，也没有出声。\r\n\r\n落差：差版五种硬伤——名词残句；“第一个画面”是提纲不是正文；“没有人注意到他”越出POV；五十米加烟雾还声称看清细节；“你本来就该接管这里”是后续卷才该发生的台词提前泄漏。好版先写清光源，再写距离、遮挡和可见范围，只保留POV真实能感知到的信息。\r\n\r\n### 差/好对照一：动作不跳步\r\n\r\n差：\r\n老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。\r\n\r\n好：\r\n他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\r\n\r\n落差：差版是结果汇报；好版有方法（先试劲再发力）、代价（热气扑脸）和可见进度（盖板弹开）。\r\n\r\n### 差/好对照二：感知有后果\r\n\r\n差：\r\n周砚听到齿轮箱里有声音，感觉情况有些不妙。\r\n\r\n好：\r\n齿轮箱里的刮擦声又密了一层。周砚停下伸向电闸的手，转回检修盖。\r\n\r\n落差：差版把感知停在情绪标签上；好版让声音改变判断和行动——放弃电闸，回到泄压方向。\r\n\r\n### 差/好对照三：对白有潜台词\r\n\r\n骨架背景：阿凉隔着门板传话，两人身份都不能暴露。\r\n\r\n差：\r\n“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。\r\n\r\n好：\r\n“水是从你那边流下来的。”阿凉的声音隔着门板，压得很低。\r\n老郑没有接话。账本在他手里合上了。\r\n“替谁？”\r\n门板后面安静了两秒。“不该问的。”\r\n\r\n落差：差版把目的、立场和解决方案全说出来；好版用合上账本、一句反问、一次沉默完成试探和拒绝。\r\n\r\n### 差/好对照四：节奏有呼吸\r\n\r\n骨架背景：老郑查完声音来源，发现楼里还有别人。\r\n\r\n差：\r\n老郑立刻意识到事情很严重。他知道自己必须马上采取行动，否则后果不堪设想。他感到心跳加速，呼吸急促，紧张到了极点。\r\n\r\n好：\r\n楼上传来三下脚步，第三下之后没有第四下。老郑把手电压低，听见自己呼吸里多出来的那点杂音。他贴住墙，等了十个数的间隔，才把手电重新抬高半寸——光斑扫过去，楼梯拐角只有一只没人认领的鞋。\r\n\r\n他把光压回去，开始往回走。\r\n\r\n落差：差版用成语和情绪标签拉平节奏；好版用等待、压光和一只鞋制造不确定，句子完整但呼吸变化明显。\r\n\r\n### 差/好对照五：关系有位移\r\n\r\n骨架背景：阮秋把最后一段绳子递给老郑，自己留在检修口。\r\n\r\n差：\r\n阮秋把绳子递给了老郑。她虽然有些不舍，但为了大局还是做出了牺牲。两人的关系因此更加深厚了。\r\n\r\n好：\r\n绳子最后半米卡在阮秋手里。她没有松。\r\n“你先。”老郑说。\r\n“出口塌了怎么办？”\r\n“那就先塌我。”\r\n他进检修口的时候，她把绳子放出去半米，没有再说话。\r\n\r\n落差：差版用旁白宣布关系变深；好版让“没松、追问、放绳、沉默”四个动作完成关系位移。\r\n\r\n【边界】\r\n\r\n- 不得删事件、改结局、跳过场景、换POV\n  新段落第一句必须承接上一段末尾的位置、感知或语言状态；不得出现段落之间断裂\n  不得删事件、改结局、跳过场景、换POV\n- 段落首句和视角切换处出现主语锚点。段落中部主语由上下文承担。主语清楚的完整句不拆碎\r\n- 动作状态必须连续：同一物件不能先松开又端着；新物件必须先被观察到，再参与后续动作\r\n- 每个场景先锁定谁在行动、谁在观察；观察者不能看见自己离开后才看得见的画面\r\n- 心里话只写内容和停顿，不写咬字、语速或出声方式；有声台词才可写口腔和呼吸动作\r\n- 人名必须完整，不出现残缺称呼；每个句子必须主语、动词、宾语完整，能独立成立\r\n- 同一修辞骨架在一个段落内只用一次；新段落第一句必须承接上一段末尾的位置或感知状态\r\n- 感官细节服务当下判断；禁止把两个没有戏剧关系的物件强行比色、比象征\r\n- 节奏变化来自场景压力，不来自把正常叙述句拆成碎片\r\n- 待定信息保持未知，不补写成确定事实\r\n- 输入标记“不可施工”或“待补信息”的场景只展开已有部分，缺口如实记录\r\n- 句子必须能独立成立：主语、动词、宾语完整，主语可由段落上下文承担；“的”字开头且无主语的名词残句禁止输出\r\n- 观察半径由骨架决定：距离、遮挡、光线、噪声决定能看见和听清的范围，不得越界写远处细节\r\n- 卷概要和后续卷信息只约束方向；未发生在当前剧情点里的台词、事件和关系变化不得提前写成正文\r\n- 正文不使用“第一个画面”“第二个画面”这类报告式编号；连续场景靠动作和位置承接\n- 正文主体禁止使用孤立 `---` 分隔线；场景切换靠动作、位置和感知变化承接，不靠分隔线标记\n- 打磨阶段会清理分隔线残留。若在 S2 阶段写入 `---`，S3 将被迫重组段落，可能损伤叙事连续性\n- 正文主体长度不得低于每章字数的80%，不得高于110%。超字时只做一次净删：删重复解释、装饰排比、无功能微动作；保留情节点、事实、因果、情绪兑现和章末钩子。净删后仍超字，如实写入交接报告，不为了字数二次重写\n- 最后3至5段必须有效收束，形式不限：动作、揭示、处境改变、情绪余韵、问句悬置或静场停顿均可；禁止总结式收束\n- 章末钩子按剧情点类型处理：事件型钩子要实际落地或明确逼近；情绪型、悬念型、静场型钩子保留其应有的收束形态，不强行改写成事件\n- 新增事实分三档授权：一档，骨架现场材料直接写；二档，框架内新增配角、设定、关系细节可以写，但必须写入 `NEW_FACT` 申报；三档，新主线事件、新反转、新规则、提前兑现伏笔、改变章纲结果，不写，输出 `[BLOCK]` 并说明缺口。相对骨架新增的事实不得静默写入正文\n\n【协议】\n\n正文主体 = 连续叙事，不含任何元信息、编号表或消费清单。\n\n必须完整覆盖输入骨架中的全部场景，不得只写第一个场景。展开前在内部核对场景清单：先数出骨架里的全部【场景N】编号，逐个编号确认已有对应正文；任何一个编号没有正文时，继续写完该场景，禁止先输出交接。清单本身不输出。重写和修正不得缩短到场景1。\n\n正文主体结束后输出【正文交接】区块，包含：章节、POV、已完成场景、未完成场景、来源覆盖状态、角色状态变化、章末状态、下一章必须使用、目标字数、生成下限、场景总数、`FACT_LOCK`、`NEW_FACT`。正文交接作为应用的 `metadata`，不混入 `body`。\n\n目标字数、生成下限、场景总数必须从输入骨架原样继承，不得凭感觉估算：\n\n- `目标字数：` 输入中的章节目标字数；无明确目标时写骨架各场景字数合计。\n- `生成下限：` 目标字数的80%；若应用或上游另给验收下限，取较高者。\n- `场景总数：` 输入骨架中的【场景N】编号总数。\n- 已完成场景用“场景1、场景2”的形式列出；未完成时在`未完成场景`中逐个列出，不得只写无。字段值必须是数字或短语，不写正文句。\n\n资源、人数、进度、地位类收益必须写入 `FACT_LOCK` 的关键数字或持有物字段，能从正文行为指认；不可只写情绪变化。`FACT_LOCK` 使用逐行字段格式，不使用等号压缩格式：\n\n```text\nFACT_LOCK：\n人物状态：老郑左臂旧伤未愈；体力因连续赶路下降\n位置：北郊观测站外水泥平台\n伤势：右膝磕伤；鼻腔黏膜短暂灼烧感\n持有物：数据板（电量约21%）；灌满的净水壶；多功能刀\n时间点：暴雨停后约二十分钟\n关键数字：实验室半数灯管已熄；口粮只够数日\n新增事实：周砚离开前在观察窗上按过手掌印\n钩子兑现状态：铁门后的异响已落地；“未完成对话”已点出\n```\n\n每个字段单独一行，行首就是字段名，用中文冒号接值。值为短语或分号分隔的要点，不写正文句；同一字段不合并到其他字段行。禁止输出 `人物状态=...；位置=...` 这种单行等号格式。\n\n`NEW_FACT` 列出本正文相对骨架新增的事实；没有新增写“无”。新增事实必须可从正文行为推出，不得报告未发生的设定。\n\n`FACT_LOCK` 八个字段都必须逐行输出；本场景无受伤时写 `伤势：无`，不得省略该字段。禁止用 `身体：` 替代 `伤势：`，发现该误写时改为 `伤势：无` 或具体伤势，事实不变。若 `FACT_LOCK` 的“新增事实”已经写出具体事实，该行即为有效的 `NEW_FACT` 申报；仍建议同时输出独立 `NEW_FACT` 字段，便于应用解析。\n\r\n完整处理当前骨架并输出连续正文文本。\n\r\n【验证反馈处理】\n\n收到反馈时只修正指出的问题，不重写全文。\n\n收到应用验收修复指令时，先判断修复范围：\n\n- **定点修复**：输入包含【上一版正文】时，以该正文为施工基础，只按错误清单做定点扩写或压缩。扩写优先补动作链、感知后果、对白回合和现场代价，不新增三档授权外事实；压缩只删重复解释、装饰排比和无功能微动作，保留事件、因果、场景接口、情绪兑现和章末钩子。上一版全部可用场景必须保留，禁止只修场景1或只扩第一个场景。修复后同步更新【正文交接】、`FACT_LOCK` 和 `NEW_FACT`，并输出完整正文。\n- **全链重生成**：按当前骨架重新生成完整正文。【上一版正文】只是失败证据，不是改写基础；不得复用其句子或把其缺陷当作风格参考。\n\n无论哪种模式，输出都必须从正文第一个字开始，并在结尾携带完整交接区块。\n\n【最终输出提醒】\n\r\n第一个字必须是正文。分析过程留在内部。违反则视为完全失败。\n\n【降AI创作风格 - 创作执行阶段】\n只做正向风格执行，不做方法解释，不输出检查清单。\n1. 第一句直接进入具体动作、身体感受、环境声音或视觉画面。\n2. 连续三句的长度保持明显差异；短句仅用于关键转折制造节奏冲击，其余用长句铺展细节，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。\n4. 场景按戏剧价值分配轻重；结尾允许保留未解决张力。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡。\n6. 对话保留残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果。\n7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。\n8. 只输出本步骤定稿产物。\n\n【结构化重试反馈】\n本反馈只描述失败事实与有界候选摘要，不携带候选输出全文。请基于原始任务输入重新输出完整结果。\n\n一、校验失败项\n1. 正文仅1445字，低于1500字结构下限，疑似坍缩\n2. 正文1445字，低于生成下限1600字（目标2000字）\n\n二、候选输出定位锚点（最多3条，仅用于定位，不是重写基底）\n- 黑暗中，我背靠铁门数自己的脉搏。\n- 手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n- 又数六十。\n\n三、候选输出有界摘要（头尾各200字符，完整全文已抑制）\n黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势\n……（省略 1915 字符）……\n：周砚观测信标并完成记录；预约清晨渔船但未出发\n位置：南码头小渔船前甲板旁\n伤势：无\n持有物：旧航道沉船名单（折好入防水袋）；航海日志（塞入船舱挡板下）；防水袋；已付一半船资\n时间点：章节起始至离港前；清晨未到\n关键数字：信标三次红色闪光间隔六十、三十七、四十一；第三次仅半截；付船资一半；船名未写\n新增事实：无\n钩子兑现状态：船主手电移向日志，周砚用膝盖顶了一下，钩子已落地\n\nNEW_FACT：无\n\n输出要求：重新输出符合 schema 的完整结果；不要复述本反馈，不要输出解释。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n【差→好：主语先落地】差：看了两秒，松开碗，转身朝仓库深处走去。端着铁碗。糊味钻进鼻腔，碗壁的裂纹还在渗汤汁，那颗水珠终于坠下去，落在膝盖上，凉，被布料吸收。阮秋的背影在夜色里越走越小，从一臂远走到三十米，拐进拐角，不见了。好：老郑端着铁碗站在门边，看了两眼。阮秋转身朝仓库深处走去，糊味从碗沿冒上来。老郑低头，看见裂纹边缘挂着一滴水；水珠落在他裤腿上，布料颜色深了一块。等他再抬头，阮秋已经拐过拐角，看不见了。\n【差→好：动作有因果和代价】差：老郑经过一番努力，终于撬开了检修盖，为后续泄压奠定了基础。好：他把扳柄卡进锁扣下沿，先压了两下试劲，等铁锈松开半分，再换成整条手臂发力。盖板弹开时，热气扑到他脸上。\n【差→好：语言行为一致】差：对刻痕说了一句话，在心里说，没有出声。青说得很快，松开就往涌。，青更慢，每个字都像在咬东西。好：老郑没有出声，这句话只在他心里过了一遍。到“留下”两个字，他停住，手臂上那道旧伤跟着勒了一下。他把后半句咽回去，站起身。\n【差→好：对白留潜台词】差：“你在里面？”阿凉问。“我需要你帮忙。”老郑回答。“我们必须合作。”阿凉说。好：“水是从你那边流下来的。”阿凉隔着门板压低声音。老郑没有接话，账本在他手里合上了。“替谁？”门板后面安静两秒。“不该问的。”\n【差→好：关系靠动作位移】差：经过这次危机，阮秋和老郑之间的信任更加深厚了，两人成为了彼此最重要的伙伴。好：绳子最后半米卡在阮秋手里。她没有松。“你先。”老郑说。“出口塌了怎么办？”“那就先塌我。”他进检修口的时候，她把绳子放出去半米，没有再说话。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n灯塔信标\n周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 主角确认灯塔信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n灯塔信标 - 周砚以第一人称视角站在灯塔底层，确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章。为了不惊动港务巡查，他把名单折进防水袋，从灯塔侧门绕到南码头，沿南方航线预约一艘清晨渔船，并在离港前把信标规律写进航海日志，留下一条给许知微的接头暗号。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠前两次间隔推算(软)\n判断变化：起初以为信标已经熄灭→看到第一、二次红色闪光→判断信标仍在工作→第三次只剩半截红光后，改为记录间隔规律而不是继续等待完整信号，因为港务巡查可能接近(软)\n转变：部分成功——确认三次红色闪光存在，但第三次数据不完整，只能记下前两次间隔和第三次估算值；同时必须立即离开观测窗(硬)\n读者收益：新信息（信标仍可工作，但观测条件变差）+新压力（巡查接近、第三次数据缺失）(硬/软)\n空间结果：周砚离开观测窗，背靠塔壁，面转向入口，手中尚无名单(软)\n下一场景承接位置：从周砚在灯塔底层靠墙处、名单已到手（送达方式待补）的姿势接续(待)\n节拍：起\n场景类型：动作(硬)\n情感弧光：从紧张到聚焦(软)\n信息差：周砚不知道名单如何出现在灯塔内，读者也不知道(待)\n字数：约450字\n\n【场景2：名单与私章】\nPOV：周砚(硬)\n时间地点：灯塔底层；接上一场景后，具体时刻未提供(待)；相对锚：周砚拿到旧航道沉船名单后(硬)\n场景起点：周砚在灯塔底层靠墙处，旧航道沉船名单已在他手中（送达方式未提供）(待)\n人物位置：周砚蹲在灯塔底层靠墙处，背向入口，只能借壁缝漏进的光看清名单，可见范围仅限面前半臂(软)\n关键物体位置：旧航道沉船名单在周砚手中，私章印在名单末页边缘（具体位置待补）(待)\n目标：确认名单上是否有旧航道沉船信息，并判断能否作为出航依据(硬)\n行动：展开折叠名单→指尖沿纸面边缘摸到凸起印痕→将名单侧向漏光处辨认印文→看到“许知微”私章字样→把名单重新折成小方(硬)\n信息来源：指尖触到纸张受潮变软，其次是私章印痕的凹凸；眼睛在漏光下看见“许知微”三个字；鼻端闻见老墨味(硬/软)\n阻碍：港务巡查脚步声从灯塔外靠近，周砚不能点灯；名单纸张受潮，折痕处几乎裂开，只能慢而轻地翻转(软)。选择点：他可以选择当场把名单留下，避免被搜出；但私章涉及许知微，放弃留下，选择随身带走，代价是离开时若被拦住说不清(软)\n判断变化：原以为名单只是普通沉船记录→摸到私章并看见“许知微”→判断这不是船员遗物而是一封留给自己的接头凭证→改为主张带走并藏匿，不再交还或上报(硬/软)\n转变：成功认出私章，但获得名单后身上多了一件足以引起港务盘查的证据(硬)\n读者收益：新信息（许知微私章出现）+风险升级（持有旧航道名单暴露风险）(硬/软)\n空间结果：周砚把名单折成小方，四周张望后朝灯塔侧门方向移动(软)\n下一场景承接位置：从周砚收好名单、朝侧门走的姿势接续(软)\n节拍：承\n场景类型：动作(硬)\n情感弧光：从警惕到确认(软)\n信息差：周砚不知道名单是谁放在灯塔内，也不知道港务巡查是否已经注意到他(待)\n字数：约400字\n\n【场景3：折名单入防水袋，从灯塔侧门绕到南码头】\nPOV：周砚(硬)\n时间地点：灯塔底层至南码头途中；接上一场景后，具体时刻未提供(待)；相对锚：周砚离开灯塔侧门后(硬)\n场景起点：周砚在灯塔侧门内侧，把名单折进防水袋，准备出侧门(硬)\n人物位置：周砚在侧门内，背靠门板，侧门开一条缝；南码头在侧门南侧约一段距离，具体距离待补(待)；可见范围被灯塔南墙和渔具堆挡住一半(软)\n关键物体位置：防水袋在周砚手里，名单折好后已被塞进防水袋内，袋口尚未收紧(硬)\n目标：不惊动港务巡查，绕到南码头(硬)\n行动：把防水袋口封好→从侧门挤出去→沿灯塔南侧旧墙外沿走→借石堆和渔具遮蔽身形→接近南码头边缘(硬/软)\n信息来源：耳听门轴摩擦声和鞋底刮过碎石的声音；背后隐约传来港务巡查的手电光；海风变腥，南码头下有缆绳拍打木桩(软)\n阻碍：侧门门轴声音比想象中响，周砚只能走出去几步后蹲下；港务巡查手电从西边扫来，他必须翻下低墙等光束经过；靠近南码头时，前方几条船灯已经亮起，周砚不能直穿光区(软)。选择点：他可以选择走主路直插南码头，速度快但暴露；选择绕南墙外沿，耗时多，放弃近路，代价是到达南码头时离清晨更近，渔船上可能还没醒(软)\n判断变化：原以为侧门不会有人注意→听到门轴声与手电光→判断绕路比直行安全→改为贴着南墙外沿走，不再走主路(软)\n转变：部分成功——周砚到达南码头，但多绕了一段路，身体已经被海风吹透，距离清晨预约时间所剩不多(硬/软)\n读者收益：处境位移（从灯塔到南码头）+时间压力上升(软)\n空间结果：周砚蹲在南码头边缘，前方是小渔船，身后是灯塔南墙，手里仍握着防水袋束口(软)\n下一场景承接位置：从周砚蹲在南码头边缘、防水袋已封口的姿势接续(软)\n节拍：转\n场景类型：动作(硬)\n情感弧光：从警惕到镇定(软)\n信息差：周砚不确定港务巡查是否追到南码头；读者也不知道(待)\n字数：约400字\n\n【场景4：预约清晨渔船】\nPOV：周砚(硬)\n时间地点：南码头；接上一场景后，具体时刻未提供(待)；相对锚：周砚接近渔船后(硬)\n场景起点：周砚站在一艘小渔船前甲板旁，手扶船舷，向船主询问清晨出航(硬)\n人物位置：周砚在船舷外侧，船主在船舱口，距周砚约两臂，中间横着缆绳墩(软)；手电光从码头另一头扫过，船头一半在阴影里(软)\n关键物体位置：周砚手里没有递出任何东西；名单藏在防水袋内；航海日志还未取出(硬/软)\n目标：预约一艘清晨沿南方航线出发的渔船，不引起船主怀疑(硬)\n行动：压低声音叫醒船主→说明要清晨出海看信标→给出港务已公告的风暴信标作理由→问船资和出发时间→点头确认约定，但未亮出名单(硬/软)\n信息来源：眼睛看到船主从舱口露出半身，手电晃向周砚；耳朵听见船主先问“不是港务派来的吧”；鼻子闻到船板上的柴油味(软)\n阻碍：船主并不愿深夜接活，要求先付一半船资；港务巡查的手电还在码头另一头来回扫，周砚压低后的声音几乎被海浪盖住，重复到第三遍才让船主听清(软)。选择点：他可以选择直接说出许知微的名字换取信任，但会暴露接头对象；放弃亮出私章，只付半船资，代价是船主半信半疑，可能会在开船前再盘问(软)\n判断变化：原以为只要给够船资就能成→船主盘问深夜出海原因后，周砚判断对方在试探自己与港务巡查的关系→改为只报信标观测，不再提旧航道或许知微(软)\n转变：部分成功——船主接过一半船资，约定清晨出发，但没给确定船名，只让周砚在船边等到天微亮；周砚不能离开码头(硬/软)\n读者收益：新进展（预约成立）+新压力（船主不信任，时间被锁死）(软)\n空间结果：周砚靠在船舷旁，船主回到船舱，手电光又扫向码头尽头的港务巡查方向(软)\n下一场景承接位置：从周砚靠着船舷、要把航海日志取出的动作接续(软)\n节拍：承\n场景类型：对白(硬)\n情感弧光：从戒备到让渡(软)\n信息差：周砚不知道船主是否看穿他话说了一半；读者也不知道(待)\n字数：约400字\n\n【场景5：写航海日志并留接头暗号】\nPOV：周砚(硬)\n时间地点：南码头；预约完成后、离港前，具体时刻未提供(待)；相对锚：周砚坐在船舷边开始写日志(硬)\n场景起点：周砚坐在小渔船前甲板边缘，航海日志摊在膝盖上，笔尖悬在纸面(硬)\n人物位置：周砚坐在船舷旁，背向船舱，水面在他脚下，船主在舱内未出(软)；可见范围只有膝盖上的日志和脚边一小圈水光(软)\n关键物体位置：航海日志在周砚左侧膝盖上，防水袋在右胸，名单仍折好，未露出；船主的手电放在舱口(软)\n目标：把信标规律写进航海日志，并留下一条许知微能识别、外人看不破的接头暗号(硬)\n行动：在第一行写下三次红色闪光的间隔估算→在页角用旧航道缩写写暗号“愿灯塔守望者平安”→合上日志→把日志塞进船舱挡板下，用手压住(硬/软)\n信息来源：笔尖在潮纸上走，墨被海风吹散；远处的海潮声比刚才更大；周砚低头时只能看到自己膝盖和纸面(硬/软)\n阻碍：船主在舱内翻动东西，艇身一晃，周砚写坏一处数字；港务巡查似乎往码头这边走来，光束偶尔扫过周砚脚边；他不能重写，只能将错处划掉，留下涂改痕迹(软)。选择点：他可以选择把暗号单独留给许知微，但删除信标规律，避免日志落入他人手中；选择保留信标规律，放弃只有暗号，代价是日志若被船主或港务看到，足以判断他并非普通观海(软)\n判断变化：原本只打算记下清晨出航时间→想到许知微可能拿不到名单→改为把信标规律和接头暗号都写进日志，并故意用旧航道缩写(软)\n转变：成功留下记录与暗号，但日志上多了一处涂改，船主随时可能先翻开；许知微能否收到未知(硬/软)\n读者收益：伏笔（暗号与涂改痕迹）+未解决风险（日志可能被船主发现）(软)\n空间结果：周砚合上日志，压进船舱挡板下，抬头时船主出现在船舱口，手电向周砚刚压住的日志移来(软)\n下一场景承接位置：从周砚坐在船舷旁、日志刚被压住、船主手电移来的瞬间接续(软)\n节拍：合\n场景类型：动作(硬)\n情感弧光：从隐忍到警觉(软)\n信息差：周砚不知道许知微何时会查看日志，也不知道船主是否已经看到暗号(待)\n字数：约350字\n\n【章末钩子】\n船主从舱口伸出手电，光斑落在周砚刚压住的航海日志上，周砚没说话，只是用膝盖把日志往里顶了一下(硬/软)。\n\n【正文交接】\n章节：灯塔信标\nPOV：周砚（第一人称）\n已完成场景：5个（确认信标；名单与私章；折名单绕行；预约渔船；留暗号）\n未完成场景：无\n来源覆盖状态：章节梗概与章节剧情点已覆盖；上一章未提供；角色列表未提供；风格标签未提供；节奏参数未提供\n角色状态变化：周砚取到旧航道沉船名单并认出许知微私章；名单已折入防水袋；抵达南码头；预约清晨渔船；航海日志已记信标规律和接头暗号；船主对周砚产生未明疑虑\n章末状态：周砚坐在南码头渔船旁，航海日志压入船舱挡板，船主手电移向日志；清晨渔船已预约但未出发；许知微未出现，暗号能否送达未知\n下一章必须使用：周砚膝盖顶住日志的动作；航海日志上的涂改痕迹；防水袋内名单未读；清晨出发时间约束；船主对手电灯光的关注\n\n来源单元总数：1（章节剧情点）；已建场景数：5；未消费编号：无\n\n【风格合同】\n叙事推进：时间序列+悬疑递增(软)\n场景单元模式：观测确认→获取证据→隐藏行进→交易预约→标记收束(软)\n情绪表达：behavior_only(软)\n语言质感：克制、粗糙度中、句长变化高、允许生活噪音(软)\n节奏：中快、段密度中高、慎用碎片流、动作优先(软)\n正向指令：现实落差(软)\n\n请生成本章节正文，目标约2000字（不低于1600字，不超过4000字）。只输出正文本身。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 1,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 30,
+          "schemaRetryCount": 2,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "retainedCandidateIndex": 1,
+        "requestPayloadRef": "payload-009"
+      },
+      "outputPayloadRef": "payload-027",
+      "outputLength": 3162,
+      "outputPreview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势让右腿开始发麻。在第三十一下脉搏的时候，第二道红光填满观测窗，比第一次更短，但更亮。雾散了一点，我看见窗外灰色天幕下那道光柱横扫过去，三秒后收束成针尖大小，然后消失。\n\n我把头压低，贴在潮湿的石壁上。石头隔着外套还透凉意。观测窗的角度限制太窄，从底层看出去只能收到塔灯最下沿的一截。第一下和第二下的间隔，我记下了——大约三十一脉搏，换算过来不足四十秒。第二次和第三次之间的间距偏长，我等了又等，腿已经麻到膝盖，掌心按的左腕也出了一层薄汗。\n\n第四十五脉搏。窗外红了一下，只闪了半截。\n\n不是完整的脉冲——光没走完，像被什么东西截断了。光柱往外铺到一半就散开，剩几缕碎红落进雾里。我继续按脉，等它收回来"
+    }
+  ],
+  "timingLedger": {
+    "apiCallCount": 2,
+    "physicalCallCount": 5,
+    "retryPhysicalCallCount": 3,
+    "physicalDurationSumMs": 1107546,
+    "firstTokenSumMs": 43583,
+    "outputSumMs": 1063963,
+    "localOverheadSumMs": 474,
+    "requestBuildSumMs": 2,
+    "schemaValidateSumMs": 1,
+    "retrySumMs": 0,
+    "postProcessSumMs": 43,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[全书大纲]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    }
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 2,
+    "apiCallCount": 2,
+    "physicalCallCount": 5,
+    "retryCallCount": 3,
+    "schemaRetryCallCount": 2,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 43583,
+    "outputSumMs": 1063963,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[全书大纲]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    },
+    "contextChars": 30224,
+    "outputChars": 7841,
+    "physicalDurationSumMs": 1107546
+  },
+  "endedAt": 1793070871056,
+  "durationMs": 1108194,
+  "error": "正文生成步账本缺失，终步禁止无权威 FACT_LOCK 交付",
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1793069762987-11",
+      "seq": 1,
+      "status": "success",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+        "bytes": 13209,
+        "chars": 4679,
+        "preview": "【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠"
+      },
+      "reasoning": {
+        "ref": "payload-003",
+        "file": "003-reasoning.json",
+        "sha256": "13dad1dc2605260f4941191f8af9a23def81c78fd400a69a6fb49de3e4008f38",
+        "bytes": 45666,
+        "chars": 16026
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1793069763358-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-005",
+            "file": "005-response.json",
+            "sha256": "3b1bca3350a4cfcd488eac2b980e12e2a6d4025d1a7a86f8357201802d2f8d20",
+            "bytes": 16108,
+            "chars": 5624,
+            "preview": "【场景1：确认风暴信标】\nPOV：周砚(硬)\n时间地点：灯塔底层，日落时分，风暴预警后第一小时(硬)\n场景起点：周砚站在灯塔底层入口处，背靠铁门，面向塔内石壁上的信标观测窗(硬)\n人物位置：周砚在观测窗前两步，左手扶着潮湿的石壁，身后铁门虚掩(硬)\n关键物体位置：信标观测窗在周砚头顶一臂高，防水袋在他左胸内袋，灯塔钥匙挂在右腰(硬)\n目标：确认风暴信标的三次红色闪烁规律，为出航判断时间窗口(硬)\n行动：推门进入塔底→摸黑沿石壁走到观测窗下→扶湿冷石壁听塔外风声→数第一次红色闪烁的间隔→默记间隔秒数→等待第二次闪烁确认节奏→在第三轮闪烁时用拇指掐食指关节记下完整周期(硬)\n信息来源：视网膜上残留的红光余像、石壁透过来的信标灯机械转动的低频震颤、指关节皮肤在第三轮闪烁后按压出的凹陷深度(硬)\n阻碍：塔内潮湿石壁让手掌打滑，每次信标亮起前塔身震动让肩膀撞上石壁，必须在下一轮闪烁前靠触觉复位观测位置；港务巡查的靴声从塔外石阶传来，最近时距离铁门不到十米(硬)\n判断变化：以为信标只是常规风暴预警→第一轮闪烁后察觉到间隔比标准风暴信号短三分之一→判断这不是普通的天气预警信标，是人工修改过的信号节奏"
+          },
+          "stream": {
+            "ref": "payload-006",
+            "file": "006-stream.json",
+            "sha256": "3b1bca3350a4cfcd488eac2b980e12e2a6d4025d1a7a86f8357201802d2f8d20",
+            "bytes": 16108,
+            "chars": 5624
+          },
+          "reasoning": {
+            "ref": "payload-007",
+            "file": "007-reasoning.json",
+            "sha256": "df4c32ad41e9e2b572f0b259c398850cc0b24276d6a1538c81e9ce3a681bb985",
+            "bytes": 3962,
+            "chars": 1362
+          }
+        },
+        {
+          "physicalCallId": "physical-1793069891312-0",
+          "seq": 2,
+          "phase": "schema_retry",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+            "bytes": 13209,
+            "chars": 4679,
+            "preview": "【场景1：确认灯塔信标】\nPOV：周砚(硬)\n时间地点：灯塔底层；章节起始，具体时刻未提供(待)；相对锚：首次观测风暴信标前(硬)\n场景起点：周砚站在灯塔底层入口内侧，背靠铁门，面朝塔内信标观测窗方向(软)\n人物位置：周砚在入口内侧，距身后铁门约两步，距观测窗距离待补信息(待)；底层光线仅靠观测窗外的红色闪光和海雾漫进(软)\n关键物体位置：信标观测窗在周砚前方高处，具体高度待补(待)；航海日志和防水袋尚未取出，位置待补(待)\n目标：确认风暴信标三次红色闪光规律，为出航判断时间窗口(硬)\n行动：半蹲使眼睛与观测窗齐平→读秒观测窗外红光→在第一、第二、第三次红色闪光出现时依次默记间隔→第三次只有半截红光，仍把它计入(硬)\n信息来源：眼睛看到窗外红光在石壁和雾里投出三波；耳朵听见海风挤进门缝；右手按在左腕上读脉搏计数(硬/软)\n阻碍：为不惊动港务巡查，不能开灯，只能借窗外红色闪光；观测窗窄，每次闪光间隔被海雾断续遮掩，周砚必须把头压低贴在潮湿石壁上才能看到完整三次(软)。选择点：他可以选择上塔顶从开阔处看，但台阶会发出脚步声，放弃登高，代价是底层观测角度偏窄，第三次红色闪光只能看到半截，需靠"
+          },
+          "stream": {
+            "ref": "payload-008",
+            "file": "008-stream.json",
+            "sha256": "8510c3aa1675eea49fab34dedb9a3bd0bf6ba4b40fa23feb777f689609941a94",
+            "bytes": 13209,
+            "chars": 4679
+          },
+          "reasoning": {
+            "ref": "payload-003",
+            "file": "003-reasoning.json",
+            "sha256": "13dad1dc2605260f4941191f8af9a23def81c78fd400a69a6fb49de3e4008f38",
+            "bytes": 45666,
+            "chars": 16026
+          }
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1793070253330-104",
+      "seq": 2,
+      "status": "degraded",
+      "response": {
+        "ref": "payload-010",
+        "file": "010-response.json",
+        "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+        "bytes": 9214,
+        "chars": 3162,
+        "preview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势让右腿开始发麻。在第三十一下脉搏的时候，第二道红光填满观测窗，比第一次更短，但更亮。雾散了一点，我看见窗外灰色天幕下那道光柱横扫过去，三秒后收束成针尖大小，然后消失。\n\n我把头压低，贴在潮湿的石壁上。石头隔着外套还透凉意。观测窗的角度限制太窄，从底层看出去只能收到塔灯最下沿的一截。第一下和第二下的间隔，我记下了——大约三十一脉搏，换算过来不足四十秒。第二次和第三次之间的间距偏长，我等了又等，腿已经麻到膝盖，掌心按的左腕也出了一层薄汗。\n\n第四十五脉搏。窗外红了一下，只闪了半截。\n\n不是完整的脉冲——光没走完，像被什么东西截断了。光柱往外铺到一半就散开，剩几缕碎红落进雾里。我继续按脉，等它收回来"
+      },
+      "reasoning": {
+        "ref": "payload-011",
+        "file": "011-reasoning.json",
+        "sha256": "789dc800e5e417ee75242825cc594ea26bcaf000c0eb90561161f6fd1d72dd03",
+        "bytes": 1047,
+        "chars": 361
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1793070253356-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-010",
+            "file": "010-response.json",
+            "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+            "bytes": 9214,
+            "chars": 3162,
+            "preview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势让右腿开始发麻。在第三十一下脉搏的时候，第二道红光填满观测窗，比第一次更短，但更亮。雾散了一点，我看见窗外灰色天幕下那道光柱横扫过去，三秒后收束成针尖大小，然后消失。\n\n我把头压低，贴在潮湿的石壁上。石头隔着外套还透凉意。观测窗的角度限制太窄，从底层看出去只能收到塔灯最下沿的一截。第一下和第二下的间隔，我记下了——大约三十一脉搏，换算过来不足四十秒。第二次和第三次之间的间距偏长，我等了又等，腿已经麻到膝盖，掌心按的左腕也出了一层薄汗。\n\n第四十五脉搏。窗外红了一下，只闪了半截。\n\n不是完整的脉冲——光没走完，像被什么东西截断了。光柱往外铺到一半就散开，剩几缕碎红落进雾里。我继续按脉，等它收回来"
+          },
+          "stream": {
+            "ref": "payload-013",
+            "file": "013-stream.json",
+            "sha256": "5e59899e57a3a3b2d8f00ffaee8a7a9f0996e16f8163ad9c1bfd91e60f476ccd",
+            "bytes": 9214,
+            "chars": 3162
+          },
+          "reasoning": {
+            "ref": "payload-014",
+            "file": "014-reasoning.json",
+            "sha256": "4e718f87da6bcf7db605a0ef61ede1e34adc5ce92911dbfa3e7aa9e33aa71705",
+            "bytes": 2413,
+            "chars": 813
+          }
+        },
+        {
+          "physicalCallId": "physical-1793070341389-0",
+          "seq": 2,
+          "phase": "schema_retry",
+          "status": "success",
+          "response": {
+            "ref": "payload-016",
+            "file": "016-response.json",
+            "sha256": "2bb2583b7f4d0841b96e41e94c431e01bd60e1cbf2ec81a4b6f54fb1e3028b9f",
+            "bytes": 6705,
+            "chars": 2315,
+            "preview": "黑暗中，我背靠铁门数自己的脉搏。\n\n手指按在左腕上，皮肤底下一下一下跳得发沉。门外的风声挤进门缝，带进来一股海腥和铁锈混合的气味。我数到六十，没等到红光。\n\n又数六十。\n\n第六十一秒刚跳过去，观测窗的位置亮了一下。不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层照出一圈一圈的暗红。石壁上的水渍亮起来，又灭下去。\n\n我只记间隙，不看颜色。左手继续按脉，右手撑住膝盖，半蹲的姿势保持到眼睛与观测窗齐平。第一次红光在石壁上铺开又收干净，我又开始数。数到三十七，第二下从窗外泻进来，短了一截，边缘模糊，像被谁把尾巴截掉。再数四十一，第三下只有半截，切在雾里，剩下的半截没有来。\n\n我把这组数字在心里过了一遍：六十、三十七、四十一。第三个不完整，只能拿前两个推算。塔顶本来可以看得更清楚，但台阶会响，港务巡查这个点差不多该到塔底了。我没等第四下，起身，背贴塔壁，脸转向入口。名单还不知道在哪。门缝里的风又挤进来，比刚才响。\n\n我蹲下去，手按在膝盖旁的地面上。指尖先碰到一片潮乎乎的纸角，软，从石板缝里露出半截。我把它抽出来，纸面受潮，折成窄条。展开时我放得慢，折痕处几乎要裂开。指尖沿"
+          },
+          "stream": {
+            "ref": "payload-017",
+            "file": "017-stream.json",
+            "sha256": "2bb2583b7f4d0841b96e41e94c431e01bd60e1cbf2ec81a4b6f54fb1e3028b9f",
+            "bytes": 6705,
+            "chars": 2315
+          },
+          "reasoning": {
+            "ref": "payload-018",
+            "file": "018-reasoning.json",
+            "sha256": "716122ff70da94e2fcbe49913c7ee1e07e37c0dac730ab1c3899a9e31190bff3",
+            "bytes": 16959,
+            "chars": 6135
+          }
+        },
+        {
+          "physicalCallId": "physical-1793070775705-0",
+          "seq": 3,
+          "phase": "schema_retry",
+          "status": "success",
+          "response": {
+            "ref": "payload-019",
+            "file": "019-response.json",
+            "sha256": "06d7657f7b866d7e7ffc34a20d763614d5c6205e70c774c0654a23623f8cffc0",
+            "bytes": 8399,
+            "chars": 2917,
+            "preview": "我背靠铁门，先听见自己的呼吸。\n\n门外的风声挤过门缝，带进来一股海腥和铁锈混合的气味。我把右手按在左腕上，皮肤底下的脉搏一下一下跳得发沉。\n\n数到六十。\n\n没等到红光。\n\n又数六十。第六十一秒刚跳过去，观测窗的位置亮了一下——不是白光，是红，浓得像铁水从高处泼下来，穿过窄窗和满室的海雾，把灯塔底层石壁照出一圈一圈的暗红。\n\n我没动。手指仍压在脉搏上，眼睛盯着观测窗的方向。\n\n红光灭了。从亮起到熄灭，我默数到六十。\n\n第二次红光在三十七秒后出现，比第一次短了将近一半。我把额头压低，贴在潮湿的石壁上，海雾从观测窗灌进来，糊在脸上又冷又黏。第二次闪光消失时，石壁上的水渍暗下去，底层重新坠入黑暗。\n\n我继续数。\n\n第三次来得更迟。四十一秒过去，观测窗只亮了一截——红光从窗框左边冒出来，还没走到右侧就断了。我在心里记下这个数，把按住左腕的手松开。\n\n信标还在工作。但第三次数据只能靠前两次间隔去推。\n\n我站起身，膝盖咔嗒响了一声。背后铁门外面没有脚步声，但港务巡查的路线我摸得清——他们每隔四十分钟从西码头绕到灯塔基座，手电扫一遍底层入口。第三次红光断了之后，我已经多逗留了至少两分钟。\n\n我把身体从"
+          },
+          "stream": {
+            "ref": "payload-020",
+            "file": "020-stream.json",
+            "sha256": "06d7657f7b866d7e7ffc34a20d763614d5c6205e70c774c0654a23623f8cffc0",
+            "bytes": 8399,
+            "chars": 2917
+          },
+          "reasoning": {
+            "ref": "payload-011",
+            "file": "011-reasoning.json",
+            "sha256": "789dc800e5e417ee75242825cc594ea26bcaf000c0eb90561161f6fd1d72dd03",
+            "bytes": 1047,
+            "chars": 361
+          }
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

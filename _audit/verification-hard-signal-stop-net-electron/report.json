@@ -1,29 +1,29 @@
 {
   "schema": "shenyi.hard-signal-stop-net.electron",
   "version": 1,
-  "generatedAt": "2026-10-22T09:55:16.802Z",
+  "generatedAt": "2026-10-26T18:55:27.046Z",
   "script": "verify-hard-signal-stop-net-electron.mjs",
   "cases": [
     {
       "case": "clean_body_passes_without_repair",
-      "runId": "run-1792662923812-1",
+      "runId": "run-1793040935607-1",
       "status": "success",
       "scanEvents": 1,
       "requestCount": 1
     },
     {
       "case": "polluted_body_repairs_once_and_rescans_clean",
-      "runId": "run-1792662931665-1",
+      "runId": "run-1793040946973-1",
       "status": "success",
       "scanEvents": 2,
       "requestCount": 2
     },
     {
       "case": "provider_truncation_never_locally_repaired",
-      "runId": "run-1792662939897-1",
+      "runId": "run-1793040956652-1",
       "status": "degraded",
       "scanEvents": 2,
-      "requestCount": 1
+      "requestCount": 2
     }
   ]
 }

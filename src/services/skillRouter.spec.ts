@@ -199,3 +199,75 @@ describe('skillRouter composite mapping', () => {
     }))
   })
 })
+
+describe('skillRouter pipeline no-tool boundary', () => {
+  beforeEach(() => {
+    loadRealSkillMock.mockReset()
+    executeRealSkillMock.mockReset()
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'folder',
+        name: 'folder',
+        description: '',
+        template: '模板',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/folder'
+      } as any,
+      error: null,
+      folderPackageCache: false
+    })
+    executeRealSkillMock.mockResolvedValueOnce({
+      status: 'success',
+      output: '输出',
+      errors: [],
+      diagnostics: [],
+      folderPackageCache: false
+    })
+  })
+
+  it('does not introduce tools or toolPolicy into pipeline folder execution', async () => {
+    await routeSkill(
+      { id: 'folder', format: 'folder', folderPath: 'D:/skills/folder' },
+      {
+        input: '输入',
+        budget: budget(),
+        purpose: 'generate'
+      }
+    )
+
+    expect(executeRealSkillMock).toHaveBeenCalledTimes(1)
+    const executeOptions = executeRealSkillMock.mock.calls[0][0] as unknown as Record<string, unknown>
+    expect(Object.hasOwn(executeOptions, 'tools')).toBe(false)
+    expect(Object.hasOwn(executeOptions, 'toolPolicy')).toBe(false)
+    expect(Object.hasOwn(executeOptions, 'toolSurface')).toBe(false)
+  })
+
+  it('still forwards explicit tool surfaces for dialogue and outline paths', async () => {
+    const tools = [{
+      name: 'outline.read_range',
+      description: '读取大纲范围',
+      policy: 'readonly',
+      inputSchema: { type: 'object' },
+      execute: vi.fn()
+    } as any]
+    const toolPolicy = { intent: 'edit', maxToolIterations: 8 } as any
+
+    await routeSkill(
+      { id: 'folder', format: 'folder', folderPath: 'D:/skills/folder' },
+      {
+        input: '输入',
+        budget: budget(),
+        tools,
+        toolPolicy
+      }
+    )
+
+    expect(executeRealSkillMock).toHaveBeenCalledWith(expect.objectContaining({
+      tools,
+      toolPolicy
+    }))
+  })
+})

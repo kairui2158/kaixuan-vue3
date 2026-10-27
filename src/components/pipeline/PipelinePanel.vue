@@ -787,7 +787,8 @@ import { createTrackingTransaction, type TrackingTransaction } from "../../servi
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { conversationContextService } from "../../services/conversationContextService"
 import { retrieveContext } from "../../services/memoryRetriever"
-import { classifyRunOutcome, type RunOutcomeStatus } from "../../services/generationValidity"
+import { classifyGenerationValidity, classifyRunOutcome, type RunOutcomeStatus } from "../../services/generationValidity"
+import { mergeContinuationText } from "../../services/continuation"
 import { extractJsonArray, extractJsonObject } from "../../services/jsonExtraction"
 import type { RunTraceStatus } from "../../stores/runTrace"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
@@ -1486,9 +1487,12 @@ function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
   if (!run) {
     return { status: 'success' as RunTraceStatus, recoveredFromDegraded: false, degradedApiCalls: 0 }
   }
+  const pipelineRun = pipelineStore.getRun(pipelineStore.getPipelineRunIdForTrace(runId) || '')
   return resolvePipelineRunOutcome({
     apiCalls: run.apiCalls,
-    pipelineRunStatus: pipelineStore.getRun(pipelineStore.getPipelineRunIdForTrace(runId) || '')?.status ?? undefined,
+    pipelineRunStatus: pipelineRun?.status ?? undefined,
+    runStatus: run.status,
+    runError: pipelineRun?.error,
     folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
     finalArtifactAccepted,
     hardSignalUnresolved: hardSignalUnresolvedRuns.has(runId)
@@ -1523,9 +1527,15 @@ function latestBodyFinishReason(traceRunId: string): string | undefined {
     if (
       call.step === 4 &&
       (call.status === 'success' || call.status === 'degraded') &&
-      call.finishReason
+      (call.finishReason || (call.physicalCalls || []).some(physical =>
+        physical.status === 'success' && physical.finishReason === 'length'))
     ) {
-      return call.finishReason
+      const physicals = [...(call.physicalCalls || [])].reverse()
+      const unresolvedLength = physicals.find(physical =>
+        physical.status === 'success' && physical.finishReason === 'length' &&
+        physical.phase !== 'normal'
+      )
+      return unresolvedLength?.finishReason || call.finishReason
     }
   }
   return undefined
@@ -3327,10 +3337,10 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     requestMessages,
     deaiPromptVariant: deaiPrompt ? deaiVariant : undefined
   }) : ""
-  try {
-      const result = await aiService.callAi({
+  const requestAi = (requestMessages: Array<{ role: string; content: string }>) =>
+    aiService.callAi({
     purpose: 'generate',
-    messages,
+    messages: requestMessages,
     model,
     temperature,
     maxTokens,
@@ -3379,24 +3389,95 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     retry: true,
     meta: { source: 'PipelinePanel.callApiWithAgent', step, agentId: agentId || undefined, skillId: skillId || undefined }
     })
+  const makeContinuationMessages = (output: string): Array<{ role: string; content: string }> => {
+    const tail = output.length > 1200 ? output.slice(-1200) : output
+    return [
+      ...requestMessages.filter(message => message.role !== 'user'),
+      {
+        role: 'user',
+        content: `以下是未完成输出的最后部分，请从中断处自然续写，不要重复已有内容，也不要重新输出开头：\n${tail}`
+      }
+    ]
+  }
+  try {
+    let result = await requestAi(requestMessages)
+    let effectiveResult = result
+    const validity = classifyGenerationValidity({
+      text: result.text,
+      reasoning: result.reasoning,
+      finishReason: result.finishReason,
+      usage: result.usage,
+      maxTokens: result.maxTokens ?? maxTokens
+    })
+    if (validity.kind === 'truncated') {
+      if (runId && apiCallId) {
+        runTraceStore.addEvent(runId, {
+          type: 'generation-truncated',
+          level: 'warn',
+          label: '供应商截断，发起一次受控续写',
+          detail: JSON.stringify({
+            finishReason: result.finishReason || null,
+            maxTokens: result.maxTokens ?? maxTokens,
+            textLength: (result.text || '').length
+          })
+        })
+      }
+      appendStepLogForRun(pipelineRunIdParam, step, '供应商截断：已发起一次受控续写，不做本地修复')
+      const continuation = await requestAi(makeContinuationMessages(result.text || ''))
+      const continuationValidity = classifyGenerationValidity({
+        text: continuation.text,
+        reasoning: continuation.reasoning,
+        finishReason: continuation.finishReason,
+        usage: continuation.usage,
+        maxTokens: continuation.maxTokens ?? maxTokens
+      })
+      const mergedText = continuationValidity.usable
+        ? mergeContinuationText(result.text || '', continuation.text || '')
+        : result.text || ''
+      effectiveResult = {
+        ...result,
+        text: mergedText,
+        reasoning: continuation.reasoning || result.reasoning,
+        usage: continuation.usage || result.usage,
+        // A completed continuation can clear truncation; a second length
+        // result must stay visible to the terminal hard-signal gate.
+        finishReason: continuationValidity.usable && continuationValidity.kind === 'usable'
+          ? continuation.finishReason
+          : result.finishReason
+      }
+      if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
+        if (runId) {
+          runTraceStore.addEvent(runId, {
+            type: 'generation-truncated-after-continuation',
+            level: 'warn',
+            label: '续写后输出仍不完整，保留供应商截断信号',
+            detail: JSON.stringify({
+              finishReason: effectiveResult.finishReason || null,
+              continuationTextLength: (continuation.text || '').length
+            })
+          })
+        }
+      }
+    }
+    const finalTraceResult = effectiveResult
     if (runId && apiCallId) {
       flushPipelineStreamState(step, runId)
-      const traceStatus = traceStatusFromAiResult(result, result.maxTokens ?? maxTokens)
+      const traceStatus = traceStatusFromAiResult(finalTraceResult, finalTraceResult.maxTokens ?? maxTokens)
       runTraceStore.finishApiCall(runId, apiCallId, {
         status: traceStatus.status,
-        responseText: result.text || "",
-        reasoningText: result.reasoning || "",
-        finishReason: result.finishReason,
-        usage: result.usage,
-        durationMs: result.durationMs,
+        responseText: finalTraceResult.text || "",
+        reasoningText: finalTraceResult.reasoning || "",
+        finishReason: finalTraceResult.finishReason,
+        usage: finalTraceResult.usage,
+        durationMs: finalTraceResult.durationMs,
         error: traceStatus.error,
-        maxTokens: result.maxTokens
+        maxTokens: finalTraceResult.maxTokens
       })
       if (traceStatus.status === 'failed') {
         throw new Error(traceStatus.error || '模型没有返回正文')
       }
     }
-    return result.text || ""
+    return finalTraceResult.text || ""
   } catch (e) {
     if (runId && apiCallId) {
       flushPipelineStreamState(step, runId)
@@ -4489,8 +4570,8 @@ async function genSettings() {
   const settingsRunId = startTrackedGeneration('settings', 'all', { configSnapshot: await readStepConfigSnapshotForRun() })
   if (!(await waitForRunnableGeneration(settingsRunId))) return
   const trace = startStepTrace(1, "设定层", "settings", settingsRunId)
-  pipelineStore.rememberTraceRunOwnership(trace.runId, settingsRunId)
   trace.begin()
+  pipelineStore.rememberTraceRunOwnership(trace.runId, settingsRunId)
   perRunUi(settingsRunId)!.skillSteps = []
   resetPipelineStreamState(1, trace.runId)
   perRunUi(settingsRunId)!.logs = ["已读取大纲锁定状态，准备构造设定生成请求"]
@@ -4575,8 +4656,8 @@ async function genSettings() {
     perRunUi(settingsRunId)!.logs.push("API 调用失败：" + (e.message || "未知错误"))
     pipelineStore.failGeneration(e.message, settingsRunId)
   } finally {
-    const traceStatus = traceStatusFromRun(trace.runId!)
-    trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'settings_generation_complete' : 'generation_failed')
+    const outcome = traceOutcomeFromRun(trace.runId!)
+    trace.finish(outcome.status, outcome.error, outcome.status === 'success' ? 'settings_generation_complete' : 'generation_failed')
   }
 }
 
@@ -4607,10 +4688,10 @@ async function genVolumes(mode: string) {
   const volumesRunId = startTrackedGeneration('volumes', volumesTarget, { configSnapshot: await readStepConfigSnapshotForRun() })
   if (!(await waitForRunnableGeneration(volumesRunId))) return
   const trace = startStepTrace(2, "卷纲层", mode, volumesRunId)
+  trace.begin()
   pipelineStore.rememberTraceRunOwnership(trace.runId, volumesRunId)
   appendStepLogForRun(volumesRunId, 2, initialVolumeLog)
   resetPipelineStreamState(2, trace.runId)
-  trace.begin()
   pipelineStore.updateProgress(10, "AI生成卷纲中", volumesRunId)
   let volumeArtifactDelivered = false
   try {
@@ -4814,7 +4895,7 @@ async function genVolumes(mode: string) {
       })
     }
     const successReason = mode === 'single' ? 'single_volume_generation_complete' : mode === 'continue' ? 'next_volume_generation_complete' : 'all_volumes_generation_complete'
-    trace.finish(outcome.status, undefined, outcome.status === 'success' ? successReason : 'generation_failed')
+    trace.finish(outcome.status, outcome.error, outcome.status === 'success' ? successReason : 'generation_failed')
   }
 }
 
@@ -4840,10 +4921,10 @@ async function genChapters(mode: ChapterGenerationMode) {
   const chaptersRunId = startTrackedGeneration('chapters', String(volId || vol.name || ''), { configSnapshot: await readStepConfigSnapshotForRun() })
   if (!(await waitForRunnableGeneration(chaptersRunId))) return
   const trace = startStepTrace(3, "章节层", "chapters", chaptersRunId)
+  trace.begin()
   pipelineStore.rememberTraceRunOwnership(trace.runId, chaptersRunId)
   perRunUi(chaptersRunId)!.skillSteps = []
   perRunUi(chaptersRunId)!.generationVolume = vol
-  trace.begin()
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const chapterCountContract = resolveChapterCountContract({
     volumeName: String(vol.name || '未命名卷'),
@@ -5097,7 +5178,7 @@ async function genChapters(mode: ChapterGenerationMode) {
     const successReason = effectiveStopReason === 'batch_complete'
       ? 'chapters_batch_complete'
       : 'chapters_generation_complete'
-    trace.finish(traceStatus, undefined, traceStatus === 'success'
+    trace.finish(traceStatus, traceOutcomeFromRun(trace.runId!).error, traceStatus === 'success'
       ? successReason
       : 'generation_failed')
   }
@@ -5124,8 +5205,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   const bodyRunId = startTrackedGeneration('body', generationTargetSnapshot.chapterId, { configSnapshot: await readStepConfigSnapshotForRun() })
   if (!(await waitForRunnableGeneration(bodyRunId))) return
   const trace = startStepTrace(4, "正文层", "body", bodyRunId)
-  pipelineStore.rememberTraceRunOwnership(trace.runId, bodyRunId)
   trace.begin()
+  pipelineStore.rememberTraceRunOwnership(trace.runId, bodyRunId)
   pipelineStore.updateProgress(10, "AI生成正文中", bodyRunId)
   resetPipelineStreamState(4, trace.runId)
   perRunUi(bodyRunId)!.skillSteps = []
@@ -5746,7 +5827,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         })
       })
     }
-    trace.finish(outcome.status, undefined, outcome.status === 'success' ? 'body_generation_complete' : 'generation_failed')
+    const bodyTraceError = outcome.status === 'success'
+      ? undefined
+      : outcome.error
+    trace.finish(outcome.status, bodyTraceError, outcome.status === 'success' ? 'body_generation_complete' : 'generation_failed')
   }
 }
 

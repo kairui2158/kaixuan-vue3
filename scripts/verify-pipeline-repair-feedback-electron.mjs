@@ -4,6 +4,7 @@ import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
 import { createRequire } from 'node:module'
+import { bodyWaitTimeoutMs } from '../src/services/repairFeedbackWait.js'
 
 const require = createRequire(import.meta.url)
 
@@ -24,8 +25,13 @@ const PROJECT_ID = 'pipeline-repair-feedback-live'
 const MODEL = process.env.SHENYI_LIVE_MODEL || 'deepseek-v4-pro'
 const BASE_URL = process.env.SHENYI_LIVE_BASE_URL || 'https://openapi.cloud-ai.cn/v1'
 const CREDENTIAL_PROFILE = path.join(ROOT, '_data', 'outline-lock-override-live-replay-profile')
-const STEP_TIMEOUT_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_STEP_TIMEOUT_MS || 30 * 60_000)
-const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_GLOBAL_TIMEOUT_MS || 3 * 60 * 60_000)
+const EXPLICIT_STEP_TIMEOUT_MS = process.env.SHENYI_REPAIR_FEEDBACK_STEP_TIMEOUT_MS
+  ? Number(process.env.SHENYI_REPAIR_FEEDBACK_STEP_TIMEOUT_MS)
+  : undefined
+const BASE_STEP_TIMEOUT_MS = 30 * 60_000
+const PER_PHYSICAL_CALL_BUDGET_MS = 6 * 60_000
+const MAX_STEP_TIMEOUT_MS = 90 * 60_000
+const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_GLOBAL_TIMEOUT_MS || 6 * 60 * 60_000)
 const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_HEARTBEAT_INTERVAL_MS || 10_000)
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_STALLED_TIMEOUT_MS || 3 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_REPAIR_FEEDBACK_DEAD_TIMEOUT_MS || 10 * 60_000)
@@ -494,12 +500,25 @@ function currentRunSnapshot(page) {
     const run = [...(store?.runs || [])]
       .filter(item => item.source === 'pipeline' && item.step === 4)
       .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const apiCalls = run?.apiCalls || []
+    const latestPhysical = apiCalls
+      .flatMap(call => (call?.physicalCalls || []).map(physical => ({ call, physical })))
+      .at(-1)
     return {
       runId: run?.id || null,
       runStatus: run?.status || null,
       events: (run?.events || []).length,
+      totalEvents: run?.eventLedger?.totalEvents ?? (run?.events || []).length,
+      droppedInfoEvents: run?.eventLedger?.droppedInfoEvents ?? 0,
       apiCalls: (run?.apiCalls || []).length,
-      runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
+      physicalCalls: apiCalls.reduce((total, call) => total + (call?.physicalCalls || []).length, 0),
+      runningApiCalls: apiCalls.filter(call => call.status === 'running').length,
+      latestPhysicalStatus: latestPhysical?.physical?.status || null,
+      latestStreamChars: latestPhysical?.physical?.streamText?.length ?? 0,
+      latestReasoningChars: latestPhysical?.physical?.reasoningText?.length ?? 0,
+      latestPhysicalEndedAt: latestPhysical?.physical?.endedAt ?? 0,
+      lastStreamActivityAt: Math.max(0, ...apiCalls.map(call => call?.lastStreamActivityAt || 0)),
+      lastExecutionActivityAt: Math.max(0, ...apiCalls.map(call => call?.lastExecutionActivityAt || 0)),
       lastEventType: (run?.events || []).at(-1)?.type || null,
       progress: pipeline?.activeBodyRun?.progress ?? null,
       status: pipeline?.activeBodyRun?.statusText || null,
@@ -537,9 +556,25 @@ async function waitForBodyCompletion(page) {
   let lastSignature = null
   let lastProgressAt = Date.now()
   let lastSnapshot = null
-  const deadline = Date.now() + STEP_TIMEOUT_MS
+  const startedAt = Date.now()
+  let observedPhysicalCalls = 0
+  let deadline = startedAt + bodyWaitTimeoutMs({
+    baseTimeoutMs: BASE_STEP_TIMEOUT_MS,
+    observedPhysicalCalls,
+    perPhysicalCallBudgetMs: PER_PHYSICAL_CALL_BUDGET_MS,
+    maxTimeoutMs: MAX_STEP_TIMEOUT_MS,
+    explicitTimeoutMs: EXPLICIT_STEP_TIMEOUT_MS,
+  })
   while (Date.now() < deadline) {
     const snapshot = await currentRunSnapshot(page)
+    observedPhysicalCalls = Math.max(observedPhysicalCalls, snapshot.physicalCalls)
+    deadline = startedAt + bodyWaitTimeoutMs({
+      baseTimeoutMs: BASE_STEP_TIMEOUT_MS,
+      observedPhysicalCalls,
+      perPhysicalCallBudgetMs: PER_PHYSICAL_CALL_BUDGET_MS,
+      maxTimeoutMs: MAX_STEP_TIMEOUT_MS,
+      explicitTimeoutMs: EXPLICIT_STEP_TIMEOUT_MS,
+    })
     const signature = JSON.stringify(snapshot)
     if (signature !== lastSignature) {
       lastSignature = signature
@@ -563,7 +598,7 @@ async function waitForBodyCompletion(page) {
     }
     return snapshot
   }
-  throw new Error(`body generation did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+  throw new Error(`body generation did not finish within ${deadline - startedAt}ms after ${observedPhysicalCalls} physical calls: ${JSON.stringify(lastSnapshot)}`)
 }
 
 async function exportLatestRun(page) {

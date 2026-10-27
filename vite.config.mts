@@ -41,7 +41,6 @@ export default defineConfig(({ mode }) => {
     plugins: mode === 'test' ? [vue()] : [vue(), buildManifestPlugin(manifest)],
     base: './',
     define: {
-      __SHENYI_BODY_ABSENT_TIMEOUT_MS__: JSON.stringify(mode === 'test' ? '' : process.env.SHENYI_BODY_ABSENT_TIMEOUT_MS ?? ''),
       __SHENYI_BUILD_MANIFEST__: JSON.stringify(buildManifest),
     },
     resolve: {

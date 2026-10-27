@@ -1,86 +1,300 @@
 {
-  "volumeId": "vol-parallelism",
-  "chapterId": "ch-parallelism-1",
-  "calls": [
+  "proxyRequests": [
     {
-      "traceRunId": "run-1792778150983-1",
-      "pipelineRunId": "pipeline-run-1792778150982-1",
-      "layer": "volumes",
-      "status": "success",
-      "startedAt": 1792778151036,
-      "endedAt": 1792778200670,
-      "durationMs": 49635,
-      "error": null
+      "at": "2026-10-26T16:53:21.965Z",
+      "kind": "volumes",
+      "model": "deepseek-v4-pro",
+      "messageChars": 732,
+      "status": 200,
+      "durationMs": 43176.5808
     },
     {
-      "traceRunId": "run-1792778151195-14",
-      "pipelineRunId": "pipeline-run-1792778151195-2",
-      "layer": "chapters",
-      "status": "canceled",
-      "startedAt": 1792778151212,
-      "endedAt": 1792778151414,
-      "durationMs": 202,
-      "error": "用户取消"
+      "at": "2026-10-26T16:53:25.744Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2838,
+      "status": 200,
+      "durationMs": 76417.1057
     },
     {
-      "traceRunId": "run-1792778151299-28",
-      "pipelineRunId": "pipeline-run-1792778151299-3",
-      "layer": "body",
-      "status": "success",
-      "startedAt": 1792778151624,
-      "endedAt": 1792778205707,
-      "durationMs": 54084,
-      "error": null
+      "at": "2026-10-26T16:54:42.209Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2287,
+      "status": 200,
+      "durationMs": 132037.48979999998
     },
     {
-      "traceRunId": "run-1792778151299-28",
-      "pipelineRunId": "pipeline-run-1792778151299-3",
-      "layer": "body",
-      "status": "success",
-      "startedAt": 1792778205740,
-      "endedAt": 1792778425260,
-      "durationMs": 219519,
-      "error": null
+      "at": "2026-10-26T16:56:54.317Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 4900,
+      "status": 200,
+      "durationMs": 113769.38639999999
     },
     {
-      "traceRunId": "run-1792778151299-28",
-      "pipelineRunId": "pipeline-run-1792778151299-3",
-      "layer": "body",
-      "status": "success",
-      "startedAt": 1792778425362,
-      "endedAt": 1792778630090,
-      "durationMs": 204728,
-      "error": null
+      "at": "2026-10-26T16:58:48.877Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2763,
+      "status": 200,
+      "durationMs": 59036.691500000015
     },
     {
-      "traceRunId": "run-1792778631898-270",
-      "pipelineRunId": "pipeline-run-1792778631897-4",
-      "layer": "body",
-      "status": "success",
-      "startedAt": 1792778632025,
-      "endedAt": 1792778692882,
-      "durationMs": 60857,
-      "error": null
+      "at": "2026-10-26T16:59:47.952Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2179,
+      "status": 200,
+      "durationMs": 165535.65269999998
     },
     {
-      "traceRunId": "run-1792778631898-270",
-      "pipelineRunId": "pipeline-run-1792778631897-4",
-      "layer": "body",
-      "status": "success",
-      "startedAt": 1792778692926,
-      "endedAt": 1792778819716,
-      "durationMs": 126790,
-      "error": null
+      "at": "2026-10-26T17:02:33.543Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 5212,
+      "status": 200,
+      "durationMs": 88655.21279999998
     },
     {
-      "traceRunId": "run-1792778631898-270",
-      "pipelineRunId": "pipeline-run-1792778631897-4",
-      "layer": "body",
-      "status": "success",
-      "startedAt": 1792778819757,
-      "endedAt": 1792778928998,
-      "durationMs": 109241,
-      "error": null
+      "at": "2026-10-26T17:04:03.494Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2763,
+      "status": 200,
+      "durationMs": 105469.67489999998
+    },
+    {
+      "at": "2026-10-26T17:05:49.004Z",
+      "kind": "body",
+      "failed": true,
+      "failure": "terminal_auth_error",
+      "status": 401,
+      "messageChars": 2432
+    },
+    {
+      "at": "2026-10-26T17:05:49.545Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2432,
+      "status": 200,
+      "durationMs": 232210.3112
+    },
+    {
+      "at": "2026-10-26T17:09:41.823Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 5882,
+      "status": 200,
+      "durationMs": 126613.8028999999
+    },
+    {
+      "at": "2026-10-26T17:11:49.246Z",
+      "kind": "body",
+      "failed": true,
+      "failure": "terminal_auth_error",
+      "status": 401,
+      "messageChars": 2763
+    },
+    {
+      "at": "2026-10-26T17:11:49.904Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2763,
+      "status": 200,
+      "durationMs": 86390.36889999988
+    },
+    {
+      "at": "2026-10-26T17:13:16.331Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 2347,
+      "status": 200,
+      "durationMs": 336959.4857000001
+    },
+    {
+      "at": "2026-10-26T17:18:53.329Z",
+      "kind": "body",
+      "model": "deepseek-v4-pro",
+      "messageChars": 7223,
+      "status": 200,
+      "durationMs": 168896.36309999996
     }
-  ]
+  ],
+  "applicationCalls": {
+    "volumeId": "vol-parallelism",
+    "chapterId": "ch-parallelism-1",
+    "calls": [
+      {
+        "traceRunId": "run-1793033601857-1",
+        "pipelineRunId": "pipeline-run-1793033601840-1",
+        "layer": "volumes",
+        "status": "success",
+        "startedAt": 1793033601923,
+        "endedAt": 1793033645148,
+        "durationMs": 43224,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793033602065-14",
+        "pipelineRunId": "pipeline-run-1793033602057-2",
+        "layer": "chapters",
+        "status": "canceled",
+        "startedAt": 1793033602096,
+        "endedAt": 1793033602349,
+        "durationMs": 254,
+        "error": "用户取消"
+      },
+      {
+        "traceRunId": "run-1793033602213-28",
+        "pipelineRunId": "pipeline-run-1793033602205-3",
+        "layer": "body",
+        "status": "canceled",
+        "startedAt": 1793033602686,
+        "endedAt": 1793033605677,
+        "durationMs": 2991,
+        "error": "用户取消"
+      },
+      {
+        "traceRunId": "run-1793033605662-55",
+        "pipelineRunId": "pipeline-run-1793033602566-4",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793033605732,
+        "endedAt": 1793033682165,
+        "durationMs": 76433,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793033605662-55",
+        "pipelineRunId": "pipeline-run-1793033602566-4",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793033682195,
+        "endedAt": 1793033814252,
+        "durationMs": 132057,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793033605662-55",
+        "pipelineRunId": "pipeline-run-1793033602566-4",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793033814291,
+        "endedAt": 1793033928093,
+        "durationMs": 113802,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793033928786-189",
+        "pipelineRunId": "pipeline-run-1793033928776-5",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793033928863,
+        "endedAt": 1793033987919,
+        "durationMs": 59056,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793033928786-189",
+        "pipelineRunId": "pipeline-run-1793033928776-5",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793033987940,
+        "endedAt": 1793034153492,
+        "durationMs": 165552,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793033928786-189",
+        "pipelineRunId": "pipeline-run-1793033928776-5",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793034153520,
+        "endedAt": 1793034242202,
+        "durationMs": 88682,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793034243408-301",
+        "pipelineRunId": "pipeline-run-1793034243396-6",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793034243476,
+        "endedAt": 1793034348967,
+        "durationMs": 105491,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793034243408-301",
+        "pipelineRunId": "pipeline-run-1793034243396-6",
+        "layer": "body",
+        "status": "failed",
+        "startedAt": 1793034348993,
+        "endedAt": 1793034349012,
+        "durationMs": 19,
+        "error": "injected S2 terminal auth failure"
+      },
+      {
+        "traceRunId": "run-1793034349495-362",
+        "pipelineRunId": "pipeline-run-1793034349487-7",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793034349541,
+        "endedAt": 1793034581762,
+        "durationMs": 232222,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793034349495-362",
+        "pipelineRunId": "pipeline-run-1793034349487-7",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793034581808,
+        "endedAt": 1793034708441,
+        "durationMs": 126633,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793034709180-463",
+        "pipelineRunId": "pipeline-run-1793034709170-8",
+        "layer": "body",
+        "status": "failed",
+        "startedAt": 1793034709231,
+        "endedAt": 1793034709262,
+        "durationMs": 31,
+        "error": "injected terminal provider failure"
+      },
+      {
+        "traceRunId": "run-1793034709837-490",
+        "pipelineRunId": "pipeline-run-1793034709831-9",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793034709900,
+        "endedAt": 1793034796298,
+        "durationMs": 86398,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793034709837-490",
+        "pipelineRunId": "pipeline-run-1793034709831-9",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793034796319,
+        "endedAt": 1793035133294,
+        "durationMs": 336975,
+        "error": null
+      },
+      {
+        "traceRunId": "run-1793034709837-490",
+        "pipelineRunId": "pipeline-run-1793034709831-9",
+        "layer": "body",
+        "status": "success",
+        "startedAt": 1793035133321,
+        "endedAt": 1793035302229,
+        "durationMs": 168908,
+        "error": null
+      }
+    ]
+  }
 }

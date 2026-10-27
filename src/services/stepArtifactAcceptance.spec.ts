@@ -146,6 +146,36 @@ describe('acceptStepArtifact', () => {
     expect(result.errors).toEqual(['降级原因'])
   })
 
+  it('rejects a degraded contract candidate that passes word count but carries no ledger', () => {
+    const result = acceptStepArtifact({
+      rawOutput: '正文'.repeat(2800),
+      contract,
+      callerStatus: 'degraded',
+      degradedErrors: ['folder SKILL 降级完成']
+    })
+
+    expect(result.decision).toBe('reject')
+    expect(result.reason).toBe('contract_failed')
+    expect(result.downstreamPayload).toBeNull()
+    expect(result.metadata).toEqual({})
+    expect(result.errors).toEqual([
+      'folder SKILL 降级完成',
+      '降级候选缺少【正文交接】账本，禁止无权威元数据流转'
+    ])
+  })
+
+  it('keeps a successful contract output without legacy metadata acceptable', () => {
+    const result = acceptStepArtifact({
+      rawOutput: JSON.stringify({ body: '正文'.repeat(2800), metadata: {} }),
+      contract,
+      callerStatus: 'success'
+    })
+
+    expect(result.decision).toBe('accept')
+    expect(result.reason).toBe('contract_valid')
+    expect(result.downstreamPayload).toBe('正文'.repeat(2800))
+  })
+
   it('never invents a passing contract for malformed raw output', () => {
     const malformed: StepArtifactAcceptanceInput = {
       rawOutput: '【正文交接】\n只有元数据\n【正文交接结束】',

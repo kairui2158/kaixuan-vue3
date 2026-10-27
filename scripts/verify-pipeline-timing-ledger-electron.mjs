@@ -331,6 +331,8 @@ function currentRunSnapshot(page) {
       apiCalls: (run?.apiCalls || []).length,
       runningApiCalls: (run?.apiCalls || []).filter(call => call.status === 'running').length,
       failedApiCalls: (run?.apiCalls || []).filter(call => call.status === 'failed').length,
+      lastExecutionActivityAt: Math.max(0, ...(run?.apiCalls || [])
+        .map(call => Number(call?.lastExecutionActivityAt) || 0)),
       lastEventType: (run?.events || []).at(-1)?.type || null,
       progress: pipeline?.activeVolumesRun?.progress ?? null,
       status: pipeline?.activeVolumesRun?.statusText || null,
@@ -366,21 +368,35 @@ function startHeartbeat(page, electronPid) {
 
 async function waitForVolumeCompletion(page) {
   let lastSignature = null
-  let lastProgressAt = Date.now()
+  let lastActivityAt = 0
+  let lastProgressLoggedAt = 0
   let lastSnapshot = null
   const deadline = Date.now() + WALL_BUDGET_MS
   while (Date.now() < deadline) {
     const snapshot = await currentRunSnapshot(page)
     const signature = JSON.stringify(snapshot)
+    const activityAt = Number(snapshot.lastExecutionActivityAt) || 0
+    const hasActivity = activityAt > 0
+      && activityAt > lastActivityAt
+    if (activityAt > lastActivityAt) {
+      lastActivityAt = activityAt
+    }
     if (signature !== lastSignature) {
+      if (Date.now() - lastProgressLoggedAt >= 5_000) {
+        lastProgressLoggedAt = Date.now()
+        console.log(`[VOLUME RUN] ${JSON.stringify(snapshot)}`)
+      }
       lastSignature = signature
-      lastProgressAt = Date.now()
       lastSnapshot = snapshot
-      console.log(`[VOLUME RUN] ${JSON.stringify(snapshot)}`)
-    } else if (Date.now() - lastProgressAt >= DEAD_TIMEOUT_MS) {
-      throw new Error(`volume generation has no progress for ${DEAD_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
-    } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
-      console.warn(`[STALL WARNING] volume run unchanged for ${Date.now() - lastProgressAt}ms`)
+    }
+    if (hasActivity) {
+      continue
+    }
+    if (Date.now() - lastActivityAt >= DEAD_TIMEOUT_MS && lastActivityAt > 0) {
+      throw new Error(`volume generation has no execution activity for ${DEAD_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+    }
+    if (Date.now() - lastActivityAt >= STALLED_TIMEOUT_MS && lastActivityAt > 0) {
+      console.warn(`[STALL WARNING] volume run has no execution activity for ${Date.now() - lastActivityAt}ms`)
     }
     const stillWorking = snapshot.isGenerating
       || snapshot.status === 'generating'

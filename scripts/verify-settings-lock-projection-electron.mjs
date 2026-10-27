@@ -14,6 +14,7 @@ const CDP_PORT = Number(process.env.SHENYI_SETTINGS_LOCK_CDP_PORT || 9391)
 const PROFILE = path.join(ROOT, '_data', 'settings-lock-projection-profile')
 const DATA_DIR = path.join(PROFILE, 'documents-data')
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-settings-lock-projection-electron')
+const EVIDENCE_ARCHIVE_ROOT = path.join(ROOT, '_audit', 'verification-settings-lock-projection-electron-archive')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const HEARTBEAT_PATH = path.join(EVIDENCE_ROOT, 'heartbeat.jsonl')
 const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_SETTINGS_LOCK_GLOBAL_TIMEOUT_MS || 10 * 60_000)
@@ -21,6 +22,7 @@ const STEP_TIMEOUT_MS = Number(process.env.SHENYI_SETTINGS_LOCK_STEP_TIMEOUT_MS 
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_SETTINGS_LOCK_STALLED_TIMEOUT_MS || 20_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_SETTINGS_LOCK_DEAD_TIMEOUT_MS || 45_000)
 const KEEP_PROFILE = process.env.SHENYI_SETTINGS_LOCK_KEEP_PROFILE === '1'
+const archiveIssues = []
 
 const PROJECT_ID = 'settings-lock-projection'
 const VOLUME_ID = 'vol-settings-lock'
@@ -166,6 +168,16 @@ function assertFreshRendererBuild() {
   assert(bundleText.includes(JSON.stringify(diskManifest)),
     'renderer bundle contains the same build manifest injected at runtime')
   return diskManifest
+}
+
+function archivePreviousEvidence() {
+  if (!fs.existsSync(EVIDENCE_ROOT)) return null
+  fs.mkdirSync(EVIDENCE_ARCHIVE_ROOT, { recursive: true })
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const target = path.join(EVIDENCE_ARCHIVE_ROOT, timestamp)
+  fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
+  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  return target
 }
 
 function startProvider() {
@@ -561,13 +573,139 @@ function requestText(request) {
   return (request.messages || []).map(messageText).join('\n')
 }
 
-function latestRun(page, source, stepName) {
-  return page.evaluate(({ source, stepName }) => {
+function latestRun(page, source, stepName, startedAfter) {
+  return page.evaluate(({ source, stepName, startedAfter }) => {
     const trace = window.__pinia?._s?.get('runTrace')
     return [...(trace?.runs || [])]
-      .filter(item => item.source === source && (!stepName || item.stepName === stepName))
+      .filter(item => item.source === source
+        && (!stepName || item.stepName === stepName)
+        && (!startedAfter || item.startedAt >= startedAfter))
       .sort((a, b) => b.startedAt - a.startedAt)[0] || null
-  }, { source, stepName })
+  }, { source, stepName, startedAfter })
+}
+
+function terminalRunStatus(status) {
+  return ['success', 'success_with_warnings', 'failed', 'canceled', 'blocked'].includes(status)
+}
+
+async function waitForPipelineRunClosed(page, label, stepName, startedAfter) {
+  let lastSignature = null
+  let lastProgressAt = Date.now()
+  let lastSnapshot = null
+  const deadline = Date.now() + STEP_TIMEOUT_MS
+  while (Date.now() < deadline) {
+    const state = await page.evaluate(({ stepName, startedAfter }) => {
+      const pipeline = window.__pinia?._s?.get('pipeline')
+      const trace = window.__pinia?._s?.get('runTrace')
+      const run = [...(trace?.runs || [])]
+        .filter(item => item.source === 'pipeline'
+          && (!stepName || item.stepName === stepName)
+          && (!startedAfter || item.startedAt >= startedAfter))
+        .sort((a, b) => b.startedAt - a.startedAt)[0] || null
+      const callClosed = (run?.apiCalls || []).every(call =>
+        call.status !== 'running'
+        && (call.physicalCalls || []).every(item => item.status !== 'running')
+      )
+      return {
+        isGenerating: Boolean(pipeline?.isGenerating),
+        status: pipeline?.activeSettingsRun?.statusText || null,
+        progress: pipeline?.activeSettingsRun?.progress ?? null,
+        pipelineRunStatus: pipeline?.activeSettingsRun?.status || null,
+        run: run ? {
+          id: run.id,
+          status: run.status,
+          error: run.error || null,
+          startedAt: run.startedAt,
+          eventCount: (run.events || []).length,
+          apiCallCount: (run.apiCalls || []).length,
+        } : null,
+        callClosed,
+      }
+    }, { stepName, startedAfter })
+    const signature = JSON.stringify(state)
+    if (signature !== lastSignature) {
+      lastSignature = signature
+      lastProgressAt = Date.now()
+      lastSnapshot = state
+      console.log(`[${label}] ${signature}`)
+    } else if (Date.now() - lastProgressAt >= DEAD_TIMEOUT_MS) {
+      throw new Error(`${label} is dead for ${DEAD_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+    } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
+      console.warn(`[STALL WARNING] ${label} unchanged for ${Date.now() - lastProgressAt}ms`)
+    }
+    if (!state.isGenerating && state.run && terminalRunStatus(state.run.status) && state.callClosed) {
+      return state
+    }
+    await sleep(500)
+  }
+  throw new Error(`${label} did not finish within ${STEP_TIMEOUT_MS}ms: ${JSON.stringify(lastSnapshot)}`)
+}
+
+async function dumpPipelineRunDiagnostics(page, label, stepName, startedAfter) {
+  const diagnostics = await page.evaluate(({ stepName, startedAfter }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const run = [...(trace?.runs || [])]
+      .filter(item => item.source === 'pipeline'
+        && (!stepName || item.stepName === stepName)
+        && (!startedAfter || item.startedAt >= startedAfter))
+      .sort((a, b) => b.startedAt - a.startedAt)[0] || null
+    const registryRuns = (pipeline?.runs || []).map(item => ({
+      runId: item.runId,
+      layer: item.layer,
+      target: item.target,
+      status: item.status,
+      statusText: item.statusText,
+      error: item.error || null,
+      progress: item.progress ?? null,
+      startedAt: item.startedAt,
+      endedAt: item.endedAt ?? null,
+      queuedReason: item.queuedReason || null,
+    }))
+    return {
+      at: new Date().toISOString(),
+      traceRun: run ? {
+        id: run.id,
+        status: run.status,
+        error: run.error || null,
+        startedAt: run.startedAt,
+        events: (run.events || []).map(event => ({
+          type: event.type,
+          level: event.level,
+          label: event.label,
+          detail: event.detail,
+        })),
+        apiCalls: (run.apiCalls || []).map(call => ({
+          id: call.id,
+          status: call.status,
+          error: call.error || null,
+          physicalCalls: (call.physicalCalls || []).map(item => ({
+            id: item.id,
+            status: item.status,
+            error: item.error || null,
+          })),
+        })),
+      } : null,
+      registryRuns,
+    }
+  }, { stepName, startedAfter })
+  writeEvidenceFileSync(
+    path.join(EVIDENCE_ROOT, `${label}-diagnostics.json`),
+    `${label}-diagnostics.json`,
+    JSON.stringify(diagnostics, null, 2),
+  )
+  console.log(`[${label}] diagnostics archived: ${JSON.stringify({
+    traceStatus: diagnostics.traceRun?.status || null,
+    traceError: diagnostics.traceRun?.error || null,
+    eventCount: diagnostics.traceRun?.events?.length || 0,
+    apiCallCount: diagnostics.traceRun?.apiCalls?.length || 0,
+    registryRuns: diagnostics.registryRuns.map(item => ({
+      layer: item.layer,
+      status: item.status,
+      error: item.error,
+    })),
+  })}`)
+  return diagnostics
 }
 
 function parseDetail(value) {
@@ -776,13 +914,38 @@ async function clickSettingButton(page, name) {
   }, name, { timeout: 10_000, polling: 200 })
 }
 
+function writeEvidenceFileSync(target, filename, text) {
+  let lastError = null
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      fs.writeFileSync(target, text, 'utf8')
+      return
+    } catch (error) {
+      lastError = error
+      // Windows antivirus/indexing can briefly hold new JSON files. The main
+      // assertions must continue; evidence gets a timestamped fallback below.
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 300)
+    }
+  }
+  const fallback = `${target}.${Date.now()}.json`
+  try {
+    fs.writeFileSync(fallback, text, 'utf8')
+    archiveIssues.push({ filename, code: lastError?.code || 'UNKNOWN', fallback: path.basename(fallback) })
+    console.warn(`[EVIDENCE FALLBACK] ${filename} -> ${path.basename(fallback)} (${lastError?.code || 'UNKNOWN'})`)
+    return
+  } catch (fallbackError) {
+    archiveIssues.push({ filename, code: lastError?.code || 'UNKNOWN', fallbackError: fallbackError?.code || 'UNKNOWN' })
+    console.warn(`[EVIDENCE MISSING] ${filename}: primary=${lastError?.code || 'UNKNOWN'}, fallback=${fallbackError?.code || 'UNKNOWN'}`)
+  }
+}
+
 async function archiveScenario(name, data) {
   const scenarioDir = path.join(EVIDENCE_ROOT, name)
   fs.mkdirSync(scenarioDir, { recursive: true })
   for (const [filename, value] of Object.entries(data)) {
-    fs.writeFileSync(path.join(scenarioDir, filename), typeof value === 'string'
+    writeEvidenceFileSync(path.join(scenarioDir, filename), filename, typeof value === 'string'
       ? value
-      : JSON.stringify(value, null, 2), 'utf8')
+      : JSON.stringify(value, null, 2))
   }
 }
 
@@ -827,10 +990,13 @@ async function dumpHomeDiagnostics(page, provider) {
 
 async function main() {
   const diskManifest = assertFreshRendererBuild()
+  const archivedEvidence = archivePreviousEvidence()
+  if (archivedEvidence) console.log(`[EVIDENCE ARCHIVED] ${archivedEvidence}`)
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.rmSync(HEARTBEAT_PATH, { force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
+  fs.mkdirSync(DATA_DIR, { recursive: true })
 
   const watchdog = setTimeout(() => {
     console.error(`[FAIL] global timeout after ${GLOBAL_TIMEOUT_MS}ms`)
@@ -917,12 +1083,17 @@ async function main() {
       return input?.value === '2'
     }, null, { timeout: 10_000, polling: 200 })
     provider.reset()
+    const volumeStartedAt = Date.now()
     await page.click('#btn-pl-gen-volumes')
-    await waitForPipelineIdle(page, 'volume-generation')
-    let volumeRun = await latestRun(page, 'pipeline', '卷纲层')
+    const volumeClosed = await waitForPipelineRunClosed(page, 'volume-generation', '卷纲层', volumeStartedAt)
+    let volumeRun = await latestRun(page, 'pipeline', '卷纲层', volumeStartedAt)
     let volumeRequests = provider.requests()
+    const volumeDiagnostics = await dumpPipelineRunDiagnostics(
+      page, 'volume-generation', '卷纲层', volumeStartedAt)
     assert(volumeRun, 'volume run trace exists')
     assert(volumeRequests.length >= 1, `volume request reaches provider, got ${volumeRequests.length}`)
+    assert.equal(volumeClosed.run.status, 'success',
+      `volume run must finish successfully, got ${JSON.stringify(volumeDiagnostics.traceRun)}`)
     const volumePrompt = requestText(volumeRequests[0])
     await archiveScenario('volume-layer', {
       'trace-run.json': volumeRun,
@@ -966,9 +1137,10 @@ async function main() {
     await page.locator('#pl-steps .pl-step').nth(3).click()
     await page.waitForSelector('#pl-step-4-content', { state: 'visible' })
     provider.reset()
+    const chapterStartedAt = Date.now()
     await page.click('#btn-pl-gen-chapters')
-    await waitForPipelineIdle(page, 'chapter-generation')
-    const chapterRun = await latestRun(page, 'pipeline', '章节层')
+    await waitForPipelineRunClosed(page, 'chapter-generation', '章节层', chapterStartedAt)
+    const chapterRun = await latestRun(page, 'pipeline', '章节层', chapterStartedAt)
     const chapterRequests = provider.requests()
     assert(chapterRun, 'chapter run trace exists')
     assert(chapterRequests.length >= 1, `chapter request reaches provider, got ${chapterRequests.length}`)
@@ -1011,9 +1183,10 @@ async function main() {
     await page.locator('#pl-steps .pl-step').nth(4).click()
     await page.waitForSelector('#pl-step-5-content', { state: 'visible' })
     provider.reset()
+    const bodyStartedAt = Date.now()
     await page.click('#btn-primary-gen-body')
-    await waitForPipelineIdle(page, 'body-generation')
-    const bodyRun = await latestRun(page, 'pipeline', '正文层')
+    await waitForPipelineRunClosed(page, 'body-generation', '正文层', bodyStartedAt)
+    const bodyRun = await latestRun(page, 'pipeline', '正文层', bodyStartedAt)
     const bodyRequests = provider.requests()
     assert(bodyRun, 'body run trace exists')
     assert(bodyRequests.length >= 1, `body request reaches provider, got ${bodyRequests.length}`)
@@ -1060,6 +1233,7 @@ async function main() {
     await page.mouse.click(2, 2)
     await page.waitForSelector('#pipeline-panel', { state: 'detached', timeout: 20_000 }).catch(() => {})
     provider.reset()
+    const homeStartedAt = Date.now()
     await page.fill('#user-input', '王芳在这章应该怎么说话？')
     await page.click('#btn-send')
     try {
@@ -1072,7 +1246,7 @@ async function main() {
       error.message = `${error.message}; home diagnostics written to ${path.basename(EVIDENCE_ROOT)}${path.sep}home-diagnostics.json; activeMessages=${JSON.stringify(diagnostics.chat.activeMessages.map(item => ({ role: item?.role, content: String(item?.content || '').slice(0, 160) })))}`
       throw error
     }
-    const homeRun = await latestRun(page, 'home', '主页共创')
+    const homeRun = await latestRun(page, 'home', '主页共创', homeStartedAt)
     const homeRequests = provider.requests()
     assert(homeRun, 'home run trace exists')
     if (homeRequests.length < 1) {
@@ -1164,6 +1338,7 @@ async function main() {
       },
       heartbeatFrames,
       heartbeatDurationMs,
+      archiveIssues,
     }, null, 2), 'utf8')
     console.log('===== SETTINGS LOCK PROJECTION ELECTRON PASSED =====')
   } finally {

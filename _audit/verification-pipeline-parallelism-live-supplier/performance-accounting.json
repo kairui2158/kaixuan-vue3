@@ -1,0 +1,398 @@
+{
+  "generatedAt": "2026-10-26T17:30:55.066Z",
+  "source": {
+    "report": "_audit\\verification-pipeline-parallelism-live-supplier\\report.json",
+    "heartbeat": "_audit\\verification-pipeline-parallelism-live-supplier\\heartbeat.jsonl",
+    "providerRequests": "_audit\\verification-pipeline-parallelism-live-supplier\\provider-requests.json"
+  },
+  "uiGate": {
+    "freezeCount": 0,
+    "slowClickFeedbackCount": 0,
+    "longTaskCount": 0,
+    "clickFeedbackCount": 4,
+    "clickFeedbackBudgetMs": 100,
+    "responsivenessState": "normal",
+    "withinBudget": true
+  },
+  "totals": {
+    "runCount": 9,
+    "wallMs": 1738965,
+    "activeWallMs": 1738728,
+    "queueOrGapMs": 238,
+    "supplierWaitMs": 1735168.1263999997,
+    "localOverheadMs": 3559.873600000261,
+    "applicationCallCount": 17,
+    "physicalRequestCount": 15
+  },
+  "runs": [
+    {
+      "runId": "pipeline-run-1793033601840-1",
+      "layer": "volumes",
+      "firstSeenAt": 1793033601923,
+      "lastSeenAt": 1793033645148,
+      "status": "success",
+      "wallMs": 43225,
+      "supplierWaitMs": 43176.5808,
+      "localOverheadMs": 47.419199999996636,
+      "activeWallMs": 43224,
+      "queueOrGapMs": 1,
+      "physicalRequestCount": 1,
+      "applicationCallCount": 1,
+      "calls": [
+        {
+          "traceRunId": "run-1793033601857-1",
+          "status": "success",
+          "startedAt": 1793033601923,
+          "endedAt": 1793033645148,
+          "wallMs": 43224,
+          "supplierWaitMs": 43176.5808,
+          "localOverheadMs": 47.419199999996636,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793033602057-2",
+      "layer": "chapters",
+      "firstSeenAt": 1793033602096,
+      "lastSeenAt": 1793033602349,
+      "status": "canceled",
+      "wallMs": 253,
+      "supplierWaitMs": 0,
+      "localOverheadMs": 254,
+      "activeWallMs": 254,
+      "queueOrGapMs": 0,
+      "physicalRequestCount": 0,
+      "applicationCallCount": 1,
+      "calls": [
+        {
+          "traceRunId": "run-1793033602065-14",
+          "status": "canceled",
+          "startedAt": 1793033602096,
+          "endedAt": 1793033602349,
+          "wallMs": 254,
+          "supplierWaitMs": 0,
+          "localOverheadMs": 254,
+          "physicalRequestCount": 0,
+          "requestStatus": null,
+          "requestFailure": null,
+          "error": "用户取消"
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793033602205-3",
+      "layer": "body",
+      "firstSeenAt": 1793033602686,
+      "lastSeenAt": 1793033605677,
+      "status": "canceled",
+      "wallMs": 2991,
+      "supplierWaitMs": 0,
+      "localOverheadMs": 2991,
+      "activeWallMs": 2991,
+      "queueOrGapMs": 0,
+      "physicalRequestCount": 0,
+      "applicationCallCount": 1,
+      "calls": [
+        {
+          "traceRunId": "run-1793033602213-28",
+          "status": "canceled",
+          "startedAt": 1793033602686,
+          "endedAt": 1793033605677,
+          "wallMs": 2991,
+          "supplierWaitMs": 0,
+          "localOverheadMs": 2991,
+          "physicalRequestCount": 0,
+          "requestStatus": null,
+          "requestFailure": null,
+          "error": "用户取消"
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793033602566-4",
+      "layer": "body",
+      "firstSeenAt": 1793033605732,
+      "lastSeenAt": 1793033928093,
+      "status": "success",
+      "wallMs": 322361,
+      "supplierWaitMs": 322223.9819,
+      "localOverheadMs": 68.01810000003024,
+      "activeWallMs": 322292,
+      "queueOrGapMs": 69,
+      "physicalRequestCount": 3,
+      "applicationCallCount": 3,
+      "calls": [
+        {
+          "traceRunId": "run-1793033605662-55",
+          "status": "success",
+          "startedAt": 1793033605732,
+          "endedAt": 1793033682165,
+          "wallMs": 76433,
+          "supplierWaitMs": 76417.1057,
+          "localOverheadMs": 15.89429999999993,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793033605662-55",
+          "status": "success",
+          "startedAt": 1793033682195,
+          "endedAt": 1793033814252,
+          "wallMs": 132057,
+          "supplierWaitMs": 132037.48979999998,
+          "localOverheadMs": 19.510200000018813,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793033605662-55",
+          "status": "success",
+          "startedAt": 1793033814291,
+          "endedAt": 1793033928093,
+          "wallMs": 113802,
+          "supplierWaitMs": 113769.38639999999,
+          "localOverheadMs": 32.6136000000115,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793033928776-5",
+      "layer": "body",
+      "firstSeenAt": 1793033928863,
+      "lastSeenAt": 1793034242202,
+      "status": "success",
+      "wallMs": 313339,
+      "supplierWaitMs": 313227.557,
+      "localOverheadMs": 62.443000000028405,
+      "activeWallMs": 313290,
+      "queueOrGapMs": 49,
+      "physicalRequestCount": 3,
+      "applicationCallCount": 3,
+      "calls": [
+        {
+          "traceRunId": "run-1793033928786-189",
+          "status": "success",
+          "startedAt": 1793033928863,
+          "endedAt": 1793033987919,
+          "wallMs": 59056,
+          "supplierWaitMs": 59036.691500000015,
+          "localOverheadMs": 19.308499999984633,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793033928786-189",
+          "status": "success",
+          "startedAt": 1793033987940,
+          "endedAt": 1793034153492,
+          "wallMs": 165552,
+          "supplierWaitMs": 165535.65269999998,
+          "localOverheadMs": 16.347300000023097,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793033928786-189",
+          "status": "success",
+          "startedAt": 1793034153520,
+          "endedAt": 1793034242202,
+          "wallMs": 88682,
+          "supplierWaitMs": 88655.21279999998,
+          "localOverheadMs": 26.787200000020675,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793034243396-6",
+      "layer": "body",
+      "firstSeenAt": 1793034243476,
+      "lastSeenAt": 1793034349012,
+      "status": "failed",
+      "wallMs": 105536,
+      "supplierWaitMs": 105469.67489999998,
+      "localOverheadMs": 40.32510000001639,
+      "activeWallMs": 105510,
+      "queueOrGapMs": 26,
+      "physicalRequestCount": 2,
+      "applicationCallCount": 2,
+      "calls": [
+        {
+          "traceRunId": "run-1793034243408-301",
+          "status": "success",
+          "startedAt": 1793034243476,
+          "endedAt": 1793034348967,
+          "wallMs": 105491,
+          "supplierWaitMs": 105469.67489999998,
+          "localOverheadMs": 21.32510000001639,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793034243408-301",
+          "status": "failed",
+          "startedAt": 1793034348993,
+          "endedAt": 1793034349012,
+          "wallMs": 19,
+          "supplierWaitMs": 0,
+          "localOverheadMs": 19,
+          "physicalRequestCount": 1,
+          "requestStatus": 401,
+          "requestFailure": "unknown",
+          "error": "injected S2 terminal auth failure"
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793034349487-7",
+      "layer": "body",
+      "firstSeenAt": 1793034349541,
+      "lastSeenAt": 1793034708441,
+      "status": "success",
+      "wallMs": 358900,
+      "supplierWaitMs": 358824.1140999999,
+      "localOverheadMs": 30.88590000011027,
+      "activeWallMs": 358855,
+      "queueOrGapMs": 45,
+      "physicalRequestCount": 2,
+      "applicationCallCount": 2,
+      "calls": [
+        {
+          "traceRunId": "run-1793034349495-362",
+          "status": "success",
+          "startedAt": 1793034349541,
+          "endedAt": 1793034581762,
+          "wallMs": 232222,
+          "supplierWaitMs": 232210.3112,
+          "localOverheadMs": 11.688800000003539,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793034349495-362",
+          "status": "success",
+          "startedAt": 1793034581808,
+          "endedAt": 1793034708441,
+          "wallMs": 126633,
+          "supplierWaitMs": 126613.8028999999,
+          "localOverheadMs": 19.19710000010673,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793034709170-8",
+      "layer": "body",
+      "firstSeenAt": 1793034709231,
+      "lastSeenAt": 1793034709262,
+      "status": "failed",
+      "wallMs": 31,
+      "supplierWaitMs": 0,
+      "localOverheadMs": 31,
+      "activeWallMs": 31,
+      "queueOrGapMs": 0,
+      "physicalRequestCount": 1,
+      "applicationCallCount": 1,
+      "calls": [
+        {
+          "traceRunId": "run-1793034709180-463",
+          "status": "failed",
+          "startedAt": 1793034709231,
+          "endedAt": 1793034709262,
+          "wallMs": 31,
+          "supplierWaitMs": 0,
+          "localOverheadMs": 31,
+          "physicalRequestCount": 1,
+          "requestStatus": 401,
+          "requestFailure": "unknown",
+          "error": "injected terminal provider failure"
+        }
+      ]
+    },
+    {
+      "runId": "pipeline-run-1793034709831-9",
+      "layer": "body",
+      "firstSeenAt": 1793034709900,
+      "lastSeenAt": 1793035302229,
+      "status": "success",
+      "wallMs": 592329,
+      "supplierWaitMs": 592246.2176999999,
+      "localOverheadMs": 34.782300000078976,
+      "activeWallMs": 592281,
+      "queueOrGapMs": 48,
+      "physicalRequestCount": 3,
+      "applicationCallCount": 3,
+      "calls": [
+        {
+          "traceRunId": "run-1793034709837-490",
+          "status": "success",
+          "startedAt": 1793034709900,
+          "endedAt": 1793034796298,
+          "wallMs": 86398,
+          "supplierWaitMs": 86390.36889999988,
+          "localOverheadMs": 7.6311000001151115,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793034709837-490",
+          "status": "success",
+          "startedAt": 1793034796319,
+          "endedAt": 1793035133294,
+          "wallMs": 336975,
+          "supplierWaitMs": 336959.4857000001,
+          "localOverheadMs": 15.514299999922514,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        },
+        {
+          "traceRunId": "run-1793034709837-490",
+          "status": "success",
+          "startedAt": 1793035133321,
+          "endedAt": 1793035302229,
+          "wallMs": 168908,
+          "supplierWaitMs": 168896.36309999996,
+          "localOverheadMs": 11.63690000004135,
+          "physicalRequestCount": 1,
+          "requestStatus": 200,
+          "requestFailure": null,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "accounting": {
+    "allProviderRequestsAssigned": true
+  },
+  "verdict": "PASS"
+}

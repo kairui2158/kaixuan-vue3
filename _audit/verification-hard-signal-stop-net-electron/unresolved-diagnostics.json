@@ -1,0 +1,68 @@
+{
+  "runStatus": "degraded",
+  "hardSignalEvents": [
+    {
+      "detected": true,
+      "status": "blocked",
+      "findings": [
+        {
+          "type": "truncated",
+          "message": "供应商返回 length/max_tokens，正文可能在物理层被截断",
+          "start": 0,
+          "end": 0,
+          "excerpt": "",
+          "origin": "provider"
+        }
+      ],
+      "counts": {
+        "truncated": 1,
+        "refusal": 0,
+        "meta_language": 0,
+        "near_duplicate_line": 0
+      }
+    },
+    {
+      "status": "hard_signal_unresolved",
+      "counts": {
+        "truncated": 1,
+        "refusal": 0,
+        "meta_language": 0,
+        "near_duplicate_line": 0
+      }
+    }
+  ],
+  "apiCalls": [
+    {
+      "step": 4,
+      "status": "degraded",
+      "finishReason": "length",
+      "physicalCalls": [
+        {
+          "phase": "normal",
+          "status": "success",
+          "finishReason": "length"
+        },
+        {
+          "phase": "normal",
+          "status": "success",
+          "finishReason": "length"
+        }
+      ]
+    }
+  ],
+  "requestCount": 2,
+  "requests": [
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "model": "hard-signal-model",
+      "messageCount": 2
+    },
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "model": "hard-signal-model",
+      "messageCount": 2
+    }
+  ]
+}

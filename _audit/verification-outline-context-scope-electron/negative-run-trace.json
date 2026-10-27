@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1792640180663-1",
+  "id": "run-1793044866255-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -10,34 +10,35 @@
   "projectName": "作用域上下文闭包实测",
   "skillNames": [],
   "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793044866241-1",
   "status": "failed",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T03:27:46.288Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T19:57:23.421Z"
   },
-  "startedAt": 1792640180663,
+  "startedAt": 1793044866255,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
-      "reason": "generation_failed",
-      "recordedAt": 1792640180682
+      "reason": "generation_failed / 正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲",
+      "recordedAt": 1793044866264
     }
   ],
   "events": [
     {
-      "id": "event-1792640180663-2",
-      "ts": 1792640180663,
+      "id": "event-1793044866256-2",
+      "ts": 1793044866256,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792640180675-3",
-      "ts": 1792640180675,
+      "id": "event-1793044866257-3",
+      "ts": 1793044866257,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -45,8 +46,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792640180676-4",
-      "ts": 1792640180676,
+      "id": "event-1793044866258-4",
+      "ts": 1793044866258,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -54,8 +55,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792640180681-5",
-      "ts": 1792640180681,
+      "id": "event-1793044866263-5",
+      "ts": 1793044866263,
       "seq": 4,
       "type": "failed",
       "level": "error",
@@ -63,22 +64,22 @@
       "detail": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲"
     },
     {
-      "id": "event-1792640180682-6",
-      "ts": 1792640180682,
+      "id": "event-1793044866264-6",
+      "ts": 1793044866264,
       "seq": 5,
       "type": "finished",
       "level": "error",
       "label": "运行失败",
-      "detail": "generation_failed"
+      "detail": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲 / generation_failed"
     },
     {
-      "id": "event-1792640180682-7",
-      "ts": 1792640180682,
+      "id": "event-1793044866264-7",
+      "ts": 1793044866264,
       "seq": 6,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1792640180663-1"
+      "detail": "generation_failed / run=run-1793044866255-1"
     }
   ],
   "apiCalls": [],
@@ -86,6 +87,12 @@
   "promptSnapshots": [],
   "processingReports": [],
   "payloads": [],
+  "eventLedger": {
+    "totalEvents": 6,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
   "timingLedger": {
     "apiCallCount": 0,
     "physicalCallCount": 0,
@@ -108,8 +115,9 @@
     "continuationCallCount": 0,
     "repeatedPromptBlocks": {}
   },
-  "endedAt": 1792640180682,
-  "durationMs": 19,
+  "endedAt": 1793044866264,
+  "durationMs": 9,
+  "error": "正文上下文闭包构建失败：unit_not_found:找不到单元 D1-03，不静默降级；请核对单元ID或补卷纲",
   "apiResponseIndex": [],
   "payloadIntegrityWarnings": []
 }

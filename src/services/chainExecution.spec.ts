@@ -284,10 +284,11 @@ describe("body chain execution contract", () => {
     })).toBe(false)
   })
 
-  it("renders one deterministic body contract sentence for generator steps only", () => {
+  it("renders one deterministic body contract sentence without a body-only directive", () => {
     const sentence = bodyGeneratorContractSentence(3500)
-    expect(sentence).toBe("请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。只输出正文本身。")
+    expect(sentence).toBe("请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。")
     expect(sentence).not.toContain("不低于2100字")
+    expect(sentence).not.toContain("只输出正文本身")
     expect(bodyGeneratorContractSentence(null)).toBe("")
     expect(bodyGeneratorContractSentence(undefined)).toBe("")
     expect(bodyGeneratorContractSentence(0)).toBe("")

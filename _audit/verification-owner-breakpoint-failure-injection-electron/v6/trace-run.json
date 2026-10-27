@@ -1,5 +1,5 @@
 {
-  "id": "run-1792641470814-1",
+  "id": "run-1793041011999-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -16,34 +16,35 @@
     "S3（文本）"
   ],
   "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793041011979-1",
   "status": "failed",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T03:43:59.563Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T18:54:26.923Z"
   },
-  "startedAt": 1792641470815,
+  "startedAt": 1793041011999,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "failed",
       "reason": "generation_failed",
-      "recordedAt": 1792641471198
+      "recordedAt": 1793041012527
     }
   ],
   "events": [
     {
-      "id": "event-1792641470815-2",
-      "ts": 1792641470815,
+      "id": "event-1793041012000-2",
+      "ts": 1793041012000,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1792641470863-3",
-      "ts": 1792641470863,
+      "id": "event-1793041012001-3",
+      "ts": 1793041012002,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -51,8 +52,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1792641470865-4",
-      "ts": 1792641470865,
+      "id": "event-1793041012004-4",
+      "ts": 1793041012004,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -60,8 +61,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1792641470872-5",
-      "ts": 1792641470872,
+      "id": "event-1793041012008-5",
+      "ts": 1793041012008,
       "seq": 4,
       "type": "context_scope",
       "level": "info",
@@ -69,8 +70,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":1,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":227,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
     },
     {
-      "id": "event-1792641470874-6",
-      "ts": 1792641470874,
+      "id": "event-1793041012009-6",
+      "ts": 1793041012009,
       "seq": 5,
       "type": "memory_context",
       "level": "info",
@@ -78,8 +79,8 @@
       "detail": "{\"chapterId\":\"chapter-owner-breakpoint-failure-1\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1792641470880-7",
-      "ts": 1792641470880,
+      "id": "event-1793041012011-7",
+      "ts": 1793041012011,
       "seq": 6,
       "type": "prompt-built",
       "level": "info",
@@ -87,8 +88,8 @@
       "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3000}"
     },
     {
-      "id": "event-1792641470926-8",
-      "ts": 1792641470926,
+      "id": "event-1793041012059-8",
+      "ts": 1793041012059,
       "seq": 7,
       "type": "chain-context-slim",
       "level": "info",
@@ -96,8 +97,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792641470931-9",
-      "ts": 1792641470931,
+      "id": "event-1793041012065-9",
+      "ts": 1793041012065,
       "seq": 8,
       "type": "chain-step",
       "level": "info",
@@ -105,8 +106,8 @@
       "detail": "S1（文本）"
     },
     {
-      "id": "event-1792641470934-10",
-      "ts": 1792641470934,
+      "id": "event-1793041012067-10",
+      "ts": 1793041012067,
       "seq": 9,
       "type": "agent-model-fallback",
       "level": "warn",
@@ -114,8 +115,8 @@
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792641470964-11",
-      "ts": 1792641470964,
+      "id": "event-1793041012100-11",
+      "ts": 1793041012100,
       "seq": 10,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -123,8 +124,8 @@
       "detail": "{\"skillIndex\":0,\"totalSkillCount\":3,\"variant\":\"methodology\",\"charCount\":2012}"
     },
     {
-      "id": "event-1792641470965-13",
-      "ts": 1792641470965,
+      "id": "event-1793041012101-13",
+      "ts": 1793041012101,
       "seq": 11,
       "type": "api-start",
       "level": "info",
@@ -132,8 +133,8 @@
       "detail": "{\"skillName\":\"S1\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792641470974-15",
-      "ts": 1792641470974,
+      "id": "event-1793041012111-15",
+      "ts": 1793041012111,
       "seq": 12,
       "type": "run-activity",
       "level": "info",
@@ -145,22 +146,22 @@
       }
     },
     {
-      "id": "event-1792641470974-16",
-      "ts": 1792641470974,
+      "id": "event-1793041012111-16",
+      "ts": 1793041012111,
       "seq": 13,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792641470973-14",
+        "physicalCallId": "physical-1793041012110-14",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641470974-17",
-      "ts": 1792641470974,
+      "id": "event-1793041012111-17",
+      "ts": 1793041012111,
       "seq": 14,
       "type": "physical-call",
       "level": "info",
@@ -168,18 +169,18 @@
       "detail": "normal / S1 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641470975-18",
-      "ts": 1792641470975,
+      "id": "event-1793041012123-18",
+      "ts": 1793041012123,
       "seq": 15,
-      "turnId": "api-1792641470965-12",
+      "turnId": "api-1793041012100-12",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641471066-19",
-      "ts": 1792641471066,
+      "id": "event-1793041012221-19",
+      "ts": 1793041012221,
       "seq": 16,
       "type": "physical-call",
       "level": "info",
@@ -187,125 +188,99 @@
       "detail": "normal / S1 / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641471067-20",
-      "ts": 1792641471067,
+      "id": "event-1793041012227-20",
+      "ts": 1793041012227,
       "seq": 17,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1"
-      }
-    },
-    {
-      "id": "event-1792641471069-21",
-      "ts": 1792641471069,
-      "seq": 18,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=1/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=1/terminal"
-      }
-    },
-    {
-      "id": "event-1792641471071-22",
-      "ts": 1792641471071,
-      "seq": 19,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792641470965-12 seq=1"
+      "detail": "apiCall=api-1793041012100-12 seq=1"
     },
     {
-      "id": "event-1792641471071-23",
-      "ts": 1792641471071,
-      "seq": 20,
+      "id": "event-1793041012227-21",
+      "ts": 1793041012227,
+      "seq": 18,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "S1 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641471079-25",
-      "ts": 1792641471079,
-      "seq": 21,
+      "id": "event-1793041012235-23",
+      "ts": 1793041012235,
+      "seq": 19,
       "type": "processing-report",
       "level": "info",
       "label": "本地处理完成：chain-handoff",
       "detail": "post"
     },
     {
-      "id": "event-1792641471080-26",
-      "ts": 1792641471080,
-      "seq": 22,
+      "id": "event-1793041012236-24",
+      "ts": 1793041012236,
+      "seq": 20,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 1/3 Handoff",
       "detail": "{\"artifactId\":\"handoff-0-965bffb5\",\"sourceStep\":0,\"sourceSkillId\":\"OWNER-BP-FAIL-S1\",\"outputHash\":\"965bffb5\",\"fullTextLength\":27,\"delivery\":\"full_text\",\"excerptLength\":27,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792641471099-27",
-      "ts": 1792641471099,
-      "seq": 23,
+      "id": "event-1793041012270-25",
+      "ts": 1793041012270,
+      "seq": 21,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 2/3 上下文决策",
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792641471100-28",
-      "ts": 1792641471100,
-      "seq": 24,
+      "id": "event-1793041012270-26",
+      "ts": 1793041012270,
+      "seq": 22,
       "type": "chain-handoff-delivery",
       "level": "info",
       "label": "链式步骤 2/3 上游交付决策",
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":27,\"deliveredLength\":27,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"OWNER-BP-FAIL-S2\",\"skillName\":\"S2（文本）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792641471101-29",
-      "ts": 1792641471101,
-      "seq": 25,
+      "id": "event-1793041012273-27",
+      "ts": 1793041012273,
+      "seq": 23,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 2/3",
       "detail": "S2（文本）"
     },
     {
-      "id": "event-1792641471101-30",
-      "ts": 1792641471101,
-      "seq": 26,
+      "id": "event-1793041012273-28",
+      "ts": 1793041012273,
+      "seq": 24,
       "type": "agent-model-fallback",
       "level": "warn",
       "label": "Agent 模型未显式配置，已回退供应商默认模型",
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792641471101-31",
-      "ts": 1792641471101,
-      "seq": 27,
+      "id": "event-1793041012273-29",
+      "ts": 1793041012273,
+      "seq": 25,
       "type": "deai-prompt-variant",
       "level": "info",
       "label": "降AI注入变体：链步骤 2/3",
       "detail": "{\"skillIndex\":1,\"totalSkillCount\":3,\"variant\":\"creative\",\"charCount\":383}"
     },
     {
-      "id": "event-1792641471101-33",
-      "ts": 1792641471101,
-      "seq": 28,
+      "id": "event-1793041012273-31",
+      "ts": 1793041012273,
+      "seq": 26,
       "type": "api-start",
       "level": "info",
       "label": "第 2 次 API 调用开始",
       "detail": "{\"skillName\":\"S2\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792641471102-35",
-      "ts": 1792641471102,
-      "seq": 29,
+      "id": "event-1793041012274-33",
+      "ts": 1793041012274,
+      "seq": 27,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -316,176 +291,150 @@
       }
     },
     {
-      "id": "event-1792641471102-36",
-      "ts": 1792641471102,
-      "seq": 30,
+      "id": "event-1793041012274-34",
+      "ts": 1793041012274,
+      "seq": 28,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792641471101-34",
+        "physicalCallId": "physical-1793041012274-32",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641471102-37",
-      "ts": 1792641471102,
-      "seq": 31,
+      "id": "event-1793041012274-35",
+      "ts": 1793041012274,
+      "seq": 29,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / S2 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641471102-38",
-      "ts": 1792641471102,
-      "seq": 32,
-      "turnId": "api-1792641471101-32",
+      "id": "event-1793041012277-36",
+      "ts": 1793041012277,
+      "seq": 30,
+      "turnId": "api-1793041012273-30",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641471116-39",
-      "ts": 1792641471116,
-      "seq": 33,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=2",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=2"
-      }
-    },
-    {
-      "id": "event-1792641471121-40",
-      "ts": 1792641471121,
-      "seq": 34,
+      "id": "event-1793041012306-37",
+      "ts": 1793041012306,
+      "seq": 31,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / S2 / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641471121-41",
-      "ts": 1792641471121,
-      "seq": 35,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=2/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=2/terminal"
-      }
-    },
-    {
-      "id": "event-1792641471121-42",
-      "ts": 1792641471121,
-      "seq": 36,
+      "id": "event-1793041012309-38",
+      "ts": 1793041012309,
+      "seq": 32,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792641471101-32 seq=2"
+      "detail": "apiCall=api-1793041012273-30 seq=2"
     },
     {
-      "id": "event-1792641471121-43",
-      "ts": 1792641471121,
-      "seq": 37,
+      "id": "event-1793041012309-39",
+      "ts": 1793041012309,
+      "seq": 33,
       "type": "api-success",
       "level": "info",
       "label": "第 2 次 API 调用完成",
       "detail": "S2 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641471126-44",
-      "ts": 1792641471126,
-      "seq": 38,
+      "id": "event-1793041012313-40",
+      "ts": 1793041012313,
+      "seq": 34,
       "type": "body-step-acceptance",
       "level": "info",
       "label": "正文生成步骤 2/3 统一验收",
       "detail": "{\"stepIndex\":1,\"callerStatus\":\"success\",\"rawWordCount\":2650,\"extractedWordCount\":2600,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\nFACT_LOCK:人物状态=警觉\\nFACT_LOCK:位置=灯塔底层\\nFACT_LOCK:关键道具=纸条\\nNEW_FACT:纸条日期与灯芯维护记录不一致\\n【正文交接结束】\"]},\"metadataDelta\":50,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3000,\"minWords\":2400,\"maxWords\":6000},\"degradedErrors\":[],\"contractErrors\":[]}"
     },
     {
-      "id": "event-1792641471126-46",
-      "ts": 1792641471126,
-      "seq": 39,
+      "id": "event-1793041012314-42",
+      "ts": 1793041012314,
+      "seq": 35,
       "type": "processing-report",
       "level": "info",
       "label": "本地处理完成：chain-handoff",
       "detail": "post"
     },
     {
-      "id": "event-1792641471127-47",
-      "ts": 1792641471127,
-      "seq": 40,
+      "id": "event-1793041012316-43",
+      "ts": 1793041012316,
+      "seq": 36,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 2/3 Handoff",
       "detail": "{\"artifactId\":\"handoff-1-fb5252fa\",\"sourceStep\":1,\"sourceSkillId\":\"OWNER-BP-FAIL-S2\",\"outputHash\":\"fb5252fa\",\"fullTextLength\":3141,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792641471139-48",
-      "ts": 1792641471139,
-      "seq": 41,
+      "id": "event-1793041012363-44",
+      "ts": 1793041012363,
+      "seq": 37,
       "type": "chain-context-slim",
       "level": "info",
       "label": "链式步骤 3/3 上下文决策",
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"default\",\"declaredFullUpstream\":false,\"originalPromptLength\":333,\"finalPromptLength\":333,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1792641471140-49",
-      "ts": 1792641471140,
-      "seq": 42,
+      "id": "event-1793041012364-45",
+      "ts": 1793041012364,
+      "seq": 38,
       "type": "chain-handoff-delivery",
       "level": "info",
       "label": "链式步骤 3/3 上游交付决策",
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":3141,\"deliveredLength\":3141,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"OWNER-BP-FAIL-S3\",\"skillName\":\"S3（文本）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1792641471141-50",
-      "ts": 1792641471141,
-      "seq": 43,
+      "id": "event-1793041012365-46",
+      "ts": 1793041012365,
+      "seq": 39,
       "type": "chain-step",
       "level": "info",
       "label": "链式步骤 3/3",
       "detail": "S3（文本）"
     },
     {
-      "id": "event-1792641471141-51",
-      "ts": 1792641471141,
-      "seq": 44,
+      "id": "event-1793041012365-47",
+      "ts": 1793041012365,
+      "seq": 40,
       "type": "agent-model-fallback",
       "level": "warn",
       "label": "Agent 模型未显式配置，已回退供应商默认模型",
       "detail": "{\"step\":4,\"configuredModel\":null,\"fallbackModel\":\"owner-breakpoint-failure-model\",\"fallbackSource\":\"provider.selectedModel\"}"
     },
     {
-      "id": "event-1792641471141-52",
-      "ts": 1792641471141,
-      "seq": 45,
+      "id": "event-1793041012365-48",
+      "ts": 1793041012365,
+      "seq": 41,
       "type": "deai-prompt-variant",
       "level": "info",
       "label": "降AI注入变体：链步骤 3/3",
       "detail": "{\"skillIndex\":2,\"totalSkillCount\":3,\"variant\":\"polish\",\"charCount\":254}"
     },
     {
-      "id": "event-1792641471141-54",
-      "ts": 1792641471141,
-      "seq": 46,
+      "id": "event-1793041012366-50",
+      "ts": 1793041012366,
+      "seq": 42,
       "type": "api-start",
       "level": "info",
       "label": "第 3 次 API 调用开始",
       "detail": "{\"skillName\":\"S3\",\"model\":\"owner-breakpoint-failure-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792641471142-56",
-      "ts": 1792641471142,
-      "seq": 47,
+      "id": "event-1793041012366-52",
+      "ts": 1793041012366,
+      "seq": 43,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -496,158 +445,132 @@
       }
     },
     {
-      "id": "event-1792641471142-57",
-      "ts": 1792641471142,
-      "seq": 48,
+      "id": "event-1793041012366-53",
+      "ts": 1793041012366,
+      "seq": 44,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792641471142-55",
+        "physicalCallId": "physical-1793041012366-51",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792641471143-58",
-      "ts": 1792641471143,
-      "seq": 49,
+      "id": "event-1793041012367-54",
+      "ts": 1793041012367,
+      "seq": 45,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
       "detail": "normal / S3 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641471143-59",
-      "ts": 1792641471143,
-      "seq": 50,
-      "turnId": "api-1792641471141-53",
+      "id": "event-1793041012373-55",
+      "ts": 1793041012373,
+      "seq": 46,
+      "turnId": "api-1793041012365-49",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"owner-breakpoint-failure-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1792641471155-60",
-      "ts": 1792641471155,
-      "seq": 51,
+      "id": "event-1793041012383-56",
+      "ts": 1793041012383,
+      "seq": 47,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / S3 / owner-breakpoint-failure-model / stop"
     },
     {
-      "id": "event-1792641471155-61",
-      "ts": 1792641471155,
-      "seq": 52,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=3",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=3"
-      }
-    },
-    {
-      "id": "event-1792641471156-62",
-      "ts": 1792641471156,
-      "seq": 53,
-      "type": "run-activity",
-      "level": "info",
-      "label": "运行活性证据",
-      "detail": "stream_delta / apiCall=3/terminal",
-      "payload": {
-        "source": "stream_delta",
-        "detail": "apiCall=3/terminal"
-      }
-    },
-    {
-      "id": "event-1792641471156-63",
-      "ts": 1792641471156,
-      "seq": 54,
+      "id": "event-1793041012383-57",
+      "ts": 1793041012383,
+      "seq": 48,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792641471141-53 seq=3"
+      "detail": "apiCall=api-1793041012365-49 seq=3"
     },
     {
-      "id": "event-1792641471156-64",
-      "ts": 1792641471156,
-      "seq": 55,
+      "id": "event-1793041012384-58",
+      "ts": 1793041012384,
+      "seq": 49,
       "type": "api-success",
       "level": "info",
       "label": "第 3 次 API 调用完成",
       "detail": "S3 / owner-breakpoint-failure-model"
     },
     {
-      "id": "event-1792641471161-65",
-      "ts": 1792641471161,
-      "seq": 56,
+      "id": "event-1793041012389-59",
+      "ts": 1793041012389,
+      "seq": 50,
       "type": "body-final-step-metadata",
       "level": "info",
       "label": "正文终步 3/3 元数据对账",
       "detail": "{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉\",\"位置=灯塔底层\",\"关键道具=纸条\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}},\"authoritativeKeys\":[\"extractedMeta\"],\"metadataKeys\":[\"extractedMeta\"],\"consumedMetadata\":{\"extractedMeta\":[\"【正文交接】\\nFACT_LOCK:人物状态=警觉\\nFACT_LOCK:位置=灯塔底层\\nFACT_LOCK:关键道具=纸条\\nNEW_FACT:纸条日期与灯芯维护记录不一致\\n【正文交接结束】\"]}}"
     },
     {
-      "id": "event-1792641471162-66",
-      "ts": 1792641471162,
-      "seq": 57,
+      "id": "event-1793041012390-60",
+      "ts": 1793041012390,
+      "seq": 51,
       "type": "chain-handoff",
       "level": "info",
       "label": "链式步骤 3/3 Handoff",
       "detail": "{\"artifactId\":\"handoff-2-2e016ca4\",\"sourceStep\":2,\"sourceSkillId\":\"OWNER-BP-FAIL-S3\",\"outputHash\":\"2e016ca4\",\"fullTextLength\":3235,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1792641471192-67",
-      "ts": 1792641471192,
-      "seq": 58,
+      "id": "event-1793041012520-61",
+      "ts": 1793041012520,
+      "seq": 52,
       "type": "chain-breakpoint-clear-failed",
       "level": "error",
       "label": "链式完成断点清理失败",
       "detail": "pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1 / pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1"
     },
     {
-      "id": "event-1792641471193-68",
-      "ts": 1792641471193,
-      "seq": 59,
+      "id": "event-1793041012521-62",
+      "ts": 1793041012521,
+      "seq": 53,
       "type": "body-artifact-attempt",
       "level": "error",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-failure-1-attempt-1-77he1lcg\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2650,\"extractedWordCount\":2600,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉\",\"位置=灯塔底层\",\"关键道具=纸条\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":50}"
+      "detail": "{\"attemptId\":\"chapter-owner-breakpoint-failure-1-attempt-1-pmfvsq69\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"error\",\"wordCount\":0,\"targetWords\":3000,\"ratio\":0,\"errors\":[\"pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1\"],\"bodyPreview\":\"\",\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2650,\"extractedWordCount\":2600,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉\",\"位置=灯塔底层\",\"关键道具=纸条\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":50}"
     },
     {
-      "id": "event-1792641471194-69",
-      "ts": 1792641471194,
-      "seq": 60,
+      "id": "event-1793041012523-63",
+      "ts": 1793041012523,
+      "seq": 54,
       "type": "failed",
       "level": "error",
       "label": "正文运行失败",
       "detail": "pipeline breakpoint remove failed: wa_pipeline_breakpoint_owner_pipeline:powner-breakpoint-failure:step-4:chapter-chapter-owner-breakpoint-failure-1"
     },
     {
-      "id": "event-1792641471198-70",
-      "ts": 1792641471198,
-      "seq": 61,
+      "id": "event-1793041012526-64",
+      "ts": 1793041012526,
+      "seq": 55,
       "type": "finished",
       "level": "error",
       "label": "运行失败",
       "detail": "generation_failed"
     },
     {
-      "id": "event-1792641471198-71",
-      "ts": 1792641471198,
-      "seq": 62,
+      "id": "event-1793041012527-65",
+      "ts": 1793041012527,
+      "seq": 56,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → failed",
-      "detail": "generation_failed / run=run-1792641470814-1"
+      "detail": "generation_failed / run=run-1793041011999-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792641470965-12",
+      "id": "api-1793041012100-12",
       "seq": 1,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S1",
@@ -669,14 +592,14 @@
       ],
       "deaiPromptVariant": "methodology",
       "responseText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
+      "streamText": "",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792641470965,
+      "startedAt": 1793041012100,
       "physicalCalls": [
         {
-          "id": "physical-1792641470973-14",
-          "physicalCallId": "physical-1792641470967-0",
+          "id": "physical-1793041012110-14",
+          "physicalCallId": "physical-1793041012102-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -700,11 +623,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641470973,
-          "durationMs": 94,
-          "firstTokenMs": 88,
-          "outputMs": 6,
-          "endedAt": 1792641471066,
+          "startedAt": 1793041012110,
+          "durationMs": 112,
+          "firstTokenMs": 105,
+          "outputMs": 7,
+          "endedAt": 1793041012221,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -719,24 +642,23 @@
             "driftRatio": -0.9914236706689536,
             "correctedRatio": 0.008576329331046312
           },
-          "firstContentAt": 1792641471059,
-          "lastContentAt": 1792641471059,
+          "firstContentAt": 1793041012215,
+          "lastContentAt": 1793041012215,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792641471067,
-      "lastStreamActivityAt": 1792641471067,
+      "lastExecutionActivityAt": 1793041012110,
       "finishReason": "stop",
-      "durationMs": 94,
+      "durationMs": 115,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 94,
-        "firstTokenSumMs": 88,
-        "outputSumMs": 6,
-        "minFirstTokenMs": 88,
-        "maxFirstTokenMs": 88,
-        "localOverheadMs": 0
+        "physicalDurationSumMs": 112,
+        "firstTokenSumMs": 105,
+        "outputSumMs": 7,
+        "minFirstTokenMs": 105,
+        "maxFirstTokenMs": 105,
+        "localOverheadMs": 3
       },
       "usage": {
         "inputTokens": 10,
@@ -744,9 +666,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792641471071,
+      "endedAt": 1793041012226,
       "semantic": {
-        "conversationId": "run-1792641470814-1",
+        "conversationId": "run-1793041011999-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -755,7 +677,7 @@
       }
     },
     {
-      "id": "api-1792641471101-32",
+      "id": "api-1793041012273-30",
       "seq": 2,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S2",
@@ -777,14 +699,14 @@
       ],
       "deaiPromptVariant": "creative",
       "responseText": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
+      "streamText": "",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792641471101,
+      "startedAt": 1793041012273,
       "physicalCalls": [
         {
-          "id": "physical-1792641471101-34",
-          "physicalCallId": "physical-1792641471101-0",
+          "id": "physical-1793041012274-32",
+          "physicalCallId": "physical-1793041012273-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -808,11 +730,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641471101,
-          "durationMs": 19,
-          "firstTokenMs": 15,
-          "outputMs": 4,
-          "endedAt": 1792641471120,
+          "startedAt": 1793041012274,
+          "durationMs": 33,
+          "firstTokenMs": 30,
+          "outputMs": 3,
+          "endedAt": 1793041012306,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -827,23 +749,22 @@
             "driftRatio": -0.9666666666666667,
             "correctedRatio": 0.03333333333333333
           },
-          "firstContentAt": 1792641471116,
-          "lastContentAt": 1792641471116,
+          "firstContentAt": 1793041012303,
+          "lastContentAt": 1793041012303,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792641471117,
-      "lastStreamActivityAt": 1792641471117,
+      "lastExecutionActivityAt": 1793041012274,
       "finishReason": "stop",
-      "durationMs": 17,
+      "durationMs": 31,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 19,
-        "firstTokenSumMs": 15,
-        "outputSumMs": 4,
-        "minFirstTokenMs": 15,
-        "maxFirstTokenMs": 15,
+        "physicalDurationSumMs": 33,
+        "firstTokenSumMs": 30,
+        "outputSumMs": 3,
+        "minFirstTokenMs": 30,
+        "maxFirstTokenMs": 30,
         "localOverheadMs": -2
       },
       "usage": {
@@ -852,9 +773,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792641471121,
+      "endedAt": 1793041012309,
       "semantic": {
-        "conversationId": "run-1792641470814-1",
+        "conversationId": "run-1793041011999-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -863,7 +784,7 @@
       }
     },
     {
-      "id": "api-1792641471141-53",
+      "id": "api-1793041012365-49",
       "seq": 3,
       "step": 4,
       "skillId": "OWNER-BP-FAIL-S3",
@@ -885,14 +806,14 @@
       ],
       "deaiPromptVariant": "polish",
       "responseText": "林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
-      "streamText": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】林照将纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。\n【正文交接】\nFACT_LOCK:人物状态=警觉\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:关键道具=纸条\nNEW_FACT:纸条日期与灯芯维护记录不一致\n【正文交接结束】",
+      "streamText": "",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1792641471141,
+      "startedAt": 1793041012366,
       "physicalCalls": [
         {
-          "id": "physical-1792641471142-55",
-          "physicalCallId": "physical-1792641471141-0",
+          "id": "physical-1793041012366-51",
+          "physicalCallId": "physical-1793041012366-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -916,11 +837,11 @@
             "totalTokens": 30
           },
           "usageUnavailable": false,
-          "startedAt": 1792641471142,
-          "durationMs": 12,
-          "firstTokenMs": 9,
-          "outputMs": 3,
-          "endedAt": 1792641471154,
+          "startedAt": 1793041012366,
+          "durationMs": 16,
+          "firstTokenMs": 15,
+          "outputMs": 2,
+          "endedAt": 1793041012383,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -935,24 +856,23 @@
             "driftRatio": -0.9924357034795764,
             "correctedRatio": 0.007564296520423601
           },
-          "firstContentAt": 1792641471151,
-          "lastContentAt": 1792641471151,
+          "firstContentAt": 1793041012381,
+          "lastContentAt": 1793041012381,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1792641471155,
-      "lastStreamActivityAt": 1792641471155,
+      "lastExecutionActivityAt": 1793041012366,
       "finishReason": "stop",
-      "durationMs": 10,
+      "durationMs": 15,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 12,
-        "firstTokenSumMs": 9,
-        "outputSumMs": 3,
-        "minFirstTokenMs": 9,
-        "maxFirstTokenMs": 9,
-        "localOverheadMs": -2
+        "physicalDurationSumMs": 16,
+        "firstTokenSumMs": 15,
+        "outputSumMs": 2,
+        "minFirstTokenMs": 15,
+        "maxFirstTokenMs": 15,
+        "localOverheadMs": -1
       },
       "usage": {
         "inputTokens": 10,
@@ -960,9 +880,9 @@
         "totalTokens": 30
       },
       "usageUnavailable": false,
-      "endedAt": 1792641471156,
+      "endedAt": 1793041012383,
       "semantic": {
-        "conversationId": "run-1792641470814-1",
+        "conversationId": "run-1793041011999-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 20,
@@ -975,40 +895,46 @@
   "promptSnapshots": [],
   "processingReports": [
     {
-      "id": "processing-1792641471079-24",
+      "id": "processing-1793041012235-22",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
       "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。",
       "outputPreview": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
       "output": "S1 分析：主角在雨夜检查灯塔纸条，发现维护记录疑点。",
-      "startedAt": 1792641471079,
-      "endedAt": 1792641471079,
+      "startedAt": 1793041012234,
+      "endedAt": 1793041012234,
       "durationMs": 0
     },
     {
-      "id": "processing-1792641471126-45",
+      "id": "processing-1793041012314-41",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
       "inputPreview": "[单元闭包卷纲]\n## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[禁止提前释放]\n以下终局底牌不得提前揭示或正面回答：灯芯真相\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 雨夜 - ## 卷级常任约束\n> 作用域：卷级常任\n- 全卷不得提前揭示灯芯真相。\n\n## 剧情单元 H1-01 雨夜\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 雨夜中，主角检查旧灯塔底层的纸条。\n\n[当前章节剧情点]\n第1章 纸条 - 雨夜中主角检查旧灯塔底层的纸条。\n\n请执行本章节的正文生成链路。",
       "outputPreview": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条",
       "output": "林照把纸条放进灯座，潮声第1次盖住他的呼吸。\n林照把纸条放进灯座，潮声第2次盖住他的呼吸。\n林照把纸条放进灯座，潮声第3次盖住他的呼吸。\n林照把纸条放进灯座，潮声第4次盖住他的呼吸。\n林照把纸条放进灯座，潮声第5次盖住他的呼吸。\n林照把纸条放进灯座，潮声第6次盖住他的呼吸。\n林照把纸条放进灯座，潮声第7次盖住他的呼吸。\n林照把纸条放进灯座，潮声第8次盖住他的呼吸。\n林照把纸条放进灯座，潮声第9次盖住他的呼吸。\n林照把纸条放进灯座，潮声第10次盖住他的呼吸。\n林照把纸条放进灯座，潮声第11次盖住他的呼吸。\n林照把纸条放进灯座，潮声第12次盖住他的呼吸。\n林照把纸条放进灯座，潮声第13次盖住他的呼吸。\n林照把纸条放进灯座，潮声第14次盖住他的呼吸。\n林照把纸条放进灯座，潮声第15次盖住他的呼吸。\n林照把纸条放进灯座，潮声第16次盖住他的呼吸。\n林照把纸条放进灯座，潮声第17次盖住他的呼吸。\n林照把纸条放进灯座，潮声第18次盖住他的呼吸。\n林照把纸条放进灯座，潮声第19次盖住他的呼吸。\n林照把纸条放进灯座，潮声第20次盖住他的呼吸。\n林照把纸条放进灯座，潮声第21次盖住他的呼吸。\n林照把纸条放进灯座，潮声第22次盖住他的呼吸。\n林照把纸条放进灯座，潮声第23次盖住他的呼吸。\n林照把纸条放进灯座，潮声第24次盖住他的呼吸。\n林照把纸条放进灯座，潮声第25次盖住他的呼吸。\n林照把纸条放进灯座，潮声第26次盖住他的呼吸。\n林照把纸条放进灯座，潮声第27次盖住他的呼吸。\n林照把纸条放进灯座，潮声第28次盖住他的呼吸。\n林照把纸条放进灯座，潮声第29次盖住他的呼吸。\n林照把纸条放进灯座，潮声第30次盖住他的呼吸。\n林照把纸条放进灯座，潮声第31次盖住他的呼吸。\n林照把纸条放进灯座，潮声第32次盖住他的呼吸。\n林照把纸条放进灯座，潮声第33次盖住他的呼吸。\n林照把纸条放进灯座，潮声第34次盖住他的呼吸。\n林照把纸条放进灯座，潮声第35次盖住他的呼吸。\n林照把纸条放进灯座，潮声第36次盖住他的呼吸。\n林照把纸条放进灯座，潮声第37次盖住他的呼吸。\n林照把纸条放进灯座，潮声第38次盖住他的呼吸。\n林照把纸条放进灯座，潮声第39次盖住他的呼吸。\n林照把纸条放进灯座，潮声第40次盖住他的呼吸。\n林照把纸条放进灯座，潮声第41次盖住他的呼吸。\n林照把纸条放进灯座，潮声第42次盖住他的呼吸。\n林照把纸条放进灯座，潮声第43次盖住他的呼吸。\n林照把纸条放进灯座，潮声第44次盖住他的呼吸。\n林照把纸条放进灯座，潮声第45次盖住他的呼吸。\n林照把纸条放进灯座，潮声第46次盖住他的呼吸。\n林照把纸条放进灯座，潮声第47次盖住他的呼吸。\n林照把纸条放进灯座，潮声第48次盖住他的呼吸。\n林照把纸条放进灯座，潮声第49次盖住他的呼吸。\n林照把纸条放进灯座，潮声第50次盖住他的呼吸。\n林照把纸条放进灯座，潮声第51次盖住他的呼吸。\n林照把纸条放进灯座，潮声第52次盖住他的呼吸。\n林照把纸条放进灯座，潮声第53次盖住他的呼吸。\n林照把纸条放进灯座，潮声第54次盖住他的呼吸。\n林照把纸条放进灯座，潮声第55次盖住他的呼吸。\n林照把纸条放进灯座，潮声第56次盖住他的呼吸。\n林照把纸条放进灯座，潮声第57次盖住他的呼吸。\n林照把纸条放进灯座，潮声第58次盖住他的呼吸。\n林照把纸条放进灯座，潮声第59次盖住他的呼吸。\n林照把纸条放进灯座，潮声第60次盖住他的呼吸。\n林照把纸条放进灯座，潮声第61次盖住他的呼吸。\n林照把纸条放进灯座，潮声第62次盖住他的呼吸。\n林照把纸条放进灯座，潮声第63次盖住他的呼吸。\n林照把纸条放进灯座，潮声第64次盖住他的呼吸。\n林照把纸条放进灯座，潮声第65次盖住他的呼吸。\n林照把纸条放进灯座，潮声第66次盖住他的呼吸。\n林照把纸条放进灯座，潮声第67次盖住他的呼吸。\n林照把纸条放进灯座，潮声第68次盖住他的呼吸。\n林照把纸条放进灯座，潮声第69次盖住他的呼吸。\n林照把纸条放进灯座，潮声第70次盖住他的呼吸。\n林照把纸条放进灯座，潮声第71次盖住他的呼吸。\n林照把纸条放进灯座，潮声第72次盖住他的呼吸。\n林照把纸条放进灯座，潮声第73次盖住他的呼吸。\n林照把纸条放进灯座，潮声第74次盖住他的呼吸。\n林照把纸条放进灯座，潮声第75次盖住他的呼吸。\n林照把纸条放进灯座，潮声第76次盖住他的呼吸。\n林照把纸条放进灯座，潮声第77次盖住他的呼吸。\n林照把纸条放进灯座，潮声第78次盖住他的呼吸。\n林照把纸条放进灯座，潮声第79次盖住他的呼吸。\n林照把纸条放进灯座，潮声第80次盖住他的呼吸。\n林照把纸条放进灯座，潮声第81次盖住他的呼吸。\n林照把纸条放进灯座，潮声第82次盖住他的呼吸。\n林照把纸条放进灯座，潮声第83次盖住他的呼吸。\n林照把纸条放进灯座，潮声第84次盖住他的呼吸。\n林照把纸条放进灯座，潮声第85次盖住他的呼吸。\n林照把纸条放进灯座，潮声第86次盖住他的呼吸。\n林照把纸条放进灯座，潮声第87次盖住他的呼吸。\n林照把纸条放进灯座，潮声第88次盖住他的呼吸。\n林照把纸条放进灯座，潮声第89次盖住他的呼吸。\n林照把纸条放进灯座，潮声第90次盖住他的呼吸。\n林照把纸条放进灯座，潮声第91次盖住他的呼吸。\n林照把纸条放进灯座，潮声第92次盖住他的呼吸。\n林照把纸条放进灯座，潮声第93次盖住他的呼吸。\n林照把纸条放进灯座，潮声第94次盖住他的呼吸。\n林照把纸条放进灯座，潮声第95次盖住他的呼吸。\n林照把纸条放进灯座，潮声第96次盖住他的呼吸。\n林照把纸条放进灯座，潮声第97次盖住他的呼吸。\n林照把纸条放进灯座，潮声第98次盖住他的呼吸。\n林照把纸条放进灯座，潮声第99次盖住他的呼吸。\n林照把纸条放进灯座，潮声第100次盖住他的呼吸。\n林照把纸条放进灯座，潮声第101次盖住他的呼吸。\n林照把纸条放进灯座，潮声第102次盖住他的呼吸。\n林照把纸条放进灯座，潮声第103次盖住他的呼吸。\n林照把纸条放进灯座，潮声第104次盖住他的呼吸。\n林照把纸条放进灯座，潮声第105次盖住他的呼吸。\n林照把纸条放进灯座，潮声第106次盖住他的呼吸。\n林照把纸条放进灯座，潮声第107次盖住他的呼吸。\n林照把纸条放进灯座，潮声第108次盖住他的呼吸。\n林照把纸条放进灯座，潮声第109次盖住他的呼吸。\n林照把纸条放进灯座，潮声第110次盖住他的呼吸。\n林照把纸条放进灯座，潮声第111次盖住他的呼吸。\n林照把纸条放进灯座，潮声第112次盖住他的呼吸。\n林照把纸条放进灯座，潮声第113次盖住他的呼吸。\n林照把纸条放进灯座，潮声第114次盖住他的呼吸。\n林照把纸条放进灯座，潮声第115次盖住他的呼吸。\n林照把纸条放进灯座，潮声第116次盖住他的呼吸。\n林照把纸条放进灯座，潮声第117次盖住他的呼吸。\n林照把纸条放进灯座，潮声第118次盖住他的呼吸。\n林照把纸条放进灯座，潮声第119次盖住他的呼吸。\n林照把纸条放进灯座，潮声第120次盖住他的呼吸。\n林照把纸条放进灯座，潮声第121次盖住他的呼吸。\n林照把纸条放进灯座，潮声第122次盖住他的呼吸。\n林照把纸条放进灯座，潮声第123次盖住他的呼吸。\n林照把纸条放进灯座，潮声第124次盖住他的呼吸。\n林照把纸条放进灯座，潮声第125次盖住他的呼吸。\n林照把纸条放进灯座，潮声第126次盖住他的呼吸。\n林照把纸条放进灯座，潮声第127次盖住他的呼吸。\n林照把纸条放进灯座，潮声第128次盖住他的呼吸。\n林照把纸条放进灯座，潮声第129次盖住他的呼吸。\n林照把纸条放进灯座，潮声第130次盖住他的呼吸。",
-      "startedAt": 1792641471126,
-      "endedAt": 1792641471126,
+      "startedAt": 1793041012313,
+      "endedAt": 1793041012313,
       "durationMs": 0
     }
   ],
   "payloads": [],
-  "dirName": "run-trace-正文层-20261022-115750",
+  "eventLedger": {
+    "totalEvents": 56,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "dirName": "run-trace-正文层-20261027-025651",
   "timingLedger": {
     "apiCallCount": 3,
     "physicalCallCount": 3,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 125,
-    "firstTokenSumMs": 112,
-    "outputSumMs": 13,
-    "localOverheadSumMs": -4,
+    "physicalDurationSumMs": 161,
+    "firstTokenSumMs": 150,
+    "outputSumMs": 12,
+    "localOverheadSumMs": 0,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -1021,14 +947,14 @@
     "physicalCallCount": 3,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 112,
-    "outputSumMs": 13,
+    "firstTokenSumMs": 150,
+    "outputSumMs": 12,
     "postProcessSumMs": 0,
     "repeatedPromptBlocks": {},
     "contextChars": 7357,
     "outputChars": 6497,
-    "physicalDurationSumMs": 125
+    "physicalDurationSumMs": 161
   },
-  "endedAt": 1792641471198,
-  "durationMs": 383
+  "endedAt": 1793041012526,
+  "durationMs": 527
 }

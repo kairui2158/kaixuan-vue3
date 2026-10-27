@@ -1,6 +1,6 @@
 {
   "schemaVersion": 19,
-  "id": "run-1792687487321-2178",
+  "id": "run-1793063444597-839",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -18,29 +18,29 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "b2d0b8088e7e",
-    "buildTime": "2026-10-22T09:41:32.702Z"
+    "commit": "8c5a3038b296",
+    "buildTime": "2026-10-26T23:20:43.404Z"
   },
-  "startedAt": 1792687487321,
+  "startedAt": 1793063444597,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
-      "recordedAt": 1792687510569
+      "recordedAt": 1793063481416
     }
   ],
   "events": [
     {
-      "id": "event-1792687487321-2179",
-      "ts": 1792687487321,
+      "id": "event-1793063444597-840",
+      "ts": 1793063444597,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 记忆抽取运行"
     },
     {
-      "id": "event-1792687487343-2181",
-      "ts": 1792687487343,
+      "id": "event-1793063444617-842",
+      "ts": 1793063444617,
       "seq": 2,
       "type": "api-start",
       "level": "info",
@@ -48,35 +48,35 @@
       "detail": "{\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1792687487354-2183",
-      "ts": 1792687487354,
+      "id": "event-1793063444618-844",
+      "ts": 1793063444618,
       "seq": 3,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
-      "detail": "physical_call_running / 1/api-1792687487343-2180",
+      "detail": "physical_call_running / 1/api-1793063444616-841",
       "payload": {
         "source": "physical_call_running",
-        "detail": "1/api-1792687487343-2180"
+        "detail": "1/api-1793063444616-841"
       }
     },
     {
-      "id": "event-1792687487354-2184",
-      "ts": 1792687487354,
+      "id": "event-1793063444618-845",
+      "ts": 1793063444618,
       "seq": 4,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1792687487354-2182",
+        "physicalCallId": "physical-1793063444617-843",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1792687487354-2185",
-      "ts": 1792687487354,
+      "id": "event-1793063444618-846",
+      "ts": 1793063444618,
       "seq": 5,
       "type": "physical-call",
       "level": "info",
@@ -84,8 +84,8 @@
       "detail": "normal"
     },
     {
-      "id": "event-1792687502360-2186",
-      "ts": 1792687502360,
+      "id": "event-1793063459632-847",
+      "ts": 1793063459632,
       "seq": 6,
       "type": "physical-call",
       "level": "info",
@@ -93,67 +93,89 @@
       "detail": "normal"
     },
     {
-      "id": "event-1792687502360-2187",
-      "ts": 1792687502360,
+      "id": "event-1793063459632-848",
+      "ts": 1793063459632,
       "seq": 7,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
-      "detail": "physical_call_heartbeat / 1/api-1792687487343-2180",
+      "detail": "physical_call_heartbeat / 1/api-1793063444616-841",
       "payload": {
         "source": "physical_call_heartbeat",
-        "detail": "1/api-1792687487343-2180"
+        "detail": "1/api-1793063444616-841"
       }
     },
     {
-      "id": "event-1792687510520-2188",
-      "ts": 1792687510520,
+      "id": "event-1793063474628-849",
+      "ts": 1793063474628,
       "seq": 8,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal"
+    },
+    {
+      "id": "event-1793063474628-850",
+      "ts": 1793063474628,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_heartbeat / 1/api-1793063444616-841",
+      "payload": {
+        "source": "physical_call_heartbeat",
+        "detail": "1/api-1793063444616-841"
+      }
+    },
+    {
+      "id": "event-1793063481405-851",
+      "ts": 1793063481405,
+      "seq": 10,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
       "detail": "normal / stop"
     },
     {
-      "id": "event-1792687510520-2189",
-      "ts": 1792687510520,
-      "seq": 9,
+      "id": "event-1793063481406-852",
+      "ts": 1793063481406,
+      "seq": 11,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1792687487343-2180 seq=1"
+      "detail": "apiCall=api-1793063444616-841 seq=1"
     },
     {
-      "id": "event-1792687510520-2190",
-      "ts": 1792687510520,
-      "seq": 10,
+      "id": "event-1793063481406-853",
+      "ts": 1793063481406,
+      "seq": 12,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": ""
     },
     {
-      "id": "event-1792687510569-2191",
-      "ts": 1792687510569,
-      "seq": 11,
+      "id": "event-1793063481416-854",
+      "ts": 1793063481416,
+      "seq": 13,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": ""
     },
     {
-      "id": "event-1792687510569-2192",
-      "ts": 1792687510569,
-      "seq": 12,
+      "id": "event-1793063481416-855",
+      "ts": 1793063481416,
+      "seq": 14,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "run=run-1792687487321-2178"
+      "detail": "run=run-1793063444597-839"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1792687487343-2180",
+      "id": "api-1793063444616-841",
       "seq": 1,
       "requestMessages": {
         "__payload": {
@@ -161,11 +183,11 @@
         }
       },
       "status": "success",
-      "startedAt": 1792687487343,
+      "startedAt": 1793063444616,
       "physicalCalls": [
         {
-          "id": "physical-1792687487354-2182",
-          "physicalCallId": "physical-1792687487343-0",
+          "id": "physical-1793063444617-843",
+          "physicalCallId": "physical-1793063444617-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -176,62 +198,62 @@
           },
           "finishReason": "stop",
           "usage": {
-            "inputTokens": 1742,
-            "outputTokens": 2053,
-            "totalTokens": 3795,
+            "inputTokens": 1859,
+            "outputTokens": 2995,
+            "totalTokens": 4854,
             "reasoningOutputTokens": 0
           },
           "usageUnavailable": false,
-          "startedAt": 1792687487354,
-          "durationMs": 23167,
-          "endedAt": 1792687510520,
+          "startedAt": 1793063444617,
+          "durationMs": 36788,
+          "endedAt": 1793063481405,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": null,
           "providerContextWindowTokens": 1000000,
-          "estimatedInputTokens": 1394,
+          "estimatedInputTokens": 1522,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 1394 / 可用 967232（未声明窗口，按保守值处理）",
+          "contextBudgetReason": "上下文可容纳：输入 1522 / 可用 967232（未声明窗口，按保守值处理）",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 1394,
-            "actualInputTokens": 1742,
-            "driftRatio": 0.2496413199426113,
-            "correctedRatio": 1.2496413199426113
+            "estimatedInputTokens": 1522,
+            "actualInputTokens": 1859,
+            "driftRatio": 0.2214191852825229,
+            "correctedRatio": 1.221419185282523
           },
           "heartbeat": true,
           "responseTextPayloadRef": "payload-002",
-          "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"未具名主角，持有家族旧信与信物，独自在海岸活动，从半信半疑转为决定出海验证。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-001\",\n          \"snippet\": \"家族最后留给我的，就这封信和这枚不说话的信物。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"家族遗留的旧信，纸薄黄、边缘被盐气咬出小洞，部分字残缺，内容涉及岸光、灯塔、南方旧道等航路信息。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-00"
+          "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，独自驾船离岸，依靠旧信与信物判断航向，左腿关节有旧伤，行事谨慎。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"他蹲在礁石与浅水交界的最后一步处，左膝抵着摊开的信纸，右手把信物按在纸边\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"站直的时候左腿的关节钝响了一声\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"一封来源不"
         }
       ],
-      "lastExecutionActivityAt": 1792687487354,
+      "lastExecutionActivityAt": 1793063444618,
       "finishReason": "stop",
-      "durationMs": 23177,
+      "durationMs": 36788,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 23167,
-        "localOverheadMs": 10
+        "physicalDurationSumMs": 36788,
+        "localOverheadMs": 0
       },
       "usage": {
-        "inputTokens": 1742,
-        "outputTokens": 2053,
-        "totalTokens": 3795,
+        "inputTokens": 1859,
+        "outputTokens": 2995,
+        "totalTokens": 4854,
         "reasoningOutputTokens": 0
       },
       "usageUnavailable": false,
-      "endedAt": 1792687510520,
+      "endedAt": 1793063481406,
       "semantic": {
-        "conversationId": "run-1792687487321-2178",
+        "conversationId": "run-1793063444597-839",
         "usage": {
-          "inputTokens": 1742,
-          "outputTokens": 2053,
-          "totalTokens": 3795,
+          "inputTokens": 1859,
+          "outputTokens": 2995,
+          "totalTokens": 4854,
           "reasoningOutputTokens": 0
         }
       },
       "responseTextPayloadRef": "payload-002",
-      "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"未具名主角，持有家族旧信与信物，独自在海岸活动，从半信半疑转为决定出海验证。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-001\",\n          \"snippet\": \"家族最后留给我的，就这封信和这枚不说话的信物。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"家族遗留的旧信，纸薄黄、边缘被盐气咬出小洞，部分字残缺，内容涉及岸光、灯塔、南方旧道等航路信息。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-00"
+      "responseTextPreview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，独自驾船离岸，依靠旧信与信物判断航向，左腿关节有旧伤，行事谨慎。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"他蹲在礁石与浅水交界的最后一步处，左膝抵着摊开的信纸，右手把信物按在纸边\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"站直的时候左腿的关节钝响了一声\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"一封来源不"
     }
   ],
   "sessionKind": "task",
@@ -242,34 +264,40 @@
       "id": "payload-001",
       "kind": "request",
       "file": "001-request.json",
-      "bytes": 6570,
-      "chars": 2810,
-      "sha256": "a68a1efc9f489e7b5090f30b4715c5fcc1166a1b2f0bee3d09ae575b28719c2e",
+      "bytes": 7216,
+      "chars": 2792,
+      "sha256": "654b974b26d5cf3f995ac44e42ad6e46bfa6cd687702397777a1c1b287c686f7",
       "duplicateCount": 2,
       "artifactRole": "final",
-      "createdAt": 1792687510930
+      "createdAt": 1793063482330
     },
     {
       "id": "payload-002",
       "kind": "response",
       "file": "002-response.json",
-      "bytes": 7341,
-      "chars": 5007,
-      "sha256": "4bde45306f6de466d88436dbb5ff8ca8cd94cccf92cb3dd1509cf99cbda0ec8d",
+      "bytes": 10589,
+      "chars": 7439,
+      "sha256": "f745bff4c4529ee2007478f680bd6a0d9132823d08fefb1811da860b5712c4c5",
       "duplicateCount": 2,
       "artifactRole": "final",
-      "createdAt": 1792687510930
+      "createdAt": 1793063482330
     }
   ],
-  "stepBoundaryGapMs": 1182,
+  "stepBoundaryGapMs": 1515,
+  "eventLedger": {
+    "totalEvents": 14,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 23167,
+    "physicalDurationSumMs": 36788,
     "firstTokenSumMs": 0,
     "outputSumMs": 0,
-    "localOverheadSumMs": 10,
+    "localOverheadSumMs": 0,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -282,40 +310,40 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "stepBoundaryGapMs": 1182,
+    "stepBoundaryGapMs": 1515,
     "repeatedPromptBlocks": {},
-    "contextChars": 2590,
-    "outputChars": 5007,
-    "physicalDurationSumMs": 23167
+    "contextChars": 2633,
+    "outputChars": 7439,
+    "physicalDurationSumMs": 36788
   },
-  "endedAt": 1792687510569,
-  "durationMs": 23248,
+  "endedAt": 1793063481416,
+  "durationMs": 36819,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1792687487343-2180",
+      "apiCallId": "api-1793063444616-841",
       "seq": 1,
       "status": "success",
       "response": {
         "ref": "payload-002",
         "file": "002-response.json",
-        "sha256": "4bde45306f6de466d88436dbb5ff8ca8cd94cccf92cb3dd1509cf99cbda0ec8d",
-        "bytes": 7341,
-        "chars": 5007,
-        "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"未具名主角，持有家族旧信与信物，独自在海岸活动，从半信半疑转为决定出海验证。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-001\",\n          \"snippet\": \"家族最后留给我的，就这封信和这枚不说话的信物。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"家族遗留的旧信，纸薄黄、边缘被盐气咬出小洞，部分字残缺，内容涉及岸光、灯塔、南方旧道等航路信息。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-00"
+        "sha256": "f745bff4c4529ee2007478f680bd6a0d9132823d08fefb1811da860b5712c4c5",
+        "bytes": 10589,
+        "chars": 7439,
+        "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，独自驾船离岸，依靠旧信与信物判断航向，左腿关节有旧伤，行事谨慎。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"他蹲在礁石与浅水交界的最后一步处，左膝抵着摊开的信纸，右手把信物按在纸边\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"站直的时候左腿的关节钝响了一声\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"一封来源不"
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1792687487343-0",
+          "physicalCallId": "physical-1793063444617-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
           "response": {
             "ref": "payload-002",
             "file": "002-response.json",
-            "sha256": "4bde45306f6de466d88436dbb5ff8ca8cd94cccf92cb3dd1509cf99cbda0ec8d",
-            "bytes": 7341,
-            "chars": 5007,
-            "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"我\",\n      \"type\": \"character\",\n      \"description\": \"未具名主角，持有家族旧信与信物，独自在海岸活动，从半信半疑转为决定出海验证。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-001\",\n          \"snippet\": \"家族最后留给我的，就这封信和这枚不说话的信物。\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"家族遗留的旧信，纸薄黄、边缘被盐气咬出小洞，部分字残缺，内容涉及岸光、灯塔、南方旧道等航路信息。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1792686579930_8sdumn-00"
+            "sha256": "f745bff4c4529ee2007478f680bd6a0d9132823d08fefb1811da860b5712c4c5",
+            "bytes": 10589,
+            "chars": 7439,
+            "preview": "{\n  \"entities\": [\n    {\n      \"name\": \"他\",\n      \"type\": \"character\",\n      \"description\": \"本章主角，独自驾船离岸，依靠旧信与信物判断航向，左腿关节有旧伤，行事谨慎。\",\n      \"evidence\": [\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"他蹲在礁石与浅水交界的最后一步处，左膝抵着摊开的信纸，右手把信物按在纸边\"\n        },\n        {\n          \"chapterId\": \"ch-vol_1793062509835_da8865-001\",\n          \"snippet\": \"站直的时候左腿的关节钝响了一声\"\n        }\n      ]\n    },\n    {\n      \"name\": \"旧信\",\n      \"type\": \"object\",\n      \"description\": \"一封来源不"
           }
         }
       ]
