@@ -1254,3 +1254,9 @@
 - 验证：`pipelineProviderChannels.spec.ts + realSkillExecutor.spec.ts` 70/70；`ApiSettings.spec.ts` 3/3；`type-check` exit 0；`test:services` 219 files / 2370 tests 全部通过；`build:vue` 成功；`verify:provider-channel-electron` PASS，`requests=3`，trace / apiCall / 物理请求体三层 model 断言同源。
 - 诚实边界：live 单供应商矩阵本轮未重跑，3.110.0 live PASS 继续证明 providerId 路由，本轮 model 轴由 mock 四供应商矩阵证明；风格分析 step 0 仍走全局供应商，属设计内；3.110.1 安装包未重新封装。
 - 版本与经验：package/package-lock 均为 3.110.1；经验文件 v9.6.3，G1.5 追加 providerId+model 三面同源与“断言先红后绿”判则。
+
+## 3.110.1 边界闭环补充
+
+- live 单供应商矩阵：PASS，`requests=3`，三层 model 断言 `deepseek-v4-pro`，三面 `trace-event / apiCall / provider-request` 同源；key 只记录长度与加密状态。
+- 封装：`npm run build` exit 0；安装包 `dist/神意助手-Setup-3.110.1.exe`，231,613,224 bytes，SHA256 `BAACBA570B1C5BF14EAC893265500179CDDAC5993E34FFE785B4F54598EB06D2`；latest.yml 与 exe FileVersion/ProductVersion 均为 3.110.1。
+- 收尾：带路径守卫删除旧 3.110.0 安装包与 blockmap，dist 仅保留当前版本一套。剩余边界仅“本机 live 单一 generate 供应商”与“风格分析 step 0 全局供应商为设计内”。

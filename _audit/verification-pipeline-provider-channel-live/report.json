@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-10-27T18:04:48.849Z",
+  "at": "2026-10-27T19:41:53.893Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1793124225851-1",
+      "runId": "pipeline-run-1793130046715-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -68,12 +68,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793124225851,
+      "startedAt": 1793130046715,
       "progressPhase": "terminal",
-      "endedAt": 1793124281868
+      "endedAt": 1793130096051
     },
     "chapters": {
-      "runId": "pipeline-run-1793124226314-2",
+      "runId": "pipeline-run-1793130047199-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -123,12 +123,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793124226314,
+      "startedAt": 1793130047199,
       "progressPhase": "terminal",
-      "endedAt": 1793124259501
+      "endedAt": 1793130065688
     },
     "body": {
-      "runId": "pipeline-run-1793124226736-3",
+      "runId": "pipeline-run-1793130047793-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -178,10 +178,20 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793124226736,
+      "startedAt": 1793130047794,
       "progressPhase": "terminal",
-      "endedAt": 1793124288689
+      "endedAt": 1793130113676
     }
+  },
+  "modelAssertions": {
+    "volumes": "deepseek-v4-pro",
+    "chapters": "deepseek-v4-pro",
+    "body": "deepseek-v4-pro",
+    "surfaces": [
+      "trace-event",
+      "apiCall",
+      "provider-request"
+    ]
   },
   "requestCount": 3,
   "mode": "live-single-supplier",
@@ -189,7 +199,7 @@
     "credentialSource": "C:\\Users\\凯瑞\\AppData\\Roaming\\shenyi-assistant\\data\\wa_providers.json",
     "sourceKeyState": "encrypted",
     "keyLength": 51,
-    "proxyBaseUrl": "http://127.0.0.1:12787/v1",
+    "proxyBaseUrl": "http://127.0.0.1:3118/v1",
     "model": "deepseek-v4-pro",
     "successfulRequests": 3
   }

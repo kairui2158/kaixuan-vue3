@@ -76,3 +76,14 @@
 - 回归：`npx vitest run src/services/pipelineProviderChannels.spec.ts src/services/realSkillExecutor.spec.ts` 70/70；`ApiSettings.spec.ts` 3/3；`npm run type-check` exit 0；`npm run test:services` 219 files / 2370 tests 全部通过；`npm run build:vue` 成功；`npm run verify:provider-channel-electron` PASS，`requests=3`，三层模型断言在 report 中。
 - 诚实边界：本轮 live 单供应商矩阵未重跑；上版 3.110.0 live PASS 证明 providerId 路由，本轮新增 model 轴由 mock 四供应商矩阵与三面同源断言证明。风格分析 step 0 辅助路径仍走全局供应商，属设计内。
 - 经验回写：v9.6.2 -> v9.6.3，G1.5 追加供应商通道 `providerId + model` 三面同源断言与“新断言先红后绿”判则；MASTER_INDEX 已登记 3.110.1 收口。
+
+## 10. 3.110.1 剩余边界闭环
+
+- live 单供应商矩阵：PASS，`mode=live-single-supplier`，`requests=3`，key 仅记录 `keyLength=51` 与 `sourceKeyState=encrypted`，无明文落日志。三层 `modelAssertions` 均为 `deepseek-v4-pro`，覆盖 `trace-event / apiCall / provider-request` 三面。
+- 完整封装：`npm run build` exit 0（两次 vite build + electron-builder --win）。
+- 版本一致性：`package.json` / `package-lock.json` 均为 3.110.1；`dist/win-unpacked/神意助手.exe` FileVersion/ProductVersion 均为 3.110.1。
+- 安装包：`dist/神意助手-Setup-3.110.1.exe`，231,613,224 bytes，SHA256 `BAACBA570B1C5BF14EAC893265500179CDDAC5993E34FFE785B4F54598EB06D2`。
+- `dist/latest.yml`：version 3.110.1，path `shenyi-assistant-setup-3.110.1.exe`，size 231,613,224。
+- `dist/win-unpacked/resources/app.asar`：241,598,381 bytes，SHA256 `EB9252AE261AA4BAB3AE8A1DA8695E4FA3E662B8F6237C75D6FC0225AEDD0B97`。
+- 收尾清理：带 dist 路径守卫删除旧 `3.110.0.exe` 与 `3.110.0.exe.blockmap`；`dist` 仅保留 3.110.1 一套安装包。
+- 剩余边界：风格分析 step 0 辅助路径仍走全局供应商，属设计内；本机 live 仍只有单一 generate 供应商，多供应商分流继续由 mock 四供应商矩阵证明。

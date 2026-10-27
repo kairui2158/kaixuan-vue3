@@ -1,5 +1,5 @@
 {
-  "id": "run-1793124225866-1",
+  "id": "run-1793130046736-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 2,
@@ -12,35 +12,35 @@
   "model": "deepseek-v4-pro",
   "skillNames": [],
   "skillMode": "compose",
-  "pipelineRunId": "pipeline-run-1793124225851-1",
+  "pipelineRunId": "pipeline-run-1793130046715-1",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "63367bdc028f",
-    "buildTime": "2026-10-27T17:23:03.513Z"
+    "commit": "f21a27b4823d",
+    "buildTime": "2026-10-27T19:11:21.075Z"
   },
-  "startedAt": 1793124225866,
+  "startedAt": 1793130046736,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "all_volumes_generation_complete",
-      "recordedAt": 1793124281868
+      "recordedAt": 1793130096052
     }
   ],
   "events": [
     {
-      "id": "event-1793124225866-2",
-      "ts": 1793124225866,
+      "id": "event-1793130046737-2",
+      "ts": 1793130046737,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 卷纲层运行"
     },
     {
-      "id": "event-1793124225867-3",
-      "ts": 1793124225867,
+      "id": "event-1793130046741-3",
+      "ts": 1793130046741,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -48,8 +48,8 @@
       "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1793124225868-4",
-      "ts": 1793124225868,
+      "id": "event-1793130046741-4",
+      "ts": 1793130046741,
       "seq": 3,
       "type": "prompt-built",
       "level": "info",
@@ -57,8 +57,8 @@
       "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":8000,\"remainingVolumes\":1,\"currentVolumeBudget\":8000,\"conflicts\":[],\"mode\":\"auto\"}"
     },
     {
-      "id": "event-1793124225868-5",
-      "ts": 1793124225868,
+      "id": "event-1793130046743-5",
+      "ts": 1793130046743,
       "seq": 4,
       "type": "style-semantics-merged",
       "level": "info",
@@ -66,26 +66,26 @@
       "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1793124225876-6",
-      "ts": 1793124225876,
+      "id": "event-1793130046756-6",
+      "ts": 1793130046756,
       "seq": 5,
-      "type": "agent-model-fallback",
-      "level": "warn",
-      "label": "Agent 模型未显式配置，已回退供应商默认模型",
-      "detail": "{\"step\":2,\"configuredModel\":null,\"fallbackModel\":\"deepseek-v4-pro\",\"fallbackSource\":\"provider.selectedModel\"}"
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：layer",
+      "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"model\":\"deepseek-v4-pro\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
     },
     {
-      "id": "event-1793124225902-7",
-      "ts": 1793124225902,
+      "id": "event-1793130046789-7",
+      "ts": 1793130046789,
       "seq": 6,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
       "label": "生成流水线供应商通道：compose",
-      "detail": "{\"layer\":\"volumes\",\"layerProviderId\":\"provider-volumes\",\"globalProviderId\":\"provider-settings\",\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false}"
+      "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"model\":\"deepseek-v4-pro\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
     },
     {
-      "id": "event-1793124225903-9",
-      "ts": 1793124225903,
+      "id": "event-1793130046790-9",
+      "ts": 1793130046790,
       "seq": 7,
       "type": "api-start",
       "level": "info",
@@ -93,8 +93,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1793124225907-11",
-      "ts": 1793124225907,
+      "id": "event-1793130046795-11",
+      "ts": 1793130046795,
       "seq": 8,
       "type": "run-activity",
       "level": "info",
@@ -106,22 +106,22 @@
       }
     },
     {
-      "id": "event-1793124225907-12",
-      "ts": 1793124225907,
+      "id": "event-1793130046795-12",
+      "ts": 1793130046795,
       "seq": 9,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1793124225907-10",
+        "physicalCallId": "physical-1793130046795-10",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1793124225908-13",
-      "ts": 1793124225908,
+      "id": "event-1793130046795-13",
+      "ts": 1793130046795,
       "seq": 10,
       "type": "physical-call",
       "level": "info",
@@ -129,18 +129,18 @@
       "detail": "normal / compose / deepseek-v4-pro"
     },
     {
-      "id": "event-1793124225917-14",
-      "ts": 1793124225917,
+      "id": "event-1793130046799-14",
+      "ts": 1793130046799,
       "seq": 11,
-      "turnId": "api-1793124225903-8",
+      "turnId": "api-1793130046790-8",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"provider-volumes\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1793124240909-47",
-      "ts": 1793124240909,
+      "id": "event-1793130061801-47",
+      "ts": 1793130061801,
       "seq": 12,
       "type": "physical-call",
       "level": "info",
@@ -148,8 +148,8 @@
       "detail": "normal / compose / deepseek-v4-pro"
     },
     {
-      "id": "event-1793124240909-48",
-      "ts": 1793124240909,
+      "id": "event-1793130061801-48",
+      "ts": 1793130061801,
       "seq": 13,
       "type": "run-activity",
       "level": "info",
@@ -161,8 +161,8 @@
       }
     },
     {
-      "id": "event-1793124255918-53",
-      "ts": 1793124255918,
+      "id": "event-1793130076797-60",
+      "ts": 1793130076797,
       "seq": 14,
       "type": "physical-call",
       "level": "info",
@@ -170,8 +170,8 @@
       "detail": "normal / compose / deepseek-v4-pro"
     },
     {
-      "id": "event-1793124255918-54",
-      "ts": 1793124255918,
+      "id": "event-1793130076797-61",
+      "ts": 1793130076797,
       "seq": 15,
       "type": "run-activity",
       "level": "info",
@@ -183,8 +183,8 @@
       }
     },
     {
-      "id": "event-1793124270908-66",
-      "ts": 1793124270908,
+      "id": "event-1793130091805-64",
+      "ts": 1793130091805,
       "seq": 16,
       "type": "physical-call",
       "level": "info",
@@ -192,8 +192,8 @@
       "detail": "normal / compose / deepseek-v4-pro"
     },
     {
-      "id": "event-1793124270908-67",
-      "ts": 1793124270908,
+      "id": "event-1793130091805-65",
+      "ts": 1793130091805,
       "seq": 17,
       "type": "run-activity",
       "level": "info",
@@ -205,8 +205,8 @@
       }
     },
     {
-      "id": "event-1793124281844-70",
-      "ts": 1793124281844,
+      "id": "event-1793130096028-68",
+      "ts": 1793130096028,
       "seq": 18,
       "type": "physical-call",
       "level": "info",
@@ -214,17 +214,17 @@
       "detail": "normal / compose / deepseek-v4-pro / stop"
     },
     {
-      "id": "event-1793124281844-71",
-      "ts": 1793124281844,
+      "id": "event-1793130096028-69",
+      "ts": 1793130096028,
       "seq": 19,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1793124225903-8 seq=1"
+      "detail": "apiCall=api-1793130046790-8 seq=1"
     },
     {
-      "id": "event-1793124281844-72",
-      "ts": 1793124281844,
+      "id": "event-1793130096028-70",
+      "ts": 1793130096028,
       "seq": 20,
       "type": "api-success",
       "level": "info",
@@ -232,8 +232,8 @@
       "detail": "compose / deepseek-v4-pro"
     },
     {
-      "id": "event-1793124281846-73",
-      "ts": 1793124281846,
+      "id": "event-1793130096030-71",
+      "ts": 1793130096030,
       "seq": 21,
       "type": "volume-batch-attempt",
       "level": "info",
@@ -241,8 +241,8 @@
       "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":0,\"errors\":[]}"
     },
     {
-      "id": "event-1793124281868-74",
-      "ts": 1793124281868,
+      "id": "event-1793130096051-72",
+      "ts": 1793130096051,
       "seq": 22,
       "type": "volume-batch-validated",
       "level": "info",
@@ -250,8 +250,8 @@
       "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
     },
     {
-      "id": "event-1793124281868-75",
-      "ts": 1793124281868,
+      "id": "event-1793130096051-73",
+      "ts": 1793130096051,
       "seq": 23,
       "type": "write",
       "level": "info",
@@ -259,8 +259,8 @@
       "detail": "写入 1 卷"
     },
     {
-      "id": "event-1793124281868-76",
-      "ts": 1793124281868,
+      "id": "event-1793130096052-74",
+      "ts": 1793130096052,
       "seq": 24,
       "type": "finished",
       "level": "info",
@@ -268,18 +268,18 @@
       "detail": "all_volumes_generation_complete"
     },
     {
-      "id": "event-1793124281868-77",
-      "ts": 1793124281868,
+      "id": "event-1793130096052-75",
+      "ts": 1793130096052,
       "seq": 25,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "all_volumes_generation_complete / run=run-1793124225866-1"
+      "detail": "all_volumes_generation_complete / run=run-1793130046736-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1793124225903-8",
+      "id": "api-1793130046790-8",
       "seq": 1,
       "step": 2,
       "skillId": "compose",
@@ -299,15 +299,15 @@
           "content": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
         }
       ],
-      "responseText": "[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]",
+      "responseText": "[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"第2卷接续王芳在灯塔发现纸条后的行动。灯塔内部的层通道入口被纸条上的非标准坐标激活，王芳进入一段仅对真实UI开放的验证流程。验证分三个阶段：识别纸条上的异常标识、在层通道常规界面中定位被隐藏的真实节点、在节点内获取第一条真实日志碎片。王芳发现层通道的表象界面存在人为裁剪，但她暂无法锁定裁剪者。卷末她取得日志碎片，碎片指向下一处验证点，同时真实UI开始反追踪她的身份。\",\n    \"summary\": \"王芳以灯塔纸条为凭据进入层通道真实UI验证，解锁第一条被隐藏的真实日志碎片，同时暴露自身行踪。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待看到灯塔纸条背后的验证机制、层通道真实UI与表象UI的差异，以及王芳逼近真相时的紧张感。\",\n    \"mainPlotLine\": \"王芳在灯塔内依据纸条激活真实UI验证，解锁隐藏日志碎片，并引发层通道系统的反追踪。\",\n    \"unlockMilestone\": \"解锁真实UI验证协议与第一条真实日志碎片。\",\n    \"forbiddenFinalCards\": [\n      \"纸条的最高权限来源\",\n      \"层通道最终控制者身份\",\n      \"真实世界与层通道的物理关系\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]",
       "streamText": "",
-      "reasoningText": "我们需要回答用户。需要理解任务。用户给了大纲和约束。需要生成第2卷卷纲。已生成卷数1，卷数2，全书总字数20000，第一卷12000。需要输出JSON数组长度1，字段：name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk。\n\n需要推断第2卷。已有第1卷《第一卷 层通道》，不要重复已有卷名。摘要：确认纸条。设定规划约束暂无。全书20000字，第一卷分配12000，第二卷大概8000字。需要为第2卷设计卷名，大纲：层通道真实UI验证，剧情单元 H1-01 纸条 章节范围第1章 王芳在灯塔发现纸条。似乎这是一个更具体的故事，可能只有两卷。需要从第一卷“层通道”到第二卷？需要生成卷纲。\n\n注意：用户要求“生成1卷的卷纲。不要重复任何已有卷名。” 已生成卷数1，已有卷名“第一卷 层通道”。需要生成第2卷，可能名称不要重复。需要基于已知事实：第1卷摘要“确认纸条”。第1卷章节范围第1章王芳在灯塔发现纸条？H1-01 纸条。第1卷可能是第1章，确认纸条。那么第2卷可能是第2章？全书只有20000字，2卷，第2卷8000字。需要设计卷名，避开“第一卷 层通道”。大纲标题“层通道真实UI验证”——可能第2卷叫“真实UI验证”？或者“第一卷 层通道”已经包含了“层通道”，第2卷应该“真实UI”或“验证”？需要思考。\n\n这个输入似乎是某种小说生成系统。需要输出卷纲。也许《层通道真实UI验证》是总标题？第1卷《第一卷 层通道》，第2卷可能《第二卷 真实UI验证》？但不能重复已有卷名，可以叫“第二卷 真实UI验证”。需要符合故事。\n\n需要根据已有第1卷摘要“确认纸条”和总大纲“层通道真实UI验证”，以及剧情单元 H1-01 纸条。可能这个故事关于“层通道”和“真实UI验证”。第1卷：王芳在灯塔发现纸条，确认纸条，建立层通道？第2卷可能：王芳进入层通道，进行真实UI验证？需要合理。\n\n我们不用管具体故事内容多详细，但需要字段。\n\n字段含义：\n- name: 卷名\n- outline: 大纲，可能本卷大纲\n- summary: 摘要\n- allocatedWords: 分配字数\n- readerExpectations: 读者期待\n- mainPlotLine: 主推线\n- unlockMilestone: 本卷解锁里程碑\n- forbiddenFinalCards: 禁碰终局底牌（字符串数组，没有则输出[]）\n- contractRisk: contract_safe / contract_needs_reinforcement / contract_broken / [待补充]\n\n需要依据设定规划约束（暂无）和已有事实。第1卷摘要确认纸条。第2卷应进展。总字数20000，第1卷12000，第2卷8000。所以allocatedWords应为8000。\n\n需要思考卷名。不要重复“第一卷 层通道”。可以“第二卷 真实UI验证”。或者更文学化：如“第二卷 界面之下”。但大纲是“层通道真实UI验证”。可能可用“真实UI验证”作为卷名。注意已有卷名包含“层通道”。避免重复？卷名可以包含不同词。“真实UI验证”不重复。用户要求“不要重复任何已有卷名”不是禁止包含相同词，而是不要完全一样。但为了安全，可以叫“第二卷 真实UI验证”。\n\n需要生成JSON数组。必须使用标准 JSON 输出，不要 markdown。字段必须都在。需要谨慎。\n\n考虑故事连贯性：第1卷“确认纸条”发生在灯塔，王芳发现纸条。第2卷可能揭示纸条内容与“层通道”有关，王芳进入层通道，验证“真实UI”——可能发现世界是模拟/游戏界面？需要贴合“真实UI验证”。可能“真实UI”是一个系统，必须在层通道内验证。第2卷主推线：王芳携带纸条进入层通道，在真实UI环境中验证纸条信息，解锁下一阶段。\n\n需要注意“禁碰终局底牌”：不能揭示最终真相。第2卷可能还不能揭示层通道的本质/终极BOSS/终极谜底。可以列一些：[\"终局层通道本源\", \"纸条最终署名者\", \"真实UI的最高权限\"] ？但不知道具体终局。需要符合字段要求，没有则[]。但可以依据大纲列，避免碰终局底牌。用户可能期望这个字段。为安全，可设置 [\"层通道终极真相\", \"真实UI最终权限来源\"]，还是空数组？字段说“禁碰终局底牌（字符串数组，没有则输出[]）”。这是个约束字段，表示本卷不能触碰的终局底牌。如果有，列出；没有则[]。这里应该有，因为第2卷不是终局，要限制不揭露终局。可以列出几个。但要结合故事。可能没问题。\n\ncontractRisk：需要评估是否合同安全。由于设定规划约束“暂无”，第1卷确认纸条，第2卷推进到验证层通道真实UI，不破坏主线，应该是contract_safe。或者合同风险需要强化？因为没有设定约束，可能safe。\n\n需要输出JSON数组长度1，不要额外解释。确保字段名拼写正确：name, outline, summary, allocatedWords, readerExpectations, mainPlotLine, unlockMilestone, forbiddenFinalCards, contractRisk。\n\n考虑中文内容。需要符合 JSON 语法。数组一项。字段值可以是字符串，读者期待、主推线、解锁里程碑等可能是字符串描述。forbiddenFinalCards是数组。\n\n需要确保 allocatedWords 是数字8000。summary 简述。\n\n可能生成：\n{\n  \"name\": \"第二卷 真实UI验证\",\n  \"outline\": \"王芳带着灯塔发现的纸条进入层通道，在多层界面中逐步验证纸条上关于真实UI的提示。她发现层通道的显示规则与真实世界不同，并通过对比纸条上的符号找到第一层验证节点。本卷结束时，王芳确认真实UI的存在，但尚未触及层通道的核心权限，通道内出现新的门，仅对持有完整验证记录者开放。\",\n  \"summary\": \"王芳进入层通道，验证纸条所指的真实UI，取得第一层验证记录。\",\n  \"allocatedWords\": 8000,\n  \"readerExpectations\": \"期待王芳主动利用纸条探索层通道，看到真实UI的初步规则与反常识现象，并形成新的悬念——通道内还有更深的验证层。\",\n  \"mainPlotLine\": \"王芳依据纸条进入层通道，完成真实UI的第一层验证，打开下一段通路。\",\n  \"unlockMilestone\": \"解锁真实UI第一层验证节点，获得进入下一层通道的资格。\",\n  \"forbiddenFinalCards\": [\"层通道终极真相\", \"真实UI最高权限来源\", \"纸条最终隐藏意图\"],\n  \"contractRisk\": \"contract_safe\"\n}\n\n这看起来不错。但需要思考卷名是否重复？已有卷名“第一卷 层通道”，新卷名“第二卷 真实UI验证”没有完全重复。没问题。\n\n但注意大纲中总标题“层通道真实UI验证”，可能卷名可用“真实UI”，避免与总标题重复？但用户说不要重复已有卷名，没有说不能重复大纲词。可以。\n\n需要确保outline不涉及终局底牌？可能第2卷结束“尚未触及核心权限”就很安全。\n\n需要关注“语义字段允许输出[待补充]”，但我们可以提供具体。\n\n潜在问题：第1卷已有摘要“确认纸条”。第2卷摘要“王芳进入层通道，验证纸条所指的真实UI，取得第一层验证记录。”是否推进合理？是的。\n\n需要输出纯 JSON，不要markdown代码块？用户要求输出JSON数组。最好直接输出 JSON，不要代码围栏。作为助手，可以输出纯 JSON。确保没有多余文本。\n\n需要再思考 contractRisk 可选值：contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。我们选 contract_safe。如果应该有风险？第2卷触碰了“真实UI验证”是否可能暴露设定？但设定没有约束，线推进正常。应该是 contract_safe。\n\n需要确保 forbiddenFinalCards 数组不是空，以防触碰终局。列出的项是否合理？ \"层通道终极真相\" \"真实UI最高权限来源\" \"纸条最终隐藏意图\"。可能“纸条最终隐藏意图”有点抽象。也可以列出 [\"层通道终极真相\", \"真实UI最高权限来源\"]。用户可能不要求具体。没问题。\n\n需要注意 JSON 中不要有尾逗号。字段顺序可以任意吗？要求字段必须在场。可以按用户给定顺序。需要严格。\n\n考虑潜在系统可能需要“mainPlotLine”为字符串数组？用户没有明确，示例？在提示中字段为“readerExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。”通常可能都是字符串。但“readerExpectations”是“读者期待”，可能字符串。没有要求数组。可以全用字符串。\n\n但“forbiddenFinalCards”是字符串数组明确。\n\n需要判断故事是否需要基于“层通道真实UI验证”这个总标题，第二卷应该更接近验证，也许第1卷确认纸条，第2卷开始“真实UI”验证。我们设计合理。\n\n可以输出：\n[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n\n这样似乎太长？需要适当。20000字中第二卷8000，outline可以一两段。这个 outline 长度合适。\n\n需要确保“已生成卷事实清单”中第1卷摘要确认纸条，第2卷不能重复卷名，没有其他限制。\n\n需要输出数组。我将在 final 中输出 JSON。不能使用代码块？通常如果要求输出JSON，可以直接纯文本。但为了避免格式问题，可以输出代码块？用户说“输出JSON数组”，可能期望原始JSON。在没有 markdown 要求下，最好输出纯 JSON。但在聊天中纯 JSON 可能被渲染。作为 API 响应，应该直接输出 JSON。这里将输出纯 JSON 文本。\n\n需要确保 JSON 中字符串内不用双引号未转义。中文标点没问题。\n\n最终答案：\n[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n\n检查JSON语法：数组括号，对象内部字段逗号分隔，最后没有尾逗号。OK。\n\n需要不要出现任何额外解释。最终直接输出。",
+      "reasoningText": "我们需要回答用户。需要生成1卷的卷纲。用户给了大纲：层通道真实UI验证，剧情单元 H1-01 纸条，章节范围第1章，王芳在灯塔发现纸条。设定规划约束暂无。卷数2，已生成卷数1，全书总字数20000字，已生成卷事实清单：第1卷《第一卷 层通道》分配字数12000，摘要：确认纸条。\n\n要求：生成1卷的卷纲。不要重复任何已有卷名。输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。数组长度必须为1。\n\n需要思考：这是第2卷？卷数2，已生成卷数1，所以现在生成第2卷。已有第1卷《第一卷 层通道》，不要重复卷名。全书总字数20000，第1卷分配12000，第2卷剩余可能8000字？但用户说“生成1卷的卷纲”，数组一项。需要输出JSON。字段语义。\n\n需要基于已有事实和大纲。剧情单元H1-01 纸条 第1章 王芳在灯塔发现纸条。第1卷摘要确认纸条。第2卷大概继续？但用户说“层通道真实UI验证” 可能是主题。需要生成第2卷卷纲，不要重复卷名。已有第一卷名“第一卷 层通道”，可能第2卷名不能重复“层通道”。需要起名不重复。\n\n注意输出的JSON必须是合法JSON数组，不要有其他文本？用户说输出JSON数组。我们要只输出JSON。需要确保字段符合要求。\n\n分析设定：也许这是一个“层通道真实UI验证”的故事，可能关于虚拟现实/层级通道/UI。第1卷确认纸条。第2卷可能深入验证真实UI？ 需要合理续写。\n\n需要字段：\n- name: 第二卷卷名，不要重复已有卷名。\n- outline: 大纲\n- summary: 摘要\n- allocatedWords: 分配字数。全书20000，第1卷12000，第2卷应8000。但需要确认？可以8000。\n- readerExpectations: 读者期待\n- mainPlotLine: 主推线\n- unlockMilestone: 本卷解锁里程碑\n- forbiddenFinalCards: 禁碰终局底牌，字符串数组，没有则[]。由于这是第2卷最终卷？也许不能揭露最终真相。需要给出禁止触碰的终局底牌，例如“层通道真实UI为世界真相”等。用户说语义字段允许[待补充]，但必须在场。可以给具体数组。\n- contractRisk: contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。需要推断。可能 contract_safe？由于已生成1卷且第2卷是最终卷，需要遵守约束。我们可以用 contract_safe 或 contract_needs_reinforcement。根据剧情？大纲是“层通道真实UI验证”，已有第1卷确认纸条。第2卷可能揭示？但禁止碰终局底牌。可以设置 contract_needs_reinforcement 如果某些约束未明确。但用户没有设定规划约束，所以 contract_safe 可能可以。\n\n需要结合“已生成卷事实清单”中有第1卷摘要“确认纸条”。第2卷应该从纸条出发。终局底牌可能是“纸条的真实来源”“层通道的控制者”“真实世界与层通道关系”“UI是投影”等。但是 forbiddenFinalCards 是禁碰终局底牌，即本卷不能揭示的核心底牌。由于这是第2卷且卷数2，可能是最终卷？如果卷数2意味着全书2卷，那么第2卷是最终卷，或许可以碰终局底牌？但是字段要求禁碰终局底牌，可能仍有一些终局底牌不能碰？需要思考。可能“层通道真实UI验证”中最终第2卷需要揭示一些真相，但可能仍需保留某些悬念？需要输出合理。\n\n我们作为助手要生成一个卷纲，符合约束。可以设置 forbiddenFinalCards 为一些更深层真相，即使第2卷也不揭。但用户说“禁碰终局底牌（字符串数组，没有则输出[]）”。可以具体。\n\n需要确保JSON数组长度1。卷名不重复已有“第一卷 层通道”。可起名“第二卷 灯塔之下”或“第二卷 真实UI”等。但不要重复“层通道”。已有卷名包含“层通道”，但第二卷名可以类似于“第二卷 纸背”等。避免重复“层通道”这个词，最好不用。\n\n需要构建具体内容：\nname: \"第二卷 纸背\"\noutline: 第2卷围绕王芳在灯塔发现纸条后，试图通过层通道的UI界面验证纸条指向的坐标与权限；发现层通道中出现了不属于系统记录的真实UI节点；王芳在灯塔内部通过纸条指引触发隐藏验证协议；最终确认纸条可解锁一段被屏蔽的真实层通道日志。但不可揭露层通道整体真相和纸条最高权限来源。\nsummary: 王芳依据纸条内容进入层通道真实UI验证流程，解锁隐藏日志碎片。 \nallocatedWords: 8000\nreaderExpectations: 读者期待王芳通过灯塔纸条深入层通道，看到真实UI与表象UI的差异，以及逐步逼近真相。\nmainPlotLine: 王芳在灯塔内使用纸条完成真实UI验证，揭示层通道存在被隐藏的真实界面与日志。\nunlockMilestone: 解锁隐藏真实UI验证协议与第一条真实日志碎片。\nforbiddenFinalCards: [\"纸条的最高权限来源\", \"层通道的最终控制者身份\", \"真实世界与层通道的物理关系\"] \ncontractRisk: contract_safe\n\n需要确保字段语义是否允许[待补充]。我们输出具体值可以。\n\n但是需谨慎：全书共2卷，第2卷是最终卷，若禁碰终局底牌太多可能结局不够。但用户字段是 forbiddenFinalCards，可能允许一些底牌被禁止，以保证系列可扩展？但卷数2说明两卷结束，可能需要揭示核心。但已经有 H1-01 纸条 第1章。也许“层通道真实UI验证”是一个单一剧情单元？属于更大故事的开头？卷数2可能只是前两卷。大纲的范围可能只是第1章。需要从已有事实判断：第1卷《第一卷 层通道》分配12000字，摘要：确认纸条。这只是第1章。第2卷可能继续展开，不一定最终揭示所有真相。因此 forbiddenFinalCards 保留底牌合理。\n\n需要思考 contractRisk。如果第2卷需要大量揭示，但已有第1卷没有铺垫？我们可以选择 contract_safe，因为大纲中已确认纸条，第2卷扩展是安全的。但也可能因为第2卷需要解锁里程碑，若与已有第1卷不冲突就 safe。为了保险可以输出 contract_safe。\n\n如果用户期望 JSON 数组只有一项。确保格式合法。不能有多余文字。\n\n需要检查是否要包含第2卷的章节范围？字段没有要求章节范围，所以不需要。但outline可以包含章节规划。\n\n需要输出 GFM 表? 用户没有要求表格，要求JSON。不用表格。\n\n我们需要直接输出 JSON 数组，以 ```json 代码块或纯 JSON？通常输出纯 JSON 文本。不要额外说明。\n\n需要确保 JSON 字符串正确转义。中文字符不需要转义。\n\n最终：\n[\n  {\n    \"name\": \"第二卷 纸背\",\n    \"outline\": \"第2卷接续王芳在灯塔发现纸条。灯塔内部层通道入口被纸条上的坐标激活，王芳进入真实UI验证流程。验证分三阶段：识别纸条上的非标准标识、对照层通道常规UI找到被隐藏的真实节点、在节点内取得第一条真实日志碎片。过程中王芳察觉层通道的表象界面存在人为裁剪，但她无法确认裁剪者。卷末她获得日志碎片，碎片指向下一处验证点，但真实UI开始反追踪她的身份。\",\n    \"summary\": \"王芳以纸条为凭据进入层通道真实UI验证，解锁第一条被隐藏的真实日志碎片，同时暴露自身行踪。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待看到灯塔纸条背后的验证机制、层通道真实UI与表象UI的差异，以及王芳在逼近真相过程中的紧张感。\",\n    \"mainPlotLine\": \"王芳在灯塔内依据纸条激活真实UI验证，解锁隐藏日志碎片，并引起层通道系统的反追踪。\",\n    \"unlockMilestone\": \"解锁真实UI验证协议与第一条真实日志碎片。\",\n    \"forbiddenFinalCards\": [\n      \"纸条的最高权限来源\",\n      \"层通道最终控制者身份\",\n      \"真实世界与层通道的物理关系\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n\n需要确认字段名准确。数组长度1。不重复卷名，已有“第一卷 层通道”，新卷名“第二卷 纸背”不重复。\n\n但是用户可能期望“层通道真实UI验证”作为标题？已有第1卷名“第一卷 层通道”，新卷可能“第二卷 真实UI验证”。但不要重复已有卷名，已有含有层通道。避免使用层通道，但“真实UI”可用。卷名“第二卷 真实UI验证”不重复。可以吗？如果第1卷是“第一卷 层通道”，第2卷“第二卷 真实UI验证”合理。但“真实UI验证”更直接。大纲标题就是“层通道真实UI验证”。但卷名不能重复已有“层通道”，但可以用“真实UI验证”。考虑 name: \"第二卷 真实UI验证\"。这样更匹配。我原来的“纸背”可能太文学。需要看设定？用户的大纲标题是“层通道真实UI验证”。第2卷卷名不应重复已有卷名，但可以包含“真实UI验证”。那好。\n\n改成 name: \"第二卷 真实UI验证\"。\noutline 同上。\n\n需要确保不重复“第一卷 层通道”的“层通道”吗？用户只说不要重复任何已有卷名，不是禁止词语。但第2卷名可以包含“真实UI验证”，不重复。若是“第二卷 真实UI验证”和“第一卷 层通道”不同。可以。\n\n但“层通道”出现在大纲里。没问题。\n\n选择题目要合适。已有的“第一卷 层通道”可能是用来确立世界观。第2卷“真实UI验证”是剧情重点。\n\n最终输出 JSON。\n\n需要检查 contractRisk 是否应该为 contract_needs_reinforcement？因为设定规划约束暂无，可能意味着没有额外设定，但已生成卷事实清单有第1卷。第2卷的里程碑“解锁真实UI验证协议与第一条真实日志碎片”在第1卷未铺垫太多，可能需要强化契约？但第1卷就是确认纸条，所以第2卷解锁验证机制自然延续。contract_safe 可以。但是如果有终局底牌禁止，且卷数2可能最终未揭示全部，还可能 contract_needs_reinforcement 因为读者期待更高？但字段是标注风险，我们不知道具体契约。可以选 contract_safe 表示没有违约风险。\n\n我们需要输出纯 JSON 文本。不要使用代码块？用户说输出JSON数组，没有要求代码块，但可以纯 JSON。为了清晰，可以不加代码块。但通常模型输出 JSON 时可以加 ```json。用户可能要求直接输出 JSON 数组，不加其他文本。我们就输出纯 JSON 数组。\n\n完成。",
       "status": "success",
-      "startedAt": 1793124225903,
+      "startedAt": 1793130046790,
       "physicalCalls": [
         {
-          "id": "physical-1793124225907-10",
-          "physicalCallId": "physical-1793124225904-0",
+          "id": "physical-1793130046795-10",
+          "physicalCallId": "physical-1793130046791-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -321,22 +321,22 @@
               "content": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
             }
           ],
-          "responseText": "[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]",
-          "streamText": "[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]",
-          "reasoningText": "我们需要回答用户。需要理解任务。用户给了大纲和约束。需要生成第2卷卷纲。已生成卷数1，卷数2，全书总字数20000，第一卷12000。需要输出JSON数组长度1，字段：name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk。\n\n需要推断第2卷。已有第1卷《第一卷 层通道》，不要重复已有卷名。摘要：确认纸条。设定规划约束暂无。全书20000字，第一卷分配12000，第二卷大概8000字。需要为第2卷设计卷名，大纲：层通道真实UI验证，剧情单元 H1-01 纸条 章节范围第1章 王芳在灯塔发现纸条。似乎这是一个更具体的故事，可能只有两卷。需要从第一卷“层通道”到第二卷？需要生成卷纲。\n\n注意：用户要求“生成1卷的卷纲。不要重复任何已有卷名。” 已生成卷数1，已有卷名“第一卷 层通道”。需要生成第2卷，可能名称不要重复。需要基于已知事实：第1卷摘要“确认纸条”。第1卷章节范围第1章王芳在灯塔发现纸条？H1-01 纸条。第1卷可能是第1章，确认纸条。那么第2卷可能是第2章？全书只有20000字，2卷，第2卷8000字。需要设计卷名，避开“第一卷 层通道”。大纲标题“层通道真实UI验证”——可能第2卷叫“真实UI验证”？或者“第一卷 层通道”已经包含了“层通道”，第2卷应该“真实UI”或“验证”？需要思考。\n\n这个输入似乎是某种小说生成系统。需要输出卷纲。也许《层通道真实UI验证》是总标题？第1卷《第一卷 层通道》，第2卷可能《第二卷 真实UI验证》？但不能重复已有卷名，可以叫“第二卷 真实UI验证”。需要符合故事。\n\n需要根据已有第1卷摘要“确认纸条”和总大纲“层通道真实UI验证”，以及剧情单元 H1-01 纸条。可能这个故事关于“层通道”和“真实UI验证”。第1卷：王芳在灯塔发现纸条，确认纸条，建立层通道？第2卷可能：王芳进入层通道，进行真实UI验证？需要合理。\n\n我们不用管具体故事内容多详细，但需要字段。\n\n字段含义：\n- name: 卷名\n- outline: 大纲，可能本卷大纲\n- summary: 摘要\n- allocatedWords: 分配字数\n- readerExpectations: 读者期待\n- mainPlotLine: 主推线\n- unlockMilestone: 本卷解锁里程碑\n- forbiddenFinalCards: 禁碰终局底牌（字符串数组，没有则输出[]）\n- contractRisk: contract_safe / contract_needs_reinforcement / contract_broken / [待补充]\n\n需要依据设定规划约束（暂无）和已有事实。第1卷摘要确认纸条。第2卷应进展。总字数20000，第1卷12000，第2卷8000。所以allocatedWords应为8000。\n\n需要思考卷名。不要重复“第一卷 层通道”。可以“第二卷 真实UI验证”。或者更文学化：如“第二卷 界面之下”。但大纲是“层通道真实UI验证”。可能可用“真实UI验证”作为卷名。注意已有卷名包含“层通道”。避免重复？卷名可以包含不同词。“真实UI验证”不重复。用户要求“不要重复任何已有卷名”不是禁止包含相同词，而是不要完全一样。但为了安全，可以叫“第二卷 真实UI验证”。\n\n需要生成JSON数组。必须使用标准 JSON 输出，不要 markdown。字段必须都在。需要谨慎。\n\n考虑故事连贯性：第1卷“确认纸条”发生在灯塔，王芳发现纸条。第2卷可能揭示纸条内容与“层通道”有关，王芳进入层通道，验证“真实UI”——可能发现世界是模拟/游戏界面？需要贴合“真实UI验证”。可能“真实UI”是一个系统，必须在层通道内验证。第2卷主推线：王芳携带纸条进入层通道，在真实UI环境中验证纸条信息，解锁下一阶段。\n\n需要注意“禁碰终局底牌”：不能揭示最终真相。第2卷可能还不能揭示层通道的本质/终极BOSS/终极谜底。可以列一些：[\"终局层通道本源\", \"纸条最终署名者\", \"真实UI的最高权限\"] ？但不知道具体终局。需要符合字段要求，没有则[]。但可以依据大纲列，避免碰终局底牌。用户可能期望这个字段。为安全，可设置 [\"层通道终极真相\", \"真实UI最终权限来源\"]，还是空数组？字段说“禁碰终局底牌（字符串数组，没有则输出[]）”。这是个约束字段，表示本卷不能触碰的终局底牌。如果有，列出；没有则[]。这里应该有，因为第2卷不是终局，要限制不揭露终局。可以列出几个。但要结合故事。可能没问题。\n\ncontractRisk：需要评估是否合同安全。由于设定规划约束“暂无”，第1卷确认纸条，第2卷推进到验证层通道真实UI，不破坏主线，应该是contract_safe。或者合同风险需要强化？因为没有设定约束，可能safe。\n\n需要输出JSON数组长度1，不要额外解释。确保字段名拼写正确：name, outline, summary, allocatedWords, readerExpectations, mainPlotLine, unlockMilestone, forbiddenFinalCards, contractRisk。\n\n考虑中文内容。需要符合 JSON 语法。数组一项。字段值可以是字符串，读者期待、主推线、解锁里程碑等可能是字符串描述。forbiddenFinalCards是数组。\n\n需要确保 allocatedWords 是数字8000。summary 简述。\n\n可能生成：\n{\n  \"name\": \"第二卷 真实UI验证\",\n  \"outline\": \"王芳带着灯塔发现的纸条进入层通道，在多层界面中逐步验证纸条上关于真实UI的提示。她发现层通道的显示规则与真实世界不同，并通过对比纸条上的符号找到第一层验证节点。本卷结束时，王芳确认真实UI的存在，但尚未触及层通道的核心权限，通道内出现新的门，仅对持有完整验证记录者开放。\",\n  \"summary\": \"王芳进入层通道，验证纸条所指的真实UI，取得第一层验证记录。\",\n  \"allocatedWords\": 8000,\n  \"readerExpectations\": \"期待王芳主动利用纸条探索层通道，看到真实UI的初步规则与反常识现象，并形成新的悬念——通道内还有更深的验证层。\",\n  \"mainPlotLine\": \"王芳依据纸条进入层通道，完成真实UI的第一层验证，打开下一段通路。\",\n  \"unlockMilestone\": \"解锁真实UI第一层验证节点，获得进入下一层通道的资格。\",\n  \"forbiddenFinalCards\": [\"层通道终极真相\", \"真实UI最高权限来源\", \"纸条最终隐藏意图\"],\n  \"contractRisk\": \"contract_safe\"\n}\n\n这看起来不错。但需要思考卷名是否重复？已有卷名“第一卷 层通道”，新卷名“第二卷 真实UI验证”没有完全重复。没问题。\n\n但注意大纲中总标题“层通道真实UI验证”，可能卷名可用“真实UI”，避免与总标题重复？但用户说不要重复已有卷名，没有说不能重复大纲词。可以。\n\n需要确保outline不涉及终局底牌？可能第2卷结束“尚未触及核心权限”就很安全。\n\n需要关注“语义字段允许输出[待补充]”，但我们可以提供具体。\n\n潜在问题：第1卷已有摘要“确认纸条”。第2卷摘要“王芳进入层通道，验证纸条所指的真实UI，取得第一层验证记录。”是否推进合理？是的。\n\n需要输出纯 JSON，不要markdown代码块？用户要求输出JSON数组。最好直接输出 JSON，不要代码围栏。作为助手，可以输出纯 JSON。确保没有多余文本。\n\n需要再思考 contractRisk 可选值：contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。我们选 contract_safe。如果应该有风险？第2卷触碰了“真实UI验证”是否可能暴露设定？但设定没有约束，线推进正常。应该是 contract_safe。\n\n需要确保 forbiddenFinalCards 数组不是空，以防触碰终局。列出的项是否合理？ \"层通道终极真相\" \"真实UI最高权限来源\" \"纸条最终隐藏意图\"。可能“纸条最终隐藏意图”有点抽象。也可以列出 [\"层通道终极真相\", \"真实UI最高权限来源\"]。用户可能不要求具体。没问题。\n\n需要注意 JSON 中不要有尾逗号。字段顺序可以任意吗？要求字段必须在场。可以按用户给定顺序。需要严格。\n\n考虑潜在系统可能需要“mainPlotLine”为字符串数组？用户没有明确，示例？在提示中字段为“readerExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。”通常可能都是字符串。但“readerExpectations”是“读者期待”，可能字符串。没有要求数组。可以全用字符串。\n\n但“forbiddenFinalCards”是字符串数组明确。\n\n需要判断故事是否需要基于“层通道真实UI验证”这个总标题，第二卷应该更接近验证，也许第1卷确认纸条，第2卷开始“真实UI”验证。我们设计合理。\n\n可以输出：\n[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n\n这样似乎太长？需要适当。20000字中第二卷8000，outline可以一两段。这个 outline 长度合适。\n\n需要确保“已生成卷事实清单”中第1卷摘要确认纸条，第2卷不能重复卷名，没有其他限制。\n\n需要输出数组。我将在 final 中输出 JSON。不能使用代码块？通常如果要求输出JSON，可以直接纯文本。但为了避免格式问题，可以输出代码块？用户说“输出JSON数组”，可能期望原始JSON。在没有 markdown 要求下，最好输出纯 JSON。但在聊天中纯 JSON 可能被渲染。作为 API 响应，应该直接输出 JSON。这里将输出纯 JSON 文本。\n\n需要确保 JSON 中字符串内不用双引号未转义。中文标点没问题。\n\n最终答案：\n[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"王芳带着灯塔纸条进入层通道，发现通道内呈现的并非物理空间，而是由真实UI层叠加出的可交互界面。她依据纸条上的提示，在通道中完成第一重验证：识别出三处与纸条符号对应的界面异常，并让通道显露出隐藏的第二层入口。过程中，她意识到真实UI不是视觉错误，而是一种可操作的规则系统，但纸条只给了验证方法，没有解释它的来源。本卷结束时，第二层入口开启，王芳的记录卡上出现第一枚验证标记，悬念落在通道深处仍有更高权限区未开放。\",\n    \"summary\": \"王芳进入层通道，验证真实UI，获得第一枚验证标记并打开第二层入口。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"期待王芳把纸条信息转化成实际探索，看见真实UI的反常规则，并担忧她是否在一步步被引入更危险的层级。\",\n    \"mainPlotLine\": \"王芳携带纸条进入层通道，完成真实UI第一重验证，打开第二层入口。\",\n    \"unlockMilestone\": \"解锁真实UI第一重验证标记与第二层入口。\",\n    \"forbiddenFinalCards\": [\n      \"层通道终极真相\",\n      \"真实UI最高权限来源\",\n      \"纸条最终隐藏意图\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n\n检查JSON语法：数组括号，对象内部字段逗号分隔，最后没有尾逗号。OK。\n\n需要不要出现任何额外解释。最终直接输出。",
+          "responseText": "[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"第2卷接续王芳在灯塔发现纸条后的行动。灯塔内部的层通道入口被纸条上的非标准坐标激活，王芳进入一段仅对真实UI开放的验证流程。验证分三个阶段：识别纸条上的异常标识、在层通道常规界面中定位被隐藏的真实节点、在节点内获取第一条真实日志碎片。王芳发现层通道的表象界面存在人为裁剪，但她暂无法锁定裁剪者。卷末她取得日志碎片，碎片指向下一处验证点，同时真实UI开始反追踪她的身份。\",\n    \"summary\": \"王芳以灯塔纸条为凭据进入层通道真实UI验证，解锁第一条被隐藏的真实日志碎片，同时暴露自身行踪。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待看到灯塔纸条背后的验证机制、层通道真实UI与表象UI的差异，以及王芳逼近真相时的紧张感。\",\n    \"mainPlotLine\": \"王芳在灯塔内依据纸条激活真实UI验证，解锁隐藏日志碎片，并引发层通道系统的反追踪。\",\n    \"unlockMilestone\": \"解锁真实UI验证协议与第一条真实日志碎片。\",\n    \"forbiddenFinalCards\": [\n      \"纸条的最高权限来源\",\n      \"层通道最终控制者身份\",\n      \"真实世界与层通道的物理关系\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]",
+          "streamText": "[\n  {\n    \"name\": \"第二卷 真实UI验证\",\n    \"outline\": \"第2卷接续王芳在灯塔发现纸条后的行动。灯塔内部的层通道入口被纸条上的非标准坐标激活，王芳进入一段仅对真实UI开放的验证流程。验证分三个阶段：识别纸条上的异常标识、在层通道常规界面中定位被隐藏的真实节点、在节点内获取第一条真实日志碎片。王芳发现层通道的表象界面存在人为裁剪，但她暂无法锁定裁剪者。卷末她取得日志碎片，碎片指向下一处验证点，同时真实UI开始反追踪她的身份。\",\n    \"summary\": \"王芳以灯塔纸条为凭据进入层通道真实UI验证，解锁第一条被隐藏的真实日志碎片，同时暴露自身行踪。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待看到灯塔纸条背后的验证机制、层通道真实UI与表象UI的差异，以及王芳逼近真相时的紧张感。\",\n    \"mainPlotLine\": \"王芳在灯塔内依据纸条激活真实UI验证，解锁隐藏日志碎片，并引发层通道系统的反追踪。\",\n    \"unlockMilestone\": \"解锁真实UI验证协议与第一条真实日志碎片。\",\n    \"forbiddenFinalCards\": [\n      \"纸条的最高权限来源\",\n      \"层通道最终控制者身份\",\n      \"真实世界与层通道的物理关系\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]",
+          "reasoningText": "我们需要回答用户。需要生成1卷的卷纲。用户给了大纲：层通道真实UI验证，剧情单元 H1-01 纸条，章节范围第1章，王芳在灯塔发现纸条。设定规划约束暂无。卷数2，已生成卷数1，全书总字数20000字，已生成卷事实清单：第1卷《第一卷 层通道》分配字数12000，摘要：确认纸条。\n\n要求：生成1卷的卷纲。不要重复任何已有卷名。输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。数组长度必须为1。\n\n需要思考：这是第2卷？卷数2，已生成卷数1，所以现在生成第2卷。已有第1卷《第一卷 层通道》，不要重复卷名。全书总字数20000，第1卷分配12000，第2卷剩余可能8000字？但用户说“生成1卷的卷纲”，数组一项。需要输出JSON。字段语义。\n\n需要基于已有事实和大纲。剧情单元H1-01 纸条 第1章 王芳在灯塔发现纸条。第1卷摘要确认纸条。第2卷大概继续？但用户说“层通道真实UI验证” 可能是主题。需要生成第2卷卷纲，不要重复卷名。已有第一卷名“第一卷 层通道”，可能第2卷名不能重复“层通道”。需要起名不重复。\n\n注意输出的JSON必须是合法JSON数组，不要有其他文本？用户说输出JSON数组。我们要只输出JSON。需要确保字段符合要求。\n\n分析设定：也许这是一个“层通道真实UI验证”的故事，可能关于虚拟现实/层级通道/UI。第1卷确认纸条。第2卷可能深入验证真实UI？ 需要合理续写。\n\n需要字段：\n- name: 第二卷卷名，不要重复已有卷名。\n- outline: 大纲\n- summary: 摘要\n- allocatedWords: 分配字数。全书20000，第1卷12000，第2卷应8000。但需要确认？可以8000。\n- readerExpectations: 读者期待\n- mainPlotLine: 主推线\n- unlockMilestone: 本卷解锁里程碑\n- forbiddenFinalCards: 禁碰终局底牌，字符串数组，没有则[]。由于这是第2卷最终卷？也许不能揭露最终真相。需要给出禁止触碰的终局底牌，例如“层通道真实UI为世界真相”等。用户说语义字段允许[待补充]，但必须在场。可以给具体数组。\n- contractRisk: contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。需要推断。可能 contract_safe？由于已生成1卷且第2卷是最终卷，需要遵守约束。我们可以用 contract_safe 或 contract_needs_reinforcement。根据剧情？大纲是“层通道真实UI验证”，已有第1卷确认纸条。第2卷可能揭示？但禁止碰终局底牌。可以设置 contract_needs_reinforcement 如果某些约束未明确。但用户没有设定规划约束，所以 contract_safe 可能可以。\n\n需要结合“已生成卷事实清单”中有第1卷摘要“确认纸条”。第2卷应该从纸条出发。终局底牌可能是“纸条的真实来源”“层通道的控制者”“真实世界与层通道关系”“UI是投影”等。但是 forbiddenFinalCards 是禁碰终局底牌，即本卷不能揭示的核心底牌。由于这是第2卷且卷数2，可能是最终卷？如果卷数2意味着全书2卷，那么第2卷是最终卷，或许可以碰终局底牌？但是字段要求禁碰终局底牌，可能仍有一些终局底牌不能碰？需要思考。可能“层通道真实UI验证”中最终第2卷需要揭示一些真相，但可能仍需保留某些悬念？需要输出合理。\n\n我们作为助手要生成一个卷纲，符合约束。可以设置 forbiddenFinalCards 为一些更深层真相，即使第2卷也不揭。但用户说“禁碰终局底牌（字符串数组，没有则输出[]）”。可以具体。\n\n需要确保JSON数组长度1。卷名不重复已有“第一卷 层通道”。可起名“第二卷 灯塔之下”或“第二卷 真实UI”等。但不要重复“层通道”。已有卷名包含“层通道”，但第二卷名可以类似于“第二卷 纸背”等。避免重复“层通道”这个词，最好不用。\n\n需要构建具体内容：\nname: \"第二卷 纸背\"\noutline: 第2卷围绕王芳在灯塔发现纸条后，试图通过层通道的UI界面验证纸条指向的坐标与权限；发现层通道中出现了不属于系统记录的真实UI节点；王芳在灯塔内部通过纸条指引触发隐藏验证协议；最终确认纸条可解锁一段被屏蔽的真实层通道日志。但不可揭露层通道整体真相和纸条最高权限来源。\nsummary: 王芳依据纸条内容进入层通道真实UI验证流程，解锁隐藏日志碎片。 \nallocatedWords: 8000\nreaderExpectations: 读者期待王芳通过灯塔纸条深入层通道，看到真实UI与表象UI的差异，以及逐步逼近真相。\nmainPlotLine: 王芳在灯塔内使用纸条完成真实UI验证，揭示层通道存在被隐藏的真实界面与日志。\nunlockMilestone: 解锁隐藏真实UI验证协议与第一条真实日志碎片。\nforbiddenFinalCards: [\"纸条的最高权限来源\", \"层通道的最终控制者身份\", \"真实世界与层通道的物理关系\"] \ncontractRisk: contract_safe\n\n需要确保字段语义是否允许[待补充]。我们输出具体值可以。\n\n但是需谨慎：全书共2卷，第2卷是最终卷，若禁碰终局底牌太多可能结局不够。但用户字段是 forbiddenFinalCards，可能允许一些底牌被禁止，以保证系列可扩展？但卷数2说明两卷结束，可能需要揭示核心。但已经有 H1-01 纸条 第1章。也许“层通道真实UI验证”是一个单一剧情单元？属于更大故事的开头？卷数2可能只是前两卷。大纲的范围可能只是第1章。需要从已有事实判断：第1卷《第一卷 层通道》分配12000字，摘要：确认纸条。这只是第1章。第2卷可能继续展开，不一定最终揭示所有真相。因此 forbiddenFinalCards 保留底牌合理。\n\n需要思考 contractRisk。如果第2卷需要大量揭示，但已有第1卷没有铺垫？我们可以选择 contract_safe，因为大纲中已确认纸条，第2卷扩展是安全的。但也可能因为第2卷需要解锁里程碑，若与已有第1卷不冲突就 safe。为了保险可以输出 contract_safe。\n\n如果用户期望 JSON 数组只有一项。确保格式合法。不能有多余文字。\n\n需要检查是否要包含第2卷的章节范围？字段没有要求章节范围，所以不需要。但outline可以包含章节规划。\n\n需要输出 GFM 表? 用户没有要求表格，要求JSON。不用表格。\n\n我们需要直接输出 JSON 数组，以 ```json 代码块或纯 JSON？通常输出纯 JSON 文本。不要额外说明。\n\n需要确保 JSON 字符串正确转义。中文字符不需要转义。\n\n最终：\n[\n  {\n    \"name\": \"第二卷 纸背\",\n    \"outline\": \"第2卷接续王芳在灯塔发现纸条。灯塔内部层通道入口被纸条上的坐标激活，王芳进入真实UI验证流程。验证分三阶段：识别纸条上的非标准标识、对照层通道常规UI找到被隐藏的真实节点、在节点内取得第一条真实日志碎片。过程中王芳察觉层通道的表象界面存在人为裁剪，但她无法确认裁剪者。卷末她获得日志碎片，碎片指向下一处验证点，但真实UI开始反追踪她的身份。\",\n    \"summary\": \"王芳以纸条为凭据进入层通道真实UI验证，解锁第一条被隐藏的真实日志碎片，同时暴露自身行踪。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待看到灯塔纸条背后的验证机制、层通道真实UI与表象UI的差异，以及王芳在逼近真相过程中的紧张感。\",\n    \"mainPlotLine\": \"王芳在灯塔内依据纸条激活真实UI验证，解锁隐藏日志碎片，并引起层通道系统的反追踪。\",\n    \"unlockMilestone\": \"解锁真实UI验证协议与第一条真实日志碎片。\",\n    \"forbiddenFinalCards\": [\n      \"纸条的最高权限来源\",\n      \"层通道最终控制者身份\",\n      \"真实世界与层通道的物理关系\"\n    ],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n\n需要确认字段名准确。数组长度1。不重复卷名，已有“第一卷 层通道”，新卷名“第二卷 纸背”不重复。\n\n但是用户可能期望“层通道真实UI验证”作为标题？已有第1卷名“第一卷 层通道”，新卷可能“第二卷 真实UI验证”。但不要重复已有卷名，已有含有层通道。避免使用层通道，但“真实UI”可用。卷名“第二卷 真实UI验证”不重复。可以吗？如果第1卷是“第一卷 层通道”，第2卷“第二卷 真实UI验证”合理。但“真实UI验证”更直接。大纲标题就是“层通道真实UI验证”。但卷名不能重复已有“层通道”，但可以用“真实UI验证”。考虑 name: \"第二卷 真实UI验证\"。这样更匹配。我原来的“纸背”可能太文学。需要看设定？用户的大纲标题是“层通道真实UI验证”。第2卷卷名不应重复已有卷名，但可以包含“真实UI验证”。那好。\n\n改成 name: \"第二卷 真实UI验证\"。\noutline 同上。\n\n需要确保不重复“第一卷 层通道”的“层通道”吗？用户只说不要重复任何已有卷名，不是禁止词语。但第2卷名可以包含“真实UI验证”，不重复。若是“第二卷 真实UI验证”和“第一卷 层通道”不同。可以。\n\n但“层通道”出现在大纲里。没问题。\n\n选择题目要合适。已有的“第一卷 层通道”可能是用来确立世界观。第2卷“真实UI验证”是剧情重点。\n\n最终输出 JSON。\n\n需要检查 contractRisk 是否应该为 contract_needs_reinforcement？因为设定规划约束暂无，可能意味着没有额外设定，但已生成卷事实清单有第1卷。第2卷的里程碑“解锁真实UI验证协议与第一条真实日志碎片”在第1卷未铺垫太多，可能需要强化契约？但第1卷就是确认纸条，所以第2卷解锁验证机制自然延续。contract_safe 可以。但是如果有终局底牌禁止，且卷数2可能最终未揭示全部，还可能 contract_needs_reinforcement 因为读者期待更高？但字段是标注风险，我们不知道具体契约。可以选 contract_safe 表示没有违约风险。\n\n我们需要输出纯 JSON 文本。不要使用代码块？用户说输出JSON数组，没有要求代码块，但可以纯 JSON。为了清晰，可以不加代码块。但通常模型输出 JSON 时可以加 ```json。用户可能要求直接输出 JSON 数组，不加其他文本。我们就输出纯 JSON 数组。\n\n完成。",
           "finishReason": "stop",
           "usage": {
             "inputTokens": 393,
-            "outputTokens": 3204,
-            "totalTokens": 3597,
-            "reasoningOutputTokens": 2889
+            "outputTokens": 2798,
+            "totalTokens": 3191,
+            "reasoningOutputTokens": 2479
           },
           "usageUnavailable": false,
-          "startedAt": 1793124225907,
-          "durationMs": 55937,
-          "firstTokenMs": 3703,
-          "outputMs": 52234,
-          "endedAt": 1793124281844,
+          "startedAt": 1793130046795,
+          "durationMs": 49236,
+          "firstTokenMs": 1489,
+          "outputMs": 47747,
+          "endedAt": 1793130096028,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -351,40 +351,40 @@
             "driftRatio": 0.9949238578680204,
             "correctedRatio": 1.9949238578680204
           },
-          "firstContentAt": 1793124279000,
-          "lastContentAt": 1793124281807,
-          "lastReasoningAt": 1793124279000,
+          "firstContentAt": 1793130087135,
+          "lastContentAt": 1793130095991,
+          "lastReasoningAt": 1793130087133,
           "heartbeat": true
         }
       ],
-      "lastExecutionActivityAt": 1793124270908,
+      "lastExecutionActivityAt": 1793130091805,
       "finishReason": "stop",
-      "durationMs": 55939,
+      "durationMs": 49236,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 55937,
-        "firstTokenSumMs": 3703,
-        "outputSumMs": 52234,
-        "minFirstTokenMs": 3703,
-        "maxFirstTokenMs": 3703,
-        "localOverheadMs": 2
+        "physicalDurationSumMs": 49236,
+        "firstTokenSumMs": 1489,
+        "outputSumMs": 47747,
+        "minFirstTokenMs": 1489,
+        "maxFirstTokenMs": 1489,
+        "localOverheadMs": 0
       },
       "usage": {
         "inputTokens": 393,
-        "outputTokens": 3204,
-        "totalTokens": 3597,
-        "reasoningOutputTokens": 2889
+        "outputTokens": 2798,
+        "totalTokens": 3191,
+        "reasoningOutputTokens": 2479
       },
       "usageUnavailable": false,
-      "endedAt": 1793124281844,
+      "endedAt": 1793130096028,
       "semantic": {
-        "conversationId": "run-1793124225866-1",
+        "conversationId": "run-1793130046736-1",
         "usage": {
           "inputTokens": 393,
-          "outputTokens": 3204,
-          "totalTokens": 3597,
-          "reasoningOutputTokens": 2889
+          "outputTokens": 2798,
+          "totalTokens": 3191,
+          "reasoningOutputTokens": 2479
         }
       }
     }
@@ -401,17 +401,17 @@
   },
   "stepPhaseTiming": {
     "validation": 0,
-    "persistence": 21
+    "persistence": 19
   },
-  "dirName": "run-trace-卷纲层-20261028-020345",
+  "dirName": "run-trace-卷纲层-20261028-034046",
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 55937,
-    "firstTokenSumMs": 3703,
-    "outputSumMs": 52234,
-    "localOverheadSumMs": 2,
+    "physicalDurationSumMs": 49236,
+    "firstTokenSumMs": 1489,
+    "outputSumMs": 47747,
+    "localOverheadSumMs": 0,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -424,15 +424,15 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 3703,
-    "outputSumMs": 52234,
+    "firstTokenSumMs": 1489,
+    "outputSumMs": 47747,
     "validationSumMs": 0,
-    "persistenceSumMs": 21,
+    "persistenceSumMs": 19,
     "repeatedPromptBlocks": {},
     "contextChars": 547,
-    "outputChars": 649,
-    "physicalDurationSumMs": 55937
+    "outputChars": 658,
+    "physicalDurationSumMs": 49236
   },
-  "endedAt": 1793124281868,
-  "durationMs": 56002
+  "endedAt": 1793130096052,
+  "durationMs": 49316
 }
