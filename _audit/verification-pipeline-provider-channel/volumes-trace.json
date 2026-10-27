@@ -1,5 +1,5 @@
 {
-  "id": "run-1793128351756-1",
+  "id": "run-1793143715557-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 2,
@@ -12,35 +12,35 @@
   "model": "volumes-model",
   "skillNames": [],
   "skillMode": "compose",
-  "pipelineRunId": "pipeline-run-1793128351744-1",
+  "pipelineRunId": "pipeline-run-1793143715546-1",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "f21a27b4823d",
-    "buildTime": "2026-10-27T19:11:21.075Z"
+    "commit": "b98f98ebe435",
+    "buildTime": "2026-10-27T23:28:11.270Z"
   },
-  "startedAt": 1793128351756,
+  "startedAt": 1793143715557,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "all_volumes_generation_complete",
-      "recordedAt": 1793128351883
+      "recordedAt": 1793143715722
     }
   ],
   "events": [
     {
-      "id": "event-1793128351756-2",
-      "ts": 1793128351756,
+      "id": "event-1793143715558-2",
+      "ts": 1793143715558,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 卷纲层运行"
     },
     {
-      "id": "event-1793128351759-3",
-      "ts": 1793128351759,
+      "id": "event-1793143715560-3",
+      "ts": 1793143715560,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -48,8 +48,8 @@
       "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1793128351760-4",
-      "ts": 1793128351760,
+      "id": "event-1793143715562-4",
+      "ts": 1793143715562,
       "seq": 3,
       "type": "prompt-built",
       "level": "info",
@@ -57,8 +57,8 @@
       "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":8000,\"remainingVolumes\":1,\"currentVolumeBudget\":8000,\"conflicts\":[],\"mode\":\"auto\"}"
     },
     {
-      "id": "event-1793128351761-5",
-      "ts": 1793128351761,
+      "id": "event-1793143715564-5",
+      "ts": 1793143715564,
       "seq": 4,
       "type": "style-semantics-merged",
       "level": "info",
@@ -66,8 +66,8 @@
       "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1793128351769-6",
-      "ts": 1793128351769,
+      "id": "event-1793143715576-6",
+      "ts": 1793143715576,
       "seq": 5,
       "type": "pipeline-request-profile-resolved",
       "level": "info",
@@ -75,8 +75,8 @@
       "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"model\":\"volumes-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
     },
     {
-      "id": "event-1793128351804-7",
-      "ts": 1793128351804,
+      "id": "event-1793143715623-7",
+      "ts": 1793143715623,
       "seq": 6,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
@@ -84,8 +84,8 @@
       "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"model\":\"volumes-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
     },
     {
-      "id": "event-1793128351804-9",
-      "ts": 1793128351804,
+      "id": "event-1793143715623-9",
+      "ts": 1793143715623,
       "seq": 7,
       "type": "api-start",
       "level": "info",
@@ -93,8 +93,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"volumes-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1793128351809-11",
-      "ts": 1793128351809,
+      "id": "event-1793143715629-11",
+      "ts": 1793143715629,
       "seq": 8,
       "type": "run-activity",
       "level": "info",
@@ -106,22 +106,22 @@
       }
     },
     {
-      "id": "event-1793128351809-12",
-      "ts": 1793128351809,
+      "id": "event-1793143715629-12",
+      "ts": 1793143715629,
       "seq": 9,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1793128351809-10",
+        "physicalCallId": "physical-1793143715628-10",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1793128351809-13",
-      "ts": 1793128351809,
+      "id": "event-1793143715629-13",
+      "ts": 1793143715629,
       "seq": 10,
       "type": "physical-call",
       "level": "info",
@@ -129,18 +129,18 @@
       "detail": "normal / compose / volumes-model"
     },
     {
-      "id": "event-1793128351812-14",
-      "ts": 1793128351812,
+      "id": "event-1793143715632-14",
+      "ts": 1793143715632,
       "seq": 11,
-      "turnId": "api-1793128351804-8",
+      "turnId": "api-1793143715623-8",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"provider-volumes\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1793128351848-15",
-      "ts": 1793128351848,
+      "id": "event-1793143715683-15",
+      "ts": 1793143715683,
       "seq": 12,
       "type": "physical-call",
       "level": "info",
@@ -148,17 +148,17 @@
       "detail": "normal / compose / volumes-model / stop"
     },
     {
-      "id": "event-1793128351851-16",
-      "ts": 1793128351851,
+      "id": "event-1793143715685-16",
+      "ts": 1793143715685,
       "seq": 13,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1793128351804-8 seq=1"
+      "detail": "apiCall=api-1793143715623-8 seq=1"
     },
     {
-      "id": "event-1793128351852-17",
-      "ts": 1793128351852,
+      "id": "event-1793143715685-17",
+      "ts": 1793143715685,
       "seq": 14,
       "type": "api-success",
       "level": "info",
@@ -166,8 +166,8 @@
       "detail": "compose / volumes-model"
     },
     {
-      "id": "event-1793128351854-18",
-      "ts": 1793128351854,
+      "id": "event-1793143715691-18",
+      "ts": 1793143715691,
       "seq": 15,
       "type": "volume-batch-attempt",
       "level": "info",
@@ -175,8 +175,8 @@
       "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":0,\"errors\":[]}"
     },
     {
-      "id": "event-1793128351882-19",
-      "ts": 1793128351882,
+      "id": "event-1793143715719-19",
+      "ts": 1793143715719,
       "seq": 16,
       "type": "volume-batch-validated",
       "level": "info",
@@ -184,8 +184,8 @@
       "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
     },
     {
-      "id": "event-1793128351882-20",
-      "ts": 1793128351882,
+      "id": "event-1793143715719-20",
+      "ts": 1793143715719,
       "seq": 17,
       "type": "write",
       "level": "info",
@@ -193,8 +193,8 @@
       "detail": "写入 1 卷"
     },
     {
-      "id": "event-1793128351883-21",
-      "ts": 1793128351883,
+      "id": "event-1793143715722-21",
+      "ts": 1793143715722,
       "seq": 18,
       "type": "finished",
       "level": "info",
@@ -202,18 +202,18 @@
       "detail": "all_volumes_generation_complete"
     },
     {
-      "id": "event-1793128351883-22",
-      "ts": 1793128351883,
+      "id": "event-1793143715722-22",
+      "ts": 1793143715722,
       "seq": 19,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "all_volumes_generation_complete / run=run-1793128351756-1"
+      "detail": "all_volumes_generation_complete / run=run-1793143715557-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1793128351804-8",
+      "id": "api-1793143715623-8",
       "seq": 1,
       "step": 2,
       "skillId": "compose",
@@ -237,11 +237,11 @@
       "streamText": "",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1793128351804,
+      "startedAt": 1793143715623,
       "physicalCalls": [
         {
-          "id": "physical-1793128351809-10",
-          "physicalCallId": "physical-1793128351806-0",
+          "id": "physical-1793143715628-10",
+          "physicalCallId": "physical-1793143715625-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -265,11 +265,11 @@
             "totalTokens": 15
           },
           "usageUnavailable": false,
-          "startedAt": 1793128351809,
-          "durationMs": 39,
-          "firstTokenMs": 36,
-          "outputMs": 3,
-          "endedAt": 1793128351848,
+          "startedAt": 1793143715628,
+          "durationMs": 57,
+          "firstTokenMs": 50,
+          "outputMs": 7,
+          "endedAt": 1793143715683,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "maxTokens": 8192,
@@ -284,23 +284,23 @@
             "driftRatio": -0.949238578680203,
             "correctedRatio": 0.050761421319796954
           },
-          "firstContentAt": 1793128351844,
-          "lastContentAt": 1793128351844,
+          "firstContentAt": 1793143715676,
+          "lastContentAt": 1793143715676,
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1793128351809,
+      "lastExecutionActivityAt": 1793143715628,
       "finishReason": "stop",
-      "durationMs": 39,
+      "durationMs": 54,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 39,
-        "firstTokenSumMs": 36,
-        "outputSumMs": 3,
-        "minFirstTokenMs": 36,
-        "maxFirstTokenMs": 36,
-        "localOverheadMs": 0
+        "physicalDurationSumMs": 57,
+        "firstTokenSumMs": 50,
+        "outputSumMs": 7,
+        "minFirstTokenMs": 50,
+        "maxFirstTokenMs": 50,
+        "localOverheadMs": -3
       },
       "usage": {
         "inputTokens": 10,
@@ -308,9 +308,9 @@
         "totalTokens": 15
       },
       "usageUnavailable": false,
-      "endedAt": 1793128351851,
+      "endedAt": 1793143715684,
       "semantic": {
-        "conversationId": "run-1793128351756-1",
+        "conversationId": "run-1793143715557-1",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 5,
@@ -331,17 +331,17 @@
   },
   "stepPhaseTiming": {
     "validation": 0,
-    "persistence": 26
+    "persistence": 27
   },
-  "dirName": "run-trace-卷纲层-20261028-031231",
+  "dirName": "run-trace-卷纲层-20261028-072835",
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 39,
-    "firstTokenSumMs": 36,
-    "outputSumMs": 3,
-    "localOverheadSumMs": 0,
+    "physicalDurationSumMs": 57,
+    "firstTokenSumMs": 50,
+    "outputSumMs": 7,
+    "localOverheadSumMs": -3,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -354,15 +354,15 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 36,
-    "outputSumMs": 3,
+    "firstTokenSumMs": 50,
+    "outputSumMs": 7,
     "validationSumMs": 0,
-    "persistenceSumMs": 26,
+    "persistenceSumMs": 27,
     "repeatedPromptBlocks": {},
     "contextChars": 547,
     "outputChars": 224,
-    "physicalDurationSumMs": 39
+    "physicalDurationSumMs": 57
   },
-  "endedAt": 1793128351883,
-  "durationMs": 127
+  "endedAt": 1793143715722,
+  "durationMs": 165
 }

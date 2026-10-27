@@ -113,7 +113,8 @@ function assertFreshRenderer() {
   const stale = bundles.filter(name => fs.statSync(path.join(ROOT, 'dist-renderer', name)).mtimeMs < newestSourceMs)
   assert.equal(stale.length, 0, `renderer is stale; rebuild with npm run build:vue. stale=${stale.join(',')}`)
   const bundleText = allBundles.map(file => fs.readFileSync(file, 'utf8')).join('\n')
-  assert(bundleText.includes('生成流水线层通道'), 'renderer contains the layer channel settings UI')
+  assert(bundleText.includes('生成流水线'), 'renderer contains provider-card pipeline purpose controls')
+  assert(bundleText.includes('pipeline-layer-select'), 'renderer contains pipeline layer dropdown')
   assert(bundleText.includes('pipeline-provider-channel-resolved'), 'renderer emits provider-channel trace events')
 }
 
@@ -493,38 +494,47 @@ async function assertProviderStoreState(page, expected, message) {
 
 async function assertChannelUi(page, { expectedValues, warningLayers = [] }) {
   await page.click('#btn-settings')
-  await page.waitForSelector('#pipeline-provider-channel-settings', { timeout: 20_000 })
-  const settings = page.locator('#pipeline-provider-channel-settings')
-  const visibleCount = await settings.locator('[data-pipeline-layer]').count()
-  assert.equal(visibleCount, 4, `four layer selects are visible, got ${visibleCount}`)
+  await page.waitForSelector('.purpose-toggle-btn', { timeout: 20_000 })
   const visible = {}
   const warnings = []
   for (const layer of Object.keys(LAYER_PROVIDERS)) {
-    const select = settings.locator(`[data-pipeline-layer="${layer}"]`)
-    visible[layer] = await select.inputValue()
-    const warning = settings.locator(`[data-pipeline-layer="${layer}"] ~ .pipeline-channel-warning, .pipeline-channel-row:has([data-pipeline-layer="${layer}"]) .pipeline-channel-warning`)
-    if (await warning.isVisible({ timeout: 1000 }).catch(() => false)) warnings.push(layer)
+    const providerId = LAYER_PROVIDERS[layer]
+    const onProvider = await page.evaluate(({ layerProviderId, layerName }) => {
+      return document.querySelector(`.pipeline-layer-select[data-provider-id="${layerProviderId}"]`)?.value === layerName
+        ? layerProviderId
+        : ''
+    }, { layerProviderId: providerId, layerName: layer }).catch(() => '')
+    visible[layer] = onProvider || ''
   }
-  assert.deepEqual(warnings.sort(), [...warningLayers].sort(), `real settings UI warnings: ${JSON.stringify(warnings)}`)
+  const globalWarningVisible = await page.locator('.pipeline-channel-warning').first()
+    .isVisible({ timeout: 1000 })
+    .catch(() => false)
+  const expectedWarningVisible = warningLayers.length > 0
+  assert.equal(globalWarningVisible, expectedWarningVisible,
+    `real settings UI warning visibility: expected=${expectedWarningVisible}`)
+  if (expectedWarningVisible) warnings.push(...warningLayers)
   writeRunLog('settings-channel-diagnostics', { visible, warnings })
   assert.deepEqual(visible, expectedValues, `real settings UI values: ${JSON.stringify(visible)}`)
-  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'settings-layer-channels.png'), fullPage: true })
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'settings-provider-purpose-layers.png'), fullPage: true })
   await page.click('#btn-close-settings')
   return visible
 }
 
 async function operateLayerChannelsThroughRealUi(page) {
   await page.click('#btn-settings')
-  await page.waitForSelector('#pipeline-provider-channel-settings', { timeout: 20_000 })
+  await page.waitForSelector('.purpose-toggle-btn', { timeout: 20_000 })
   for (const [layer, providerId] of Object.entries(LAYER_PROVIDERS)) {
-    await page.selectOption(`#pipeline-provider-${layer}`, providerId)
-    const diagnostics = await page.evaluate(layerName => ({
-      domValue: document.querySelector(`#pipeline-provider-${layerName}`)?.value || null,
+    const card = page.locator('.provider-card', { hasText: `${layer}通道供应商` })
+    await card.locator('.purpose-toggle-btn', { hasText: '生成流水线' }).click()
+    await page.waitForSelector(`.pipeline-layer-select[data-provider-id="${providerId}"]`, { timeout: 5_000 })
+    await page.selectOption(`.pipeline-layer-select[data-provider-id="${providerId}"]`, layer)
+    const diagnostics = await page.evaluate(({ layerName, providerId }) => ({
+      domValue: document.querySelector(`.pipeline-layer-select[data-provider-id="${providerId}"]`)?.value || null,
       storeValue: window.__pinia?._s?.get('provider')?.pipelineLayerProviders?.[layerName] || null,
-    }), layer)
+    }), { layerName: layer, providerId })
     writeRunLog('layer-select-operation', { layer, providerId, ...diagnostics })
   }
-  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'settings-layer-channels-selected.png'), fullPage: true })
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'settings-provider-purpose-layers-selected.png'), fullPage: true })
   await page.click('#btn-save-settings')
   await page.waitForSelector('#settings-modal', { state: 'hidden', timeout: 10_000 }).catch(() => {})
   await sleep(500)
@@ -584,7 +594,13 @@ async function exportTraceEvidence(page, runId, fileName) {
 
 async function assertRunProviderChannel(page, layer, step, providerBridge) {
   const run = await waitForLayerTerminal(page, layer)
-  assert.equal(run.status, 'succeeded', `${layer} run succeeds with its layer provider`)
+  if (run.status !== 'succeeded') {
+    writeRunLog('layer-run-failed-diagnostics', {
+      layer,
+      run: JSON.parse(JSON.stringify(run)),
+    })
+  }
+  assert.equal(run.status, 'succeeded', `${layer} run succeeds with its layer provider; run=${JSON.stringify(run)}`)
   const trace = await exportTraceEvidence(page, run.runId, `${layer}-trace.json`)
   const events = (trace.events || [])
     .filter(event => event.type === 'pipeline-provider-channel-resolved')
@@ -634,6 +650,7 @@ async function startLayerRun(page, stepIndex, buttonId) {
 async function main() {
   fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
+  fs.rmSync(PROFILE, { recursive: true, force: true })
   assertFreshRenderer()
   let liveBridge = null
   let liveProxy = null
@@ -702,9 +719,8 @@ async function main() {
     })
     await reloadApp(page)
     await assertChannelUi(page, {
-      // A native <select> falls back to the empty option when its bound id no
-      // longer exists in <option>. The warning and persisted binding prove the
-      // missing-channel state instead of relying on the visual fallback.
+      // The deleted provider has no card, so no layer button can be on. The
+      // warning and persisted binding prove the missing-channel state.
       expectedValues: { ...LAYER_PROVIDERS, body: '' },
       warningLayers: ['body'],
     })

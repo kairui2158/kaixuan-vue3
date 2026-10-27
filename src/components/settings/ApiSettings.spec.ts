@@ -40,8 +40,13 @@ async function mountSettings() {
   return wrapper
 }
 
-function layerSelect(wrapper: Awaited<ReturnType<typeof mountSettings>>, layer: string) {
-  return wrapper.get(`[data-pipeline-layer="${layer}"]`)
+function purposeButton(wrapper: Awaited<ReturnType<typeof mountSettings>>, text: string, providerId: string) {
+  return wrapper.findAll('button')
+    .find(item => item.text() === text && item.attributes('class')?.includes('purpose-toggle-btn'))
+    && wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === providerId)!
+      .findAll('button')
+      .find(item => item.text() === text)!
 }
 
 describe('ApiSettings pipeline provider channels', () => {
@@ -62,23 +67,40 @@ describe('ApiSettings pipeline provider channels', () => {
     })
   })
 
-  it('offers generate providers normally and disables non-generate providers with a reason', async () => {
+  it('binds each pipeline layer through the provider purpose row and blocks non-generate providers', async () => {
     const store = useProviderStore()
     store.addProvider(providerFixture('provider-generate', ['generate']))
     store.addProvider(providerFixture('provider-detect', ['detect']))
 
     const wrapper = await mountSettings()
-    const options = layerSelect(wrapper, 'body').findAll('option')
+    const generateCard = wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === 'provider-generate')!
+    const detectCard = wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === 'provider-detect')!
+    const generateToggle = generateCard.findAll('button').find(item => item.text() === '生成流水线')!
+    expect(detectCard.findAll('button').some(item => item.text() === '生成流水线')).toBe(false)
 
-    expect(options.map(option => option.attributes('value'))).toEqual([
-      '',
-      'provider-generate',
-      'provider-detect',
-    ])
-    expect(options[1].attributes('disabled')).toBeUndefined()
-    expect(options[2].attributes('disabled')).toBeDefined()
-    expect(options[2].text()).toContain('不可作为生成通道')
-    expect(wrapper.get('.pipeline-channel-hint').text()).toContain('运行开始时会冻结选择')
+    expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(false)
+    await generateToggle.trigger('click')
+    await wrapper.vm.$nextTick()
+    const select = generateCard.get('[data-test="pipeline-layer-select"]')
+    expect(store.pipelineLayerProviders.settings ?? null).toBeNull()
+    expect((select.element as HTMLSelectElement).value).toBe('')
+
+    await select.setValue('body')
+    expect(store.pipelineLayerProviders.settings ?? null).toBeNull()
+    expect(store.pipelineLayerProviders.body).toBe('provider-generate')
+    expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(true)
+
+    await generateToggle.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(store.pipelineLayerProviders.body ?? null).toBeNull()
+    expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(true)
+
+    await generateToggle.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(false)
+    expect(wrapper.find('#pipeline-provider-channel-settings').exists()).toBe(false)
   })
 
   it('exports providers together with generate and layer bindings', async () => {

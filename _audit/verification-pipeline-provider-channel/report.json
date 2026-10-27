@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-10-27T19:12:32.939Z",
+  "at": "2026-10-27T23:28:36.907Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1793128351744-1",
+      "runId": "pipeline-run-1793143715546-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -68,12 +68,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793128351744,
+      "startedAt": 1793143715546,
       "progressPhase": "terminal",
-      "endedAt": 1793128351882
+      "endedAt": 1793143715720
     },
     "chapters": {
-      "runId": "pipeline-run-1793128352169-2",
+      "runId": "pipeline-run-1793143716024-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -123,12 +123,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793128352169,
+      "startedAt": 1793143716024,
       "progressPhase": "terminal",
-      "endedAt": 1793128352295
+      "endedAt": 1793143716189
     },
     "body": {
-      "runId": "pipeline-run-1793128352590-3",
+      "runId": "pipeline-run-1793143716494-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -178,9 +178,9 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793128352590,
+      "startedAt": 1793143716494,
       "progressPhase": "terminal",
-      "endedAt": 1793128352688
+      "endedAt": 1793143716613
     }
   },
   "modelAssertions": {

@@ -1270,3 +1270,13 @@
 - 封装：3.110.2；安装包 `dist/神意助手-Setup-3.110.2.exe`，231,612,595 bytes，SHA256 `687F85DB5BF9B17DE1C86C4697B49C56285B7E530189AC04F996566B76DAF3FC`。
 - 诚实边界：本轮未重跑 live 供应商 API 链路；业务数据零差异由删除 C 盘源前的哈希对账证明；证据目录内第一次打包 blockmap 与最终 blockmap 不一致，已登记为非主证据。
 - 经验回写：经验文件升级 v9.6.4，新增 G2.14 默认存储与跨盘迁移门禁，并补使用路由入口。
+
+# 2026-10-28 供应商用途栏生成流水线下拉收口
+
+- 文件：[_audit/DEV_LOG_2026-10-28_PROVIDER_PURPOSE_PIPELINE_DROPDOWN.md](_audit/DEV_LOG_2026-10-28_PROVIDER_PURPOSE_PIPELINE_DROPDOWN.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_PROVIDER_PURPOSE_PIPELINE_DROPDOWN.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_PROVIDER_PURPOSE_PIPELINE_DROPDOWN.md)
+- 范围：生成流水线入口并入供应商卡片用途栏；按钮展开同卡片层下拉；首次点击不默认绑定，选择层才绑定；已绑定再点解绑；删除旧独立层通道区块；验证器改真实卡片 UI 操作并清理隔离 profile。
+- 验证：定向 2 files / 6 tests、`vue-tsc`、`build:vue` 全部通过；真实 Electron UI 验证 PASS，`mode=mock-four-layer-providers`，`requests=3`，覆盖持久化、缺失警告、恢复与三层路由。
+- 封装：3.110.2 → 3.110.3；安装包 `dist/神意助手-Setup-3.110.3.exe`，231,603,405 bytes；旧 3.110.2 安装包与 blockmap 已清理。
+- 诚实边界：live 单供应商矩阵本轮未重跑，路由语义未改动，沿用 3.110.1 live PASS；未做 NSIS 人工安装路径核验。
+- 经验回写：v9.6.5，G1.5 新增用途栏单源入口与验证器隔离 profile 每轮清理判则。
