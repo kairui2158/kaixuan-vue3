@@ -3,6 +3,7 @@ import { ref, computed, triggerRef } from 'vue'
 import type { AiNamingData, NamingResult, NamingHistoryRecord } from '../types/aiNaming'
 import { createDefaultAiNamingData, normalizeAiNaming, MAX_HISTORY, MAX_FAVORITES } from '../types/aiNaming'
 import { storageKey } from '../utils/storage-key'
+import { toCloneableSnapshot } from '../utils/cloneableSnapshot'
 import type {
   MemoryData,
   MemoryEntity,
@@ -30,12 +31,7 @@ import type { ExtractedMemoryData } from '../services/memoryExtractor'
 import type { EditorBookmark } from '../services/editorBookmarks'
 import { useEditorStore } from './editor'
 
-function toPlain(value: unknown): unknown {
-  try {
-    if (typeof structuredClone === 'function') return structuredClone(value)
-  } catch (e) { /* fallback to JSON */ }
-  return JSON.parse(JSON.stringify(value))
-}
+const toPlain = toCloneableSnapshot
 
 // P0-2: 项目数据版本号 + 链式迁移
 const CURRENT_SCHEMA_VERSION = 4
@@ -987,7 +983,8 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function queueOutlineJournalCommand(command: OutlineJournalCommand) {
-    outlineJournalQueue.pending.push(command)
+    const snapshot = toPlain(command) as OutlineJournalCommand
+    outlineJournalQueue.pending.push(snapshot)
     outlineJournalPendingCount.value = outlineJournalQueue.pending.length
     if (outlineJournalQueue.pending.length >= 32) void flushOutlineJournal()
     else scheduleOutlineJournalFlush()

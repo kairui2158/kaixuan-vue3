@@ -150,4 +150,28 @@ describe('provider store pipeline layer channels', () => {
       'provider-layer',
     ])
   })
+
+  it('clears the global generate provider with the null sentinel', () => {
+    const store = useProviderStore()
+    store.setGenerateProvider('provider-global')
+
+    store.setGenerateProvider(null)
+    store.setGenerateProvider('')
+
+    expect(store.generateProvider).toBeNull()
+  })
+
+  it('clears verify and detect providers with the null sentinel', () => {
+    const store = useProviderStore()
+    store.setVerifyProvider('provider-verify')
+    store.setDetectProvider('provider-detect')
+
+    store.setVerifyProvider(null)
+    store.setVerifyProvider('')
+    store.setDetectProvider(null)
+    store.setDetectProvider('')
+
+    expect(store.verifyProvider).toBeNull()
+    expect(store.detectProvider).toBeNull()
+  })
 })

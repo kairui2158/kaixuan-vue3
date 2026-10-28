@@ -1,13 +1,23 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
+function cloneableSnapshot(value) {
+  try {
+    if (typeof structuredClone === 'function') return structuredClone(value)
+  } catch (error) {
+    // Renderer callers may pass Vue/Pinia reactive proxies. The JSON snapshot
+    // matches the persisted storage format and keeps IPC cloneable.
+  }
+  return JSON.parse(JSON.stringify(value))
+}
+
 // Backward-compatible API (matches original preload.js)
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
   version: process.versions.electron,
 
   // Crypto
-  encrypt: function(text) { return ipcRenderer.invoke('safe:encrypt', text) },
-  decrypt: function(val) { return ipcRenderer.invoke('safe:decrypt', val) },
+  encrypt: function(text) { return ipcRenderer.invoke('safe:encrypt', cloneableSnapshot(text)) },
+  decrypt: function(val) { return ipcRenderer.invoke('safe:decrypt', cloneableSnapshot(val)) },
 
   // Storage
   storageRead: function(key) {
@@ -16,7 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   storageWrite: function(key, data) {
     if (typeof key !== 'string') throw new TypeError('storageWrite: key must be string')
-    return ipcRenderer.invoke('storage:write', key, data)
+    return ipcRenderer.invoke('storage:write', key, cloneableSnapshot(data))
   },
   storageRemove: function(key) {
     if (typeof key !== 'string') throw new TypeError('storageRemove: key must be string')
@@ -29,13 +39,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   storageGetDataDir: function() { return ipcRenderer.invoke('storage:getDataDir') },
   storageOpenDataDir: function() { return ipcRenderer.invoke('storage:openDataDir') },
   outlineJournalApply: function(projectId, commands, options) {
-    return ipcRenderer.invoke('outlineJournal:apply', projectId, commands, options || {})
+    return ipcRenderer.invoke(
+      'outlineJournal:apply',
+      projectId,
+      cloneableSnapshot(commands),
+      cloneableSnapshot(options || {})
+    )
   },
   outlineJournalSnapshot: function(projectId) {
     return ipcRenderer.invoke('outlineJournal:snapshot', projectId)
   },
   outlineJournalMigrate: function(projectId, messages) {
-    return ipcRenderer.invoke('outlineJournal:migrate', projectId, messages)
+    return ipcRenderer.invoke('outlineJournal:migrate', projectId, cloneableSnapshot(messages))
   },
   outlineJournalFlush: function(projectId) {
     return ipcRenderer.invoke('outlineJournal:flush', projectId)
@@ -44,7 +59,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke('outlineJournal:flushAll')
   },
   outlineJournalRestore: function(projectId, snapshot) {
-    return ipcRenderer.invoke('outlineJournal:restore', projectId, snapshot)
+    return ipcRenderer.invoke('outlineJournal:restore', projectId, cloneableSnapshot(snapshot))
   },
   outlineJournalTestFailureControl: function(command) {
     return ipcRenderer.invoke('outlineJournal:testFailureControl', command)

@@ -20,6 +20,7 @@ DiagLogger.init()
 
 // Tooltip boundary controller: keeps CSS pseudo-element labels inside the viewport.
 import { initTooltipController } from './services/tooltipController'
+import { toCloneableSnapshot } from './utils/cloneableSnapshot'
 initTooltipController()
 
 // MCP protocol adapter: enable tool execution from renderer/window scope
@@ -44,7 +45,8 @@ if (!(window as any).electronAPI) {
     },
     storageWrite: (key: string, val: any) => {
       try {
-        const str = typeof val === 'string' ? val : JSON.stringify(val)
+        const snapshot = toCloneableSnapshot(val)
+        const str = typeof val === 'string' ? val : JSON.stringify(snapshot)
         localStorage.setItem(key, str)
         return true
       } catch { return false }

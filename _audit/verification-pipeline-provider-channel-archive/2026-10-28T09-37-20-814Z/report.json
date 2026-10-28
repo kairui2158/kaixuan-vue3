@@ -1,0 +1,205 @@
+{
+  "script": "verify-pipeline-provider-channel-electron.mjs",
+  "at": "2026-10-28T09:31:25.260Z",
+  "result": "PASS",
+  "ui": {
+    "initialUi": {
+      "settings": "",
+      "volumes": "",
+      "chapters": "",
+      "body": ""
+    },
+    "selectedUi": {
+      "settings": "provider-settings",
+      "volumes": "provider-volumes",
+      "chapters": "provider-chapters",
+      "body": "provider-body"
+    }
+  },
+  "runs": {
+    "volumes": {
+      "runId": "pipeline-run-1793179884099-1",
+      "layer": "volumes",
+      "target": "all",
+      "dependencyRevision": "0",
+      "configSnapshot": {
+        "agents": {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": ""
+        },
+        "skills": {
+          "0": [],
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": []
+        },
+        "modes": {
+          "0": "compose",
+          "1": "compose",
+          "2": "compose",
+          "3": "compose",
+          "4": "compose"
+        },
+        "skillAgents": {},
+        "pipelineProviderChannel": {
+          "layer": "volumes",
+          "layerProviderId": "provider-volumes",
+          "globalProviderId": "provider-global",
+          "providerId": "provider-volumes",
+          "source": "layer",
+          "providerMissing": false,
+          "providerUnsupported": false
+        },
+        "pipelineProviderChannels": {
+          "volumes": {
+            "layer": "volumes",
+            "layerProviderId": "provider-volumes",
+            "globalProviderId": "provider-global",
+            "providerId": "provider-volumes",
+            "source": "layer",
+            "providerMissing": false,
+            "providerUnsupported": false
+          }
+        }
+      },
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded",
+      "controller": {},
+      "startedAt": 1793179884099,
+      "progressPhase": "terminal",
+      "endedAt": 1793179884233
+    },
+    "chapters": {
+      "runId": "pipeline-run-1793179884521-2",
+      "layer": "chapters",
+      "target": "vol-provider-channel",
+      "dependencyRevision": "0",
+      "configSnapshot": {
+        "agents": {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": ""
+        },
+        "skills": {
+          "0": [],
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": []
+        },
+        "modes": {
+          "0": "compose",
+          "1": "compose",
+          "2": "compose",
+          "3": "compose",
+          "4": "compose"
+        },
+        "skillAgents": {},
+        "pipelineProviderChannel": {
+          "layer": "chapters",
+          "layerProviderId": "provider-chapters",
+          "globalProviderId": "provider-global",
+          "providerId": "provider-chapters",
+          "source": "layer",
+          "providerMissing": false,
+          "providerUnsupported": false
+        },
+        "pipelineProviderChannels": {
+          "chapters": {
+            "layer": "chapters",
+            "layerProviderId": "provider-chapters",
+            "globalProviderId": "provider-global",
+            "providerId": "provider-chapters",
+            "source": "layer",
+            "providerMissing": false,
+            "providerUnsupported": false
+          }
+        }
+      },
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded",
+      "controller": {},
+      "startedAt": 1793179884521,
+      "progressPhase": "terminal",
+      "endedAt": 1793179884593
+    },
+    "body": {
+      "runId": "pipeline-run-1793179884910-3",
+      "layer": "body",
+      "target": "ch-provider-channel",
+      "dependencyRevision": "0",
+      "configSnapshot": {
+        "agents": {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": ""
+        },
+        "skills": {
+          "0": [],
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": []
+        },
+        "modes": {
+          "0": "compose",
+          "1": "compose",
+          "2": "compose",
+          "3": "compose",
+          "4": "compose"
+        },
+        "skillAgents": {},
+        "pipelineProviderChannel": {
+          "layer": "body",
+          "layerProviderId": "provider-body",
+          "globalProviderId": "provider-global",
+          "providerId": "provider-body",
+          "source": "layer",
+          "providerMissing": false,
+          "providerUnsupported": false
+        },
+        "pipelineProviderChannels": {
+          "body": {
+            "layer": "body",
+            "layerProviderId": "provider-body",
+            "globalProviderId": "provider-global",
+            "providerId": "provider-body",
+            "source": "layer",
+            "providerMissing": false,
+            "providerUnsupported": false
+          }
+        }
+      },
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded",
+      "controller": {},
+      "startedAt": 1793179884910,
+      "progressPhase": "terminal",
+      "endedAt": 1793179885003
+    }
+  },
+  "modelAssertions": {
+    "volumes": "volumes-model",
+    "chapters": "chapters-model",
+    "body": "body-model",
+    "surfaces": [
+      "trace-event",
+      "apiCall",
+      "provider-request"
+    ]
+  },
+  "requestCount": 3,
+  "mode": "mock-four-layer-providers",
+  "live": null
+}

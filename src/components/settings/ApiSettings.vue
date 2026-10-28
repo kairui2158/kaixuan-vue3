@@ -399,11 +399,11 @@ function providerSupportsGenerate(provider: Provider): boolean {
 
 function togglePurpose(id: string, purpose: Provider['purpose'][number]) {
   if (purpose === 'generate') {
-    providerStore.setGenerateProvider(providerStore.generateProvider === id ? '' : id)
+    providerStore.setGenerateProvider(providerStore.generateProvider === id ? null : id)
   } else if (purpose === 'verify') {
-    providerStore.setVerifyProvider(providerStore.verifyProvider === id ? '' : id)
+    providerStore.setVerifyProvider(providerStore.verifyProvider === id ? null : id)
   } else if (purpose === 'detect') {
-    providerStore.setDetectProvider(providerStore.detectProvider === id ? '' : id)
+    providerStore.setDetectProvider(providerStore.detectProvider === id ? null : id)
   } else {
     const p = providerStore.providers.find(item => item.id === id)
     if (p) {

@@ -1,0 +1,29 @@
+[
+  {
+    "at": "2026-10-28T09:31:24.183Z",
+    "url": "/v1/chat/completions",
+    "apiKey": "Bearer local-volumes",
+    "layer": "volumes",
+    "model": "volumes-model",
+    "wantsStream": true,
+    "userPreview": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contract"
+  },
+  {
+    "at": "2026-10-28T09:31:24.553Z",
+    "url": "/v1/chat/completions",
+    "apiKey": "Bearer local-chapters",
+    "layer": "chapters",
+    "model": "chapters-model",
+    "wantsStream": true,
+    "userPreview": "[全书大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[章节规划约束]\n（暂无设定）\n\n[卷纲]\n第一卷 层通道 - 王芳在灯塔发现纸条。\n\n[本卷总章数]\n2\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 层通道》\n\n[上一章事实]\n第1章《第1章 层通道》\n王芳确认纸条。\n\n生成第2章到第2章，共1章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为1。"
+  },
+  {
+    "at": "2026-10-28T09:31:24.926Z",
+    "url": "/v1/chat/completions",
+    "apiKey": "Bearer local-body",
+    "layer": "body",
+    "model": "body-model",
+    "wantsStream": true,
+    "userPreview": "[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n确认纸条。\n\n[旧卷纲显式降级：当前章细纲]\n第1章 层通道\n王芳确认纸条。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 层通道 - 王芳在灯塔发现纸条。\n\n[当前章节剧情点]\n第1章 层通道 - 王芳确认纸条。\n\n请执行本章节的正文生成链路。请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。"
+  }
+]

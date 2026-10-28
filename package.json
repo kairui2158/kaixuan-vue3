@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.110.4",
+  "version": "3.110.5",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -34,7 +34,7 @@
     "@node-rs/jieba-wasm32-wasi": "^2.0.3",
     "@shikijs/langs": "^4.4.3",
     "@shikijs/themes": "^4.4.3",
-    "dompurify": "^3.4.14",
+    "dompurify": "^3.4.17",
     "electron-log": "^5.4.4",
     "hotkeys-js": "^4.0.4",
     "idb": "^8.0.3",
@@ -42,7 +42,7 @@
     "marked": "^18.0.5",
     "pinia": "^4.0.2",
     "shiki": "^4.4.3",
-    "vue": "^3.5.41",
+    "vue": "^3.5.44",
     "vue-router": "^4.6.4",
     "vue-virtual-scroller": "^3.0.4"
   },

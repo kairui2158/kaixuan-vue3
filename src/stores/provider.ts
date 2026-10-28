@@ -194,19 +194,19 @@ async function saveProviders() {
     return cleared
   }
 
-function setGenerateProvider(id: string) {
-   generateProvider.value = id
+function setGenerateProvider(id: string | null) {
+   generateProvider.value = id || null
    saveProviders()
- }
+}
 
-function setVerifyProvider(id: string) {
-   verifyProvider.value = id
-   saveProviders()
- }
-function setDetectProvider(id: string) {
-   detectProvider.value = id
-   saveProviders()
- }
+function setVerifyProvider(id: string | null) {
+  verifyProvider.value = id || null
+  saveProviders()
+}
+function setDetectProvider(id: string | null) {
+  detectProvider.value = id || null
+  saveProviders()
+}
 
   async function fetchModels(providerId: string) {
     const p = providers.value.find(p => p.id === providerId)

@@ -155,6 +155,33 @@ describe('project store outline journal persistence state', () => {
     )
   })
 
+  it('queues structured-cloneable journal commands even when chat state is reactive', async () => {
+    outlineJournalApply.mockResolvedValue({ ok: true })
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-cloneable'
+
+    store.appendOutlineChat({
+      role: 'assistant',
+      content: '初始回复',
+      metadata: { toolCalls: [{ name: 'outline.read', result: '第一段' }] },
+    })
+    const index = store.outlineChat.length - 1
+    store.updateOutlineChatAt(index, {
+      status: 'complete',
+      metadata: { toolCalls: [{ name: 'outline.write', result: '写入完成' }] },
+    })
+
+    const result = await store.flushOutlineJournal({ immediate: true })
+
+    expect(result.ok).toBe(true)
+    const commands = outlineJournalApply.mock.calls.at(-1)?.[1]
+    expect(() => structuredClone(commands)).not.toThrow()
+    expect(commands.at(-1)).toMatchObject({
+      op: 'replace',
+      message: { status: 'complete' },
+    })
+  })
+
   it('keeps a failed flush visible and restores commands to the queue head', async () => {
     outlineJournalApply.mockResolvedValueOnce({ ok: false, error: 'checksum_mismatch' })
     const store = useProjectStore()

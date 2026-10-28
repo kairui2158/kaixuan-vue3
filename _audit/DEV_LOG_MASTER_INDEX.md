@@ -1288,3 +1288,13 @@
 - 验证：定向 4 files / 25 tests；全量 220 files / 2379 tests；type-check exit 0；mock Electron PASS；live Electron PASS（single-supplier，requests=3）。live 第一次复跑正文层供应商流式停摆超时，复跑通过并登记为供应商边界。
 - 封装：3.110.3 → 3.110.4；安装包 `dist/神意助手-Setup-3.110.4.exe`，231,615,334 bytes，SHA256 `DF7E5E1455EE287509321E23A810B6F693BF43EE473281C87125870F395352CA`；旧 3.110.3 产物已清理。
 - 经验回写：v9.6.6，G1.5 新增控件形态对账数据模型语义、用途资格三面守门判则。
+
+# 2026-10-28 健康检查缺陷与风险闭环
+
+- 文件：[_audit/DEV_LOG_2026-10-28_HEALTH_CHECK_DEFECT_CLOSURE.md](_audit/DEV_LOG_2026-10-28_HEALTH_CHECK_DEFECT_CLOSURE.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_HEALTH_CHECK_DEFECT_CLOSURE.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_HEALTH_CHECK_DEFECT_CLOSURE.md)
+- 范围：outline journal IPC reactive proxy 根因修复、cloneable snapshot 单源接线、用途取消 null 哨兵清理、验证器证据归档、dompurify/vue 依赖升级、定向/全量/Electron/生产接线验证。
+- 验证：定向 5 files / 37 tests；全量 221 files / 2384 tests；type-check exit 0；build:vue 成功；直写四供应商矩阵 PASS 且 clone 错误 0；provider-channel mock PASS；production wiring 无违规；证据归档双证生效。
+- 封装：3.110.4 → 3.110.5；安装包 `dist/神意助手-Setup-3.110.5.exe`，231,643,280 bytes，SHA256 `054883A592791119247A957240C68903B1D2017F81131E52B0867E36FF710333`；旧 3.110.4 产物已清理。
+- 诚实边界：本轮未新增 live API 请求；sharp 2 个 high（传递依赖 breaking）、Electron no-sandbox、stylelint/Biome 门禁接入登记未修。
+- 经验回写：v9.6.7，G1.5 新增 IPC cloneable snapshot 单源与 clone 报错真实调用链定位判则。

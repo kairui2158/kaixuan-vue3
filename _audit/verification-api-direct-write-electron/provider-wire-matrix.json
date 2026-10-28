@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.api-direct-write-provider-wire-electron-matrix",
   "version": 1,
-  "generatedAt": "2026-10-07T19:03:34.717Z",
+  "generatedAt": "2026-10-28T09:30:37.293Z",
   "layer": "mock",
   "assertionContract": {
     "authHeaders": true,
@@ -21,7 +21,7 @@
       "status": "pass",
       "requestCount": 2,
       "expectedHeader": "authorization",
-      "traceApiCallId": "api-1791399796590-8",
+      "traceApiCallId": "api-1793179820437-11",
       "finishReason": "stop",
       "usage": {
         "inputTokens": 112,
@@ -37,7 +37,7 @@
       "status": "pass",
       "requestCount": 2,
       "expectedHeader": "x-api-key",
-      "traceApiCallId": "api-1791399802087-8",
+      "traceApiCallId": "api-1793179825847-11",
       "finishReason": "stop",
       "usage": {
         "inputTokens": 223,
@@ -53,7 +53,7 @@
       "status": "pass",
       "requestCount": 2,
       "expectedHeader": "x-goog-api-key",
-      "traceApiCallId": "api-1791399807658-8",
+      "traceApiCallId": "api-1793179830970-11",
       "finishReason": "stop",
       "usage": {
         "inputTokens": 334,
@@ -69,7 +69,7 @@
       "status": "pass",
       "requestCount": 2,
       "expectedHeader": "api-key",
-      "traceApiCallId": "api-1791399813402-8",
+      "traceApiCallId": "api-1793179836128-11",
       "finishReason": "stop",
       "usage": {
         "inputTokens": 445,

@@ -651,7 +651,7 @@ async function startLayerRun(page, stepIndex, buttonId) {
 }
 
 async function main() {
-  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
+  archiveEvidenceRoot({ keepArchive: process.env.SHENYI_KEEP_EVIDENCE_ARCHIVE === '1' })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
   fs.rmSync(PROFILE, { recursive: true, force: true })
   assertFreshRenderer()
@@ -833,6 +833,18 @@ async function main() {
     await providers?.close()
     await liveProxy?.close()
   }
+}
+
+function archiveEvidenceRoot({ keepArchive = false } = {}) {
+  if (!fs.existsSync(EVIDENCE_ROOT)) return
+  const archiveRoot = `${EVIDENCE_ROOT}-archive`
+  if (keepArchive) {
+    fs.mkdirSync(archiveRoot, { recursive: true })
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const target = path.join(archiveRoot, stamp)
+    fs.cpSync(EVIDENCE_ROOT, target, { recursive: true })
+  }
+  fs.rmSync(EVIDENCE_ROOT, { recursive: true, force: true })
 }
 
 main().catch(error => {
