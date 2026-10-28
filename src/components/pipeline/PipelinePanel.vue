@@ -235,9 +235,9 @@
               <button id="btn-pl-confirm-settings" class="btn-primary" @click="confirmSettingsLayer" :disabled="currentSettings.length === 0">确认/保存设定层</button>
             </div>
 <GenerationProgressBar
-  v-if="settingsGenerationFeedbackVisible"
+  v-if="!isPerRunFeedbackHidden(displayedSettingsRunId) && settingsGenerationFeedbackVisible"
   :step="1"
-  :visible="settingsGenerationFeedbackVisible"
+  :visible="!isPerRunFeedbackHidden(displayedSettingsRunId) && settingsGenerationFeedbackVisible"
   :progress="displayedRunForStep(1)?.progress ?? 0"
   :status="displayedRunStatusText(1)"
   :logs="displayedLogsForStep(1)"
@@ -370,9 +370,9 @@
               />
             </div>
 <GenerationProgressBar
-  v-if="volumeGenerationFeedbackVisible"
+  v-if="!isPerRunFeedbackHidden(displayedVolumesRunId) && volumeGenerationFeedbackVisible"
   :step="2"
-  :visible="volumeGenerationFeedbackVisible"
+  :visible="!isPerRunFeedbackHidden(displayedVolumesRunId) && volumeGenerationFeedbackVisible"
   :progress="displayedRunForStep(2)?.progress ?? 0"
   :status="displayedRunStatusText(2)"
   :logs="displayedLogsForStep(2)"
@@ -519,9 +519,9 @@
               </section>
              </div>
              <GenerationProgressBar
-               v-if="chapterGenerationFeedbackVisible"
+               v-if="!isPerRunFeedbackHidden(displayedChaptersRunId) && chapterGenerationFeedbackVisible"
                :step="3"
-               :visible="chapterGenerationFeedbackVisible"
+               :visible="!isPerRunFeedbackHidden(displayedChaptersRunId) && chapterGenerationFeedbackVisible"
                :progress="displayedRunForStep(3)?.progress ?? 0"
                :status="displayedRunStatusText(3)"
                :logs="displayedLogsForStep(3)"
@@ -591,9 +591,9 @@
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
             <GenerationProgressBar
-              v-if="bodyGenerationFeedbackVisible"
+              v-if="!isPerRunFeedbackHidden(displayedBodyRunId) && bodyGenerationFeedbackVisible"
               :step="4"
-              :visible="bodyGenerationFeedbackVisible"
+              :visible="!isPerRunFeedbackHidden(displayedBodyRunId) && bodyGenerationFeedbackVisible"
               :progress="displayedRunForStep(4)?.progress ?? 0"
               :status="displayedRunStatusText(4)"
               :logs="displayedLogsForStep(4)"
@@ -1146,6 +1146,7 @@ type PerRunGenerationUiState = {
   bodyStepAcceptance?: StepArtifactAcceptanceResult[]
   bodyFinalStepMetadata?: FinalStepMetadataFlowResult | null
   active: boolean
+  feedbackHidden?: boolean
 }
 const perRunGenerationUi = reactive(new Map<string, PerRunGenerationUiState>())
 
@@ -1198,10 +1199,34 @@ function resetPerRunUi(runId: string | null | undefined) {
   if (runId) perRunGenerationUi.delete(runId)
 }
 
+function isPipelineRunTerminal(runId: string): boolean {
+  const status = pipelineStore.getRun(runId)?.status
+  return status === 'succeeded' || status === 'failed' || status === 'canceled'
+}
+
+function isPerRunFeedbackHidden(runId: string | null | undefined): boolean {
+  // Hiding is terminal-only. A hidden running run would keep the contract
+  // alive in the store while the progress bar, cancel control, and stream
+  // ownership disappear from every layer surface.
+  return Boolean(runId && isPipelineRunTerminal(runId) && perRunGenerationUi.get(runId)?.feedbackHidden)
+}
+
+function cleanupTerminalPerRunUi() {
+  for (const [runId, state] of perRunGenerationUi) {
+    if (state.feedbackHidden && isPipelineRunTerminal(runId)) perRunGenerationUi.delete(runId)
+  }
+}
+
 function displayRunForLayer(layer: PipelineLayer) {
   const candidates = pipelineStore.activeRuns
     .filter(run => run.layer === layer && (run.status === 'running' || run.status === 'queued'))
-  return candidates.find(run => run.status === 'running') || candidates[candidates.length - 1] || null
+  const active = candidates.find(run => run.status === 'running') || candidates[candidates.length - 1] || null
+  if (active) return active
+  // Keep the just-finished run visible so the close button has a real
+  // terminal path. Closing only hides feedback; store-driven cleanup still
+  // owns the eventual Map eviction.
+  const layerRuns = pipelineStore.getRunHistoryForLayer(layer)
+  return [...layerRuns].reverse().find(run => !isPerRunFeedbackHidden(run.runId)) || null
 }
 
 const displayedSettingsRunId = computed(() => displayRunForLayer('settings')?.runId || null)
@@ -1479,8 +1504,12 @@ function closeBodyGenerationFeedback() {
 
 function closePerRunFeedback(runId: string | null) {
   if (!runId) return
-  resetPerRunUi(runId)
-  resetPipelineStepWarningCountsForRun(runId)
+  const state = perRunUi(runId)
+  if (state) state.feedbackHidden = true
+  if (isPipelineRunTerminal(runId)) {
+    resetPipelineStepWarningCountsForRun(runId)
+    resetPerRunUi(runId)
+  }
 }
 
 type PipelineStreamOwnership = { runId: string | null; callId: string | null }
@@ -1533,6 +1562,7 @@ type PipelineStreamState = {
   frameId: number | null
   dirty: boolean
   runId: string | null
+  traceRunId: string | null
   callId: string | null
 }
 
@@ -1546,16 +1576,17 @@ function getPipelineStreamState(step: number, runId: string | null | undefined) 
   const key = pipelineStreamStateKey(step, runId)
   let state = pipelineStreamStates.get(key)
   if (!state) {
-    state = { text: '', reasoning: '', traceText: '', traceReasoning: '', frameId: null, dirty: false, runId: runId || null, callId: null }
+    state = { text: '', reasoning: '', traceText: '', traceReasoning: '', frameId: null, dirty: false, runId: runId || null, traceRunId: null, callId: null }
     pipelineStreamStates.set(key, state)
   }
   return state
 }
 
 function renderPipelineStreamState(step: number, state: PipelineStreamState) {
+  const traceRunId = state.traceRunId || state.runId
   appendPipelineStream(step, state.text, { runId: state.runId, callId: state.callId })
   appendPipelineReasoning(step, state.reasoning, state.runId)
-  const runId = state.runId
+  const runId = traceRunId
   const callId = state.callId
   if (runId && callId) {
     if (state.traceText) runTraceStore.appendStream(runId, callId, state.traceText)
@@ -1576,16 +1607,29 @@ function schedulePipelineStreamRender(step: number, runId: string | null | undef
   })
 }
 
-function resetPipelineStreamState(step: number, runId: string | null | undefined) {
-  const state = getPipelineStreamState(step, runId)
+function resetPipelineStreamState(
+  step: number,
+  runId: string | null | undefined,
+  pipelineRunId?: string | null | undefined
+) {
+  const state = getPipelineStreamState(step, pipelineRunId || runId)
   if (state.frameId !== null) window.cancelAnimationFrame(state.frameId)
-  pipelineStreamStates.delete(pipelineStreamStateKey(step, runId))
+  pipelineStreamStates.delete(pipelineStreamStateKey(step, pipelineRunId || runId))
 }
 
-function appendPipelineDelta(step: number, kind: 'text' | 'reasoning', delta: string, runId: string | null | undefined) {
+function appendPipelineDelta(
+  step: number,
+  kind: 'text' | 'reasoning',
+  delta: string,
+  runId: string | null | undefined,
+  pipelineRunId: string | null | undefined,
+  callId: string | null | undefined
+) {
   const value = delta || ''
   if (!value) return
-  const state = getPipelineStreamState(step, runId)
+  const state = getPipelineStreamState(step, pipelineRunId || runId)
+  state.traceRunId = runId || null
+  if (callId) state.callId = callId
   if (kind === 'text') {
     state.text += value
     state.traceText += value
@@ -1594,17 +1638,18 @@ function appendPipelineDelta(step: number, kind: 'text' | 'reasoning', delta: st
     state.traceReasoning += value
   }
   state.dirty = true
-  schedulePipelineStreamRender(step, runId)
+  schedulePipelineStreamRender(step, pipelineRunId || runId)
 }
 
-function flushPipelineStreamState(step: number, runId: string | null | undefined) {
-  const state = getPipelineStreamState(step, runId)
+function flushPipelineStreamState(step: number, runId: string | null | undefined, pipelineRunId?: string | null | undefined) {
+  const state = getPipelineStreamState(step, pipelineRunId || runId)
   if (state.frameId !== null) {
     window.cancelAnimationFrame(state.frameId)
     state.frameId = null
   }
   if (!state.dirty) return
   state.dirty = false
+  state.traceRunId = state.traceRunId || runId || null
   renderPipelineStreamState(step, state)
 }
 
@@ -1779,6 +1824,13 @@ watch(() => ({
   }
 }, { immediate: true })
 
+// Terminal cleanup is deliberately store-driven: closing feedback must hide
+// state without destroying an in-flight contract, while hidden terminal runs
+// must eventually leave this component Map.
+watch(() => pipelineStore.runs, () => {
+  cleanupTerminalPerRunUi()
+}, { deep: false })
+
 // Verification bridge for responsive E2E; no runtime behavior depends on it.
 ;(globalThis as any).__pipelinePanelState = {
   get bindingImportPreview() { return bindingImportPreview.value },
@@ -1814,7 +1866,10 @@ watch(() => ({
   get chapterDetailEditPlot() { return chapterDetailEditPlot.value },
   set chapterDetailEditPlot(value: string) { chapterDetailEditPlot.value = value },
   get currentVolumeChapters() { return currentVolumeChapters.value },
-  get selectedVolume() { return selectedVolume.value }
+  get selectedVolume() { return selectedVolume.value },
+  closeFeedbackForRun(runId: string | null | undefined) {
+    closePerRunFeedback(runId || null)
+  }
 }
 
 const memoryPreviewLoading = ref(false)
@@ -2628,7 +2683,7 @@ async function callValidatedSkill(
     }
     const finishFolderTrace = (status: 'success' | 'degraded' | 'failed' | 'canceled', error?: string, output = '') => {
       if (!traceRunId || !traceCallId) return
-      flushPipelineStreamState(step, traceRunId)
+      flushPipelineStreamState(step, traceRunId, pipelineRunIdParam)
       runTraceStore.finishApiCall(traceRunId, traceCallId, {
         status,
         responseText: output,
@@ -2638,7 +2693,7 @@ async function callValidatedSkill(
     }
     const finishFolderTraceFromResult = (result: typeof route.folderResult) => {
       if (!traceRunId || !traceCallId) return
-      flushPipelineStreamState(step, traceRunId)
+      flushPipelineStreamState(step, traceRunId, pipelineRunIdParam)
       const apiMeta = result?.apiMeta
       const hasOutput = Boolean(result?.output?.trim())
       const traceStatus = result?.status === 'failed'
@@ -2794,11 +2849,11 @@ async function callValidatedSkill(
           })
         },
       onChunk: (text: string) => {
-        appendPipelineDelta(step, 'text', text, traceRunId)
+        appendPipelineDelta(step, 'text', text, traceRunId, pipelineRunIdParam, traceCallId)
       },
-       onReasoning: (text: string) => {
-         appendPipelineDelta(step, 'reasoning', text, traceRunId)
-       },
+      onReasoning: (text: string) => {
+        appendPipelineDelta(step, 'reasoning', text, traceRunId, pipelineRunIdParam, traceCallId)
+      },
         onGenerationEvent: (event) => {
           if (!traceRunId) return
           runTraceStore.addEvent(traceRunId, {
@@ -3508,10 +3563,10 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     temperature,
     maxTokens,
     onChunk: (text: string) => {
-      appendPipelineDelta(step, 'text', text, runId)
+      appendPipelineDelta(step, 'text', text, runId, pipelineRunIdParam, apiCallId)
     },
     onReasoning: (text: string) => {
-      appendPipelineDelta(step, 'reasoning', text, runId)
+      appendPipelineDelta(step, 'reasoning', text, runId, pipelineRunIdParam, apiCallId)
     },
     onPhysicalCall: (event) => {
       if (runId && apiCallId) runTraceStore.appendPhysicalCall(runId, apiCallId, {
@@ -3623,7 +3678,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     }
     const finalTraceResult = effectiveResult
     if (runId && apiCallId) {
-      flushPipelineStreamState(step, runId)
+      flushPipelineStreamState(step, runId, pipelineRunIdParam)
       const traceStatus = traceStatusFromAiResult(finalTraceResult, finalTraceResult.maxTokens ?? maxTokens)
       runTraceStore.finishApiCall(runId, apiCallId, {
         status: traceStatus.status,
@@ -3642,7 +3697,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     return finalTraceResult.text || ""
   } catch (e) {
     if (runId && apiCallId) {
-      flushPipelineStreamState(step, runId)
+      flushPipelineStreamState(step, runId, pipelineRunIdParam)
       const canceled = signal?.aborted || isPipelineRunCanceled(pipelineRunIdParam)
       runTraceStore.finishApiCall(runId, apiCallId, {
         status: canceled ? "canceled" : "failed",
@@ -4741,7 +4796,7 @@ async function genSettings() {
   trace.begin()
   pipelineStore.rememberTraceRunOwnership(trace.runId, settingsRunId)
   perRunUi(settingsRunId)!.skillSteps = []
-  resetPipelineStreamState(1, trace.runId)
+  resetPipelineStreamState(1, trace.runId, settingsRunId)
   perRunUi(settingsRunId)!.logs = ["已读取大纲锁定状态，准备构造设定生成请求"]
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定", settingsRunId)
   try {
@@ -4865,7 +4920,7 @@ async function genVolumes(mode: string) {
   trace.begin()
   pipelineStore.rememberTraceRunOwnership(trace.runId, volumesRunId)
   appendStepLogForRun(volumesRunId, 2, initialVolumeLog)
-  resetPipelineStreamState(2, trace.runId)
+  resetPipelineStreamState(2, trace.runId, volumesRunId)
   pipelineStore.updateProgress(10, "AI生成卷纲中", volumesRunId)
   let volumeArtifactDelivered = false
   try {
@@ -5088,7 +5143,6 @@ async function genChapters(mode: ChapterGenerationMode) {
   if (!vol) return
   let batchStopReason: 'batch_complete' | 'all_chapters_complete' = 'all_chapters_complete'
   let plan: ReturnType<typeof planChapterGeneration> | null = null
-  resetPipelineStreamState(3, null)
   const volumeAgentId = getStepAgentId(3)
   const volumeSkillNames = getStepSkillTemplates(3).map(t => t.name).filter(Boolean)
   const volId = vol.id || vol.name
@@ -5103,6 +5157,7 @@ async function genChapters(mode: ChapterGenerationMode) {
   const trace = startStepTrace(3, "章节层", "chapters", chaptersRunId)
   trace.begin()
   pipelineStore.rememberTraceRunOwnership(trace.runId, chaptersRunId)
+  resetPipelineStreamState(3, trace.runId, chaptersRunId)
   perRunUi(chaptersRunId)!.skillSteps = []
   perRunUi(chaptersRunId)!.generationVolume = vol
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
@@ -5394,7 +5449,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   trace.begin()
   pipelineStore.rememberTraceRunOwnership(trace.runId, bodyRunId)
   pipelineStore.updateProgress(10, "AI生成正文中", bodyRunId)
-  resetPipelineStreamState(4, trace.runId)
+  resetPipelineStreamState(4, trace.runId, bodyRunId)
   perRunUi(bodyRunId)!.skillSteps = []
   const _bodyWordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
     appendStepLogForRun(bodyRunId, 4, "已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter)
@@ -6069,6 +6124,7 @@ async function runBodyMinimalEdit(
       stream: false,
       retry: true,
       signal: pipelineStore.getGenerationSignal(bodyRunId),
+      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId),
       meta: { source: 'PipelinePanel.runBodyMinimalEdit' }
     })
     const edited = result.text || ''
@@ -6180,6 +6236,7 @@ async function runHardSignalRepair(
       stream: false,
       retry: true,
       signal: pipelineStore.getGenerationSignal(bodyRunId),
+      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId),
       meta: { source: `PipelinePanel.runHardSignalRepair.attempt-${attempt}` }
     })
     const repairedWindow = (result.text || '').trim()

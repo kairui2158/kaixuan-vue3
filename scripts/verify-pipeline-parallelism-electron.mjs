@@ -673,8 +673,10 @@ async function seedApplication(page, {
     ...decryptLiveProviderKeyOnce(),
   }
   const effectiveLiveBridge = liveBridge || sourceLiveBridge
-  await page.evaluate(async ({ providers, liveBridgeKey, projectId, volumeId, chapterId, secondChapterId, outline, skills }) => {
-    if (!liveBridgeKey || providers.providers?.length !== 1) {
+  await page.evaluate(async ({ mockMode, providers, liveBridgeKey, projectId, volumeId, chapterId, secondChapterId, outline, skills }) => {
+    if (mockMode) {
+      if (providers.providers?.length !== 1) throw new Error('mock provider targets exactly one provider')
+    } else if (!liveBridgeKey || providers.providers?.length !== 1) {
       throw new Error('live bridge targets exactly one provider')
     }
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
@@ -751,11 +753,12 @@ async function seedApplication(page, {
     await window.electronAPI.storageWrite('wa_appSettings', { autoExtractMemory: false })
     await window.electronAPI.storageRemove('wa_pipeline_breakpoint')
   }, {
+    mockMode: Boolean(mockProvider),
     providers: mockProvider ? {
       providers: [{
         id: 'parallelism-provider',
         name: 'Pipeline Parallelism Provider',
-        baseUrl: `http://127.0.0.1:${provider.port}`,
+        baseUrl: `http://127.0.0.1:${mockProvider.port}`,
         apiKey: 'local-test-key',
         models: ['parallelism-model'],
         selectedModel: 'parallelism-model',
@@ -995,6 +998,316 @@ function assertConcurrentUiState(snapshot) {
     `${run.layer} progress is visible while all three run, got ${run.progress}`))
   const volumeRun = activeRuns.find(run => run.layer === 'volumes')
   assert.equal(volumeRun.target, 'all', `volume run target stays 'all': ${volumeRun.target}`)
+}
+
+async function collectStreamOwnershipSnapshot(page, {
+  containerId,
+  expectedPipelineRunId,
+  expectedLayer,
+}) {
+  return page.evaluate(async ({
+    containerId,
+    expectedPipelineRunId,
+    expectedLayer,
+  }) => {
+    const container = document.getElementById(containerId)
+    if (!container) return { containerExists: false }
+    const lines = [...container.querySelectorAll('.pl-gen-bar-stream-line')]
+      .map(line => (line.textContent || '').trim())
+    const streamLines = lines.filter(line => line.startsWith('API实时输出：'))
+    const closeButtons = [...container.querySelectorAll('.pl-gen-bar-close')]
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const storeRun = pipeline?.runs?.find(run => run.runId === expectedPipelineRunId) || null
+    const traceRuns = (trace?.runs || [])
+      .filter(run => run.pipelineRunId === expectedPipelineRunId)
+      .map(run => ({
+        id: run.id,
+        step: run.step,
+        status: run.status,
+        streamedCalls: (run.apiCalls || [])
+          .filter(call => (call.streamTotalChars || call.streamText?.length || 0) > 0)
+          .map(call => ({
+            id: call.id,
+            status: call.status,
+            streamTotalChars: call.streamTotalChars ?? call.streamText?.length ?? 0,
+            streamChars: call.streamText?.length ?? 0,
+          })),
+      }))
+    return {
+      containerExists: true,
+      containerId,
+      lineCount: lines.length,
+      streamLineCount: streamLines.length,
+      streamPreview: streamLines[0]?.slice(0, 300) || null,
+      closeCount: closeButtons.length,
+      storeRun: storeRun ? {
+        runId: storeRun.runId,
+        layer: storeRun.layer,
+        status: storeRun.status,
+        progress: storeRun.progress,
+      } : null,
+      traceRuns,
+      expected: { expectedPipelineRunId, expectedLayer },
+    }
+  }, { containerId, expectedPipelineRunId, expectedLayer })
+}
+
+async function expandProgressStream(page, stepIndex) {
+  await selectPipelineStep(page, stepIndex)
+  const panelId = `#pl-step-${stepIndex + 1}-content`
+  const streamToggle = page.locator(`${panelId} .pl-gen-bar .pl-gen-bar-stream-toggle`).first()
+  try {
+    await streamToggle.waitFor({ state: 'visible', timeout: 30_000 })
+  } catch (error) {
+    const diagnostics = await page.evaluate(targetPanelId => {
+      const panel = document.querySelector(targetPanelId)
+      const bar = panel?.querySelector('.pl-gen-bar') || null
+      const barStyle = bar ? window.getComputedStyle(bar) : null
+      return {
+        panelExists: Boolean(panel),
+        panelClass: panel?.getAttribute('class') || null,
+        panelText: panel?.textContent?.slice(0, 500) || null,
+        barExists: Boolean(bar),
+        barDisplay: barStyle?.display || null,
+        barVisibility: barStyle?.visibility || null,
+        toggleText: panel?.querySelector('.pl-gen-bar-stream-toggle')?.textContent?.trim() || null,
+        pipelineRuns: window.__pinia?._s?.get('pipeline')?.runs?.map(run => ({
+          runId: run.runId,
+          layer: run.layer,
+          status: run.status,
+        })) || [],
+      }
+    }, panelId)
+    await fs.promises.writeFile(
+      path.join(EVIDENCE_ROOT, `stream-toggle-diagnostics-step-${stepIndex}.json`),
+      JSON.stringify({ stepIndex, panelId, diagnostics }, null, 2),
+      'utf8',
+    )
+    throw new Error(`stream toggle missing before expansion: ${JSON.stringify(diagnostics)}`)
+  }
+  await streamToggle.click()
+  try {
+    await page.waitForFunction(({ panelId }) => {
+      const lines = [...document.querySelectorAll(`${panelId} .pl-gen-bar-stream-line`)]
+      return lines.some(line => (line.textContent || '').trim().startsWith('API实时输出：'))
+    }, { panelId }, { timeout: 30_000 })
+  } catch (error) {
+    const diagnostics = await page.evaluate(targetPanelId => {
+      const panel = document.querySelector(targetPanelId)
+      return {
+        panelExists: Boolean(panel),
+        lines: panel ? [...panel.querySelectorAll('.pl-gen-bar-stream-line')]
+          .map(line => (line.textContent || '').trim()) : [],
+        toggleText: panel?.querySelector('.pl-gen-bar-stream-toggle')?.textContent?.trim() || null,
+      }
+    }, panelId)
+    await fs.promises.writeFile(
+      path.join(EVIDENCE_ROOT, `stream-expansion-diagnostics-step-${stepIndex}.json`),
+      JSON.stringify({ stepIndex, panelId, diagnostics }, null, 2),
+      'utf8',
+    )
+    throw new Error(`stream line missing after expansion: ${JSON.stringify(diagnostics)}`)
+  }
+}
+
+async function assertActiveRunStreamOwnership(page, snapshot, layer, stepIndex, containerId) {
+  const expectedRun = snapshot.allRuns.find(run =>
+    run.layer === layer && run.status === 'running')
+  assert(expectedRun, `active ${layer} run exists for stream ownership check: ${JSON.stringify(snapshot.allRuns)}`)
+
+  await expandProgressStream(page, stepIndex)
+  const streamOwnership = await collectStreamOwnershipSnapshot(page, {
+    containerId,
+    expectedPipelineRunId: expectedRun.runId,
+    expectedLayer: layer,
+  })
+  assert(streamOwnership.containerExists,
+    `${layer} progress bar renders its stream container`)
+  assert(streamOwnership.streamLineCount >= 1,
+    `${layer} real progress UI renders an API实时输出 line, got ${JSON.stringify(streamOwnership)}`)
+  assert(streamOwnership.storeRun?.runId === expectedRun.runId,
+    `${layer} displayed stream belongs to the active pipeline run`)
+  assert(streamOwnership.storeRun?.layer === layer,
+    `${layer} displayed stream stays on its own layer`)
+  assert(streamOwnership.traceRuns.length >= 1,
+    `${layer} trace ownership is recorded for the displayed pipeline run`)
+  assert(streamOwnership.traceRuns.some(run =>
+    (run.streamedCalls || []).some(call => call.streamTotalChars > 0)),
+    `${layer} trace records stream accounting against its trace run`)
+  assert(streamOwnership.traceRuns.every(run => run.step === stepIndex),
+    `${layer} trace keeps its layer step identity, got ${JSON.stringify(streamOwnership.traceRuns.map(run => run.step))}`)
+  assert(streamOwnership.closeCount === 0,
+    `${layer} active run exposes cancel, not terminal close`)
+  return streamOwnership
+}
+
+async function assertCloseDuringRunPreservesExecution(page, snapshot, layer, stepIndex, containerId) {
+  const expectedRun = snapshot.allRuns.find(run =>
+    run.layer === layer && run.status === 'running')
+  assert(expectedRun, `active ${layer} run exists before feedback close: ${JSON.stringify(snapshot.allRuns)}`)
+  const panelId = `#pl-step-${stepIndex + 1}-content`
+  const closeOrCancel = page.locator(`${panelId} .pl-gen-bar`).first()
+    .locator('.pl-gen-bar-cancel, .pl-gen-bar-close')
+  const buttonCount = await closeOrCancel.count()
+  assert(buttonCount === 1,
+    `${layer} active progress bar exposes exactly one feedback control, got ${buttonCount}`)
+  const buttonClass = await closeOrCancel.first().getAttribute('class')
+  assert(String(buttonClass || '').includes('pl-gen-bar-cancel'),
+    `${layer} active progress bar must expose cancel rather than close`)
+
+  // Emulate the terminal close path while the run is still executing. This is
+  // the regression guard for the old reset-based close, which deleted logs
+  // and stream state from a still-running contract.
+  const beforeClose = await page.evaluate(async ({ wantedRunId, layerName }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const traceRuns = (trace?.runs || []).filter(run => run.pipelineRunId === wantedRunId)
+    return {
+      run: pipeline?.getRun?.(wantedRunId) || pipeline?.runs?.find(run => run.runId === wantedRunId) || null,
+      traceRuns: traceRuns.map(run => ({
+        id: run.id,
+        status: run.status,
+        apiCalls: (run.apiCalls || []).length,
+        streamTotalChars: (run.apiCalls || [])
+          .reduce((total, call) => total + (call.streamTotalChars || call.streamText?.length || 0), 0),
+      })),
+      providerQueueEvents: (pipeline?.runs?.find(run => run.runId === wantedRunId)?.providerQueueEvents || []).length,
+      layerName,
+    }
+  }, { wantedRunId: expectedRun.runId, layerName: layer })
+
+  await page.evaluate(({ wantedRunId }) => {
+    const panel = window.__pipelinePanelState
+    if (!panel?.closeFeedbackForRun) throw new Error('test bridge closeFeedbackForRun is unavailable')
+    panel.closeFeedbackForRun(wantedRunId)
+  }, { wantedRunId: expectedRun.runId })
+
+  const afterClose = await page.evaluate(async ({ wantedRunId }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const run = pipeline?.getRun?.(wantedRunId) || pipeline?.runs?.find(item => item.runId === wantedRunId) || null
+    return {
+      status: run?.status || null,
+      progress: run?.progress ?? null,
+      traceRuns: (trace?.runs || []).filter(item => item.pipelineRunId === wantedRunId)
+        .map(item => ({
+          id: item.id,
+          status: item.status,
+          apiCalls: (item.apiCalls || []).length,
+          streamTotalChars: (item.apiCalls || [])
+            .reduce((total, call) => total + (call.streamTotalChars || call.streamText?.length || 0), 0),
+        })),
+    }
+  }, { wantedRunId: expectedRun.runId })
+
+  assert(afterClose.status === beforeClose.run?.status,
+    `${layer} close action does not alter the executing run status (${beforeClose.run?.status} -> ${afterClose.status})`)
+  assert((afterClose.traceRuns || []).length === (beforeClose.traceRuns || []).length,
+    `${layer} close action does not delete trace ownership records`)
+  assert((afterClose.traceRuns || []).every(run =>
+    (run.apiCalls || 0) >= (beforeClose.traceRuns?.find(item => item.id === run.id)?.apiCalls || 0)),
+    `${layer} close action does not delete trace API calls`)
+  assert((afterClose.traceRuns || []).every(run =>
+    run.streamTotalChars >= (beforeClose.traceRuns?.find(item => item.id === run.id)?.streamTotalChars || 0)),
+    `${layer} close action does not delete accumulated stream accounting`)
+  return {
+    layer,
+    pipelineRunId: expectedRun.runId,
+    statusAfterClose: afterClose.status,
+    traceRunCount: (afterClose.traceRuns || []).length,
+    streamTotalChars: (afterClose.traceRuns || []).reduce((total, run) => total + run.streamTotalChars, 0),
+  }
+}
+
+async function assertTerminalCloseOnlyHidesFeedback(page, snapshot, layer, stepIndex, containerId) {
+  const expectedRun = snapshot.allRuns.findLast(run => run.layer === layer
+    && ['succeeded', 'failed', 'canceled'].includes(run.status))
+  assert(expectedRun, `terminal ${layer} run exists for close-button assertion: ${JSON.stringify(snapshot.allRuns)}`)
+  const panelId = `#pl-step-${stepIndex + 1}-content`
+  const terminalBar = page.locator(`${panelId} .pl-gen-bar-close`)
+  await ensurePipelinePanelOpen(page)
+  await page.locator('#pl-steps .pl-step').nth(stepIndex).click()
+  await page.waitForSelector(panelId, { state: 'visible', timeout: 20_000 })
+  const closeButtonCount = await terminalBar.count()
+  if (closeButtonCount !== 1) {
+    const diagnostics = await page.evaluate(({ panelId, containerId, wantedRunId }) => {
+      const panel = document.querySelector(panelId)
+      const container = document.getElementById(containerId)
+      const pipeline = window.__pinia?._s?.get('pipeline')
+      return {
+        panelExists: Boolean(panel),
+        containerExists: Boolean(container),
+        panelText: panel?.textContent?.slice(0, 1000) || null,
+        closeButtons: panel ? [...panel.querySelectorAll('.pl-gen-bar-close')]
+          .map(button => ({
+            text: button.textContent?.trim() || null,
+            visible: button.offsetParent !== null,
+          })) : [],
+        storeRuns: (pipeline?.runs || []).filter(run => run.layer === 'volumes')
+          .map(run => ({ runId: run.runId, status: run.status })),
+        expectedRunId: wantedRunId,
+      }
+    }, { panelId, containerId, wantedRunId: expectedRun.runId })
+    await fs.promises.writeFile(
+      path.join(EVIDENCE_ROOT, `terminal-close-diagnostics-${layer}.json`),
+      JSON.stringify({ layer, stepIndex, containerId, diagnostics }, null, 2),
+      'utf8',
+    )
+    assert(closeButtonCount === 1,
+      `terminal ${layer} progress bar exposes exactly one close button: ${JSON.stringify(diagnostics)}`)
+  }
+  const streamToggle = page.locator(`${panelId} .pl-gen-bar .pl-gen-bar-stream-toggle`).first()
+  if (await streamToggle.count() > 0 && await streamToggle.isVisible()) {
+    await expandProgressStream(page, stepIndex)
+  } else {
+    await selectPipelineStep(page, stepIndex)
+  }
+  assert(closeButtonCount === 1,
+    `terminal ${layer} progress bar exposes exactly one close button`)
+  assert(await page.locator(`${panelId} .pl-gen-bar-cancel`).count() === 0,
+    `terminal ${layer} progress bar no longer exposes cancel`)
+
+  const before = await page.evaluate(({ wantedRunId }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const run = pipeline?.getRun?.(wantedRunId) || pipeline?.runs?.find(item => item.runId === wantedRunId) || null
+    return {
+      run,
+      traceRuns: (trace?.runs || []).filter(item => item.pipelineRunId === wantedRunId).length,
+    }
+  }, { wantedRunId: expectedRun.runId })
+  assert(before.run?.status && ['succeeded', 'failed', 'canceled'].includes(before.run.status),
+    `${layer} terminal run remains in the store before close`)
+
+  await page.locator(`${panelId} .pl-gen-bar-close`).click()
+  const after = await page.evaluate(({ wantedRunId, containerId, panelIdForClose }) => {
+    const pipeline = window.__pinia?._s?.get('pipeline')
+    const trace = window.__pinia?._s?.get('runTrace')
+    const run = pipeline?.getRun?.(wantedRunId) || pipeline?.runs?.find(item => item.runId === wantedRunId) || null
+    const container = document.getElementById(containerId)
+    return {
+      run,
+      traceRuns: (trace?.runs || []).filter(item => item.pipelineRunId === wantedRunId).length,
+      containerExists: Boolean(container),
+      panelBarCount: document.querySelectorAll(`${panelIdForClose} .pl-gen-bar`).length,
+    }
+  }, { wantedRunId: expectedRun.runId, panelIdForClose: panelId })
+
+  assert(after.run?.runId === expectedRun.runId,
+    `${layer} close only hides feedback; store still owns terminal run`)
+  assert.equal(after.run?.status, before.run?.status,
+    `${layer} close does not mutate terminal run status`)
+  assert.equal(after.traceRuns, before.traceRuns,
+    `${layer} close does not delete trace ownership`)
+  assert(after.containerExists === false || after.panelBarCount === 0,
+    `${layer} progress feedback is hidden after real close click`)
+  return {
+    layer,
+    pipelineRunId: expectedRun.runId,
+    status: after.run?.status,
+    storeStillOwnsRun: Boolean(after.run?.runId === expectedRun.runId),
+  }
 }
 
 async function cancelChaptersRun(page, chaptersRunId) {
@@ -1319,8 +1632,16 @@ function assertProviderQueueEvidence({ volumeRun, bodyRun }) {
 }
 
 async function selectPipelineStep(page, stepIndex) {
+  await ensurePipelinePanelOpen(page)
   await page.locator('#pl-steps .pl-step').nth(stepIndex).click()
   await page.waitForSelector(`#pl-step-${stepIndex + 1}-content`, { state: 'visible' })
+}
+
+async function ensurePipelinePanelOpen(page) {
+  const panel = page.locator('#pipeline-panel')
+  if (await panel.count() > 0 && await panel.first().isVisible()) return
+  await page.click('#btn-pipeline')
+  await page.waitForSelector('#pipeline-panel', { state: 'visible', timeout: 20_000 })
 }
 
 async function selectBodyChainSkillsThroughUi(page) {
@@ -1398,11 +1719,10 @@ async function runSuccessfulTerminalReentry(page, { previousBodyRunId, previousB
   const before = await layerSnapshot(page, chapterId)
   assert.equal(before.body?.status, 'succeeded',
     `body is in successful terminal state before reentry, got ${before.body?.status}`)
-  // A successful body generation auto-inserts into the editor, and the editor
-  // handoff intentionally closes the pipeline panel. Reopen it through the
-  // same sidebar button a user would click before re-entering the layer.
-  await page.click('#btn-pipeline')
-  await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
+  // A successful body generation may auto-insert into the editor and close
+  // this panel, but terminal assertions can also leave it open. Reopen only
+  // when needed, through the same sidebar button a user would click.
+  await ensurePipelinePanelOpen(page)
   await selectPipelineStep(page, 4)
   try {
     await page.click('#btn-primary-gen-body')
@@ -1955,6 +2275,16 @@ async function main() {
       `chapter cancellation is immediate enough, took ${cancelTiming.clickToCanceledMs}ms`)
     console.log(`[CANCEL] chapters canceled in ${cancelTiming.clickToCanceledMs}ms; other layers continue`)
 
+    const volumeStreamOwnership = await assertActiveRunStreamOwnership(
+      page, concurrentSnapshot, 'volumes', 2, 'pl-volume-api-log')
+    const bodyStreamOwnership = await assertActiveRunStreamOwnership(
+      page, concurrentSnapshot, 'body', 4, 'pl-body-api-log')
+    console.log('[STREAM OWNERSHIP] active volume/body streams render in their owning progress bars')
+
+    const activeClosePreservation = await assertCloseDuringRunPreservesExecution(
+      page, concurrentSnapshot, 'body', 4, 'pl-body-api-log')
+    console.log(`[STREAM OWNERSHIP] close path preserves executing body run ${activeClosePreservation.pipelineRunId}`)
+
     let sameLayerQueue = null
     if (provider || liveProxy) {
       const queued = await startSecondBodyRun(page)
@@ -1977,6 +2307,11 @@ async function main() {
       assert.equal(sameLayerQueue.queuedTerminalStatus, 'succeeded',
         'same-layer queued body run completes after its displayed sibling is canceled')
     }
+    const terminalVolumeClose = await assertTerminalCloseOnlyHidesFeedback(
+      page, terminalSnapshot, 'volumes', 2, 'pl-volume-api-log')
+    const terminalBodyClose = await assertTerminalCloseOnlyHidesFeedback(
+      page, terminalSnapshot, 'body', 4, 'pl-body-api-log')
+    console.log(`[STREAM OWNERSHIP] terminal close only hides feedback (${terminalVolumeClose.pipelineRunId}, ${terminalBodyClose.pipelineRunId})`)
     const summaryAfterTerminal = await collectSummary(page, bodyArtifactChapterId)
     assert(summaryAfterTerminal.volumeCount >= 2,
       `volume generation appends the seeded second volume, got ${summaryAfterTerminal.volumeCount}`)
@@ -2071,6 +2406,11 @@ async function main() {
       concurrentSnapshot,
       cancelTiming,
       terminalSnapshot,
+      streamOwnership: {
+        active: { volumes: volumeStreamOwnership, body: bodyStreamOwnership },
+        activeClosePreservation,
+        terminalClose: { volumes: terminalVolumeClose, body: terminalBodyClose },
+      },
       sameLayerQueue,
       providerMetrics,
       performance,

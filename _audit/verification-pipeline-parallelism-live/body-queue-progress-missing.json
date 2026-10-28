@@ -1,49 +1,45 @@
 {
-  "at": "2026-10-26T00:58:11.418Z",
+  "at": "2026-10-28T12:56:02.202Z",
   "queuedSnapshot": {
-    "at": 1792976291283,
-    "volumes": {
-      "runId": "pipeline-run-1792976286971-1",
-      "status": "running",
-      "progress": 10,
-      "statusText": "AI生成卷纲中"
-    },
+    "at": 1793192162081,
+    "volumes": null,
     "chapters": {
-      "runId": "pipeline-run-1792976287233-2",
+      "runId": "pipeline-run-1793192138256-2",
       "status": "canceled",
       "progress": 67,
       "statusText": "canceled"
     },
     "body": {
-      "runId": "pipeline-run-1792976287591-3",
+      "runId": "pipeline-run-1793192138414-3",
+      "target": "ch-parallelism-1",
       "status": "running",
       "progress": 20,
       "statusText": "已获得供应商槽位，正在请求供应商"
     },
     "allRuns": [
       {
-        "runId": "pipeline-run-1792976286971-1",
+        "runId": "pipeline-run-1793192138079-1",
         "layer": "volumes",
         "target": "all",
-        "status": "running",
-        "progress": 10
+        "status": "succeeded",
+        "progress": 100
       },
       {
-        "runId": "pipeline-run-1792976287233-2",
+        "runId": "pipeline-run-1793192138256-2",
         "layer": "chapters",
         "target": "vol-parallelism",
         "status": "canceled",
         "progress": 67
       },
       {
-        "runId": "pipeline-run-1792976287591-3",
+        "runId": "pipeline-run-1793192138414-3",
         "layer": "body",
         "target": "ch-parallelism-1",
         "status": "running",
         "progress": 20
       },
       {
-        "runId": "pipeline-run-1792976288239-4",
+        "runId": "pipeline-run-1793192159049-4",
         "layer": "body",
         "target": "ch-parallelism-2",
         "status": "queued",
@@ -53,26 +49,26 @@
     "chapterCount": 2,
     "traceRuns": [
       {
-        "id": "run-1792976287608-28",
-        "pipelineRunId": "pipeline-run-1792976287591-3",
+        "id": "run-1793192138424-30",
+        "pipelineRunId": "pipeline-run-1793192138414-3",
         "step": 4,
         "status": "running",
-        "apiCalls": 1,
-        "providerQueueEvents": 1
+        "apiCalls": 2,
+        "providerQueueEvents": 2
       },
       {
-        "id": "run-1792976287246-14",
-        "pipelineRunId": "pipeline-run-1792976287233-2",
+        "id": "run-1793192138264-15",
+        "pipelineRunId": "pipeline-run-1793192138256-2",
         "step": 3,
         "status": "canceled",
         "apiCalls": 1,
         "providerQueueEvents": 2
       },
       {
-        "id": "run-1792976286992-1",
-        "pipelineRunId": "pipeline-run-1792976286971-1",
+        "id": "run-1793192138091-1",
+        "pipelineRunId": "pipeline-run-1793192138079-1",
         "step": 2,
-        "status": "running",
+        "status": "success",
         "apiCalls": 1,
         "providerQueueEvents": 1
       }
@@ -90,54 +86,79 @@
   },
   "consoleMessages": [
     {
-      "at": "2026-10-26T00:58:01.827Z",
+      "at": "2026-10-28T12:55:33.867Z",
       "type": "log",
       "text": "[OK] SkillValidators loaded"
     },
     {
-      "at": "2026-10-26T00:58:01.833Z",
+      "at": "2026-10-28T12:55:33.921Z",
       "type": "log",
       "text": "[OK] SkillExecutionEngine loaded"
     },
     {
-      "at": "2026-10-26T00:58:01.926Z",
+      "at": "2026-10-28T12:55:33.974Z",
       "type": "info",
       "text": "诊断日志已启动 | {\"level\":2,\"enabled\":true}"
     },
     {
-      "at": "2026-10-26T00:58:03.623Z",
+      "at": "2026-10-28T12:55:35.120Z",
       "type": "log",
       "text": "[OK] SkillValidators loaded"
     },
     {
-      "at": "2026-10-26T00:58:03.625Z",
+      "at": "2026-10-28T12:55:35.151Z",
       "type": "log",
       "text": "[OK] SkillExecutionEngine loaded"
     },
     {
-      "at": "2026-10-26T00:58:03.649Z",
+      "at": "2026-10-28T12:55:35.154Z",
       "type": "info",
       "text": "诊断日志已启动 | {\"level\":2,\"enabled\":true}"
     },
     {
-      "at": "2026-10-26T00:58:07.732Z",
+      "at": "2026-10-28T12:55:38.468Z",
       "type": "log",
       "text": "[PIPELINE] chain step 1/3 = P1 骨架（文件夹）"
     },
     {
-      "at": "2026-10-26T00:58:07.883Z",
+      "at": "2026-10-28T12:55:38.602Z",
       "type": "error",
-      "text": "AI call: purpose=generate provider=parallelism-provider model=parallelism-model 588ms FAIL | {\"providerId\":\"parallelism-provider\",\"purpose\":\"generate\",\"model\":\"parallelism-model\",\"durationMs\":588,\"skillId\":\"compose\",\"result\":\"用户取消\",\"providerType\":\"openai-compatible\",\"transport\":\"main-process\",\"finalUrl\":\"http://127.0.0.1:2079/v1/chat/completions\"}"
+      "text": "AI call: purpose=generate provider=parallelism-provider model=parallelism-model 305ms FAIL | {\"providerId\":\"parallelism-provider\",\"purpose\":\"generate\",\"model\":\"parallelism-model\",\"durationMs\":305,\"result\":\"用户取消\",\"providerType\":\"openai-compatible\",\"transport\":\"main-process\",\"finalUrl\":\"http://127.0.0.1:11637/v1/chat/completions\",\"providerSource\":\"global\"}"
     },
     {
-      "at": "2026-10-26T00:58:07.884Z",
+      "at": "2026-10-28T12:55:38.603Z",
       "type": "error",
-      "text": "API 调用: model=parallelism-model status=error 588ms | {\"model\":\"parallelism-model\",\"tokens\":0,\"elapsed\":588,\"status\":\"error\",\"err\":\"用户取消\"}"
+      "text": "API 调用: model=parallelism-model status=error 305ms | {\"model\":\"parallelism-model\",\"tokens\":0,\"elapsed\":305,\"status\":\"error\",\"err\":\"用户取消\"}"
     },
     {
-      "at": "2026-10-26T00:58:08.543Z",
-      "type": "warning",
-      "text": "[pipeline] skill step dropped because no run owns the trace {skillId: PARALLELISM-S1, index: 0, total: 1, status: running, traceRunId: run-1792976287608-28}"
+      "at": "2026-10-28T12:55:48.179Z",
+      "type": "info",
+      "text": "AI call: purpose=generate provider=parallelism-provider model=parallelism-model 10045ms OK | {\"providerId\":\"parallelism-provider\",\"purpose\":\"generate\",\"model\":\"parallelism-model\",\"durationMs\":10045,\"result\":\"[{\\\"name\\\":\\\"第二卷 航线之后\\\",\\\"outline\\\":\\\"王芳把灯塔纸条拼进航行图，南方航线逐步显形。\\\",\\\"summary\\\":\\\"纸条指向南方渔港。\\\",\\\"allocatedWords\\\":12000,\\\"readerExpectations\\\":\\\"看到航线从线索变成行动。\\\",\\\"mainPlotLine\\\":\\\"灯塔纸条推动南方航线。\\\",\\\"unlockMilestone\\\":\\\"航行图第二段展开。\\\",\\\"forb\",\"usage\":{\"inputTokens\":20,\"outputTokens\":40,\"totalTokens\":60},\"providerType\":\"openai-compatible\",\"transport\":\"main-process\",\"finalUrl\":\"http://127.0.0.1:11637/v1/chat/completions\",\"providerSource\":\"global\"}"
+    },
+    {
+      "at": "2026-10-28T12:55:48.180Z",
+      "type": "info",
+      "text": "API 调用: model=parallelism-model status=ok 10045ms | {\"model\":\"parallelism-model\",\"tokens\":60,\"elapsed\":10045,\"status\":\"ok\",\"err\":\"\"}"
+    },
+    {
+      "at": "2026-10-28T12:55:58.866Z",
+      "type": "info",
+      "text": "AI call: purpose=generate provider=parallelism-provider model=parallelism-model 20017ms OK | {\"providerId\":\"parallelism-provider\",\"purpose\":\"generate\",\"model\":\"parallelism-model\",\"durationMs\":20017,\"skillId\":\"PARALLELISM-S1\",\"result\":\"1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\\n\\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\\n\\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\\n\\n4. 她想起南方航线，又想起一个没\",\"usage\":{\"inputTokens\":20,\"outputTokens\":40,\"totalTokens\":60},\"providerType\":\"openai-compatible\",\"transport\":\"main-process\",\"finalUrl\":\"http://127.0.0.1:11637/v1/chat/completions\",\"providerSource\":\"global\"}"
+    },
+    {
+      "at": "2026-10-28T12:55:58.866Z",
+      "type": "info",
+      "text": "API 调用: model=parallelism-model status=ok 20017ms | {\"model\":\"parallelism-model\",\"tokens\":60,\"elapsed\":20017,\"status\":\"ok\",\"err\":\"\"}"
+    },
+    {
+      "at": "2026-10-28T12:55:58.917Z",
+      "type": "info",
+      "text": "Chain handoff delivery: step=2/3 delivery=full_text | {\"detail\":\"\\\"{\\\\\\\"delivery\\\\\\\":\\\\\\\"full_text\\\\\\\",\\\\\\\"fullTextLength\\\\\\\":4777,\\\\\\\"deliveredLength\\\\\\\":4777,\\\\\\\"declaredMode\\\\\\\":\\\\\\\"default\\\\\\\",\\\\\\\"requires\\\\\\\":[],\\\\\\\"skillId\\\\\\\":\\\\\\\"folder:PARALLELISM-S2\\\\\\\",\\\\\\\"skillName\\\\\\\":\\\\\\\"P2 生成（文件夹）\\\\\\\",\\\\\\\"fullReason\\\\\\\":\\\\\\\"\\\\\\\",\\\\\\\"fullReasonMissing\\\\\\\":false}\\\"\"}"
+    },
+    {
+      "at": "2026-10-28T12:55:58.917Z",
+      "type": "log",
+      "text": "[PIPELINE] chain step 2/3 = P2 生成（文件夹）"
     }
   ],
   "pageErrors": [],

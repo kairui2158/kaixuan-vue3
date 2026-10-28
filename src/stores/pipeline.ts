@@ -213,6 +213,13 @@ export const usePipelineStore = defineStore('pipeline', () => {
     return registry.getRun(runId)
   }
 
+  function getRunHistoryForLayer(layer: PipelineRunLayer) {
+    void registryVersion.value
+    return registry.listRuns()
+      .filter(run => run.layer === layer)
+      .map(run => ({ ...run }))
+  }
+
   function getFrozenProviderChannel<T>(runId: string): T | undefined {
     const channel = registry.getRun(runId)?.configSnapshot?.pipelineProviderChannel
     return channel && typeof channel === 'object' ? channel as T : undefined
@@ -482,7 +489,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
     activeSettingsRun, activeVolumesRun, activeChaptersRun, activeBodyRun,
     currentStepName,
     setStep, startGeneration, waitForRunActivation, updateProgress, finishGeneration, failGeneration, cancelGeneration, cancelAllActiveRuns, getGenerationSignal, isGenerationCanceled,
-    getRun, getFrozenProviderChannel, updateRunProgress, reportProviderQueue, getRunStatus, isTargetGenerating,
+    getRun, getRunHistoryForLayer, getFrozenProviderChannel, updateRunProgress, reportProviderQueue, getRunStatus, isTargetGenerating,
     rememberTraceRunOwnership, getPipelineRunIdForTrace,
     saveBreakpoint, refreshBreakpoint, refreshBreakpointFromStorageKey, clearBreakpoint, updateChapterProgress, clearChapterProgress,
     setStepSkills, getStepSkills, setStepAgents, getStepAgents, setStepModes, getStepModes,

@@ -66,7 +66,8 @@ describe('pipeline progress readers', () => {
   })
 
   it('cancel-all confirmation delegates to the single-source store API', () => {
-    expect(pipelineSource).not.toContain('pipelineStore.runs')
+    expect(pipelineSource).not.toMatch(/@click="pipelineStore\.runs/)
+    expect(pipelineSource).not.toMatch(/pipelineStore\.runs\.(filter|forEach|map|reduce|find|some|every)\(/)
     expect(pipelineSource).toContain('pipelineStore.cancelAllActiveRuns')
   })
 
@@ -117,7 +118,66 @@ describe('pipeline progress readers', () => {
   it('display runs derive from active run objects, not terminal registry lookups', () => {
     expect(pipelineSource).toContain('function displayRunForLayer(layer: PipelineLayer)')
     expect(pipelineSource).toContain('const candidates = pipelineStore.activeRuns')
+    expect(pipelineSource).toContain('pipelineStore.getRunHistoryForLayer(layer)')
+    expect(pipelineSource).toContain("[...layerRuns].reverse().find(run => !isPerRunFeedbackHidden(run.runId)) || null")
     expect(pipelineSource).not.toContain('pipelineStore.getRunStatus(runId) === \x27running\x27')
     expect(pipelineSource).not.toContain('pipelineStore.getRun(displayed')
+  })
+
+  it('stream deltas render into the owning pipeline run while trace accounting keeps the trace run id', () => {
+    const deltaCalls = [...pipelineSource.matchAll(
+      /appendPipelineDelta\(step, '(text|reasoning)', text, ([^)]+)\)/g
+    )].map(match => match[2].trim())
+    expect(deltaCalls).toEqual([
+      'traceRunId, pipelineRunIdParam, traceCallId',
+      'traceRunId, pipelineRunIdParam, traceCallId',
+      'runId, pipelineRunIdParam, apiCallId',
+      'runId, pipelineRunIdParam, apiCallId',
+    ])
+
+    const resetCalls = [...pipelineSource.matchAll(
+      /resetPipelineStreamState\((\d), ([^)]+)\)/g
+    )].map(match => `${match[1]}:${match[2].trim()}`)
+    expect(resetCalls).toEqual([
+      '1:trace.runId, settingsRunId',
+      '2:trace.runId, volumesRunId',
+      '3:trace.runId, chaptersRunId',
+      '4:trace.runId, bodyRunId',
+    ])
+
+    const flushCalls = [...pipelineSource.matchAll(
+      /flushPipelineStreamState\(step, ([^)]+)\)/g
+    )].map(match => match[1].trim())
+    expect(flushCalls).toEqual([
+      'traceRunId, pipelineRunIdParam',
+      'traceRunId, pipelineRunIdParam',
+      'runId, pipelineRunIdParam',
+      'runId, pipelineRunIdParam',
+    ])
+  })
+
+  it('closing feedback hides the owning run without deleting execution state', () => {
+    expect(pipelineSource).toContain('feedbackHidden?: boolean')
+    expect(pipelineSource).toContain('function isPipelineRunTerminal(runId: string): boolean')
+    expect(pipelineSource).toContain('function isPerRunFeedbackHidden(runId: string | null | undefined): boolean')
+    expect(pipelineSource).toContain('function cleanupTerminalPerRunUi()')
+    expect(pipelineSource).toContain('state.feedbackHidden = true')
+    expect(pipelineSource).toContain('Boolean(runId && isPipelineRunTerminal(runId) && perRunGenerationUi.get(runId)?.feedbackHidden)')
+    expect(pipelineSource).not.toContain('resetPerRunUi(runId)\n  resetPipelineStepWarningCountsForRun(runId)')
+    expect(pipelineSource).toContain(':visible="!isPerRunFeedbackHidden(displayedSettingsRunId) && settingsGenerationFeedbackVisible"')
+    expect(pipelineSource).toContain(':visible="!isPerRunFeedbackHidden(displayedVolumesRunId) && volumeGenerationFeedbackVisible"')
+    expect(pipelineSource).toContain(':visible="!isPerRunFeedbackHidden(displayedChaptersRunId) && chapterGenerationFeedbackVisible"')
+    expect(pipelineSource).toContain(':visible="!isPerRunFeedbackHidden(displayedBodyRunId) && bodyGenerationFeedbackVisible"')
+  })
+
+  it('body repair bypasses still report provider queue events to their owning body run', () => {
+    const queueMatchers = [...pipelineSource.matchAll(
+      /aiService\.callAi\(\{[\s\S]*?meta: \{ source: [`'](PipelinePanel\.[^`']+)[`'][\s\S]*?\}\)/g
+    )]
+    const bodyBypassQueues = queueMatchers
+      .filter(match => match[1].startsWith('PipelinePanel.runBody') || match[1].startsWith('PipelinePanel.runHard'))
+      .map(match => match[0])
+    expect(bodyBypassQueues).toHaveLength(2)
+    expect(bodyBypassQueues.every(source => source.includes('onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId)'))).toBe(true)
   })
 })

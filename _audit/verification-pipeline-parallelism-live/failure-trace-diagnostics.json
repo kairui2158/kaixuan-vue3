@@ -1,8 +1,8 @@
 {
-  "at": "2026-10-26T12:37:12.660Z",
+  "at": "2026-10-28T13:30:53.092Z",
   "exports": [
     {
-      "runId": "run-1793018106998-1",
+      "runId": "run-1793194137551-1",
       "step": 2,
       "status": "success",
       "eventTypes": [
@@ -10,13 +10,16 @@
         "settings-projection-composed",
         "prompt-built",
         "style-semantics-merged",
-        "agent-model-fallback",
+        "pipeline-request-profile-resolved",
+        "pipeline-provider-channel-resolved",
         "api-start",
         "run-activity",
         "long-request-in-progress",
         "physical-call",
         "provider-queue",
         "physical-call",
+        "run-activity",
+        "run-activity",
         "state-transition",
         "api-success",
         "volume-batch-attempt",
@@ -33,18 +36,18 @@
           "physicalCalls": [
             {
               "status": "success",
-              "durationMs": 10058,
+              "durationMs": 10063,
               "error": null
             }
           ]
         }
       ],
       "exportSuccess": true,
-      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261026-203506-deep-2",
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-卷纲层-20261028-212857-deep-2",
       "exportError": null
     },
     {
-      "runId": "run-1793018107217-14",
+      "runId": "run-1793194137793-15",
       "step": 3,
       "status": "canceled",
       "eventTypes": [
@@ -53,7 +56,8 @@
         "chapter-count-arbitration",
         "style-semantics-merged",
         "settings-projection-composed",
-        "agent-model-fallback",
+        "pipeline-request-profile-resolved",
+        "pipeline-provider-channel-resolved",
         "api-start",
         "run-activity",
         "long-request-in-progress",
@@ -82,20 +86,20 @@
           "physicalCalls": [
             {
               "status": "canceled",
-              "durationMs": 419,
+              "durationMs": 316,
               "error": null
             }
           ]
         }
       ],
       "exportSuccess": true,
-      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-章节层-20261026-203507-deep-2",
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-章节层-20261028-212857-deep-2",
       "exportError": null
     },
     {
-      "runId": "run-1793018107407-28",
+      "runId": "run-1793194137993-30",
       "step": 4,
-      "status": "failed",
+      "status": "canceled",
       "eventTypes": [
         "started",
         "settings-projection-composed",
@@ -105,9 +109,32 @@
         "prompt-built",
         "chain-context-slim",
         "chain-step",
-        "agent-model-fallback",
+        "pipeline-request-profile-resolved",
         "api-start",
         "deai-prompt-variant",
+        "pipeline-provider-channel-resolved",
+        "folder-pass-input",
+        "run-activity",
+        "long-request-in-progress",
+        "physical-call",
+        "provider-queue",
+        "physical-call",
+        "run-activity",
+        "physical-call",
+        "folder-diagnostics",
+        "run-activity",
+        "run-activity",
+        "state-transition",
+        "api-success",
+        "processing-report",
+        "chain-handoff",
+        "chain-context-slim",
+        "chain-handoff-delivery",
+        "chain-step",
+        "pipeline-request-profile-resolved",
+        "api-start",
+        "deai-prompt-variant",
+        "pipeline-provider-channel-resolved",
         "folder-pass-input",
         "run-activity",
         "long-request-in-progress",
@@ -120,14 +147,14 @@
         "api-failed",
         "body-artifact-attempt",
         "failed",
-        "finished",
+        "canceled",
         "state-transition"
       ],
       "decisionEvents": [
         {
           "type": "body-artifact-attempt",
           "detail": {
-            "attemptId": "ch-parallelism-1-attempt-1-ufmxtwl0",
+            "attemptId": "ch-parallelism-1-attempt-1-xan8lemz",
             "repairAttempt": 0,
             "repairScope": "none",
             "status": "error",
@@ -152,24 +179,35 @@
       ],
       "apiCalls": [
         {
-          "status": "failed",
+          "status": "success",
           "skillName": "P1 骨架（文件夹）",
+          "physicalCalls": [
+            {
+              "status": "success",
+              "durationMs": 20016,
+              "error": null
+            }
+          ]
+        },
+        {
+          "status": "failed",
+          "skillName": "P2 生成（文件夹）",
           "error": "用户取消",
           "physicalCalls": [
             {
               "status": "canceled",
-              "durationMs": 2952,
+              "durationMs": 3201,
               "error": null
             }
           ]
         }
       ],
       "exportSuccess": true,
-      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261026-203507-deep",
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261028-212857-deep",
       "exportError": null
     },
     {
-      "runId": "run-1793018111151-55",
+      "runId": "run-1793194162018-93",
       "step": 4,
       "status": "success",
       "eventTypes": [
@@ -181,9 +219,10 @@
         "prompt-built",
         "chain-context-slim",
         "chain-step",
-        "agent-model-fallback",
+        "pipeline-request-profile-resolved",
         "api-start",
         "deai-prompt-variant",
+        "pipeline-provider-channel-resolved",
         "folder-pass-input",
         "run-activity",
         "long-request-in-progress",
@@ -193,6 +232,8 @@
         "run-activity",
         "physical-call",
         "folder-diagnostics",
+        "run-activity",
+        "run-activity",
         "state-transition",
         "api-success",
         "processing-report",
@@ -200,9 +241,10 @@
         "chain-context-slim",
         "chain-handoff-delivery",
         "chain-step",
-        "agent-model-fallback",
+        "pipeline-request-profile-resolved",
         "api-start",
         "deai-prompt-variant",
+        "pipeline-provider-channel-resolved",
         "folder-pass-input",
         "run-activity",
         "long-request-in-progress",
@@ -211,7 +253,9 @@
         "physical-call",
         "run-activity",
         "physical-call",
+        "run-activity",
         "folder-diagnostics",
+        "run-activity",
         "state-transition",
         "api-success",
         "chain-output-echo",
@@ -221,9 +265,10 @@
         "chain-context-slim",
         "chain-handoff-delivery",
         "chain-step",
-        "agent-model-fallback",
+        "pipeline-request-profile-resolved",
         "api-start",
         "deai-prompt-variant",
+        "pipeline-provider-channel-resolved",
         "folder-pass-input",
         "run-activity",
         "long-request-in-progress",
@@ -231,8 +276,10 @@
         "provider-queue",
         "physical-call",
         "run-activity",
+        "run-activity",
         "physical-call",
         "folder-diagnostics",
+        "run-activity",
         "state-transition",
         "api-success",
         "body-final-step-metadata",
@@ -274,7 +321,7 @@
         {
           "type": "body-artifact-attempt",
           "detail": {
-            "attemptId": "ch-parallelism-2-attempt-1-4d2xef8y",
+            "attemptId": "ch-parallelism-2-attempt-1-xryaj89w",
             "repairAttempt": 0,
             "repairScope": "none",
             "status": "complete",
@@ -287,7 +334,7 @@
             "requestFingerprint": {
               "physicalRequests": 3,
               "promptHash": "fnv1a32_103aec1e",
-              "outputHash": "fnv1a32_6ad29bd1",
+              "outputHash": "fnv1a32_4653c745",
               "resumedFromBreakpoint": false
             },
             "generatorStepIndex": 1,
@@ -328,17 +375,6 @@
           "physicalCalls": [
             {
               "status": "success",
-              "durationMs": 20015,
-              "error": null
-            }
-          ]
-        },
-        {
-          "status": "success",
-          "skillName": "P2 生成（文件夹）",
-          "physicalCalls": [
-            {
-              "status": "success",
               "durationMs": 20025,
               "error": null
             }
@@ -346,189 +382,18 @@
         },
         {
           "status": "success",
-          "skillName": "P3 打磨（文件夹）",
-          "physicalCalls": [
-            {
-              "status": "success",
-              "durationMs": 20019,
-              "error": null
-            }
-          ]
-        }
-      ],
-      "exportSuccess": true,
-      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261026-203511-deep-2",
-      "exportError": null
-    },
-    {
-      "runId": "run-1793018171950-152",
-      "step": 4,
-      "status": "success",
-      "eventTypes": [
-        "started",
-        "settings-projection-composed",
-        "style-semantics-merged",
-        "context_scope",
-        "memory_context",
-        "prompt-built",
-        "chain-handoff-resume",
-        "chain-context-slim",
-        "chain-step",
-        "agent-model-fallback",
-        "api-start",
-        "deai-prompt-variant",
-        "folder-pass-input",
-        "run-activity",
-        "long-request-in-progress",
-        "physical-call",
-        "provider-queue",
-        "physical-call",
-        "run-activity",
-        "physical-call",
-        "folder-diagnostics",
-        "state-transition",
-        "api-success",
-        "processing-report",
-        "chain-handoff",
-        "chain-context-slim",
-        "chain-handoff-delivery",
-        "chain-step",
-        "agent-model-fallback",
-        "api-start",
-        "deai-prompt-variant",
-        "folder-pass-input",
-        "run-activity",
-        "long-request-in-progress",
-        "physical-call",
-        "provider-queue",
-        "physical-call",
-        "run-activity",
-        "physical-call",
-        "folder-diagnostics",
-        "state-transition",
-        "api-success",
-        "chain-output-echo",
-        "body-step-acceptance",
-        "processing-report",
-        "chain-handoff",
-        "chain-context-slim",
-        "chain-handoff-delivery",
-        "chain-step",
-        "agent-model-fallback",
-        "api-start",
-        "deai-prompt-variant",
-        "folder-pass-input",
-        "run-activity",
-        "long-request-in-progress",
-        "physical-call",
-        "provider-queue",
-        "physical-call",
-        "run-activity",
-        "physical-call",
-        "folder-diagnostics",
-        "state-transition",
-        "api-success",
-        "body-final-step-metadata",
-        "chain-handoff",
-        "body-artifact-attempt",
-        "hard_signal_scan",
-        "contract_review",
-        "body-artifact-validated",
-        "write",
-        "finished",
-        "state-transition"
-      ],
-      "decisionEvents": [
-        {
-          "type": "body-step-acceptance",
-          "detail": {
-            "stepIndex": 1,
-            "callerStatus": "success",
-            "rawWordCount": 3967,
-            "extractedWordCount": 3909,
-            "metadata": {
-              "extractedMeta": [
-                "【正文交接】\n\nFACT_LOCK:人物状态=王芳发现纸条并确认三次红色闪烁\n\nFACT_LOCK:位置=灯塔底层\n\nFACT_LOCK:持有物=纸条\n\n【正文交接结束】",
-                "【来源覆盖】\n\nH1-01\n\n【来源覆盖结束】"
-              ]
-            },
-            "metadataDelta": 58,
-            "decision": "accept",
-            "reason": "contract_valid",
-            "contract": {
-              "targetWords": 3500,
-              "minWords": 2800,
-              "maxWords": 7000
-            },
-            "degradedErrors": [],
-            "contractErrors": []
-          }
-        },
-        {
-          "type": "body-artifact-attempt",
-          "detail": {
-            "attemptId": "ch-parallelism-1-attempt-1-d7xgmvxj",
-            "repairAttempt": 0,
-            "repairScope": "none",
-            "status": "complete",
-            "wordCount": 3909,
-            "targetWords": 3500,
-            "ratio": 1.1168571428571428,
-            "validationMs": 0,
-            "errors": [],
-            "bodyPreview": "1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n4. 她想起南方航线，又想起一个没",
-            "requestFingerprint": {
-              "physicalRequests": 3,
-              "promptHash": "fnv1a32_93797161",
-              "outputHash": "fnv1a32_ff48a90c",
-              "resumedFromBreakpoint": true
-            },
-            "generatorStepIndex": 1,
-            "feedbackAudits": [],
-            "stepAcceptanceDecisions": [
-              {
-                "stepIndex": 1,
-                "callerStatus": "success",
-                "decision": "accept",
-                "reason": "contract_valid",
-                "rawWordCount": 3967,
-                "extractedWordCount": 3909,
-                "errors": []
-              }
-            ],
-            "finalStepMetadata": {
-              "decision": "pass",
-              "comparison": {
-                "matched": [
-                  "人物状态=王芳发现纸条并确认三次红色闪烁",
-                  "位置=灯塔底层",
-                  "持有物=纸条"
-                ],
-                "missing_in_final": [],
-                "conflicting": [],
-                "conflictTypes": {}
-              }
-            },
-            "degradedSteps": [],
-            "rawVsExtractedDelta": 58
-          }
-        }
-      ],
-      "apiCalls": [
-        {
-          "status": "success",
-          "skillName": "P1 骨架（文件夹）",
-          "physicalCalls": [
-            {
-              "status": "success",
-              "durationMs": 20016,
-              "error": null
-            }
-          ]
-        },
-        {
-          "status": "success",
           "skillName": "P2 生成（文件夹）",
+          "physicalCalls": [
+            {
+              "status": "success",
+              "durationMs": 20023,
+              "error": null
+            }
+          ]
+        },
+        {
+          "status": "success",
+          "skillName": "P3 打磨（文件夹）",
           "physicalCalls": [
             {
               "status": "success",
@@ -536,21 +401,10 @@
               "error": null
             }
           ]
-        },
-        {
-          "status": "success",
-          "skillName": "P3 打磨（文件夹）",
-          "physicalCalls": [
-            {
-              "status": "success",
-              "durationMs": 20016,
-              "error": null
-            }
-          ]
         }
       ],
       "exportSuccess": true,
-      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261026-203611-deep",
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\pipeline-parallelism-exports\\run-trace-正文层-20261028-212922-deep-2",
       "exportError": null
     }
   ],

@@ -956,7 +956,18 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             (attempt > 1 ? 'schema_retry' : 'normal'),
           signal: options.signal,
           timeoutMs: options.timeoutMs,
-          onChunk: options.onChunk,
+          onChunk: (text: string) => {
+            options.onChunk?.(text)
+            if (options.traceRunId && options.traceCallId && typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+              window.dispatchEvent(new CustomEvent('real-skill:stream', {
+                detail: {
+                  traceRunId: options.traceRunId,
+                  traceCallId: options.traceCallId,
+                  text
+                }
+              }))
+            }
+          },
           onReasoning: options.onReasoning,
           onPhysicalCall: options.onPhysicalCall as any,
           onProviderQueue: options.onProviderQueue,

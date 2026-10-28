@@ -1298,3 +1298,12 @@
 - 封装：3.110.4 → 3.110.5；安装包 `dist/神意助手-Setup-3.110.5.exe`，231,643,280 bytes，SHA256 `054883A592791119247A957240C68903B1D2017F81131E52B0867E36FF710333`；旧 3.110.4 产物已清理。
 - 诚实边界：本轮未新增 live API 请求；sharp 2 个 high（传递依赖 breaking）、Electron no-sandbox、stylelint/Biome 门禁接入登记未修。
 - 经验回写：v9.6.7，G1.5 新增 IPC cloneable snapshot 单源与 clone 报错真实调用链定位判则。
+
+# 2026-10-28 流水线流式归属与 3.110.6 收口
+
+- 文件：[_audit/DEV_LOG_2026-10-28_PIPELINE_STREAM_OWNERSHIP.md](_audit/DEV_LOG_2026-10-28_PIPELINE_STREAM_OWNERSHIP.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_PIPELINE_STREAM_OWNERSHIP.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-28_PIPELINE_STREAM_OWNERSHIP.md)
+- 范围：修复运行中反馈可被隐藏导致进度条、取消按钮与流式输出消失的产品缺陷；拆分 pipeline runId 与 trace runId 双域，恢复供应商实时流式归属；修正验证器面板打开、稳定 selector、终态可选控件与遮挡点击假设；正文 bypass 路径补供应商排队事件。
+- 验证：真实 Electron 并行验证 PASS（取消 124ms；卷纲流式 252 chars；正文流式 4777 chars；provider 7 请求 max concurrency 2；四格再入全通过；9 run 终态符合预期）；`test:services` 221 files / 2387 tests 全过；`type-check` exit 0；`build` exit 0。
+- 封装：3.110.5 → 3.110.6；安装包 `dist/神意助手-Setup-3.110.6.exe`（231,644,128 bytes，latest.yml 3.110.6）；旧 3.110.5 产物、81 个失败导出现场与临时诊断文件已清理。
+- 经验回写：v9.6.8，G1.5 新增运行中反馈不可隐藏与验证器面板/selector/终态控件假设判则。
