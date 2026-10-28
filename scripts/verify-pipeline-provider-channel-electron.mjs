@@ -500,9 +500,10 @@ async function assertChannelUi(page, { expectedValues, warningLayers = [] }) {
   for (const layer of Object.keys(LAYER_PROVIDERS)) {
     const providerId = LAYER_PROVIDERS[layer]
     const onProvider = await page.evaluate(({ layerProviderId, layerName }) => {
-      return document.querySelector(`.pipeline-layer-select[data-provider-id="${layerProviderId}"]`)?.value === layerName
-        ? layerProviderId
-        : ''
+      const button = document.querySelector(
+        `.pipeline-layer-select[data-provider-id="${layerProviderId}"] [data-layer="${layerName}"]`
+      )
+      return button?.classList.contains('is-on') ? layerProviderId : ''
     }, { layerProviderId: providerId, layerName: layer }).catch(() => '')
     visible[layer] = onProvider || ''
   }
@@ -527,9 +528,11 @@ async function operateLayerChannelsThroughRealUi(page) {
     const card = page.locator('.provider-card', { hasText: `${layer}通道供应商` })
     await card.locator('.purpose-toggle-btn', { hasText: '生成流水线' }).click()
     await page.waitForSelector(`.pipeline-layer-select[data-provider-id="${providerId}"]`, { timeout: 5_000 })
-    await page.selectOption(`.pipeline-layer-select[data-provider-id="${providerId}"]`, layer)
+    await card.locator(`.pipeline-layer-select[data-provider-id="${providerId}"] [data-layer="${layer}"]`).click()
     const diagnostics = await page.evaluate(({ layerName, providerId }) => ({
-      domValue: document.querySelector(`.pipeline-layer-select[data-provider-id="${providerId}"]`)?.value || null,
+      domValue: document.querySelector(
+        `.pipeline-layer-select[data-provider-id="${providerId}"] [data-layer="${layerName}"]`
+      )?.classList.contains('is-on') || null,
       storeValue: window.__pinia?._s?.get('provider')?.pipelineLayerProviders?.[layerName] || null,
     }), { layerName: layer, providerId })
     writeRunLog('layer-select-operation', { layer, providerId, ...diagnostics })

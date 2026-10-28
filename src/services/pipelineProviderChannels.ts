@@ -16,6 +16,7 @@ export interface PipelineProviderChannelSnapshot {
   providerId: string
   source: PipelineProviderChannelSource
   providerMissing: boolean
+  providerUnsupported?: boolean
 }
 
 export interface PipelineProviderChannelInput {
@@ -24,12 +25,14 @@ export interface PipelineProviderChannelInput {
   agentProviderId?: string | null
   globalProviderId?: string | null
   providerExists?: (providerId: string) => boolean
+  providerCanGenerate?: (providerId: string) => boolean
 }
 
 export interface PipelineProviderChannelResolution {
   providerId: string
   source: PipelineProviderChannelSource
   providerMissing: boolean
+  providerUnsupported: boolean
 }
 
 export interface PipelineRequestProfileAgent {
@@ -40,6 +43,7 @@ export interface PipelineRequestProfileAgent {
 export interface PipelineRequestProfileProvider {
   selectedModel?: string | null
   models?: Array<string | null> | null
+  purpose?: Array<string | null> | string | null
 }
 
 export interface PipelineRequestProfile {
@@ -48,6 +52,7 @@ export interface PipelineRequestProfile {
   model: string
   modelSource: 'agent' | 'provider-selected' | 'provider-first-listed'
   providerMissing: boolean
+  providerUnsupported: boolean
   modelMissing: boolean
   modelSupported: boolean
   modelFallback?: {
@@ -60,29 +65,36 @@ export function resolvePipelineProviderChannel(
   input: PipelineProviderChannelInput
 ): PipelineProviderChannelResolution {
   const exists = input.providerExists || (() => true)
+  const canGenerate = input.providerCanGenerate || (() => true)
   const agentProviderId = (input.agentProviderId || '').trim()
   if (agentProviderId) {
+    const providerMissing = !exists(agentProviderId)
     return {
       providerId: agentProviderId,
       source: 'agent',
-      providerMissing: !exists(agentProviderId),
+      providerMissing,
+      providerUnsupported: !providerMissing && !canGenerate(agentProviderId),
     }
   }
 
   const layerProviderId = (input.layerProviderId || '').trim()
   if (layerProviderId) {
+    const providerMissing = !exists(layerProviderId)
     return {
       providerId: layerProviderId,
       source: 'layer',
-      providerMissing: !exists(layerProviderId),
+      providerMissing,
+      providerUnsupported: !providerMissing && !canGenerate(layerProviderId),
     }
   }
 
   const globalProviderId = (input.globalProviderId || '').trim()
+  const providerMissing = Boolean(globalProviderId) && !exists(globalProviderId)
   return {
     providerId: globalProviderId,
     source: 'global',
-    providerMissing: Boolean(globalProviderId) && !exists(globalProviderId),
+    providerMissing,
+    providerUnsupported: !providerMissing && !canGenerate(globalProviderId),
   }
 }
 
@@ -92,6 +104,7 @@ export function resolvePipelineRequestProfile(input: {
   globalProviderId?: string | null
   agent?: PipelineRequestProfileAgent | null
   getProvider?: (providerId: string) => PipelineRequestProfileProvider | null | undefined
+  providerCanGenerate?: (providerId: string) => boolean
 }): PipelineRequestProfile {
   const channel = resolvePipelineProviderChannel({
     ...input,
@@ -159,6 +172,7 @@ export function buildPipelineProviderChannelSnapshot(input: {
   layerProviderId?: string | null
   globalProviderId?: string | null
   providerExists?: (providerId: string) => boolean
+  providerCanGenerate?: (providerId: string) => boolean
 }): PipelineProviderChannelSnapshot {
   const layerProviderId = normalizeProviderId(input.layerProviderId)
   const globalProviderId = normalizeProviderId(input.globalProviderId)
@@ -167,6 +181,7 @@ export function buildPipelineProviderChannelSnapshot(input: {
     layerProviderId,
     globalProviderId,
     providerExists: input.providerExists,
+    providerCanGenerate: input.providerCanGenerate,
   })
   return {
     layer: input.layer,

@@ -40,15 +40,6 @@ async function mountSettings() {
   return wrapper
 }
 
-function purposeButton(wrapper: Awaited<ReturnType<typeof mountSettings>>, text: string, providerId: string) {
-  return wrapper.findAll('button')
-    .find(item => item.text() === text && item.attributes('class')?.includes('purpose-toggle-btn'))
-    && wrapper.findAll('.provider-card')
-      .find(card => card.find('.provider-card-name').text() === providerId)!
-      .findAll('button')
-      .find(item => item.text() === text)!
-}
-
 describe('ApiSettings pipeline provider channels', () => {
   beforeEach(() => {
     storage.clear()
@@ -83,14 +74,24 @@ describe('ApiSettings pipeline provider channels', () => {
     expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(false)
     await generateToggle.trigger('click')
     await wrapper.vm.$nextTick()
-    const select = generateCard.get('[data-test="pipeline-layer-select"]')
+    const layerPanel = generateCard.get('[data-test="pipeline-layer-select"]')
     expect(store.pipelineLayerProviders.settings ?? null).toBeNull()
-    expect((select.element as HTMLSelectElement).value).toBe('')
+    expect(layerPanel.findAll('button').map(item => item.attributes('data-layer'))).toEqual(['settings', 'volumes', 'chapters', 'body'])
 
-    await select.setValue('body')
+    await layerPanel.find('[data-layer="body"]').trigger('click')
     expect(store.pipelineLayerProviders.settings ?? null).toBeNull()
     expect(store.pipelineLayerProviders.body).toBe('provider-generate')
     expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(true)
+
+    await layerPanel.find('[data-layer="volumes"]').trigger('click')
+    expect(store.pipelineLayerProviders.body).toBe('provider-generate')
+    expect(store.pipelineLayerProviders.volumes).toBe('provider-generate')
+    expect(layerPanel.find('[data-layer="body"]').classes()).toContain('is-on')
+    expect(layerPanel.find('[data-layer="volumes"]').classes()).toContain('is-on')
+
+    await layerPanel.find('[data-layer="body"]').trigger('click')
+    expect(store.pipelineLayerProviders.body ?? null).toBeNull()
+    expect(store.pipelineLayerProviders.volumes).toBe('provider-generate')
 
     await generateToggle.trigger('click')
     await wrapper.vm.$nextTick()
@@ -101,6 +102,43 @@ describe('ApiSettings pipeline provider channels', () => {
     await wrapper.vm.$nextTick()
     expect(generateCard.find('[data-test="pipeline-layer-select"]').exists()).toBe(false)
     expect(wrapper.find('#pipeline-provider-channel-settings').exists()).toBe(false)
+  })
+
+  it('clears layer bindings when an imported provider no longer supports generation', async () => {
+    const store = useProviderStore()
+    const payload = {
+      providers: [
+        providerFixture('provider-imported', ['detect']),
+      ],
+      generateProvider: null,
+      pipelineLayerProviders: {
+        volumes: 'provider-imported',
+      },
+    }
+    const fileText = JSON.stringify(payload)
+    const file = new File([fileText], 'api-config.json', { type: 'application/json' })
+    Object.defineProperty(file, 'text', { value: async () => fileText })
+    const inputElement = {
+      type: 'file',
+      accept: '.json',
+      files: [file],
+      click: vi.fn(),
+      onchange: null as null | ((event: Event) => void),
+    }
+    const createElement = vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      if (tagName === 'input') return inputElement as unknown as HTMLElement
+      return originalCreateElement.call(document, tagName)
+    })
+
+    const wrapper = await mountSettings()
+    await clickButton(wrapper, '导入配置').trigger('click')
+    inputElement.onchange?.({ target: inputElement } as unknown as Event)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    await store.loadProviders()
+
+    expect(store.pipelineLayerProviders).toEqual({})
+    expect(wrapper.text()).toContain('卷纲层绑定的供应商不支持生成用途，已自动解绑')
+    createElement.mockRestore()
   })
 
   it('exports providers together with generate and layer bindings', async () => {

@@ -6,13 +6,20 @@ import {
   resolvePipelineProviderChannel,
 } from './pipelineProviderChannels'
 
-const providerExists = (id: string) => ['provider-agent', 'provider-layer', 'provider-global'].includes(id)
+const providerExists = (id: string) => [
+  'provider-agent',
+  'provider-layer',
+  'provider-global',
+  'provider-modelless',
+  'provider-detect',
+].includes(id)
 
-const providerById: Record<string, { selectedModel?: string; models?: string[] }> = {
-  'provider-agent': { selectedModel: 'agent-model', models: ['agent-model', 'agent-alt'] },
-  'provider-layer': { selectedModel: 'layer-model', models: ['layer-model', 'layer-alt'] },
-  'provider-global': { selectedModel: 'global-model', models: ['global-model'] },
-  'provider-modelless': { selectedModel: '', models: [] },
+const providerById: Record<string, { selectedModel?: string; models?: string[]; purpose?: string[] }> = {
+  'provider-agent': { selectedModel: 'agent-model', models: ['agent-model', 'agent-alt'], purpose: ['generate'] },
+  'provider-layer': { selectedModel: 'layer-model', models: ['layer-model', 'layer-alt'], purpose: ['generate'] },
+  'provider-global': { selectedModel: 'global-model', models: ['global-model'], purpose: ['generate'] },
+  'provider-modelless': { selectedModel: '', models: [], purpose: ['generate'] },
+  'provider-detect': { selectedModel: 'detect-model', models: ['detect-model'], purpose: ['detect'] },
 }
 
 const getProvider = (id: string) => providerById[id]
@@ -29,6 +36,7 @@ describe('pipelineProviderChannels', () => {
       providerId: 'provider-agent',
       source: 'agent',
       providerMissing: false,
+      providerUnsupported: false,
     })
   })
 
@@ -43,6 +51,7 @@ describe('pipelineProviderChannels', () => {
       providerId: 'provider-layer',
       source: 'layer',
       providerMissing: false,
+      providerUnsupported: false,
     })
   })
 
@@ -57,6 +66,7 @@ describe('pipelineProviderChannels', () => {
       providerId: 'provider-global',
       source: 'global',
       providerMissing: false,
+      providerUnsupported: false,
     })
   })
 
@@ -71,6 +81,7 @@ describe('pipelineProviderChannels', () => {
       providerId: 'deleted-provider',
       source: 'agent',
       providerMissing: true,
+      providerUnsupported: false,
     })
   })
 
@@ -85,6 +96,53 @@ describe('pipelineProviderChannels', () => {
       providerId: 'deleted-provider',
       source: 'layer',
       providerMissing: true,
+      providerUnsupported: false,
+    })
+  })
+
+  it('marks a resolved provider without generate purpose as unsupported', () => {
+    const providerCanGenerate = (id: string) => id !== 'provider-detect'
+
+    expect(resolvePipelineProviderChannel({
+      layer: 'volumes',
+      layerProviderId: 'provider-detect',
+      agentProviderId: '',
+      globalProviderId: 'provider-global',
+      providerExists,
+      providerCanGenerate,
+    })).toEqual({
+      providerId: 'provider-detect',
+      source: 'layer',
+      providerMissing: false,
+      providerUnsupported: true,
+    })
+
+    expect(resolvePipelineProviderChannel({
+      layer: 'body',
+      layerProviderId: '',
+      agentProviderId: 'provider-detect',
+      globalProviderId: 'provider-global',
+      providerExists,
+      providerCanGenerate,
+    })).toEqual({
+      providerId: 'provider-detect',
+      source: 'agent',
+      providerMissing: false,
+      providerUnsupported: true,
+    })
+
+    expect(resolvePipelineProviderChannel({
+      layer: 'settings',
+      layerProviderId: '',
+      agentProviderId: '',
+      globalProviderId: 'provider-detect',
+      providerExists,
+      providerCanGenerate,
+    })).toEqual({
+      providerId: 'provider-detect',
+      source: 'global',
+      providerMissing: false,
+      providerUnsupported: true,
     })
   })
 
@@ -99,6 +157,7 @@ describe('pipelineProviderChannels', () => {
       providerId: '',
       source: 'global',
       providerMissing: false,
+      providerUnsupported: false,
     })
   })
 
@@ -129,6 +188,7 @@ describe('pipelineProviderChannels', () => {
       providerId: 'provider-layer',
       source: 'layer',
       providerMissing: false,
+      providerUnsupported: false,
     })
   })
 
@@ -145,6 +205,7 @@ describe('pipelineProviderChannels', () => {
       model: 'agent-model',
       modelSource: 'agent',
       providerMissing: false,
+      providerUnsupported: false,
       modelMissing: false,
       modelSupported: true,
     })
@@ -163,6 +224,7 @@ describe('pipelineProviderChannels', () => {
       model: 'layer-model',
       modelSource: 'provider-selected',
       providerMissing: false,
+      providerUnsupported: false,
       modelMissing: false,
       modelSupported: true,
       modelFallback: {
@@ -185,6 +247,7 @@ describe('pipelineProviderChannels', () => {
       model: 'unknown-model',
       modelSource: 'agent',
       providerMissing: false,
+      providerUnsupported: false,
       modelMissing: false,
       modelSupported: false,
     })
@@ -203,8 +266,27 @@ describe('pipelineProviderChannels', () => {
       model: '',
       modelSource: 'provider-selected',
       providerMissing: false,
+      providerUnsupported: false,
       modelMissing: true,
       modelSupported: false,
+    })
+  })
+
+  it('carries generate purpose eligibility through the request profile', () => {
+    expect(resolvePipelineRequestProfile({
+      layer: 'volumes',
+      layerProviderId: 'provider-detect',
+      globalProviderId: 'provider-global',
+      agent: null,
+      getProvider,
+      providerCanGenerate: id => id !== 'provider-detect',
+    })).toMatchObject({
+      providerId: 'provider-detect',
+      source: 'layer',
+      providerUnsupported: true,
+      model: 'detect-model',
+      modelMissing: false,
+      modelSupported: true,
     })
   })
 })

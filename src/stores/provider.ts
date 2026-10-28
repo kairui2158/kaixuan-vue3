@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 import { normalizeProviderType } from '../services/providerProtocols'
 import {
+  PIPELINE_PROVIDER_CHANNEL_LAYERS,
   normalizePipelineLayerProviders,
   type PipelineProviderChannelLayer,
 } from '../services/pipelineProviderChannels'
@@ -55,6 +56,9 @@ export const useProviderStore = defineStore('provider', () => {
   const activeDetectProvider = computed(() =>
     providers.value.find(p => p.id === detectProvider.value)
   )
+  const pipelineLayerProviderIds = computed(() =>
+    Object.values(pipelineLayerProviders.value).filter(Boolean) as string[]
+  )
 
 async function loadProviders() {
   const data = await window.electronAPI.storageRead(storageKey('providers'))
@@ -77,6 +81,10 @@ async function loadProviders() {
         if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
         p.providerType = normalizeProviderType(p.providerType)
         normalizeContextWindow(p)
+      })
+      pipelineLayerProviders.value = normalizePipelineLayerProviders({
+        ...pipelineLayerProviders.value,
+        ...unsupportedLayerBindingsToClear(pipelineLayerProviders.value, providers.value),
       })
       var gen = data.find(function(p) { return p.purpose.indexOf('generate') >= 0 })
       var ver = data.find(function(p) { return p.purpose.indexOf('verify') >= 0 })
@@ -105,6 +113,16 @@ async function loadProviders() {
         p.providerType = normalizeProviderType(p.providerType)
         normalizeContextWindow(p)
       })
+      const unsupportedLayerBindings = unsupportedLayerBindingsToClear(
+        pipelineLayerProviders.value,
+        providers.value,
+      )
+      if (Object.keys(unsupportedLayerBindings).length > 0) {
+        pipelineLayerProviders.value = normalizePipelineLayerProviders({
+          ...pipelineLayerProviders.value,
+          ...unsupportedLayerBindings,
+        })
+      }
     }
   }
 }
@@ -164,6 +182,18 @@ async function saveProviders() {
     saveProviders()
   }
 
+  function clearPipelineLayersForProvider(providerId: string): PipelineProviderChannelLayer[] {
+    const cleared: PipelineProviderChannelLayer[] = []
+    for (const layer of PIPELINE_PROVIDER_CHANNEL_LAYERS) {
+      if (pipelineLayerProviders.value[layer] === providerId) {
+        pipelineLayerProviders.value[layer] = null
+        cleared.push(layer)
+      }
+    }
+    if (cleared.length > 0) saveProviders()
+    return cleared
+  }
+
 function setGenerateProvider(id: string) {
    generateProvider.value = id
    saveProviders()
@@ -212,7 +242,12 @@ function getDetectProvider(): Provider | undefined {
   return activeDetectProvider.value
 }
 function getActiveProviders(): Provider[] {
-  const ids = new Set([generateProvider.value, verifyProvider.value, detectProvider.value].filter(Boolean) as string[])
+  const ids = new Set([
+    generateProvider.value,
+    verifyProvider.value,
+    detectProvider.value,
+    ...pipelineLayerProviderIds.value,
+  ].filter(Boolean) as string[])
   return providers.value.filter(p => ids.has(p.id))
 }
 
@@ -221,11 +256,27 @@ function getActiveProviders(): Provider[] {
     activeGenerateProvider, activeVerifyProvider, activeDetectProvider,
     loadProviders, saveProviders, addProvider, updateProvider,
     removeProvider, setGenerateProvider, setVerifyProvider, setDetectProvider,
-    setPipelineLayerProvider, fetchModels,
+    setPipelineLayerProvider, clearPipelineLayersForProvider, fetchModels,
     testConnection, getProvider, preferredGenerateProvider,
-    getGenerateProvider, getVerifyProvider, getDetectProvider, getActiveProviders
+    getGenerateProvider, getVerifyProvider, getDetectProvider, getActiveProviders,
+    pipelineLayerProviderIds
   }
 })
+
+function unsupportedLayerBindingsToClear(
+  value: Partial<Record<PipelineProviderChannelLayer, string | null>>,
+  providers: Provider[]
+): Partial<Record<PipelineProviderChannelLayer, string | null>> {
+  const result: Partial<Record<PipelineProviderChannelLayer, string | null>> = {}
+  for (const layer of PIPELINE_PROVIDER_CHANNEL_LAYERS) {
+    const providerId = value[layer] || null
+    if (!providerId) continue
+    const provider = providers.find(p => p.id === providerId)
+    const purposes = provider ? (Array.isArray(provider.purpose) ? provider.purpose : [provider.purpose]) : []
+    if (provider && !purposes.includes('generate')) result[layer] = null
+  }
+  return result
+}
 
 function normalizeContextWindow(provider: Provider) {
   const value = Number((provider as Provider & { contextWindowTokens?: number | string | null }).contextWindowTokens)

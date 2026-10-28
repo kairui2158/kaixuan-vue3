@@ -935,6 +935,10 @@ function resolvePipelineRunRequestProfile(
       ? { model: agentConfig.model, providerId: agentConfig.provider }
       : null,
     getProvider: id => providerStore.getProvider(id) as any,
+    providerCanGenerate: id => {
+      const provider = providerStore.getProvider(id)
+      return provider ? providerSupportsGeneratePurpose(provider) : false
+    },
   })
   return profile
 }
@@ -944,7 +948,7 @@ function assertPipelineRequestProfileUsable(
   runId: string | null | undefined,
   step: number
 ): void {
-  if (!profile.providerMissing && profile.providerId) {
+  if (!profile.providerMissing && !profile.providerUnsupported && profile.providerId) {
     // Profile requests continue below to the model checks.
   } else {
     const source = profile.source === 'agent'
@@ -953,7 +957,9 @@ function assertPipelineRequestProfileUsable(
         ? '生成流水线层绑定'
         : '全局生成供应商'
     const message = profile.providerId
-      ? `${source}的供应商「${profile.providerId}」不存在，已停止本次生成；请重新绑定后重试。`
+      ? profile.providerUnsupported
+        ? `${source}的供应商「${profile.providerId}」不支持生成用途，已停止本次生成；请恢复生成用途或重新绑定。`
+        : `${source}的供应商「${profile.providerId}」不存在，已停止本次生成；请重新绑定后重试。`
       : `${source}为空，已停止本次生成；请先配置供应商。`
     if (runId) {
       runTraceStore.addEvent(runId, {
@@ -1026,14 +1032,16 @@ function assertPipelineProviderChannelUsable(
   runId: string | null | undefined,
   step: number,
 ): void {
-  if (!channel.providerMissing && channel.providerId) return
+  if (!channel.providerMissing && !channel.providerUnsupported && channel.providerId) return
   const source = channel.source === 'agent'
     ? 'Agent 显式绑定'
     : channel.source === 'layer'
       ? '生成流水线层绑定'
       : '全局生成供应商'
   const message = channel.providerId
-    ? `${source}的供应商「${channel.providerId}」不存在，已停止本次生成；请重新绑定后重试。`
+    ? channel.providerUnsupported
+      ? `${source}的供应商「${channel.providerId}」不支持生成用途，已停止本次生成；请恢复生成用途或重新绑定。`
+      : `${source}的供应商「${channel.providerId}」不存在，已停止本次生成；请重新绑定后重试。`
     : `${source}为空，已停止本次生成；请先配置供应商。`
   if (runId) {
     runTraceStore.addEvent(runId, {
@@ -2398,8 +2406,17 @@ function buildProviderChannelConfigSnapshot(
     layerProviderId: providerStore.pipelineLayerProviders[layer] ?? null,
     globalProviderId: providerStore.preferredGenerateProvider?.id ?? null,
     providerExists: id => Boolean(providerStore.getProvider(id)),
+    providerCanGenerate: id => {
+      const provider = providerStore.getProvider(id)
+      return provider ? providerSupportsGeneratePurpose(provider) : false
+    },
   })
   return snapshot
+}
+
+function providerSupportsGeneratePurpose(provider: { purpose?: Array<string | null> | string | null }): boolean {
+  const purposes = Array.isArray(provider.purpose) ? provider.purpose : [provider.purpose]
+  return purposes.includes('generate')
 }
 
 function buildCheckpointOwnerKey(

@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-10-27T23:28:36.907Z",
+  "at": "2026-10-28T01:21:09.867Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1793143715546-1",
+      "runId": "pipeline-run-1793150468616-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -51,7 +51,8 @@
           "globalProviderId": "provider-global",
           "providerId": "provider-volumes",
           "source": "layer",
-          "providerMissing": false
+          "providerMissing": false,
+          "providerUnsupported": false
         },
         "pipelineProviderChannels": {
           "volumes": {
@@ -60,7 +61,8 @@
             "globalProviderId": "provider-global",
             "providerId": "provider-volumes",
             "source": "layer",
-            "providerMissing": false
+            "providerMissing": false,
+            "providerUnsupported": false
           }
         }
       },
@@ -68,12 +70,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793143715546,
+      "startedAt": 1793150468616,
       "progressPhase": "terminal",
-      "endedAt": 1793143715720
+      "endedAt": 1793150468784
     },
     "chapters": {
-      "runId": "pipeline-run-1793143716024-2",
+      "runId": "pipeline-run-1793150469066-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -106,7 +108,8 @@
           "globalProviderId": "provider-global",
           "providerId": "provider-chapters",
           "source": "layer",
-          "providerMissing": false
+          "providerMissing": false,
+          "providerUnsupported": false
         },
         "pipelineProviderChannels": {
           "chapters": {
@@ -115,7 +118,8 @@
             "globalProviderId": "provider-global",
             "providerId": "provider-chapters",
             "source": "layer",
-            "providerMissing": false
+            "providerMissing": false,
+            "providerUnsupported": false
           }
         }
       },
@@ -123,12 +127,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793143716024,
+      "startedAt": 1793150469066,
       "progressPhase": "terminal",
-      "endedAt": 1793143716189
+      "endedAt": 1793150469151
     },
     "body": {
-      "runId": "pipeline-run-1793143716494-3",
+      "runId": "pipeline-run-1793150469499-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -161,7 +165,8 @@
           "globalProviderId": "provider-global",
           "providerId": "provider-body",
           "source": "layer",
-          "providerMissing": false
+          "providerMissing": false,
+          "providerUnsupported": false
         },
         "pipelineProviderChannels": {
           "body": {
@@ -170,7 +175,8 @@
             "globalProviderId": "provider-global",
             "providerId": "provider-body",
             "source": "layer",
-            "providerMissing": false
+            "providerMissing": false,
+            "providerUnsupported": false
           }
         }
       },
@@ -178,9 +184,9 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793143716494,
+      "startedAt": 1793150469499,
       "progressPhase": "terminal",
-      "endedAt": 1793143716613
+      "endedAt": 1793150469620
     }
   },
   "modelAssertions": {

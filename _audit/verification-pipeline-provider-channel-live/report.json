@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-10-27T19:41:53.893Z",
+  "at": "2026-10-28T01:11:51.762Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1793130046715-1",
+      "runId": "pipeline-run-1793149828536-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -51,7 +51,8 @@
           "globalProviderId": "provider-settings",
           "providerId": "provider-volumes",
           "source": "layer",
-          "providerMissing": false
+          "providerMissing": false,
+          "providerUnsupported": false
         },
         "pipelineProviderChannels": {
           "volumes": {
@@ -60,7 +61,8 @@
             "globalProviderId": "provider-settings",
             "providerId": "provider-volumes",
             "source": "layer",
-            "providerMissing": false
+            "providerMissing": false,
+            "providerUnsupported": false
           }
         }
       },
@@ -68,12 +70,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793130046715,
+      "startedAt": 1793149828536,
       "progressPhase": "terminal",
-      "endedAt": 1793130096051
+      "endedAt": 1793149863920
     },
     "chapters": {
-      "runId": "pipeline-run-1793130047199-2",
+      "runId": "pipeline-run-1793149828991-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -106,7 +108,8 @@
           "globalProviderId": "provider-settings",
           "providerId": "provider-chapters",
           "source": "layer",
-          "providerMissing": false
+          "providerMissing": false,
+          "providerUnsupported": false
         },
         "pipelineProviderChannels": {
           "chapters": {
@@ -115,7 +118,8 @@
             "globalProviderId": "provider-settings",
             "providerId": "provider-chapters",
             "source": "layer",
-            "providerMissing": false
+            "providerMissing": false,
+            "providerUnsupported": false
           }
         }
       },
@@ -123,12 +127,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793130047199,
+      "startedAt": 1793149828991,
       "progressPhase": "terminal",
-      "endedAt": 1793130065688
+      "endedAt": 1793149849970
     },
     "body": {
-      "runId": "pipeline-run-1793130047793-3",
+      "runId": "pipeline-run-1793149829432-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -161,7 +165,8 @@
           "globalProviderId": "provider-settings",
           "providerId": "provider-body",
           "source": "layer",
-          "providerMissing": false
+          "providerMissing": false,
+          "providerUnsupported": false
         },
         "pipelineProviderChannels": {
           "body": {
@@ -170,7 +175,8 @@
             "globalProviderId": "provider-settings",
             "providerId": "provider-body",
             "source": "layer",
-            "providerMissing": false
+            "providerMissing": false,
+            "providerUnsupported": false
           }
         }
       },
@@ -178,9 +184,9 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793130047794,
+      "startedAt": 1793149829433,
       "progressPhase": "terminal",
-      "endedAt": 1793130113676
+      "endedAt": 1793149911534
     }
   },
   "modelAssertions": {
@@ -196,10 +202,10 @@
   "requestCount": 3,
   "mode": "live-single-supplier",
   "live": {
-    "credentialSource": "C:\\Users\\凯瑞\\AppData\\Roaming\\shenyi-assistant\\data\\wa_providers.json",
+    "credentialSource": "D:\\神意助手数据\\wa_providers.json",
     "sourceKeyState": "encrypted",
     "keyLength": 51,
-    "proxyBaseUrl": "http://127.0.0.1:3118/v1",
+    "proxyBaseUrl": "http://127.0.0.1:4131/v1",
     "model": "deepseek-v4-pro",
     "successfulRequests": 3
   }

@@ -77,4 +77,77 @@ describe('provider store pipeline layer channels', () => {
 
     expect(store.pipelineLayerProviders).toEqual({ body: 'provider-deleted' })
   })
+
+  it('clears persisted layer bindings whose provider no longer supports generation', async () => {
+    storage.set('wa_providers', {
+      providers: [
+        {
+          id: 'provider-detect',
+          name: 'Detect Provider',
+          baseUrl: 'https://example.test',
+          apiKey: 'key',
+          models: ['model'],
+          selectedModel: 'model',
+          temperature: 0.7,
+          maxTokens: 0,
+          purpose: ['detect'],
+          providerType: 'openai-compatible',
+        },
+      ],
+      generateProvider: null,
+      verifyProvider: null,
+      detectProvider: 'provider-detect',
+      pipelineLayerProviders: {
+        volumes: 'provider-detect',
+        body: 'provider-detect',
+      },
+    })
+    const store = useProviderStore()
+
+    await store.loadProviders()
+
+    expect(store.pipelineLayerProviders).toEqual({})
+    expect(await storage.get('wa_providers')).toMatchObject({
+      pipelineLayerProviders: {
+        volumes: 'provider-detect',
+        body: 'provider-detect',
+      },
+    })
+  })
+
+  it('includes pipeline layer providers in the active provider inventory', () => {
+    const store = useProviderStore()
+    const global = {
+      id: 'provider-global',
+      name: 'provider-global',
+      baseUrl: 'https://example.test',
+      apiKey: 'key',
+      models: ['model'],
+      selectedModel: 'model',
+      temperature: 0.7,
+      maxTokens: 0,
+      purpose: ['generate'],
+      providerType: 'openai-compatible',
+    }
+    const layer = {
+      id: 'provider-layer',
+      name: 'provider-layer',
+      baseUrl: 'https://example.test',
+      apiKey: 'key',
+      models: ['model'],
+      selectedModel: 'model',
+      temperature: 0.7,
+      maxTokens: 0,
+      purpose: ['generate'],
+      providerType: 'openai-compatible',
+    }
+    store.providers = [global, layer] as any
+    store.setGenerateProvider('provider-global')
+    store.setPipelineLayerProvider('body', 'provider-layer')
+
+    expect(store.getActiveProviders().map(item => item.id)).toEqual([
+      'provider-global',
+      'provider-layer',
+    ])
+  })
 })

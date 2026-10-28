@@ -38,22 +38,22 @@
                   :title="pipelinePurposeTitle(p)"
                   @click="togglePipelinePurpose(p)"
                 >生成流水线</button>
-                <select
+                <div
                   v-if="pipelinePurposeExpanded(p.id)"
                   class="pipeline-layer-select"
                   data-test="pipeline-layer-select"
                   :data-provider-id="p.id"
-                  :value="pipelineLayerValue(p.id)"
-                  :title="pipelinePurposeTitle(p)"
-                  @change="selectPipelineLayer(p, $event)"
                 >
-                  <option value="">选择层</option>
-                  <option
+                  <button
                     v-for="channel in pipelineChannelOptions"
                     :key="channel.layer"
-                    :value="channel.layer"
-                  >{{ channel.label }}</option>
-                </select>
+                    class="pipeline-layer-option"
+                    :class="{ 'is-on': providerHasPipelineLayer(p.id, channel.layer) }"
+                    :data-layer="channel.layer"
+                    :title="pipelinePurposeTitle(p)"
+                    @click="togglePipelineLayer(p, channel.layer)"
+                  >{{ channel.label }}</button>
+                </div>
               </template>
             </div>
             <button class="btn-sm btn-secondary" @click="enterProviderEdit(p.id)">编辑</button>
@@ -73,9 +73,13 @@
         <button class="btn-sm btn-secondary" @click="importConfig">导入配置</button>
       </div>
       <div v-if="importMessage" class="config-import-feedback" :class="importMessageClass">{{ importMessage }}</div>
-      <p v-if="hasMissingPipelineLayerProvider" class="pipeline-channel-warning">
-        生成流水线通道存在缺失供应商，请重新绑定对应层。
-      </p>
+      <ul v-if="missingPipelineLayerMessages.length > 0" class="pipeline-channel-warning-list">
+        <li
+          v-for="message in missingPipelineLayerMessages"
+          :key="message"
+          class="pipeline-channel-warning"
+        >{{ message }}</li>
+      </ul>
     </div>
     <!-- View 2: Provider Edit -->
     <div v-else id="provider-edit-view" class="provider-edit-view">
@@ -255,10 +259,6 @@ function hasPipelineLayer(providerId: string): boolean {
   return pipelineLayersForProvider(providerId).length > 0
 }
 
-function pipelineLayerValue(providerId: string): 'settings' | 'volumes' | 'chapters' | 'body' | '' {
-  return pipelineLayersForProvider(providerId)[0] || ''
-}
-
 function pipelinePurposeExpanded(providerId: string): boolean {
   return hasPipelineLayer(providerId) || expandedPipelineProviders.value.has(providerId)
 }
@@ -286,21 +286,33 @@ function togglePipelinePurpose(provider: Provider): void {
   expandedPipelineProviders.value = next
 }
 
-function selectPipelineLayer(provider: Provider, event: Event): void {
-  if (!providerSupportsGenerate(provider)) return
-  const target = event.target as HTMLSelectElement
-  const layer = target.value as 'settings' | 'volumes' | 'chapters' | 'body'
-  if (!layer) return
-  if (!pipelineChannelOptions.some(channel => channel.layer === layer)) return
-  for (const existingLayer of pipelineLayersForProvider(provider.id)) {
-    setPipelineLayerProvider(existingLayer, '')
-  }
-  setPipelineLayerProvider(layer, provider.id)
+function providerHasPipelineLayer(
+  providerId: string,
+  layer: 'settings' | 'volumes' | 'chapters' | 'body',
+): boolean {
+  return pipelineLayerProviderId(layer) === providerId
 }
 
-const hasMissingPipelineLayerProvider = computed(() =>
-  pipelineChannelOptions.some(channel => pipelineLayerProviderMissing(channel.layer))
-)
+function togglePipelineLayer(
+  provider: Provider,
+  layer: 'settings' | 'volumes' | 'chapters' | 'body',
+): void {
+  if (!providerSupportsGenerate(provider)) return
+  const current = pipelineLayerProviderId(layer)
+  setPipelineLayerProvider(layer, current === provider.id ? '' : provider.id)
+}
+
+const missingPipelineLayerMessages = computed(() => pipelineChannelOptions
+  .filter(channel => pipelineLayerProviderMissing(channel.layer))
+  .map(channel => `${channel.label}的供应商已不存在，请重新绑定。`))
+
+function removedGenerateLayersMessage(removed: Array<'settings' | 'volumes' | 'chapters' | 'body'>): string {
+  if (removed.length === 0) return ''
+  const labels = removed.map(layer =>
+    pipelineChannelOptions.find(channel => channel.layer === layer)?.label || layer,
+  )
+  return `已同步解除生成流水线绑定：${labels.join('、')}`
+}
 
 const contextWindowHint = computed(() => {
   const value = Number(editingProvider.value?.contextWindowTokens)
@@ -453,8 +465,14 @@ function saveAndExit() {
   } else {
     providerStore.addProvider({ ...p })
   }
+  let purposeWarning = ''
+  if (!providerSupportsGenerate(p)) {
+    const removed = providerStore.clearPipelineLayersForProvider(p.id)
+    purposeWarning = removedGenerateLayersMessage(removed)
+  }
   providerStore.saveProviders()
   exitProviderEdit()
+  if (purposeWarning) importMessage.value = purposeWarning
 }
 
 async function fetchModels() {
@@ -561,19 +579,29 @@ function importProviderBindings(value: unknown, providers: Provider[]): void {
   }
 
   const importedLayers = normalizeImportedLayerProviders(data.pipelineLayerProviders)
-  const missingLayers: string[] = []
-  for (const option of pipelineChannelOptions) {
-    const providerId = importedLayers[option.layer]
-    if (providerId === undefined) continue
-    if (providerId && !providers.some(provider => provider.id === providerId)) {
-      missingLayers.push(`${option.label}绑定 ${providerId} 未导入到现有供应商，请重新选择`)
+    const missingLayers: string[] = []
+    const unsupportedLayers: string[] = []
+    for (const option of pipelineChannelOptions) {
+      const providerId = importedLayers[option.layer]
+      if (providerId === undefined) continue
+      const provider = providerId
+        ? providers.find(item => item.id === providerId)
+        : undefined
+      if (providerId && !provider) {
+        missingLayers.push(`${option.label}绑定 ${providerId} 未导入到现有供应商，请重新选择`)
+      }
+      if (providerId && provider && !providerSupportsGenerate(provider)) {
+        unsupportedLayers.push(`${option.label}绑定的供应商不支持生成用途，已自动解绑`)
+        providerStore.setPipelineLayerProvider(option.layer, null)
+        continue
+      }
+      providerStore.setPipelineLayerProvider(option.layer, providerId)
     }
-    providerStore.setPipelineLayerProvider(option.layer, providerId)
+    const issues = [...missingLayers, ...unsupportedLayers]
+    if (issues.length > 0) {
+      importMessage.value = `导入完成，但有绑定需要处理：${issues.join('；')}。`
+    }
   }
-  if (missingLayers.length > 0) {
-    importMessage.value = `导入完成，但有绑定需要处理：${missingLayers.join('；')}。`
-  }
-}
 
 function importConfig() {
   importMessage.value = ''
@@ -799,16 +827,37 @@ function importConfig() {
 .config-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-bottom: 12px; }
 
 .pipeline-layer-select {
-  height: 23px;
-  padding: 0 var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px;
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
   background: var(--accent-dim);
-  color: var(--accent);
+}
+.pipeline-layer-option {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: calc(var(--radius-sm) - 1px);
+  padding: var(--space-1) var(--space-3);
   font-size: var(--font-size-xs);
   cursor: pointer;
+  line-height: 18px;
+  min-height: 21px;
+  white-space: nowrap;
 }
-.pipeline-channel-warning { color: var(--danger); font-size: var(--font-size-xs); margin: 8px 0 0; }
+.pipeline-layer-option:hover { color: var(--text-primary); }
+.pipeline-layer-option.is-on {
+  background: var(--settings-card-active-bg);
+  color: var(--accent);
+  font-weight: 500;
+}
+.pipeline-channel-warning-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.pipeline-channel-warning { color: var(--danger); font-size: var(--font-size-xs); margin: 0; }
 
 /* === Edit View === */
 .provider-edit-view { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-7); background: var(--settings-card-bg); border: 1px solid var(--settings-card-border); border-radius: var(--radius-md); }
