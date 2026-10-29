@@ -1,0 +1,47 @@
+{
+  "totalLines": 6494,
+  "unknownAuthorCount": 200,
+  "byWork": {
+    "致命偏宠": 100,
+    "最强反套路系统": 100
+  },
+  "unknownSample": {
+    "line": 6494,
+    "id": "de5fd4e2f4d1bd0d733f8c5b718c749b5d2ffe6229e27d5bd807370294ade998",
+    "author": "未知作者",
+    "authorVerified": false,
+    "work": "最强反套路系统",
+    "genre": "都市脑洞",
+    "chapter": 1589,
+    "title": "第1589章 仙王，就这？",
+    "charCount": 2243
+  },
+  "unknownIdRange": [
+    6295,
+    6494
+  ],
+  "sourceFiles": [
+    {
+      "path": "D:\\codex\\deai-corpus\\sources\\human\\authors\\%E6%9C%AA%E7%9F%A5%E4%BD%9C%E8%80%85\\works\\%E8%87%B4%E5%91%BD%E5%81%8F%E5%AE%A0\\chapters.jsonl",
+      "exists": true,
+      "bytes": 714952
+    },
+    {
+      "path": "D:\\codex\\deai-corpus\\sources\\human\\authors\\%E6%9C%AA%E7%9F%A5%E4%BD%9C%E8%80%85\\works\\%E6%9C%80%E5%BC%BA%E5%8F%8D%E5%A5%97%E8%B7%AF%E7%B3%BB%E7%BB%9F\\chapters.jsonl",
+      "exists": true,
+      "bytes": 807867
+    }
+  ],
+  "manifestAuthors": {
+    "humanLibrary": [
+      "卖报小郎君",
+      "远瞳",
+      "老鹰吃小鸡",
+      "蝴蝶蓝",
+      "佛前献花",
+      "辰东",
+      "我会修空调",
+      "未知作者"
+    ]
+  }
+}

@@ -1646,6 +1646,47 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(retrySystemPrompt).not.toContain('保留其余内容')
   })
 
+  it('keeps finalStepDetection off free of app-owned DEAI findings', async () => {
+    const candidateOutput = JSON.stringify({
+      output: '终步候选全文',
+      metadata: { 来源覆盖状态: '无法核对' }
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: callAi.mock.calls.length === 1 ? candidateOutput : JSON.stringify({ output: '修复后的终稿' })
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        schema: {
+          type: 'object',
+          required: ['output'],
+          properties: { output: { type: 'string' } }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '上游原文',
+      budget: createBudget(),
+      finalStepRetry: {
+        role: 'polish',
+        deaiDetection: 'off',
+        upstreamAnchors: ['S2 权威事实锚点'],
+      }
+    })
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('终步重试协议')
+    expect(retrySystemPrompt).toContain('FACT_LOCK')
+    expect(retrySystemPrompt).toContain('S2 权威事实锚点')
+    expect(retrySystemPrompt).not.toContain('三、降AI语言打磨项')
+  })
+
   it('keeps the normal retry protocol for non-final chain steps', async () => {
     const candidateOutput = JSON.stringify({ wrong: true })
     const callAi = vi.fn(async (_params: CallAiParams) => ({

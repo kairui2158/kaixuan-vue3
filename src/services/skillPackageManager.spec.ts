@@ -118,4 +118,25 @@ describe('skillPackageManager manifest validation', () => {
     expect(result.warnings).toHaveLength(1)
     expect(result.warnings?.[0].field).toBe('meta.agent')
   })
+
+  it('preflights valid meta.deai and reports invalid or unknown fields', () => {
+    const valid = validateSkillPackageManifest({
+      ...validManifest,
+      meta: { deai: { contractVersion: 1, generation: 'off', finalStepDetection: 'off', conflictPolicy: 'skill-wins' } },
+    }, '3.110.7')
+    expect(valid.valid).toBe(true)
+    expect(valid.warnings).toHaveLength(0)
+
+    const invalid = validateSkillPackageManifest({
+      ...validManifest,
+      meta: { deai: { contractVersion: 99, generation: 'sometimes', deaiModel: 'x' } },
+    }, '3.110.7')
+    expect(invalid.valid).toBe(false)
+    expect(invalid.issues.map(issue => issue.field)).toEqual(
+      expect.arrayContaining(['meta.deai', 'meta.deai', 'meta.deai']),
+    )
+    expect(invalid.warnings?.map(warning => warning.field)).toEqual(
+      expect.arrayContaining(['meta.deai']),
+    )
+  })
 })

@@ -70,6 +70,94 @@ describe('chat store saveSessions coalescing', () => {
     expect((chatWrites[1]?.[1] as any[])[0]?.messages?.[0]?.content).toBe('第二轮更新')
   })
 
+  it('does not persist project-A sessions into project-B during an in-flight project switch', async () => {
+    let releaseProjectBRead!: (value: unknown) => void
+    const projectBRead = new Promise(resolve => {
+      releaseProjectBRead = resolve
+    })
+    storageWrite.mockImplementation(async (key: string) => {
+      persistedKeys.push(key)
+      return true
+    })
+    const persistedKeys: string[] = []
+    storageRead.mockImplementation(async (key: string) => {
+      if (key === 'wa_chat_project-B') {
+        await projectBRead
+        return [{ id: 'session-b', title: 'B 会话', tabId: '', chapterId: '', messages: [], createdAt: 1, updatedAt: 1 }]
+      }
+      return null
+    })
+
+    const store = useChatStore()
+    store.ensureSession('tab-a', 'chapter-a', 'A 章节', 'project-A')
+    const message = store.addMessage({ role: 'user', content: 'A 项目消息', tabId: 'tab-a' }, 'project-A')
+    expect(message).toBeTruthy()
+    await new Promise(resolve => setTimeout(resolve, 400))
+    storageWrite.mockClear()
+
+    // Project switching mutates currentProjectId before the target project's
+    // sessions have been loaded. The pending A save must not write A sessions
+    // to the B bucket during that window.
+    const loadPromise = store.loadSessions('project-B')
+    store.__setProjectForTests('project-B')
+    store.addMessage({ role: 'user', content: 'B 项目新消息', tabId: '' })
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    const persistedB = storageWrite.mock.calls
+      .filter(call => call[0] === 'wa_chat_project-B')
+      .map(call => call[1] as any[])
+    expect(persistedB).toHaveLength(0)
+
+    releaseProjectBRead(null)
+    await loadPromise
+    expect(store.__isSessionsLoadedForProject('project-B')).toBe(true)
+    store.ensureSession('', '', '默认对话', 'project-B')
+    const bMessage = store.addMessage({ role: 'user', content: 'B 项目加载后消息', tabId: '' }, 'project-B')
+    expect(bMessage).toBeTruthy()
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    const persistedAfterLoad = storageWrite.mock.calls
+      .filter(call => call[0] === 'wa_chat_project-B')
+      .map(call => call[1] as any[])
+    expect(persistedAfterLoad).toHaveLength(1)
+    expect(persistedAfterLoad[0]?.map(session => session.title)).toContain('B 会话')
+    expect(persistedAfterLoad[0]?.map(session => session.title)).not.toContain('A 章节')
+  })
+
+  it('cancels a queued project-A write that fires after loadSessions switches to project B', async () => {
+    let releaseProjectBRead!: (value: unknown) => void
+    const projectBRead = new Promise(resolve => {
+      releaseProjectBRead = resolve
+    })
+    const persistedKeys: string[] = []
+    storageWrite.mockImplementation(async (key: string) => {
+      persistedKeys.push(key)
+      return true
+    })
+    storageRead.mockImplementation(async (key: string) => {
+      if (key === 'wa_chat_project-B') {
+        await projectBRead
+        return []
+      }
+      return null
+    })
+
+    const store = useChatStore()
+    store.ensureSession('tab-a', 'chapter-a', 'A 章节', 'project-A')
+    store.addMessage({ role: 'user', content: 'A 项目消息', tabId: 'tab-a' }, 'project-A')
+    await new Promise(resolve => setTimeout(resolve, 20))
+
+    // The debounced A write is scheduled with 230ms remaining. loadSessions(B)
+    // advances the project generation immediately, then blocks on storageRead.
+    const loadPromise = store.loadSessions('project-B')
+    await new Promise(resolve => setTimeout(resolve, 400))
+    releaseProjectBRead(null)
+    await loadPromise
+
+    expect(persistedKeys).toEqual(['wa_chat_project-A'])
+    expect(store.__isSessionsLoadedForProject('project-B')).toBe(true)
+  })
+
   it('persists final-draft task snapshots on status transitions rather than every stream chunk', async () => {
     const store = useChatStore()
     store.ensureSession('tab-1', 'chapter-1', '第一章', 'project-A')

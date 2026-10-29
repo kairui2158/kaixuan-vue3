@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-5-skill-wins",
+  "runId": "run-1793310181979-1",
+  "runStatus": "success",
+  "requestCount": 3,
+  "heartbeatFrames": 21,
+  "screenshots": [
+    "scenario-5-skill-wins.png"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "shenyi.deai-body.electron",
+  "version": 1,
+  "generatedAt": "2026-10-29T12:01:30.127Z",
+  "script": "verify-deai-body-electron.mjs",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "86bbc004207e",
+    "buildTime": "2026-10-29T12:00:19.562Z"
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realDropdownSelection": "#pl-s5-skill / #pl-s5-add-skill / #pl-s5-skills-list",
+    "physicalProviderRequests": true,
+    "apiCallAndPhysicalRequestSameSource": true
+  },
+  "scenarios": {
+    "default-no-meta": {
+      "status": "success",
+      "runId": "run-1793275278771-1",
+      "requestCount": 3,
+      "source": "app-default-no-skill-meta",
+      "variants": [
+        "methodology",
+        "creative",
+        "polish"
+      ]
+    },
+    "skill-disabled": {
+      "status": "success",
+      "runId": "run-1793275284796-1",
+      "requestCount": 3,
+      "source": "skill-disabled",
+      "variants": [
+        "off",
+        "off",
+        "off"
+      ],
+      "promptVariantEvents": 0
+    },
+    "invalid-fallback": {
+      "status": "success",
+      "runId": "run-1793275288631-1",
+      "requestCount": 3,
+      "source": "skill-declared",
+      "variants": [
+        "methodology",
+        "creative",
+        "polish"
+      ],
+      "warningEvents": 6
+    }
+  },
+  "heartbeatFrames": 16,
+  "heartbeatDurationMs": 16986
+}

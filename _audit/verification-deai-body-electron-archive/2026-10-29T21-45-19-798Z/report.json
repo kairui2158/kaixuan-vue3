@@ -1,0 +1,81 @@
+{
+  "schema": "shenyi.deai-body.electron",
+  "version": 1,
+  "generatedAt": "2026-10-29T21:43:06.719Z",
+  "script": "verify-deai-body-electron.mjs",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "86bbc004207e",
+    "buildTime": "2026-10-29T21:25:41.257Z"
+  },
+  "hardRules": {
+    "visibleElectron": true,
+    "realDropdownSelection": "#pl-s5-skill / #pl-s5-add-skill / #pl-s5-skills-list",
+    "physicalProviderRequests": true,
+    "apiCallAndPhysicalRequestSameSource": true
+  },
+  "scenarios": {
+    "default-no-meta": {
+      "status": "success",
+      "runId": "run-1793310165267-1",
+      "requestCount": 3,
+      "source": "app-default-no-skill-meta",
+      "variants": [
+        "methodology",
+        "creative",
+        "polish"
+      ]
+    },
+    "skill-disabled": {
+      "status": "success",
+      "runId": "run-1793310169601-1",
+      "requestCount": 3,
+      "source": "skill-disabled",
+      "variants": [
+        "off",
+        "off",
+        "off"
+      ],
+      "promptVariantEvents": 0
+    },
+    "invalid-fallback": {
+      "status": "success",
+      "runId": "run-1793310173266-1",
+      "requestCount": 3,
+      "source": "skill-declared",
+      "variants": [
+        "methodology",
+        "creative",
+        "polish"
+      ],
+      "warningEvents": 6
+    },
+    "final-step-off-deep-fix": {
+      "status": "success",
+      "runId": "run-1793310177208-1",
+      "requestCount": 4,
+      "finalStepDetection": "off",
+      "userHardRuleMode": "deep-fix",
+      "settingsUiDualState": true
+    },
+    "conflict-skill-wins": {
+      "status": "success",
+      "runId": "run-1793310181979-1",
+      "requestCount": 3,
+      "conflictPolicy": "skill-wins",
+      "s1ProjectionRemoved": true,
+      "conflictEvents": 1
+    },
+    "conflict-app-wins": {
+      "status": "success",
+      "runId": "run-1793310185918-1",
+      "requestCount": 3,
+      "conflictPolicy": "app-wins",
+      "projectionKept": true,
+      "warningEvents": 1
+    }
+  },
+  "heartbeatFrames": 24,
+  "heartbeatDurationMs": 24917
+}

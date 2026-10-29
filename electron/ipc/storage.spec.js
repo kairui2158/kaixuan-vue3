@@ -59,6 +59,15 @@ describe('electron ipc storage', () => {
     await expect(fs.access(path.join(dataDir, 'never-written.json.bak'))).resolves.toBeUndefined()
   })
 
+  it('treats a persisted JSON null as a valid value instead of corruption', async () => {
+    await fs.writeFile(path.join(dataDir, 'null-project.json'), 'null', 'utf8')
+    await fs.writeFile(path.join(dataDir, 'null-project.json.bak'), '{"valid":true}', 'utf8')
+
+    expect(await read('null-project')).toBeNull()
+    await expect(fs.access(path.join(dataDir, 'null-project.json.bak'))).resolves.toBeUndefined()
+    await expect(fs.access(path.join(dataDir, 'storage-corruption.log'))).rejects.toThrow()
+  })
+
   it('does not resurrect a removed key from its backup', async () => {
     await write('breakpoint', { status: 'step-3-completed' })
     await write('breakpoint', { status: 'step-4-completed' })

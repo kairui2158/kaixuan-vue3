@@ -549,6 +549,11 @@ export const useProjectStore = defineStore('project', () => {
  const outlineChat = ref<any[]>([])
  const outlineJournalPendingCount = ref(0)
  const outlineJournalLastError = ref<string | null>(null)
+ const outlineLegacyJournalCandidate = ref<{
+   source: string
+   projectId: string
+   messageCount: number
+ } | null>(null)
  const editorBookmarks = ref<EditorBookmark[]>([])
  const styleProfile = ref<StyleProfile>(createDefaultStyleProfile())
 
@@ -762,6 +767,7 @@ export const useProjectStore = defineStore('project', () => {
          await window.electronAPI.storageWrite(storageKey('project_' + id), legacyFields)
        }
      }
+    void refreshOutlineLegacyJournalCandidate()
     editorBookmarks.value = Array.isArray(data.editorBookmarks)
        ? data.editorBookmarks.filter((item: any) => item && typeof item.id === 'string' && typeof item.documentId === 'string')
        : []
@@ -843,7 +849,7 @@ export const useProjectStore = defineStore('project', () => {
     return { ok: true, failedKeys: [] }
   }
 
- function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
+  function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
    const requestSeq = ++saveRequestSeq
    dirtyFields.value = true
    if (saveQueueTail.pending) {
@@ -868,6 +874,16 @@ export const useProjectStore = defineStore('project', () => {
    })
    return tail
  }
+
+  function markProjectDirty(): boolean {
+    if (!currentProjectId.value) return false
+    dirtyFields.value = true
+    return true
+  }
+
+  function isProjectDirty(): boolean {
+    return Boolean(currentProjectId.value) && dirtyFields.value
+  }
 
   function appendOutlineChat(msg: any) {
     const message = { ...msg } as Record<string, unknown>
@@ -970,6 +986,7 @@ export const useProjectStore = defineStore('project', () => {
 
   async function resetOutlineJournal(): Promise<void> {
     outlineChat.value = []
+    outlineLegacyJournalCandidate.value = null
     if (outlineJournalQueue.timer) clearTimeout(outlineJournalQueue.timer)
     outlineJournalQueue.timer = null
     outlineJournalQueue.pending = []
@@ -980,6 +997,65 @@ export const useProjectStore = defineStore('project', () => {
       [{ op: 'clear', messageId: 'outline-chat-reset' }],
       { immediate: true },
     )
+  }
+
+ async function refreshOutlineLegacyJournalCandidate(): Promise<void> {
+   const api = window.electronAPI as typeof window.electronAPI & {
+     outlineJournalLegacyCandidates?: (projectId: string) => Promise<{
+       ok?: boolean
+       candidates?: Array<{ source: string; projectId: string; messageCount: number }>
+       error?: string
+     }>
+   }
+   if (!api.outlineJournalLegacyCandidates) return
+   const projectId = currentProjectId.value || 'default'
+   try {
+     const result = await api.outlineJournalLegacyCandidates(projectId)
+     if (projectId !== (currentProjectId.value || 'default')) return
+     outlineLegacyJournalCandidate.value =
+       result?.ok && Array.isArray(result.candidates) && result.candidates.length > 0
+         ? result.candidates[0]
+         : null
+   } catch (error) {
+     console.error('[project] outline legacy journal candidate lookup failed:', error)
+     outlineLegacyJournalCandidate.value = null
+   }
+ }
+
+ async function restoreOutlineLegacyJournal(): Promise<{ ok: boolean; restoredCount?: number; error?: string }> {
+   const api = window.electronAPI as typeof window.electronAPI & {
+     outlineJournalRestoreLegacy?: (projectId: string) => Promise<{
+       ok?: boolean
+       snapshot?: { messages?: any[] }
+       error?: string
+     }>
+   }
+   const projectId = currentProjectId.value || 'default'
+   if (!api.outlineJournalRestoreLegacy) {
+     return { ok: false, error: 'outline_legacy_restore_unavailable' }
+   }
+   try {
+     const result = await api.outlineJournalRestoreLegacy(projectId)
+     if (projectId !== (currentProjectId.value || 'default')) {
+       return { ok: false, error: 'project_switched_during_restore' }
+     }
+     if (!result?.ok) {
+       return { ok: false, error: result?.error || 'outline_legacy_restore_failed' }
+     }
+     const restoredMessages = Array.isArray(result.snapshot?.messages) ? result.snapshot.messages : []
+     outlineChat.value = restoredMessages
+     if (outlineJournalQueue.timer) clearTimeout(outlineJournalQueue.timer)
+     outlineJournalQueue.timer = null
+     outlineJournalQueue.pending = []
+     outlineJournalPendingCount.value = 0
+     outlineJournalLastError.value = null
+     outlineLegacyJournalCandidate.value = null
+     return { ok: true, restoredCount: restoredMessages.length }
+   } catch (error) {
+     const message = error instanceof Error ? error.message : String(error)
+     console.error('[project] outline legacy journal restore failed:', error)
+     return { ok: false, error: message }
+   }
   }
 
   function queueOutlineJournalCommand(command: OutlineJournalCommand) {
@@ -1634,6 +1710,7 @@ export const useProjectStore = defineStore('project', () => {
     aiNaming.value = createDefaultAiNamingData()
     styleProfile.value = createDefaultStyleProfile()
     outlineChat.value = []
+    outlineLegacyJournalCandidate.value = null
     if (outlineJournalQueue.timer) clearTimeout(outlineJournalQueue.timer)
     outlineJournalQueue.timer = null
     outlineJournalQueue.pending = []
@@ -1700,14 +1777,14 @@ export const useProjectStore = defineStore('project', () => {
  }
 
  // P3-8: 项目 store 独立自动保存
- function startProjectAutoSave(intervalSeconds: number = 30) {
-   if (projectAutoSaveTimer) clearInterval(projectAutoSaveTimer)
-   projectAutoSaveTimer = setInterval(() => {
-     if (currentProjectId.value) {
-       saveProject()
-     }
-   }, intervalSeconds * 1000)
- }
+  function startProjectAutoSave(intervalSeconds: number = 30) {
+    if (projectAutoSaveTimer) clearInterval(projectAutoSaveTimer)
+    projectAutoSaveTimer = setInterval(() => {
+      if (isProjectDirty()) {
+        saveProject()
+      }
+    }, intervalSeconds * 1000)
+  }
 
  function stopProjectAutoSave() {
    if (projectAutoSaveTimer) {
@@ -1740,11 +1817,13 @@ export const useProjectStore = defineStore('project', () => {
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt, flushOutlineJournal, resetOutlineJournal,
     outlineJournalPendingCount, outlineJournalLastError,
+    outlineLegacyJournalCandidate, refreshOutlineLegacyJournalCandidate, restoreOutlineLegacyJournal,
     editorBookmarks, setEditorBookmarks,
     styleProfile, styleProfileEffective, updateStyleProfileDraft, applyStyleProfileDraftPatch, lockStyleProfile, unlockStyleProfile, applyAiStyleAnalysis,
     applyStyleImportPreview, applyStyleAnalysisPreview, updateStyleRuleEnabled,
    aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
-   ,startProjectAutoSave, stopProjectAutoSave
+  ,startProjectAutoSave, stopProjectAutoSave
+   ,markProjectDirty, isProjectDirty
  }
 })
 

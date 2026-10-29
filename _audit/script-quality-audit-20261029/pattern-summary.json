@@ -1,0 +1,597 @@
+{
+  "generatedAt": "2026-10-28T19:42:46.115Z",
+  "eventFiles": [
+    "session-script-events.jsonl",
+    "large-session-script-events.jsonl"
+  ],
+  "eventCount": 16526,
+  "patterns": [
+    {
+      "id": "powershell-here-string",
+      "count": 1173,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41727,
+          "cmd": "Set-Content -Path \"D:\\codex\\玄武规划SKILL\\_tmp_parse.py\" -Value @'\r\nimport json, sys\r\nfiles = [\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search1.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search2.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search3.json',\r\n]\r\nfor f in files:\r\n    try:\r\n        d = json.load(open(f, 'r', encoding='utf-8'))\r\n        print(f'=== {f} ===')\r\n        for r in d.get('items', []):\r\n            desc = (r.get('description') or 'N/A')[:120]\r\n            print(f\"{r['full_name']} | stars:{r['stargazers_count']} | {desc}\")\r\n        print()\r\n    except Exception as e:\r\n        print(f'Error reading {f}: {e}')\r\n'@ -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41734,
+          "cmd": "Set-Content -Path \"C:\\Temp\\_tmp_parse.py\" -Value @'\r\nimport json\r\nfiles = [\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search1.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search2.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search3.json',\r\n]\r\nfor f in files:\r\n    try:\r\n        d = json.load(open(f, 'r', encoding='utf-8'))\r\n        print(f'=== {f} ===')\r\n        for r in d.get('items', []):\r\n            desc = (r.get('description') or 'N/A')[:120]\r\n            print(f\"{r['full_name']} | stars:{r['stargazers_count']} | {desc}\")\r\n        print()\r\n    except Exception as e:\r\n        print(f'Error reading {f}: {e}')\r\n'@ -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41755,
+          "cmd": "Set-Content -Path \"C:\\Temp\\parse2.py\" -Value @'\r\nimport json\r\nfiles = [r'C:\\Temp\\search1.json', r'C:\\Temp\\search2.json', r'C:\\Temp\\search3.json', r'C:\\Temp\\search4.json', r'C:\\Temp\\search5.json']\r\nfor f in files:\r\n    try:\r\n        d = json.load(open(f, 'r', encoding='utf-8'))\r\n        print(f'=== {f} ===')\r\n        items = d.get('items', [])\r\n        if not items:\r\n            print('No items or rate limited')\r\n        for r in items:\r\n            desc = (r.get('description') or 'N/A')[:150]\r\n            print(f\"{r['full_name']} | stars:{r['stargazers_count']} | {desc}\")\r\n        print()\r\n    except Exception as e:\r\n        print(f'Error reading {f}: {e}')\r\n'@ -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 43474,
+          "cmd": "Set-Content -Path \"D:/codex/玄武规划SKILL/调研/2026-09-09_卷纲层FolderSKILL专项调研报告.md\" -Value @'\n# L3 卷纲层 Folder SKILL 社区专项调研报告\n\n## 调研目标\n\n基于当前校准后的卷纲层职责认知，重新调研社区中的小说卷纲/大纲规划类 Folder Skill、Agent 工作流和开源写作系统，重点回答：\n\n1. 高质量卷纲规划包含哪些维度？\n2. 社区项目如何组织卷级因果链和跨卷交接？\n3. 玄武 L3 S1-S4 链路还缺什么能力？\n4. chain 模式是否仍是最优执行模式？\n\n## 调研方法\n\n- 深入读取 32 个社区仓库的 README、SKILL.md、references、scripts、源码\n- 不按星数排序取头部项目，优先保留含 SKILL.md / workflow / 状态机 / 校验脚本的项目\n- 逐仓库读取核心文件，记录可迁移经验与反例\n- 最后对照当前四链 Folder SKILL 输出改进方案\n\n## 深读仓库清单（8个核心仓库）\n\n### 1. waterha/novel-skill-master — 最完整的分层卷纲体系\n\n**定位：** 12个技能分区的大型小说创作系统，`05-卷纲规划` 模块直接对应玄武 L3。\n\n**关键事实：**\n\n- `novel-plan.md` 的卷纲深化流程：分层回读（全书总纲→部纲→卷方向→上卷收尾）→询问卷内过程→设计卷级因果链→用户确认→校验（`skills_part/05-卷纲规划/novel-plan.md`）\n- 卷级因果链产出：起始失衡、阶段目标、核心阻力和失败代价；3-6个剧情单元，每个单元如何导致下一个；至少3次递增压力，升级必须改变选择空间（`novel-plan.md:Step 3`）\n- **Strand 编织模式**：主线60%/感情20%/势力10%/成长5%/伏笔5%的密度分配；每章至少涉及2-3条Strand；不能连续3章只有A线（`strand-weave-pattern.md`"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 45527,
+          "cmd": "Set-Content -Path \"D:\\codex\\玄武规划SKILL\\调研\\round7_volume_density\\search1.py\" -Value @'\r\nimport urllib.request, json\r\nreq = urllib.request.Request(\r\n    \"https://api.github.com/search/repositories?q=novel+outline+chapter+writing+skill&sort=stars&order=desc&per_page=20\",\r\n    headers={\"User-Agent\": \"Mozilla/5.0\"}\r\n)\r\ndata = json.loads(urllib.request.urlopen(req, timeout=30).read())\r\nfor i in data.get(\"items\", []):\r\n    desc = (i.get(\"description\") or \"\")[:100]\r\n    print(f\"{i['full_name']} | stars:{i['stargazers_count']} | {desc}\")\r\n'@ -Encoding UTF8"
+        }
+      ]
+    },
+    {
+      "id": "set-content",
+      "count": 1306,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41727,
+          "cmd": "Set-Content -Path \"D:\\codex\\玄武规划SKILL\\_tmp_parse.py\" -Value @'\r\nimport json, sys\r\nfiles = [\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search1.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search2.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search3.json',\r\n]\r\nfor f in files:\r\n    try:\r\n        d = json.load(open(f, 'r', encoding='utf-8'))\r\n        print(f'=== {f} ===')\r\n        for r in d.get('items', []):\r\n            desc = (r.get('description') or 'N/A')[:120]\r\n            print(f\"{r['full_name']} | stars:{r['stargazers_count']} | {desc}\")\r\n        print()\r\n    except Exception as e:\r\n        print(f'Error reading {f}: {e}')\r\n'@ -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41734,
+          "cmd": "Set-Content -Path \"C:\\Temp\\_tmp_parse.py\" -Value @'\r\nimport json\r\nfiles = [\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search1.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search2.json',\r\n    r'D:\\codex\\玄武规划SKILL\\_tmp_search3.json',\r\n]\r\nfor f in files:\r\n    try:\r\n        d = json.load(open(f, 'r', encoding='utf-8'))\r\n        print(f'=== {f} ===')\r\n        for r in d.get('items', []):\r\n            desc = (r.get('description') or 'N/A')[:120]\r\n            print(f\"{r['full_name']} | stars:{r['stargazers_count']} | {desc}\")\r\n        print()\r\n    except Exception as e:\r\n        print(f'Error reading {f}: {e}')\r\n'@ -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41755,
+          "cmd": "Set-Content -Path \"C:\\Temp\\parse2.py\" -Value @'\r\nimport json\r\nfiles = [r'C:\\Temp\\search1.json', r'C:\\Temp\\search2.json', r'C:\\Temp\\search3.json', r'C:\\Temp\\search4.json', r'C:\\Temp\\search5.json']\r\nfor f in files:\r\n    try:\r\n        d = json.load(open(f, 'r', encoding='utf-8'))\r\n        print(f'=== {f} ===')\r\n        items = d.get('items', [])\r\n        if not items:\r\n            print('No items or rate limited')\r\n        for r in items:\r\n            desc = (r.get('description') or 'N/A')[:150]\r\n            print(f\"{r['full_name']} | stars:{r['stargazers_count']} | {desc}\")\r\n        print()\r\n    except Exception as e:\r\n        print(f'Error reading {f}: {e}')\r\n'@ -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41765,
+          "cmd": "Set-Content -Path \"C:\\Temp\\parse2.py\" -Value \"import json`r`nfiles = [r'C:\\Temp\\search1.json', r'C:\\Temp\\search2.json', r'C:\\Temp\\search3.json', r'C:\\Temp\\search4.json', r'C:\\Temp\\search5.json']`r`nfor f in files:`r`n    try:`r`n        d = json.load(open(f, 'r', encoding='utf-8'))`r`n        print(f'=== {f} ===')`r`n        items = d.get('items', [])`r`n        if not items:`r`n            print('No items or rate limited')`r`n        for r in items:`r`n            desc = (r.get('description') or 'N/A')[:150]`r`n            print(str(r['full_name']) + ' | stars:' + str(r['stargazers_count']) + ' | ' + desc)`r`n        print()`r`n    except Exception as e:`r`n        print('Error reading ' + f + ': ' + str(e))\" -Encoding UTF8"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 41786,
+          "cmd": "Set-Content -Path \"C:\\Temp\\parse3.py\" -Value \"import json`r`nfiles = [r'C:\\Temp\\searchA.json', r'C:\\Temp\\searchB.json', r'C:\\Temp\\searchC.json', r'C:\\Temp\\searchD.json', r'C:\\Temp\\searchE.json']`r`nseen = set()`r`nfor f in files:`r`n    try:`r`n        d = json.load(open(f, 'r', encoding='utf-8'))`r`n        items = d.get('items', [])`r`n        if not items:`r`n            print(f'=== {f} === No items or rate limited')`r`n            continue`r`n        for r in items:`r`n            name = r['full_name']`r`n            if name in seen: continue`r`n            seen.add(name)`r`n            desc = (r.get('description') or 'N/A')[:150]`r`n            print(str(r['full_name']) + ' | stars:' + str(r['stargazers_count']) + ' | ' + desc)`r`n    except Exception as e:`r`n        print('Error: ' + str(e))\" -Encoding UTF8"
+        }
+      ]
+    },
+    {
+      "id": "node-inline-eval",
+      "count": 5182,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 47962,
+          "cmd": "node -e \"const s2=require('./L3-卷纲层/l3-s2/script.js'); const s4=require('./L3-卷纲层/l3-s4/script.js'); const o='本卷聚焦测试。卷的开篇约四分之一：内容开始。'+('测试内容'.repeat(80))+'卷的中段约四分之一：中段内容。'+('测试内容'.repeat(80))+'卷的后段约四分之一：后段内容。'+('测试内容'.repeat(80))+'卷末约四分之一：结尾内容。'+('测试内容'.repeat(80))+'剧情点一：事件描述详细内容。落点：状态快照。'; const p=[{name:'卷一',outline:o,summary:'摘要',suggestedWords:80000}]; console.log('S4 object:',JSON.stringify(s4.postProcess(p))); console.log('S4 string:',JSON.stringify(s4.postProcess(JSON.stringify(p)))); console.log('S4 fenced:',JSON.stringify(s4.postProcess('```json\\n'+JSON.stringify(p)+'\\n```'))); const s2=['【卷一】卷名 | 80000字 | 主题子命题','【卷旨】核心叙事问题。','【Lie演化】坚持状态，触发事件，情绪走向。','【骨架】起(前段): 因果前提。Strand密度:主线60%。','【Stability】不可逆变化 | 道德困境 | 信息经济 | 代价。','【对手】近敌 | 中敌 | 远敌 | 自我敌对。','【伏笔规划】P4伏笔，状态机:计划中→已埋设→已揭示→已回收。','【关系线】关系对:30→42。','【卷末接口】必须出现 | 禁止出现 | 卷末钩子 | 连续性提醒。','【剧情点拆分指引】每段建议拆分3-8个剧情点。','【主题】主题内容','【灵魂链】"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 47966,
+          "cmd": "node -e \"const mod2=require('./L3-卷纲层/l3-s2/script.js'); const mod4=require('./L3-卷纲层/l3-s4/script.js'); const o='本卷聚焦测试。卷的开篇约四分之一：内容开始。'+('测试内容'.repeat(80))+'卷的中段约四分之一：中段内容。'+('测试内容'.repeat(80))+'卷的后段约四分之一：后段内容。'+('测试内容'.repeat(80))+'卷末约四分之一：结尾内容。'+('测试内容'.repeat(80))+'剧情点一：事件描述详细内容。落点：状态快照。'; const p=[{name:'卷一',outline:o,summary:'摘要',suggestedWords:80000}]; console.log('S4 object:',JSON.stringify(mod4.postProcess(p))); console.log('S4 string:',JSON.stringify(mod4.postProcess(JSON.stringify(p)))); console.log('S4 fenced:',JSON.stringify(mod4.postProcess('\\u0060\\u0060\\u0060json\\n'+JSON.stringify(p)+'\\n\\u0060\\u0060\\u0060'))); const sample=['【卷一】卷名 | 80000字 | 主题子命题','【卷旨】核心叙事问题。','【Lie演化】坚持状态，触发事件，情绪走向。','【骨架】起(前段): 因果前提。Strand密度:主线60%。','【Stability】不可逆变化 | 道德困境 | 信息经济 | 代价。','【对手】近敌 | 中敌 | 远敌 | 自我敌对。','【伏笔规划】P4伏笔，状态机:计划中→已埋设→已揭示→已回收。','【关系线】关系对:30→42。','【卷末接口】必须出现 | 禁止出现 | 卷末钩子 | 连续性提醒。'"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 48003,
+          "cmd": "node -e \"const mod2=require('./L3-卷纲层/l3-s2/script.js'); const mod4=require('./L3-卷纲层/l3-s4/script.js'); const o='本卷聚焦测试。卷的开篇约四分之一：内容开始。'+('测试内容'.repeat(80))+'卷的中段约四分之一：中段内容。'+('测试内容'.repeat(80))+'卷的后段约四分之一：后段内容。'+('测试内容'.repeat(80))+'卷末约四分之一：结尾内容。'+('测试内容'.repeat(80))+'剧情点一：'+('事件内容'.repeat(30))+'落点：状态快照。剧情点二：'+('事件内容'.repeat(30))+'落点：状态快照。'; const p=[{name:'卷一',outline:o,summary:'摘要',suggestedWords:80000}]; console.log('S4 object:',JSON.stringify(mod4.postProcess(p))); console.log('S4 string:',JSON.stringify(mod4.postProcess(JSON.stringify(p)))); console.log('S4 fenced:',JSON.stringify(mod4.postProcess('\\u0060\\u0060\\u0060json\\n'+JSON.stringify(p)+'\\n\\u0060\\u0060\\u0060'))); const sample=['【卷一】卷名 | 80000字 | 主题子命题','【卷旨】核心叙事问题。','【Lie演化】坚持状态，触发事件，情绪走向。','【骨架】起(前段): 因果前提。Strand密度:主线60%。','【Stability】不可逆变化 | 道德困境 | 信息经济 | 代价。','【对手】近敌 | 中敌 | 远敌 | 自我敌对。','【伏笔规划】P4伏笔，状态机:计划中→已埋设→已揭示→已回收。','【关"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 48012,
+          "cmd": "node -e \"const mod2=require('./L3-卷纲层/l3-s2/script.js'); const mod4=require('./L3-卷纲层/l3-s4/script.js'); const o='本卷聚焦测试。卷的开篇约四分之一：内容开始。'+('测试内容'.repeat(100))+'卷的中段约四分之一：中段内容。'+('测试内容'.repeat(100))+'卷的后段约四分之一：后段内容。'+('测试内容'.repeat(100))+'卷末约四分之一：结尾内容。'+('测试内容'.repeat(100))+'剧情点一：'+('事件内容'.repeat(30))+'落点：人物状态快照、关系变化、信息变化、伏笔状态、承诺状态。'; const p=[{name:'卷一',outline:o,summary:'摘要',suggestedWords:80000}]; const r=mod4.postProcess(JSON.stringify(p)); console.log('S4 fence-critical issues:',JSON.stringify(r.issues)); const sample='【卷一】卷名 | 80000字 | 主题子命题\\n【卷旨】核心叙事问题。\\n【Lie演化】坚持状态。\\n【骨架】起(前段): 因果前提。Strand密度:主线60%。\\n【Stability】不可逆变化 | 道德困境 | 信息经济 | 代价。\\n【对手】近敌 | 中敌 | 远敌 | 自我敌对。\\n【伏笔规划】P4伏笔，状态机:计划中→已埋设→已揭示→已回收。\\n【关系线】关系对:30→42。\\n【卷末接口】必须出现 | 禁止出现 | 卷末钩子 | 连续性提醒。\\n【剧情点拆分指引】每段建议拆分3-8个剧情点。\\n【主题】主题内容\\n【灵魂链】角色链\\n【故事梗概】故事内容\\n【势力角色】势力内容\\n【术语规范】术语内容\\n【来源覆盖】输入单元总数:1'; console.log('S2 issues:',JSON.stringify"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 48346,
+          "cmd": "node -e \"const m=require('D:/codex/玄武规划SKILL/L3-卷纲层/l3-s4/script.js'); const outline='本卷起承转合完整。角色弧光：陈暮的Lie状态从坚持正式转入裂缝。核心冲突明确。伏笔与意象：菌毯。感官调色板：灰绿。潜台词：表面冷静。卷末状态：独行。剧情点一：遇袭。剧情点落点：人物状态快照、关系变化、信息变化、伏笔状态、承诺状态。段落落点：状态清晰。微场景锚点：承载区间：约1-3章。'; const payload=JSON.stringify([{name:'第一卷',outline,summary:'摘要',suggestedWords:80000}]); const r=m.postProcess(payload); console.log(JSON.stringify(r,null,2))\""
+        }
+      ]
+    },
+    {
+      "id": "python-inline-code",
+      "count": 286,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 28104,
+          "cmd": "python -X utf8 -c \"\nimport os\nroot=r'D:\\codex\\玄武规划SKILL'\n\n# 玄武报告追加\nxw = r'''\n\n## 六、2026-08-19 静态验证结果\n\n基于15个产品文件的逐行扫描，以下为最终验证结果：\n\n| 检查项 | 状态 | 行号证据 |\n|--------|------|----------|\n| 所有文件以【输出铁律】开头 | 合规 | 15/15文件，第1行 |\n| 所有文件含【最终输出提醒】 | 合规 | 15/15文件，末尾第2-3行 |\n| 校验层含## 单次通过约束 | 合规 | L1-S2:L16, L2-S2:L48, L3-S4:L26, L4-S4:L24, 凯旋S1:L21, S2:L21, S3:L25 |\n| 校验层含## 验证反馈处理 | 合规 | L1-S2新增(第6行), L2-S2:L91, L3-S4:L143, L4-S4:L157, 凯旋S1:L25, S2:L25, S3:L21 |\n| 产品文件无残缺句'禁止输出、或' | 合规 | 0/15文件发现 |\n| 产品文件无'应用引擎会自动校验' | 合规 | 0/15文件发现 |\n| 产品文件无版本号/修复记录/开发历史 | 合规 | 0/15文件发现 |\n| 产品文件无紧凑/精简/压缩模式 | 合规 | 0/15文件发现 |\n| 产品文件不限制卷数/章节数 | 合规 | 0/15文件发现 |\n| 变量均匹配应用支持变量集 | 合规 | 无未定义变量 |\n| 目录临时文件 | 已清理 | 6个_tmp_*.py已删除 |\n| 规则27 禁止PowerShell | 合规 | 全程使用Python |\n\n**结论：15个产品文件全部合规。** 本报告前文各节（一至五）中\"格式约束已释放、由引擎验证器替代\"的旧表述以【零、2026-08-19 应用接线复核修正】中的更正为准。格式约束保留在SKILL内，未依赖未接线的引擎验证器。\n'''\n\nwith open(os.path.join(root,'SKILL优化验证报告.md"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 28105,
+          "cmd": "python -X utf8 -c \"\nimport os\nroot=r'D:\\codex\\玄武规划SKILL'\nfor f in os.listdir(root):\n    if f.startswith('_tmp_') and f.endswith('.py'):\n        p=os.path.join(root,f)\n        os.remove(p)\n        print('Deleted:', p)\n\""
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 28220,
+          "cmd": "python -X utf8 -c \"import os\nroot=r'D:\\codex\\玄武规划SKILL'; print('TMP', [f for f in os.listdir(root) if f.startswith('_tmp_') and f.endswith('.py')])\""
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 28967,
+          "cmd": "python -c __import__('os').remove('_research_fetch.py')"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 29265,
+          "cmd": "python -c \"from pathlib import Path; import os; p=Path('_apply_skill_updates.py'); print('exists_before_cleanup',p.exists()); p.unlink(); print('exists_after_cleanup',p.exists())\""
+        }
+      ]
+    },
+    {
+      "id": "tmp-script",
+      "count": 499,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 27286,
+          "cmd": "python -X utf8 _tmp_inspect.py"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 27297,
+          "cmd": "python -X utf8 _tmp_dump.py doc:引擎硬约束需求与SKILL优化清单.md"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 27298,
+          "cmd": "python -X utf8 _tmp_dump.py doc:凯旋引擎硬约束需求与SKILL优化清单.md"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 27299,
+          "cmd": "python -X utf8 _tmp_dump.py skillstore"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 27300,
+          "cmd": "python -X utf8 _tmp_dump.py pipeline"
+        }
+      ]
+    },
+    {
+      "id": "fixed-sleep",
+      "count": 939,
+      "examples": [
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 61009,
+          "cmd": "taskkill /f /im electron.exe 2>$null; taskkill /f /im node.exe 2>$null; Start-Sleep -Seconds 2; Get-Process electron,node -ErrorAction SilentlyContinue | Select-Object Id,ProcessName"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 62266,
+          "cmd": "$path = \"D:\\codex\\novel-workshop-vue3\\_audit\\check_deep.cjs\"\n@\"\nconst WebSocket = require('ws');\nconst http = require('http');\n\nfunction fetchJSON(url) {\n  return new Promise((resolve, reject) => {\n    http.get(url, (res) => {\n      let data = '';\n      res.on('data', (chunk) => data += chunk);\n      res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });\n    }).on('error', reject);\n  });\n}\n\nasync function main() {\n  const pages = await fetchJSON('http://127.0.0.1:9227/json');\n  const ws = new WebSocket(pages[0].webSocketDebuggerUrl);\n  await new Promise((r, rej) => { ws.on('open', r); ws.on('error', rej); });\n  let msgId = 1;\n  function send(method, params) {\n    const id = msgId++;\n    return new Promise((resolve) => {\n      const timer = setTimeout(() => resolve({ error: 'timeout' }), 5000);\n      const handler = (data) => {\n        const msg = JSON.parse("
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 62274,
+          "cmd": "$path = \"D:\\codex\\novel-workshop-vue3\\_audit\\check_debug.cjs\"\n@\"\nconst WebSocket = require('ws');\nconst http = require('http');\n\nfunction fetchJSON(url) {\n  return new Promise((resolve, reject) => {\n    http.get(url, (res) => {\n      let data = '';\n      res.on('data', (chunk) => data += chunk);\n      res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });\n    }).on('error', reject);\n  });\n}\n\nasync function main() {\n  const pages = await fetchJSON('http://127.0.0.1:9227/json');\n  const ws = new WebSocket(pages[0].webSocketDebuggerUrl);\n  await new Promise((r, rej) => { ws.on('open', r); ws.on('error', rej); });\n  let msgId = 1;\n  function send(method, params) {\n    const id = msgId++;\n    return new Promise((resolve) => {\n      const timer = setTimeout(() => resolve({ error: 'timeout' }), 5000);\n      const handler = (data) => {\n        const msg = JSON.parse"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 62282,
+          "cmd": "$path = \"D:\\codex\\novel-workshop-vue3\\_audit\\check_store.cjs\"\n@\"\nconst WebSocket = require('ws');\nconst http = require('http');\n\nfunction fetchJSON(url) {\n  return new Promise((resolve, reject) => {\n    http.get(url, (res) => {\n      let data = '';\n      res.on('data', (chunk) => data += chunk);\n      res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });\n    }).on('error', reject);\n  });\n}\n\nasync function main() {\n  const pages = await fetchJSON('http://127.0.0.1:9227/json');\n  const ws = new WebSocket(pages[0].webSocketDebuggerUrl);\n  await new Promise((r, rej) => { ws.on('open', r); ws.on('error', rej); });\n  let msgId = 1;\n  function send(method, params) {\n    const id = msgId++;\n    return new Promise((resolve) => {\n      const timer = setTimeout(() => resolve({ error: 'timeout' }), 5000);\n      const handler = (data) => {\n        const msg = JSON.parse"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 62290,
+          "cmd": "$path = \"D:\\codex\\novel-workshop-vue3\\_audit\\check_store2.cjs\"\n@\"\nconst WebSocket = require('ws');\nconst http = require('http');\n\nfunction fetchJSON(url) {\n  return new Promise((resolve, reject) => {\n    http.get(url, (res) => {\n      let data = '';\n      res.on('data', (chunk) => data += chunk);\n      res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });\n    }).on('error', reject);\n  });\n}\n\nasync function main() {\n  const pages = await fetchJSON('http://127.0.0.1:9227/json');\n  const ws = new WebSocket(pages[0].webSocketDebuggerUrl);\n  await new Promise((r, rej) => { ws.on('open', r); ws.on('error', rej); });\n  let msgId = 1;\n  function send(method, params) {\n    const id = msgId++;\n    return new Promise((resolve) => {\n      const timer = setTimeout(() => resolve({ error: 'timeout' }), 5000);\n      const handler = (data) => {\n        const msg = JSON.pars"
+        }
+      ]
+    },
+    {
+      "id": "kill-process",
+      "count": 643,
+      "examples": [
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 61009,
+          "cmd": "taskkill /f /im electron.exe 2>$null; taskkill /f /im node.exe 2>$null; Start-Sleep -Seconds 2; Get-Process electron,node -ErrorAction SilentlyContinue | Select-Object Id,ProcessName"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 63575,
+          "cmd": "taskkill /f /im electron.exe 2>$null; taskkill /f /im node.exe 2>$null; Start-Sleep 1; Get-Process electron,node -ErrorAction SilentlyContinue | Select-Object Id,ProcessName"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 67903,
+          "cmd": "Stop-Process -Id 29160 -Force -ErrorAction SilentlyContinue; Get-Process electron -ErrorAction SilentlyContinue | Select-Object Id,ProcessName"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 67909,
+          "cmd": "Stop-Process -Id 9012 -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1; Get-Process electron -ErrorAction SilentlyContinue | Select-Object Id,ProcessName"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 68877,
+          "cmd": "cd \"D:\\codex\\novel-workshop-vue3\"; Get-Process electron -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force }; echo \"electron processes killed\""
+        }
+      ]
+    },
+    {
+      "id": "remove-item",
+      "count": 1155,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 53007,
+          "cmd": "Remove-Item -LiteralPath \"备份\\经验总结与教训记录_重组前备份_2026-08-31.md\",\"经验总结_大纲共创调试教训.md\",\"凯旋SKILL-完整经验总结与玄武适用性分析.md\",\"凯旋-正文层\\凯旋开发经验文档.md\",\"凯旋-正文层\\凯旋FolderSkill开发经验文档.md\" -ErrorAction Stop"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 56587,
+          "cmd": "Remove-Item -Path \"D:\\codex\\玄武规划SKILL\\_safe_modify_tmp\" -Recurse -Force -ErrorAction SilentlyContinue; echo \"cleaned\""
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 58317,
+          "cmd": "Remove-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编\\evals\\postprocess_smoke.test.js'; Get-ChildItem -LiteralPath 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层' -Recurse -File | ForEach-Object { $_.FullName.Substring('D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\'.Length) }"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 59652,
+          "cmd": "$files = @('l2-s1\\script.js','l2-s2\\script.js','l2-s1\\template.md','l2-s2\\template.md','l2-s1\\samples.txt','l2-s2\\samples.txt'); foreach ($f in $files) { $src = Join-Path 'D:\\codex\\玄武规划SKILL\\L2-设定层' $f; $dst = Join-Path 'D:\\codex\\玄武规划SKILL\\导入目录\\L2-设定层' $f; Copy-Item -LiteralPath $src -Destination $dst -Force }; Remove-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\_tmp_verify_l2.js' -Force; 'FINAL_SYNC_AND_CLEANUP_DONE'"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 59661,
+          "cmd": "Remove-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\_tmp_verify_l2.js' -Force"
+        }
+      ]
+    },
+    {
+      "id": "recursive-delete",
+      "count": 364,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 56587,
+          "cmd": "Remove-Item -Path \"D:\\codex\\玄武规划SKILL\\_safe_modify_tmp\" -Recurse -Force -ErrorAction SilentlyContinue; echo \"cleaned\""
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 58317,
+          "cmd": "Remove-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编\\evals\\postprocess_smoke.test.js'; Get-ChildItem -LiteralPath 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层' -Recurse -File | ForEach-Object { $_.FullName.Substring('D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\'.Length) }"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 76797,
+          "cmd": "Stop-Process -Name electron -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; Remove-Item 'C:\\Users\\凯瑞\\AppData\\Roaming\\shenyi-assistant\\DevToolsActivePort' -Force -ErrorAction SilentlyContinue; Remove-Item 'C:\\Users\\凯瑞\\AppData\\Roaming\\shenyi-assistant\\SingletonLock' -Force -ErrorAction SilentlyContinue; Remove-Item 'C:\\Users\\凯瑞\\AppData\\Roaming\\shenyi-assistant\\SingletonCookie' -Force -ErrorAction SilentlyContinue; Remove-Item 'C:\\Users\\凯瑞\\AppData\\Roaming\\shenyi-assistant\\SingletonSocket' -Force -ErrorAction SilentlyContinue; $tmpDir = 'D:\\codex\\novel-workshop-vue3\\.tmp-userdata'; Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null; $ea = @('--remote-debugging-port=9227','--remote-allow-origins=*','--user-data-dir='+$tmpDir,'--disable-gpu','--no-sandbox','D:\\codex\\novel-workshop-vue3'); Start-Process -"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 76800,
+          "cmd": "Stop-Process -Name electron -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; $tmpDir = 'D:\\codex\\novel-workshop-vue3\\.tmp-userdata'; Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null; $ea = @('--remote-debugging-port=9227','--remote-allow-origins=*','--user-data-dir='+$tmpDir,'--disable-gpu','--no-sandbox','D:\\codex\\novel-workshop-vue3'); Start-Process -FilePath 'D:\\codex\\novel-workshop-vue3\\node_modules\\electron\\dist\\electron.exe' -ArgumentList $ea -WorkingDirectory 'D:\\codex\\novel-workshop-vue3'; Write-Output 'launched, waiting 8s'; Start-Sleep -Seconds 8; node \"$env:TEMP\\p1_verify.js\""
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 76803,
+          "cmd": "Set-Content -Path 'D:\\codex\\novel-workshop-vue3\\_tmp_launch.ps1' -Encoding UTF8 -Value @`\nStop-Process -Name electron -Force -ErrorAction SilentlyContinue\nStart-Sleep -Seconds 2\n$tmpDir = 'D:\\codex\\novel-workshop-vue3\\.tmp-userdata'\nRemove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue\nNew-Item -ItemType Directory -Path $tmpDir -Force | Out-Null\n$ea = @('--remote-debugging-port=9227','--remote-allow-origins=*','--user-data-dir='+$tmpDir,'--disable-gpu','--no-sandbox','D:\\codex\\novel-workshop-vue3')\nStart-Process -FilePath 'D:\\codex\\novel-workshop-vue3\\node_modules\\electron\\dist\\electron.exe' -ArgumentList $ea -WorkingDirectory 'D:\\codex\\novel-workshop-vue3'\nWrite-Output 'launched, waiting 8s'\nStart-Sleep -Seconds 8\nnode $env:TEMP\\p1_verify.js\n`@"
+        }
+      ]
+    },
+    {
+      "id": "robocopy",
+      "count": 16,
+      "examples": [
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 13030,
+          "cmd": "robocopy 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编' 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编' /E /NFL /NDL /NJH /NP; if ($LASTEXITCODE -le 7) { Copy-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\agent_玄武_L1_B_主编.agent.md' -Destination 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\agent_玄武_L1_B_主编.agent.md' -Force; exit 0 } else { exit $LASTEXITCODE }"
+        },
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 13382,
+          "cmd": "robocopy \"D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编\" \"D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编\" /MIR /NFL /NDL /NJH /NJS"
+        },
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 13687,
+          "cmd": "robocopy 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编' 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编' /MIR /NFL /NDL /NJH /NP; if ($LASTEXITCODE -le 7) { exit 0 } else { exit $LASTEXITCODE }"
+        },
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 13811,
+          "cmd": "robocopy 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编' 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编' /MIR /NFL /NDL /NJH /NP; if ($LASTEXITCODE -le 7) { exit 0 } else { exit $LASTEXITCODE }"
+        },
+        {
+          "file": "rollout-2026-10-14T22-33-44-01a015f9-d431-7723-bbba-2d75219f1f6c_01a13ad5-5e49-7f83-8729-f044342b83cb.jsonl",
+          "line": 58134,
+          "cmd": "rg -n --glob '*.jsonl' \"Copy-Item|robocopy|client-turn6-trace|20260926-212218-deep.*payload|098-response.json\" C:\\Users\\凯瑞\\.codex\\sessions\\2026\\09 C:\\Users\\凯瑞\\.codex\\sessions\\2026\\10 | Select-Object -First 80"
+        }
+      ]
+    },
+    {
+      "id": "copy-item",
+      "count": 69,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 58271,
+          "cmd": "Copy-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编\\evals\\run_evals.py' -Destination 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编\\evals\\run_evals.py' -Force; Copy-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编\\evals\\evaluation-report.json' -Destination 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编\\evals\\evaluation-report.json' -Force"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 59652,
+          "cmd": "$files = @('l2-s1\\script.js','l2-s2\\script.js','l2-s1\\template.md','l2-s2\\template.md','l2-s1\\samples.txt','l2-s2\\samples.txt'); foreach ($f in $files) { $src = Join-Path 'D:\\codex\\玄武规划SKILL\\L2-设定层' $f; $dst = Join-Path 'D:\\codex\\玄武规划SKILL\\导入目录\\L2-设定层' $f; Copy-Item -LiteralPath $src -Destination $dst -Force }; Remove-Item -LiteralPath 'D:\\codex\\玄武规划SKILL\\_tmp_verify_l2.js' -Force; 'FINAL_SYNC_AND_CLEANUP_DONE'"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 66458,
+          "cmd": "Copy-Item -LiteralPath 'D:/codex/玄武规划SKILL/L3-卷纲层/l3-s4/script.js','D:/codex/玄武规划SKILL/L3-卷纲层/l3-s4/template.md','D:/codex/玄武规划SKILL/L3-卷纲层/l3-s4/validation_rules.json' -Destination 'D:/codex/玄武规划SKILL/导入目录/L3-卷纲层/l3-s4/' -Force; python -X utf8 'D:/codex/玄武规划SKILL/sync_import_dirs.py' --verify"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 66678,
+          "cmd": "$backup = Resolve-Path \"备份/2026-10-14_L3L4导入目录同步前\"; $root = Resolve-Path \".\"; if (-not ($backup.Path.StartsWith($root.Path))) { throw \"unsafe backup path\" }; $targets = @((Resolve-Path \"导入目录/L3-卷纲层\").Path, (Resolve-Path \"导入目录/L4-章节层\").Path); foreach ($t in $targets) { $resolved = (Resolve-Path $t).Path; if (-not ($resolved.StartsWith((Join-Path $root.Path \"导入目录\")))) { throw \"unsafe target: $resolved\" } }; Copy-Item -LiteralPath \"L3-卷纲层/l3-s1/template.md\" -Destination \"导入目录/L3-卷纲层/l3-s1/template.md\" -Force; Copy-Item -LiteralPath \"L3-卷纲层/l3-s2/template.md\" -Destination \"导入目录/L3-卷纲层/l3-s2/template.md\" -Force; Copy-Item -LiteralPath \"L3-卷纲层/l3-s3/template.md\" -Destination \"导入目录/L3-卷纲层/l3-s3/template.md\" -Force; Copy-Item -LiteralPath \"L3-卷纲层/l3-s4/template.md\" -Destination \"导入目录/L3-卷纲层/l3-s4/template.md\" -Force; Copy-Item -LiteralPath \"L3-卷纲层/l3-s4/script.js\" -Destination \"导入目录/L3-卷纲层/l3-s4"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 66715,
+          "cmd": "Copy-Item -LiteralPath \"L3-卷纲层/agent_xuanwu_l3_validate.agent.md\" -Destination \"导入目录/L3-卷纲层/agent_xuanwu_l3_validate.agent.md\" -Force; python sync_import_dirs.py --verify"
+        }
+      ]
+    },
+    {
+      "id": "file-hash",
+      "count": 14,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 58280,
+          "cmd": "$src='D:\\codex\\玄武规划SKILL\\L1-大纲层'; $dst='D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层'; $pairs=@(@('L1-B-大纲共创主编\\SKILL.md','L1-B-大纲共创主编\\SKILL.md'),@('L1-B-大纲共创主编\\template.md','L1-B-大纲共创主编\\template.md'),@('L1-B-大纲共创主编\\samples.txt','L1-B-大纲共创主编\\samples.txt'),@('L1-B-大纲共创主编\\script.js','L1-B-大纲共创主编\\script.js'),@('L1-B-大纲共创主编\\meta.json','L1-B-大纲共创主编\\meta.json'),@('agent_玄武_L1_B_主编.agent.md','agent_玄武_L1_B_主编.agent.md'),@('L1-B-大纲共创主编\\evals\\run_evals.py','L1-B-大纲共创主编\\evals\\run_evals.py'),@('L1-B-大纲共创主编\\evals\\evaluation-report.json','L1-B-大纲共创主编\\evals\\evaluation-report.json')); foreach($p in $pairs){ $a=(Get-FileHash -LiteralPath ($src+'\\'+$p[0]) -Algorithm SHA256).Hash; $b=(Get-FileHash -LiteralPath ($dst+'\\'+$p[1]) -Algorithm SHA256).Hash; \"$(if($a -eq $b){'MATCH'}else{'MISMATCH'}) $($p[0])\" }"
+        },
+        {
+          "file": "rollout-2026-08-27T12-08-43-01a04167-e4ef-7be2-88b7-cedce029e3fd.jsonl",
+          "line": 2486,
+          "cmd": "cd D:\\codex\\novel-workshop-vue3 && powershell -Command \"Get-FileHash 'dist\\神意助手-Setup-3.8.0.exe' -Algorithm SHA256 | Select-Object Hash\""
+        },
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 9204,
+          "cmd": "Copy-Item -LiteralPath 'L1-大纲层/L1-B-大纲共创主编/samples.txt' -Destination '导入目录/L1-大纲层/L1-B-大纲共创主编/samples.txt' -Force; node verify_l1b_upgrade.js; py -X utf8 \"SKILL调试器\\static_check.py\" --layer L1-大纲层 --skill L1-B --root .; py -X utf8 \"SKILL调试器\\freeze_baseline.py\" --layer L1-大纲层; Get-FileHash -Algorithm SHA256 'L1-大纲层/L1-B-大纲共创主编/template.md','导入目录/L1-大纲层/L1-B-大纲共创主编/template.md','L1-大纲层/L1-B-大纲共创主编/script.js','导入目录/L1-大纲层/L1-B-大纲共创主编/script.js','L1-大纲层/L1-B-大纲共创主编/samples.txt','导入目录/L1-大纲层/L1-B-大纲共创主编/samples.txt' | Format-Table -AutoSize"
+        },
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 11911,
+          "cmd": "$files='meta.json','samples.txt','script.js','SKILL.md','template.md','evals\\assertions.json','evals\\run_evals.py','evals\\README.md'; foreach($f in $files){$a=Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编' $f); $b=Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编' $f); [PSCustomObject]@{File=$f; Match=($a.Hash -eq $b.Hash); Hash=$a.Hash.Substring(0,12)}} | Format-Table -AutoSize"
+        },
+        {
+          "file": "rollout-2026-09-08T13-33-46-01a07f28-246e-7402-bf35-d9b912505002_01a07f82-13d3-7fc3-b489-541f97922716.jsonl",
+          "line": 11928,
+          "cmd": "$files='meta.json','samples.txt','script.js','SKILL.md','template.md','evals\\assertions.json','evals\\run_evals.py','evals\\README.md'; $results = foreach($f in $files){$a=Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path 'D:\\codex\\玄武规划SKILL\\L1-大纲层\\L1-B-大纲共创主编' $f); $b=Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path 'D:\\codex\\玄武规划SKILL\\导入目录\\L1-大纲层\\L1-B-大纲共创主编' $f); [PSCustomObject]@{File=$f; Match=($a.Hash -eq $b.Hash); Hash=$a.Hash.Substring(0,12)}}; $results | Format-Table -AutoSize"
+        }
+      ]
+    },
+    {
+      "id": "cmd-shell-bridge",
+      "count": 460,
+      "examples": [
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 36253,
+          "cmd": "cmd /c \"python -c \"import os; base=r'D:\\codex\\玄武规划SKILL'; p=os.path.join(base,'write_l1_v6.py'); open(p,'w',encoding='utf-8').write('print(1)'); print('ok')\"\""
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 36612,
+          "cmd": "cmd /c dir /b \"D:\\codex\\玄武规划SKILL\\*.py\" \"D:\\codex\\玄武规划SKILL\\temp*.json\" 2>nul"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 36638,
+          "cmd": "cmd /c del /f /q \"D:\\codex\\玄武规划SKILL\\search_github.py\" \"D:\\codex\\玄武规划SKILL\\parse_results.py\" \"D:\\codex\\玄武规划SKILL\\temp_search1.json\" \"D:\\codex\\玄武规划SKILL\\temp_search2.json\" \"D:\\codex\\玄武规划SKILL\\temp_search3.json\" \"D:\\codex\\玄武规划SKILL\\temp_search4.json\" \"D:\\codex\\玄武规划SKILL\\temp_search5.json\" 2>nul && echo deleted"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 36666,
+          "cmd": "cmd /c dir /b \"D:\\codex\\玄武规划SKILL\\*.py\" \"D:\\codex\\玄武规划SKILL\\temp*.json\" 2>nul"
+        },
+        {
+          "file": "rollout-2026-07-28T17-53-19-019fa824-9abf-7d53-bf6e-9ad441582aee.jsonl",
+          "line": 38361,
+          "cmd": "cmd /c \"python _tmp_deep_dive.py\""
+        }
+      ]
+    },
+    {
+      "id": "line-index-source-edit",
+      "count": 51,
+      "examples": [
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 72990,
+          "cmd": "$f1='D:\\codex\\novel-workshop-vue3\\src\\components\\chat\\ChatMessage.vue'; $lines=Get-Content $f1; $lines[65]=$lines[65] -replace 'var\\(--font-size-md\\)','var(--font-size-lg)'; $lines[82]=$lines[82] -replace 'var\\(--font-size-md\\)','var(--font-size-lg)'; $lines[115]=$lines[115] -replace 'var\\(--font-size-md\\)','var(--font-size-lg)'; $lines[126]=$lines[126] -replace 'var\\(--font-size-md\\)','var(--font-size-lg)'; Set-Content -Path $f1 -Value $lines -Encoding UTF8; echo 'F1 DONE'"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 72991,
+          "cmd": "$f2='D:\\codex\\novel-workshop-vue3\\src\\components\\sidebar\\ChapterTree.vue'; $lines=Get-Content $f2; $lines[293]=$lines[293] -replace 'var\\(--font-size-xs\\)','var(--font-size-sm)'; Set-Content -Path $f2 -Value $lines -Encoding UTF8; echo 'F2 DONE'"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 72992,
+          "cmd": "$f3='D:\\codex\\novel-workshop-vue3\\src\\components\\sidebar\\AgentProgressPanel.vue'; $lines=Get-Content $f3; $lines[103]=$lines[103] -replace 'var\\(--font-size-xs\\)','var(--font-size-sm)'; Set-Content -Path $f3 -Value $lines -Encoding UTF8; echo 'F3 DONE'"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 73041,
+          "cmd": "# C2: SkillSettings z-index 2000 -> var(--z-modal-high)\n$f='D:\\codex\\novel-workshop-vue3\\src\\components\\settings\\SkillSettings.vue'\n$lines=Get-Content $f\n$lines[467]=$lines[467] -replace 'z-index:\\s*2000','z-index: var(--z-modal-high)'\nSet-Content -Path $f -Value $lines -Encoding UTF8\necho 'C2 SkillSettings DONE'"
+        },
+        {
+          "file": "rollout-2026-08-17T07-53-35-01a00cfe-bb31-7533-9f86-fbd123554a20.jsonl",
+          "line": 73042,
+          "cmd": "# C3: OutlineWorkspace z-index 1000 -> var(--z-modal)\n$f='D:\\codex\\novel-workshop-vue3\\src\\components\\common\\OutlineWorkspace.vue'\n$lines=Get-Content $f\n$lines[489]=$lines[489] -replace 'z-index:\\s*1000','z-index: var(--z-modal)'\nSet-Content -Path $f -Value $lines -Encoding UTF8\necho 'C3 OutlineWorkspace DONE'"
+        }
+      ]
+    },
+    {
+      "id": "junction",
+      "count": 10,
+      "examples": [
+        {
+          "file": "rollout-2026-10-29T02-01-14-01a183ac-5ef5-7c41-8699-3f726c01af84.jsonl",
+          "line": 71,
+          "cmd": "Get-Content -LiteralPath 'D:/codex/_codex_history_backup/switch-to-root-junction.ps1' -Raw"
+        },
+        {
+          "file": "rollout-2026-10-29T02-01-14-01a183ac-5ef5-7c41-8699-3f726c01af84.jsonl",
+          "line": 73,
+          "cmd": "Get-Content -LiteralPath 'D:/codex/_codex_history_backup/codex-history-junction-audit.mjs' -Raw"
+        },
+        {
+          "file": "rollout-2026-10-14T22-33-44-01a015f9-d431-7723-bbba-2d75219f1f6c_01a13ad5-5e49-7f83-8729-f044342b83cb.jsonl",
+          "line": 191614,
+          "cmd": "$root = Join-Path $env:TEMP 'junction_file_type_test'; if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }; New-Item -ItemType Directory -Path (Join-Path $root 'real') -Force | Out-Null; Set-Content -LiteralPath (Join-Path $root 'real\\found.txt') -Value 'ok'; New-Item -ItemType Junction -Path (Join-Path $root 'link') -Target (Join-Path $root 'real') | Out-Null; Get-ChildItem -LiteralPath $root -Force | Select-Object Name,LinkType,Target; $link = Get-Item -LiteralPath (Join-Path $root 'link') -Force; $link.Attributes; (Get-Item -LiteralPath (Join-Path $root 'link') -Force).LinkType; Test-Path -LiteralPath (Join-Path $root 'link\\found.txt')"
+        },
+        {
+          "file": "rollout-2026-10-14T22-33-44-01a015f9-d431-7723-bbba-2d75219f1f6c_01a13ad5-5e49-7f83-8729-f044342b83cb.jsonl",
+          "line": 191618,
+          "cmd": "$root = Join-Path $env:TEMP 'junction_file_type_test'; if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }; New-Item -ItemType Directory -Path (Join-Path $root 'real') -Force | Out-Null; Set-Content -LiteralPath (Join-Path $root 'real\\found.txt') -Value 'ok'; New-Item -ItemType Junction -Path (Join-Path $root 'link') -Target (Join-Path $root 'real') | Out-Null; Get-ChildItem -LiteralPath $root -Force | Select-Object Name,LinkType,Target; Test-Path -LiteralPath (Join-Path $root 'link\\found.txt')"
+        },
+        {
+          "file": "rollout-2026-10-14T22-33-44-01a015f9-d431-7723-bbba-2d75219f1f6c_01a13ad5-5e49-7f83-8729-f044342b83cb.jsonl",
+          "line": 191622,
+          "cmd": "New-Item -ItemType Directory -Path D:\\codex\\_tmp_junction_test\\real -Force | Out-Null; Set-Content -LiteralPath D:\\codex\\_tmp_junction_test\\real\\found.txt -Value ok; New-Item -ItemType Junction -Path D:\\codex\\_tmp_junction_test\\link -Target D:\\codex\\_tmp_junction_test\\real | Out-Null; Get-ChildItem -LiteralPath D:\\codex\\_tmp_junction_test -Force | Select-Object Name,LinkType,Target; Test-Path -LiteralPath D:\\codex\\_tmp_junction_test\\link\\found.txt"
+        }
+      ]
+    }
+  ],
+  "repeatedCommands": [
+    {
+      "cmd": "py -X utf8 D:/codex/玄武规划SKILL/SKILL调试器/static_check.py --layer all --root D:/codex/玄武规划SKILL",
+      "count": 514
+    },
+    {
+      "cmd": "rg -n \"function latestRun|const latestRun|latestRun =\" scripts/verify-api-direct-write-v2-e2e.mjs",
+      "count": 406
+    },
+    {
+      "cmd": "node scripts/verify-api-direct-write-v2-e2e.mjs",
+      "count": 69
+    },
+    {
+      "cmd": "node scripts/verify-design-fusion-responsive-overflow.mjs",
+      "count": 50
+    },
+    {
+      "cmd": "node scripts/verify-design-fusion-legacy.mjs --phase=P5",
+      "count": 42
+    },
+    {
+      "cmd": "node scripts/verify-product-validity-status-e2e.mjs",
+      "count": 33
+    },
+    {
+      "cmd": "node _audit/tmp/run_memory_v2_p0_probe.cjs",
+      "count": 32
+    },
+    {
+      "cmd": "node _audit/tmp/run_g6_behavior_probe.cjs",
+      "count": 29
+    },
+    {
+      "cmd": "node scripts/verify-app-confirm-layering.mjs",
+      "count": 25
+    },
+    {
+      "cmd": "node -e \"const fs=require('fs');const b=fs.readFileSync('_audit/tmp/context_memory_p6.cjs').toString('utf8');const start=b.indexOf('const pageProbe = await evaluate(');const end=b.indexOf('  const final = await evaluate',start);const s=b.slice(start,end).trimEnd();const raw=s.slice(34,s.length-2);console.log('first',raw[0]);console.log('last',raw[raw.length-1]);console.log('length',raw.length);\"",
+      "count": 25
+    },
+    {
+      "cmd": "node _audit\\scripts\\verify_settings_ui.cjs",
+      "count": 24
+    },
+    {
+      "cmd": "node scripts/verify-design-fusion-visual-matrix.mjs",
+      "count": 24
+    },
+    {
+      "cmd": "node scripts/verify-release-gate-g4-three-entry-e2e.mjs",
+      "count": 23
+    },
+    {
+      "cmd": "node scripts/audit-phrase-corpus-saturation.cjs",
+      "count": 23
+    },
+    {
+      "cmd": "node -e \"const fs=require('fs'); const dir=process.env.USERPROFILE+'\\\\\\\\Documents\\\\\\\\神意助手数据'; for(const f of fs.readdirSync(dir)) if(f.startsWith('wa_ctx_')) console.log(f, fs.statSync(dir+'\\\\\\\\'+f).size)\"",
+      "count": 23
+    },
+    {
+      "cmd": "python rule_bloat_gate.py",
+      "count": 22
+    },
+    {
+      "cmd": "node scripts/verify-release-gate-g2-g3-e2e.mjs",
+      "count": 21
+    },
+    {
+      "cmd": "node scripts/verify-outline-compose-folder-repair-v2.mjs",
+      "count": 21
+    },
+    {
+      "cmd": "node scripts/verify-run-trace-diff-e2e.mjs",
+      "count": 21
+    },
+    {
+      "cmd": "node scripts/verify-chain-handoff-execution-v2.mjs",
+      "count": 21
+    },
+    {
+      "cmd": "node _audit\\scripts\\archive\\p8_volume_save_delete_verify.cjs",
+      "count": 20
+    },
+    {
+      "cmd": "Stop-Process -Name electron -Force -ErrorAction SilentlyContinue",
+      "count": 18
+    },
+    {
+      "cmd": "& \"D:\\codex\\novel-workshop-vue3\\_tmp_launch.ps1\"",
+      "count": 18
+    },
+    {
+      "cmd": "node scripts/verify-outline-silent-wait-fix-e2e.mjs",
+      "count": 18
+    },
+    {
+      "cmd": "node _tmp_read.js",
+      "count": 17
+    },
+    {
+      "cmd": "node _audit/test_playwright.cjs",
+      "count": 16
+    },
+    {
+      "cmd": "node _audit/deep_behavior_regression.cjs",
+      "count": 16
+    },
+    {
+      "cmd": "cd \"D:\\codex\\novel-workshop-vue3\" && node _audit\\regression_detailed.cjs 2>&1",
+      "count": 16
+    },
+    {
+      "cmd": "node _verify_ow_refactor.cjs 2>&1",
+      "count": 16
+    },
+    {
+      "cmd": "cd D:\\codex\\novel-workshop-vue3 && node _audit/scripts/verify_phaseF.js 2>&1",
+      "count": 16
+    }
+  ]
+}

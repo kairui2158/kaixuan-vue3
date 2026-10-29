@@ -1231,9 +1231,11 @@ async function showDeAiReport() {
     `${item.type}：${item.count} 处（每千字 ${item.perKilo}）\n${item.samples.join('；')}\n建议：${item.suggestion}`
   ).join('\n\n')
   const content = [
+    report.kernelVersion ? `检测内核：${report.kernelVersion}${report.provisional ? '（暂定阈值）' : ''}` : '',
+    typeof report.score === 'number' ? `检测评分：${report.score}（${report.verdict || '-'}）` : '',
     `句长变异：${report.metrics.sentenceLengthCV}`,
     `连接词密度：${report.metrics.connectorDensity}`,
-    `保护片段：${report.metrics.protectedSpans.hit}/${report.metrics.protectedSpans.total}`,
+    `保护片段：${report.metrics.protectedSpans.total}`,
     '',
     blocking.length > 0 ? `【需处理】\n${render(blocking)}` : '【需处理】无',
     '',

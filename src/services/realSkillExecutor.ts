@@ -6,7 +6,7 @@ import {
 } from './dialogueToolSurface'
 import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
-import { DeAiProcessor } from './de-ai'
+import { collectDeaiFindingsWithObservability, DeAiProcessor } from './de-ai'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
@@ -505,9 +505,11 @@ function buildFinalStepSchemaRetryFeedback(
   options: RealSkillExecuteOptions,
   errors: string[],
   candidate: string,
+  diagnostics: RealSkillDiagnostic[],
 ): string {
-  const deaiFindings = options.finalStepRetry?.role === 'polish'
-    ? collectFinalStepDeaiFindings(candidate)
+  const deaiDetection = options.finalStepRetry?.deaiDetection ?? 'on'
+  const deaiFindings = options.finalStepRetry?.role === 'polish' && deaiDetection === 'on'
+    ? collectFinalStepDeaiFindings(candidate, diagnostics)
     : undefined
   const result = buildFinalStepFeedback({
     errors,
@@ -518,18 +520,25 @@ function buildFinalStepSchemaRetryFeedback(
   return result.feedback
 }
 
-function collectFinalStepDeaiFindings(candidate: string): Array<{ code: string; label: string; message: string }> {
+function collectFinalStepDeaiFindings(
+  candidate: string,
+  diagnostics: RealSkillDiagnostic[],
+): Array<{ code: string; label: string; message: string }> {
   if (!candidate.trim()) return []
-  try {
-    const report = DeAiProcessor.detectBody(candidate, {})
-    return report.findings.slice(0, 10).map((finding: { id: string; type: string; suggestion: string }) => ({
-      code: finding.id,
-      label: finding.type,
-      message: finding.suggestion
-    }))
-  } catch {
-    return []
+  const result = collectDeaiFindingsWithObservability(candidate, message => {
+    diagnostics.push(diagnostic('warning', 'quality_gate_degraded', `终步降AI检测失败：${message}`))
+  })
+  if (result.degraded) {
+    return [{ code: 'quality_gate_degraded', label: '降AI门禁降级', message: `终步降AI检测失败：${result.degradedReason}` }]
   }
+  return result.findings.slice(0, 10).map((finding: unknown) => {
+    const item = finding as { id?: string; type?: string; suggestion?: string }
+    return {
+      code: item.id || item.type || 'unknown',
+      label: item.type || item.id || 'unknown',
+      message: item.suggestion || ''
+    }
+  })
 }
 
 /**
@@ -1163,7 +1172,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             attempt
           })
           if (options.finalStepRetry?.role === 'polish') {
-            schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors, candidateOutput)
+            schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors, candidateOutput, diagnostics)
           } else {
             const feedback = buildSchemaRetryFeedback({ errors: retryErrors, previousOutput: candidateOutput })
             schemaRetryFeedback = feedback.feedback
@@ -1231,7 +1240,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
 
         const report = buildValidationErrorReport(validation.errors)
         if (options.finalStepRetry?.role === 'polish') {
-          schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, validation.errors, candidateOutput)
+          schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, validation.errors, candidateOutput, diagnostics)
         } else {
           const feedback = buildSchemaRetryFeedback({ errors: validation.errors, previousOutput: candidateOutput })
           schemaRetryFeedback = feedback.feedback

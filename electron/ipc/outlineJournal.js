@@ -163,6 +163,16 @@ async function readSnapshotFile(snapshotPath) {
   }
 }
 
+async function readLegacyBackupMessages(projectId) {
+  try {
+    var messages = JSON.parse(await fs.readFile(journalPaths(projectId).snapshotPath + '.legacy-bak', 'utf8'))
+    if (!Array.isArray(messages)) return null
+    return messages
+  } catch (e) {
+    return null
+  }
+}
+
 async function atomicWriteFile(filePath, content) {
   var tmpPath = filePath + '.' + Date.now() + '-' + (++writeSeq).toString(36) + '.tmp'
   try {
@@ -283,11 +293,37 @@ async function migrateLegacyMessages(projectId, messages) {
   }
   var snapshot = normalizeSnapshot(projectId, messages)
   var paths = journalPaths(projectId)
-  await atomicWriteFile(paths.snapshotPath + '.legacy-bak', JSON.stringify(messages))
+  try {
+    await fs.access(paths.snapshotPath + '.legacy-bak')
+  } catch (missingBackup) {
+    await atomicWriteFile(paths.snapshotPath + '.legacy-bak', JSON.stringify(messages))
+  }
   await atomicWriteFile(paths.snapshotPath, JSON.stringify(snapshot))
   state.snapshot = snapshot
   state.segmentCount = 0
   return { ok: true, migrated: snapshot.messages.length, snapshot: snapshot }
+}
+
+async function listLegacyCandidates(projectId) {
+  var messages = await readLegacyBackupMessages(projectId)
+  if (!messages || messages.length === 0) return { ok: true, candidates: [] }
+  return {
+    ok: true,
+    candidates: [{ source: 'legacy-bak', projectId: projectId, messageCount: messages.length }],
+  }
+}
+
+async function restoreLegacyBackup(projectId) {
+  var messages = await readLegacyBackupMessages(projectId)
+  if (!messages) return { ok: false, error: 'legacy_backup_missing' }
+  var snapshot = normalizeSnapshot(projectId, messages)
+  var state = await loadJournal(projectId)
+  var paths = journalPaths(projectId)
+  await atomicWriteFile(paths.snapshotPath, JSON.stringify(snapshot))
+  try { await fs.unlink(paths.segmentPath) } catch (missingSegments) { /* segments are not required */ }
+  state.snapshot = snapshot
+  state.segmentCount = 0
+  return { ok: true, snapshot: snapshot, backupRetained: true }
 }
 
 async function restoreSnapshot(projectId, candidate) {
@@ -387,6 +423,18 @@ function registerOutlineJournalHandlers(targetIpc, options) {
   ipc.handle('outlineJournal:restore', function(event, projectId, snapshot) {
     return enqueueWrite(projectId, function() {
       return restoreSnapshot(projectId, snapshot)
+    }).catch(function(e) {
+      return { ok: false, error: e && e.message ? e.message : String(e) }
+    })
+  })
+  ipc.handle('outlineJournal:legacyCandidates', function(event, projectId) {
+    return listLegacyCandidates(projectId).catch(function(e) {
+      return { ok: false, error: e && e.message ? e.message : String(e) }
+    })
+  })
+  ipc.handle('outlineJournal:restoreLegacy', function(event, projectId) {
+    return enqueueWrite(projectId, function() {
+      return restoreLegacyBackup(projectId)
     }).catch(function(e) {
       return { ok: false, error: e && e.message ? e.message : String(e) }
     })

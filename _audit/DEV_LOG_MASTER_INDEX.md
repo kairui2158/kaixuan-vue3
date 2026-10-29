@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-22
+更新日期：2026-10-30
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1307,3 +1307,124 @@
 - 验证：真实 Electron 并行验证 PASS（取消 124ms；卷纲流式 252 chars；正文流式 4777 chars；provider 7 请求 max concurrency 2；四格再入全通过；9 run 终态符合预期）；`test:services` 221 files / 2387 tests 全过；`type-check` exit 0；`build` exit 0。
 - 封装：3.110.5 → 3.110.6；安装包 `dist/神意助手-Setup-3.110.6.exe`（231,644,128 bytes，latest.yml 3.110.6）；旧 3.110.5 产物、81 个失败导出现场与临时诊断文件已清理。
 - 经验回写：v9.6.8，G1.5 新增运行中反馈不可隐藏与验证器面板/selector/终态控件假设判则。
+
+# 2026-10-29 脚本质量全量复盘与 G1.21
+
+- 文档：[_audit/SCRIPT_QUALITY_LESSONS_2026-10-29.md](_audit/SCRIPT_QUALITY_LESSONS_2026-10-29.md)
+- DEV_LOG：[_audit/DEV_LOG_2026-10-29_script-quality-lessons.md](_audit/DEV_LOG_2026-10-29_script-quality-lessons.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-29_script-quality-lessons.md](_audit/TASK_LEDGERS/2026-10-29_script-quality-lessons.md)
+- 范围：479 个物理会话文件 / 231 个唯一会话 / 235 个已统计文件、449,106 次工具调用、46,679 条脚本命令、16,526 条可疑脚本事件、704 个仓库脚本全量复盘；确认旧审计脚本吞错、版本化脚本堆积、危险脚本无恢复链、审计仪器自身逃逸查账四类系统性根因。
+- 经验回写：v9.7.0，新增 G1.21 脚本质量与生命周期门禁；使用路由追加脚本类任务入口。
+- 边界：本轮不改产品源码、不提交 git、不封装、不做 live API；证据目录保留，3 个本轮临时审计脚本删除。
+
+# 2026-10-29 正文层内嵌降AI GitHub 基准审查
+
+- 报告：[_audit/DEAI_GITHUB_BENCHMARK_REVIEW_2026-10-29.md](_audit/DEAI_GITHUB_BENCHMARK_REVIEW_2026-10-29.md)
+- DEV_LOG：[_audit/DEV_LOG_2026-10-29_deai-github-benchmark-review.md](_audit/DEV_LOG_2026-10-29_deai-github-benchmark-review.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-29_deai-github-benchmark-review.md](_audit/TASK_LEDGERS/2026-10-29_deai-github-benchmark-review.md)
+- 范围：9 个 GitHub 去 AI 味项目/SKILL 精华对账本仓正文层内嵌降AI；确认架构方向领先，但存在 retentionRatio 假指标、异常静默吞掉、缺变更率门禁、缺 n-gram 指纹与自适应阈值四个 P0 缺陷，并登记作者声纹、长文漂移、hedging 豁免、整体评分、提示词堆叠五类 P1 缺口。
+- 边界：只读审查，不改产品源码，不提交 git，不封装，不做 live API；外部词表与阈值需中文样本重新校准。
+
+# 2026-10-29 正文层内嵌降AI V3 落地
+
+- 文件：[_audit/DEV_LOG_2026-10-29_body-embedded-deai-v3.md](_audit/DEV_LOG_2026-10-29_body-embedded-deai-v3.md)
+- 方案：[_audit/PROPOSAL_2026-10-29_BODY_EMBEDDED_DEAI_V3.md](_audit/PROPOSAL_2026-10-29_BODY_EMBEDDED_DEAI_V3.md)
+- 手册：[_audit/FOLDER_SKILL_DEAI_CONTRACT_GUIDE_2026-10-29.md](_audit/FOLDER_SKILL_DEAI_CONTRACT_GUIDE_2026-10-29.md)
+- 范围：观测诚信、变更率门禁、检测内核 V2、作者声纹、提示词压缩、legacy-auto 降级、trace/UI 汇总、`skillDeaiContract` 契约、双路径接线、folder SKILL 手册、真实 Electron 三场景验证器。
+- 验证：`node --check`、`npm run build:vue`、`node scripts/verify-deai-body-electron.mjs` PASS；全量 Vitest 与 `vue-tsc` 见本日志收尾记录。
+- 边界：该阶段收尾时 Phase 10 尚未执行，阈值/评分保持 provisional；同日 Phase 10 校准结果见下一条。不做 git 提交，不重复封装，安装包保持 3.110.7。
+
+# 2026-10-29 正文层内嵌降AI Phase 10 样本校准
+
+- 报告：[_audit/DEAI_SAMPLE_CALIBRATION_2026-10-29.md](_audit/DEAI_SAMPLE_CALIBRATION_2026-10-29.md)
+- 数据：[_audit/verification-deai-calibration/deai-v2-calibration-2026-10-29.json](_audit/verification-deai-calibration/deai-v2-calibration-2026-10-29.json)
+- 范围：《踏星》200 章真实人写负样本 + 两类合成正样本各 80 章；修复 V2 报告层全量禁用词误伤（新增 `DEAI_V2_BLOCKING_VOCAB` 高置信子集，硬规则层不变）。
+- 验证：对白 hedging 误伤 0%；合成正样本 n-gram 命中 100%；变更率门禁三态单测 PASS；20,000 字检测 26.01ms；定向 16 tests 与全量 2431 tests PASS。
+- 边界：四条放行标准 PASS，但整体判定 NOT CALIBRATED（suspicious+ 误伤 56%、单一作者、合成正样本），`provisional` 保留；不做 git 提交，不重复封装。
+
+# 2026-10-29 降AI Phase 8.5 防漂移补闭环
+
+- 清单：[_audit/RELEASE_CHECKLIST.md](_audit/RELEASE_CHECKLIST.md)
+- 范围：新增契约/测试/手册三处一致性断言；新增发布收尾清单，把降AI手册版本同步纳入发布硬门禁。
+- 验证：`npx vitest run src/components/pipeline/__tests__/deai-injection-policy.spec.ts` PASS。
+- 边界：只补文档防漂移与测试门禁，不改运行时代码；provisional 与 live 边界不变。
+
+# 2026-10-29 降AI校准语料 Track A Phase A1-A2
+
+- 文件：[_audit/DEV_LOG_2026-10-29_deai-corpus-a1-a2.md](_audit/DEV_LOG_2026-10-29_deai-corpus-a1-a2.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-29_deai-corpus-a1-a2.md](_audit/TASK_LEDGERS/2026-10-29_deai-corpus-a1-a2.md)
+- 交接：[_audit/HANDOFF_2026-10-29_DEAI_CORPUS_AND_LIBRARY.md](_audit/HANDOFF_2026-10-29_DEAI_CORPUS_AND_LIBRARY.md)
+- 范围：建立 `D:/codex/deai-corpus/` 离线校准语料库；收割 12 条历史正文层真实模型响应，索引 5594 章《踏星》人写负样本。
+- 验证：A1/A2 脚本 dry-run 与正式执行均 exit 0；正负标签行数分别为 12/5594；样本去重 `total=12, unique=12`；临时探针已删除。
+- 边界：仅一位作者、一个模型，不满足多作者多题材校准门禁；`provisional` 继续保留，不改运行时代码、不提交、不封装。
+
+# 2026-10-29 降AI多作者原著接入与 A2-A4 校准
+
+- 文件：[_audit/DEV_LOG_2026-10-29_deai-raw-novels-a2-a4.md](_audit/DEV_LOG_2026-10-29_deai-raw-novels-a2-a4.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-29_deai-raw-novels-a2-a4.md](_audit/TASK_LEDGERS/2026-10-29_deai-raw-novels-a2-a4.md)
+- 范围：9 部用户原著 raw txt 接入离线语料库（900 章、7 题材、8 个作者身份），校准器升级分层/held-out/敏感度，完成 A4 多作者判定。
+- 验证：摄入幂等 `duplicates=900, newEntries=0`；多作者校准 train suspicious+ 41.39%、held-out 47.78%、作者区间 9%-70%；真实正样本 ngram 命中 91.67%；节点测试 9/9、定向 Vitest 16/16、`git diff --check` PASS。
+- 结论：`provisional` 保留，注释升级为多作者边界；阈值、词库、评分权重未改动。剩余缺口为 2 部作者未核验、正样本单一 provider/model、评分体系需重设计。
+
+# 2026-10-29 DEAI 多供应商正样本定向生成
+
+- 文件：[_audit/DEV_LOG_2026-10-29_deai-directed-model-positives.md](_audit/DEV_LOG_2026-10-29_deai-directed-model-positives.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-29_deai-directed-model-positives.md](_audit/TASK_LEDGERS/2026-10-29_deai-directed-model-positives.md)
+- 范围：修复定向脚本 Electron userData 错配与写死 endpoint；DeepSeek 官网 402 如实登记为失败；改用流水线供应商真实生成 S2 模型正样本，补齐 `deepseek-v4-pro` 4 条与 `glm-5` 4 条，语料 label 12 → 20，manifest 登记第二 provider 与第二个真实模型；校准脚本 `provenance` 改为动态生成分组。
+- 验证：decrypt-only 3 个供应商通过；DeepSeek 定向 4/3 合格、glm-5 定向 4/3 合格；label/source 对账 missingSource 0；校准复跑出现三个 provider/model 正样本分组；脚本语法检查通过。
+- 边界：不改运行时、不提交 git、不重新封装；样本深度仍不足，校准保持 provisional。
+
+# 2026-10-29 降AI校准发布门禁固化
+
+- 文件：[_audit/DEV_LOG_2026-10-29_deai-calibration-release-gate.md](_audit/DEV_LOG_2026-10-29_deai-calibration-release-gate.md)
+- 门禁说明：[_audit/DEAI_CALIBRATION_RELEASE_GATE_2026-10-29.md](_audit/DEAI_CALIBRATION_RELEASE_GATE_2026-10-29.md)
+- 范围：新增 `scripts/verify-deai-calibration-release-gate.mjs`，把解除 provisional 的条件固化为 14 项硬标准；修正召回口径后当前真实模型正样本 suspicious+ 召回为 45%，人写 held-out suspicious+ 误伤 47.78%，判定 NOT READY。
+- 验证：门禁脚本 exit 1 并输出 NOT_READY；9 项失败、5 项通过；`node --test` 9 passed；定向 Vitest 通过；`git diff --check` PASS。
+- 边界：不改运行时阈值与评分，不解除 provisional，不提交 git，不封装。下一阶段先做评分与阻断策略重设计，再扩正样本。
+
+# 2026-10-30 降AI校准语料作者匿名身份收口
+
+- 文件：[_audit/DEV_LOG_2026-10-30_deai-author-anonymization.md](_audit/DEV_LOG_2026-10-30_deai-author-anonymization.md)
+- 范围：按用户裁决把两部未核验作品落为稳定匿名来源 `作者A`、`作者B`；labels 200 条、两个 source 目录/JSONL、manifest、门禁文案四处同步；迁移脚本与 before 快照留档。
+- 验证：校准复跑 `humanLabels=6494`，`作者A/作者B` 各 100 条进入作者分组；门禁 `verifiedAuthorCount=10`、`unverifiedAuthorLabels=0` 均转 PASS，仍为 NOT_READY。
+- 边界：匿名身份是稳定语料 ID，不冒充实名核验；阈值、词库、评分权重未改，provisional 保留，正样本深度缺口另行处理。
+
+# 2026-10-30 降AI V2 评分重设计与校准仪器修正
+
+- 文件：[_audit/DEV_LOG_2026-10-30_deai-scoring-redesign.md](_audit/DEV_LOG_2026-10-30_deai-scoring-redesign.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-30_deai-scoring-redesign.md](_audit/TASK_LEDGERS/2026-10-30_deai-scoring-redesign.md)
+- 范围：修正校准器分数刻度、blocking 口径与输出通道；新增句长 CV 守卫式评分信号与 6 候选比选；复跑校准、门禁、单测与 Vitest。
+- 验证：`node scripts/tests/deai-v2.test.mjs` 10 passed；`npx vitest run src/services/de-ai-v2.spec.ts` 14 passed；校准 `sampleCount=1000 heldOut=200 modelPositive=20`；发布门禁 NOT_READY（正样本每组 4 条、人写 suspicious+ 0.43、最差作者 0.7、召回 0.85、CI 半宽 0.1565）。
+- 边界：不提交 git、不封装、不做 live API、不解除 provisional；真实正样本扩样是下一阶段硬前置；0 字节 `deai-v2-calibration-2026-10-30.json` 已删除。
+
+# 2026-10-30 folder SKILL 降AI契约质疑对账与补漏
+
+- 文件：[_audit/DEV_LOG_2026-10-30_deai-contract-audit-fix.md](_audit/DEV_LOG_2026-10-30_deai-contract-audit-fix.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-30_deai-contract-audit-fix.md](_audit/TASK_LEDGERS/2026-10-30_deai-contract-audit-fix.md)
+- 范围：对 SKILL 方 8 条 `meta.deai` 手册质疑逐项对账；补主进程共享 CJS 预检、compose `meta` 接线、`finalStepDetection: off` / `suffix-only` / agent 真实 meta 三类测试；经验文件新增 G1.23 契约开关四件套并升级 v9.8.2。
+- 验证：`realSkillExecutor` 定向 59/59；契约相关 4 files / 28 tests；`vue-tsc --noEmit` 通过；`git diff --check` 无 whitespace 错误。
+- 边界：不提交 git、不重新封装、版本保持 3.110.7；真实 Electron 预检 UI 保持 `untested`；冲突检测词表边界是 v1 声明语义，不伪装成缺陷修复。
+
+# 2026-10-30 正文层内嵌降AI V3 总方案逐条对账
+
+- 文件：[_audit/DEV_LOG_2026-10-30_deai-v3-proposal-recheck.md](_audit/DEV_LOG_2026-10-30_deai-v3-proposal-recheck.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-30_deai-v3-proposal-recheck.md](_audit/TASK_LEDGERS/2026-10-30_deai-v3-proposal-recheck.md)
+- 范围：以 V3 方案为唯一事实源，逐条对账 Phase 1-10 与验收矩阵；反推 UI 双状态、Electron 场景、声纹一致性断言、Playwright 替代验证与校准门禁。
+- 验证：定向 5 files / 92 tests passed；`vue-tsc --noEmit` exit 0；`git diff --check` PASS。
+- 边界：只读对账加审计文档落盘，不修运行时、不提交、不封装，版本保持 3.110.7；V3 判定为“核心已落实但非 100% 闭环”。
+
+# 2026-10-30 正文层内嵌降AI V3 剩余缺口收口
+
+- 文件：[_audit/DEV_LOG_2026-10-30_deai-v3-gap-closure.md](_audit/DEV_LOG_2026-10-30_deai-v3-gap-closure.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-30_deai-v3-gap-closure.md](_audit/TASK_LEDGERS/2026-10-30_deai-v3-gap-closure.md)
+- 交付：Electron 验证器补齐六场景（default / skill-disabled / invalid-fallback / final-step-off-deep-fix / skill-wins / app-wins），修复 mock 响应队列跨场景残留，回退基于误判的两处产品条件；真实 UI 双状态、conflictPolicy 链路与声纹采样全部进入报告。
+- 验证：Electron 六场景 PASS；`chainExecution` 24/24；type-check、build:vue 通过。
+- 边界：mock provider 不声明 live 结论；Phase 10 校准保持 NOT_READY 与 provisional；不提交 git、不重新封装，版本保持 3.110.7；临时声纹探针已删除。
+
+# 2026-10-30 3.110.8 可交付封装收尾
+
+- 文件：[_audit/DEV_LOG_2026-10-30_packaging-3-110-8.md](_audit/DEV_LOG_2026-10-30_packaging-3-110-8.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-30_packaging-3-110-8.md](_audit/TASK_LEDGERS/2026-10-30_packaging-3-110-8.md)
+- 交付：版本对齐 3.110.8；修正终步元数据测试锚点；全量 Vitest 228 files / 2446 tests；重新封装并新增安装包核验脚本，验证 asar 版本、validator 打包、真实启动、electronAPI 与渲染文本；清理 3.110.7、3.110.6 blockmap 与临时 CDP 探针。
+- 验证：`node scripts/verify-packaging-3-110-8.mjs` PASS；安装包 SHA256 `c56a4d229beba39d9553350a0313fcdfe97317042bee764a3720a7f0dffa086c`；证据 `_audit/verification-packaging-3-110-8/packaging-evidence.json`。
+- 边界：`神意助手-Setup-3.110.6.exe` 因安全描述符损坏无法删除，登记为需用户管理员手工处理；Phase 10 校准保持 provisional；业务链路证据仍为 mock provider 边界。

@@ -166,6 +166,75 @@ describe('electron ipc outlineJournal', () => {
     expect(JSON.parse(await fs.readFile(bakPath, 'utf8'))).toEqual(legacyMessages)
   })
 
+  it('reports a migration backup as a restorable candidate without replacing the current journal', async () => {
+    const legacyMessages = [
+      { role: 'user', content: '清空前的历史消息' },
+    ]
+    const bakPath = path.join(dataDir, 'outline-journal_p12.json.legacy-bak')
+    await fs.writeFile(bakPath, JSON.stringify(legacyMessages), 'utf8')
+
+    const current = await handlers.get('outlineJournal:apply')(null, 'p12', [
+      { op: 'append', messageId: 'm1', message: { role: 'user', content: '清空后的新消息' } },
+    ], { immediate: true })
+    expect(current.ok).toBe(true)
+
+    const candidate = await handlers.get('outlineJournal:legacyCandidates')(null, 'p12')
+    expect(candidate.ok).toBe(true)
+    expect(candidate.candidates).toEqual([
+      { source: 'legacy-bak', projectId: 'p12', messageCount: 1 },
+    ])
+    expect(await handlers.get('outlineJournal:snapshot')(null, 'p12')).toMatchObject({
+      snapshot: { messages: [{ messageId: 'm1', content: '清空后的新消息' }] },
+    })
+  })
+
+  it('never overwrites an existing migration backup with a smaller project-embedded conversation', async () => {
+    const preservedMessages = [
+      { role: 'user', content: '迁移备份中的 76 条历史消息代表' },
+      { role: 'assistant', content: '备份回复' },
+    ]
+    const bakPath = path.join(dataDir, 'outline-journal_p14.json.legacy-bak')
+    await fs.writeFile(bakPath, JSON.stringify(preservedMessages), 'utf8')
+
+    const migration = await handlers.get('outlineJournal:migrate')(null, 'p14', [
+      { role: 'user', content: '项目内残留的一条当前对话' },
+    ])
+    expect(migration.ok).toBe(true)
+    expect(migration.migrated).toBe(1)
+    expect(JSON.parse(await fs.readFile(bakPath, 'utf8'))).toEqual(preservedMessages)
+
+    const candidate = await handlers.get('outlineJournal:legacyCandidates')(null, 'p14')
+    expect(candidate.candidates).toEqual([
+      { source: 'legacy-bak', projectId: 'p14', messageCount: 2 },
+    ])
+  })
+
+  it('restores a migration backup only through an explicit restore command', async () => {
+    const legacyMessages = [
+      { role: 'user', content: '清空前的历史消息' },
+      { role: 'assistant', content: '历史回复' },
+    ]
+    const bakPath = path.join(dataDir, 'outline-journal_p13.json.legacy-bak')
+    await fs.writeFile(bakPath, JSON.stringify(legacyMessages), 'utf8')
+    await handlers.get('outlineJournal:apply')(null, 'p13', [
+      { op: 'append', messageId: 'm1', message: { role: 'user', content: '清空后的新消息' } },
+    ], { immediate: true })
+
+    const restored = await handlers.get('outlineJournal:restoreLegacy')(null, 'p13')
+    expect(restored.ok).toBe(true)
+    expect(restored.snapshot.messages.map(message => message.content)).toEqual([
+      '清空前的历史消息',
+      '历史回复',
+    ])
+    await expect(fs.access(bakPath)).resolves.toBeUndefined()
+
+    const snapshot = await handlers.get('outlineJournal:snapshot')(null, 'p13')
+    expect(snapshot.snapshot.messages.map(message => message.content)).toEqual([
+      '清空前的历史消息',
+      '历史回复',
+    ])
+  })
+
   it('flushes every project with pending segments for a complete backup export', async () => {
     await handlers.get('outlineJournal:apply')(null, 'p8', [
       { op: 'append', messageId: 'm1', message: { role: 'user', content: '当前项目' } },

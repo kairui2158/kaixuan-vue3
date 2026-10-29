@@ -83,6 +83,27 @@ describe('project store saveProject coalescing', () => {
     expect(recoveredSave).toMatchObject({ ok: true, failedKeys: [] })
     expect(storageWrite).toHaveBeenCalled()
   })
+
+  it('auto-save only drains a dirty project and stays quiet when unchanged', async () => {
+    vi.useFakeTimers()
+    const store = useProjectStore()
+    store.currentProjectId = 'test-auto-save'
+    store.projectName = '自动保存项目'
+
+    store.startProjectAutoSave(30)
+    await vi.advanceTimersByTimeAsync(65_000)
+    expect(storageWrite).not.toHaveBeenCalled()
+
+    store.markProjectDirty()
+    await vi.advanceTimersByTimeAsync(30_000)
+    const projectWrites = storageWrite.mock.calls.filter(call => call[0].includes('project_test-auto-save'))
+    expect(projectWrites).toHaveLength(1)
+
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(storageWrite.mock.calls.filter(call => call[0].includes('project_test-auto-save'))).toHaveLength(1)
+    store.stopProjectAutoSave()
+    vi.useRealTimers()
+  })
 })
 
 describe('project store recordSourceVersion', () => {
@@ -125,6 +146,8 @@ describe('project store recordSourceVersion', () => {
 
 describe('project store outline journal persistence state', () => {
   const outlineJournalApply = vi.fn()
+  const outlineJournalLegacyCandidates = vi.fn()
+  const outlineJournalRestoreLegacy = vi.fn()
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -132,7 +155,7 @@ describe('project store outline journal persistence state', () => {
     storageRead.mockClear()
     outlineJournalApply.mockReset()
     vi.stubGlobal('window', {
-      electronAPI: { storageWrite, storageRead, storageRemove, storageList, outlineJournalApply },
+      electronAPI: { storageWrite, storageRead, storageRemove, storageList, outlineJournalApply, outlineJournalLegacyCandidates, outlineJournalRestoreLegacy },
     })
   })
 
@@ -227,6 +250,55 @@ describe('project store outline journal persistence state', () => {
 
     expect(store.outlineJournalPendingCount).toBe(0)
     expect(store.outlineJournalLastError).toBe(null)
+  })
+
+  it('loads and restores a legacy outline journal backup explicitly', async () => {
+    outlineJournalLegacyCandidates.mockResolvedValueOnce({
+      ok: true,
+      candidates: [{ source: 'legacy-bak', projectId: 'journal-legacy', messageCount: 76 }],
+    })
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-legacy'
+
+    await store.refreshOutlineLegacyJournalCandidate()
+    expect(store.outlineLegacyJournalCandidate).toMatchObject({ messageCount: 76 })
+
+    store.appendOutlineChat({ role: 'user', content: '清空后的新对话' })
+    outlineJournalRestoreLegacy.mockResolvedValueOnce({
+      ok: true,
+      snapshot: { messages: [{ role: 'user', content: '备份消息' }] },
+      backupRetained: true,
+    })
+
+    const result = await store.restoreOutlineLegacyJournal()
+
+    expect(result).toMatchObject({ ok: true, restoredCount: 1 })
+    expect(store.outlineChat).toEqual([{ role: 'user', content: '备份消息' }])
+    expect(store.outlineJournalPendingCount).toBe(0)
+    expect(store.outlineLegacyJournalCandidate).toBe(null)
+  })
+
+  it('does not apply a stale legacy restore result after the project switches', async () => {
+    outlineJournalLegacyCandidates.mockResolvedValueOnce({
+      ok: true,
+      candidates: [{ source: 'legacy-bak', projectId: 'journal-stale', messageCount: 5 }],
+    })
+    let releaseRestore!: (value: { ok: boolean; snapshot?: { messages?: any[] } }) => void
+    const pendingRestore = new Promise(resolve => {
+      releaseRestore = resolve
+    })
+    outlineJournalRestoreLegacy.mockReturnValueOnce(pendingRestore)
+    const store = useProjectStore()
+    store.currentProjectId = 'journal-stale'
+    await store.refreshOutlineLegacyJournalCandidate()
+
+    const restorePromise = store.restoreOutlineLegacyJournal()
+    store.currentProjectId = 'journal-other'
+    releaseRestore({ ok: true, snapshot: { messages: [{ role: 'user', content: '旧项目消息' }] } })
+    const result = await restorePromise
+
+    expect(result).toMatchObject({ ok: false, error: 'project_switched_during_restore' })
+    expect(store.outlineChat).toEqual([])
   })
 
   it('delays journal flushing in safe mode while immediate flushes still persist', async () => {

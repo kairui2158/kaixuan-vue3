@@ -1,0 +1,49 @@
+{
+  "before": {
+    "currentProjectId": "legacy-restore-e2e",
+    "candidate": {
+      "source": "legacy-bak",
+      "projectId": "legacy-restore-e2e",
+      "messageCount": 76
+    },
+    "outlineChat": [
+      {
+        "messageId": "m-current-1",
+        "role": "user",
+        "content": "清空后的新对话"
+      }
+    ],
+    "chatSessions": [
+      {
+        "id": "chat_1793202486036_0rgh62",
+        "title": "默认对话",
+        "tabId": "",
+        "chapterId": "",
+        "messages": [],
+        "createdAt": 1793202486036,
+        "updatedAt": 1793202486036
+      }
+    ],
+    "restoreButtonExists": false,
+    "restoreButtonDisabled": false,
+    "chatInputInteractive": true
+  },
+  "uiSnapshot": {
+    "headerHtml": "<!----><button data-v-6d003bf4=\"\" id=\"btn-ow-zoom\" class=\"ow-icon-btn\" data-tooltip=\"放大\"><svg data-v-38640137=\"\" data-v-6d003bf4=\"\" width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"app-icon\"><path data-v-38640137=\"\" d=\"M6 2.5H3.5A1.5 1.5 0 0 0 2 4v2\"></path><path data-v-38640137=\"\" d=\"M10 2.5h2.5A1.5 1.5 0 0 1 14 4v2\"></path><path data-v-38640137=\"\" d=\"M6 13.5H3.5A1.5 1.5 0 0 1 2 12v-2\"></path><path data-v-38640137=\"\" d=\"M12.5 6h1.5v1.5\"></path></svg></button><button data-v-6d003bf4=\"\" id=\"btn-ow-restore-legacy-chat\" class=\"ow-icon-btn ow-legacy-restore-btn\" data-tooltip=\"恢复备份对话 76 条\"><svg data-v-38640137=\"\" data-v-6d003bf4=\"\" width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"app-icon\"><path data-v-38640137=\"\" d=\"M8 3v5l3.2 2\"></path><path data-v-38640137=\"\" d=\"M2.5 8a5.5 5.5 0 1 0 1.9-4.2\"></path><path data-v-38640137=\"\" d=\"M2.5 2.8v3h3\"></path></svg></button><button data-v-6d003bf4=\"\" id=\"btn-ai-co-create\" class=\"ow-chat-toggle\"> AI 共创大纲 </button><button data-v-6d003bf4=\"\" id=\"btn-close-outline-workspace\" class=\"modal-close\" aria-label=\"关闭大纲工作台\"><svg data-v-38640137=\"\" data-v-6d003bf4=\"\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"app-icon\"><path data-v-38640137=\"\" d=\"M4 4l8 8\"></path><path data-v-38640137=\"\" d=\"M12 4l-8 8\"></path></svg></button>",
+    "workspaceExists": true,
+    "coCreateButton": true,
+    "storeCandidate": {
+      "source": "legacy-bak",
+      "projectId": "legacy-restore-e2e",
+      "messageCount": 76
+    }
+  },
+  "consoleMessages": [
+    "[log] [OK] SkillExecutionEngine loaded",
+    "[info] 诊断日志已启动 | {\"level\":2,\"enabled\":true}",
+    "[log] [OK] SkillValidators loaded",
+    "[log] [OK] SkillExecutionEngine loaded",
+    "[info] 诊断日志已启动 | {\"level\":2,\"enabled\":true}"
+  ],
+  "pageErrors": []
+}

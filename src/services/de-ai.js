@@ -57,6 +57,66 @@ var DEAI_DETECT_THRESHOLDS = {
   minSentenceLengthCV: 0.25
 };
 
+// V2 内核阈值。2026-10-29 多作者校准后仍保持 provisional：
+// 9 部人写作品（900 章）显示误伤率强依赖作者/题材，且真实正样本
+// 仍只有一个 provider/model。阈值只代表当前保守边界，不是成品定稿。
+var DEAI_V2_THRESHOLDS = {
+  minEffectiveChars: 80,
+  shortTextChars: 1200,
+  shortTextScale: 0.7,
+  dialogueHedgingMultiplier: 1.5,
+  maxNarrationHedgingPerKilo: 4,
+  ngramMinEffectiveChars: 300,
+  maxRepeatedBigram: 12,
+  maxRepeatedTrigram: 8,
+  styleDriftWindowChars: 2000,
+  minStyleDriftWindows: 2,
+  styleDriftAdvisoryDelta: 0.1,
+  styleDriftBlockingDelta: 0.2,
+  sentenceCVAdvisory: 1,
+  sentenceCVStrong: 1.1,
+  sentenceCVHighNgramBigram: 900,
+  sentenceCVHighNgramTrigram: 300,
+  sentenceCVHighStyleDrift: 0.2,
+  scoreAdvisory: 25,
+  scoreSuspicious: 45,
+  scoreLikelyAi: 65,
+  scoreBlocking: 80
+};
+
+var DEAI_V2_HEDGING_WORDS = [
+  '似乎', '仿佛', '好像', '或许', '可能', '也许', '大概', '恐怕', '应该', '显然', '确实', '当然'
+];
+
+var DEAI_V2_FUNCTION_CHARS = '的了是在他她它你我这那和与也都就把被着过不有人来去说到对上下里';
+
+// V2 报告层使用的高置信禁用词子集。全量 BANNED_VOCAB 包含大量自然中文
+// 通用词，真实人写章节 100% 触发 blocking，只能作为硬规则层提示，不能
+// 作为 V2 评分/阻断依据（Phase 10 踏星 200 章校准）。
+var DEAI_V2_BLOCKING_VOCAB = [
+  '虎躯一震', '心中五味杂陈', '百感交集', '一股暖流涌上心头', '心中涌起一股难以言喻的感觉',
+  '宛如天神下凡', '毁天灭地的一击', '绝世容颜', '倾国倾城', '仙气飘飘',
+  '像打开了潘多拉的魔盒', '时间仿佛在这一刻凝固', '千言万语涌到嘴边却说不出口',
+  '内心久久不能平静', '心情久久不能平复', '感觉天都塌了', '如遭雷击', '如坠冰窟',
+  '空气仿佛凝固了', '时间仿佛静止了', '空气中弥漫着紧张的气息', '令人窒息的威压',
+  '心脏漏跳了一拍', '心跳漏跳了一拍', '血液倒流', '全身的血液都在倒流', '浑身血液仿佛凝固',
+  '电流般的感觉', '触电般的感觉', '勾唇一笑', '危险的弧度', '薄唇轻启', '眸光一暗', '眸色渐深', '凤眸',
+  '命运的齿轮开始转动', '灵魂深处', '心中泛起涟漪', '内心深处的某根弦被触动',
+  '记忆如潮水般涌来', '不仅如此', '随之而来的是', '正如我们所知', '不得不说',
+  '以此为契机', '以此类推', '归根结底',
+  '赋能', '重塑', '深度融合', '底层逻辑', '深耕', '痛点', '风口', '蓝海', '破圈', '迭代',
+  '颠覆认知', '释放潜能', '拥抱未来', '点亮梦想', '干货满满', '重磅来袭',
+  '瞳孔骤缩', '瞳孔猛缩', '瞳孔微缩', '瞳孔骤然收缩', '瞳孔猛地一缩',
+  '呼吸一滞', '嘴角勾起一抹弧度', '嘴角勾起弧度', '嘴角勾起一抹笑意', '嘴角微微上扬',
+  '某处发烫', '冷寂', '以一种', '指节泛白', '指节发白', '空气凝滞如铁',
+  '看得目瞪口呆', '嘴巴张得能塞下一个鸡蛋', '透露出的寒意',
+  '让空气的温度都下降了几度', '时间仿佛被按下了暂停',
+  '带着一丝', '声音坚定', '眼神坚定', '眼神锐利', '不可置信', '不可置疑',
+  '不可估量', '无法想象', '无法用言语形容', '脸上带着笑意',
+  '不卑不亢', '显得异常清晰', '目光里毫不遮掩', '针扎', '指甲掐进肉里',
+  '一阵莫名的', '一股莫名的', '力道大得惊人', '淬了毒', '近乎偏执'
+];
+
 var DEAI_MINIMAL_EDIT_PROMPT = [
   '【降AI深度修复 - 最小编辑】',
   '你只允许在原句上做最小修补，目标是降低AI痕迹，同时保住事实和信息。',
@@ -121,6 +181,198 @@ function calcPerKilo(count, text) {
   var charCount = text.replace(/\s/g, '').length;
   if (charCount === 0) return 0;
   return Math.round(count / charCount * 1000) / 10;
+}
+
+function calcPerKiloByChars(count, charCount) {
+  if (!charCount) return 0;
+  return Math.round(count / charCount * 1000) / 10;
+}
+
+function resolveV2PerKiloThreshold(name, effectiveChars) {
+  var base = DEAI_DETECT_THRESHOLDS.maxPerKilo[name];
+  var chars = Number.isFinite(effectiveChars) ? effectiveChars : 0;
+  var scaled = chars > 0 && chars < DEAI_V2_THRESHOLDS.shortTextChars
+    ? base * DEAI_V2_THRESHOLDS.shortTextScale
+    : base;
+  return Math.round(scaled * 10) / 10;
+}
+
+function extractDialogueSegments(text) {
+  var segments = [];
+  var re = /[\u201c\u300c]([^\u201d\u300d]{1,200})[\u201d\u300d]/g;
+  var match;
+  while ((match = re.exec(text)) !== null) {
+    segments.push(match[1]);
+  }
+  return segments;
+}
+
+function removeDialogueSegments(text) {
+  return text
+    .replace(/[\u201c\u300c][^\u201d\u300d]{1,200}[\u201d\u300d]/g, '')
+    .replace(/[\u201c\u300c][^\u201d\u300d]*$/, '');
+}
+
+function countWordList(text, words) {
+  var total = 0;
+  var samples = [];
+  for (var i = 0; i < words.length; i++) {
+    var word = words[i];
+    var count = 0;
+    var idx = 0;
+    while ((idx = text.indexOf(word, idx)) >= 0) {
+      count++;
+      idx += word.length;
+    }
+    if (count > 0) {
+      total += count;
+      samples.push(word + '(' + count + ')');
+    }
+  }
+  return { total: total, samples: samples };
+}
+
+function normalizeForNgram(text) {
+  return String(text || '')
+    .replace(/[\s\u3000-\u303f\uff00-\uffef]/g, '')
+    .toLowerCase();
+}
+
+function isFunctionalGram(gram) {
+  for (var i = 0; i < gram.length; i++) {
+    if (DEAI_V2_FUNCTION_CHARS.indexOf(gram.charAt(i)) < 0) return false;
+  }
+  return true;
+}
+
+function countRepeatedNgrams(text, gramSize) {
+  var normalized = normalizeForNgram(text);
+  if (normalized.length < gramSize) return { total: 0, samples: [] };
+  var counts = {};
+  var order = [];
+  for (var i = 0; i + gramSize <= normalized.length; i++) {
+    var gram = normalized.substring(i, i + gramSize);
+    if (isFunctionalGram(gram)) continue;
+    if (!counts[gram]) {
+      counts[gram] = 0;
+      order.push(gram);
+    }
+    counts[gram]++;
+  }
+  var repeated = [];
+  for (var j = 0; j < order.length; j++) {
+    var key = order[j];
+    if (counts[key] > 1) repeated.push({ gram: key, count: counts[key] });
+  }
+  repeated.sort(function(a, b) { return b.count - a.count; });
+  return {
+    total: repeated.reduce(function(acc, item) { return acc + item.count; }, 0),
+    distinct: repeated.length,
+    max: repeated.length > 0 ? repeated[0].count : 0,
+    samples: repeated.slice(0, 8).map(function(item) { return item.gram + '(' + item.count + ')'; })
+  };
+}
+
+function calcHedgingLayerCounts(narrationText, dialogueText) {
+  var narration = countWordList(narrationText, DEAI_V2_HEDGING_WORDS);
+  var dialogue = countWordList(dialogueText, DEAI_V2_HEDGING_WORDS);
+  return { narration: narration, dialogue: dialogue };
+}
+
+// V2 报告层的高置信禁用词检测。与 processBody 的全量词库分离：
+// 全量词库保留给旧硬规则展示，V2 只用真实样本校准后的子集。
+function detectV2BannedVocab(text) {
+  var found = [];
+  for (var i = 0; i < DEAI_V2_BLOCKING_VOCAB.length; i++) {
+    var word = DEAI_V2_BLOCKING_VOCAB[i];
+    var count = 0;
+    var idx = 0;
+    while ((idx = text.indexOf(word, idx)) >= 0) { count++; idx += word.length; }
+    if (count > 0) found.push({ word: word, count: count });
+  }
+  return found;
+}
+
+function calcStyleDriftWindowMetrics(text) {
+  var charCount = text.replace(/\s/g, '').length;
+  return {
+    charCount: charCount,
+    sentenceLengthCV: calcSentenceLengthCV(text),
+    connectorPerKilo: countWordList(text, CONNECTOR_WORDS).total > 0
+      ? calcPerKiloByChars(countWordList(text, CONNECTOR_WORDS).total, charCount)
+      : 0,
+    aiFreqPerKilo: calcPerKiloByChars(countWordList(text, AI_FREQ_WORDS).total, charCount)
+  };
+}
+
+function normalizeDriftMetric(value) {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.min(value, 1);
+}
+
+function detectStyleDrift(text) {
+  var windows = [];
+  for (var i = 0; i < text.length; i += DEAI_V2_THRESHOLDS.styleDriftWindowChars) {
+    var chunk = text.substring(i, i + DEAI_V2_THRESHOLDS.styleDriftWindowChars);
+    if (chunk.trim().length < DEAI_V2_THRESHOLDS.minEffectiveChars) continue;
+    windows.push(calcStyleDriftWindowMetrics(chunk));
+  }
+  if (windows.length < DEAI_V2_THRESHOLDS.minStyleDriftWindows) return null;
+  var first = windows[0];
+  var last = windows[windows.length - 1];
+  var firstValue = normalizeDriftMetric(first.sentenceLengthCV) + normalizeDriftMetric(first.connectorPerKilo) + normalizeDriftMetric(first.aiFreqPerKilo);
+  var lastValue = normalizeDriftMetric(last.sentenceLengthCV) + normalizeDriftMetric(last.connectorPerKilo) + normalizeDriftMetric(last.aiFreqPerKilo);
+  var delta = Math.round(Math.abs(firstValue - lastValue) * 100) / 100;
+  if (delta < DEAI_V2_THRESHOLDS.styleDriftAdvisoryDelta) return null;
+  return {
+    windowCount: windows.length,
+    firstLastDelta: delta,
+    severity: delta >= DEAI_V2_THRESHOLDS.styleDriftBlockingDelta ? 'blocking' : 'advisory'
+  };
+}
+
+function resolveAiEditedFraction(score, effectiveChars) {
+  if (effectiveChars < DEAI_V2_THRESHOLDS.minEffectiveChars) return 'unknown';
+  if (score >= DEAI_V2_THRESHOLDS.scoreLikelyAi) return 'heavy';
+  if (score >= DEAI_V2_THRESHOLDS.scoreSuspicious) return 'mixed';
+  if (score >= DEAI_V2_THRESHOLDS.scoreAdvisory) return 'light';
+  return 'none';
+}
+
+function resolveDetectVerdict(score, hasBlockingFinding) {
+  if (hasBlockingFinding && score >= DEAI_V2_THRESHOLDS.scoreBlocking) return 'blocking';
+  if (score >= DEAI_V2_THRESHOLDS.scoreLikelyAi) return 'likely_ai';
+  if (score >= DEAI_V2_THRESHOLDS.scoreSuspicious) return 'suspicious';
+  if (score >= DEAI_V2_THRESHOLDS.scoreAdvisory) return 'advisory';
+  return 'clean';
+}
+
+function hasSentenceCVExcess(sentenceLengthCV, ngramFindings, styleDrift) {
+  var strong = DEAI_V2_THRESHOLDS.sentenceCVStrong;
+  var advisory = DEAI_V2_THRESHOLDS.sentenceCVAdvisory;
+  if (sentenceLengthCV < advisory) return null;
+  var bigramCount = ngramFindings.find(function(finding) { return finding.id === 'deai-repeated-bigram'; });
+  var trigramCount = ngramFindings.find(function(finding) { return finding.id === 'deai-repeated-trigram'; });
+  var bigram = bigramCount ? Number(bigramCount.count) || 0 : 0;
+  var trigram = trigramCount ? Number(trigramCount.count) || 0 : 0;
+  var drift = styleDrift ? Number(styleDrift.firstLastDelta) || 0 : 0;
+  var corroborated = bigram >= DEAI_V2_THRESHOLDS.sentenceCVHighNgramBigram ||
+    trigram >= DEAI_V2_THRESHOLDS.sentenceCVHighNgramTrigram ||
+    drift >= DEAI_V2_THRESHOLDS.sentenceCVHighStyleDrift;
+  var excess = sentenceLengthCV - strong;
+  if (excess > 0 && corroborated) {
+    return {
+      severity: 'advisory',
+      contribution: Math.round(28 + excess * 20)
+    };
+  }
+  if (sentenceLengthCV >= advisory) {
+    return {
+      severity: 'advisory',
+      contribution: excess > 0 ? Math.min(18, Math.round(excess * 10)) : 0
+    };
+  }
+  return null;
 }
 
 function makeFinding(id, severity, type, count, perKilo, samples, suggestion) {
@@ -199,14 +451,241 @@ function verifyProtectedSpans(originalText, processedText, spans) {
       });
     }
   }
+  var total = checked.length;
   return {
     total: checked.length,
     hit: hit,
     missing: missing,
     mustMissing: missing.filter(function(item) { return item.level === 'must'; }).length,
     shouldMissing: missing.filter(function(item) { return item.level === 'should'; }).length,
+    retentionRatio: total > 0 ? Math.round(hit / total * 100) / 100 : 1,
     originalText: originalText,
     processedText: processedText
+  };
+}
+
+function normalizeSentenceForChangeRate(sentence) {
+  return String(sentence || '')
+    .replace(/[，。！？、；：,.!?;:\s“”"'（）()\[\]【】]/g, '')
+    .toLowerCase();
+}
+
+function splitSentencesForChangeRate(text) {
+  return String(text || '')
+    .split(/(?<=[。！？!?])\s*|\n+/)
+    .map(function(sentence) { return sentence.trim(); })
+    .filter(Boolean);
+}
+
+function longestCommonSentenceSequence(a, b) {
+  var left = a.map(normalizeSentenceForChangeRate);
+  var right = b.map(normalizeSentenceForChangeRate);
+  if (left.length === 0 || right.length === 0) return 0;
+  var rows = new Array(left.length + 1);
+  for (var i = 0; i <= left.length; i++) {
+    rows[i] = new Array(right.length + 1).fill(0);
+  }
+  for (var i = left.length - 1; i >= 0; i--) {
+    for (var j = right.length - 1; j >= 0; j--) {
+      rows[i][j] = left[i] === right[j]
+        ? rows[i + 1][j + 1] + 1
+        : Math.max(rows[i + 1][j], rows[i][j + 1]);
+    }
+  }
+  return rows[0][0];
+}
+
+function evaluateDeepFixEdit(originalText, editedText, blockingFindingCount) {
+  var originalSentences = splitSentencesForChangeRate(originalText);
+  var editedSentences = splitSentencesForChangeRate(editedText);
+  var baseCount = Math.max(originalSentences.length, editedSentences.length, 1);
+  var common = longestCommonSentenceSequence(originalSentences, editedSentences);
+  var changeRate = Math.round((1 - common / baseCount) * 100) / 100;
+  var blocking = Number.isFinite(blockingFindingCount) ? Math.max(0, blockingFindingCount) : 0;
+  var warnThreshold = blocking > 3 ? 0.22 : 0.30;
+  var rejectThreshold = blocking > 3 ? 0.38 : 0.50;
+  if (changeRate >= rejectThreshold) {
+    return {
+      changeRate: changeRate,
+      accepted: false,
+      reason: 'change_rate_exceeded',
+      rejectThreshold: rejectThreshold,
+      warnThreshold: warnThreshold
+    };
+  }
+  if (changeRate >= warnThreshold) {
+    return {
+      changeRate: changeRate,
+      accepted: true,
+      warning: 'change_rate_high',
+      rejectThreshold: rejectThreshold,
+      warnThreshold: warnThreshold
+    };
+  }
+  return {
+    changeRate: changeRate,
+    accepted: true,
+    rejectThreshold: rejectThreshold,
+    warnThreshold: warnThreshold
+  };
+}
+
+function buildDetectReportV2(text, base) {
+  var dialogueSegments = extractDialogueSegments(text);
+  var dialogueText = dialogueSegments.join('\n');
+  var narrationText = removeDialogueSegments(text);
+  var effectiveChars = narrationText.replace(/\s/g, '').length;
+  var dialogueChars = dialogueText.replace(/\s/g, '').length;
+
+  var thresholds = [];
+  var addThreshold = function(name, value, scaledValue) {
+    thresholds.push({
+      name: name,
+      value: value,
+      scaledValue: scaledValue,
+      source: 'default'
+    });
+  };
+  ['aiFreqWord', 'bannedVocab', 'cliche', 'connector'].forEach(function(name) {
+    var value = DEAI_DETECT_THRESHOLDS.maxPerKilo[name];
+    var scaled = resolveV2PerKiloThreshold(name, effectiveChars);
+    addThreshold(name, value, scaled);
+  });
+
+  var findings = base.findings.slice();
+  findings = findings.map(function(finding) {
+    if (finding.id === 'deai-freq-words' || finding.id === 'deai-banned-vocab' || finding.id === 'deai-banned-phrase' || finding.id === 'deai-connector-density') {
+      var thresholdName = finding.id === 'deai-freq-words'
+        ? 'aiFreqWord'
+        : finding.id === 'deai-banned-vocab'
+          ? 'bannedVocab'
+          : finding.id === 'deai-banned-phrase'
+            ? 'cliche'
+            : 'connector';
+      var scaled = resolveV2PerKiloThreshold(thresholdName, effectiveChars);
+      if (finding.perKilo > scaled && finding.severity !== 'blocking') {
+        return Object.assign({}, finding, { severity: 'blocking', suggestion: finding.suggestion + '（V2 自适应阈值：' + scaled + '）' });
+      }
+    }
+    return finding;
+  });
+
+  var hedgingLayers = calcHedgingLayerCounts(narrationText, dialogueText);
+  var narrationThreshold = DEAI_V2_THRESHOLDS.maxNarrationHedgingPerKilo;
+  var dialogueThreshold = Math.round(narrationThreshold * DEAI_V2_THRESHOLDS.dialogueHedgingMultiplier * 10) / 10;
+  var narrationHedgingPerKilo = calcPerKiloByChars(hedgingLayers.narration.total, effectiveChars);
+  var dialogueHedgingPerKilo = calcPerKiloByChars(hedgingLayers.dialogue.total, dialogueChars);
+  if (effectiveChars >= DEAI_V2_THRESHOLDS.minEffectiveChars && narrationHedgingPerKilo > narrationThreshold) {
+    findings.push(makeFinding(
+      'deai-narration-hedging',
+      'advisory',
+      '叙述层模糊限定词偏高',
+      hedgingLayers.narration.total,
+      narrationHedgingPerKilo,
+      hedgingLayers.narration.samples.slice(0, 8),
+      '把叙述中的模糊判断改成具体动作、身体感受或可观察事实。'
+    ));
+  }
+  if (dialogueChars >= DEAI_V2_THRESHOLDS.minEffectiveChars && dialogueHedgingPerKilo > dialogueThreshold) {
+    findings.push(makeFinding(
+      'deai-dialogue-hedging',
+      'advisory',
+      '对白层模糊限定词偏高',
+      hedgingLayers.dialogue.total,
+      dialogueHedgingPerKilo,
+      hedgingLayers.dialogue.samples.slice(0, 8),
+      '保留角色语气，只处理堆叠的模糊限定词。'
+    ));
+  }
+  thresholds.push({ name: 'narrationHedging', value: narrationThreshold, scaledValue: narrationThreshold, source: 'default' });
+  thresholds.push({ name: 'dialogueHedging', value: dialogueThreshold, scaledValue: dialogueThreshold, source: 'default' });
+
+  var ngramFindings = [];
+  if (effectiveChars >= DEAI_V2_THRESHOLDS.ngramMinEffectiveChars) {
+    var narrationForNgram = normalizeForNgram(narrationText);
+    var bigrams = countRepeatedNgrams(narrationForNgram, 2);
+    var trigrams = countRepeatedNgrams(narrationForNgram, 3);
+    var scaledBigramThreshold = Math.round(DEAI_V2_THRESHOLDS.maxRepeatedBigram * (effectiveChars < DEAI_V2_THRESHOLDS.shortTextChars ? DEAI_V2_THRESHOLDS.shortTextScale : 1) * 10) / 10;
+    var scaledTrigramThreshold = Math.round(DEAI_V2_THRESHOLDS.maxRepeatedTrigram * (effectiveChars < DEAI_V2_THRESHOLDS.shortTextChars ? DEAI_V2_THRESHOLDS.shortTextScale : 1) * 10) / 10;
+    if (bigrams.max > scaledBigramThreshold) {
+      var bigramFinding = makeFinding(
+        'deai-repeated-bigram',
+        'advisory',
+        '二元词组重复指纹',
+        bigrams.total,
+        calcPerKiloByChars(bigrams.total, effectiveChars),
+        bigrams.samples,
+        '改变信息呈现顺序或合并相邻表达，避免同构短语反复出现。'
+      );
+      ngramFindings.push(bigramFinding);
+    }
+    if (trigrams.max > scaledTrigramThreshold) {
+      var trigramFinding = makeFinding(
+        'deai-repeated-trigram',
+        'advisory',
+        '三元词组重复指纹',
+        trigrams.total,
+        calcPerKiloByChars(trigrams.total, effectiveChars),
+        trigrams.samples,
+        '同一句式骨架反复出现，优先重排其中一个句子的信息顺序。'
+      );
+      ngramFindings.push(trigramFinding);
+    }
+    thresholds.push({ name: 'repeatedBigramMax', value: DEAI_V2_THRESHOLDS.maxRepeatedBigram, scaledValue: scaledBigramThreshold, source: 'default' });
+    thresholds.push({ name: 'repeatedTrigramMax', value: DEAI_V2_THRESHOLDS.maxRepeatedTrigram, scaledValue: scaledTrigramThreshold, source: 'default' });
+  }
+  findings = findings.concat(ngramFindings);
+
+  var styleDrift = detectStyleDrift(narrationText);
+  if (styleDrift) {
+    findings.push(makeFinding(
+      'deai-style-drift',
+      styleDrift.severity,
+      '前后风格漂移',
+      1,
+      styleDrift.firstLastDelta,
+      ['窗口数 ' + styleDrift.windowCount + '，首尾指标差 ' + styleDrift.firstLastDelta],
+      '检查后半章是否被提示词或后处理带偏，保持叙述密度和句长节奏连续。'
+    ));
+  }
+
+  var sentenceCVSignal = hasSentenceCVExcess(base.sentenceLengthCV, ngramFindings, styleDrift);
+  if (sentenceCVSignal) {
+    findings.push(makeFinding(
+      'deai-sentence-cv-excess',
+      sentenceCVSignal.severity,
+      '句长方差异常',
+      1,
+      base.sentenceLengthCV,
+      ['全篇句长变异系数 ' + base.sentenceLengthCV + '，真实人写样本通常低于 1.0'],
+      '句长变化需要有叙事原因：短句留给动作和转折，长句承担信息，不要为降AI机械拉大方差。'
+    ));
+  }
+
+  var blockingFindings = findings.filter(function(finding) { return finding.severity === 'blocking'; });
+  var advisoryFindings = findings.filter(function(finding) { return finding.severity === 'advisory'; });
+  var score = Math.min(100, blockingFindings.length * 12 + advisoryFindings.length * 6 + Math.round((styleDrift ? styleDrift.firstLastDelta * 10 : 0)) + (sentenceCVSignal ? sentenceCVSignal.contribution : 0));
+  var verdict = resolveDetectVerdict(score, blockingFindings.length > 0);
+  var aiEditedFraction = resolveAiEditedFraction(score, effectiveChars);
+
+  return {
+    kernelVersion: 'v2',
+    provisional: true,
+    effectiveChars: effectiveChars,
+    dialogueChars: dialogueChars,
+    score: score,
+    verdict: verdict,
+    aiEditedFraction: aiEditedFraction,
+    findings: findings,
+    styleDrift: styleDrift || undefined,
+    thresholds: thresholds,
+      metrics: {
+        sentenceLengthCV: base.sentenceLengthCV,
+        connectorDensity: base.connectorDensity,
+        protectedSpans: {
+          total: base.protectedSpans.length
+        }
+      }
   };
 }
 
@@ -576,12 +1055,19 @@ function verifyProtectedSpans(originalText, processedText, spans) {
     detectBody: function(text, config) {
       var sourceText = text || '';
       var emptyReport = {
+        kernelVersion: 'v2',
+        provisional: true,
+        effectiveChars: 0,
+        dialogueChars: 0,
+        score: 0,
+        verdict: 'clean',
+        aiEditedFraction: 'unknown',
         findings: [],
+        thresholds: [],
         metrics: {
           sentenceLengthCV: 0,
           connectorDensity: 0,
-          protectedSpans: { total: 0, hit: 0, missing: [] },
-          retentionRatio: 1
+          protectedSpans: { total: 0 }
         }
       };
       if (!sourceText || sourceText.trim().length < DEAI_DETECT_THRESHOLDS.minTextLength) {
@@ -615,7 +1101,7 @@ function verifyProtectedSpans(originalText, processedText, spans) {
         ));
       }
 
-      var bannedWords = detectBannedVocab(sourceText);
+      var bannedWords = detectV2BannedVocab(sourceText);
       if (bannedWords.length > 0) {
         var bannedCount = bannedWords.reduce(function(acc, item) { return acc + item.count; }, 0);
         var bannedPerKilo = Math.round(bannedCount * (perKiloBase > 0 ? 1 / perKiloBase : 0) * 10) / 10;
@@ -698,19 +1184,16 @@ function verifyProtectedSpans(originalText, processedText, spans) {
       }
 
       _ruleConfig = _prevRuleConfig;
-      return {
+      return buildDetectReportV2(sourceText, {
         findings: findings,
-        metrics: {
-          sentenceLengthCV: sentenceLengthCV,
-          connectorDensity: connectorDensity,
-          protectedSpans: {
-            total: protectedSpans.length,
-            hit: protectedSpans.length,
-            missing: []
-          },
-          retentionRatio: 1
-        }
-      };
+        sentenceLengthCV: sentenceLengthCV,
+        connectorDensity: connectorDensity,
+        protectedSpans: protectedSpans,
+        charCount: charCount
+      });
+    },
+    detectBodyV2: function(text, config) {
+      return DeAiProcessor.detectBody(text, config);
     },
     detectUniformSentenceLength: detectUniformSentenceLength,
     detectConnectorDensity: detectConnectorDensity,
@@ -723,6 +1206,9 @@ function verifyProtectedSpans(originalText, processedText, spans) {
     getMethodologyPrompt: function() { return DEAI_METHODOLOGY_PROMPT; },
     extractProtectedSpans: extractProtectedSpans,
     verifyProtectedSpans: verifyProtectedSpans,
+    evaluateDeepFixEdit: evaluateDeepFixEdit,
+    collectDeaiFindingsWithObservability: collectDeaiFindingsWithObservability,
+    detectStyleDrift: detectStyleDrift,
     getMinimalEditPrompt: function() { return DEAI_MINIMAL_EDIT_PROMPT; },
     getDetectThresholds: function() { return DEAI_DETECT_THRESHOLDS; }
   };
@@ -733,18 +1219,25 @@ function verifyProtectedSpans(originalText, processedText, spans) {
 // 注入到SKILL链的system prompt中，让模型在生成阶段就遵守
 // 覆盖脚本无法实现的语义规则（具体化、打破信息均匀）
 // ================================================================
-var DEAI_METHODOLOGY_PROMPT = "【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。规则融合降得快方法论与社区前沿实践（anti-ai-prose/humanize/unslop/PortOS等），覆盖三信号体系（perplexity/burstiness/stylometric fingerprint）。\n\n核心认知：同义词替换无效。真正影响AI特征的不是几个词，而是整篇文章的表达规律——句子排列、段落组织、信息顺序、完整度分布。只换词不改结构，检测结果不会变化。因此以下规则以肯定式约束为主，告诉模型应该怎么写，而非仅仅禁止什么。\n\n1. 第一句必须是具体动作或感官细节。直接切入场景：角色的动作、身体感受、环境声音或视觉画面。禁止以「随着」「在当今」「众所周知」等空泛词句开头。\n\n2. 句长方差要大。连续三句长度差异必须>30%。穿插短句（5字以下）制造节奏冲击，穿插长句（30字以上）铺展细节。但注意：短句碎片链（连续3句以上<8字）本身是AI信号，禁止过度使用。\n\n3. 用具体动作替代抽象形容。禁止用「他感受到了强大的力量」「空气仿佛凝固了」等模糊填充。必须写具体：手指颤抖、指甲嵌入掌心、血珠从指缝渗出。每个动作要有明确的身体部位、力度和方向。\n\n4. 场景结尾留下未解决张力。段落可以没有结论，场景结尾更不能收束太整齐。禁止「总的来说」「由此可以看出」「因此我们需要」等收束句。有些场景说完就停，把悬念留给下一个场景。\n\n5. 戏剧价值决定篇幅。有戏剧张力的场景多写几段，过渡性场景可以一笔带过。没有戏剧价值的场景不该存在。禁止每个场景篇幅差不多的均匀分配——均匀是AI文本最典型的特征。\n\n6. 连接词按叙事需要使用。禁止「首先-其次-此外-最后」的固定序列。有些连接词省略，有些换成具体动作过渡，有些合并句子。注意：删掉连接词但信息顺序不变等于无效——必须改变信息呈现顺序本身。\n\n7. 叙述视角体现判断。叙述者的判断体现为：看什么不看什么（选择性）、语气倾向（冷峻/温情/讽刺）、信息节奏（什么先说什么后说）。禁止「我们应该合理使用」等放之四海而皆准的正确话。叙述者不是评论员，不需要表态。\n\n8. 段落结构要有变化。禁止每段都用「提出观点-解释原因-列举案例-总结」的同一个结构。有些段直接进动作，有些段先讲问题，有些段说完就停。特别注意：禁止「描述-对话-描述」的循环结构——这是AI叙事最差的结构特征。每个对话回合的描写配比必须不同。\n\n9. 自然不等于混乱。禁止故意加语病、错别字、重复表达。保留清晰度，增加真实变化。真正的自然是加入真实细节、轻重变化和节奏波动，不是故意写错。过度纠错（如连续短句碎片、「不是X。是Y。」句式）本身也是AI信号。\n\n10. 小说正文特殊保护。不能改变：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔。表达可以变化，但人物关系和核心设定不能随意改变。对白要符合人物性格，动作和场景不能随意打乱。伏笔埋设到回收距离至少3章。\n\n11. 对话要有残缺和轻重。AI对白过于完整——角色说话时会把原因、推理和结论全部说完。真人说话不完整。有些对话回合只有动作没有台词，有些只有台词没有动作描写。禁止每个对话回合都配等量微表情描写。有些对话之间直接连续，不加动作描写。对话场景的轻重变化比叙述场景更重要。\n\n12. 对话中减少解释性从句。角色说话时禁止把因果推理全部说出来。「因为...所以...」「如果...就...」「这意味着...」这些解释性从句在对话中应该减少。让读者自己推理，不要替读者总结。角色可以说半句话，用动作或表情暗示剩下的部分。\n\n13. 叙事视角保持一致。同一段内禁止在有限视角和全知视角之间跳转。如果本章是某角色的有限视角，不能突然插入其他角色的内心独白。视角切换只在场景分隔处进行。\n\n14. 节奏与情绪匹配。紧张场景：短句密集，动作快节奏，减少描写。舒缓场景：长句铺陈，增加感官细节和环境描写。禁止所有场景用同一节奏推进。\n\n15. 密度阈值约束。以下词汇在每500字内不得超过1次：「确实」「当然」「不仅...而且」「值得注意的是」「显而易见」「不言而喻」「至关重要」「不可或缺」「换言之」「简而言之」「综上所述」。密度超限即为AI风格堆叠。\n\n16. 禁止Chatbot痕迹。对话和叙述中禁止出现「当然！」「没问题！」「确实如此」「希望对你有帮助」「让我们来看看」等助手腔。这些是聊天界面残留，不是小说语言。\n\n17. 禁止speculative gap-filling。AI用「似乎」「仿佛」「给人一种...的感觉」「让人不禁」「隐约可以感受到」等模糊表述填充信息缺口。如果角色不安，就写他不安的具体表现，不要写「他似乎有些不安」。\n\n以上规则在生成时就要遵守，不是事后修改。生成阶段遵守这些规则，能从根源降低AI文本特征。";
+var DEAI_METHODOLOGY_PROMPT = "【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。核心认知：同义词替换无效，真正影响AI特征的是表达规律——句子排列、段落组织、信息顺序、完整度分布。以下以肯定式约束为主；风格细节以作者声纹为准。\n\n1. 第一句必须是具体动作、身体感受、环境声音或视觉画面；禁止「随着」「众所周知」等空泛开头。\n2. 句长方差要大：连续三句长度差异>30%；短句仅用于关键转折，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作替代抽象形容；情绪写成可见行为，不写「空气仿佛凝固」。\n4. 场景按戏剧价值分配篇幅，结尾允许保留未解决张力；禁止均匀分段和总结腔收束。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡，必须改变信息呈现顺序本身。\n6. 叙述视角体现判断：看什么不看什么、语气倾向、信息节奏；叙述者不是评论员。\n7. 段落结构要有变化；禁止「描述-对话-描述」循环，每个对话回合的描写配比必须不同。\n8. 对白要有残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果，少用解释性从句。\n9. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。\n10. 自然不等于混乱：禁止语病、错别字和故意重复；过度纠错（连续碎片、「不是X。是Y。」）本身也是AI信号。\n11. 小说正文特殊保护：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔不得改变；伏笔回收距离至少3章。\n12. 禁止Chatbot痕迹和模糊填充：不出现助手腔；角色不安就写具体表现，不用「似乎」「仿佛」「给人一种...的感觉」。\n\n以上规则在生成时执行，不是事后修改。";
+function collectDeaiFindingsWithObservability(candidate, onDegraded, detect) {
+  var detector = detect || function(text) { return DeAiProcessor.detectBody(text, {}); };
+  try {
+    return { findings: detector(candidate).findings || [], degraded: false };
+  } catch (error) {
+    var message = error && error.message ? error.message : String(error);
+    if (typeof onDegraded === 'function') onDegraded(message);
+    return { findings: [], degraded: true, degradedReason: message };
+  }
+}
 var DEAI_CREATIVE_PROMPT = [
   '【降AI创作风格 - 创作执行阶段】',
   '只做正向风格执行，不做方法解释，不输出检查清单。',
-  '1. 第一句直接进入具体动作、身体感受、环境声音或视觉画面。',
-  '2. 连续三句的长度保持明显差异；短句仅用于关键转折制造节奏冲击，其余用长句铺展细节，禁止连续三句以上低于8字的碎片链。',
-  '3. 用明确部位、力度和方向的具体动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。',
-  '4. 场景按戏剧价值分配轻重；结尾允许保留未解决张力。',
-  '5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡。',
-  '6. 对话保留残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果。',
-  '7. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。',
-  '8. 只输出本步骤定稿产物。'
+  '1. 开场进入具体动作、身体感受、环境声音或视觉画面；连续三句长度保持明显差异，短句仅用于关键转折，禁止碎片链。',
+  '2. 用明确部位、力度和方向的动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。',
+  '3. 场景按戏剧价值分配轻重，结尾允许保留未解决张力；连接词只按叙事需要使用，用动作和信息顺序承担过渡。',
+  '4. 对白保留残缺和轻重，不替读者总结因果；同一段视角一致，紧张场景短句密集，舒缓场景长句铺陈。',
+  '5. 整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。只输出本步骤定稿产物。'
 ].join('\n');
 var DEAI_POLISH_PROMPT = [
   '【降AI打磨契约 - 语言收敛阶段】',
@@ -767,4 +1260,11 @@ function resolveDeaiPromptForChainStep(step, skillIndex, totalSkillCount) {
   return DEAI_CREATIVE_PROMPT;
 }
 
-export { DeAiProcessor, DEAI_METHODOLOGY_PROMPT, DEAI_CREATIVE_PROMPT, DEAI_POLISH_PROMPT, resolveDeaiPromptForChainStep };
+export {
+  DeAiProcessor,
+  DEAI_METHODOLOGY_PROMPT,
+  DEAI_CREATIVE_PROMPT,
+  DEAI_POLISH_PROMPT,
+  resolveDeaiPromptForChainStep,
+  collectDeaiFindingsWithObservability
+};

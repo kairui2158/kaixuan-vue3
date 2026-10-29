@@ -200,6 +200,18 @@ describe("body chain execution contract", () => {
     expect(deduped).not.toContain("旧输出回显")
   })
 
+  it("keeps the generator artifact ledger available for body contract acceptance", () => {
+    const output = [
+      "正文本体。",
+      "",
+      "【正文交接】",
+      "FACT_LOCK:人物位置=灯塔底层",
+      "【正文交接结束】"
+    ].join("\n")
+
+    expect(dedupeChainIntermediateOutput(output)).toContain("【正文交接】")
+  })
+
   it("keeps only one canonical memory block when a folder skill echoes it back", () => {
     const previousOutput = [
       "S1 提取的结构化事实：旧案现场缺少证人。",

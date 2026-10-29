@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-6-app-wins",
+  "runId": "run-1793310185918-1",
+  "runStatus": "success",
+  "requestCount": 3,
+  "heartbeatFrames": 24,
+  "screenshots": [
+    "scenario-6-app-wins.png"
+  ]
+}

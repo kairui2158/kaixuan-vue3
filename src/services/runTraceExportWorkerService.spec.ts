@@ -59,7 +59,7 @@ describe('run trace export worker service', () => {
     const json = await exportRunTraceJsonInWorker(run)
     const text = await exportRunTraceTextInWorker(run)
 
-    expect(json.ok && json.run.schemaVersion).toBe(19)
+    expect(json.ok && json.run.schemaVersion).toBe(20)
     expect(text.ok && text.text).toContain('===== 运行记录 =====')
     expect(worker.postMessage).toHaveBeenCalledTimes(2)
   })

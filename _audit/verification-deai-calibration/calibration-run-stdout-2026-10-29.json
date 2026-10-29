@@ -1,0 +1,640 @@
+{
+  "generatedAt": "2026-10-29T15:05:11.084Z",
+  "corpus": {
+    "corpusRoot": "D:/codex/deai-corpus",
+    "humanLabels": 6494,
+    "humanSampled": 900,
+    "humanTrain": 720,
+    "humanHeldOut": 180,
+    "modelPositiveSamples": 12,
+    "seed": 20261029,
+    "eligibility": "1500-6000 non-whitespace chars"
+  },
+  "human": {
+    "sampleCount": 720,
+    "verdicts": {
+      "suspicious": 275,
+      "clean": 101,
+      "advisory": 321,
+      "likely_ai": 23
+    },
+    "findingCounts": {
+      "deai-freq-words": 697,
+      "deai-banned-phrase": 507,
+      "deai-uniform-sentence-length": 649,
+      "deai-broken-punctuation": 346,
+      "deai-repeated-bigram": 695,
+      "deai-repeated-trigram": 551,
+      "deai-style-drift": 399,
+      "deai-banned-vocab": 126,
+      "deai-connector-density": 1
+    },
+    "valueStats": {
+      "scores": {
+        "count": 720,
+        "mean": 41.938,
+        "min": 12,
+        "p50": 42,
+        "p90": 59,
+        "p95": 63,
+        "p99": 68,
+        "max": 70
+      },
+      "effectiveChars": {
+        "count": 720,
+        "mean": 2375.574,
+        "min": 17,
+        "p50": 2407.5,
+        "p90": 3417.9,
+        "p95": 3792.2,
+        "p99": 4389.78,
+        "max": 5274
+      },
+      "dialogueChars": {
+        "count": 720,
+        "mean": 860.371,
+        "min": 0,
+        "p50": 772,
+        "p90": 1580,
+        "p95": 1827.6,
+        "p99": 2168.82,
+        "max": 2690
+      },
+      "narrationHedging": {
+        "count": 720,
+        "mean": 0,
+        "min": 0,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "dialogueHedging": {
+        "count": 720,
+        "mean": 0,
+        "min": 0,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "repeatedBigramMax": {
+        "count": 720,
+        "mean": 705.3,
+        "min": 0,
+        "p50": 723.5,
+        "p90": 1109.5,
+        "p95": 1297.3,
+        "p99": 1712.62,
+        "max": 2287
+      },
+      "repeatedTrigramMax": {
+        "count": 720,
+        "mean": 229.41,
+        "min": 0,
+        "p50": 245,
+        "p90": 444,
+        "p95": 511.15,
+        "p99": 701.72,
+        "max": 995
+      }
+    },
+    "gates": {
+      "dialogueHedgingFalsePositiveRate": 0,
+      "dialogueHedgingEligibleCount": 706,
+      "blockingRate": 0.7389,
+      "suspiciousOrHigherRate": 0.4139
+    },
+    "blockedFindingCounts": {
+      "deai-broken-punctuation": 346,
+      "deai-style-drift": 289,
+      "deai-banned-phrase": 95,
+      "deai-banned-vocab": 6,
+      "deai-freq-words": 60,
+      "deai-connector-density": 1
+    },
+    "thresholdFields": {
+      "aiFreqWord": {
+        "name": "aiFreqWord",
+        "value": 3,
+        "scaledValue": 3,
+        "source": "default"
+      },
+      "bannedVocab": {
+        "name": "bannedVocab",
+        "value": 0.8,
+        "scaledValue": 0.8,
+        "source": "default"
+      },
+      "cliche": {
+        "name": "cliche",
+        "value": 1,
+        "scaledValue": 1,
+        "source": "default"
+      },
+      "connector": {
+        "name": "connector",
+        "value": 3.5,
+        "scaledValue": 3.5,
+        "source": "default"
+      },
+      "narrationHedging": {
+        "name": "narrationHedging",
+        "value": 4,
+        "scaledValue": 4,
+        "source": "default"
+      },
+      "dialogueHedging": {
+        "name": "dialogueHedging",
+        "value": 6,
+        "scaledValue": 6,
+        "source": "default"
+      },
+      "repeatedBigramMax": {
+        "name": "repeatedBigramMax",
+        "value": 12,
+        "scaledValue": 12,
+        "source": "default"
+      },
+      "repeatedTrigramMax": {
+        "name": "repeatedTrigramMax",
+        "value": 8,
+        "scaledValue": 8,
+        "source": "default"
+      }
+    }
+  },
+  "humanHeldOut": {
+    "sampleCount": 180,
+    "verdicts": {
+      "advisory": 77,
+      "suspicious": 79,
+      "clean": 17,
+      "likely_ai": 7
+    },
+    "suspiciousOrHigherRate": 0.4778,
+    "blockingRate": 0.7556,
+    "findingCounts": {
+      "deai-uniform-sentence-length": 160,
+      "deai-broken-punctuation": 86,
+      "deai-repeated-bigram": 177,
+      "deai-repeated-trigram": 131,
+      "deai-style-drift": 115,
+      "deai-freq-words": 174,
+      "deai-banned-phrase": 133,
+      "deai-banned-vocab": 36
+    }
+  },
+  "humanByAuthor": {
+    "踏星": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 44,
+        "clean": 10,
+        "advisory": 45,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.45,
+      "blockingRate": 0.7,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-banned-vocab": 19,
+        "deai-banned-phrase": 72,
+        "deai-uniform-sentence-length": 91,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 88,
+        "deai-style-drift": 66,
+        "deai-broken-punctuation": 39
+      }
+    },
+    "卖报小郎君": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 64,
+        "advisory": 30,
+        "likely_ai": 6
+      },
+      "suspiciousOrHigherRate": 0.7,
+      "blockingRate": 1,
+      "findingCounts": {
+        "deai-freq-words": 95,
+        "deai-banned-phrase": 89,
+        "deai-uniform-sentence-length": 96,
+        "deai-broken-punctuation": 100,
+        "deai-repeated-bigram": 96,
+        "deai-repeated-trigram": 97,
+        "deai-style-drift": 63,
+        "deai-banned-vocab": 16
+      }
+    },
+    "远瞳": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 60,
+        "likely_ai": 10,
+        "advisory": 28,
+        "clean": 2
+      },
+      "suspiciousOrHigherRate": 0.7,
+      "blockingRate": 0.94,
+      "findingCounts": {
+        "deai-freq-words": 100,
+        "deai-uniform-sentence-length": 79,
+        "deai-broken-punctuation": 88,
+        "deai-repeated-bigram": 93,
+        "deai-style-drift": 79,
+        "deai-banned-vocab": 29,
+        "deai-banned-phrase": 69,
+        "deai-repeated-trigram": 73
+      }
+    },
+    "老鹰吃小鸡": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 68,
+        "suspicious": 26,
+        "likely_ai": 2,
+        "clean": 4
+      },
+      "suspiciousOrHigherRate": 0.28,
+      "blockingRate": 0.64,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-uniform-sentence-length": 94,
+        "deai-broken-punctuation": 15,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 95,
+        "deai-style-drift": 79,
+        "deai-banned-phrase": 58,
+        "deai-banned-vocab": 17
+      }
+    },
+    "蝴蝶蓝": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 35,
+        "advisory": 51,
+        "clean": 13,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.36,
+      "blockingRate": 0.62,
+      "findingCounts": {
+        "deai-freq-words": 94,
+        "deai-banned-phrase": 67,
+        "deai-uniform-sentence-length": 98,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 87,
+        "deai-style-drift": 61,
+        "deai-broken-punctuation": 36,
+        "deai-banned-vocab": 11
+      }
+    },
+    "佛前献花": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 46,
+        "suspicious": 37,
+        "clean": 15,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.39,
+      "blockingRate": 0.76,
+      "findingCounts": {
+        "deai-freq-words": 100,
+        "deai-banned-vocab": 18,
+        "deai-banned-phrase": 96,
+        "deai-uniform-sentence-length": 83,
+        "deai-repeated-bigram": 92,
+        "deai-repeated-trigram": 67,
+        "deai-style-drift": 52,
+        "deai-connector-density": 1
+      }
+    },
+    "辰东": {
+      "sampleCount": 100,
+      "verdicts": {
+        "clean": 5,
+        "advisory": 27,
+        "suspicious": 62,
+        "likely_ai": 6
+      },
+      "suspiciousOrHigherRate": 0.68,
+      "blockingRate": 0.94,
+      "findingCounts": {
+        "deai-freq-words": 99,
+        "deai-uniform-sentence-length": 97,
+        "deai-repeated-bigram": 98,
+        "deai-repeated-trigram": 61,
+        "deai-banned-phrase": 68,
+        "deai-broken-punctuation": 90,
+        "deai-style-drift": 73,
+        "deai-banned-vocab": 21
+      }
+    },
+    "我会修空调": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 48,
+        "clean": 33,
+        "suspicious": 19
+      },
+      "suspiciousOrHigherRate": 0.19,
+      "blockingRate": 0.57,
+      "findingCounts": {
+        "deai-freq-words": 93,
+        "deai-banned-phrase": 65,
+        "deai-uniform-sentence-length": 96,
+        "deai-repeated-bigram": 99,
+        "deai-banned-vocab": 14,
+        "deai-repeated-trigram": 51,
+        "deai-style-drift": 26,
+        "deai-broken-punctuation": 30
+      }
+    },
+    "未知作者": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 7,
+        "clean": 36,
+        "advisory": 55,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.09,
+      "blockingRate": 0.51,
+      "findingCounts": {
+        "deai-freq-words": 94,
+        "deai-banned-vocab": 17,
+        "deai-banned-phrase": 56,
+        "deai-uniform-sentence-length": 75,
+        "deai-broken-punctuation": 34,
+        "deai-repeated-bigram": 94,
+        "deai-repeated-trigram": 63,
+        "deai-style-drift": 15
+      }
+    }
+  },
+  "humanByGenre": {
+    "unknown": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 44,
+        "clean": 10,
+        "advisory": 45,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.45,
+      "blockingRate": 0.7,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-banned-vocab": 19,
+        "deai-banned-phrase": 72,
+        "deai-uniform-sentence-length": 91,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 88,
+        "deai-style-drift": 66,
+        "deai-broken-punctuation": 39
+      }
+    },
+    "玄幻": {
+      "sampleCount": 200,
+      "verdicts": {
+        "suspicious": 126,
+        "advisory": 57,
+        "likely_ai": 12,
+        "clean": 5
+      },
+      "suspiciousOrHigherRate": 0.69,
+      "blockingRate": 0.97,
+      "findingCounts": {
+        "deai-freq-words": 194,
+        "deai-banned-phrase": 157,
+        "deai-uniform-sentence-length": 193,
+        "deai-broken-punctuation": 190,
+        "deai-repeated-bigram": 194,
+        "deai-repeated-trigram": 158,
+        "deai-style-drift": 136,
+        "deai-banned-vocab": 37
+      }
+    },
+    "西幻": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 60,
+        "likely_ai": 10,
+        "advisory": 28,
+        "clean": 2
+      },
+      "suspiciousOrHigherRate": 0.7,
+      "blockingRate": 0.94,
+      "findingCounts": {
+        "deai-freq-words": 100,
+        "deai-uniform-sentence-length": 79,
+        "deai-broken-punctuation": 88,
+        "deai-repeated-bigram": 93,
+        "deai-style-drift": 79,
+        "deai-banned-vocab": 29,
+        "deai-banned-phrase": 69,
+        "deai-repeated-trigram": 73
+      }
+    },
+    "都市高武": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 68,
+        "suspicious": 26,
+        "likely_ai": 2,
+        "clean": 4
+      },
+      "suspiciousOrHigherRate": 0.28,
+      "blockingRate": 0.64,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-uniform-sentence-length": 94,
+        "deai-broken-punctuation": 15,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 95,
+        "deai-style-drift": 79,
+        "deai-banned-phrase": 58,
+        "deai-banned-vocab": 17
+      }
+    },
+    "游戏竞技": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 35,
+        "advisory": 51,
+        "clean": 13,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.36,
+      "blockingRate": 0.62,
+      "findingCounts": {
+        "deai-freq-words": 94,
+        "deai-banned-phrase": 67,
+        "deai-uniform-sentence-length": 98,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 87,
+        "deai-style-drift": 61,
+        "deai-broken-punctuation": 36,
+        "deai-banned-vocab": 11
+      }
+    },
+    "悬疑灵异": {
+      "sampleCount": 200,
+      "verdicts": {
+        "advisory": 94,
+        "suspicious": 56,
+        "clean": 48,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.29,
+      "blockingRate": 0.665,
+      "findingCounts": {
+        "deai-freq-words": 193,
+        "deai-banned-vocab": 32,
+        "deai-banned-phrase": 161,
+        "deai-uniform-sentence-length": 179,
+        "deai-repeated-bigram": 191,
+        "deai-repeated-trigram": 118,
+        "deai-style-drift": 78,
+        "deai-connector-density": 1,
+        "deai-broken-punctuation": 30
+      }
+    },
+    "言情": {
+      "sampleCount": 49,
+      "verdicts": {
+        "suspicious": 2,
+        "advisory": 27,
+        "clean": 20
+      },
+      "suspiciousOrHigherRate": 0.0408,
+      "blockingRate": 0.4082,
+      "findingCounts": {
+        "deai-freq-words": 45,
+        "deai-banned-vocab": 10,
+        "deai-banned-phrase": 26,
+        "deai-uniform-sentence-length": 48,
+        "deai-broken-punctuation": 15,
+        "deai-repeated-bigram": 47,
+        "deai-repeated-trigram": 22,
+        "deai-style-drift": 3
+      }
+    },
+    "都市脑洞": {
+      "sampleCount": 51,
+      "verdicts": {
+        "clean": 16,
+        "advisory": 28,
+        "suspicious": 5,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.1373,
+      "blockingRate": 0.6078,
+      "findingCounts": {
+        "deai-freq-words": 49,
+        "deai-uniform-sentence-length": 27,
+        "deai-repeated-bigram": 47,
+        "deai-banned-phrase": 30,
+        "deai-broken-punctuation": 19,
+        "deai-repeated-trigram": 41,
+        "deai-style-drift": 12,
+        "deai-banned-vocab": 7
+      }
+    }
+  },
+  "positives": {
+    "model": {
+      "prov-1788185503573/deepseek-v4-pro": {
+        "sampleCount": 12,
+        "ngramHitRate": 0.9167,
+        "anyFindingHitRate": 1,
+        "verdicts": {
+          "advisory": 5,
+          "suspicious": 5,
+          "clean": 2
+        }
+      }
+    },
+    "repeatedSkeleton": {
+      "sampleCount": 40,
+      "ngramHitRate": 1,
+      "anyFindingHitRate": 1,
+      "verdicts": {
+        "suspicious": 26,
+        "likely_ai": 4,
+        "advisory": 10
+      }
+    },
+    "lexicalHedging": {
+      "sampleCount": 41,
+      "ngramHitRate": 0.9756,
+      "anyFindingHitRate": 1,
+      "verdicts": {
+        "suspicious": 13,
+        "likely_ai": 2,
+        "advisory": 16,
+        "clean": 10
+      }
+    }
+  },
+  "thresholdSensitivity": [
+    {
+      "scorePoint": 0.2,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.25,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.3,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.35,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.4,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.45,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.5,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.55,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.6,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.65,
+      "suspiciousOrHigher": 180
+    },
+    {
+      "scorePoint": 0.7,
+      "suspiciousOrHigher": 180
+    }
+  ],
+  "performance": {
+    "textChars": 20000,
+    "reportEffectiveChars": 16201,
+    "reportDialogueChars": 3465,
+    "elapsedMs": 14.1
+  },
+  "provenance": {
+    "note": "Multi-author human-negative corpus plus real historical model positives; model diversity remains single provider/model and must stay model-scoped."
+  }
+}
+[calibrate-deai-v2] artifact: D:\codex\novel-workshop-vue3\_audit\verification-deai-calibration\deai-v2-calibration-2026-10-29.json

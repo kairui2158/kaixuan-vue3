@@ -52,6 +52,9 @@ describe('app shutdown', () => {
     const runTraceStore = useRunTraceStore()
     const projectStore = useProjectStore()
     const traceRunId = runTraceStore.startRun({ stepName: '正文层', mode: 'single', skillNames: [] })
+    projectStore.currentProjectId = 'shutdown-disk-full-project'
+    projectStore.projectName = '关闭前未保存项目'
+    projectStore.markProjectDirty()
     const saveProject = vi.spyOn(projectStore, 'saveProject')
       .mockRejectedValueOnce(new Error('disk full'))
 
@@ -66,5 +69,63 @@ describe('app shutdown', () => {
     expect(result.projectSaveOk).toBe(false)
     expect(result.projectFailedKeys).toEqual(['project-save-exception'])
     expect(result.flushErrors).toEqual(['disk full'])
+  })
+
+  it('does not write an unchanged project during shutdown', async () => {
+    const pipelineStore = usePipelineStore()
+    const runTraceStore = useRunTraceStore()
+    const projectStore = useProjectStore()
+    const saveProject = vi.spyOn(projectStore, 'saveProject')
+
+    const result = await shutdownApplication({
+      pipelineStore,
+      runTraceStore,
+      projectStore,
+    })
+
+    expect(saveProject).not.toHaveBeenCalled()
+    expect(result.projectSaveOk).toBe(true)
+    expect(result.projectFailedKeys).toEqual([])
+    expect(window.electronAPI.storageWrite).not.toHaveBeenCalled()
+  })
+
+  it('does not write a loaded but unchanged project during shutdown', async () => {
+    const pipelineStore = usePipelineStore()
+    const runTraceStore = useRunTraceStore()
+    const projectStore = useProjectStore()
+    projectStore.currentProjectId = 'shutdown-loaded-project'
+    projectStore.projectName = '已加载但未修改'
+    const saveProject = vi.spyOn(projectStore, 'saveProject')
+
+    const result = await shutdownApplication({
+      pipelineStore,
+      runTraceStore,
+      projectStore,
+    })
+
+    expect(saveProject).not.toHaveBeenCalled()
+    expect(result.projectSaveOk).toBe(true)
+    expect(result.projectFailedKeys).toEqual([])
+    expect(window.electronAPI.storageWrite).not.toHaveBeenCalled()
+  })
+
+  it('saves a dirty project during shutdown and reports a write failure', async () => {
+    const pipelineStore = usePipelineStore()
+    const runTraceStore = useRunTraceStore()
+    const projectStore = useProjectStore()
+    projectStore.currentProjectId = 'shutdown-dirty-project'
+    projectStore.projectName = '关闭前未保存项目'
+    projectStore.markProjectDirty()
+    vi.mocked(window.electronAPI.storageWrite).mockResolvedValueOnce(false)
+
+    const result = await shutdownApplication({
+      pipelineStore,
+      runTraceStore,
+      projectStore,
+    })
+
+    expect(result.projectSaveOk).toBe(false)
+    expect(result.projectFailedKeys).toEqual(['project'])
+    expect(window.electronAPI.storageWrite).toHaveBeenCalled()
   })
 })

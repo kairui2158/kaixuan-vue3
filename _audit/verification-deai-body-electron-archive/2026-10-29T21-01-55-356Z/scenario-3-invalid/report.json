@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-3-invalid",
+  "runId": "run-1793307589440-1",
+  "runStatus": "success",
+  "requestCount": 3,
+  "heartbeatFrames": 12,
+  "screenshots": [
+    "scenario-3-invalid.png"
+  ]
+}

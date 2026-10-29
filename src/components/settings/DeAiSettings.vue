@@ -25,8 +25,11 @@
              <input type="radio" value="deep-fix" v-model="hardRuleModeValue" @change="selectHardRuleMode"> 深度修复
            </label>
            <label class="deai-radio-option">
-             <input type="radio" value="legacy-auto" v-model="hardRuleModeValue" @change="selectHardRuleMode"> 兼容自动替换
+             <input type="radio" value="legacy-auto" v-model="hardRuleModeValue" @change="selectHardRuleMode"> 兼容自动替换（不提高人味）
            </label>
+          <div class="deai-param-note" v-if="hardRuleModeValue === 'legacy-auto'">
+            该模式只做字符级替换，不改变表达规律；默认不启用，仅供旧项目显式兼容。
+          </div>
          </div>
        </div>
        <div class="deai-param-item">
@@ -54,8 +57,8 @@
            </label>
          </div>
        </div>
-        <div class="deai-param-item">
-          <span class="deai-param-label">文本类型</span>
+       <div class="deai-param-item">
+         <span class="deai-param-label">文本类型</span>
           <div id="deai-text-type" class="deai-radio-group">
             <label class="deai-radio-option">
               <input type="radio" value="novel" v-model="deAiStore.textType" @change="deAiStore.saveConfig()"> 小说
@@ -66,9 +69,14 @@
             <label class="deai-radio-option">
               <input type="radio" value="media" v-model="deAiStore.textType" @change="deAiStore.saveConfig()"> 新媒体
             </label>
-          </div>
-       </div>
       </div>
+        <div
+          v-if="skillFinalStepDetection === 'off'"
+          id="deai-skill-final-step-detection"
+          class="deai-param-note deai-skill-state"
+        >终步降AI检测已由 SKILL 声明关闭；用户后处理模式仍为：{{ hardRuleModeLabel }}</div>
+      </div>
+   </div>
    </div>
    </div>
 
@@ -210,9 +218,18 @@
         <div v-if="!deAiStore.lastDetectReport" class="deai-detect-empty">暂无检测报告。生成正文或运行去AI味后，这里会显示最近一次检测摘要。</div>
         <template v-else>
           <div class="deai-detect-metrics">
+            <span v-if="deAiStore.lastDetectReport.kernelVersion">内核 {{ deAiStore.lastDetectReport.kernelVersion }}{{ deAiStore.lastDetectReport.provisional ? '（暂定阈值）' : '' }}</span>
+            <span v-if="typeof deAiStore.lastDetectReport.score === 'number'">评分 {{ deAiStore.lastDetectReport.score }} / {{ deAiStore.lastDetectReport.verdict || '-' }}</span>
             <span>句长变异 {{ deAiStore.lastDetectReport.metrics.sentenceLengthCV }}</span>
             <span>连接词密度 {{ deAiStore.lastDetectReport.metrics.connectorDensity }}</span>
-            <span>保护片段 {{ deAiStore.lastDetectReport.metrics.protectedSpans.hit }}/{{ deAiStore.lastDetectReport.metrics.protectedSpans.total }}</span>
+            <span>保护片段 {{ deAiStore.lastDetectReport.metrics.protectedSpans.total }}</span>
+            <span v-if="deAiStore.lastDetectReport.dialogueChars != null">对白 {{ deAiStore.lastDetectReport.dialogueChars }} 字</span>
+            <span v-if="deAiStore.lastDetectReport.styleDrift">
+              风格漂移 {{ deAiStore.lastDetectReport.styleDrift.firstLastDelta }}（{{ deAiStore.lastDetectReport.styleDrift.severity }}）
+            </span>
+            <span v-if="deAiStore.lastDetectReport.aiEditedFraction">AI编辑占比 {{ deAiStore.lastDetectReport.aiEditedFraction }}</span>
+            <span v-if="lastDeaiChangeRate != null">深度修复变更率 {{ (lastDeaiChangeRate * 100).toFixed(0) }}%</span>
+            <span v-if="deAiQualityGateDegraded" class="deai-detect-warning">降AI门禁降级：{{ deAiQualityGateDegraded }}</span>
           </div>
           <div
             v-for="finding in deAiStore.lastDetectReport.findings"
@@ -259,12 +276,14 @@ import { useDeAiStore } from '../../stores/deai'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { useProviderStore } from '../../stores/provider'
+import { useRunTraceStore } from '../../stores/runTrace'
 import DeAiFlowPreview from '../deai/DeAiFlowPreview.vue'
 
 const deAiStore = useDeAiStore()
 const skillStore = useSkillStore()
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
+const runTraceStore = useRunTraceStore()
 
 const selectedChainSkill = ref('')
 const selectedSplitSkill = ref('')
@@ -275,6 +294,69 @@ const hardRuleModeValue = computed<DeAiHardRuleMode>({
 })
 
 const verifyProvider = computed(() => providerStore.activeVerifyProvider)
+
+interface DeaiInjectionPolicyDetail {
+  step?: unknown
+  skillIndex?: unknown
+  totalSkillCount?: unknown
+  source?: unknown
+  variant?: unknown
+  policy?: {
+    contractVersion?: unknown
+    generation?: unknown
+    finalStepDetection?: unknown
+    conflictPolicy?: unknown
+  } | null
+  warnings?: unknown[]
+}
+
+const hardRuleModeLabels: Record<DeAiHardRuleMode, string> = {
+  'legacy-auto': '兼容清洗',
+  'detect-report': '检测报告',
+  'deep-fix': '深度修复',
+}
+
+const hardRuleModeLabel = computed(() => hardRuleModeLabels[deAiStore.hardRuleMode])
+
+const latestDeaiObservations = computed(() => {
+  let lastChangeRate: number | null = null
+  let qualityGateDegraded = ''
+  let finalStepDetection: 'on' | 'off' | null = null
+  const observationsIncomplete = () =>
+    lastChangeRate === null || !qualityGateDegraded || finalStepDetection === null
+  for (let runIndex = runTraceStore.runs.length - 1; runIndex >= 0 && observationsIncomplete(); runIndex -= 1) {
+    const events = runTraceStore.runs[runIndex]?.events || []
+    for (let eventIndex = events.length - 1; eventIndex >= 0 && observationsIncomplete(); eventIndex -= 1) {
+      const event = events[eventIndex]
+      if (lastChangeRate === null && event.type === 'deai-change-rate') {
+        try {
+          const value = JSON.parse(String(event.detail || '{}')) as { changeRate?: unknown }
+          if (typeof value.changeRate === 'number' && Number.isFinite(value.changeRate)) {
+            lastChangeRate = value.changeRate
+          }
+        } catch {
+          // Invalid detail stays invisible instead of breaking the settings page.
+        }
+      } else if (!qualityGateDegraded && event.type === 'deai-quality-gate-degraded') {
+        qualityGateDegraded = event.detail || '终步降AI检测降级'
+      } else if (finalStepDetection === null && event.type === 'deai-injection-policy') {
+        try {
+          const detail = JSON.parse(String(event.detail || '{}')) as DeaiInjectionPolicyDetail
+          if (detail.step === 4 && detail.policy?.finalStepDetection === 'off') {
+            finalStepDetection = 'off'
+          }
+        } catch {
+          // A malformed detail must not hide the other observations.
+        }
+      }
+    }
+  }
+  return { lastChangeRate, qualityGateDegraded, finalStepDetection }
+})
+
+const lastDeaiChangeRate = computed(() => latestDeaiObservations.value.lastChangeRate)
+const deAiQualityGateDegraded = computed(() => latestDeaiObservations.value.qualityGateDegraded)
+const skillFinalStepDetection = computed(() => latestDeaiObservations.value.finalStepDetection)
 
 // 硬规则定义与 de-ai.js 的 HARD_RULES 保持单一事实源
 const hardRulesList = [
@@ -381,6 +463,7 @@ function saveAllConfig() {
 }
 .deai-detect-empty { color: var(--text-muted); font-size: var(--font-size-md); }
 .deai-detect-metrics { display: flex; flex-wrap: wrap; gap: var(--space-4); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.deai-detect-warning { color: var(--warning); font-weight: 600; }
 .deai-detect-finding {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -562,6 +645,13 @@ function saveAllConfig() {
   font-size: var(--font-size-sm);
 }
 .deai-radio-option input[type=radio] { cursor: pointer; }
+.deai-param-note {
+  width: 100%;
+  margin-top: var(--space-2);
+  font-size: var(--font-size-md);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
 
 /* === 验证供应商状态 === */
 .deai-verify-status {

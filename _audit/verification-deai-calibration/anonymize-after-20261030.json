@@ -1,0 +1,40 @@
+{
+  "labels": 6494,
+  "authorCounts": {
+    "踏星": 5594,
+    "卖报小郎君": 100,
+    "远瞳": 100,
+    "老鹰吃小鸡": 100,
+    "蝴蝶蓝": 100,
+    "佛前献花": 100,
+    "辰东": 100,
+    "我会修空调": 100,
+    "作者A": 100,
+    "作者B": 100
+  },
+  "unknownAuthor": 0,
+  "anonymousLabels": 200,
+  "manifestAuthors": [
+    "卖报小郎君",
+    "远瞳",
+    "老鹰吃小鸡",
+    "蝴蝶蓝",
+    "佛前献花",
+    "辰东",
+    "我会修空调",
+    "作者A",
+    "作者B"
+  ],
+  "gateDecision": "NOT_READY",
+  "failedChecks": [
+    "minSamplesPerModelGroup",
+    "humanSuspiciousOrHigherRate",
+    "humanBlockingRate",
+    "worstAuthorSuspiciousOrHigherRate",
+    "modelPositiveSuspiciousOrHigherRecall",
+    "recallConfidenceIntervalHalfWidth",
+    "thresholdCurveDistinctCounts"
+  ],
+  "verifiedAuthorCount": 10,
+  "unverifiedAuthorLabels": 0
+}

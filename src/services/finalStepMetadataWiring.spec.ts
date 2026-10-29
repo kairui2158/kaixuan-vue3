@@ -56,7 +56,7 @@ describe('final step metadata fidelity wiring', () => {
     expect(source).toContain('function buildFinalStepUpstreamAnchors')
     expect(source).toContain('function buildFinalStepEchoRetryFeedback')
     expect(source).toContain('buildFinalStepEchoRetryFeedback(')
-    expect(source).toContain("finalStepRetry ?? { role: 'polish' as const }")
+    expect(source).toContain("finalStepRetry ?? { role: 'polish' as const, deaiDetection: 'on' as const }")
     expect(source).toContain("channel: 'non-folder'")
     expect(source).not.toContain('[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物。')
     expect(source).not.toContain('let lastFinalStepCandidate')

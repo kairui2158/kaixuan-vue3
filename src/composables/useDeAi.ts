@@ -10,6 +10,9 @@ import { createApiCallBudget, type ApiCallBudget } from '../services/apiCallBudg
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../services/generationValidity'
 import type { RealSkillAgentContext } from '../services/realSkillTypes'
 import { useRunTraceStore } from '../stores/runTrace'
+import { useProjectStore } from '../stores/project'
+import { appendDeaiVoiceProfile, buildDeaiVoiceProfile, buildDeaiVoiceProfileTraceEvent } from '../services/deaiVoiceProfile'
+import { buildDeaiDetectSummaryEvents } from '../services/deaiObservationEvents'
 import { useAiCallTrace } from './useAiCallTrace'
 
 /**
@@ -21,6 +24,7 @@ export function useDeAi() {
   const providerStore = useProviderStore()
   const skillStore = useSkillStore()
   const agentStore = useAgentStore()
+  const projectStore = useProjectStore()
   const runTraceStore = useRunTraceStore()
   let deAiTrace: ReturnType<typeof useAiCallTrace> | null = null
   let deAiBudget: ApiCallBudget | null = null
@@ -245,7 +249,7 @@ async function callAiApi(
       if (deAiTrace?.runId) {
         runTraceStore.attachProcessingReport(deAiTrace.runId, {
           stage: 'post',
-          processor: 'hard-rules',
+          processor: 'hard-rules-legacy-auto',
           status: rolledBack ? 'warning' : 'success',
           inputPreview: text.slice(0, 200),
           outputPreview: (result && result.text ? result.text : text).slice(0, 200),
@@ -277,11 +281,16 @@ async function callAiApi(
 
     const report = DeAiProcessor.detectBody(text, { hardRules: deAiStore.hardRules })
     deAiStore.setLastDetectReport(report)
-    if (deAiTrace?.runId) {
+    const detectTrace = deAiTrace
+    if (detectTrace) {
+      buildDeaiDetectSummaryEvents(report).forEach(event => detectTrace.addEvent(event))
+    }
+    const detectTraceRunId = deAiTrace?.runId
+    if (detectTraceRunId) {
       const blocking = report.findings.filter((item: any) => item.severity === 'blocking').length
-      runTraceStore.attachProcessingReport(deAiTrace.runId, {
+      runTraceStore.attachProcessingReport(detectTraceRunId, {
         stage: 'post',
-        processor: 'deai',
+        processor: 'deai-detect-v2',
         status: blocking > 0 ? 'warning' : 'success',
         inputPreview: text.slice(0, 200),
         outputPreview: text.slice(0, 200),
@@ -323,14 +332,25 @@ async function callAiApi(
   async function runMinimalEdit(text: string): Promise<string> {
     const report = DeAiProcessor.detectBody(text, { hardRules: deAiStore.hardRules })
     deAiStore.setLastDetectReport(report)
+    const minimalEditTrace = deAiTrace
+    if (minimalEditTrace) {
+      buildDeaiDetectSummaryEvents(report).forEach(event => minimalEditTrace.addEvent(event))
+    }
     if (report.findings.length === 0) return text
 
     const spans = DeAiProcessor.extractProtectedSpans(text, {})
     const reportText = report.findings.map((item: any) =>
       `${item.type}（${item.count} 处，每千字 ${item.perKilo}）：${item.samples.join('；')}`
     ).join('\n')
+    const voiceProfile = buildDeaiVoiceProfile(projectStore.styleProfileEffective)
+    if (voiceProfile && deAiTrace) {
+      const event = buildDeaiVoiceProfileTraceEvent(voiceProfile)
+      if (event) deAiTrace.addEvent(event)
+    }
     const prompt = [
       DeAiProcessor.getMinimalEditPrompt(),
+      '',
+      appendDeaiVoiceProfile('', voiceProfile),
       '',
       '【检测报告】',
       reportText,
@@ -340,6 +360,22 @@ async function callAiApi(
     ].join('\n')
     const edited = await callAiApi(prompt, text, false, null, '降AI深度修复')
     if (!edited || edited.trim().length === 0) return text
+
+    const blockingFindingCount = report.findings.filter((item: any) => item.severity === 'blocking').length
+    const changeRateGate = DeAiProcessor.evaluateDeepFixEdit(text, edited, blockingFindingCount)
+    deAiTrace?.addEvent({
+      type: 'deai-change-rate',
+      level: changeRateGate.accepted ? 'info' : 'warn',
+      label: '降AI深度修复变更率',
+      detail: JSON.stringify({
+        changeRate: changeRateGate.changeRate,
+        warnThreshold: changeRateGate.warnThreshold,
+        rejectThreshold: changeRateGate.rejectThreshold,
+        accepted: changeRateGate.accepted,
+        warning: changeRateGate.warning || null
+      })
+    })
+    if (!changeRateGate.accepted) return text
 
     const spanCheck = DeAiProcessor.verifyProtectedSpans(text, edited, spans)
     if (spanCheck.mustMissing > 0) return text

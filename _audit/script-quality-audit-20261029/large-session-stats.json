@@ -1,0 +1,62 @@
+[
+  {
+    "file": "rollout-2026-09-18T23-31-49-01a015f9-d431-7723-bbba-2d75219f1f6c_01a0b525-3289-7921-988d-4481e4c7c4e2.jsonl",
+    "size": 3217293095,
+    "lines": 436008,
+    "parseErrors": 6,
+    "functionCalls": 79990,
+    "execCalls": 67770,
+    "scriptCommands": 14301,
+    "toolErrors": 31914,
+    "rejectedPatches": 0,
+    "cwd": "D:\\codex\\novel-workshop-vue3"
+  },
+  {
+    "file": "rollout-2026-10-14T22-33-44-01a015f9-d431-7723-bbba-2d75219f1f6c_01a13ad5-5e49-7f83-8729-f044342b83cb.jsonl",
+    "size": 1500783384,
+    "lines": 191801,
+    "parseErrors": 1,
+    "functionCalls": 34348,
+    "execCalls": 31102,
+    "scriptCommands": 7278,
+    "toolErrors": 15751,
+    "rejectedPatches": 0,
+    "cwd": "D:\\codex\\novel-workshop-vue3"
+  },
+  {
+    "file": "rollout-2026-08-19T01-44-49-01a015f9-d431-7723-bbba-2d75219f1f6c.jsonl",
+    "size": 902670755,
+    "lines": 309609,
+    "parseErrors": 3,
+    "functionCalls": 59645,
+    "execCalls": 43159,
+    "scriptCommands": 11542,
+    "toolErrors": 18239,
+    "rejectedPatches": 0,
+    "cwd": "D:\\codex\\novel-workshop-vue3"
+  },
+  {
+    "file": "rollout-2026-08-10T18-39-21-019feb41-6b86-77f1-881b-3e9473ce08a9.jsonl",
+    "size": 811274816,
+    "lines": 355484,
+    "parseErrors": 1,
+    "functionCalls": 70417,
+    "execCalls": 1204,
+    "scriptCommands": 297,
+    "toolErrors": 8936,
+    "rejectedPatches": 0,
+    "cwd": "C:\\Users\\凯瑞\\Documents\\New project 2"
+  },
+  {
+    "file": "rollout-2026-07-06T04-55-54-019f3410-e0ca-7e90-95b1-3f4a1376116b.jsonl",
+    "size": 669284662,
+    "lines": 309319,
+    "parseErrors": 0,
+    "functionCalls": 64790,
+    "execCalls": 0,
+    "scriptCommands": 0,
+    "toolErrors": 7453,
+    "rejectedPatches": 0,
+    "cwd": "C:\\Users\\凯瑞\\Documents\\New project 2"
+  }
+]

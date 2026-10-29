@@ -6,10 +6,13 @@ export default defineConfig({
     copyPublicDir: false,
     emptyOutDir: false,
     lib: {
-      entry: fileURLToPath(new URL('./src/services/providerProtocols.ts', import.meta.url)),
+      entry: {
+        providerProtocols: fileURLToPath(new URL('./src/services/providerProtocols.ts', import.meta.url)),
+        skillDeaiContractValidation: fileURLToPath(new URL('./src/services/skillDeaiContractValidation.ts', import.meta.url)),
+      },
       formats: ['cjs'],
       name: 'providerProtocols',
-      fileName: () => 'providerProtocols.cjs',
+      fileName: (format, entryName) => `${entryName}.cjs`,
     },
     outDir: 'dist-renderer',
   },

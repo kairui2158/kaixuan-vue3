@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-4-final-step-off",
+  "runId": "run-1793310341695-1",
+  "runStatus": "success",
+  "requestCount": 4,
+  "heartbeatFrames": 17,
+  "screenshots": [
+    "scenario-4-final-step-off-settings.png"
+  ]
+}

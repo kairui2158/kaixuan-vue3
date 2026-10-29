@@ -61,6 +61,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   outlineJournalRestore: function(projectId, snapshot) {
     return ipcRenderer.invoke('outlineJournal:restore', projectId, cloneableSnapshot(snapshot))
   },
+  outlineJournalLegacyCandidates: function(projectId) {
+    return ipcRenderer.invoke('outlineJournal:legacyCandidates', projectId)
+  },
+  outlineJournalRestoreLegacy: function(projectId) {
+    return ipcRenderer.invoke('outlineJournal:restoreLegacy', projectId)
+  },
   outlineJournalTestFailureControl: function(command) {
     return ipcRenderer.invoke('outlineJournal:testFailureControl', command)
   },

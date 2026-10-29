@@ -29,17 +29,23 @@ export async function shutdownApplication(
     reason,
     timeoutMs: options.flushTimeoutMs,
   })
+  // A shutdown must never turn an unchanged in-memory project into a physical
+  // write. During a renderer reload this would overwrite newer external data
+  // (for example seeded project storage) with the old in-memory snapshot.
+  const projectNeedsSave = stores.projectStore.isProjectDirty()
   let projectSaveOk = true
   let projectFailedKeys: string[] = []
   let outlineJournalOk = true
-  try {
-    const saveResult = await stores.projectStore.saveProject()
-    projectSaveOk = saveResult.ok
-    projectFailedKeys = saveResult.failedKeys
-  } catch (error) {
-    projectSaveOk = false
-    projectFailedKeys = ['project-save-exception']
-    traceResult.errors.push(error instanceof Error ? error.message : String(error))
+  if (projectNeedsSave) {
+    try {
+      const saveResult = await stores.projectStore.saveProject()
+      projectSaveOk = saveResult.ok
+      projectFailedKeys = saveResult.failedKeys
+    } catch (error) {
+      projectSaveOk = false
+      projectFailedKeys = ['project-save-exception']
+      traceResult.errors.push(error instanceof Error ? error.message : String(error))
+    }
   }
   try {
     const journalResult = await stores.projectStore.flushOutlineJournal({ immediate: true })

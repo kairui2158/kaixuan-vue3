@@ -2033,7 +2033,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(19)
+    expect(exported.schemaVersion).toBe(20)
   })
 
   it('exports pipeline artifact validation events for all three stages', () => {
@@ -2060,7 +2060,7 @@ describe('runTrace store', () => {
       expect(exported.events?.some(event => event.type === type)).toBe(true)
       expect(store.exportRunToText(run)).toContain(type)
     })
-    expect(exported.schemaVersion).toBe(19)
+    expect(exported.schemaVersion).toBe(20)
   })
 
   it('keeps a successful final body artifact successful while preserving degraded call evidence', () => {
@@ -2093,6 +2093,40 @@ describe('runTrace store', () => {
     expect(run.events.some(event => event.type === 'body-artifact-recovered')).toBe(true)
     const stateHistory = exported.stateHistory as Array<{ reason?: string }>
     expect(stateHistory.at(-1)?.reason).toContain('body_generation_complete')
+  })
+
+  it('emits a dedicated warning event when folder diagnostics report a degraded DEAI quality gate', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'pipeline',
+      stepName: '生成流水线',
+      mode: 'chain'
+    })
+
+    store.appendFolderDiagnostics(runId, [
+      { level: 'warning', code: 'quality_gate_degraded', message: '终步降AI检测失败：kernel unavailable' }
+    ])
+
+    const event = store.getRun(runId)?.events.find(item => item.type === 'deai-quality-gate-degraded')
+    expect(event?.level).toBe('warn')
+    expect(event?.payload).toMatchObject({ code: 'quality_gate_degraded' })
+  })
+
+  it('projects only newly appended folder diagnostics', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'pipeline',
+      stepName: '生成流水线',
+      mode: 'chain'
+    })
+    const diagnostic = { level: 'warning', code: 'quality_gate_degraded', message: '终步降AI检测失败' }
+
+    store.appendFolderDiagnostics(runId, [diagnostic])
+    store.appendFolderDiagnostics(runId, [{ status: 'success', diagnostics: [] }])
+
+    const events = store.getRun(runId)?.events.filter(item => item.type === 'deai-quality-gate-degraded') || []
+    expect(events).toHaveLength(1)
+    expect(events[0]?.payload).toMatchObject({ code: 'quality_gate_degraded' })
   })
 
   it('keeps a contract-validated volume artifact successful while preserving degraded call evidence', () => {
@@ -2790,7 +2824,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(19)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(20)
   })
 
   it('records the requested and actual tool surface separately', () => {

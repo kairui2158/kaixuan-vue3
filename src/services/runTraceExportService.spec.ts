@@ -41,7 +41,7 @@ describe('run trace export service', () => {
     const exported = exportRunTraceToJson(run)
     const serialized = JSON.stringify(exported)
 
-    expect(exported.schemaVersion).toBe(19)
+    expect(exported.schemaVersion).toBe(20)
     expect((exported as Record<string, unknown>).currentTurnId).toBeUndefined()
     expect((exported as Record<string, unknown>).dirName).toBeUndefined()
     expect(serialized).not.toContain('sk-123456789012345678')

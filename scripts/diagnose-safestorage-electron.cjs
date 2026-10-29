@@ -3,9 +3,15 @@ const fs = require('node:fs')
 const path = require('node:path')
 const defaultPaths = require('../electron/defaultPaths')
 
+const appUserDataPath = process.env.DIAGNOSE_APP_USER_DATA || 'D:/神意助手数据/_app-user-data'
 const configPath = process.argv[2]
   ? path.resolve(process.argv[2])
   : path.join(defaultPaths.getDataRoot(app.getPath('documents')), 'wa_providers.json')
+
+if (fs.statSync(appUserDataPath, { throwIfNoEntry: false })?.isDirectory()) {
+  // Match the packaged app so safeStorage uses the same DPAPI key as production.
+  app.setPath('userData', appUserDataPath)
+}
 
 function describeValue(value) {
   if (typeof value !== 'string' || !value) return 'empty'
@@ -23,8 +29,9 @@ app.whenReady().then(() => {
   }
 
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-    for (const provider of config.providers || []) {
+    const parsed = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    const providers = Array.isArray(parsed) ? parsed : (parsed.providers || [])
+    for (const provider of providers) {
       const stored = String(provider.apiKey || '')
       if (!stored.startsWith('enc:')) {
         result.providers.push({

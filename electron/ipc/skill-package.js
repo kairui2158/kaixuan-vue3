@@ -4,6 +4,7 @@ const { app, ipcMain } = require('electron')
 const { loadSkillFolder } = require('./skill-loader')
 
 const SKILL_PACKAGE_PROTOCOL = require('../../src/services/skillPackageProtocol.json')
+const { validateSkillDeaiMeta } = require('../../dist-renderer/skillDeaiContractValidation.cjs')
 
 const MAX_ENTRIES = 500
 const MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
@@ -41,6 +42,22 @@ function inspectManifestProtocolBoundary(manifest) {
       field: 'meta.agent',
       message: SKILL_PACKAGE_PROTOCOL.messages.deprecatedMetaAgent
     })
+  }
+  if (
+    manifest.meta
+    && typeof manifest.meta === 'object'
+    && !Array.isArray(manifest.meta)
+    && manifest.meta.deai !== undefined
+  ) {
+    const deaiValidation = validateSkillDeaiMeta(manifest.meta.deai)
+    if (!deaiValidation.valid) {
+      for (const message of deaiValidation.errors) {
+        issues.push({ field: 'meta.deai', message })
+      }
+    }
+    for (const message of deaiValidation.warnings) {
+      warnings.push({ field: 'meta.deai', message })
+    }
   }
   return { issues, warnings }
 }

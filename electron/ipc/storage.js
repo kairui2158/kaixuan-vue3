@@ -51,7 +51,13 @@ async function readJsonOrNull(filePath) {
     return { missing: true, value: null }
   }
   try {
-    return { missing: false, value: JSON.parse(raw) }
+    var parsedValue = JSON.parse(raw)
+    // JSON "null" is a legitimate persisted value, not a corrupt primary.
+    return {
+      missing: false,
+      value: parsedValue,
+      parsedNull: parsedValue === null,
+    }
   } catch (parseErr) {
     return { missing: false, value: null, parseError: parseErr }
   }
@@ -168,7 +174,7 @@ function registerStorageHandlers(targetIpc) {
       var filePath = path.join(dataDir, safeKey(key) + '.json')
       var recoveredFromMissingPrimary = await recoverBakIfPrimaryMissing(filePath)
       var primary = await readJsonOrNull(filePath)
-      if (!primary.missing && primary.value === null) {
+      if (!primary.missing && primary.parsedNull !== true && primary.value === null) {
         var bak = await readJsonOrNull(filePath + '.bak')
         var restoredValue = bak.missing ? null : bak.value
         var restored = restoredValue !== null

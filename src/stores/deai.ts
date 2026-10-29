@@ -13,12 +13,20 @@ export interface DeAiFinding {
 }
 
 export interface DeAiDetectReport {
+  kernelVersion?: 'v2'
+  provisional?: boolean
+  effectiveChars?: number
+  dialogueChars?: number
+  score?: number
+  verdict?: 'clean' | 'advisory' | 'suspicious' | 'likely_ai' | 'blocking'
+  aiEditedFraction?: 'none' | 'light' | 'mixed' | 'heavy' | 'unknown'
   findings: DeAiFinding[]
+  styleDrift?: { windowCount: number, firstLastDelta: number, severity: 'advisory' | 'blocking' }
+  thresholds?: { name: string, value: number, scaledValue: number, source: 'default' | 'calibrated' }[]
   metrics: {
     sentenceLengthCV: number
     connectorDensity: number
-    protectedSpans: { total: number, hit: number, missing: string[] }
-    retentionRatio: number
+    protectedSpans: { total: number }
   }
 }
 
@@ -55,7 +63,8 @@ export const useDeAiStore = defineStore('deai', () => {
   const agentId = ref<string | null>(null)
   const hardruleEnabled = ref(true)
   const hardRules = ref<Record<string, boolean>>({})
-  const hardRuleMode = ref<DeAiHardRuleMode>('detect-report')
+ const hardRuleMode = ref<DeAiHardRuleMode>('detect-report')
+ const hasLegacyAutoExplicitChoice = ref(false)
   const lastDetectReport = ref<DeAiDetectReport | null>(null)
 const version = ref<'v2' | 'v3'>('v3')
 const level = ref<'light' | 'medium' | 'heavy'>('medium')
@@ -84,8 +93,10 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
      hardRules.value = data.hardRules || {}
      if (data.hardRuleMode === 'legacy-auto' || data.hardRuleMode === 'deep-fix' || data.hardRuleMode === 'detect-report') {
        hardRuleMode.value = data.hardRuleMode
+       hasLegacyAutoExplicitChoice.value = data.hardRuleMode === 'legacy-auto'
      } else {
        hardRuleMode.value = 'detect-report'
+       hasLegacyAutoExplicitChoice.value = false
      }
      lastDetectReport.value = isValidDetectReport(data.lastDetectReport) ? data.lastDetectReport : null
     version.value = data.version || 'v3'
@@ -105,6 +116,7 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
      hardruleEnabled: hardruleEnabled.value,
      hardRules: JSON.parse(JSON.stringify(hardRules.value)),
      hardRuleMode: hardRuleMode.value,
+     hardRuleModeExplicit: hasLegacyAutoExplicitChoice.value,
      lastDetectReport: lastDetectReport.value ? JSON.parse(JSON.stringify(lastDetectReport.value)) : null,
      version: version.value,
      level: level.value,
@@ -121,6 +133,7 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
 
  function setHardRuleMode(nextMode: DeAiHardRuleMode) {
    hardRuleMode.value = nextMode
+   hasLegacyAutoExplicitChoice.value = nextMode === 'legacy-auto'
    saveConfig()
  }
 
@@ -135,9 +148,9 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
     && !!report.metrics
     && typeof report.metrics.sentenceLengthCV === 'number'
     && typeof report.metrics.connectorDensity === 'number'
-    && typeof report.metrics.retentionRatio === 'number'
     && !!report.metrics.protectedSpans
-    && Array.isArray(report.metrics.protectedSpans.missing)
+    && typeof report.metrics.protectedSpans.total === 'number'
+    && (!report.kernelVersion || report.kernelVersion === 'v2')
  }
 
   function updateFlowPreview() {
@@ -228,6 +241,7 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   return {
   enabled, mode, skillIds, agentId, hardruleEnabled, level, splitSize,
   hardRules, hardRuleMode, lastDetectReport, version,
+  hasLegacyAutoExplicitChoice,
     textType,
    isProcessing, progress, currentStep, flowPreview, errorMessage, lastFailedStep, processingStages,
    runStatus, budgetState, resumeHandle,

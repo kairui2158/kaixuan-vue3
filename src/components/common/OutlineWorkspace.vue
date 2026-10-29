@@ -38,6 +38,16 @@
             <AppIcon v-if="!isFullscreen" name="expand" :size="14" />
             <AppIcon v-else name="shrink" :size="14" />
           </button>
+          <button
+            v-if="projectStore.outlineLegacyJournalCandidate"
+            id="btn-ow-restore-legacy-chat"
+            class="ow-icon-btn ow-legacy-restore-btn"
+            :data-tooltip="`恢复备份对话 ${projectStore.outlineLegacyJournalCandidate.messageCount} 条`"
+            :disabled="isGenerating"
+            @click="restoreLegacyConversation"
+          >
+            <AppIcon name="history" :size="14" />
+          </button>
           <button id="btn-ai-co-create" class="ow-chat-toggle" @click="chatAreaOpen = !chatAreaOpen">
             AI 共创大纲
           </button>
@@ -7056,6 +7066,29 @@ async function resetConversation() {
   }
 }
 
+async function restoreLegacyConversation() {
+  const candidate = projectStore.outlineLegacyJournalCandidate
+  if (!candidate || isGenerating.value) return
+  const confirmed = await appConfirm.confirm({
+    title: '恢复备份对话',
+    message: `检测到清空前的对话备份 ${candidate.messageCount} 条。恢复后会覆盖当前大纲对话；备份文件会保留，不影响编辑器内容、项目记忆和运行记录。`,
+    confirmText: '恢复',
+    danger: true
+  })
+  if (!confirmed) return
+  try {
+    await removeContinuation(outlineProjectId(), OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
+    const result = await projectStore.restoreOutlineLegacyJournal()
+    if (!result.ok) throw new Error(result.error || 'outline_legacy_restore_failed')
+    compatibilityNotice.value = `已恢复备份对话 ${result.restoredCount || 0} 条。`
+    await nextTick()
+    await scrollToBottom()
+  } catch (error) {
+    console.error('[outline] restore legacy conversation failed:', error)
+    compatibilityNotice.value = '恢复备份对话失败：' + (error instanceof Error ? error.message : String(error))
+  }
+}
+
 function handleUnlockOutline() {
   projectStore.unlockOutline()
   saveFeedback.value = '[OK] 已解锁，现在可以编辑大纲；修改后需重新确认才能进入流水线'
@@ -7158,6 +7191,10 @@ function handleUnlockOutline() {
 .ow-icon-btn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+.ow-legacy-restore-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .ow-chat-toggle {
   padding: var(--space-3) var(--space-5);

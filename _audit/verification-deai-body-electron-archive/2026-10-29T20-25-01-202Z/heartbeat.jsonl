@@ -1,0 +1,5 @@
+{"at":"2026-10-29T19:52:09.440Z","runId":null,"runStatus":null,"events":0,"apiCalls":0,"lastEventType":null,"hasFinishedEvent":false,"isGenerating":false,"bodyLength":0,"electronPid":19876,"frame":1}
+{"at":"2026-10-29T19:52:10.453Z","runId":null,"runStatus":null,"events":0,"apiCalls":0,"lastEventType":null,"hasFinishedEvent":false,"isGenerating":false,"bodyLength":0,"electronPid":19876,"frame":2}
+{"at":"2026-10-29T19:52:11.469Z","runId":null,"runStatus":null,"events":0,"apiCalls":0,"lastEventType":null,"hasFinishedEvent":false,"isGenerating":false,"bodyLength":0,"electronPid":19876,"frame":3}
+{"at":"2026-10-29T19:52:12.474Z","runId":null,"runStatus":null,"events":0,"apiCalls":0,"lastEventType":null,"hasFinishedEvent":false,"isGenerating":false,"bodyLength":0,"electronPid":19876,"frame":4}
+{"at":"2026-10-29T19:52:13.497Z","runId":"run-1793303532811-1","runStatus":"running","events":13,"apiCalls":1,"lastEventType":"pipeline-provider-channel-resolved","hasFinishedEvent":false,"isGenerating":true,"bodyLength":0,"electronPid":19876,"frame":5}

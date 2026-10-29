@@ -16,6 +16,8 @@ interface ElectronApiBridge {
   outlineJournalFlush(projectId: string): Promise<any> | any
   outlineJournalFlushAll(): Promise<any> | any
   outlineJournalRestore(projectId: string, snapshot: any): Promise<any> | any
+  outlineJournalLegacyCandidates(projectId: string): Promise<any> | any
+  outlineJournalRestoreLegacy(projectId: string): Promise<any> | any
   outlineJournalTestFailureControl(command: { op: 'fail' | 'clear'; operation?: 'apply' | 'flush'; error?: string }): Promise<any> | any
   providerNetRequest(request: unknown): Promise<any> | any
   providerNetRegistry(): Promise<any> | any

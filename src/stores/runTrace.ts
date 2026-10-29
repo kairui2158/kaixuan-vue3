@@ -189,7 +189,7 @@ export interface RunTraceApiCall {
   /** Read-cache observation for this API call. */
   readLedger?: RunTraceReadLedgerSnapshot
   /** Layered de-AI prompt variant used by this API call. */
-  deaiPromptVariant?: 'methodology' | 'creative' | 'polish' | 'methodology-compose'
+  deaiPromptVariant?: 'methodology' | 'methodology-compose' | 'creative' | 'polish' | 'off'
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -551,7 +551,7 @@ export interface RunTraceProcessingReport {
   apiCallId?: string
   turnId?: string
   stage: 'pre' | 'post' | 'eval'
-  processor: 'hard-rules' | 'deai' | 'postProcess' | 'integrity' | 'chain-handoff' | 'other'
+  processor: 'hard-rules' | 'hard-rules-legacy-auto' | 'deai' | 'deai-deep-fix' | 'deai-detect-v2' | 'postProcess' | 'integrity' | 'chain-handoff' | 'other'
   status: 'success' | 'warning' | 'failed'
   inputRef?: string
   outputRef?: string
@@ -875,7 +875,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 19
+const RUN_TRACE_SCHEMA_VERSION = 20
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 const lastFinishedRunEndedAtByStep = new Map<string, number>()
@@ -944,6 +944,15 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   'chapter-batch-validated',
   'chapter-count-arbitration',
   'chapter-count-arbitration-failed',
+  'deai-voice-profile',
+  'deai-injection-policy',
+  'deai-contract-warning',
+  'deai-conflict-policy',
+  'deai-kernel-v2',
+  'deai-score',
+  'deai-change-rate',
+  'deai-style-drift',
+  'deai-quality-gate-degraded',
 ])
   // Bounded renderer memory for a single run. requestMessages are already
   // memory-mapped by aiService; stream events and one run's event list are the
@@ -1559,7 +1568,8 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
     })
   }
 
-  function addEvent(runId: string, event: Omit<RunTraceEvent, 'id' | 'ts'>) {
+  function addEvent(runId: string | null | undefined, event: Omit<RunTraceEvent, 'id' | 'ts'>) {
+    if (!runId) return
     const run = getRun(runId)
     if (!run) return
     const seq = (lastMaxEventSeqByRunId.get(runId) || 0) + 1
@@ -2503,6 +2513,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       label: '记录 folder SKILL 诊断'
     })
     emitSkillAgentIgnoredEvents(runId, run.folderDiagnostics)
+    emitDeaiQualityGateDegradedEvents(runId, run.folderDiagnostics)
   }
 
   function setEvalReport(runId: string, report: unknown) {
@@ -2519,16 +2530,18 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   function appendFolderDiagnostics(runId: string, diagnostics: unknown) {
     const run = getRun(runId)
     if (!run) return
+    const incoming = Array.isArray(diagnostics) ? diagnostics : [diagnostics]
     run.folderDiagnostics = [
       ...(run.folderDiagnostics || []),
-      ...(Array.isArray(diagnostics) ? diagnostics : [diagnostics])
+      ...incoming
     ]
     addEvent(runId, {
       type: 'folder-diagnostics',
       level: 'info',
       label: '记录 folder SKILL 诊断'
     })
-    emitSkillAgentIgnoredEvents(runId, run.folderDiagnostics)
+    emitSkillAgentIgnoredEvents(runId, incoming)
+    emitDeaiQualityGateDegradedEvents(runId, incoming)
   }
 
   function emitSkillAgentIgnoredEvents(runId: string, diagnostics: unknown) {
@@ -2543,6 +2556,23 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
         type: 'skill-agent-ignored',
         level: 'warn',
         label: 'SKILL agent 执行参数已忽略',
+        detail: typeof source.message === 'string' ? source.message : undefined,
+        payload: diagnostic
+      })
+    }
+  }
+
+  function emitDeaiQualityGateDegradedEvents(runId: string, diagnostics: unknown) {
+    if (!Array.isArray(diagnostics)) return
+    for (const diagnostic of diagnostics) {
+      const source = diagnostic as { code?: unknown; diagnostics?: unknown; message?: unknown }
+      const nested = source.diagnostics
+      if (Array.isArray(nested)) emitDeaiQualityGateDegradedEvents(runId, nested)
+      if (source.code !== 'quality_gate_degraded') continue
+      addEvent(runId, {
+        type: 'deai-quality-gate-degraded',
+        level: 'warn',
+        label: '降AI门禁降级',
         detail: typeof source.message === 'string' ? source.message : undefined,
         payload: diagnostic
       })

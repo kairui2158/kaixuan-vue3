@@ -1,0 +1,92 @@
+{
+  "id": "run-1793309176936-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "正文层",
+  "mode": "body",
+  "projectId": "deai-body-contract-gate",
+  "projectName": "正文降AI契约真实UI实测",
+  "skillNames": [
+    "S1 骨架（文件夹）",
+    "S2 生成（文件夹）",
+    "S3 打磨（文件夹）"
+  ],
+  "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1793309176924-1",
+  "status": "running",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "86bbc004207e",
+    "buildTime": "2026-10-29T21:25:41.257Z"
+  },
+  "startedAt": 1793309176936,
+  "stateHistory": [],
+  "events": [
+    {
+      "id": "event-1793309176936-2",
+      "ts": 1793309176936,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 正文层运行"
+    },
+    {
+      "id": "event-1793309176937-3",
+      "ts": 1793309176937,
+      "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1793309176938-4",
+      "ts": 1793309176939,
+      "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":true,\"settingsStyle\":false},\"profileHash\":\"a300a8e8\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1793309176939-5",
+      "ts": 1793309176939,
+      "seq": 4,
+      "type": "context_scope",
+      "level": "info",
+      "label": "正文层上下文闭包",
+      "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":0,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":179,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
+    },
+    {
+      "id": "event-1793309176940-6",
+      "ts": 1793309176940,
+      "seq": 5,
+      "type": "memory_context",
+      "level": "info",
+      "label": "正文层记忆上下文",
+      "detail": "{\"chapterId\":\"ch-deai-body-contract\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
+    },
+    {
+      "id": "event-1793309176940-7",
+      "ts": 1793309176940,
+      "seq": 6,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "正文层执行包已构建",
+      "detail": "{\"volume\":\"第一卷 雨夜\",\"chapter\":\"第1章 纸条\",\"targetWords\":3500}"
+    }
+  ],
+  "apiCalls": [],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "eventLedger": {
+    "totalEvents": 6,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  }
+}

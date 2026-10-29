@@ -73,21 +73,55 @@ export const useChatStore = defineStore('chat', () => {
   const generationStatus = ref<ChatGenerationStatus>('idle')
   const generationMessage = ref('')
   const generationStartedAt = ref<number | null>(null)
+  let sessionsLoadSeq = 0
+  let projectGeneration = 0
+  let loadedProjectGeneration: number | null = null
+  let sessionsLoadedForProject: string | null = null
 
   const activeSession = computed(() => sessions.value.find(s => s.id === activeSessionId.value) || null)
   const activeMessages = computed(() => activeSession.value?.messages || [])
 
   async function loadSessions(projectId: string) {
     const id = projectId || currentProjectId.value || 'default'
-    const data = await window.electronAPI.storageRead(storageKey('chat_' + id))
-    if (data && Array.isArray(data)) {
-      sessions.value = data
+    // Flush the old project's pending write before changing generations. This
+    // preserves its final messages and removes the cross-bucket race without
+    // relying on debounce timing.
+    if (sessionsSaveTimer) {
+      clearTimeout(sessionsSaveTimer)
+      sessionsSaveTimer = null
+      const previousId = currentProjectId.value
+      const result = await persistSessions(previousId)
+      sessionsSaveResolve?.(result)
+      sessionsSaveResolve = null
+      sessionsSavePending = null
+    } else if (sessionsSavePending) {
+      await sessionsSavePending
     }
+    if (currentProjectId.value !== id) {
+      currentProjectId.value = id
+      projectGeneration += 1
+    }
+    const loadSeq = ++sessionsLoadSeq
+    const generation = projectGeneration
+    sessionsLoadedForProject = null
+    loadedProjectGeneration = null
+    sessions.value = []
+    activeSessionId.value = null
+    const data = await window.electronAPI.storageRead(storageKey('chat_' + id))
+    // A project switch must not consume an older project's response, and the
+    // debounce timer must not write sessions into a bucket before its own
+    // project has been loaded.
+    if (loadSeq !== sessionsLoadSeq || currentProjectId.value !== id) return
+    sessions.value = data && Array.isArray(data) ? data : []
+    sessionsLoadedForProject = id
+    loadedProjectGeneration = generation
+    sessionsSavePending = null
   }
 
   const SESSIONS_SAVE_INTERVAL_MS = 250
   let sessionsSavePending: Promise<boolean> | null = null
   let sessionsSaveTimer: ReturnType<typeof setTimeout> | null = null
+  let sessionsSaveResolve: ((value: boolean) => void) | null = null
 
   async function persistSessions(id: string): Promise<boolean> {
     // Serialize once here; callers mutate the live Pinia state and must not
@@ -98,13 +132,29 @@ export const useChatStore = defineStore('chat', () => {
 
   function saveSessions(projectId?: string): Promise<boolean> {
     const id = projectId || currentProjectId.value || 'default'
-    if (projectId) currentProjectId.value = projectId
+    if (projectId && currentProjectId.value !== projectId) {
+      currentProjectId.value = projectId
+      projectGeneration += 1
+    }
+    if (loadedProjectGeneration !== null && loadedProjectGeneration !== projectGeneration) {
+      // The current sessions array belongs to an older project generation.
+      // Persisting it here would write project A's conversations into B's key.
+      return Promise.resolve(false)
+    }
+    const generation = projectGeneration
     if (sessionsSaveTimer) return sessionsSavePending ?? Promise.resolve(true)
     sessionsSavePending = new Promise(resolve => {
+      sessionsSaveResolve = resolve
       sessionsSaveTimer = setTimeout(async () => {
         sessionsSaveTimer = null
+        if (generation !== projectGeneration) {
+          sessionsSavePending = null
+          resolve(false)
+          return
+        }
         const result = await persistSessions(id)
         sessionsSavePending = null
+        sessionsSaveResolve = null
         resolve(result)
       }, SESSIONS_SAVE_INTERVAL_MS)
     })
@@ -112,7 +162,16 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function ensureSession(tabId: string, chapterId: string, title: string, projectId?: string) {
-    if (projectId) currentProjectId.value = projectId
+    if (projectId) {
+      if (currentProjectId.value !== projectId) {
+        currentProjectId.value = projectId
+        projectGeneration += 1
+      }
+      if (loadedProjectGeneration !== null && loadedProjectGeneration !== projectGeneration) {
+        sessionsLoadedForProject = null
+        loadedProjectGeneration = null
+      }
+    }
     let session = sessions.value.find(s => s.tabId === tabId && s.chapterId === chapterId)
     if (!session) {
       session = {
@@ -142,6 +201,16 @@ export const useChatStore = defineStore('chat', () => {
     session.updatedAt = Date.now()
     saveSessions(projectId)
     return full
+  }
+
+  // Test-only projection of load/save race state. Production callers must use
+  // loadSessions/ensureSession; direct ref writes would bypass these guards.
+  function __setProjectForTests(projectId: string) {
+    currentProjectId.value = projectId
+  }
+
+  function __isSessionsLoadedForProject(projectId: string): boolean {
+    return sessionsLoadedForProject === projectId
   }
 
   function updateLastMessage(content: string) {
@@ -302,7 +371,7 @@ export const useChatStore = defineStore('chat', () => {
     generationStatus, generationMessage, generationStartedAt,
     loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateLastMessageSkillDiagnostics, updateMessageContent, updateMessageRoutingState, replaceMessagePair, setGenerationState,
     clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch,
-    updateMessageFinalDraftTask
+    updateMessageFinalDraftTask, __setProjectForTests, __isSessionsLoadedForProject
   }
 })
 

@@ -237,6 +237,7 @@ export interface RealSkillExecuteOptions {
   /** Final polish-step retry contract; disables candidate-full-text injection. */
   finalStepRetry?: {
     role: 'generator' | 'polish'
+    deaiDetection?: 'on' | 'off'
     upstreamAnchors?: string[]
     deaiFindings?: Array<{ code?: string; label?: string; message?: string }>
   }

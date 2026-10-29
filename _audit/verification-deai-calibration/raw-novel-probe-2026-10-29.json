@@ -1,0 +1,1767 @@
+{
+  "phase": "probe-finished",
+  "elapsedMs": 2317,
+  "files": [
+    {
+      "file": "全球高武.txt",
+      "bytes": 19354560,
+      "encoding": "gb18030",
+      "totalLines": 679103,
+      "nonEmptyLines": 339555,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网的用户上传分享至其在本站的存储空间，在线阅读章节由程序自动分割，无人工干扰，本站只提供TXT全集电子书存储服务以及免费下载服务，以下作品..."
+        },
+        {
+          "lineNumber": 2,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 4,
+          "line": "《全球高武》"
+        },
+        {
+          "lineNumber": 6,
+          "line": "------------------------------------------------------------------"
+        },
+        {
+          "lineNumber": 7,
+          "line": "作者:老鹰吃小鸡  栏目:现代都市小说  来源:奇书网  上传:修真堂  时间:2019/11/8 0:00:00  字数: 21390913"
+        },
+        {
+          "lineNumber": 8,
+          "line": "------------------------------------------------------------------"
+        },
+        {
+          "lineNumber": 9,
+          "line": "今日头条——    “大马宗师突破九品，征战全球！”    “小马宗师问鼎至高，横扫欧亚！”    “乔帮主再次出手，疑似九品大宗师境！”    “股神宝..."
+        },
+        {
+          "lineNumber": 10,
+          "line": "------------------------------------------------------------------"
+        },
+        {
+          "lineNumber": 12,
+          "line": "第一章 剧本不对"
+        },
+        {
+          "lineNumber": 14,
+          "line": "2008年，4月5日。"
+        },
+        {
+          "lineNumber": 16,
+          "line": "周六。"
+        },
+        {
+          "lineNumber": 18,
+          "line": "阳城一中，高三（4）班教室。"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1431,
+          "first": [
+            {
+              "lineNumber": 12,
+              "line": "第一章 剧本不对"
+            },
+            {
+              "lineNumber": 188,
+              "line": "第二章 一定要考武科！"
+            },
+            {
+              "lineNumber": 396,
+              "line": "第三章 穷文富武"
+            },
+            {
+              "lineNumber": 634,
+              "line": "第四章 人穷万事休"
+            },
+            {
+              "lineNumber": 856,
+              "line": "第五章 嘿嘿嘿！（打劫，投票！）"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 5,
+          "first": [
+            {
+              "lineNumber": 286614,
+              "line": "0.2条！"
+            },
+            {
+              "lineNumber": 398556,
+              "line": "0.5倍增幅，最终达到60万卡气血！"
+            },
+            {
+              "lineNumber": 423704,
+              "line": "15、30、60、120……"
+            },
+            {
+              "lineNumber": 426446,
+              "line": "3.2倍看起来比圣人要强，可别忘了，道路走的长，自身基础会变强的。"
+            },
+            {
+              "lineNumber": 458122,
+              "line": "1.8倍？"
+            }
+          ]
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 12,
+          "line": "第一章 剧本不对"
+        },
+        {
+          "lineNumber": 188,
+          "line": "第二章 一定要考武科！"
+        },
+        {
+          "lineNumber": 396,
+          "line": "第三章 穷文富武"
+        },
+        {
+          "lineNumber": 634,
+          "line": "第四章 人穷万事休"
+        },
+        {
+          "lineNumber": 856,
+          "line": "第五章 嘿嘿嘿！（打劫，投票！）"
+        },
+        {
+          "lineNumber": 1144,
+          "line": "第六章 贫穷限制了我的想象力"
+        },
+        {
+          "lineNumber": 1440,
+          "line": "第七章 武科五大关"
+        },
+        {
+          "lineNumber": 1624,
+          "line": "第八章 心好痛"
+        },
+        {
+          "lineNumber": 1820,
+          "line": "第九章 气血标准"
+        },
+        {
+          "lineNumber": 2060,
+          "line": "第十章 气血检查"
+        },
+        {
+          "lineNumber": 2254,
+          "line": "第十一章 初次检测"
+        },
+        {
+          "lineNumber": 2486,
+          "line": "第十二章 残忍的誓言！（感谢F丶F盟打赏）"
+        },
+        {
+          "lineNumber": 2722,
+          "line": "第十三章 坑爹的方平（为F盟加更）"
+        },
+        {
+          "lineNumber": 2958,
+          "line": "第十四章 一步天堂一步地狱"
+        },
+        {
+          "lineNumber": 3196,
+          "line": "第十五章 精神提升"
+        },
+        {
+          "lineNumber": 3438,
+          "line": "第十六章 王金洋 （求推荐票）"
+        },
+        {
+          "lineNumber": 3662,
+          "line": "第十七章 无知是福"
+        },
+        {
+          "lineNumber": 3888,
+          "line": "第十八章 吃药了？"
+        },
+        {
+          "lineNumber": 4120,
+          "line": "第十九章 时间表"
+        },
+        {
+          "lineNumber": 4336,
+          "line": "第二十章 租客（感谢月下盟主打赏）"
+        }
+      ]
+    },
+    {
+      "file": "全职高手.txt",
+      "bytes": 11147739,
+      "encoding": "gb18030",
+      "totalLines": 107245,
+      "nonEmptyLines": 103345,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网(www.qisuwang.com)的用户上传至其在本站的存储空间，本站只提供TXT全集电子书存储服务以及免费下载服务，以下作品内容之版..."
+        },
+        {
+          "lineNumber": 3,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 5,
+          "line": "全职高手"
+        },
+        {
+          "lineNumber": 6,
+          "line": "作者：蝴蝶蓝"
+        },
+        {
+          "lineNumber": 9,
+          "line": "第一章 被驱逐的高手"
+        },
+        {
+          "lineNumber": 10,
+          "line": "“卡卡卡，嗒嗒……”"
+        },
+        {
+          "lineNumber": 11,
+          "line": "一双灵巧的手飞舞着操纵着键盘和鼠标，富有节奏的敲击声仿佛是一首轻快的乐章。屏幕中漫天的光华闪过，对手飞扬着血花倒了下去。"
+        },
+        {
+          "lineNumber": 12,
+          "line": "“呵呵。”叶秋笑了笑，抬手取下了衔在嘴角的烟头。银白的烟灰已经结成了长长一串，但在叶秋挥舞着鼠标敲打着键盘展开操作的过程中却没有被震落分毫。摘下的烟头很快..."
+        },
+        {
+          "lineNumber": 13,
+          "line": "叶秋没有回头，像是早就在等着这一刻一样，只是问了一句：“来了？”"
+        },
+        {
+          "lineNumber": 14,
+          "line": "“来了。”苏沐橙的回答也同样简单。"
+        },
+        {
+          "lineNumber": 15,
+          "line": "“那就走吧！”叶秋拒绝了对手又一次的邀战，轻轻地从网游荣耀专用的登录器上摘下了一张卡片，起身走到门口时，顺手从一旁的衣架上摘下了外套。"
+        },
+        {
+          "lineNumber": 16,
+          "line": "夜已经挺深了，嘉世俱乐部却依旧灯火通明。叶秋和苏沐橙走出房间，一路走到了楼道的尽头。这里是一间很宽大的会议室，刚入门便可看到一面几乎占满整面墙壁的电子显示..."
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1402,
+          "first": [
+            {
+              "lineNumber": 9,
+              "line": "第一章 被驱逐的高手"
+            },
+            {
+              "lineNumber": 77,
+              "line": "第二章 C区47号"
+            },
+            {
+              "lineNumber": 131,
+              "line": "第三章 专职夜班"
+            },
+            {
+              "lineNumber": 216,
+              "line": "第四章 神秘高手"
+            },
+            {
+              "lineNumber": 293,
+              "line": "第五章 技能搭配"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 1,
+          "first": [
+            {
+              "lineNumber": 97325,
+              "line": "【第一千五百八十五章】绝望与希望"
+            }
+          ]
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 25,
+          "first": [
+            {
+              "lineNumber": 5170,
+              "line": "3.5秒也是转瞬即过，过程中包子入侵也是中了冰霜赛恩两刀。"
+            },
+            {
+              "lineNumber": 11366,
+              "line": "1.5的听力……昧光凌乱了，但这时果然如包子入侵所说，前方的废旧石墟背后，突然转出了一个玩家。"
+            },
+            {
+              "lineNumber": 12026,
+              "line": "4、3、2、2……此时其他几人突然也一起报数，叶修的君莫笑杀4人，唐柔的寒烟柔杀3个，苏沐橙和黄少天各自杀掉了2个。"
+            },
+            {
+              "lineNumber": 16809,
+              "line": "400、300、200……"
+            },
+            {
+              "lineNumber": 30672,
+              "line": "55、60、65、70。这四个阶段的提升，叶修需要自己在茫茫荣耀大陆寻找合适的材料和道具。"
+            }
+          ]
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 9,
+          "line": "第一章 被驱逐的高手"
+        },
+        {
+          "lineNumber": 77,
+          "line": "第二章 C区47号"
+        },
+        {
+          "lineNumber": 131,
+          "line": "第三章 专职夜班"
+        },
+        {
+          "lineNumber": 170,
+          "line": "如今开放的已是荣耀十区，遥想一叶之秋那还是荣耀一区的账号，后来在荣耀更新第五章神之领域时，和诸多高手一起达到标准，完成了技巧挑战，成为了首批拥有公共图神之..."
+        },
+        {
+          "lineNumber": 216,
+          "line": "第四章 神秘高手"
+        },
+        {
+          "lineNumber": 293,
+          "line": "第五章 技能搭配"
+        },
+        {
+          "lineNumber": 327,
+          "line": "第六章 千机伞"
+        },
+        {
+          "lineNumber": 369,
+          "line": "第七章 暗夜猫妖"
+        },
+        {
+          "lineNumber": 406,
+          "line": "第八章 鱼死网破"
+        },
+        {
+          "lineNumber": 462,
+          "line": "第九章 叶修的双手"
+        },
+        {
+          "lineNumber": 500,
+          "line": "第十章 无耻之徒"
+        },
+        {
+          "lineNumber": 537,
+          "line": "第十一章 差人加一个"
+        },
+        {
+          "lineNumber": 574,
+          "line": "第十二章 蜘蛛洞穴（一）"
+        },
+        {
+          "lineNumber": 620,
+          "line": "第十三章 蜘蛛洞穴（二）"
+        },
+        {
+          "lineNumber": 661,
+          "line": "第十四章 蜘蛛洞穴（三）"
+        },
+        {
+          "lineNumber": 693,
+          "line": "第十五章 蜘蛛洞穴（四）"
+        },
+        {
+          "lineNumber": 730,
+          "line": "第十六章 领主BOSS（一）"
+        },
+        {
+          "lineNumber": 768,
+          "line": "第十七章 领主BOSS（二）"
+        },
+        {
+          "lineNumber": 814,
+          "line": "第十八章 领主BOSS（三）"
+        },
+        {
+          "lineNumber": 862,
+          "line": "第十九章 领主BOSS（四）"
+        }
+      ]
+    },
+    {
+      "file": "圣墟.txt",
+      "bytes": 19796013,
+      "encoding": "utf-8",
+      "totalLines": 341443,
+      "nonEmptyLines": 170719,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网(QiShu99.Com)的用户自网络收集整理制作,仅供预览交流学习使用,版权归原作者和出版社所有,如果喜欢,请支持正版,以下作品内容之..."
+        },
+        {
+          "lineNumber": 2,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 8,
+          "line": "《圣墟》辰东"
+        },
+        {
+          "lineNumber": 11,
+          "line": "第一章 沙漠中的彼岸花"
+        },
+        {
+          "lineNumber": 12,
+          "line": "大漠孤烟直，长河落日圆。"
+        },
+        {
+          "lineNumber": 14,
+          "line": "一望无垠的大漠，空旷而高远，壮阔而雄浑，当红日西坠，地平线尽头一片殷红，磅礴中亦有种苍凉感。"
+        },
+        {
+          "lineNumber": 16,
+          "line": "上古的烽烟早已在岁月中逝去，黄河古道虽然几经变迁，但依旧在。"
+        },
+        {
+          "lineNumber": 18,
+          "line": "楚风一个人在旅行，很疲惫，他躺在黄沙上，看着血色的夕阳，不知道还要多久才能离开这片大漠。"
+        },
+        {
+          "lineNumber": 20,
+          "line": "数日前他毕业了，同时也跟校园中的女神说再见，或许见不到了吧，毕竟他曾被委婉的告知，从此天各一方，该分手了。"
+        },
+        {
+          "lineNumber": 22,
+          "line": "离开学院后，他便出来旅行。"
+        },
+        {
+          "lineNumber": 24,
+          "line": "落日很红，挂在大漠的尽头，在空旷中有一种宁静的美。"
+        },
+        {
+          "lineNumber": 26,
+          "line": "楚风坐起来喝了一些水，感觉精力恢复了不少，他的身体属于修长强健那一类型，体质非常好，疲惫渐消退。"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1685,
+          "first": [
+            {
+              "lineNumber": 11,
+              "line": "第一章 沙漠中的彼岸花"
+            },
+            {
+              "lineNumber": 130,
+              "line": "第二章 后文明时代"
+            },
+            {
+              "lineNumber": 310,
+              "line": "第三章 青铜昆仑"
+            },
+            {
+              "lineNumber": 484,
+              "line": "第四章 奇树与猛兽"
+            },
+            {
+              "lineNumber": 666,
+              "line": "第五章 花开"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 0,
+          "first": []
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 11,
+          "line": "第一章 沙漠中的彼岸花"
+        },
+        {
+          "lineNumber": 130,
+          "line": "第二章 后文明时代"
+        },
+        {
+          "lineNumber": 310,
+          "line": "第三章 青铜昆仑"
+        },
+        {
+          "lineNumber": 484,
+          "line": "第四章 奇树与猛兽"
+        },
+        {
+          "lineNumber": 666,
+          "line": "第五章 花开"
+        },
+        {
+          "lineNumber": 864,
+          "line": "第六章 石盒"
+        },
+        {
+          "lineNumber": 1060,
+          "line": "第七章 异变"
+        },
+        {
+          "lineNumber": 1234,
+          "line": "第八章 世界变了"
+        },
+        {
+          "lineNumber": 1458,
+          "line": "第九章 惊悚"
+        },
+        {
+          "lineNumber": 1460,
+          "line": "第九章惊悚"
+        },
+        {
+          "lineNumber": 1660,
+          "line": "第十章 剧变"
+        },
+        {
+          "lineNumber": 1854,
+          "line": "第十一章 到家"
+        },
+        {
+          "lineNumber": 2064,
+          "line": "第十二章 太行神山"
+        },
+        {
+          "lineNumber": 2254,
+          "line": "第十三章 不属于此界"
+        },
+        {
+          "lineNumber": 2482,
+          "line": "第十四章 牛魔王"
+        },
+        {
+          "lineNumber": 2680,
+          "line": "第十五章 神秘呼吸法"
+        },
+        {
+          "lineNumber": 2872,
+          "line": "第十六章 要出大事"
+        },
+        {
+          "lineNumber": 3048,
+          "line": "第十七章 欲哭无泪"
+        },
+        {
+          "lineNumber": 3256,
+          "line": "第十八章 恐慌未来"
+        },
+        {
+          "lineNumber": 3460,
+          "line": "第十九章 奇异物质"
+        }
+      ]
+    },
+    {
+      "file": "大奉打更人.txt",
+      "bytes": 9329042,
+      "encoding": "utf-8",
+      "totalLines": 194412,
+      "nonEmptyLines": 97001,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网(qisuwang.com)的用户上传至本站的存储空间，本站只提供TXT全集电子书存储服务以及免费下载服务，以下作品内容之版权与本站无任..."
+        },
+        {
+          "lineNumber": 2,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 3,
+          "line": "这个世界，有儒；有道；有佛；有妖；有术士。"
+        },
+        {
+          "lineNumber": 5,
+          "line": "警校毕业的许七安幽幽醒来，发现自己身处牢狱之中，三日后流放边陲....."
+        },
+        {
+          "lineNumber": 7,
+          "line": "他起初的目的只是自保，顺便在这个没有人权的社会里当个富家翁悠闲度日。"
+        },
+        {
+          "lineNumber": 9,
+          "line": "......"
+        },
+        {
+          "lineNumber": 11,
+          "line": "多年后，许七安回首前尘，身后是早已逝去的敌人和朋友，以及累累白骨。"
+        },
+        {
+          "lineNumber": 13,
+          "line": "滚滚长江东逝水，浪花淘尽英雄，是非成败转头空。"
+        },
+        {
+          "lineNumber": 15,
+          "line": "青山依旧在，几度夕阳红。"
+        },
+        {
+          "lineNumber": 17,
+          "line": "PS：本书不悲剧！"
+        },
+        {
+          "lineNumber": 18,
+          "line": "------------------------------------------------------------"
+        },
+        {
+          "lineNumber": 20,
+          "line": "京察风云"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 677,
+          "first": [
+            {
+              "lineNumber": 25,
+              "line": "第一章 牢狱之灾"
+            },
+            {
+              "lineNumber": 208,
+              "line": "第二章 妖物作祟"
+            },
+            {
+              "lineNumber": 369,
+              "line": "第三章 仙侠世界一样能推理"
+            },
+            {
+              "lineNumber": 576,
+              "line": "第四章 是时候表演真正的技术了"
+            },
+            {
+              "lineNumber": 721,
+              "line": "第五章 解开谜题"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 0,
+          "first": []
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 25,
+          "line": "第一章 牢狱之灾"
+        },
+        {
+          "lineNumber": 208,
+          "line": "第二章 妖物作祟"
+        },
+        {
+          "lineNumber": 369,
+          "line": "第三章 仙侠世界一样能推理"
+        },
+        {
+          "lineNumber": 576,
+          "line": "第四章 是时候表演真正的技术了"
+        },
+        {
+          "lineNumber": 721,
+          "line": "第五章 解开谜题"
+        },
+        {
+          "lineNumber": 874,
+          "line": "第六章 懵逼的二叔"
+        },
+        {
+          "lineNumber": 1075,
+          "line": "第七章 这个妹妹好漂亮"
+        },
+        {
+          "lineNumber": 1234,
+          "line": "第八章 妹子，你偷看为兄做啥"
+        },
+        {
+          "lineNumber": 1389,
+          "line": "第九章 暴走的婶婶"
+        },
+        {
+          "lineNumber": 1540,
+          "line": "第十章 县衙命案"
+        },
+        {
+          "lineNumber": 1781,
+          "line": "第十一章 摸鱼"
+        },
+        {
+          "lineNumber": 1966,
+          "line": "第十二章 一顿操作猛如虎"
+        },
+        {
+          "lineNumber": 2129,
+          "line": "第十三章 审问"
+        },
+        {
+          "lineNumber": 2314,
+          "line": "第十四章 心理博弈"
+        },
+        {
+          "lineNumber": 2481,
+          "line": "第十五章 古往今来人类不变的劣根"
+        },
+        {
+          "lineNumber": 2624,
+          "line": "第十六章 许七安的日记"
+        },
+        {
+          "lineNumber": 2719,
+          "line": "第十七章 日常怼婶婶"
+        },
+        {
+          "lineNumber": 2918,
+          "line": "第十八章 带着妹子逛街去"
+        },
+        {
+          "lineNumber": 3077,
+          "line": "第十九章 送行诗"
+        },
+        {
+          "lineNumber": 3212,
+          "line": "第二十章 半阙七律惊大儒"
+        }
+      ]
+    },
+    {
+      "file": "我有一座冒险屋.txt",
+      "bytes": 6452374,
+      "encoding": "gb18030",
+      "totalLines": 65164,
+      "nonEmptyLines": 63420,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网(txt80.com)的用户上传至本站的存储空间，本站只提供TXT全集电子书存储服务以及免费下载服务，以下作品内容之版权与本站无任何关系。"
+        },
+        {
+          "lineNumber": 2,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 5,
+          "line": "《我有一座冒险屋》/（我有一座恐怖屋）"
+        },
+        {
+          "lineNumber": 6,
+          "line": "作者：我会修空调"
+        },
+        {
+          "lineNumber": 7,
+          "line": "内容简介："
+        },
+        {
+          "lineNumber": 8,
+          "line": "陈歌继承了失踪父母留下的冒险屋，无奈生意萧条，直到整理冒险屋时意外发现的手机改变了这一切。"
+        },
+        {
+          "lineNumber": 9,
+          "line": "只要完成手机每日布置的不同难度的任务，冒险屋就能得到修缮甚至扩建！"
+        },
+        {
+          "lineNumber": 10,
+          "line": "于是陈歌开始在各大禁地里探险取材，将其中场景元素纳入到自己的冒险屋中。随着前来参观的游客们各种惊声尖叫，冒险屋一举成名！然而虽然任务带来的好处越来越多，但..."
+        },
+        {
+          "lineNumber": 13,
+          "line": "第1章 濒临倒闭的恐怖屋"
+        },
+        {
+          "lineNumber": 14,
+          "line": "“这么不吓人的鬼屋我还是第一次见。”"
+        },
+        {
+          "lineNumber": 15,
+          "line": "“道具太假，逛了一圈，不仅不害怕，甚至有点想笑。”"
+        },
+        {
+          "lineNumber": 16,
+          "line": "“唯物主义者无所畏惧！”"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1212,
+          "first": [
+            {
+              "lineNumber": 13,
+              "line": "第1章 濒临倒闭的恐怖屋"
+            },
+            {
+              "lineNumber": 100,
+              "line": "第2章 另类的日常任务"
+            },
+            {
+              "lineNumber": 148,
+              "line": "第3章 噩梦级任务"
+            },
+            {
+              "lineNumber": 190,
+              "line": "第4章 意料之外的奖励"
+            },
+            {
+              "lineNumber": 236,
+              "line": "第5章 25分14秒！"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 1,
+          "first": [
+            {
+              "lineNumber": 5298,
+              "line": "303、304两个房里则什么声音都没有，十分安静。"
+            }
+          ]
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 13,
+          "line": "第1章 濒临倒闭的恐怖屋"
+        },
+        {
+          "lineNumber": 100,
+          "line": "第2章 另类的日常任务"
+        },
+        {
+          "lineNumber": 148,
+          "line": "第3章 噩梦级任务"
+        },
+        {
+          "lineNumber": 190,
+          "line": "第4章 意料之外的奖励"
+        },
+        {
+          "lineNumber": 236,
+          "line": "第5章 25分14秒！"
+        },
+        {
+          "lineNumber": 279,
+          "line": "第6章 美人妆"
+        },
+        {
+          "lineNumber": 326,
+          "line": "第7章 冥婚"
+        },
+        {
+          "lineNumber": 373,
+          "line": "第8章 黑色星期五"
+        },
+        {
+          "lineNumber": 409,
+          "line": "第9章 医学生被吓哭了"
+        },
+        {
+          "lineNumber": 458,
+          "line": "第10章 我开始方了……"
+        },
+        {
+          "lineNumber": 513,
+          "line": "第11章 你的良心不会痛吗"
+        },
+        {
+          "lineNumber": 564,
+          "line": "第12章 转盘"
+        },
+        {
+          "lineNumber": 609,
+          "line": "第13章 这是天要亡我？"
+        },
+        {
+          "lineNumber": 655,
+          "line": "第14章 寻人启事"
+        },
+        {
+          "lineNumber": 702,
+          "line": "第15章 房东"
+        },
+        {
+          "lineNumber": 748,
+          "line": "第16章 别在这里过夜"
+        },
+        {
+          "lineNumber": 784,
+          "line": "第17章 富安公寓"
+        },
+        {
+          "lineNumber": 831,
+          "line": "第18章 凶宅直播"
+        },
+        {
+          "lineNumber": 873,
+          "line": "第19章 人气增加"
+        },
+        {
+          "lineNumber": 917,
+          "line": "第20章 凶案现场"
+        }
+      ]
+    },
+    {
+      "file": "最强反套路系统.txt",
+      "bytes": 9812706,
+      "encoding": "gb18030",
+      "totalLines": 146762,
+      "nonEmptyLines": 146757,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明:本书由奇书网(www.qisuwang.com)自网络收集整理制作,仅供交流学习使用,版权归原作者和出版社所有,如果喜欢,请支持正版."
+        },
+        {
+          "lineNumber": 4,
+          "line": "最强反套路系统"
+        },
+        {
+          "lineNumber": 5,
+          "line": "作者：太上布衣"
+        },
+        {
+          "lineNumber": 6,
+          "line": "第1章 我有系统"
+        },
+        {
+          "lineNumber": 7,
+          "line": "一缕刺眼的阳光照耀下，徐缺微眯着眼睛醒来。"
+        },
+        {
+          "lineNumber": 8,
+          "line": "脸上有些痒痒的，周围似乎是一片草丛。"
+        },
+        {
+          "lineNumber": 9,
+          "line": "“我不是出车祸死了么？怎么又活过来了？”"
+        },
+        {
+          "lineNumber": 10,
+          "line": "他有些惊讶，可还没来得及搞清楚自己是如何死里逃生，眼前的景象便使得他立刻激动的瞪大了眼睛。"
+        },
+        {
+          "lineNumber": 11,
+          "line": "随即就懵逼了！"
+        },
+        {
+          "lineNumber": 12,
+          "line": "只见一名长得像仙女一般的古装女孩，竟对准他躺着的草丛位置，一点一点地将她那古代裙装给提了上去，然后作势就要蹲下来……"
+        },
+        {
+          "lineNumber": 13,
+          "line": "天呐！"
+        },
+        {
+          "lineNumber": 14,
+          "line": "这女孩，该不会是想要……"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1900,
+          "first": [
+            {
+              "lineNumber": 6,
+              "line": "第1章 我有系统"
+            },
+            {
+              "lineNumber": 121,
+              "line": "第2章 装完逼就跑真他妈刺激"
+            },
+            {
+              "lineNumber": 230,
+              "line": "第3章 吃撑了可是会爆的"
+            },
+            {
+              "lineNumber": 294,
+              "line": "第4章 清纯美丽小村姑"
+            },
+            {
+              "lineNumber": 368,
+              "line": "第5章 无形装逼最致命"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 11,
+          "first": [
+            {
+              "lineNumber": 61235,
+              "line": "1.2%……"
+            },
+            {
+              "lineNumber": 61236,
+              "line": "2.2%……"
+            },
+            {
+              "lineNumber": 61237,
+              "line": "2.8%……"
+            },
+            {
+              "lineNumber": 61238,
+              "line": "3.1%……"
+            },
+            {
+              "lineNumber": 85077,
+              "line": "20.0版本？"
+            }
+          ]
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 6,
+          "line": "第1章 我有系统"
+        },
+        {
+          "lineNumber": 121,
+          "line": "第2章 装完逼就跑真他妈刺激"
+        },
+        {
+          "lineNumber": 230,
+          "line": "第3章 吃撑了可是会爆的"
+        },
+        {
+          "lineNumber": 294,
+          "line": "第4章 清纯美丽小村姑"
+        },
+        {
+          "lineNumber": 368,
+          "line": "第5章 无形装逼最致命"
+        },
+        {
+          "lineNumber": 455,
+          "line": "第6章 小村姑的红肚兜"
+        },
+        {
+          "lineNumber": 536,
+          "line": "第7章 牛逼法诀"
+        },
+        {
+          "lineNumber": 642,
+          "line": "第8章 成长大礼包"
+        },
+        {
+          "lineNumber": 716,
+          "line": "第9章 龙威盖世"
+        },
+        {
+          "lineNumber": 806,
+          "line": "第10章 回收兑换"
+        },
+        {
+          "lineNumber": 897,
+          "line": "第11章 大难临头"
+        },
+        {
+          "lineNumber": 989,
+          "line": "第12章 有些逼不得不装！"
+        },
+        {
+          "lineNumber": 1129,
+          "line": "第13章 杀杀杀杀杀杀"
+        },
+        {
+          "lineNumber": 1234,
+          "line": "第14章 八荒四象阵"
+        },
+        {
+          "lineNumber": 1309,
+          "line": "第15章 装逼如风，常伴吾身！"
+        },
+        {
+          "lineNumber": 1386,
+          "line": "第16章 布阵"
+        },
+        {
+          "lineNumber": 1494,
+          "line": "第17章 朱雀降临"
+        },
+        {
+          "lineNumber": 1600,
+          "line": "第18章 四象神兽齐出"
+        },
+        {
+          "lineNumber": 1679,
+          "line": "第19章 一拳秒杀"
+        },
+        {
+          "lineNumber": 1775,
+          "line": "第20章 八荒威力"
+        }
+      ]
+    },
+    {
+      "file": "神秘复苏.txt",
+      "bytes": 11558586,
+      "encoding": "gb18030",
+      "totalLines": 161101,
+      "nonEmptyLines": 157870,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网(QiSuWang.com)的用户上传至本站的存储空间，本站只提供TXT全集电子书存储服务以及免费下载服务，以下作品内容之版权与本站无任..."
+        },
+        {
+          "lineNumber": 2,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 3,
+          "line": "《神秘复苏》作者：佛前献花"
+        },
+        {
+          "lineNumber": 5,
+          "line": "文案："
+        },
+        {
+          "lineNumber": 7,
+          "line": "“我叫杨间，当你看到这句话的时候我已经死了……”"
+        },
+        {
+          "lineNumber": 8,
+          "line": "一张诡异的羊皮卷，一只窥视黑暗的眼睛，这是一个活下来的人经历的故事。"
+        },
+        {
+          "lineNumber": 10,
+          "line": "作者自定义标签 亡灵 坚毅 学生"
+        },
+        {
+          "lineNumber": 14,
+          "line": "如坠地狱"
+        },
+        {
+          "lineNumber": 17,
+          "line": "第一章 论坛里的鬼故事。"
+        },
+        {
+          "lineNumber": 18,
+          "line": "老夫掐指一算，你现在正在床上看小说，而且还是侧身，搞不好手机还在充电。"
+        },
+        {
+          "lineNumber": 19,
+          "line": "正在读高三的杨间此刻正躺在被窝里无聊的翻看着手机，他随手点开了一个帖子，下面有不少网友在回帖。"
+        },
+        {
+          "lineNumber": 20,
+          "line": "“卧槽，楼主真乃神人也，这都被楼主猜中了。”"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1605,
+          "first": [
+            {
+              "lineNumber": 17,
+              "line": "第一章 论坛里的鬼故事。"
+            },
+            {
+              "lineNumber": 102,
+              "line": "第二章 临时讲课"
+            },
+            {
+              "lineNumber": 176,
+              "line": "第三章 鬼域。"
+            },
+            {
+              "lineNumber": 265,
+              "line": "第四章 恐怖敲门鬼"
+            },
+            {
+              "lineNumber": 356,
+              "line": "第五章 迷路"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 0,
+          "first": []
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 17,
+          "line": "第一章 论坛里的鬼故事。"
+        },
+        {
+          "lineNumber": 102,
+          "line": "第二章 临时讲课"
+        },
+        {
+          "lineNumber": 176,
+          "line": "第三章 鬼域。"
+        },
+        {
+          "lineNumber": 265,
+          "line": "第四章 恐怖敲门鬼"
+        },
+        {
+          "lineNumber": 356,
+          "line": "第五章 迷路"
+        },
+        {
+          "lineNumber": 476,
+          "line": "第六章 厕所中的手"
+        },
+        {
+          "lineNumber": 549,
+          "line": "第七章 身后的脚步"
+        },
+        {
+          "lineNumber": 657,
+          "line": "第八章 奇怪的树"
+        },
+        {
+          "lineNumber": 773,
+          "line": "第九章 鬼婴"
+        },
+        {
+          "lineNumber": 872,
+          "line": "第十章 恶鬼之力"
+        },
+        {
+          "lineNumber": 955,
+          "line": "第十一章 逐渐复苏"
+        },
+        {
+          "lineNumber": 1034,
+          "line": "第十二章 宛如智障"
+        },
+        {
+          "lineNumber": 1109,
+          "line": "第十三章 羊皮纸"
+        },
+        {
+          "lineNumber": 1189,
+          "line": "第十四章 诡异的纸"
+        },
+        {
+          "lineNumber": 1259,
+          "line": "第十五章 老人出现的条件"
+        },
+        {
+          "lineNumber": 1355,
+          "line": "第十六章 被接通的电话"
+        },
+        {
+          "lineNumber": 1453,
+          "line": "第十七章 恶鬼的诅咒"
+        },
+        {
+          "lineNumber": 1535,
+          "line": "第十八章 死亡逼近"
+        },
+        {
+          "lineNumber": 1607,
+          "line": "第十九章 离开的八人"
+        },
+        {
+          "lineNumber": 1686,
+          "line": "第二十章 街头。"
+        }
+      ]
+    },
+    {
+      "file": "致命偏宠.txt",
+      "bytes": 5320234,
+      "encoding": "gb18030",
+      "totalLines": 89589,
+      "nonEmptyLines": 86938,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明:本书由奇书网(www.qisuwang.com)自网络收集整理制作,仅供交流学习使用,版权归原作者和出版社所有,如果喜欢,请支持正版."
+        },
+        {
+          "lineNumber": 3,
+          "line": "致命偏宠"
+        },
+        {
+          "lineNumber": 4,
+          "line": "作者: 漫西"
+        },
+        {
+          "lineNumber": 5,
+          "line": "内容简介"
+        },
+        {
+          "lineNumber": 6,
+          "line": "日久生情 宠文 世家护短●豪门 暗黑 爽文"
+        },
+        {
+          "lineNumber": 7,
+          "line": "黎家团宠的小千金黎俏，被退婚了。"
+        },
+        {
+          "lineNumber": 8,
+          "line": "黎家人揭竿而起，全城讨伐，誓要对方好看。"
+        },
+        {
+          "lineNumber": 9,
+          "line": "后来，黎俏偶遇退婚男的大哥。"
+        },
+        {
+          "lineNumber": 10,
+          "line": "有人说：他是南洋最神秘的男人，姓商，名郁，字少衍；"
+        },
+        {
+          "lineNumber": 11,
+          "line": "也有人说：他傲睨万物，且偏执成性，是南洋地下霸主，不可招惹。"
+        },
+        {
+          "lineNumber": 12,
+          "line": "绵绵细雨中，黎俏望着杀伐野性的男人，浅浅一笑：“你好，我是黎俏。”"
+        },
+        {
+          "lineNumber": 13,
+          "line": "做不成夫妻，那就做你长嫂。"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1321,
+          "first": [
+            {
+              "lineNumber": 22,
+              "line": "第1章 退婚"
+            },
+            {
+              "lineNumber": 60,
+              "line": "第2章 姓商，名郁，字少衍"
+            },
+            {
+              "lineNumber": 97,
+              "line": "第3章 那张脸，有点好看"
+            },
+            {
+              "lineNumber": 135,
+              "line": "第4章 这个商陆，我黎家跟他没完"
+            },
+            {
+              "lineNumber": 173,
+              "line": "第5章 攻气十足"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 1,
+          "first": [
+            {
+              "lineNumber": 48435,
+              "line": "37.2mIU/mL，超出了正常值。"
+            }
+          ]
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 22,
+          "line": "第1章 退婚"
+        },
+        {
+          "lineNumber": 60,
+          "line": "第2章 姓商，名郁，字少衍"
+        },
+        {
+          "lineNumber": 97,
+          "line": "第3章 那张脸，有点好看"
+        },
+        {
+          "lineNumber": 135,
+          "line": "第4章 这个商陆，我黎家跟他没完"
+        },
+        {
+          "lineNumber": 173,
+          "line": "第5章 攻气十足"
+        },
+        {
+          "lineNumber": 211,
+          "line": "第6章 你的审美，掉线了"
+        },
+        {
+          "lineNumber": 248,
+          "line": "第7章 黎小姐，衍爷有请"
+        },
+        {
+          "lineNumber": 283,
+          "line": "第8章 为什么不是我和你定亲？"
+        },
+        {
+          "lineNumber": 323,
+          "line": "第9章 后天的时间空出来"
+        },
+        {
+          "lineNumber": 369,
+          "line": "第10章 这水果挺贵的吧"
+        },
+        {
+          "lineNumber": 411,
+          "line": "第11章 有钱，你就是爸爸"
+        },
+        {
+          "lineNumber": 449,
+          "line": "第12章 主母的败家能力"
+        },
+        {
+          "lineNumber": 481,
+          "line": "第13章 我确实挺委屈"
+        },
+        {
+          "lineNumber": 518,
+          "line": "第14章 你认识商少衍吗？"
+        },
+        {
+          "lineNumber": 554,
+          "line": "第15章 原来商陆有病"
+        },
+        {
+          "lineNumber": 595,
+          "line": "第16章 商陆被恶搞"
+        },
+        {
+          "lineNumber": 636,
+          "line": "第17章 商郁亲自来退亲"
+        },
+        {
+          "lineNumber": 675,
+          "line": "第18章 这娃娃亲很重要吗？"
+        },
+        {
+          "lineNumber": 717,
+          "line": "第19章 你和我爸都聊了什么？"
+        },
+        {
+          "lineNumber": 750,
+          "line": "第20章 我和他说点悄悄话"
+        }
+      ]
+    },
+    {
+      "file": "黎明之剑.txt",
+      "bytes": 13422071,
+      "encoding": "gb18030",
+      "totalLines": 125403,
+      "nonEmptyLines": 122206,
+      "head": [
+        {
+          "lineNumber": 1,
+          "line": "声明：本书为奇书网(QiSuWang.com)的用户上传至本站的存储空间，本站只提供TXT全集电子书存储服务以及免费下载服务，以下作品内容之版权与本站无任..."
+        },
+        {
+          "lineNumber": 2,
+          "line": "---------------------------用户上传之内容开始--------------------------------"
+        },
+        {
+          "lineNumber": 5,
+          "line": "《黎明之剑》作者：远瞳"
+        },
+        {
+          "lineNumber": 6,
+          "line": "简介"
+        },
+        {
+          "lineNumber": 7,
+          "line": "高文穿越了，但穿越的时候稍微出了点问题。"
+        },
+        {
+          "lineNumber": 8,
+          "line": "在某个异界大陆上空飘了十几万年之后，他觉得自己可能需要一具身体才算是成为一个完整的穿越者，但他并没想到自己好不容易成功之后竟然还需要带着这具身体从棺材里爬..."
+        },
+        {
+          "lineNumber": 9,
+          "line": "以及一个即将迎来纪元终结的世界。"
+        },
+        {
+          "lineNumber": 10,
+          "line": "自定义标签：位面 穿越 轻松"
+        },
+        {
+          "lineNumber": 13,
+          "line": "第1章 穿越成一个视角是什么鬼"
+        },
+        {
+          "lineNumber": 14,
+          "line": "某年某月某日，某时某分某秒。"
+        },
+        {
+          "lineNumber": 15,
+          "line": "下面的世界一如既往，可观测区域晴朗，无风，云层稀薄。"
+        },
+        {
+          "lineNumber": 16,
+          "line": "高文静静地以一个绝对俯视的视角遥望着那遥远的大地，静静地思考人生毕竟他也干不了别的事。"
+        }
+      ],
+      "patterns": [
+        {
+          "id": "cn-chapter",
+          "count": 1594,
+          "first": [
+            {
+              "lineNumber": 13,
+              "line": "第1章 穿越成一个视角是什么鬼"
+            },
+            {
+              "lineNumber": 87,
+              "line": "第2章 穿越完从棺材里爬出来又是什么鬼"
+            },
+            {
+              "lineNumber": 155,
+              "line": "第3章 终于……能动了!"
+            },
+            {
+              "lineNumber": 224,
+              "line": "第4章 一觉醒来就在一个烂摊子里"
+            },
+            {
+              "lineNumber": 306,
+              "line": "第5章 盗贼小姐的作用"
+            }
+          ]
+        },
+        {
+          "id": "cn-chapter-bracket",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "cn-volume-chapter",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "arabic-chapter-label",
+          "count": 0,
+          "first": []
+        },
+        {
+          "id": "numeric-heading",
+          "count": 0,
+          "first": []
+        }
+      ],
+      "looseChapterLikeLines": [
+        {
+          "lineNumber": 13,
+          "line": "第1章 穿越成一个视角是什么鬼"
+        },
+        {
+          "lineNumber": 87,
+          "line": "第2章 穿越完从棺材里爬出来又是什么鬼"
+        },
+        {
+          "lineNumber": 155,
+          "line": "第3章 终于……能动了!"
+        },
+        {
+          "lineNumber": 224,
+          "line": "第4章 一觉醒来就在一个烂摊子里"
+        },
+        {
+          "lineNumber": 306,
+          "line": "第5章 盗贼小姐的作用"
+        },
+        {
+          "lineNumber": 370,
+          "line": "第6章 这是啥玩意儿"
+        },
+        {
+          "lineNumber": 437,
+          "line": "第7章 那些古老的事情"
+        },
+        {
+          "lineNumber": 503,
+          "line": "第8章 重见天日"
+        },
+        {
+          "lineNumber": 574,
+          "line": "第9章 焚烧"
+        },
+        {
+          "lineNumber": 645,
+          "line": "第10章 回到实际问题"
+        },
+        {
+          "lineNumber": 719,
+          "line": "第11章 前路漫漫"
+        },
+        {
+          "lineNumber": 794,
+          "line": "第12章 阴影"
+        },
+        {
+          "lineNumber": 856,
+          "line": "第13章 暗影界"
+        },
+        {
+          "lineNumber": 927,
+          "line": "第14章 野法师"
+        },
+        {
+          "lineNumber": 999,
+          "line": "第15章 烟消云散"
+        },
+        {
+          "lineNumber": 1079,
+          "line": "第16章 前兆"
+        },
+        {
+          "lineNumber": 1148,
+          "line": "第17章 坦桑镇"
+        },
+        {
+          "lineNumber": 1215,
+          "line": "第18章 安德鲁子爵"
+        },
+        {
+          "lineNumber": 1284,
+          "line": "第19章 债务"
+        },
+        {
+          "lineNumber": 1350,
+          "line": "第20章 投资价值"
+        }
+      ]
+    }
+  ]
+}

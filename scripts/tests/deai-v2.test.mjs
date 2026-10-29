@@ -11,8 +11,8 @@ test('empty and short text return stable empty report', () => {
     const report = DeAiProcessor.detectBody(input);
     assert.equal(report.findings.length, 0);
     assert.equal(report.metrics.sentenceLengthCV, 0);
-    assert.deepEqual(report.metrics.protectedSpans, { total: 0, hit: 0, missing: [] });
-    assert.equal(report.metrics.retentionRatio, 1);
+    assert.deepEqual(report.metrics.protectedSpans, { total: 0 });
+    assert.equal(report.metrics.retentionRatio, undefined);
   }
 });
 
@@ -68,6 +68,27 @@ test('uniform sentences create advisory finding', () => {
   assert.ok(report.findings.some(item =>
     item.id === 'deai-uniform-sentence-length' && item.severity === 'advisory'
   ));
+});
+
+test('over-varied sentence rhythm contributes to score without blocking', () => {
+  const input = [
+    '他忽然停住，肩膀绷紧，呼吸停滞，瞳孔收缩，' +
+    '所有人的目光都压过来，走廊尽头的灯闪了两下又稳住，' +
+    '短。',
+    '短。',
+    '短。',
+    '短。',
+    '短。',
+    '短。',
+    '短。',
+    '短。'
+  ].join('\n');
+  const report = DeAiProcessor.detectBody(input);
+  const finding = report.findings.find(item => item.id === 'deai-sentence-cv-excess');
+  assert.ok(finding);
+  assert.equal(finding.severity, 'advisory');
+  assert.ok(report.metrics.sentenceLengthCV >= 1);
+  assert.equal(report.verdict !== 'blocking', true);
 });
 
 test('protected spans extract and verify missing values', () => {

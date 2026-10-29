@@ -1,4 +1,5 @@
 import skillPackageProtocol from './skillPackageProtocol.json'
+import { validateSkillDeaiMeta } from './skillDeaiContract'
 
 export const SKILL_PACKAGE_SCHEMA = 'shenyi.skill-package/1'
 
@@ -66,6 +67,26 @@ export function inspectSkillPackageManifestProtocol(raw: unknown): {
       field: 'meta.agent',
       message: messages.deprecatedMetaAgent,
     })
+  }
+
+  if (
+    source.meta !== undefined
+    && source.meta !== null
+    && typeof source.meta === 'object'
+    && !Array.isArray(source.meta)
+    && (source.meta as Record<string, unknown>).deai !== undefined
+  ) {
+    const deaiValidation = validateSkillDeaiMeta((source.meta as Record<string, unknown>).deai)
+    if (!deaiValidation.valid) {
+      issues.push(...deaiValidation.errors.map(message => ({
+        field: 'meta.deai',
+        message,
+      })))
+    }
+    warnings.push(...deaiValidation.warnings.map(message => ({
+      field: 'meta.deai',
+      message,
+    })))
   }
   return { issues, warnings }
 }

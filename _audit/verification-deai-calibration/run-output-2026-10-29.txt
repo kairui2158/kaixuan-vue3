@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-10-29T12:26:17.502Z",
+  "corpus": {
+    "path": "D:/codex/拆文库/踏星/.novel/benchmarks/踏星/原文/原文.txt",
+    "bytes": 54551451,
+    "totalHeaderMatches": 5596,
+    "mainStoryChapters": 5588,
+    "sampledChapters": 200,
+    "seed": 20261029,
+    "eligibility": "1500-6000 non-whitespace chars"
+  },
+  "human": {
+    "sampleCount": 200,
+    "verdicts": {
+      "advisory": 79,
+      "suspicious": 105,
+      "likely_ai": 7,
+      "clean": 9
+    },
+    "findingCounts": {
+      "deai-freq-words": 191,
+      "deai-uniform-sentence-length": 179,
+      "deai-broken-punctuation": 108,
+      "deai-repeated-bigram": 199,
+      "deai-banned-phrase": 146,
+      "deai-repeated-trigram": 181,
+      "deai-style-drift": 144,
+      "deai-banned-vocab": 54
+    },
+    "valueStats": {
+      "scores": {
+        "count": 200,
+        "mean": 45.905,
+        "min": 18,
+        "p50": 46,
+        "p90": 58.1,
+        "p95": 63,
+        "p99": 67.01,
+        "max": 71
+      },
+      "effectiveChars": {
+        "count": 200,
+        "mean": 2287.625,
+        "min": 740,
+        "p50": 2287,
+        "p90": 2861.3,
+        "p95": 2946.85,
+        "p99": 3042.08,
+        "max": 3088
+      },
+      "dialogueChars": {
+        "count": 200,
+        "mean": 691.395,
+        "min": 0,
+        "p50": 655.5,
+        "p90": 1291.4,
+        "p95": 1394.2,
+        "p99": 1590.16,
+        "max": 2218
+      },
+      "narrationHedging": {
+        "count": 200,
+        "mean": 0,
+        "min": 0,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "dialogueHedging": {
+        "count": 200,
+        "mean": 0,
+        "min": 0,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "repeatedBigramMax": {
+        "count": 200,
+        "mean": 766.175,
+        "min": 0,
+        "p50": 749.5,
+        "p90": 1039.5,
+        "p95": 1113.1,
+        "p99": 1217.23,
+        "max": 1328
+      },
+      "repeatedTrigramMax": {
+        "count": 200,
+        "mean": 302.565,
+        "min": 0,
+        "p50": 305,
+        "p90": 481,
+        "p95": 519.2,
+        "p99": 560.24,
+        "max": 695
+      }
+    },
+    "gates": {
+      "dialogueHedgingFalsePositiveRate": 0,
+      "dialogueHedgingEligibleCount": 192,
+      "blockingRate": 0.815,
+      "suspiciousOrHigherRate": 0.56
+    },
+    "blockedFindingCounts": {
+      "deai-broken-punctuation": 108,
+      "deai-style-drift": 111,
+      "deai-banned-phrase": 16,
+      "deai-banned-vocab": 1,
+      "deai-freq-words": 4
+    },
+    "thresholdFields": {
+      "aiFreqWord": {
+        "name": "aiFreqWord",
+        "value": 3,
+        "scaledValue": 3,
+        "source": "default"
+      },
+      "bannedVocab": {
+        "name": "bannedVocab",
+        "value": 0.8,
+        "scaledValue": 0.8,
+        "source": "default"
+      },
+      "cliche": {
+        "name": "cliche",
+        "value": 1,
+        "scaledValue": 1,
+        "source": "default"
+      },
+      "connector": {
+        "name": "connector",
+        "value": 3.5,
+        "scaledValue": 3.5,
+        "source": "default"
+      },
+      "narrationHedging": {
+        "name": "narrationHedging",
+        "value": 4,
+        "scaledValue": 4,
+        "source": "default"
+      },
+      "dialogueHedging": {
+        "name": "dialogueHedging",
+        "value": 6,
+        "scaledValue": 6,
+        "source": "default"
+      },
+      "repeatedBigramMax": {
+        "name": "repeatedBigramMax",
+        "value": 12,
+        "scaledValue": 12,
+        "source": "default"
+      },
+      "repeatedTrigramMax": {
+        "name": "repeatedTrigramMax",
+        "value": 8,
+        "scaledValue": 8,
+        "source": "default"
+      }
+    }
+  },
+  "positives": {
+    "repeatedSkeleton": {
+      "sampleCount": 80,
+      "ngramHitRate": 1,
+      "anyFindingHitRate": 1,
+      "verdicts": {
+        "suspicious": 44,
+        "advisory": 27,
+        "likely_ai": 9
+      }
+    },
+    "lexicalHedging": {
+      "sampleCount": 80,
+      "ngramHitRate": 1,
+      "anyFindingHitRate": 1,
+      "verdicts": {
+        "advisory": 35,
+        "suspicious": 38,
+        "likely_ai": 3,
+        "clean": 4
+      }
+    }
+  },
+  "performance": {
+    "textChars": 20000,
+    "reportEffectiveChars": 15479,
+    "reportDialogueChars": 4135,
+    "elapsedMs": 24.24
+  },
+  "provenance": {
+    "author": "随散飘风",
+    "work": "踏星",
+    "note": "Single-author human-written web-novel corpus; findings are author/style-scoped, not universal."
+  }
+}
+[calibrate-deai-v2] artifact: D:\codex\novel-workshop-vue3\_audit\verification-deai-calibration\deai-v2-calibration-2026-10-29.json
