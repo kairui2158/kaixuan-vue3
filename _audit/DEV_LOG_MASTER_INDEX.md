@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-30
+更新日期：2026-10-31
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1459,3 +1459,43 @@
 - 交付：版本升级 3.110.10；全量回归 230 files / 2462 tests；重新封装并新增安装包核验脚本；清理 3.110.8、3.110.9 旧产物；完成审计登记与 git 提交。
 - 验证：`node scripts/verify-packaging-3-110-10.mjs` PASS；安装包 SHA256 `8fd8bb399b194441cc5b57d0e38bbda0bfff4ca008fd9d3eead83faae0123a4b`；证据 `_audit/verification-packaging-3-110-10/packaging-evidence.json`。
 - 边界：live 供应商生成未测；`神意助手-Setup-3.110.6.exe` 维持 ACL 损坏边界。
+
+# 2026-10-31 降AI Kimi 正样本收割与用户导出溯源
+
+- 文件：[_audit/DEV_LOG_2026-10-31_deai-kimi-positive-harvest.md](_audit/DEV_LOG_2026-10-31_deai-kimi-positive-harvest.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-31_deai-kimi-positive-harvest.md](_audit/TASK_LEDGERS/2026-10-31_deai-kimi-positive-harvest.md)
+- 交付：真实正文层正样本扩到 52 条，新增 Kimi 32 条；新增用户导出正文只读映射脚本，证明两个导出文件是已入库 payload 的整理拼接而非独立样本；外部 manifest 登记衍生证据。
+- 验证：映射覆盖率 99.45% / 99.78%；校准 `modelPositive=52`；发布门禁仍 NOT_READY；Node 测试 10 passed；定向 Vitest 2 files / 17 tests passed。
+- 边界：不改检测内核、阈值、词库、评分权重与 provisional；不提交 git、不封装、不做 live API；用户导出文件不进入 labels。
+
+# 2026-10-31 word-gap 上游事实链骨架
+
+- 文件：[_audit/DEV_LOG_2026-10-31_word-gap-upstream-scaffold.md](_audit/DEV_LOG_2026-10-31_word-gap-upstream-scaffold.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_word-gap-upstream-scaffold.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_word-gap-upstream-scaffold.md)
+- 交付：word-gap 骨架改为 `candidate -> upstream -> none` 三级优先级；候选缺【正文交接】时优先用 `[上一章事实]`、场景事实与 `FACT_LOCK` 重建账本，只补缺口不做全链重写；执行器两处反馈调用接入 `chainUpstreamContext`；trace 新增骨架来源、容量与字段数；更新 SKILL 适配手册。
+- 验证：定向 3 files / 71 tests passed；`vue-tsc --noEmit` exit 0；`git diff --check` exit 0；042804 trace 对账确认旧断链与数据可用性。
+- 边界：不做 live 供应商验证；不升版、不封装、不提交 git；不回滚降AI校准相关脏文件。
+
+# 2026-10-31 章级事件增量硬闸应用侧适配
+
+- 文件：[_audit/DEV_LOG_2026-10-31_chapter-event-density-gate.md](_audit/DEV_LOG_2026-10-31_chapter-event-density-gate.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_chapter-event-density-gate.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_chapter-event-density-gate.md)
+- 交付：识别 `NOT-READY + 章级事件密度不足` 为上游材料缺口，第一次物理返回后立即 blocked，不进入正文层第 2/3 次重试；catch 路径写专项 trace、步骤日志与上游指引；`事件增量` 进入 advisory 观测，只读交接 metadata；更新 SKILL 适配手册。
+- 验证：定向 6 files / 107 tests passed；`vue-tsc --noEmit` exit 0。
+- 边界：不做 live 供应商验证；不升版、不封装、不提交 git；不回滚降AI校准相关脏文件。
+
+# 2026-10-31 降AI V2 候选参数生成器
+
+- 文件：[_audit/DEV_LOG_2026-10-31_deai-v2-candidate-generator.md](_audit/DEV_LOG_2026-10-31_deai-v2-candidate-generator.md)
+- 台账：[_audit/TASK_LEDGERS/2026-10-31_deai-v2-candidate-generator.md](_audit/TASK_LEDGERS/2026-10-31_deai-v2-candidate-generator.md)
+- 交付：候选评分代理与运行时同刻度重建 base score；full 模式改为确定性 beam 搜索并如实报告非 exhaustive；minimal 强制精确枚举；held-out 仅做一次复验；输出推荐候选、默认参数 diff、dev 分组表现与 held-out 复验。
+- 验证：候选器/语料/V2 Node 测试 10+4+10 passed；定向 Vitest 2 files / 17 tests passed；minimal `exact-enumeration evaluated=512`；full `deterministic-beam combinations=3,675,000 evaluated=1,956`；既有校准器复跑 `modelPositive=52`；release gate 仍 NOT_READY。
+- 边界：不改检测内核、阈值、词库、评分权重与 provisional；不提交 git、不封装、不做 live API；候选仅进入人工审核，不作为校准通过依据。
+
+# 2026-10-31 3.110.11 版本封装与提交
+
+- 文件：[_audit/DEV_LOG_2026-10-31_release-3-110-11.md](_audit/DEV_LOG_2026-10-31_release-3-110-11.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_packaging-3-110-11.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_packaging-3-110-11.md)
+- 交付：版本升级 3.110.11；全量回归 231 files / 2478 tests；封装并真实启动核验安装包；清理 3.110.10 旧产物；release 与降AI校准资产分两次提交。
+- 验证：`node scripts/verify-packaging-3-110-11.mjs` PASS；安装包 SHA256 `e0c7084c841a87d7a60238e6c6106db8a15ef0d23d9b1a4dd1f9ce5448f8887d`；证据 `_audit/verification-packaging-3-110-11/packaging-evidence.json`。
+- 边界：live 供应商生成未测；降AI release gate 仍 NOT_READY；`神意助手-Setup-3.110.6.exe` 维持 ACL 损坏边界。

@@ -102,6 +102,62 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).not.toContain('正'.repeat(100))
   })
 
+  it('rebuilds the missing handoff scaffold from bounded chain upstream facts', () => {
+    const upstream = [
+      '[上一章事实]',
+      '第12章《王芳入局》',
+      '王芳拿到账册；林越确认旧案时间；两人约定分头行动。',
+      '',
+      '【场景1：酒馆问线】',
+      'POV：林越；目标：确认账册来源；行动：追问王芳→核对时间；空间结果：两人离开酒馆。',
+      '【场景2：分头行动】',
+      'POV：林越；目标：封锁仓库出口；行动：王芳吸引注意→林越入仓；空间结果：拿到账册。',
+      '',
+      'FACT_LOCK：王芳=话痨；账册=旧案关键物；林越=怀疑内鬼'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：2000字，要求不低于2800字'],
+      previousOutput: '正'.repeat(2000),
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      },
+      chainUpstreamContext: upstream
+    })
+
+    expect(result.strategy).toBe('word-gap')
+    expect(result.feedback).toContain('上一版候选没有可解析的【正文交接】账本')
+    expect(result.feedback).toContain('[上一章事实]')
+    expect(result.feedback).toContain('王芳拿到账册')
+    expect(result.feedback).toContain('【场景1：酒馆问线】')
+    expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
+    expect(result.feedback).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(result.feedback).not.toContain('按原始任务输入重建正文')
+    expect(result.scaffoldSource).toBe('upstream')
+    expect(result.scaffoldFieldCount).toBeGreaterThan(0)
+    expect(result.scaffoldChars).toBeGreaterThan(0)
+    expect(result.scaffoldChars).toBeLessThanOrEqual(800)
+    expect(result.feedback).not.toContain('正'.repeat(100))
+  })
+
+  it('still declares an absent scaffold when both candidate and upstream facts are unavailable', () => {
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：2000字，要求不低于2800字'],
+      previousOutput: '正'.repeat(2000),
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      },
+      chainUpstreamContext: '   '
+    })
+
+    expect(result.strategy).toBe('word-gap')
+    expect(result.feedback).toContain('无法提供结构骨架')
+    expect(result.feedback).toContain('按原始任务输入重建正文')
+    expect(result.scaffoldSource).toBe('none')
+    expect(result.scaffoldFieldCount).toBe(0)
+  })
+
   it('keeps bounded-summary feedback for quality failures', () => {
     const result = buildSchemaRetryFeedback({
       errors: ['复述上一步内容过多'],

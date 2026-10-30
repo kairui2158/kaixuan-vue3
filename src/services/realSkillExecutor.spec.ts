@@ -93,6 +93,29 @@ describe('realSkillExecutor single pass', () => {
     }))
   })
 
+  it('blocks chapter event density NOT-READY without retrying', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: 'NOT-READY：章级事件密度不足，需上游补剧情点'
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('blocked')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(result.errors[0]).toContain('章级事件密度不足')
+    expect(result.diagnostics.some(item => item.code === 'chapter-event-density-not-ready')).toBe(true)
+  })
+
   it('lets an explicit agent provider override the layer provider', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),
@@ -1101,7 +1124,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
   it('enforces the protected body contract when folder postProcess reports valid but the body is too short', async () => {
     const outputs = [
-      `${'正'.repeat(2000)}\n\n【正文交接】\nFACT_LOCK：王芳=话痨\n【正文交接结束】`,
+      '正'.repeat(2000),
       `${'正'.repeat(3000)}\n\n【正文交接】\nFACT_LOCK：王芳=话痨\n【正文交接结束】`
     ]
     let callIndex = 0
@@ -1121,6 +1144,15 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
       input: '原文',
+      chainUpstreamContext: [
+        '[上一章事实]',
+        '第12章《王芳入局》',
+        '王芳拿到账册；林越确认旧案时间。',
+        '',
+        '【场景1：酒馆问线】',
+        'POV：林越；行动：追问王芳→核对时间。',
+        'FACT_LOCK：王芳=话痨；账册=旧案关键物'
+      ].join('\n'),
       budget: createBudget(),
       protectedContract: {
         kind: 'body',
@@ -1141,6 +1173,9 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(retrySystemPrompt).toContain('【结构化重试反馈】')
     expect(retrySystemPrompt).toContain('当前净字数：2000')
     expect(retrySystemPrompt).toContain('还差净字数：800')
+    expect(retrySystemPrompt).toContain('FACT_LOCK：王芳=话痨')
+    expect(retrySystemPrompt).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(retrySystemPrompt).not.toContain('按原始任务输入重建正文')
   })
 
   it('accepts advisory postProcess warnings without downgrading a valid output', async () => {

@@ -6,6 +6,7 @@ import {
 } from './dialogueToolSurface'
 import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
+import { detectChapterEventDensityNotReady } from './chapterEventDensity'
 import { collectDeaiFindingsWithObservability, DeAiProcessor } from './de-ai'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { getProviderReasoningControl } from './providerProtocols'
@@ -1170,6 +1171,39 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
 
         let candidateOutput = result.text || ''
+        const chapterDensityGap = detectChapterEventDensityNotReady(candidateOutput)
+        if (chapterDensityGap.detected) {
+          diagnostics.push(diagnostic(
+            'error',
+            chapterDensityGap.code,
+            `${chapterDensityGap.gap}${chapterDensityGap.guidance}`
+          ))
+          return {
+            status: 'blocked',
+            output: candidateOutput,
+            errors: [`${chapterDensityGap.gap}；${chapterDensityGap.guidance}`],
+            diagnostics,
+            folderPackageCache: loaded.folderPackageCache === true,
+            postProcessReport,
+            apiMeta: {
+              finishReason: result.finishReason,
+              providerId: result.providerId,
+              usage: result.usage,
+              maxTokens: result.maxTokens ?? agent?.maxTokens,
+              reasoningText: (result as { reasoning?: string }).reasoning || finalReasoningText || '',
+              contextBudget: (result as CallAiToolResultLike).contextBudget || finalContextBudget,
+              usageReconciliation: (result as CallAiToolResultLike).usageReconciliation ?? finalUsageReconciliation,
+              textOrigin: (result as CallAiToolResultLike).textOrigin ?? finalTextOrigin,
+              requestMessages: capturedRequestMessages,
+              attemptRequestMessages: capturedAttemptRequestMessages,
+              toolCalls,
+              toolResults,
+              toolRequestDeltas,
+              toolAudit,
+              timingLedger: { ...timingLedger }
+            }
+          }
+        }
         const postStartedAt = Date.now()
         const postInput = candidateOutput
         const postResult = await executeHook(pkg.script, 'postProcess', candidateOutput, diagnostics)
@@ -1242,6 +1276,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             const feedback = buildSchemaRetryFeedback({
               errors: retryErrors,
               previousOutput: candidateOutput,
+              chainUpstreamContext,
               protectedContract: protectedContract || undefined
             })
             schemaRetryFeedback = feedback.feedback
@@ -1324,6 +1359,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           const feedback = buildSchemaRetryFeedback({
             errors: validation.errors,
             previousOutput: candidateOutput,
+            chainUpstreamContext,
             protectedContract: protectedContract || undefined
           })
           schemaRetryFeedback = feedback.feedback

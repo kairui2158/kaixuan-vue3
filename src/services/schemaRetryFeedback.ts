@@ -5,6 +5,7 @@ import { resolveProseWordContract } from './proseWordContract'
 export interface SchemaRetryFeedbackInput {
   errors: string[]
   previousOutput?: string
+  chainUpstreamContext?: string
   protectedContract?: import('./protectedSkillContract').ProtectedSkillContract
   maxErrors?: number
   maxAnchors?: number
@@ -16,6 +17,7 @@ export interface SchemaRetryFeedbackInput {
 export interface SchemaRetryFeedbackResult {
   feedback: string
   strategy: 'bounded-summary' | 'word-gap'
+  scaffoldSource: 'candidate' | 'upstream' | 'none'
   candidateChars: number
   feedbackChars: number
   anchorCount: number
@@ -49,15 +51,16 @@ interface WordGapScaffold {
   text: string
   fieldCount: number
   available: boolean
+  source: 'candidate' | 'upstream' | 'none'
 }
 
 function buildWordGapScaffold(candidate: string, maxChars: number): WordGapScaffold {
   const limit = Math.max(0, maxChars)
-  if (!candidate) return { text: '', fieldCount: 0, available: false }
+  if (!candidate) return { text: '', fieldCount: 0, available: false, source: 'none' }
   const handoff = splitLegacyMetadataSections(candidate)
     .sections
     .find(section => section.includes('【正文交接】'))
-  if (!handoff) return { text: '', fieldCount: 0, available: false }
+  if (!handoff) return { text: '', fieldCount: 0, available: false, source: 'none' }
 
   const fields: string[] = []
   let current: { key: string; lines: string[] } | null = null
@@ -77,7 +80,57 @@ function buildWordGapScaffold(candidate: string, maxChars: number): WordGapScaff
     .filter(Boolean)
   let text = normalized.join('\n')
   if (text.length > limit) text = `${text.slice(0, limit)}\n（结构骨架超长，已截断）`
-  return { text, fieldCount: normalized.length, available: true }
+  return { text, fieldCount: normalized.length, available: true, source: 'candidate' }
+}
+
+function buildUpstreamWordGapScaffold(upstream: string, maxChars: number): WordGapScaffold {
+  const limit = Math.max(0, maxChars)
+  const source = typeof upstream === 'string' ? upstream.trim() : ''
+  if (!source) return { text: '', fieldCount: 0, available: false, source: 'none' }
+
+  const lines = source.split(/\r?\n/)
+  const fields: string[] = []
+  let inLegacyHandoff = false
+  let inPreviousChapterFacts = false
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+    if (/^【正文交接】$/.test(line)) {
+      inLegacyHandoff = true
+      inPreviousChapterFacts = false
+      continue
+    }
+    if (/^【正文交接结束】$/.test(line)) {
+      inLegacyHandoff = false
+      continue
+    }
+    if (inLegacyHandoff) continue
+    if (/^\[上一章事实\]$/.test(line)) {
+      inPreviousChapterFacts = true
+      fields.push('[上一章事实]')
+      continue
+    }
+    if (inPreviousChapterFacts) {
+      if (!line) {
+        inPreviousChapterFacts = false
+        continue
+      }
+      fields.push(normalizeWhitespace(line))
+      continue
+    }
+    if (/^【场景\d+/.test(line)) {
+      fields.push(normalizeWhitespace(line))
+      continue
+    }
+    if (/^(?:POV|视角)[:：]/i.test(line) || /^FACT_LOCK[:：]/i.test(line)) {
+      fields.push(normalizeWhitespace(line))
+    }
+  }
+
+  const normalized = fields.filter(Boolean)
+  if (normalized.length === 0) return { text: '', fieldCount: 0, available: false, source: 'none' }
+  let text = normalized.join('\n')
+  if (text.length > limit) text = `${text.slice(0, limit)}\n（上游事实链超长，已截断）`
+  return { text, fieldCount: normalized.length, available: true, source: 'upstream' }
 }
 
 function normalizeWhitespace(value: string): string {
@@ -140,7 +193,10 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
     const gap = currentWords < minWords
       ? minWords - currentWords
       : currentWords > maxWords ? currentWords - maxWords : 0
-    const scaffold = buildWordGapScaffold(candidate, maxScaffoldChars)
+    const candidateScaffold = buildWordGapScaffold(candidate, maxScaffoldChars)
+    const scaffold = candidateScaffold.available
+      ? candidateScaffold
+      : buildUpstreamWordGapScaffold(input.chainUpstreamContext || '', maxScaffoldChars)
     const lines = [
       '【结构化重试反馈】',
       '本反馈描述净字数缺口与有界结构骨架。候选全文未随本反馈回传，请基于原始任务输入、结构骨架与已生成的场景结构补写缺口，不要复述反馈本身，不要输出解释。',
@@ -158,10 +214,15 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
     } else {
       lines.push('（上一版候选没有可解析的【正文交接】账本，无法提供结构骨架。）', '', '修复要求：按原始任务输入重建正文，并补足【正文交接】账本；不要把缺失骨架降级为丢弃段落结构。')
     }
+    if (scaffold.source === 'upstream') {
+      lines.push('', '状态说明：上一版候选没有可解析的【正文交接】账本，已改用链路上游事实链。')
+      lines.push('', '补充要求：基于 FACT_LOCK 与上游事实链重建【正文交接】账本，只补足缺口，不要整段正文重写。')
+    }
     const feedback = lines.join('\n')
     return {
       feedback,
       strategy: 'word-gap',
+      scaffoldSource: scaffold.source,
       candidateChars: candidate.length,
       feedbackChars: feedback.length,
       anchorCount: 0,
@@ -202,6 +263,7 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
   return {
     feedback,
     strategy: 'bounded-summary',
+    scaffoldSource: 'none',
     candidateChars: candidate.length,
     feedbackChars: feedback.length,
     anchorCount: anchors.length,

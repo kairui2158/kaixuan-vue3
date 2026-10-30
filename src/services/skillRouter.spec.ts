@@ -123,6 +123,49 @@ describe('skillRouter composite mapping', () => {
     })
   })
 
+  it('throws with folderResult when the density gate returns blocked', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'folder',
+        name: 'folder',
+        description: '',
+        template: '',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/folder'
+      } as any,
+      error: null,
+      folderPackageCache: false
+    })
+    executeRealSkillMock.mockResolvedValueOnce({
+      status: 'blocked',
+      output: 'NOT-READY：章级事件密度不足，需上游补剧情点',
+      errors: ['章级事件密度不足，需上游补剧情点；上游剧情材料不足：请回到章节规划/剧情层补足事件点。'],
+      diagnostics: [{
+        type: 'error',
+        code: 'chapter-event-density-not-ready',
+        message: '章级事件密度不足',
+        at: '2026-10-31T00:00:00.000Z'
+      }],
+      folderPackageCache: false
+    })
+
+    await expect(routeSkill(
+      { id: 'folder', format: 'folder', folderPath: 'D:/skills/folder' },
+      { input: '输入', budget: budget() }
+    )).rejects.toMatchObject({
+      message: '章级事件密度不足，需上游补剧情点；上游剧情材料不足：请回到章节规划/剧情层补足事件点。',
+      folderResult: {
+        status: 'blocked',
+        diagnostics: [{
+          code: 'chapter-event-density-not-ready'
+        }]
+      }
+    })
+  })
+
   it('falls back to text mode when folder loading fails', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: null,

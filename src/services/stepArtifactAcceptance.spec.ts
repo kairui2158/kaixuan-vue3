@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   acceptStepArtifact,
   resolveFinalStepMetadataFlow,
+  resolveStepArtifactFlow,
   type StepArtifactAcceptanceInput
 } from './stepArtifactAcceptance'
 
@@ -46,6 +47,67 @@ describe('acceptStepArtifact', () => {
       downstreamPayload: '普通步骤产物'
     })
     expect(result.metadata).toEqual({})
+  })
+
+  it('exposes a missing event increment as an advisory without changing acceptance', () => {
+    const result = resolveStepArtifactFlow({
+      stepOutput: [
+        '正文'.repeat(2800),
+        '',
+        '【正文交接】',
+        'FACT_LOCK:位置=仓库',
+        '【正文交接结束】'
+      ].join('\n'),
+      stepIndex: 0,
+      contract
+    })
+
+    expect(result.acceptance.decision).toBe('accept')
+    expect(result.chapterEventIncrementAdvisory).toMatchObject({
+      detected: true,
+      exempted: false,
+      distinctBenefitCategoryCount: 0
+    })
+  })
+
+  it('exposes a passing event increment advisory for a two-benefit chapter', () => {
+    const result = resolveStepArtifactFlow({
+      stepOutput: [
+        '正文'.repeat(2800),
+        '',
+        '【正文交接】',
+        '事件增量：王芳获得新信息，处境改变。',
+        '【正文交接结束】'
+      ].join('\n'),
+      stepIndex: 0,
+      contract
+    })
+
+    expect(result.acceptance.decision).toBe('accept')
+    expect(result.chapterEventIncrementAdvisory).toMatchObject({
+      detected: false,
+      benefitCategories: ['新信息', '处境改变']
+    })
+  })
+
+  it('does not infer event increment semantics from the narrative body', () => {
+    const result = resolveStepArtifactFlow({
+      stepOutput: [
+        '王芳获得新信息，处境改变，威胁升级。'.repeat(650),
+        '',
+        '【正文交接】',
+        'FACT_LOCK:位置=仓库',
+        '【正文交接结束】'
+      ].join('\n'),
+      stepIndex: 0,
+      contract
+    })
+
+    expect(result.chapterEventIncrementAdvisory).toMatchObject({
+      detected: true,
+      benefitCategories: [],
+      distinctBenefitCategoryCount: 0
+    })
   })
 
   it('rejects a degraded step without a contract even when output is non-empty', () => {

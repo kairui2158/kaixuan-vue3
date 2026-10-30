@@ -1,4 +1,5 @@
 import { parseGenerationResult } from './generationResult'
+import { evaluateChapterEventIncrement } from './chapterEventDensity'
 import type { GenerationMetadata } from './generationResult'
 import {
   countBodyWords,
@@ -92,6 +93,7 @@ export interface StepArtifactFlowResult {
     reason: 'degraded_plus_contract_failure' | 'contract_failure' | 'caller_failed' | 'no_contract_degraded'
     message: string
   } | null
+  chapterEventIncrementAdvisory: ReturnType<typeof evaluateChapterEventIncrement>
 }
 
 export function makeStepArtifactEnvelope(input: {
@@ -177,7 +179,10 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
           reason: failureReason,
           message: `正文生成步骤验收失败（${failureReason}）：${result.errors.join('；')}`
         }
-      : null
+      : null,
+    chapterEventIncrementAdvisory: evaluateChapterEventIncrement(
+      acceptance.metadata.extractedMeta?.join('\n') || ''
+    )
   }
 }
 

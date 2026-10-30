@@ -849,6 +849,10 @@ import {
   type FinalStepMetadataFlowResult,
   type StepArtifactAcceptanceResult
 } from "../../services/stepArtifactAcceptance"
+import {
+  CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
+  detectChapterEventDensityNotReady
+} from "../../services/chapterEventDensity"
 import { hashEditorContent } from "../../services/editorTarget"
 import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
 import {
@@ -2630,10 +2634,14 @@ function buildFinalStepUpstreamAnchors(upstreamOutput: string): string[] {
 
 interface BodyFeedbackAuditState {
   schema: null | {
+    strategy: string
     candidateChars: number
     feedbackChars: number
     anchorCount: number
     previewChars: number
+    scaffoldSource: string
+    scaffoldChars: number
+    scaffoldFieldCount: number
     suppressedCandidateChars: number
   }
   finalStep: null | {
@@ -2947,10 +2955,14 @@ async function callValidatedSkill(
         traceCallId,
         onSchemaRetryFeedbackComposed: (result) => {
           bodyFeedbackAudit.schema = {
+            strategy: result.strategy,
             candidateChars: result.candidateChars,
             feedbackChars: result.feedbackChars,
             anchorCount: result.anchorCount,
             previewChars: result.previewChars,
+            scaffoldSource: result.scaffoldSource,
+            scaffoldChars: result.scaffoldChars,
+            scaffoldFieldCount: result.scaffoldFieldCount,
             suppressedCandidateChars: result.suppressedCandidateChars
           }
           if (!traceRunId) return
@@ -2959,10 +2971,14 @@ async function callValidatedSkill(
             level: 'info',
             label: `结构化重试反馈已单源合成：${template.name || template.id}`,
             detail: JSON.stringify({
+              strategy: result.strategy,
               candidateChars: result.candidateChars,
               feedbackChars: result.feedbackChars,
               anchorCount: result.anchorCount,
               previewChars: result.previewChars,
+              scaffoldSource: result.scaffoldSource,
+              scaffoldChars: result.scaffoldChars,
+              scaffoldFieldCount: result.scaffoldFieldCount,
               suppressedCandidateChars: result.suppressedCandidateChars
             })
           })
@@ -3063,6 +3079,32 @@ async function callValidatedSkill(
         }
         }
         finishFolderTraceFromResult(folderResult)
+        if (
+          folderResult.status === 'blocked' &&
+          folderResult.diagnostics.some(item => item.code === CHAPTER_EVENT_DENSITY_NOT_READY_CODE)
+        ) {
+          const density = detectChapterEventDensityNotReady(folderResult.output)
+          const detail = JSON.stringify({
+            code: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
+            gap: density.detected ? density.gap : folderResult.errors[0],
+            guidance: density.detected ? density.guidance : '上游剧情材料不足，请回到章节规划/剧情层补足事件点。',
+            retryableInBodyLayer: false
+          })
+          if (traceRunId) {
+            runTraceStore.addEvent(traceRunId, {
+              type: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
+              level: 'error',
+              label: '章级事件密度不足：需要上游补剧情点',
+              detail
+            })
+          }
+          appendStepLogForRun(
+            pipelineRunIdParam,
+            step,
+            `章级事件密度不足：已终止本层重试。${density.detected ? density.guidance : '请回到章节规划/剧情层补足事件点。'}`
+          )
+          throw new Error(`章级事件密度不足，需上游补剧情点：${density.detected ? density.gap : folderResult.errors[0]}`)
+        }
       } else {
         finishFolderTrace('failed', error instanceof Error ? error.message : String(error))
       }
@@ -4388,6 +4430,24 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             contract: bodyChainContract
           })
           const acceptance = artifactFlow.acceptance
+          const incrementAdvisory = artifactFlow.chapterEventIncrementAdvisory
+          if (runId && incrementAdvisory) {
+            runTraceStore.addEvent(runId, {
+              type: incrementAdvisory.code,
+              level: incrementAdvisory.detected ? 'warn' : 'info',
+              label: `正文生成步骤 ${si + 1}/${templates.length} 事件增量验收`,
+              detail: JSON.stringify(incrementAdvisory)
+            })
+          }
+          if (incrementAdvisory?.detected) {
+            appendPipelineChainWarning({
+              runId: pipelineRunId,
+              step,
+              skillIndex: si,
+              code: incrementAdvisory.code,
+              summary: incrementAdvisory.message
+            })
+          }
           rememberBodyStepAcceptance(pipelineRunId, si, acceptance)
           if (runId) {
             runTraceStore.addEvent(runId, {
@@ -4536,7 +4596,13 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           volumeIndex: selectedVolumeIndex.value
         }))
       } catch (error) {
-        if (si > 0 && handoffDelivery !== 'full_text') {
+        const densityBlocked = (error as Error & { folderResult?: RealSkillExecutionResult })
+          .folderResult?.status === 'blocked' &&
+          Boolean(
+            (error as Error & { folderResult?: RealSkillExecutionResult })
+              .folderResult?.diagnostics.some(item => item.code === CHAPTER_EVENT_DENSITY_NOT_READY_CODE)
+          )
+        if (!densityBlocked && si > 0 && handoffDelivery !== 'full_text') {
           try {
             if (runId) {
               const escalationDetail = JSON.stringify({
@@ -4825,6 +4891,24 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       contract: bodyChainContract
     })
     const acceptance = artifactFlow.acceptance
+    const incrementAdvisory = artifactFlow.chapterEventIncrementAdvisory
+    if (runId && incrementAdvisory) {
+      runTraceStore.addEvent(runId, {
+        type: incrementAdvisory.code,
+        level: incrementAdvisory.detected ? 'warn' : 'info',
+        label: `正文生成步骤 1/${Math.max(1, templates.length)} 事件增量验收`,
+        detail: JSON.stringify(incrementAdvisory)
+      })
+    }
+    if (incrementAdvisory?.detected) {
+      appendPipelineChainWarning({
+        runId: pipelineRunId,
+        step,
+        skillIndex: 0,
+        code: incrementAdvisory.code,
+        summary: incrementAdvisory.message
+      })
+    }
     rememberBodyStepAcceptance(pipelineRunId, 0, acceptance)
     if (runId) {
       runTraceStore.addEvent(runId, {
