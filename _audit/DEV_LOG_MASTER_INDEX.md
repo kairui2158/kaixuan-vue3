@@ -1436,3 +1436,10 @@
 - 交付：正文契约改为 preProcess 后受保护注入并硬性校验最终请求；三次候选逐次测量净字数/交接/契约距离并落 run trace；重试耗尽按契约感知比选保留候选；字数不足反馈改 word-gap，不回传候选全文；统一 compose 与链式入口语义；新增真实 kaixuan-s2 集成测试；SKILL 适配手册见 [FOLDER_SKILL_BODY_PROTECTED_CONTRACT_GUIDE_2026-10-30.md](FOLDER_SKILL_BODY_PROTECTED_CONTRACT_GUIDE_2026-10-30.md)。
 - 验证：定向 6 files / 198 tests passed；`vue-tsc --noEmit` exit 0；`git diff --check` exit 0；真实 S2 集成验证契约在折叠后 prompt 末尾且 postProcess 通过。
 - 边界：不改 folder SKILL；不回滚降AI校准既有脏文件；不升版、不封装、不提交，等待用户确认。
+
+# 2026-10-31 3.110.9 版本封装与提交
+
+- 文件：[_audit/DEV_LOG_2026-10-31_release-3-110-9.md](_audit/DEV_LOG_2026-10-31_release-3-110-9.md)
+- 交付：版本升级 3.110.9；正文受保护契约接线进入产品；降AI校准仪器升级独立提交；重跑封装与安装包核验。
+- 验证：见封装开发日志与 `_audit/verification-packaging-3-110-9/packaging-evidence.json`。
+- 边界：live 供应商生成与降AI校准 `provisional` 状态不在本轮解除。
