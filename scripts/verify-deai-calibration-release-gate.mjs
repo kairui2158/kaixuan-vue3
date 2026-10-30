@@ -117,8 +117,10 @@ function main() {
   const ngramRecall = pooledModelPositiveCount ? modelPositiveNgramHits / pooledModelPositiveCount : 0
   const recallHalfWidth = normalApproximationHalfWidth(modelPositiveSuspiciousOrHigher, pooledModelPositiveCount)
 
-  const sensitivityCounts = (report.thresholdSensitivity || []).map(point => point.suspiciousOrHigher)
-  const distinctSensitivityCounts = new Set(sensitivityCounts).size
+  const sensitivityPoints = report.thresholdSensitivity || []
+  const distinctHumanFalsePositiveCounts = new Set(sensitivityPoints.map(point => point.humanFalsePositiveCount)).size
+  const distinctPositiveRecallCounts = new Set(sensitivityPoints.map(point => point.positiveRecallCount)).size
+  const distinctSensitivityCounts = Math.min(distinctHumanFalsePositiveCounts, distinctPositiveRecallCounts)
   const verifiedAuthorRates = Object.entries(report.humanByAuthor || {})
     .filter(([author]) => verifiedAuthorGroups.has(author))
     .map(([, value]) => value.suspiciousOrHigherRate)
@@ -158,7 +160,9 @@ function main() {
       modelGroups: modelGroupEntries.map(([key, group]) => ({ key, sampleCount: group.sampleCount })),
       pooledModelPositiveSuspiciousOrHigher: modelPositiveSuspiciousOrHigher,
       pooledModelPositiveCount,
-      wilsonLowerBoundForSuspiciousOrHigherRecall: Number(wilsonLowerBound(modelPositiveSuspiciousOrHigher, pooledModelPositiveCount).toFixed(4))
+      wilsonLowerBoundForSuspiciousOrHigherRecall: Number(wilsonLowerBound(modelPositiveSuspiciousOrHigher, pooledModelPositiveCount).toFixed(4)),
+      thresholdCurveDistinctHumanFalsePositiveCounts: distinctHumanFalsePositiveCounts,
+      thresholdCurveDistinctPositiveRecallCounts: distinctPositiveRecallCounts
     }
   }
 

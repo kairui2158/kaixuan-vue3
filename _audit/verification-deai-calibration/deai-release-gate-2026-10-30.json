@@ -1,0 +1,235 @@
+{
+  "generatedAt": "2026-10-30T15:10:22.975Z",
+  "reportPath": "_audit/verification-deai-calibration/deai-v2-calibration-20261030T150636Z.json",
+  "corpusRoot": "D:/codex/deai-corpus",
+  "decision": "NOT_READY",
+  "provisionalMustRemain": true,
+  "requirements": {
+    "verifiedAuthorCount": {
+      "min": 10,
+      "description": "verified independent human source identities"
+    },
+    "unverifiedAuthorLabels": {
+      "max": 0,
+      "description": "labels from unverified human source identities"
+    },
+    "genreCount": {
+      "min": 7,
+      "description": "genres with sampled calibration coverage"
+    },
+    "modelGroups": {
+      "min": 3,
+      "description": "real provider/model positive groups"
+    },
+    "minSamplesPerModelGroup": {
+      "min": 30,
+      "description": "real positive samples per model group"
+    },
+    "providerCount": {
+      "min": 2,
+      "description": "distinct positive providers"
+    },
+    "humanSuspiciousOrHigherRate": {
+      "max": 0.1,
+      "description": "held-out human suspicious+ false-positive rate"
+    },
+    "humanBlockingRate": {
+      "max": 0.05,
+      "description": "held-out human blocking false-positive rate"
+    },
+    "worstAuthorSuspiciousOrHigherRate": {
+      "max": 0.2,
+      "description": "worst verified source-identity suspicious+ false-positive rate"
+    },
+    "modelPositiveSuspiciousOrHigherRecall": {
+      "min": 0.9,
+      "description": "model-positive suspicious+ recall"
+    },
+    "modelPositiveNgramRecall": {
+      "min": 0.9,
+      "description": "model-positive n-gram finding recall"
+    },
+    "recallConfidenceIntervalHalfWidth": {
+      "max": 0.1,
+      "description": "95% recall confidence interval half-width"
+    },
+    "thresholdCurveDistinctCounts": {
+      "min": 3,
+      "description": "distinct sensitivity counts across score points"
+    },
+    "performanceMs": {
+      "max": 300,
+      "description": "20k-char detectBody performance in ms"
+    }
+  },
+  "checks": [
+    {
+      "key": "verifiedAuthorCount",
+      "description": "verified independent human source identities",
+      "limit": ">= 10",
+      "actual": 10,
+      "passed": true
+    },
+    {
+      "key": "unverifiedAuthorLabels",
+      "description": "labels from unverified human source identities",
+      "limit": "<= 0",
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "key": "genreCount",
+      "description": "genres with sampled calibration coverage",
+      "limit": ">= 7",
+      "actual": 7,
+      "passed": true
+    },
+    {
+      "key": "modelGroups",
+      "description": "real provider/model positive groups",
+      "limit": ">= 3",
+      "actual": 3,
+      "passed": true
+    },
+    {
+      "key": "minSamplesPerModelGroup",
+      "description": "real positive samples per model group",
+      "limit": ">= 30",
+      "actual": 4,
+      "passed": false
+    },
+    {
+      "key": "providerCount",
+      "description": "distinct positive providers",
+      "limit": ">= 2",
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "key": "humanSuspiciousOrHigherRate",
+      "description": "held-out human suspicious+ false-positive rate",
+      "limit": "<= 0.1",
+      "actual": 0.2367,
+      "passed": false
+    },
+    {
+      "key": "humanBlockingRate",
+      "description": "held-out human blocking false-positive rate",
+      "limit": "<= 0.05",
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "key": "worstAuthorSuspiciousOrHigherRate",
+      "description": "worst verified source-identity suspicious+ false-positive rate",
+      "limit": "<= 0.2",
+      "actual": 0.7,
+      "passed": false
+    },
+    {
+      "key": "modelPositiveSuspiciousOrHigherRecall",
+      "description": "model-positive suspicious+ recall",
+      "limit": ">= 0.9",
+      "actual": 0.85,
+      "passed": false
+    },
+    {
+      "key": "modelPositiveNgramRecall",
+      "description": "model-positive n-gram finding recall",
+      "limit": ">= 0.9",
+      "actual": 0.95,
+      "passed": true
+    },
+    {
+      "key": "recallConfidenceIntervalHalfWidth",
+      "description": "95% recall confidence interval half-width",
+      "limit": "<= 0.1",
+      "actual": 0.1565,
+      "passed": false
+    },
+    {
+      "key": "thresholdCurveDistinctCounts",
+      "description": "distinct sensitivity counts across score points",
+      "limit": ">= 3",
+      "actual": 3,
+      "passed": true
+    },
+    {
+      "key": "performanceMs",
+      "description": "20k-char detectBody performance in ms",
+      "limit": "<= 300",
+      "actual": 20.46,
+      "passed": true
+    }
+  ],
+  "failedChecks": [
+    "minSamplesPerModelGroup",
+    "humanSuspiciousOrHigherRate",
+    "worstAuthorSuspiciousOrHigherRate",
+    "modelPositiveSuspiciousOrHigherRecall",
+    "recallConfidenceIntervalHalfWidth"
+  ],
+  "diagnostics": {
+    "verifiedAuthors": [
+      {
+        "author": "踏星",
+        "count": 5594
+      },
+      {
+        "author": "卖报小郎君",
+        "count": 100
+      },
+      {
+        "author": "远瞳",
+        "count": 100
+      },
+      {
+        "author": "老鹰吃小鸡",
+        "count": 100
+      },
+      {
+        "author": "蝴蝶蓝",
+        "count": 100
+      },
+      {
+        "author": "佛前献花",
+        "count": 100
+      },
+      {
+        "author": "辰东",
+        "count": 100
+      },
+      {
+        "author": "我会修空调",
+        "count": 100
+      },
+      {
+        "author": "作者A",
+        "count": 100
+      },
+      {
+        "author": "作者B",
+        "count": 100
+      }
+    ],
+    "modelGroups": [
+      {
+        "key": "prov-1788185503573/deepseek-v4-pro",
+        "sampleCount": 12
+      },
+      {
+        "key": "prov-1793181246179/deepseek-v4-pro",
+        "sampleCount": 4
+      },
+      {
+        "key": "prov-1793181246179/glm-5",
+        "sampleCount": 4
+      }
+    ],
+    "pooledModelPositiveSuspiciousOrHigher": 17,
+    "pooledModelPositiveCount": 20,
+    "wilsonLowerBoundForSuspiciousOrHigherRecall": 0.6396,
+    "thresholdCurveDistinctHumanFalsePositiveCounts": 20,
+    "thresholdCurveDistinctPositiveRecallCounts": 3
+  }
+}

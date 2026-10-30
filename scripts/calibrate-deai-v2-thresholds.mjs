@@ -15,11 +15,15 @@ const modelLabelPath = path.join(corpusRoot, 'labels', 'model-positive.jsonl')
 const modelSourceRoot = path.join(corpusRoot, 'sources', 'model')
 const outputDir = path.join(repoRoot, '_audit', 'verification-deai-calibration')
 
-const today = new Date().toISOString().slice(0, 10)
 const CLI = {
-  sampleCount: Number(process.env.DEAI_CALIBRATION_SAMPLE_COUNT || 700),
+  sampleCount: Number(process.env.DEAI_CALIBRATION_SAMPLE_COUNT || 1000),
   seed: Number(process.env.DEAI_CALIBRATION_SEED || 20261029)
 }
+const BOOTSTRAP_ITERATIONS = 2000
+const STRONG_VERDICTS = ['suspicious', 'likely_ai', 'blocking']
+const NGRAM_FINDINGS = ['deai-repeated-bigram', 'deai-repeated-trigram']
+const BANNED_VOCAB_ID = 'deai-banned-vocab'
+const BANNED_PHRASE_ID = 'deai-banned-phrase'
 
 function log(phase, data = {}) {
   console.log(JSON.stringify({ phase, ...data }))
@@ -161,6 +165,86 @@ function splitHeldOut(samples, seed) {
   return { train: pool, heldOut }
 }
 
+function groupBy(samples, keyOf) {
+  return samples.reduce((acc, sample) => {
+    const key = keyOf(sample)
+    if (!acc[key]) acc[key] = []
+    acc[key].push(sample)
+    return acc
+  }, {})
+}
+
+function deterministicWorkSplit(samples, { perWork, seed }) {
+  if (perWork < 7) fail(`per-work sample count below minimum: ${perWork}`)
+  const random = mulberry32(seed)
+  const sampled = []
+  const workKeys = []
+  for (const [work, workSamples] of Object.entries(groupBy(samples, sample => `${sample.author}::${sample.work}`))) {
+    const shuffled = [...workSamples]
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    sampled.push(...shuffled.slice(0, perWork))
+    workKeys.push(work)
+  }
+  workKeys.sort()
+
+  const rotated = workKeys.map((work, index) => ({ work, bucket: ['train', 'dev', 'heldOut'][(index + seed) % 3] }))
+  const bucketByWork = new Map(rotated.map(item => [item.work, item.bucket]))
+  const train = []
+  const dev = []
+  const heldOut = []
+  for (const sample of sampled) {
+    const bucket = bucketByWork.get(`${sample.author}::${sample.work}`)
+    if (bucket === 'train') train.push(sample)
+    else if (bucket === 'dev') dev.push(sample)
+    else heldOut.push(sample)
+  }
+
+  const worksByBucket = Object.fromEntries(['train', 'dev', 'heldOut'].map(bucket => {
+    const works = rotated.filter(item => item.bucket === bucket).map(item => item.work)
+    return [bucket === 'heldOut' ? 'heldOut' : bucket, works]
+  }))
+  if (!train.length || !dev.length || !heldOut.length) fail('work split produced an empty bucket')
+  const overlap = []
+  for (const { work } of rotated) {
+    const bucketCount = [train, dev, heldOut].filter(bucket =>
+      bucket.some(sample => `${sample.author}::${sample.work}` === work)).length
+    if (bucketCount > 1) overlap.push({ work, bucketCount })
+  }
+  if (overlap.length) fail(`work-level split leakage: ${JSON.stringify(overlap.slice(0, 5))}`)
+  return { train, dev, heldOut, worksByBucket }
+}
+
+function countWorks(samples) {
+  return new Set(samples.map(sample => `${sample.author}::${sample.work}`)).size
+}
+
+function pickFirstBy(samples, sort) {
+  return [...samples].sort(sort)[0]
+}
+
+function bootstrapRate(numerator, denominator, iterations = BOOTSTRAP_ITERATIONS) {
+  if (!denominator) return { estimate: 0, lower: 0, upper: 0, iterations }
+  const z = 1.96
+  const values = []
+  for (let i = 0; i < iterations; i += 1) {
+    let hits = 0
+    for (let j = 0; j < denominator; j += 1) {
+      if (mulberry32(CLI.seed * 100003 + i * 1009 + j)() * denominator < numerator) hits += 1
+    }
+    values.push(hits / denominator)
+  }
+  values.sort((a, b) => a - b)
+  return {
+    estimate: Number((numerator / denominator).toFixed(4)),
+    lower: Number(quantile(values, 0.025).toFixed(4)),
+    upper: Number(quantile(values, 0.975).toFixed(4)),
+    iterations
+  }
+}
+
 function stratifiedSample(samples, perGroup, groupOf, random) {
   const groups = groupBy(samples, groupOf)
   const pool = []
@@ -212,6 +296,169 @@ function collectReports(chapters) {
   }
   if (failures.length) fail(`detector failures: ${JSON.stringify(failures.slice(0, 3))}`)
   return reports
+}
+
+function isStrongVerdict(report) {
+  return STRONG_VERDICTS.includes(report.verdict)
+}
+
+function analyzeLayer(samples) {
+  const reports = collectReports(samples.map(sample => ({
+    title: sample.title ?? sample.id,
+    body: sample.text
+  })))
+  const pairs = reports.map((entry, index) => ({ sample: samples[index], ...entry }))
+  const strong = pairs.filter(({ report }) => isStrongVerdict(report))
+  const verdicts = pairs.reduce((acc, { report }) => {
+    acc[report.verdict] = (acc[report.verdict] || 0) + 1
+    return acc
+  }, {})
+  const findingCounts = {}
+  const blockedFindingCounts = {}
+  for (const { report } of pairs) {
+    for (const finding of report.findings) {
+      findingCounts[finding.id] = (findingCounts[finding.id] || 0) + 1
+      if (finding.severity === 'blocking') {
+        blockedFindingCounts[finding.id] = (blockedFindingCounts[finding.id] || 0) + 1
+      }
+    }
+  }
+  return {
+    pairs,
+    summary: {
+      sampleCount: pairs.length,
+      verdicts,
+      suspiciousOrHigherRate: Number((strong.length / (pairs.length || 1)).toFixed(4)),
+      blockingRate: Number((pairs.filter(({ report }) => report.verdict === 'blocking').length / (pairs.length || 1)).toFixed(4)),
+      blockingFindingRate: Number((pairs.filter(({ report }) => report.findings.some(f => f.severity === 'blocking')).length / (pairs.length || 1)).toFixed(4)),
+      findingCounts,
+      blockedFindingCounts,
+      suspiciousOrHigherCi: bootstrapRate(strong.length, pairs.length)
+    }
+  }
+}
+
+function summarizeAuthorLayers(samples) {
+  return Object.fromEntries(Object.entries(groupBy(samples, sample => sample.author)).map(([author, group]) => {
+    const { summary } = analyzeLayer(group)
+    const strong = STRONG_VERDICTS.reduce((sum, verdict) => sum + (summary.verdicts[verdict] || 0), 0)
+    return [author, {
+      sampleCount: summary.sampleCount,
+      verdicts: summary.verdicts,
+      suspiciousOrHigherRate: summary.suspiciousOrHigherRate,
+      blockingFindingRate: summary.blockingFindingRate,
+      findingCounts: summary.findingCounts,
+      suspiciousOrHigherCi: bootstrapRate(strong, summary.sampleCount)
+    }]
+  }))
+}
+
+function summarizeGroupRatings(pairs, label) {
+  const grouped = groupBy(pairs, ({ sample }) => sample.groupKey ?? label)
+  const result = {}
+  for (const [key, groupPairs] of Object.entries(grouped)) {
+    const strong = groupPairs.filter(({ report }) => isStrongVerdict(report))
+    const ngramHits = groupPairs.filter(({ report }) =>
+      report.findings.some(f => NGRAM_FINDINGS.includes(f.id))).length
+    result[key] = {
+      sampleCount: groupPairs.length,
+      suspiciousOrHigherRecall: Number((strong.length / (groupPairs.length || 1)).toFixed(4)),
+      ngramRecall: Number(ngramHits / (groupPairs.length || 1)).toFixed(4),
+      ngramHitRate: Number(ngramHits / (groupPairs.length || 1)).toFixed(4),
+      anyFindingHitRate: Number((groupPairs.filter(({ report }) => report.findings.length > 0).length / (groupPairs.length || 1)).toFixed(4)),
+      verdicts: groupPairs.reduce((acc, { report }) => {
+        acc[report.verdict] = (acc[report.verdict] || 0) + 1
+        return acc
+      }, {}),
+      recallCi: bootstrapRate(strong.length, groupPairs.length)
+    }
+  }
+  return result
+}
+
+function bootstrapMean(values) {
+  const summary = { estimate: 0, lower: 0, upper: 0, iterations: BOOTSTRAP_ITERATIONS }
+  if (!values.length) return summary
+  const random = mulberry32(CLI.seed + 991)
+  const means = []
+  for (let i = 0; i < BOOTSTRAP_ITERATIONS; i += 1) {
+    let total = 0
+    for (let j = 0; j < values.length; j += 1) total += values[Math.floor(random() * values.length)]
+    means.push(total / values.length)
+  }
+  means.sort((a, b) => a - b)
+  return {
+    estimate: Number((values.reduce((a, b) => a + b, 0) / values.length).toFixed(4)),
+    lower: Number(quantile(means, 0.025).toFixed(4)),
+    upper: Number(quantile(means, 0.975).toFixed(4)),
+    iterations: BOOTSTRAP_ITERATIONS
+  }
+}
+
+function ablatedStrong(report, removedFindingIds) {
+  const findings = report.findings.filter(finding => !removedFindingIds.includes(finding.id))
+  const blocking = findings.filter(finding => finding.severity === 'blocking').length
+  const advisory = findings.length - blocking
+  const styleDrift = report.styleDrift
+  const cvFinding = findings.find(finding => finding.id === 'deai-sentence-cv-excess')
+  const score = Math.min(100, blocking * 12 + advisory * 6 +
+    (styleDrift ? Math.round(styleDrift.firstLastDelta * 10) : 0) +
+    (cvFinding ? cvFinding.contribution : 0))
+  return score >= 45 || (blocking > 0 && score >= 70)
+}
+
+function findingAbstraction(humanPairs, positivePairs) {
+  const baselineHumanStrong = humanPairs.filter(({ report }) => isStrongVerdict(report)).length
+  const baselinePositiveStrong = positivePairs.filter(({ report }) => isStrongVerdict(report)).length
+  const humanFindingRates = {}
+  const positiveFindingRates = {}
+  for (const [key, pairs] of Object.entries(groupBy(humanPairs, ({ sample }) => sample.bucket ?? 'pooled'))) {
+    humanFindingRates[key] = pairs.length ? pairs.filter(({ report }) => isStrongVerdict(report)).length / pairs.length : 0
+  }
+  for (const [key, pairs] of Object.entries(groupBy(positivePairs, ({ sample }) => sample.groupKey ?? 'model'))) {
+    positiveFindingRates[key] = pairs.length ? pairs.filter(({ report }) => isStrongVerdict(report)).length / pairs.length : 0
+  }
+  const findingIds = [...new Set([
+    ...humanPairs.flatMap(({ report }) => report.findings.map(finding => finding.id)),
+    ...positivePairs.flatMap(({ report }) => report.findings.map(finding => finding.id))
+  ])].sort()
+  return findingIds.map(findingId => {
+    const humanStrong = humanPairs.filter(({ report }) => ablatedStrong(report, [findingId])).length
+    const positiveStrong = positivePairs.filter(({ report }) => ablatedStrong(report, [findingId])).length
+    const falsePositiveReduction = baselineHumanStrong - humanStrong
+    const recallLoss = baselinePositiveStrong - positiveStrong
+    return {
+      findingId,
+      humanPresenceRate: Number((humanPairs.filter(({ report }) => report.findings.some(finding => finding.id === findingId)).length / (humanPairs.length || 1)).toFixed(4)),
+      positivePresenceRate: Number((positivePairs.filter(({ report }) => report.findings.some(finding => finding.id === findingId)).length / (positivePairs.length || 1)).toFixed(4)),
+      humanStrongRateByBucket: Object.fromEntries(Object.entries(humanFindingRates).map(([key, value]) => [key, Number(value.toFixed(4))])),
+      positiveStrongRateByGroup: Object.fromEntries(Object.entries(positiveFindingRates).map(([key, value]) => [key, Number(value.toFixed(4))])),
+      humanFalsePositiveReduction: falsePositiveReduction,
+      positiveRecallLoss: recallLoss,
+      humanFalsePositiveReductionRate: Number((falsePositiveReduction / (humanPairs.length || 1)).toFixed(4)),
+      positiveRecallLossRate: Number((recallLoss / (positivePairs.length || 1)).toFixed(4)),
+      decision: falsePositiveReduction > 0 && recallLoss === 0
+        ? 'review-rule'
+        : recallLoss > 0 && falsePositiveReduction === 0
+          ? 'keep'
+          : 'evidence-dependent'
+    }
+  })
+}
+
+function thresholdCurve(humanPairs, positivePairs) {
+  const points = [0.3, 0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8]
+  return points.map(point => {
+    const humanStrong = humanPairs.filter(({ report }) => report.score / 100 >= point).length
+    const positiveHits = positivePairs.filter(({ report }) => report.score / 100 >= point).length
+    return {
+      scorePoint: point,
+      humanFalsePositiveCount: humanStrong,
+      humanFalsePositiveRate: Number((humanStrong / (humanPairs.length || 1)).toFixed(4)),
+      positiveRecallCount: positiveHits,
+      positiveRecallRate: Number((positiveHits / (positivePairs.length || 1)).toFixed(4))
+    }
+  })
 }
 
 function findingId(report, id) {
@@ -325,15 +572,6 @@ function summarizePositive(pairs) {
   }
 }
 
-function groupBy(samples, keyOf) {
-  return samples.reduce((acc, sample) => {
-    const key = keyOf(sample)
-    if (!acc[key]) acc[key] = []
-    acc[key].push(sample)
-    return acc
-  }, {})
-}
-
 function reportLayer(samples) {
   const reports = collectReports(samples.map(sample => ({ title: sample.title ?? sample.id, body: sample.text })))
   const summary = summarizeHuman(reports.map(({ title, report }) => ({
@@ -385,58 +623,82 @@ function measurePerformance(chapters) {
 function main() {
   const humanSamples = loadCorpus()
   const modelSamples = loadModelPositives()
-  const random = mulberry32(CLI.seed)
-  const { pool: sampled, groupKeys: authorKeys } = stratifiedSample(humanSamples, 100, sample => sample.author, random)
-  if (authorKeys.length < 5) fail(`author groups below minimum: ${authorKeys.length}`)
-  if (sampled.length < 500) fail(`stratified human sample below minimum: ${sampled.length}`)
-  const { train, heldOut } = splitHeldOut(sampled, CLI.seed + 1)
-  const positiveRandom = mulberry32(CLI.seed + 2)
-  const sampledPositive = stratifiedSample(sampled, 9, sample => sample.author, positiveRandom).pool
-  const positiveRepeated = collectReports(sampledPositive.slice(0, Math.floor(sampledPositive.length / 2)).map(chapter => ({
-    title: `[synthetic-ai/repeated] ${chapter.title ?? chapter.id}`,
-    body: makeAiPositive({ body: chapter.text })
+  const perWork = Math.min(100, Math.max(7, Math.floor((CLI.sampleCount || 1000) / countWorks(humanSamples))))
+  const split = deterministicWorkSplit(humanSamples, { perWork, seed: CLI.seed })
+  const { train, dev, heldOut, worksByBucket } = split
+  const humanTrain = analyzeLayer(train)
+  const humanDev = analyzeLayer(dev)
+  const humanHeldOut = analyzeLayer(heldOut)
+  for (const [bucket, pairs] of Object.entries({ train: humanTrain.pairs, dev: humanDev.pairs, heldOut: humanHeldOut.pairs })) {
+    for (const pair of pairs) pair.sample.bucket = bucket
+  }
+
+  const modelPairs = collectReports(modelSamples.map(sample => ({
+    title: `${sample.provider}/${sample.model}/${sample.id}`,
+    body: sample.text
+  }))).map((entry, index) => ({ sample: modelSamples[index], ...entry }))
+  for (const pair of modelPairs) pair.sample.groupKey = `${pair.sample.provider}/${pair.sample.model}`
+
+  const ablationPairs = [...train, ...dev, ...heldOut]
+  const ablationReports = collectReports(ablationPairs.map(sample => ({
+    title: sample.title ?? sample.id,
+    body: sample.text
   })))
-  const positiveLexical = collectReports(sampledPositive.slice(Math.floor(sampledPositive.length / 2)).map(chapter => ({
-    title: `[synthetic-ai/lexical] ${chapter.title ?? chapter.id}`,
-    body: makeAiPositiveNoNgram({ body: chapter.text })
-  })))
-  const modelPositiveByModel = groupBy(modelSamples, sample => `${sample.provider}/${sample.model}`)
-  const modelGroupEntries = Object.entries(modelPositiveByModel)
-    .map(([key, samples]) => ({ key, sampleCount: samples.length }))
-  const humanByAuthor = groupBy(sampled, sample => sample.author)
-  const humanByGenre = groupBy(sampled, sample => sample.genre)
+  const ablationHumanPairs = ablationReports.map((entry, index) => ({ sample: ablationPairs[index], ...entry }))
+  const ablation = findingAbstraction(ablationHumanPairs, modelPairs)
 
   const result = {
     generatedAt: new Date().toISOString(),
+    schemaVersion: 3,
     corpus: {
       corpusRoot,
-      humanLabels: parseJsonl(humanLabelPath).length,
-      humanSampled: sampled.length,
+      humanLabels: humanSamples.length,
+      humanSampled: ablationPairs.length,
       humanTrain: train.length,
+      humanDev: dev.length,
       humanHeldOut: heldOut.length,
       modelPositiveSamples: modelSamples.length,
       seed: CLI.seed,
-      eligibility: '1500-6000 non-whitespace chars'
+      eligibility: '1500-6000 non-whitespace chars',
+      splitUnit: 'author/work',
+      perWork,
+      worksByBucket,
+      reproducibility: {
+        splitAlgorithm: 'deterministic work-key rotation modulo 3 with seeded chapter shuffle',
+        scoreVersion: 'DEAI_V2_THRESHOLDS + findings-count scoring (blocking 12, advisory 6, styleDrift/CV contribution)',
+        detector: 'src/services/de-ai.js DeAiProcessor.detectBody'
+      }
     },
-    human: summarizeHuman(collectReports(train.map(sample => ({ title: sample.title ?? sample.id, body: sample.text })))),
-    humanHeldOut: reportLayer(heldOut),
-    humanByAuthor: Object.fromEntries(Object.entries(humanByAuthor).map(([author, samples]) => [author, reportLayer(samples)])),
-    humanByGenre: Object.fromEntries(Object.entries(humanByGenre).map(([genre, samples]) => [genre, reportLayer(samples)])),
+    human: humanTrain.summary,
+    humanDev: humanDev.summary,
+    humanHeldOut: humanHeldOut.summary,
+    humanByAuthor: summarizeAuthorLayers(ablationPairs),
+    humanByGenre: Object.fromEntries(Object.entries(groupBy(ablationPairs, sample => sample.genre)).map(([genre, samples]) => {
+      const { summary } = analyzeLayer(samples)
+      return [genre, {
+        sampleCount: summary.sampleCount,
+        verdicts: summary.verdicts,
+        suspiciousOrHigherRate: summary.suspiciousOrHigherRate,
+        blockingFindingRate: summary.blockingFindingRate,
+        findingCounts: summary.findingCounts
+      }]
+    })),
     positives: {
-      model: Object.fromEntries(Object.entries(modelPositiveByModel).map(([key, samples]) => [key, summarizeModelPositives(samples)])),
-      repeatedSkeleton: summarizePositive(positiveRepeated),
-      lexicalHedging: summarizePositive(positiveLexical)
+      model: summarizeGroupRatings(modelPairs, 'model')
     },
-    thresholdSensitivity: thresholdSensitivity(heldOut),
-    performance: measurePerformance(sampled),
+    findingAbstraction: ablation,
+    thresholdSensitivity: thresholdCurve(humanHeldOut.pairs, modelPairs),
+    performance: measurePerformance(ablationPairs),
     provenance: {
-      modelGroups: modelGroupEntries,
-      note: `Multi-author human-negative corpus plus ${modelSamples.length} real model positives across ${modelGroupEntries.length} provider/model group(s): ${modelGroupEntries.map(group => `${group.key}:${group.sampleCount}`).join(', ')}. Conclusions stay model-scoped.`
+      modelGroups: Object.entries(groupBy(modelSamples, sample => `${sample.provider}/${sample.model}`))
+        .map(([key, samples]) => ({ key, sampleCount: samples.length })),
+      note: `Work-level split: ${ablationPairs.length} human chapters across ${worksByBucket.train.length + worksByBucket.dev.length + worksByBucket.heldOut.length} works; ${modelSamples.length} real model positives. Synthetic positives are excluded from release metrics.`
     }
   }
 
   fs.mkdirSync(outputDir, { recursive: true })
-  const outputPath = path.join(outputDir, `deai-v2-calibration-${new Date().toISOString().slice(0, 10)}.json`)
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z')
+  const outputPath = path.join(outputDir, `deai-v2-calibration-${stamp}.json`)
   fs.writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8')
   console.error(`[calibrate-deai-v2] sampleCount=${result.corpus.humanSampled} heldOut=${result.corpus.humanHeldOut} modelPositive=${result.corpus.modelPositiveSamples}`)
   console.error(`[calibrate-deai-v2] artifact: ${outputPath}`)

@@ -1,0 +1,1058 @@
+{
+  "generatedAt": "2026-10-30T15:06:31.237Z",
+  "schemaVersion": 3,
+  "corpus": {
+    "corpusRoot": "D:/codex/deai-corpus",
+    "humanLabels": 6494,
+    "humanSampled": 1000,
+    "humanTrain": 300,
+    "humanDev": 400,
+    "humanHeldOut": 300,
+    "modelPositiveSamples": 20,
+    "seed": 20261029,
+    "eligibility": "1500-6000 non-whitespace chars",
+    "splitUnit": "author/work",
+    "perWork": 100,
+    "worksByBucket": {
+      "train": [
+        "作者B::最强反套路系统",
+        "老鹰吃小鸡::全球高武",
+        "辰东::圣墟"
+      ],
+      "dev": [
+        "佛前献花::神秘复苏",
+        "卖报小郎君::大奉打更人",
+        "蝴蝶蓝::全职高手",
+        "远瞳::黎明之剑"
+      ],
+      "heldOut": [
+        "作者A::致命偏宠",
+        "我会修空调::我有一座冒险屋",
+        "踏星::踏星"
+      ]
+    },
+    "reproducibility": {
+      "splitAlgorithm": "deterministic work-key rotation modulo 3 with seeded chapter shuffle",
+      "scoreVersion": "DEAI_V2_THRESHOLDS + findings-count scoring (blocking 12, advisory 6, styleDrift/CV contribution)",
+      "detector": "src/services/de-ai.js DeAiProcessor.detectBody"
+    }
+  },
+  "human": {
+    "sampleCount": 300,
+    "verdicts": {
+      "advisory": 147,
+      "suspicious": 99,
+      "likely_ai": 10,
+      "clean": 44
+    },
+    "suspiciousOrHigherRate": 0.3633,
+    "blockingRate": 0,
+    "blockingFindingRate": 0.71,
+    "findingCounts": {
+      "deai-freq-words": 295,
+      "deai-uniform-sentence-length": 246,
+      "deai-broken-punctuation": 141,
+      "deai-repeated-bigram": 291,
+      "deai-repeated-trigram": 232,
+      "deai-style-drift": 173,
+      "deai-banned-phrase": 182,
+      "deai-banned-vocab": 52,
+      "deai-sentence-cv-excess": 1
+    },
+    "blockedFindingCounts": {
+      "deai-broken-punctuation": 141,
+      "deai-style-drift": 132,
+      "deai-freq-words": 17,
+      "deai-banned-phrase": 9
+    },
+    "suspiciousOrHigherCi": {
+      "estimate": 0.3633,
+      "lower": 0.31,
+      "upper": 0.4167,
+      "iterations": 2000
+    }
+  },
+  "humanDev": {
+    "sampleCount": 400,
+    "verdicts": {
+      "suspicious": 196,
+      "advisory": 155,
+      "likely_ai": 19,
+      "clean": 30
+    },
+    "suspiciousOrHigherRate": 0.5375,
+    "blockingRate": 0,
+    "blockingFindingRate": 0.83,
+    "findingCounts": {
+      "deai-freq-words": 389,
+      "deai-banned-phrase": 321,
+      "deai-uniform-sentence-length": 356,
+      "deai-broken-punctuation": 224,
+      "deai-repeated-bigram": 381,
+      "deai-repeated-trigram": 324,
+      "deai-style-drift": 255,
+      "deai-banned-vocab": 74,
+      "deai-sentence-cv-excess": 3,
+      "deai-connector-density": 1
+    },
+    "blockedFindingCounts": {
+      "deai-broken-punctuation": 224,
+      "deai-style-drift": 182,
+      "deai-banned-phrase": 81,
+      "deai-freq-words": 53,
+      "deai-connector-density": 1,
+      "deai-banned-vocab": 1
+    },
+    "suspiciousOrHigherCi": {
+      "estimate": 0.5375,
+      "lower": 0.49,
+      "upper": 0.5825,
+      "iterations": 2000
+    }
+  },
+  "humanHeldOut": {
+    "sampleCount": 300,
+    "verdicts": {
+      "suspicious": 69,
+      "clean": 84,
+      "advisory": 145,
+      "likely_ai": 2
+    },
+    "suspiciousOrHigherRate": 0.2367,
+    "blockingRate": 0,
+    "blockingFindingRate": 0.58,
+    "findingCounts": {
+      "deai-freq-words": 280,
+      "deai-banned-vocab": 55,
+      "deai-banned-phrase": 181,
+      "deai-uniform-sentence-length": 285,
+      "deai-repeated-bigram": 295,
+      "deai-repeated-trigram": 184,
+      "deai-style-drift": 102,
+      "deai-broken-punctuation": 107
+    },
+    "blockedFindingCounts": {
+      "deai-style-drift": 76,
+      "deai-broken-punctuation": 107,
+      "deai-banned-phrase": 35,
+      "deai-banned-vocab": 7,
+      "deai-freq-words": 8
+    },
+    "suspiciousOrHigherCi": {
+      "estimate": 0.2367,
+      "lower": 0.19,
+      "upper": 0.2867,
+      "iterations": 2000
+    }
+  },
+  "humanByAuthor": {
+    "老鹰吃小鸡": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 68,
+        "suspicious": 26,
+        "likely_ai": 2,
+        "clean": 4
+      },
+      "suspiciousOrHigherRate": 0.28,
+      "blockingFindingRate": 0.64,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-uniform-sentence-length": 94,
+        "deai-broken-punctuation": 15,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 95,
+        "deai-style-drift": 79,
+        "deai-banned-phrase": 58,
+        "deai-banned-vocab": 17
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.28,
+        "lower": 0.19,
+        "upper": 0.37,
+        "iterations": 2000
+      }
+    },
+    "辰东": {
+      "sampleCount": 100,
+      "verdicts": {
+        "clean": 5,
+        "advisory": 27,
+        "suspicious": 62,
+        "likely_ai": 6
+      },
+      "suspiciousOrHigherRate": 0.68,
+      "blockingFindingRate": 0.94,
+      "findingCounts": {
+        "deai-freq-words": 99,
+        "deai-uniform-sentence-length": 97,
+        "deai-repeated-bigram": 98,
+        "deai-repeated-trigram": 61,
+        "deai-banned-phrase": 68,
+        "deai-broken-punctuation": 90,
+        "deai-style-drift": 73,
+        "deai-banned-vocab": 21
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.68,
+        "lower": 0.59,
+        "upper": 0.77,
+        "iterations": 2000
+      }
+    },
+    "作者B": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 52,
+        "clean": 35,
+        "suspicious": 11,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.13,
+      "blockingFindingRate": 0.55,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-banned-phrase": 56,
+        "deai-uniform-sentence-length": 55,
+        "deai-repeated-bigram": 93,
+        "deai-repeated-trigram": 76,
+        "deai-broken-punctuation": 36,
+        "deai-style-drift": 21,
+        "deai-banned-vocab": 14,
+        "deai-sentence-cv-excess": 1
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.13,
+        "lower": 0.07,
+        "upper": 0.2,
+        "iterations": 2000
+      }
+    },
+    "卖报小郎君": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 64,
+        "advisory": 30,
+        "likely_ai": 6
+      },
+      "suspiciousOrHigherRate": 0.7,
+      "blockingFindingRate": 1,
+      "findingCounts": {
+        "deai-freq-words": 95,
+        "deai-banned-phrase": 89,
+        "deai-uniform-sentence-length": 96,
+        "deai-broken-punctuation": 100,
+        "deai-repeated-bigram": 96,
+        "deai-repeated-trigram": 97,
+        "deai-style-drift": 63,
+        "deai-banned-vocab": 16
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.7,
+        "lower": 0.61,
+        "upper": 0.79,
+        "iterations": 2000
+      }
+    },
+    "远瞳": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 60,
+        "likely_ai": 10,
+        "advisory": 28,
+        "clean": 2
+      },
+      "suspiciousOrHigherRate": 0.7,
+      "blockingFindingRate": 0.94,
+      "findingCounts": {
+        "deai-freq-words": 100,
+        "deai-uniform-sentence-length": 79,
+        "deai-broken-punctuation": 88,
+        "deai-repeated-bigram": 93,
+        "deai-style-drift": 79,
+        "deai-banned-vocab": 29,
+        "deai-banned-phrase": 69,
+        "deai-repeated-trigram": 73,
+        "deai-sentence-cv-excess": 2
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.7,
+        "lower": 0.61,
+        "upper": 0.79,
+        "iterations": 2000
+      }
+    },
+    "蝴蝶蓝": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 35,
+        "advisory": 51,
+        "clean": 13,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.36,
+      "blockingFindingRate": 0.62,
+      "findingCounts": {
+        "deai-freq-words": 94,
+        "deai-banned-phrase": 67,
+        "deai-uniform-sentence-length": 98,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 87,
+        "deai-style-drift": 61,
+        "deai-broken-punctuation": 36,
+        "deai-banned-vocab": 11
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.36,
+        "lower": 0.27,
+        "upper": 0.45,
+        "iterations": 2000
+      }
+    },
+    "佛前献花": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 46,
+        "suspicious": 37,
+        "clean": 15,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.39,
+      "blockingFindingRate": 0.76,
+      "findingCounts": {
+        "deai-freq-words": 100,
+        "deai-banned-vocab": 18,
+        "deai-banned-phrase": 96,
+        "deai-uniform-sentence-length": 83,
+        "deai-repeated-bigram": 92,
+        "deai-repeated-trigram": 67,
+        "deai-style-drift": 52,
+        "deai-sentence-cv-excess": 1,
+        "deai-connector-density": 1
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.39,
+        "lower": 0.3,
+        "upper": 0.49,
+        "iterations": 2000
+      }
+    },
+    "踏星": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 44,
+        "clean": 10,
+        "advisory": 45,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.45,
+      "blockingFindingRate": 0.7,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-banned-vocab": 19,
+        "deai-banned-phrase": 72,
+        "deai-uniform-sentence-length": 91,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 88,
+        "deai-style-drift": 66,
+        "deai-broken-punctuation": 39
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.45,
+        "lower": 0.36,
+        "upper": 0.55,
+        "iterations": 2000
+      }
+    },
+    "我会修空调": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 48,
+        "clean": 33,
+        "suspicious": 19
+      },
+      "suspiciousOrHigherRate": 0.19,
+      "blockingFindingRate": 0.57,
+      "findingCounts": {
+        "deai-freq-words": 93,
+        "deai-banned-phrase": 65,
+        "deai-uniform-sentence-length": 96,
+        "deai-repeated-bigram": 99,
+        "deai-banned-vocab": 14,
+        "deai-repeated-trigram": 51,
+        "deai-style-drift": 26,
+        "deai-broken-punctuation": 30
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.19,
+        "lower": 0.12,
+        "upper": 0.27,
+        "iterations": 2000
+      }
+    },
+    "作者A": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 52,
+        "clean": 41,
+        "suspicious": 6,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.07,
+      "blockingFindingRate": 0.47,
+      "findingCounts": {
+        "deai-freq-words": 89,
+        "deai-banned-vocab": 22,
+        "deai-uniform-sentence-length": 98,
+        "deai-repeated-bigram": 96,
+        "deai-style-drift": 10,
+        "deai-broken-punctuation": 38,
+        "deai-banned-phrase": 44,
+        "deai-repeated-trigram": 45
+      },
+      "suspiciousOrHigherCi": {
+        "estimate": 0.07,
+        "lower": 0.02,
+        "upper": 0.12,
+        "iterations": 2000
+      }
+    }
+  },
+  "humanByGenre": {
+    "都市高武": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 68,
+        "suspicious": 26,
+        "likely_ai": 2,
+        "clean": 4
+      },
+      "suspiciousOrHigherRate": 0.28,
+      "blockingFindingRate": 0.64,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-uniform-sentence-length": 94,
+        "deai-broken-punctuation": 15,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 95,
+        "deai-style-drift": 79,
+        "deai-banned-phrase": 58,
+        "deai-banned-vocab": 17
+      }
+    },
+    "玄幻": {
+      "sampleCount": 200,
+      "verdicts": {
+        "clean": 5,
+        "advisory": 57,
+        "suspicious": 126,
+        "likely_ai": 12
+      },
+      "suspiciousOrHigherRate": 0.69,
+      "blockingFindingRate": 0.97,
+      "findingCounts": {
+        "deai-freq-words": 194,
+        "deai-uniform-sentence-length": 193,
+        "deai-repeated-bigram": 194,
+        "deai-repeated-trigram": 158,
+        "deai-banned-phrase": 157,
+        "deai-broken-punctuation": 190,
+        "deai-style-drift": 136,
+        "deai-banned-vocab": 37
+      }
+    },
+    "都市脑洞": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 52,
+        "clean": 35,
+        "suspicious": 11,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.13,
+      "blockingFindingRate": 0.55,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-banned-phrase": 56,
+        "deai-uniform-sentence-length": 55,
+        "deai-repeated-bigram": 93,
+        "deai-repeated-trigram": 76,
+        "deai-broken-punctuation": 36,
+        "deai-style-drift": 21,
+        "deai-banned-vocab": 14,
+        "deai-sentence-cv-excess": 1
+      }
+    },
+    "西幻": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 60,
+        "likely_ai": 10,
+        "advisory": 28,
+        "clean": 2
+      },
+      "suspiciousOrHigherRate": 0.7,
+      "blockingFindingRate": 0.94,
+      "findingCounts": {
+        "deai-freq-words": 100,
+        "deai-uniform-sentence-length": 79,
+        "deai-broken-punctuation": 88,
+        "deai-repeated-bigram": 93,
+        "deai-style-drift": 79,
+        "deai-banned-vocab": 29,
+        "deai-banned-phrase": 69,
+        "deai-repeated-trigram": 73,
+        "deai-sentence-cv-excess": 2
+      }
+    },
+    "游戏竞技": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 35,
+        "advisory": 51,
+        "clean": 13,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.36,
+      "blockingFindingRate": 0.62,
+      "findingCounts": {
+        "deai-freq-words": 94,
+        "deai-banned-phrase": 67,
+        "deai-uniform-sentence-length": 98,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 87,
+        "deai-style-drift": 61,
+        "deai-broken-punctuation": 36,
+        "deai-banned-vocab": 11
+      }
+    },
+    "悬疑灵异": {
+      "sampleCount": 200,
+      "verdicts": {
+        "advisory": 94,
+        "suspicious": 56,
+        "clean": 48,
+        "likely_ai": 2
+      },
+      "suspiciousOrHigherRate": 0.29,
+      "blockingFindingRate": 0.665,
+      "findingCounts": {
+        "deai-freq-words": 193,
+        "deai-banned-vocab": 32,
+        "deai-banned-phrase": 161,
+        "deai-uniform-sentence-length": 179,
+        "deai-repeated-bigram": 191,
+        "deai-repeated-trigram": 118,
+        "deai-style-drift": 78,
+        "deai-sentence-cv-excess": 1,
+        "deai-connector-density": 1,
+        "deai-broken-punctuation": 30
+      }
+    },
+    "unknown": {
+      "sampleCount": 100,
+      "verdicts": {
+        "suspicious": 44,
+        "clean": 10,
+        "advisory": 45,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.45,
+      "blockingFindingRate": 0.7,
+      "findingCounts": {
+        "deai-freq-words": 98,
+        "deai-banned-vocab": 19,
+        "deai-banned-phrase": 72,
+        "deai-uniform-sentence-length": 91,
+        "deai-repeated-bigram": 100,
+        "deai-repeated-trigram": 88,
+        "deai-style-drift": 66,
+        "deai-broken-punctuation": 39
+      }
+    },
+    "言情": {
+      "sampleCount": 100,
+      "verdicts": {
+        "advisory": 52,
+        "clean": 41,
+        "suspicious": 6,
+        "likely_ai": 1
+      },
+      "suspiciousOrHigherRate": 0.07,
+      "blockingFindingRate": 0.47,
+      "findingCounts": {
+        "deai-freq-words": 89,
+        "deai-banned-vocab": 22,
+        "deai-uniform-sentence-length": 98,
+        "deai-repeated-bigram": 96,
+        "deai-style-drift": 10,
+        "deai-broken-punctuation": 38,
+        "deai-banned-phrase": 44,
+        "deai-repeated-trigram": 45
+      }
+    }
+  },
+  "positives": {
+    "model": {
+      "prov-1788185503573/deepseek-v4-pro": {
+        "sampleCount": 12,
+        "suspiciousOrHigherRecall": 0.75,
+        "ngramRecall": "0.9167",
+        "ngramHitRate": "0.9167",
+        "anyFindingHitRate": 1,
+        "verdicts": {
+          "blocking": 9,
+          "advisory": 2,
+          "clean": 1
+        },
+        "recallCi": {
+          "estimate": 0.75,
+          "lower": 0.5,
+          "upper": 1,
+          "iterations": 2000
+        }
+      },
+      "prov-1793181246179/deepseek-v4-pro": {
+        "sampleCount": 4,
+        "suspiciousOrHigherRecall": 1,
+        "ngramRecall": "1.0000",
+        "ngramHitRate": "1.0000",
+        "anyFindingHitRate": 1,
+        "verdicts": {
+          "blocking": 4
+        },
+        "recallCi": {
+          "estimate": 1,
+          "lower": 1,
+          "upper": 1,
+          "iterations": 2000
+        }
+      },
+      "prov-1793181246179/glm-5": {
+        "sampleCount": 4,
+        "suspiciousOrHigherRecall": 1,
+        "ngramRecall": "1.0000",
+        "ngramHitRate": "1.0000",
+        "anyFindingHitRate": 1,
+        "verdicts": {
+          "blocking": 4
+        },
+        "recallCi": {
+          "estimate": 1,
+          "lower": 1,
+          "upper": 1,
+          "iterations": 2000
+        }
+      }
+    }
+  },
+  "findingAbstraction": [
+    {
+      "findingId": "deai-banned-phrase",
+      "humanPresenceRate": 0.684,
+      "positivePresenceRate": 0.2,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 128,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.128,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-banned-vocab",
+      "humanPresenceRate": 0.181,
+      "positivePresenceRate": 0.15,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 28,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.028,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-broken-punctuation",
+      "humanPresenceRate": 0.472,
+      "positivePresenceRate": 0.6,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 161,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.161,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-connector-density",
+      "humanPresenceRate": 0.001,
+      "positivePresenceRate": 0,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 2,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.002,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-freq-words",
+      "humanPresenceRate": 0.964,
+      "positivePresenceRate": 0.8,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 145,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.145,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-repeated-bigram",
+      "humanPresenceRate": 0.967,
+      "positivePresenceRate": 0.95,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 132,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.132,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-repeated-trigram",
+      "humanPresenceRate": 0.74,
+      "positivePresenceRate": 0.6,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 114,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.114,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-sentence-cv-excess",
+      "humanPresenceRate": 0.004,
+      "positivePresenceRate": 0.9,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 0,
+      "positiveRecallLoss": 8,
+      "humanFalsePositiveReductionRate": 0,
+      "positiveRecallLossRate": 0.4,
+      "decision": "keep"
+    },
+    {
+      "findingId": "deai-style-drift",
+      "humanPresenceRate": 0.53,
+      "positivePresenceRate": 0.8,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 204,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.204,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    },
+    {
+      "findingId": "deai-uniform-sentence-length",
+      "humanPresenceRate": 0.887,
+      "positivePresenceRate": 1,
+      "humanStrongRateByBucket": {
+        "train": 0.3633,
+        "dev": 0.5375,
+        "heldOut": 0.2367
+      },
+      "positiveStrongRateByGroup": {
+        "prov-1788185503573/deepseek-v4-pro": 0.75,
+        "prov-1793181246179/deepseek-v4-pro": 1,
+        "prov-1793181246179/glm-5": 1
+      },
+      "humanFalsePositiveReduction": 127,
+      "positiveRecallLoss": 17,
+      "humanFalsePositiveReductionRate": 0.127,
+      "positiveRecallLossRate": 0.85,
+      "decision": "evidence-dependent"
+    }
+  ],
+  "thresholdSensitivity": [
+    {
+      "scorePoint": 0.3,
+      "humanFalsePositiveCount": 215,
+      "humanFalsePositiveRate": 0.7167,
+      "positiveRecallCount": 19,
+      "positiveRecallRate": 0.95
+    },
+    {
+      "scorePoint": 0.32,
+      "humanFalsePositiveCount": 163,
+      "humanFalsePositiveRate": 0.5433,
+      "positiveRecallCount": 19,
+      "positiveRecallRate": 0.95
+    },
+    {
+      "scorePoint": 0.34,
+      "humanFalsePositiveCount": 160,
+      "humanFalsePositiveRate": 0.5333,
+      "positiveRecallCount": 19,
+      "positiveRecallRate": 0.95
+    },
+    {
+      "scorePoint": 0.36,
+      "humanFalsePositiveCount": 159,
+      "humanFalsePositiveRate": 0.53,
+      "positiveRecallCount": 19,
+      "positiveRecallRate": 0.95
+    },
+    {
+      "scorePoint": 0.38,
+      "humanFalsePositiveCount": 121,
+      "humanFalsePositiveRate": 0.4033,
+      "positiveRecallCount": 18,
+      "positiveRecallRate": 0.9
+    },
+    {
+      "scorePoint": 0.4,
+      "humanFalsePositiveCount": 113,
+      "humanFalsePositiveRate": 0.3767,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.42,
+      "humanFalsePositiveCount": 110,
+      "humanFalsePositiveRate": 0.3667,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.44,
+      "humanFalsePositiveCount": 82,
+      "humanFalsePositiveRate": 0.2733,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.46,
+      "humanFalsePositiveCount": 65,
+      "humanFalsePositiveRate": 0.2167,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.48,
+      "humanFalsePositiveCount": 62,
+      "humanFalsePositiveRate": 0.2067,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.5,
+      "humanFalsePositiveCount": 48,
+      "humanFalsePositiveRate": 0.16,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.52,
+      "humanFalsePositiveCount": 38,
+      "humanFalsePositiveRate": 0.1267,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.54,
+      "humanFalsePositiveCount": 32,
+      "humanFalsePositiveRate": 0.1067,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.56,
+      "humanFalsePositiveCount": 26,
+      "humanFalsePositiveRate": 0.0867,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.58,
+      "humanFalsePositiveCount": 18,
+      "humanFalsePositiveRate": 0.06,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.6,
+      "humanFalsePositiveCount": 13,
+      "humanFalsePositiveRate": 0.0433,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.62,
+      "humanFalsePositiveCount": 9,
+      "humanFalsePositiveRate": 0.03,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.64,
+      "humanFalsePositiveCount": 5,
+      "humanFalsePositiveRate": 0.0167,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.66,
+      "humanFalsePositiveCount": 2,
+      "humanFalsePositiveRate": 0.0067,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.68,
+      "humanFalsePositiveCount": 2,
+      "humanFalsePositiveRate": 0.0067,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.7,
+      "humanFalsePositiveCount": 0,
+      "humanFalsePositiveRate": 0,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.72,
+      "humanFalsePositiveCount": 0,
+      "humanFalsePositiveRate": 0,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.74,
+      "humanFalsePositiveCount": 0,
+      "humanFalsePositiveRate": 0,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.76,
+      "humanFalsePositiveCount": 0,
+      "humanFalsePositiveRate": 0,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.78,
+      "humanFalsePositiveCount": 0,
+      "humanFalsePositiveRate": 0,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    },
+    {
+      "scorePoint": 0.8,
+      "humanFalsePositiveCount": 0,
+      "humanFalsePositiveRate": 0,
+      "positiveRecallCount": 17,
+      "positiveRecallRate": 0.85
+    }
+  ],
+  "performance": {
+    "textChars": 20000,
+    "reportEffectiveChars": 12371,
+    "reportDialogueChars": 7019,
+    "elapsedMs": 20.46
+  },
+  "provenance": {
+    "modelGroups": [
+      {
+        "key": "prov-1788185503573/deepseek-v4-pro",
+        "sampleCount": 12
+      },
+      {
+        "key": "prov-1793181246179/deepseek-v4-pro",
+        "sampleCount": 4
+      },
+      {
+        "key": "prov-1793181246179/glm-5",
+        "sampleCount": 4
+      }
+    ],
+    "note": "Work-level split: 1000 human chapters across 10 works; 20 real model positives. Synthetic positives are excluded from release metrics."
+  }
+}
