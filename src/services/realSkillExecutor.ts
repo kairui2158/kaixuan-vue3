@@ -14,6 +14,13 @@ import { formatSkillFallback } from './skillRouter'
 import { REPEATED_PROMPT_BLOCK_MARKERS } from './promptBlockProtocol'
 import { buildFinalStepFeedback } from './finalStepFeedback'
 import { buildSchemaRetryFeedback } from './schemaRetryFeedback'
+import {
+  isProtectedSkillContract,
+  measureProtectedBodyCandidate,
+  protectedContractText,
+  type ProtectedSkillContract,
+  type ProtectedBodyCandidateMeasurement
+} from './protectedSkillContract'
 import { validateSkillOutput } from './skillValidation'
 import type {
   RealSkillAgentContext,
@@ -415,6 +422,7 @@ function buildFolderPassUserPrompt(input: {
   requiresFullUpstreamContext: boolean
   isPreviousInput: boolean
   userPromptSuffix?: string
+  protectedContractText?: string
 }): string {
   const upstream = input.chainUpstreamContext?.trim()
   const base = buildUserPrompt(input.input, input.samples)
@@ -422,7 +430,12 @@ function buildFolderPassUserPrompt(input: {
     ? `[declared upstream context]\n${upstream}\n\n--- current input ---\n${base}`
     : base
   const suffix = input.userPromptSuffix?.trim()
-  return suffix ? `${body}\n\n${suffix}` : body
+  const protectedSuffix = input.protectedContractText?.trim()
+  const prompt = suffix ? `${body}\n\n${suffix}` : body
+  if (!protectedSuffix) return prompt
+  // Idempotent injection: upstream input may already carry the same contract
+  // after preProcess. Keep one copy so the terminal instruction is not doubled.
+  return prompt.includes(protectedSuffix) ? prompt : `${prompt}\n\n${protectedSuffix}`
 }
 
 function normalizePasses(value: unknown): Array<{ name?: string; input?: 'original' | 'previous' }> {
@@ -724,6 +737,10 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const preInput = typeof preResult.fields.input === 'string' && preResult.fields.input.length > 0
     ? preResult.fields.input
     : options.input
+  const protectedContract = isProtectedSkillContract(options.protectedContract)
+    ? options.protectedContract
+    : null
+  const activeProtectedContractText = protectedContract ? protectedContractText(protectedContract) : ''
   const hasFolderTemplate = pkg.template.trim().length > 0
   const hasBaseTemplate = (
     typeof options.baseTemplateOverride === 'string' && options.baseTemplateOverride.trim().length > 0
@@ -801,6 +818,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
   const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
   let retainedCandidateIndex = 0
+  let bodyCandidateLedger: NonNullable<RealSkillExecutionResult['apiMeta']>['bodyCandidateLedger']
+  let bodyCandidateRetention: NonNullable<RealSkillExecutionResult['apiMeta']>['bodyCandidateRetention']
 
   function captureRequestMessages(
     messages: Array<{ role: string; content: string }>,
@@ -840,7 +859,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         'SKILL 声明 requiresFullUpstreamContext，但上游上下文为空，已按 previous-only 口径继续'
       ))
     }
-    const candidateLedger: Array<{ output: string; validation: { valid: boolean; errors: string[] }; attempt: number }> = []
+    const candidateLedger: Array<{
+      output: string
+      validation: { valid: boolean; errors: string[] }
+      attempt: number
+      measurement: ProtectedBodyCandidateMeasurement | null
+    }> = []
     let schemaRetryFeedback: string | undefined
 
     for (let attempt = 1; attempt <= RETRY_LIMIT; attempt += 1) {
@@ -891,7 +915,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           chainUpstreamContext,
           requiresFullUpstreamContext: declaredFullUpstream,
           isPreviousInput,
-          userPromptSuffix: options.userPromptSuffix
+          userPromptSuffix: options.userPromptSuffix,
+          protectedContractText: activeProtectedContractText
         })
         timingLedger.repeatedPromptBlocks = countRepeatedPromptBlocks(userPrompt)
         const messages = options.messageBuilder
@@ -924,6 +949,32 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         return messages
       }
       let requestMessages = buildRequest(schemaRetryFeedback)
+      if (protectedContract) {
+        const missingContract = requestMessages.every(message =>
+          !String(message.content || '').includes(activeProtectedContractText)
+        )
+        if (missingContract) {
+          errors.push('受保护正文契约未进入最终请求，已阻止本次 API 调用')
+          diagnostics.push(diagnostic(
+            'error',
+            'protected-contract-missing',
+            `执行器无法将受保护契约注入最终请求：${activeProtectedContractText}`
+          ))
+          return {
+            status: 'failed',
+            output: '',
+            errors,
+            diagnostics,
+            folderPackageCache: loaded.folderPackageCache === true,
+            apiMeta: {
+              finishReason: 'error',
+              requestMessages: capturedRequestMessages,
+              attemptRequestMessages: capturedAttemptRequestMessages,
+              timingLedger: { ...timingLedger }
+            }
+          }
+        }
+      }
 
       try {
         const callAiOnce = async (
@@ -1169,12 +1220,19 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           candidateLedger.push({
             output: candidateOutput,
             validation: { valid: false, errors: retryErrors },
-            attempt
+            attempt,
+            measurement: protectedContract?.kind === 'body'
+              ? measureProtectedBodyCandidate(candidateOutput, protectedContract)
+              : null
           })
           if (options.finalStepRetry?.role === 'polish') {
             schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors, candidateOutput, diagnostics)
           } else {
-            const feedback = buildSchemaRetryFeedback({ errors: retryErrors, previousOutput: candidateOutput })
+            const feedback = buildSchemaRetryFeedback({
+              errors: retryErrors,
+              previousOutput: candidateOutput,
+              protectedContract: protectedContract || undefined
+            })
             schemaRetryFeedback = feedback.feedback
             options.onSchemaRetryFeedbackComposed?.(feedback)
           }
@@ -1199,7 +1257,10 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           candidateLedger.push({
             output: candidateOutput,
             validation: { valid: true, errors: [] },
-            attempt
+            attempt,
+            measurement: protectedContract?.kind === 'body'
+              ? measureProtectedBodyCandidate(candidateOutput, protectedContract)
+              : null
           })
           diagnostics.push(diagnostic(
             'warning',
@@ -1216,7 +1277,14 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           }
           break
         }
-        candidateLedger.push({ output: candidateOutput, validation, attempt })
+        candidateLedger.push({
+          output: candidateOutput,
+          validation,
+          attempt,
+          measurement: protectedContract?.kind === 'body'
+            ? measureProtectedBodyCandidate(candidateOutput, protectedContract)
+            : null
+        })
 
         if (validation.valid) {
           output = candidateOutput
@@ -1242,7 +1310,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         if (options.finalStepRetry?.role === 'polish') {
           schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, validation.errors, candidateOutput, diagnostics)
         } else {
-          const feedback = buildSchemaRetryFeedback({ errors: validation.errors, previousOutput: candidateOutput })
+          const feedback = buildSchemaRetryFeedback({
+            errors: validation.errors,
+            previousOutput: candidateOutput,
+            protectedContract: protectedContract || undefined
+          })
           schemaRetryFeedback = feedback.feedback
           options.onSchemaRetryFeedbackComposed?.(feedback)
         }
@@ -1302,12 +1374,46 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           if (best.validation.errors.length !== current.validation.errors.length) {
             return best.validation.errors.length <= current.validation.errors.length ? best : current
           }
+          if (best.measurement && current.measurement) {
+            if (best.measurement.missingHandoff !== current.measurement.missingHandoff) {
+              return current.measurement.missingHandoff ? best : current
+            }
+            if (best.measurement.contractDistance !== current.measurement.contractDistance) {
+              return best.measurement.contractDistance <= current.measurement.contractDistance ? best : current
+            }
+          }
           return best.attempt <= current.attempt ? best : current
         })
       : null
+    bodyCandidateLedger = protectedContract?.kind === 'body'
+      ? candidateLedger.map(candidate => ({
+        attempt: candidate.attempt,
+        rawChars: candidate.measurement?.rawChars ?? candidate.output.length,
+        netWords: candidate.measurement?.netWords ?? 0,
+        handoffCount: candidate.measurement?.handoffCount ?? 0,
+        contractDistance: candidate.measurement?.contractDistance ?? 0,
+        missingHandoff: candidate.measurement?.missingHandoff ?? false,
+        valid: candidate.validation.valid,
+        errorCount: candidate.validation.errors.length
+      }))
+      : undefined
     retainedCandidateIndex = retainedCandidate
       ? candidateLedger.findIndex(item => item === retainedCandidate) + 1
       : 0
+    bodyCandidateRetention = protectedContract?.kind === 'body' && retainedCandidate
+      ? {
+        retainedCandidateIndex,
+        retainedAttempt: retainedCandidate.attempt,
+        retainedReason: retainedCandidate.validation.valid
+          ? 'first-valid-candidate'
+          : [
+            retainedCandidate.measurement?.missingHandoff ? 'missing-handoff' : null,
+            retainedCandidate.measurement ? `net-words:${retainedCandidate.measurement.netWords}` : null,
+            retainedCandidate.measurement ? `contract-distance:${retainedCandidate.measurement.contractDistance}` : null,
+            `errors:${retainedCandidate.validation.errors.length}`
+          ].filter(Boolean).join('|')
+      }
+      : undefined
     if (!retainedCandidate || !retainedCandidate.validation.valid) {
       if (isMultiPass) {
         dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
@@ -1316,10 +1422,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       }
       errors.push(`输出未通过校验，已达最大尝试次数 ${RETRY_LIMIT}`)
       if (retainedCandidate && candidateLedger.length > 1) {
+        const measurement = retainedCandidate.measurement
         diagnostics.push(diagnostic(
           'warning',
           'schema-validation-best-candidate-retained',
-          `重试耗尽后保留第 ${retainedCandidate.attempt}/${RETRY_LIMIT} 次候选（${retainedCandidate.validation.errors.length} 项失败）`
+          `重试耗尽后保留第 ${retainedCandidate.attempt}/${RETRY_LIMIT} 次候选（${retainedCandidate.validation.errors.length} 项失败${measurement ? `，净字数 ${measurement.netWords}，距离正文下限 ${measurement.contractDistance}` : ''}）`
         ))
       }
       diagnostics.push(diagnostic('error', 'schema-validation-exhausted', '输出未通过校验，已达最大尝试次数'))
@@ -1346,7 +1453,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           toolRequestDeltas,
           toolAudit,
           timingLedger: { ...timingLedger },
-          retainedCandidateIndex
+          retainedCandidateIndex,
+          bodyCandidateLedger,
+          bodyCandidateRetention
         }
       }
     }
@@ -1382,7 +1491,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       toolRequestDeltas,
       toolAudit,
       timingLedger: { ...timingLedger },
-      retainedCandidateIndex
+      retainedCandidateIndex,
+      bodyCandidateLedger,
+      bodyCandidateRetention
     }
   }
 }

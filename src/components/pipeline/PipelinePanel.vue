@@ -804,7 +804,8 @@ import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateO
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import type { ChainBreakpointStepOutput } from "../../services/chainBreakpoint"
-import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepRole } from "../../services/chainExecution"
+import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepEchoRole, resolveFinalStepRole } from "../../services/chainExecution"
+import type { ProtectedBodyContract } from "../../services/protectedSkillContract"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
@@ -2641,6 +2642,27 @@ interface BodyFeedbackAuditState {
   }
 }
 
+function resolveProtectedBodySkillContract(bodyStepContext?: {
+  stepIndex: number
+  totalSteps: number
+  declaredRole: string | null
+  targetWords: number | null
+  }): ProtectedBodyContract | undefined {
+  if (!bodyStepContext || !bodyStepContext.targetWords) return undefined
+  if (!isBodyContractStep({
+    step: 4,
+    stepIndex: bodyStepContext.stepIndex,
+    totalSteps: bodyStepContext.totalSteps,
+    declaredRole: bodyStepContext.declaredRole
+  })) return undefined
+  const contractSentence = bodyGeneratorContractSentence(bodyStepContext.targetWords)
+  if (!contractSentence) return undefined
+  return {
+    kind: 'body',
+    targetWords: bodyStepContext.targetWords
+  }
+}
+
 function createBodyFeedbackAuditState(): BodyFeedbackAuditState {
   return { schema: null, finalStep: null }
 }
@@ -2725,6 +2747,7 @@ async function callValidatedSkill(
     const fallbackProviderId = requestProfile.providerId
     const skillDeaiMeta = resolveSkillDeaiMetaFromTemplate(template)
     const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta)
+    const protectedBodyContract = resolveProtectedBodySkillContract(stepArtifactContext)
     if (deaiProjection.warnings.length) {
       const validation = validateSkillDeaiMeta(skillDeaiMeta)
       for (const warning of deaiProjection.warnings) {
@@ -2827,7 +2850,9 @@ async function callValidatedSkill(
         contextBudgetDecision: apiMeta?.contextBudget?.decision,
         contextBudgetReason: apiMeta?.contextBudget?.reason,
         usageReconciliation: apiMeta?.usageReconciliation,
-        timingLedger: apiMeta?.timingLedger
+        timingLedger: apiMeta?.timingLedger,
+        bodyCandidateLedger: apiMeta?.bodyCandidateLedger,
+        bodyCandidateRetention: apiMeta?.bodyCandidateRetention
       })
     }
   let route: Awaited<ReturnType<typeof routeSkill>>
@@ -2908,6 +2933,7 @@ async function callValidatedSkill(
         userPromptSuffix: prompt.includes('【终步重试协议】')
           ? prompt.slice(prompt.indexOf('【终步重试协议】'))
           : undefined,
+        protectedContract: protectedBodyContract,
         budget: createApiCallBudget(8),
         providerId: fallbackProviderId || undefined,
         providerSource: requestProfile.source,
@@ -4059,6 +4085,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       const finalStepMetadataMode = finalStepRole?.mode === 'final_step_ledger'
         ? 'final_step_ledger'
         : 'summary'
+      const finalStepEchoRole = resolveFinalStepEchoRole(finalStepRole) ?? 'polish'
       if (finalStepRole?.reason === 'unresolved' && si === templates.length - 1) {
         appendPipelineChainWarning({
           runId: pipelineRunId,
@@ -4134,9 +4161,6 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           throw new Error('正文生成步骤无法唯一识别，禁止向所有步骤注入正文契约')
         }
       }
-      const generatorPromptSuffix = isGeneratorStep && bodyStepContext?.targetWords
-        ? bodyGeneratorContractSentence(bodyStepContext.targetWords)
-        : ''
       const isFinalBodyStep = bodyStepContext && si === templates.length - 1
       const requiresGeneratorLedgerBeforeDispatch = Boolean(isFinalBodyStep && !isGeneratorStep && templates.length > 1)
       if (requiresGeneratorLedgerBeforeDispatch && !authoritativeGeneratorMetadata) {
@@ -4238,7 +4262,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           step,
           t,
           injection,
-          generatorPromptSuffix ? `${nextPrompt}\n\n${generatorPromptSuffix}` : nextPrompt,
+          nextPrompt,
           { ...ctxForSkill, previousOutput },
           timeoutMs,
           skillAgentId,
@@ -4286,7 +4310,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         if (
           echoDiagnostic &&
           shouldRepairChainEcho(si, templates.length, echoDiagnostic.echoRatio, {
-            finalStepRole: 'polish',
+            finalStepRole: finalStepEchoRole,
             identicalOutput: previousOutput.trim() === stepOutput.trim() ||
               hashEditorContent(previousOutput) === hashEditorContent(stepOutput)
           })
@@ -4337,7 +4361,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           stepOutput
         )
         const repairedEchoWarningLevel = getChainEchoWarningLevel(si, templates.length, {
-          finalStepRole: 'polish'
+          finalStepRole: finalStepEchoRole
         })
         if (runId && repairedEchoDiagnostic && repairedEchoWarningLevel === 'warning') {
           appendPipelineChainWarning({
@@ -4600,7 +4624,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             }
             const echoDiagnostic = detectChainOutputEcho(current, stepOutput)
             const escalationEchoWarningLevel = getChainEchoWarningLevel(si, templates.length, {
-              finalStepRole: 'polish'
+              finalStepRole: finalStepEchoRole
             })
             if (runId && echoDiagnostic && escalationEchoWarningLevel === 'warning') {
               appendPipelineChainWarning({
@@ -4773,7 +4797,6 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     : undefined
   if (composeArtifactContext) {
     setBodyGeneratorStepIndexForRun(pipelineRunId, 0)
-    composePrompt += bodyGeneratorContractSentence(composeArtifactContext.targetWords)
   }
   result = await callValidatedSkill(
     step,

@@ -74,7 +74,7 @@ describe('realSkillExecutor single pass', () => {
       error: null,
       folderPackageCache: false
     })
-    const callAi = vi.fn(async () => ({ text: '输出' }))
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
 
     const result = await executeRealSkill({
@@ -98,7 +98,7 @@ describe('realSkillExecutor single pass', () => {
       error: null,
       folderPackageCache: false
     })
-    const callAi = vi.fn(async () => ({ text: '输出' }))
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
 
     const result = await executeRealSkill({
@@ -981,8 +981,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
   it('retains the best failed candidate after retries are exhausted', async () => {
     const outputs = [
-      '{"facts": []}',
-      '{}'
+      '正文',
+      '正文正文正文正文正文正文'
     ]
     let callIndex = 0
     const callAi = vi.fn(async (_params: CallAiParams) => ({
@@ -991,15 +991,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        schema: {
-          type: 'object',
-          required: ['facts', 'state', 'events'],
-          properties: {
-            facts: { type: 'array' },
-            state: { type: 'string' },
-            events: { type: 'array' }
-          }
-        }
+        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 'body-too-short', severity: 'blocking', message: '正文过短' }] } } }`,
+        resources: []
       }),
       error: null,
       folderPackageCache: false
@@ -1019,6 +1012,90 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       item.code === 'schema-validation-best-candidate-retained' &&
       item.message.includes('第 1/3 次候选')
     )).toBe(true)
+  })
+
+  it('retains the candidate closest to the protected body contract when errors tie', async () => {
+    const outputs = [
+      '正文'.repeat(1000),
+      '正文'.repeat(1300),
+      '正文'.repeat(1400)
+    ]
+    let callIndex = 0
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: outputs[Math.min(callIndex++, outputs.length - 1)] ?? outputs[outputs.length - 1]
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 'body-too-short', severity: 'blocking', message: '正文过短' }] } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.status).toBe('degraded')
+    expect(result.output).toBe(outputs[2])
+    expect(result.apiMeta?.retainedCandidateIndex).toBe(3)
+    expect(result.apiMeta?.bodyCandidateLedger).toEqual([
+      { attempt: 1, rawChars: 2000, netWords: 2000, handoffCount: 0, contractDistance: 800, missingHandoff: true, valid: false, errorCount: 1 },
+      { attempt: 2, rawChars: 2600, netWords: 2600, handoffCount: 0, contractDistance: 200, missingHandoff: true, valid: false, errorCount: 1 },
+      { attempt: 3, rawChars: 2800, netWords: 2800, handoffCount: 0, contractDistance: 0, missingHandoff: true, valid: false, errorCount: 1 }
+    ])
+    expect(result.apiMeta?.bodyCandidateRetention).toEqual({
+      retainedCandidateIndex: 3,
+      retainedAttempt: 3,
+      retainedReason: 'missing-handoff|net-words:2800|contract-distance:0|errors:1'
+    })
+    expect(result.diagnostics.some(item =>
+      item.code === 'schema-validation-best-candidate-retained' &&
+      item.message.includes('第 3/3 次候选') &&
+      item.message.includes('净字数 2800') &&
+      item.message.includes('距离正文下限 0')
+    )).toBe(true)
+  })
+
+  it('injects the protected body contract after folder preProcess and blocks a missing contract before the API call', async () => {
+    const contract = '请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。'
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { preProcess(input) { return { input: input.split('\\n\\n【受保护契约】')[0] } } }`,
+        resources: [],
+        meta: { executionMode: 'plain' }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: `原文\n\n【受保护契约】\n${contract}`,
+      budget: createBudget(),
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(1)
+    const request = callAi.mock.calls.at(0)?.at(0) as CallAiParams | undefined
+    const userPrompt = request?.messages.find((message: { role: string }) => message.role === 'user')?.content || ''
+    expect(userPrompt).toContain(contract)
+    expect(userPrompt.indexOf(contract)).toBeGreaterThan(userPrompt.lastIndexOf('【受保护契约】'))
+    expect(result.status).toBe('success')
+    expect(result.diagnostics.some(item => item.code === 'script-hook-exception')).toBe(false)
   })
 
   it('accepts advisory postProcess warnings without downgrading a valid output', async () => {

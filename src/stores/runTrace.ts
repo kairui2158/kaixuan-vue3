@@ -195,6 +195,23 @@ export interface RunTraceApiCall {
   durationMs?: number
   /** Observability only; local phases must not change execution behavior. */
   timingLedger?: RunTraceTimingLedger
+  /** Per-attempt protected-body candidate metrics retained by the executor. */
+  bodyCandidateLedger?: Array<{
+    attempt: number
+    rawChars: number
+    netWords: number
+    handoffCount: number
+    contractDistance: number
+    missingHandoff: boolean
+    valid: boolean
+    errorCount: number
+  }>
+  /** Structured explanation of the retry candidate retained by the executor. */
+  bodyCandidateRetention?: {
+    retainedCandidateIndex: number
+    retainedAttempt: number
+    retainedReason: string
+  }
   status: RunTraceStatus
   error?: string
   /** Total streamed chars ever received; streamText may be a bounded tail preview. */
@@ -767,6 +784,8 @@ export interface FinishApiCallInput {
   readLedger?: RunTraceReadLedgerSnapshot
   deaiPromptVariant?: RunTraceApiCall['deaiPromptVariant']
   timingLedger?: RunTraceTimingLedger
+  bodyCandidateLedger?: RunTraceApiCall['bodyCandidateLedger']
+  bodyCandidateRetention?: RunTraceApiCall['bodyCandidateRetention']
 }
 
 export interface AttachSemanticInput {
@@ -2382,6 +2401,8 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       ...computeApiCallTimingLedger(call),
       ...patch.timingLedger
     }
+    if (patch.bodyCandidateLedger) call.bodyCandidateLedger = patch.bodyCandidateLedger
+    if (patch.bodyCandidateRetention) call.bodyCandidateRetention = patch.bodyCandidateRetention
     call.usage = patch.usage ?? call.usage
     call.usageUnavailable = patch.usageUnavailable ?? (patch.usage ? false : call.usageUnavailable)
     call.error = patch.error

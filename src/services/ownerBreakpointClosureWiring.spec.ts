@@ -29,6 +29,14 @@ describe('owner breakpoint lifecycle closure wiring', () => {
     expect(source).toContain('bodyGeneratorContractSentence(')
   })
 
+  it('routes the body contract through the protected executor contract at every body entry point', () => {
+    expect(source).toContain('resolveProtectedBodySkillContract(')
+    expect(source).toContain('protectedBodyContract')
+    expect(source).toContain('protectedContract: protectedBodyContract')
+    expect(source).not.toContain('generatorPromptSuffix ? `${nextPrompt}\\n\\n${generatorPromptSuffix}` : nextPrompt')
+    expect(source).not.toContain('composePrompt += bodyGeneratorContractSentence(')
+  })
+
   it('keeps the no-skill compose call a first-class unique body generator step', () => {
     expect(source).toContain("declaredRole: 'generator'")
     expect(source).toContain('composeArtifactContext')

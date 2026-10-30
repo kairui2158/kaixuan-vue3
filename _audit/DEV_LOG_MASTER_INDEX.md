@@ -1428,3 +1428,11 @@
 - 交付：版本对齐 3.110.8；修正终步元数据测试锚点；全量 Vitest 228 files / 2446 tests；重新封装并新增安装包核验脚本，验证 asar 版本、validator 打包、真实启动、electronAPI 与渲染文本；清理 3.110.7、3.110.6 blockmap 与临时 CDP 探针。
 - 验证：`node scripts/verify-packaging-3-110-8.mjs` PASS；安装包 SHA256 `c56a4d229beba39d9553350a0313fcdfe97317042bee764a3720a7f0dffa086c`；证据 `_audit/verification-packaging-3-110-8/packaging-evidence.json`。
 - 边界：`神意助手-Setup-3.110.6.exe` 因安全描述符损坏无法删除，登记为需用户管理员手工处理；Phase 10 校准保持 provisional；业务链路证据仍为 mock provider 边界。
+
+# 2026-10-30 正文层受保护契约与候选账本接线
+
+- 文件：[_audit/DEV_LOG_2026-10-30_body-protected-contract-wiring.md](_audit/DEV_LOG_2026-10-30_body-protected-contract-wiring.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-30_body-protected-contract-wiring.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-30_body-protected-contract-wiring.md)
+- 交付：正文契约改为 preProcess 后受保护注入并硬性校验最终请求；三次候选逐次测量净字数/交接/契约距离并落 run trace；重试耗尽按契约感知比选保留候选；字数不足反馈改 word-gap，不回传候选全文；统一 compose 与链式入口语义；新增真实 kaixuan-s2 集成测试；SKILL 适配手册见 [FOLDER_SKILL_BODY_PROTECTED_CONTRACT_GUIDE_2026-10-30.md](FOLDER_SKILL_BODY_PROTECTED_CONTRACT_GUIDE_2026-10-30.md)。
+- 验证：定向 6 files / 198 tests passed；`vue-tsc --noEmit` exit 0；`git diff --check` exit 0；真实 S2 集成验证契约在折叠后 prompt 末尾且 postProcess 通过。
+- 边界：不改 folder SKILL；不回滚降AI校准既有脏文件；不升版、不封装、不提交，等待用户确认。

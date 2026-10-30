@@ -8,6 +8,7 @@ import {
   formatMemoryPrompt,
   getChainEchoWarningLevel,
   isBodyContractStep,
+  resolveFinalStepEchoRole,
   resolveFinalStepRole,
   bodyGeneratorContractSentence,
   shouldRepairChainEcho,
@@ -259,6 +260,13 @@ describe("body chain execution contract", () => {
     expect(shouldRepairChainEcho(2, 3, 0.93, { finalStepRole: "polish" })).toBe(false)
     expect(shouldRepairChainEcho(2, 3, 0.99, { finalStepRole: "polish", identicalOutput: false })).toBe(false)
     expect(shouldRepairChainEcho(2, 3, 0.93, { finalStepRole: "generator" })).toBe(true)
+  })
+
+  it("derives the echo role from the resolved terminal-step role instead of a hardcoded polish", () => {
+    expect(resolveFinalStepEchoRole({ role: "polish", mode: "final_step_ledger", reason: "declared", generatorStepIndex: 1 })).toBe("polish")
+    expect(resolveFinalStepEchoRole({ role: "generator", mode: "summary", reason: "declared", generatorStepIndex: 2 })).toBe("generator")
+    expect(resolveFinalStepEchoRole({ role: null, mode: "summary", reason: "unresolved", generatorStepIndex: null })).toBeNull()
+    expect(resolveFinalStepEchoRole(null)).toBeNull()
   })
 
   it("keeps final-step polish echo at info while intermediate steps stay warnings", () => {

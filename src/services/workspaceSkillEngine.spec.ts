@@ -1691,6 +1691,41 @@ describe('workspace skill engine', () => {
     expect(calls).toHaveLength(1)
   })
 
+  it('keeps terminal polish echo at observation level in workspace chains', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const generatorOutput = '王芳在酒馆讲出旧案线索，并把旧账册推到林越面前。'.repeat(12)
+    const polishedOutput = `${generatorOutput}林越确认账册指向北仓，并把旧钥匙藏在袖袋。`
+    const { aiService, calls } = makeAiService([generatorOutput, polishedOutput])
+    const result = await runWorkspaceSkills({
+      requestText: '生成并打磨正文',
+      templates: [
+        makeTemplate('s1', '正文生成'),
+        makeTemplate('s2', '正文打磨'),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'generate' },
+      artifactContract: {
+        kind: 'body',
+        contract: { chapterId: 'chapter-1', targetWords: 300 },
+      },
+    })
+
+    const terminalMeta = result.allMetas?.[result.allMetas.length - 1]
+    const echoDiagnostics = terminalMeta?.diagnostics?.filter(
+      diagnostic => diagnostic.code === 'chain-output-echo',
+    ) || []
+    expect(calls).toHaveLength(2)
+    expect(result.text).toBe(polishedOutput)
+    expect(echoDiagnostics).toHaveLength(1)
+    expect(echoDiagnostics[0]?.type).toBe('info')
+    expect(echoDiagnostics[0]?.message).toContain('终步按打磨角色语义观察')
+    expect(echoDiagnostics[0]?.message).toContain('角色来源 inferred')
+  })
+
   it('keeps no-contract chain behavior unchanged', async () => {
     const context = makeContextService()
     const adapter = makeAdapter()

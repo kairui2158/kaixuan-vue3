@@ -13,12 +13,23 @@ const acceptanceSource = readFileSync(
 
 describe('final step metadata fidelity wiring', () => {
   it('resolves the final step from a single chain-level rule', () => {
-    expect(source).toContain('import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepRole }')
+    expect(source).toContain('import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepEchoRole, resolveFinalStepRole }')
     expect(source).toContain('const finalStepRole = bodyStepContext')
     expect(source).toContain('resolveFinalStepRole({')
     expect(source).toContain("const finalStepMetadataMode = finalStepRole?.mode === 'final_step_ledger'")
     expect(source).toContain("const finalStepRetry = finalStepRole?.role === 'polish'")
     expect(source).toContain("if (finalStepRole?.reason === 'unresolved' && si === templates.length - 1)")
+  })
+
+  it('resolves final-step echo semantics without reverting to a hardcoded role', () => {
+    expect(source).toContain("const finalStepEchoRole = resolveFinalStepEchoRole(finalStepRole) ?? 'polish'")
+    expect(source.match(/finalStepRole: finalStepEchoRole/g)).toHaveLength(3)
+    const repairEchoCall = source.indexOf('shouldRepairChainEcho(si, templates.length, echoDiagnostic.echoRatio')
+    expect(repairEchoCall).toBeGreaterThan(0)
+    const repairEchoOptions = source.slice(repairEchoCall, repairEchoCall + 260)
+    expect(repairEchoOptions).toContain('finalStepRole: finalStepEchoRole')
+    expect(repairEchoOptions).not.toContain("finalStepRole: 'polish'")
+    expect(source).not.toContain('finalStepRole: finalStepEchoRole || undefined')
   })
 
   it('routes the final step ledger through both normal and escalation prompts', () => {

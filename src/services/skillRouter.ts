@@ -48,6 +48,7 @@ export interface SkillRouteOptions {
   toolContext?: RealSkillExecuteOptions['toolContext']
   systemPromptSuffix?: string
   userPromptSuffix?: string
+  protectedContract?: RealSkillExecuteOptions['protectedContract']
   agentSource?: 'user-binding' | 'step-default' | 'none'
   baseTemplateOverride?: string
   resolvedTemplate?: string
@@ -199,6 +200,7 @@ export async function routeSkill(
     messageBuilder: options.messageBuilder,
     systemPromptSuffix: options.systemPromptSuffix,
     userPromptSuffix: options.userPromptSuffix,
+    ...(options.protectedContract !== undefined ? { protectedContract: options.protectedContract } : {}),
     baseTemplateOverride: options.baseTemplateOverride,
     resolvedTemplate: options.resolvedTemplate,
     templateVariables: options.templateVariables,

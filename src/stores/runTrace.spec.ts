@@ -1284,6 +1284,43 @@ describe('runTrace store', () => {
     expect(run?.events.filter(event => event.type === 'folder-diagnostics')).toHaveLength(2)
   })
 
+  it('persists protected body candidate metrics and retention reason on the API call', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'body', skillNames: ['正文技能'] })
+    const callId = store.startApiCall(runId, {
+      step: 4,
+      requestMessages: [{ role: 'user', content: '正文任务' }],
+      model: 'test-model'
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'degraded',
+      responseText: '第二次候选',
+      error: '输出未通过校验，已达最大尝试次数 3',
+      durationMs: 100,
+      bodyCandidateLedger: [
+        { attempt: 1, rawChars: 2965, netWords: 2650, handoffCount: 0, contractDistance: 150, missingHandoff: true, valid: false, errorCount: 1 },
+        { attempt: 2, rawChars: 3938, netWords: 3479, handoffCount: 1, contractDistance: 0, missingHandoff: false, valid: false, errorCount: 1 },
+        { attempt: 3, rawChars: 4170, netWords: 3677, handoffCount: 1, contractDistance: 0, missingHandoff: false, valid: false, errorCount: 1 }
+      ],
+      bodyCandidateRetention: {
+        retainedCandidateIndex: 2,
+        retainedAttempt: 2,
+        retainedReason: 'net-words:3479|contract-distance:0|errors:1'
+      }
+    })
+
+    const run = store.getRun(runId)!
+    expect(run.apiCalls[0]?.bodyCandidateLedger).toHaveLength(3)
+    expect(run.apiCalls[0]?.bodyCandidateLedger?.[1]?.missingHandoff).toBe(false)
+    expect(run.apiCalls[0]?.bodyCandidateRetention).toEqual({
+      retainedCandidateIndex: 2,
+      retainedAttempt: 2,
+      retainedReason: 'net-words:3479|contract-distance:0|errors:1'
+    })
+    const exported = store.exportRunToJson(run) as typeof run
+    expect(JSON.stringify(exported)).toContain('retainedCandidateIndex')
+  })
+
   it('masks sensitive strings recursively in JSON export', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })

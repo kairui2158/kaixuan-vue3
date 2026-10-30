@@ -1,18 +1,27 @@
+import { countBodyWords } from './bodyArtifactContract'
+import { splitLegacyMetadataSections } from './legacyMetadataSections'
+import { resolveProseWordContract } from './proseWordContract'
+
 export interface SchemaRetryFeedbackInput {
   errors: string[]
   previousOutput?: string
+  protectedContract?: import('./protectedSkillContract').ProtectedSkillContract
   maxErrors?: number
   maxAnchors?: number
   maxAnchorChars?: number
   maxPreviewEdgeChars?: number
+  maxScaffoldChars?: number
 }
 
 export interface SchemaRetryFeedbackResult {
   feedback: string
+  strategy: 'bounded-summary' | 'word-gap'
   candidateChars: number
   feedbackChars: number
   anchorCount: number
   previewChars: number
+  scaffoldChars: number
+  scaffoldFieldCount: number
   suppressedCandidateChars: number
 }
 
@@ -20,6 +29,56 @@ const DEFAULT_MAX_ERRORS = 10
 const DEFAULT_MAX_ANCHORS = 3
 const DEFAULT_MAX_ANCHOR_CHARS = 200
 const DEFAULT_MAX_PREVIEW_EDGE_CHARS = 200
+const DEFAULT_MAX_SCAFFOLD_CHARS = 800
+
+const SCAFFOLD_FIELD_PATTERNS = [
+  { key: '章节', pattern: /^章节[:：]/ },
+  { key: 'POV', pattern: /^(?:POV|视角)[:：]/i },
+  { key: '已完成场景', pattern: /^已完成场景[:：]/ },
+  { key: '未完成场景', pattern: /^未完成场景[:：]/ },
+  { key: '来源覆盖状态', pattern: /^来源覆盖状态[:：]/ },
+  { key: '角色状态变化', pattern: /^角色状态变化[:：]/ },
+  { key: '章末状态', pattern: /^章末状态[:：]/ },
+  { key: '下一章必须使用', pattern: /^下一章必须使用[:：]/ },
+  { key: '场景总数', pattern: /^场景总数[:：]/ },
+  { key: 'FACT_LOCK', pattern: /^FACT_LOCK[:：]/i },
+  { key: 'NEW_FACT', pattern: /^NEW_FACT[:：]/i }
+] as const
+
+interface WordGapScaffold {
+  text: string
+  fieldCount: number
+  available: boolean
+}
+
+function buildWordGapScaffold(candidate: string, maxChars: number): WordGapScaffold {
+  const limit = Math.max(0, maxChars)
+  if (!candidate) return { text: '', fieldCount: 0, available: false }
+  const handoff = splitLegacyMetadataSections(candidate)
+    .sections
+    .find(section => section.includes('【正文交接】'))
+  if (!handoff) return { text: '', fieldCount: 0, available: false }
+
+  const fields: string[] = []
+  let current: { key: string; lines: string[] } | null = null
+  for (const line of handoff.split(/\r?\n/)) {
+    const matched = SCAFFOLD_FIELD_PATTERNS.find(field => field.pattern.test(line.trim()))
+    if (matched) {
+      if (current) fields.push(`${current.key}：${current.lines.join(' / ')}`)
+      current = { key: matched.key, lines: [line.trim()] }
+      continue
+    }
+    if (current) current.lines.push(line.trim())
+  }
+  if (current) fields.push(`${current.key}：${current.lines.join(' / ')}`)
+
+  const normalized = fields
+    .map(field => normalizeWhitespace(field))
+    .filter(Boolean)
+  let text = normalized.join('\n')
+  if (text.length > limit) text = `${text.slice(0, limit)}\n（结构骨架超长，已截断）`
+  return { text, fieldCount: normalized.length, available: true }
+}
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, ' ').trim()
@@ -70,6 +129,48 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
   const maxAnchors = input.maxAnchors ?? DEFAULT_MAX_ANCHORS
   const maxAnchorChars = input.maxAnchorChars ?? DEFAULT_MAX_ANCHOR_CHARS
   const maxPreviewEdgeChars = input.maxPreviewEdgeChars ?? DEFAULT_MAX_PREVIEW_EDGE_CHARS
+  const maxScaffoldChars = input.maxScaffoldChars ?? DEFAULT_MAX_SCAFFOLD_CHARS
+  const contract = input.protectedContract
+  const isWordGapFailure = Boolean(contract?.kind === 'body' &&
+    errors.some(error => /正文过短|正文过长/.test(String(error))))
+
+  if (contract?.kind === 'body' && isWordGapFailure) {
+    const { targetWords, minWords, maxWords } = resolveProseWordContract(contract)
+    const currentWords = candidate ? countBodyWords(candidate) : 0
+    const gap = currentWords < minWords
+      ? minWords - currentWords
+      : currentWords > maxWords ? currentWords - maxWords : 0
+    const scaffold = buildWordGapScaffold(candidate, maxScaffoldChars)
+    const lines = [
+      '【结构化重试反馈】',
+      '本反馈描述净字数缺口与有界结构骨架。候选全文未随本反馈回传，请基于原始任务输入、结构骨架与已生成的场景结构补写缺口，不要复述反馈本身，不要输出解释。',
+      '',
+      `目标净字数：${targetWords}`,
+      `下限净字数：${minWords}`,
+      `上限净字数：${maxWords}`,
+      `当前净字数：${currentWords}`,
+      `还差净字数：${gap}`,
+      '',
+      '一、上一版场景结构骨架（有界，不是候选全文）'
+    ]
+    if (scaffold.available) {
+      lines.push(scaffold.text, '', '修复要求：以上方结构骨架为保留边界，只补足缺口场景和承接段；正文末尾必须保留【正文交接】区块。')
+    } else {
+      lines.push('（上一版候选没有可解析的【正文交接】账本，无法提供结构骨架。）', '', '修复要求：按原始任务输入重建正文，并补足【正文交接】账本；不要把缺失骨架降级为丢弃段落结构。')
+    }
+    const feedback = lines.join('\n')
+    return {
+      feedback,
+      strategy: 'word-gap',
+      candidateChars: candidate.length,
+      feedbackChars: feedback.length,
+      anchorCount: 0,
+      previewChars: 0,
+      scaffoldChars: scaffold.text.length,
+      scaffoldFieldCount: scaffold.fieldCount,
+      suppressedCandidateChars: 0
+    }
+  }
 
   const lines: string[] = [
     '【结构化重试反馈】',
@@ -100,10 +201,13 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
   const feedback = lines.join('\n')
   return {
     feedback,
+    strategy: 'bounded-summary',
     candidateChars: candidate.length,
     feedbackChars: feedback.length,
     anchorCount: anchors.length,
     previewChars,
+    scaffoldChars: 0,
+    scaffoldFieldCount: 0,
     suppressedCandidateChars: Math.max(0, candidate.length - previewChars),
   }
 }

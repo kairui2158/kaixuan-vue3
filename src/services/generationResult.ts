@@ -1,4 +1,5 @@
 import { filterThinkingTags } from './aiService'
+import { splitLegacyMetadataSections } from './legacyMetadataSections'
 
 export type GenerationStatus = 'success' | 'failed' | 'fallback'
 
@@ -32,53 +33,6 @@ function parseJsonEnvelope(text: string): Record<string, unknown> | null {
   } catch {
     return null
   }
-}
-
-// Legacy plain-text outputs append machine-facing sections like 【来源覆盖】
-// after the prose. Only a line-start heading from this whitelist opens a
-// metadata section, so bracketed words inside sentences stay untouched.
-const META_SECTION_HEADERS = [
-  '【来源覆盖】',
-  '【状态变化】',
-  '【交接清单】',
-  '【交接状态】',
-  '【正文交接】',
-  '【输出末尾元数据】'
-] as const
-
-function findMetaSectionHeading(line: string): string | null {
-  const trimmed = line.trimStart()
-  const header = META_SECTION_HEADERS.find((candidate) => trimmed.startsWith(candidate))
-  return header ? trimmed : null
-}
-
-function isMetaSectionEnd(line: string): boolean {
-  return /^【[^】]+结束】\s*$/.test(line.trim())
-}
-
-function splitLegacyMetadataSections(text: string): { body: string; sections: string[] } {
-  const bodyLines: string[] = []
-  const sections: string[] = []
-  let current: string[] | null = null
-  for (const line of String(text || '').split(/\r?\n/)) {
-    const heading = findMetaSectionHeading(line)
-    if (heading) {
-      if (current) sections.push(current.join('\n').trim())
-      current = [heading.trimEnd()]
-      continue
-    }
-    if (current) {
-      current.push(line)
-      if (isMetaSectionEnd(line)) {
-        sections.push(current.join('\n').trim())
-        current = null
-      }
-      continue
-    }
-    bodyLines.push(line)
-  }
-  if (current) sections.push(current.join('\n').trim())
-  return { body: bodyLines.join('\n').trim(), sections }
 }
 
 /** Split an optional generation envelope without deleting ordinary prose markers. */

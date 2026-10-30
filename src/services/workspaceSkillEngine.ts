@@ -23,6 +23,8 @@ import {
 import {
   buildChainSkillPrompt,
   detectChainOutputEcho,
+  resolveFinalStepEchoRole,
+  resolveFinalStepRole,
   getChainEchoWarningLevel,
   templateReferencesPreviousOutput,
 } from './chainExecution'
@@ -1692,8 +1694,18 @@ export async function runWorkspaceSkills(
           previousOutput || undefined,
           current,
         )
+        const workspaceFinalStepRole = resolveFinalStepRole({
+          step: 4,
+          stepIndex: index,
+          totalSteps: chainTemplates.length,
+          declaredRole: null,
+          generatorStepIndexes: input.artifactContract?.kind === 'body'
+            ? [Math.max(0, index - 1)]
+            : [],
+        })
+        const workspaceFinalStepEchoRole = resolveFinalStepEchoRole(workspaceFinalStepRole)
         const echoWarningLevel = getChainEchoWarningLevel(index, chainTemplates.length, {
-          finalStepRole: 'polish',
+          finalStepRole: workspaceFinalStepEchoRole || undefined,
         })
         if (stepMeta && echoDiagnostic && echoWarningLevel) {
           stepMeta.diagnostics = [
@@ -1702,7 +1714,7 @@ export async function runWorkspaceSkills(
               type: echoWarningLevel,
               code: echoDiagnostic.code,
               message: echoWarningLevel === 'info'
-                ? `${echoDiagnostic.message}（终步为打磨角色，高重合保留为警告观察）`
+                ? `${echoDiagnostic.message}（终步按打磨角色语义观察：角色来源 ${workspaceFinalStepRole?.reason ?? 'unresolved'}）`
                 : echoDiagnostic.message,
             },
           ]

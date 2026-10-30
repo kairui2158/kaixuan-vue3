@@ -382,6 +382,12 @@ export type FinalStepRoleResolution =
   | { role: 'generator'; mode: 'summary'; reason: 'declared'; generatorStepIndex: number }
   | { role: null; mode: 'summary'; reason: 'unresolved'; generatorStepIndex: number | null }
 
+export function resolveFinalStepEchoRole(
+  resolution: FinalStepRoleResolution | null | undefined
+): 'polish' | 'generator' | null {
+  return resolution?.role ?? null
+}
+
 /**
  * Terminal-step role is a chain-level fact, not a per-template guess. Explicit
  * declarations win; otherwise the final step is polish only when the chain has

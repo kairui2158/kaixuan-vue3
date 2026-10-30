@@ -9,6 +9,23 @@ export interface RealSkillMeta {
   [key: string]: unknown
 }
 
+export interface RealSkillBodyCandidateLedgerEntry {
+  attempt: number
+  rawChars: number
+  netWords: number
+  handoffCount: number
+  contractDistance: number
+  missingHandoff: boolean
+  valid: boolean
+  errorCount: number
+}
+
+export interface RealSkillBodyCandidateRetention {
+  retainedCandidateIndex: number
+  retainedAttempt: number
+  retainedReason: string
+}
+
 export interface RealSkillPackage {
   id: string
   name: string
@@ -163,6 +180,10 @@ export interface RealSkillExecutionResult {
     }
     /** Candidate ledger position retained by the executor when schema retries are exhausted. */
     retainedCandidateIndex?: number
+    /** Per-attempt protected-body metrics for schema retry diagnosis. */
+    bodyCandidateLedger?: RealSkillBodyCandidateLedgerEntry[]
+    /** Structured explanation of which retry candidate was retained and why. */
+    bodyCandidateRetention?: RealSkillBodyCandidateRetention
   }
 }
 
@@ -208,6 +229,8 @@ export interface RealSkillExecuteOptions {
   systemPromptSuffix?: string
   /** App-owned retry feedback appended to the user prompt, never authored by SKILL guidance. */
   userPromptSuffix?: string
+  /** App-owned contract appended after folder preProcess, outside SKILL control. */
+  protectedContract?: import('./protectedSkillContract').ProtectedSkillContract
   /** Actual authorized tool surface for this step; declared in the system prompt. */
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   /** Active edit-task state used to declare restored write permission consistently. */

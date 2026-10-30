@@ -185,7 +185,8 @@ describe('skillRouter composite mapping', () => {
         userPromptSuffix: '终步重试协议',
         baseTemplateOverride: 'compose合并模板',
         resolvedTemplate: 'chain解析后模板',
-        activeEditTask: { id: 'task-1', status: 'awaiting_batch' } as any
+        activeEditTask: { id: 'task-1', status: 'awaiting_batch' } as any,
+        protectedContract: { kind: 'body', targetWords: 3500 }
       }
     )
 
@@ -195,7 +196,8 @@ describe('skillRouter composite mapping', () => {
       userPromptSuffix: '终步重试协议',
       baseTemplateOverride: 'compose合并模板',
       resolvedTemplate: 'chain解析后模板',
-      activeEditTask: { id: 'task-1', status: 'awaiting_batch' }
+      activeEditTask: { id: 'task-1', status: 'awaiting_batch' },
+      protectedContract: { kind: 'body', targetWords: 3500 }
     }))
   })
 })
