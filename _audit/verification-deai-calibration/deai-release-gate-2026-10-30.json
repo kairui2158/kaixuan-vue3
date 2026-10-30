@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-30T15:10:22.975Z",
-  "reportPath": "_audit/verification-deai-calibration/deai-v2-calibration-20261030T150636Z.json",
+  "generatedAt": "2026-10-30T22:38:05.919Z",
+  "reportPath": "_audit/verification-deai-calibration/deai-v2-calibration-20261030T223750Z.json",
   "corpusRoot": "D:/codex/deai-corpus",
   "decision": "NOT_READY",
   "provisionalMustRemain": true,
@@ -88,7 +88,7 @@
       "key": "modelGroups",
       "description": "real provider/model positive groups",
       "limit": ">= 3",
-      "actual": 3,
+      "actual": 4,
       "passed": true
     },
     {
@@ -102,7 +102,7 @@
       "key": "providerCount",
       "description": "distinct positive providers",
       "limit": ">= 2",
-      "actual": 2,
+      "actual": 3,
       "passed": true
     },
     {
@@ -130,35 +130,35 @@
       "key": "modelPositiveSuspiciousOrHigherRecall",
       "description": "model-positive suspicious+ recall",
       "limit": ">= 0.9",
-      "actual": 0.85,
+      "actual": 0.8654,
       "passed": false
     },
     {
       "key": "modelPositiveNgramRecall",
       "description": "model-positive n-gram finding recall",
       "limit": ">= 0.9",
-      "actual": 0.95,
+      "actual": 0.9808,
       "passed": true
     },
     {
       "key": "recallConfidenceIntervalHalfWidth",
       "description": "95% recall confidence interval half-width",
       "limit": "<= 0.1",
-      "actual": 0.1565,
-      "passed": false
+      "actual": 0.0928,
+      "passed": true
     },
     {
       "key": "thresholdCurveDistinctCounts",
       "description": "distinct sensitivity counts across score points",
       "limit": ">= 3",
-      "actual": 3,
+      "actual": 9,
       "passed": true
     },
     {
       "key": "performanceMs",
       "description": "20k-char detectBody performance in ms",
       "limit": "<= 300",
-      "actual": 20.46,
+      "actual": 17.7,
       "passed": true
     }
   ],
@@ -166,8 +166,7 @@
     "minSamplesPerModelGroup",
     "humanSuspiciousOrHigherRate",
     "worstAuthorSuspiciousOrHigherRate",
-    "modelPositiveSuspiciousOrHigherRecall",
-    "recallConfidenceIntervalHalfWidth"
+    "modelPositiveSuspiciousOrHigherRecall"
   ],
   "diagnostics": {
     "verifiedAuthors": [
@@ -224,12 +223,16 @@
       {
         "key": "prov-1793181246179/glm-5",
         "sampleCount": 4
+      },
+      {
+        "key": "prov-1793181379831/kimi-k3.1-pro",
+        "sampleCount": 32
       }
     ],
-    "pooledModelPositiveSuspiciousOrHigher": 17,
-    "pooledModelPositiveCount": 20,
-    "wilsonLowerBoundForSuspiciousOrHigherRecall": 0.6396,
+    "pooledModelPositiveSuspiciousOrHigher": 45,
+    "pooledModelPositiveCount": 52,
+    "wilsonLowerBoundForSuspiciousOrHigherRecall": 0.7473,
     "thresholdCurveDistinctHumanFalsePositiveCounts": 20,
-    "thresholdCurveDistinctPositiveRecallCounts": 3
+    "thresholdCurveDistinctPositiveRecallCounts": 9
   }
 }

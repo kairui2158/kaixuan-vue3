@@ -34,6 +34,10 @@ const stats = {
 }
 const records = []
 const seenIds = new Set()
+const mergeStats = {
+  preservedLabelCount: 0,
+  preservedSampleCount: 0
+}
 
 function log(phase, data = {}) {
   console.log(JSON.stringify({ phase, elapsedMs: Date.now() - START, ...data }))
@@ -58,7 +62,10 @@ function providerId(trace, apiCall) {
 }
 
 function modelId(value) {
-  return normalizeId(value || 'unknown-model').toLowerCase()
+  return String(value || 'unknown-model')
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .toLowerCase()
 }
 
 function readJson(filePath) {
@@ -80,6 +87,16 @@ function readPayload(traceDir, payloadRef) {
     .filter(name => Number(name.slice(0, name.indexOf('-'))) === ordinal)
   if (candidates.length !== 1) return null
   return fs.readFileSync(path.join(traceDir, 'payloads', candidates[0]), 'utf8')
+}
+
+function readJsonlLines(filePath) {
+  if (!fs.existsSync(filePath)) return []
+  return fs.readFileSync(filePath, 'utf8').split(/\r?\n/).filter(Boolean)
+}
+
+function writeJsonlLines(filePath, lines) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true })
+  fs.writeFileSync(filePath, `${lines.join('\n')}${lines.length ? '\n' : ''}`, 'utf8')
 }
 
 function extractBodySkillId(apiCall) {
@@ -156,8 +173,11 @@ function writeOutputs() {
   fs.writeFileSync(options.reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
 
   const labelPath = path.join(options.corpusRoot, 'labels', 'model-positive.jsonl')
-  fs.mkdirSync(path.dirname(labelPath), { recursive: true })
-  const labelLines = records.map(({ text, ...record }) => JSON.stringify({
+  const existingLabelLines = readJsonlLines(labelPath)
+  const existingLabelIds = new Set(existingLabelLines.map(line => JSON.parse(line).id))
+  const newLabelLines = records
+    .filter(record => !existingLabelIds.has(record.id))
+    .map(({ text, ...record }) => JSON.stringify({
     id: record.id,
     label: 'model-positive',
     labelSource: 'historical-run-trace',
@@ -169,19 +189,34 @@ function writeOutputs() {
     payloadRef: record.payloadRef,
     charCount: record.charCount
   }))
-  fs.writeFileSync(labelPath, `${labelLines.join('\n')}${labelLines.length ? '\n' : ''}`, 'utf8')
+  mergeStats.preservedLabelCount = existingLabelLines.length
+  writeJsonlLines(labelPath, [...existingLabelLines, ...newLabelLines])
 
   if (!options.dryRun) {
     for (const record of records) {
       const sampleDir = path.join(options.corpusRoot, 'sources', 'model', record.provider, record.model)
       const samplePath = path.join(sampleDir, 'samples.jsonl')
       fs.mkdirSync(sampleDir, { recursive: true })
-      const sampleLines = fs.existsSync(samplePath)
-        ? fs.readFileSync(samplePath, 'utf8').split(/\r?\n/).filter(Boolean)
-        : []
+      const sampleLines = readJsonlLines(samplePath)
       const existingIds = new Set(sampleLines.map(line => JSON.parse(line).id))
       if (!existingIds.has(record.id)) sampleLines.push(JSON.stringify(record))
-      fs.writeFileSync(samplePath, `${sampleLines.join('\n')}${sampleLines.length ? '\n' : ''}`, 'utf8')
+      else mergeStats.preservedSampleCount += 1
+      writeJsonlLines(samplePath, sampleLines)
+    }
+
+    const finalLabelLines = readJsonlLines(labelPath)
+    const uniqueLabelIds = new Set(finalLabelLines.map(line => JSON.parse(line).id))
+    if (uniqueLabelIds.size !== finalLabelLines.length) {
+      throw new Error(`duplicate ids in ${labelPath}: ${finalLabelLines.length - uniqueLabelIds.size}`)
+    }
+    for (const record of records) {
+      const samplePath = path.join(options.corpusRoot, 'sources', 'model', record.provider, record.model, 'samples.jsonl')
+      const lines = readJsonlLines(samplePath)
+      const uniqueIds = new Set(lines.map(line => JSON.parse(line).id))
+      if (uniqueIds.size !== lines.length) {
+        throw new Error(`duplicate ids in ${samplePath}: ${lines.length - uniqueIds.size}`)
+      }
+      if (!uniqueIds.has(record.id)) throw new Error(`missing harvested id ${record.id} in ${samplePath}`)
     }
   }
 }
@@ -215,7 +250,11 @@ try {
   }
 
   if (!options.dryRun) writeOutputs()
-  log('finished', { ...stats, byModel: records.reduce((acc, r) => { const k = `${r.provider}/${r.model}`; acc[k] = (acc[k] || 0) + 1; return acc }, {}) })
+  log('finished', {
+    ...stats,
+    byModel: records.reduce((acc, r) => { const k = `${r.provider}/${r.model}`; acc[k] = (acc[k] || 0) + 1; return acc }, {}),
+    ...mergeStats
+  })
 } catch (error) {
   fail(error.message, error.stack)
 } finally {

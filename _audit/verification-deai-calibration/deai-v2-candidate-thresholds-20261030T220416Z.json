@@ -1,0 +1,609 @@
+{
+  "generatedAt": "2026-10-30T22:04:16.562Z",
+  "schemaVersion": 1,
+  "corpusRoot": "D:/codex/deai-corpus",
+  "search": {
+    "mode": "minimal",
+    "parameterCount": 13,
+    "combinations": 512,
+    "validCount": 512,
+    "invalidCount": 0,
+    "trainEligibleCount": 0,
+    "devEligibleCount": 0,
+    "fullyEligibleCount": 0,
+    "selectedPool": "allValid"
+  },
+  "corpus": {
+    "humanLabels": 6494,
+    "humanTrain": 300,
+    "humanDev": 400,
+    "humanHeldOut": 300,
+    "modelPositives": 52,
+    "modelTrain": 30,
+    "modelDev": 12,
+    "modelHeldOut": 10,
+    "seed": 20261029,
+    "perWork": 100,
+    "worksByBucket": {
+      "train": [
+        "作者B::最强反套路系统",
+        "老鹰吃小鸡::全球高武",
+        "辰东::圣墟"
+      ],
+      "dev": [
+        "佛前献花::神秘复苏",
+        "卖报小郎君::大奉打更人",
+        "蝴蝶蓝::全职高手",
+        "远瞳::黎明之剑"
+      ],
+      "heldOut": [
+        "作者A::致命偏宠",
+        "我会修空调::我有一座冒险屋",
+        "踏星::踏星"
+      ]
+    },
+    "splitUnit": "author/work for human; provider/model for positives",
+    "eligibility": "1500-6000 non-whitespace chars for human labels"
+  },
+  "proposal": {
+    "recommendedCandidate": {
+      "advisoryWeight": 0,
+      "blockingWeight": 8,
+      "cvUncorroboratedMultiplier": 0,
+      "cvUncorroboratedCap": 0,
+      "cvExcessMultiplier": 0,
+      "cvBaseContribution": 0,
+      "sentenceCVHighStyleDrift": 0.1,
+      "sentenceCVHighNgramTrigram": 100,
+      "sentenceCVHighNgramBigram": 300,
+      "sentenceCVStrong": 1.1,
+      "sentenceCVAdvisory": 1,
+      "scoreLikelyAi": 65,
+      "scoreSuspicious": 45
+    },
+    "changesFromRuntimeDefaults": [
+      {
+        "parameter": "sentenceCVHighNgramBigram",
+        "from": 900,
+        "to": 300
+      },
+      {
+        "parameter": "sentenceCVHighNgramTrigram",
+        "from": 300,
+        "to": 100
+      },
+      {
+        "parameter": "sentenceCVHighStyleDrift",
+        "from": 0.2,
+        "to": 0.1
+      },
+      {
+        "parameter": "blockingWeight",
+        "from": 12,
+        "to": 8
+      },
+      {
+        "parameter": "advisoryWeight",
+        "from": 6,
+        "to": 0
+      },
+      {
+        "parameter": "cvBaseContribution",
+        "from": 28,
+        "to": 0
+      },
+      {
+        "parameter": "cvExcessMultiplier",
+        "from": 20,
+        "to": 0
+      },
+      {
+        "parameter": "cvUncorroboratedCap",
+        "from": 18,
+        "to": 0
+      },
+      {
+        "parameter": "cvUncorroboratedMultiplier",
+        "from": 10,
+        "to": 0
+      }
+    ],
+    "selection": {
+      "trainSuspiciousOrHigherRate": 0.3633,
+      "devSuspiciousOrHigherRate": 0.5375,
+      "devPositiveSuspiciousOrHigherRecall": 0.9167,
+      "devPositiveNgramRecall": 1,
+      "heldOutHumanSuspiciousOrHigherRate": 0.2367
+    },
+    "reviewDecision": "needs-human-review",
+    "constraints": {
+      "runtimeMutationAllowed": false,
+      "provisionalRemovalAllowed": false,
+      "corpusMutationAllowed": false
+    },
+    "evidence": {
+      "positiveSplit": {
+        "train": {
+          "humanCount": 300,
+          "positiveCount": 30
+        },
+        "dev": {
+          "humanCount": 400,
+          "positiveCount": 12
+        },
+        "heldOut": {
+          "humanCount": 300,
+          "positiveCount": 10
+        }
+      },
+      "groupCounts": [
+        {
+          "key": "prov-1788185503573/deepseek-v4-pro",
+          "sampleCount": 12
+        },
+        {
+          "key": "prov-1793181246179/deepseek-v4-pro",
+          "sampleCount": 4
+        },
+        {
+          "key": "prov-1793181246179/glm-5",
+          "sampleCount": 4
+        },
+        {
+          "key": "prov-1793181379831/kimi-k3.1-pro",
+          "sampleCount": 32
+        }
+      ]
+    }
+  },
+  "heldOutSummary": {
+    "candidate": {
+      "advisoryWeight": 0,
+      "blockingWeight": 8,
+      "cvUncorroboratedMultiplier": 0,
+      "cvUncorroboratedCap": 0,
+      "cvExcessMultiplier": 0,
+      "cvBaseContribution": 0,
+      "sentenceCVHighStyleDrift": 0.1,
+      "sentenceCVHighNgramTrigram": 100,
+      "sentenceCVHighNgramBigram": 300,
+      "sentenceCVStrong": 1.1,
+      "sentenceCVAdvisory": 1,
+      "scoreLikelyAi": 65,
+      "scoreSuspicious": 45
+    },
+    "human": {
+      "sampleCount": 300,
+      "strongCount": 71,
+      "suspiciousOrHigherRate": 0.2367,
+      "ci": {
+        "estimate": 0.2367,
+        "lower": 0.1886,
+        "upper": 0.2848
+      },
+      "verdicts": {
+        "suspicious": 69,
+        "clean": 84,
+        "advisory": 145,
+        "likely_ai": 2
+      }
+    },
+    "positive": {
+      "sampleCount": 10,
+      "strongCount": 9,
+      "suspiciousOrHigherRecall": 0.9,
+      "ngramRecall": 1,
+      "ci": {
+        "estimate": 0.9,
+        "lower": 0.7141,
+        "upper": 1
+      },
+      "byGroup": {
+        "prov-1788185503573/deepseek-v4-pro": {
+          "estimate": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "prov-1793181246179/deepseek-v4-pro": {
+          "estimate": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "prov-1793181246179/glm-5": {
+          "estimate": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "prov-1793181379831/kimi-k3.1-pro": {
+          "estimate": 0.8333,
+          "lower": 0.5351,
+          "upper": 1
+        }
+      }
+    }
+  },
+  "rankedCandidates": [
+    {
+      "candidate": {
+        "advisoryWeight": 0,
+        "blockingWeight": 8,
+        "cvUncorroboratedMultiplier": 0,
+        "cvUncorroboratedCap": 0,
+        "cvExcessMultiplier": 0,
+        "cvBaseContribution": 0,
+        "sentenceCVHighStyleDrift": 0.1,
+        "sentenceCVHighNgramTrigram": 100,
+        "sentenceCVHighNgramBigram": 300,
+        "sentenceCVStrong": 1.1,
+        "sentenceCVAdvisory": 1,
+        "scoreLikelyAi": 65,
+        "scoreSuspicious": 45
+      },
+      "train": {
+        "sampleCount": 300,
+        "strongCount": 109,
+        "suspiciousOrHigherRate": 0.3633,
+        "ngramHitRate": 0.9833,
+        "verdicts": {
+          "advisory": 147,
+          "suspicious": 99,
+          "likely_ai": 10,
+          "clean": 44
+        }
+      },
+      "dev": {
+        "sampleCount": 400,
+        "strongCount": 215,
+        "suspiciousOrHigherRate": 0.5375,
+        "ngramHitRate": 0.9725,
+        "verdicts": {
+          "suspicious": 196,
+          "advisory": 155,
+          "likely_ai": 19,
+          "clean": 30
+        }
+      },
+      "positiveDev": {
+        "sampleCount": 12,
+        "strongCount": 11,
+        "suspiciousOrHigherRate": 0.9167,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "advisory": 1,
+          "likely_ai": 10,
+          "suspicious": 1
+        }
+      },
+      "heldOutHuman": {
+        "sampleCount": 300,
+        "strongCount": 71,
+        "suspiciousOrHigherRate": 0.2367,
+        "ngramHitRate": 0.9933,
+        "verdicts": {
+          "suspicious": 69,
+          "clean": 84,
+          "advisory": 145,
+          "likely_ai": 2
+        }
+      },
+      "heldOutPositive": {
+        "sampleCount": 10,
+        "strongCount": 9,
+        "suspiciousOrHigherRate": 0.9,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "likely_ai": 9,
+          "clean": 1
+        }
+      }
+    },
+    {
+      "candidate": {
+        "advisoryWeight": 12,
+        "blockingWeight": 8,
+        "cvUncorroboratedMultiplier": 0,
+        "cvUncorroboratedCap": 0,
+        "cvExcessMultiplier": 0,
+        "cvBaseContribution": 0,
+        "sentenceCVHighStyleDrift": 0.1,
+        "sentenceCVHighNgramTrigram": 100,
+        "sentenceCVHighNgramBigram": 300,
+        "sentenceCVStrong": 1.1,
+        "sentenceCVAdvisory": 1,
+        "scoreLikelyAi": 65,
+        "scoreSuspicious": 45
+      },
+      "train": {
+        "sampleCount": 300,
+        "strongCount": 109,
+        "suspiciousOrHigherRate": 0.3633,
+        "ngramHitRate": 0.9833,
+        "verdicts": {
+          "advisory": 147,
+          "suspicious": 99,
+          "likely_ai": 10,
+          "clean": 44
+        }
+      },
+      "dev": {
+        "sampleCount": 400,
+        "strongCount": 215,
+        "suspiciousOrHigherRate": 0.5375,
+        "ngramHitRate": 0.9725,
+        "verdicts": {
+          "suspicious": 196,
+          "advisory": 155,
+          "likely_ai": 19,
+          "clean": 30
+        }
+      },
+      "positiveDev": {
+        "sampleCount": 12,
+        "strongCount": 11,
+        "suspiciousOrHigherRate": 0.9167,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "advisory": 1,
+          "likely_ai": 10,
+          "suspicious": 1
+        }
+      },
+      "heldOutHuman": {
+        "sampleCount": 300,
+        "strongCount": 71,
+        "suspiciousOrHigherRate": 0.2367,
+        "ngramHitRate": 0.9933,
+        "verdicts": {
+          "suspicious": 69,
+          "clean": 84,
+          "advisory": 145,
+          "likely_ai": 2
+        }
+      },
+      "heldOutPositive": {
+        "sampleCount": 10,
+        "strongCount": 9,
+        "suspiciousOrHigherRate": 0.9,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "likely_ai": 9,
+          "clean": 1
+        }
+      }
+    },
+    {
+      "candidate": {
+        "advisoryWeight": 0,
+        "blockingWeight": 16,
+        "cvUncorroboratedMultiplier": 0,
+        "cvUncorroboratedCap": 0,
+        "cvExcessMultiplier": 0,
+        "cvBaseContribution": 0,
+        "sentenceCVHighStyleDrift": 0.1,
+        "sentenceCVHighNgramTrigram": 100,
+        "sentenceCVHighNgramBigram": 300,
+        "sentenceCVStrong": 1.1,
+        "sentenceCVAdvisory": 1,
+        "scoreLikelyAi": 65,
+        "scoreSuspicious": 45
+      },
+      "train": {
+        "sampleCount": 300,
+        "strongCount": 109,
+        "suspiciousOrHigherRate": 0.3633,
+        "ngramHitRate": 0.9833,
+        "verdicts": {
+          "advisory": 147,
+          "suspicious": 99,
+          "likely_ai": 10,
+          "clean": 44
+        }
+      },
+      "dev": {
+        "sampleCount": 400,
+        "strongCount": 215,
+        "suspiciousOrHigherRate": 0.5375,
+        "ngramHitRate": 0.9725,
+        "verdicts": {
+          "suspicious": 196,
+          "advisory": 155,
+          "likely_ai": 19,
+          "clean": 30
+        }
+      },
+      "positiveDev": {
+        "sampleCount": 12,
+        "strongCount": 11,
+        "suspiciousOrHigherRate": 0.9167,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "advisory": 1,
+          "likely_ai": 10,
+          "suspicious": 1
+        }
+      },
+      "heldOutHuman": {
+        "sampleCount": 300,
+        "strongCount": 71,
+        "suspiciousOrHigherRate": 0.2367,
+        "ngramHitRate": 0.9933,
+        "verdicts": {
+          "suspicious": 69,
+          "clean": 84,
+          "advisory": 145,
+          "likely_ai": 2
+        }
+      },
+      "heldOutPositive": {
+        "sampleCount": 10,
+        "strongCount": 9,
+        "suspiciousOrHigherRate": 0.9,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "likely_ai": 9,
+          "clean": 1
+        }
+      }
+    },
+    {
+      "candidate": {
+        "advisoryWeight": 12,
+        "blockingWeight": 16,
+        "cvUncorroboratedMultiplier": 0,
+        "cvUncorroboratedCap": 0,
+        "cvExcessMultiplier": 0,
+        "cvBaseContribution": 0,
+        "sentenceCVHighStyleDrift": 0.1,
+        "sentenceCVHighNgramTrigram": 100,
+        "sentenceCVHighNgramBigram": 300,
+        "sentenceCVStrong": 1.1,
+        "sentenceCVAdvisory": 1,
+        "scoreLikelyAi": 65,
+        "scoreSuspicious": 45
+      },
+      "train": {
+        "sampleCount": 300,
+        "strongCount": 109,
+        "suspiciousOrHigherRate": 0.3633,
+        "ngramHitRate": 0.9833,
+        "verdicts": {
+          "advisory": 147,
+          "suspicious": 99,
+          "likely_ai": 10,
+          "clean": 44
+        }
+      },
+      "dev": {
+        "sampleCount": 400,
+        "strongCount": 215,
+        "suspiciousOrHigherRate": 0.5375,
+        "ngramHitRate": 0.9725,
+        "verdicts": {
+          "suspicious": 196,
+          "advisory": 155,
+          "likely_ai": 19,
+          "clean": 30
+        }
+      },
+      "positiveDev": {
+        "sampleCount": 12,
+        "strongCount": 11,
+        "suspiciousOrHigherRate": 0.9167,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "advisory": 1,
+          "likely_ai": 10,
+          "suspicious": 1
+        }
+      },
+      "heldOutHuman": {
+        "sampleCount": 300,
+        "strongCount": 71,
+        "suspiciousOrHigherRate": 0.2367,
+        "ngramHitRate": 0.9933,
+        "verdicts": {
+          "suspicious": 69,
+          "clean": 84,
+          "advisory": 145,
+          "likely_ai": 2
+        }
+      },
+      "heldOutPositive": {
+        "sampleCount": 10,
+        "strongCount": 9,
+        "suspiciousOrHigherRate": 0.9,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "likely_ai": 9,
+          "clean": 1
+        }
+      }
+    },
+    {
+      "candidate": {
+        "advisoryWeight": 0,
+        "blockingWeight": 8,
+        "cvUncorroboratedMultiplier": 20,
+        "cvUncorroboratedCap": 0,
+        "cvExcessMultiplier": 0,
+        "cvBaseContribution": 0,
+        "sentenceCVHighStyleDrift": 0.1,
+        "sentenceCVHighNgramTrigram": 100,
+        "sentenceCVHighNgramBigram": 300,
+        "sentenceCVStrong": 1.1,
+        "sentenceCVAdvisory": 1,
+        "scoreLikelyAi": 65,
+        "scoreSuspicious": 45
+      },
+      "train": {
+        "sampleCount": 300,
+        "strongCount": 109,
+        "suspiciousOrHigherRate": 0.3633,
+        "ngramHitRate": 0.9833,
+        "verdicts": {
+          "advisory": 147,
+          "suspicious": 99,
+          "likely_ai": 10,
+          "clean": 44
+        }
+      },
+      "dev": {
+        "sampleCount": 400,
+        "strongCount": 215,
+        "suspiciousOrHigherRate": 0.5375,
+        "ngramHitRate": 0.9725,
+        "verdicts": {
+          "suspicious": 196,
+          "advisory": 155,
+          "likely_ai": 19,
+          "clean": 30
+        }
+      },
+      "positiveDev": {
+        "sampleCount": 12,
+        "strongCount": 11,
+        "suspiciousOrHigherRate": 0.9167,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "advisory": 1,
+          "likely_ai": 10,
+          "suspicious": 1
+        }
+      },
+      "heldOutHuman": {
+        "sampleCount": 300,
+        "strongCount": 71,
+        "suspiciousOrHigherRate": 0.2367,
+        "ngramHitRate": 0.9933,
+        "verdicts": {
+          "suspicious": 69,
+          "clean": 84,
+          "advisory": 145,
+          "likely_ai": 2
+        }
+      },
+      "heldOutPositive": {
+        "sampleCount": 10,
+        "strongCount": 9,
+        "suspiciousOrHigherRate": 0.9,
+        "ngramHitRate": 1,
+        "verdicts": {
+          "likely_ai": 9,
+          "clean": 1
+        }
+      }
+    }
+  ],
+  "methodology": {
+    "detector": "src/services/de-ai.js DeAiProcessor.detectBody (current runtime, unmodified)",
+    "candidateEvaluator": "interpretable score-threshold and sentence-CV family",
+    "selection": "train false-positive gate -> dev false-positive and recall gates -> objective ranking",
+    "objective": "positive suspicious+ recall - 1.6 * human train suspicious+ rate - 1.6 * human dev suspicious+ rate",
+    "heldOutPolicy": "held-out is evaluated once after selection and never used for search",
+    "limits": [
+      "Model positives are split by provider/model because sample depth is insufficient for work-level positive splits.",
+      "Candidate proposals cannot loosen the existing release gate; they are evidence for review only.",
+      "The current corpus has fewer than 30 samples in some model groups, so model-group release gates remain authoritative."
+    ]
+  }
+}
