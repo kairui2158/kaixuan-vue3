@@ -1443,3 +1443,19 @@
 - 交付：版本升级 3.110.9；正文受保护契约接线进入产品；降AI校准仪器升级独立提交；重跑封装与安装包核验。
 - 验证：见封装开发日志与 `_audit/verification-packaging-3-110-9/packaging-evidence.json`。
 - 边界：live 供应商生成与降AI校准 `provisional` 状态不在本轮解除。
+
+# 2026-10-31 正文受保护契约字数口径与应用侧执法
+
+- 文件：[_audit/DEV_LOG_2026-10-31_body-contract-caliber-enforcement.md](_audit/DEV_LOG_2026-10-31_body-contract-caliber-enforcement.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_body-contract-caliber-enforcement.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_body-contract-caliber-enforcement.md)
+- 交付：候选账本与 word-gap 反馈统一剥离【正文交接】后计算净字数；postProcess 后新增应用侧 80%/200% 契约执法门；补齐 aiService mock import 链与真实 S2 集成回归。
+- 验证：定向 12 files / 303 tests passed；`vue-tsc --noEmit` exit 0；`git diff --check` exit 0。
+- 边界：不改 folder SKILL；不升版、不封装、不提交 git；live 供应商生成未测。
+
+# 2026-10-31 3.110.10 版本封装与提交
+
+- 文件：[_audit/DEV_LOG_2026-10-31_release-3-110-10.md](_audit/DEV_LOG_2026-10-31_release-3-110-10.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_packaging-3-110-10.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_packaging-3-110-10.md)
+- 交付：版本升级 3.110.10；全量回归 230 files / 2462 tests；重新封装并新增安装包核验脚本；清理 3.110.8、3.110.9 旧产物；完成审计登记与 git 提交。
+- 验证：`node scripts/verify-packaging-3-110-10.mjs` PASS；安装包 SHA256 `8fd8bb399b194441cc5b57d0e38bbda0bfff4ca008fd9d3eead83faae0123a4b`；证据 `_audit/verification-packaging-3-110-10/packaging-evidence.json`。
+- 边界：live 供应商生成未测；`神意助手-Setup-3.110.6.exe` 维持 ACL 损坏边界。

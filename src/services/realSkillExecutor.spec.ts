@@ -5,7 +5,8 @@ vi.mock('./realSkillLoader', () => ({
   loadRealSkill: vi.fn()
 }))
 vi.mock('./aiService', () => ({
-  getAiService: vi.fn()
+  getAiService: vi.fn(),
+  filterThinkingTags: vi.fn((text: string) => text)
 }))
 const skillExecuteScriptMock = vi.fn(async (script: string, payload: { hook: string }) => {
   const module = { exports: {} as Record<string, unknown> }
@@ -199,7 +200,7 @@ describe('realSkillExecutor single pass', () => {
       error: null,
       folderPackageCache: false
     })
-    const callAi = vi.fn(async () => ({ text: '输出' }))
+    const callAi = vi.fn(async () => ({ text: '正'.repeat(3000) }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
 
     const result = await executeRealSkill({
@@ -1048,8 +1049,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(result.output).toBe(outputs[2])
     expect(result.apiMeta?.retainedCandidateIndex).toBe(3)
     expect(result.apiMeta?.bodyCandidateLedger).toEqual([
-      { attempt: 1, rawChars: 2000, netWords: 2000, handoffCount: 0, contractDistance: 800, missingHandoff: true, valid: false, errorCount: 1 },
-      { attempt: 2, rawChars: 2600, netWords: 2600, handoffCount: 0, contractDistance: 200, missingHandoff: true, valid: false, errorCount: 1 },
+      { attempt: 1, rawChars: 2000, netWords: 2000, handoffCount: 0, contractDistance: 800, missingHandoff: true, valid: false, errorCount: 2 },
+      { attempt: 2, rawChars: 2600, netWords: 2600, handoffCount: 0, contractDistance: 200, missingHandoff: true, valid: false, errorCount: 2 },
       { attempt: 3, rawChars: 2800, netWords: 2800, handoffCount: 0, contractDistance: 0, missingHandoff: true, valid: false, errorCount: 1 }
     ])
     expect(result.apiMeta?.bodyCandidateRetention).toEqual({
@@ -1067,7 +1068,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
   it('injects the protected body contract after folder preProcess and blocks a missing contract before the API call', async () => {
     const contract = '请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。'
-    const callAi = vi.fn(async () => ({ text: '输出' }))
+    const callAi = vi.fn(async () => ({ text: '正'.repeat(3000) }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
@@ -1096,6 +1097,50 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(userPrompt.indexOf(contract)).toBeGreaterThan(userPrompt.lastIndexOf('【受保护契约】'))
     expect(result.status).toBe('success')
     expect(result.diagnostics.some(item => item.code === 'script-hook-exception')).toBe(false)
+  })
+
+  it('enforces the protected body contract when folder postProcess reports valid but the body is too short', async () => {
+    const outputs = [
+      `${'正'.repeat(2000)}\n\n【正文交接】\nFACT_LOCK：王芳=话痨\n【正文交接结束】`,
+      `${'正'.repeat(3000)}\n\n【正文交接】\nFACT_LOCK：王芳=话痨\n【正文交接结束】`
+    ]
+    let callIndex = 0
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: outputs[Math.min(callIndex++, outputs.length - 1)] ?? outputs.at(-1)
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { return { output, valid: true, issues: [] } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(result.status).toBe('success')
+    expect(result.output).toBe(outputs[1])
+    expect(result.errors).toEqual(['第 1/3 次输出未通过 postProcess 校验：正文过短：2000字，要求不低于2800字'])
+    expect(result.diagnostics.some(item =>
+      item.code === 'post-process-issue:protected-body-contract' &&
+      item.type === 'error' &&
+      item.message.includes('正文过短：2000字')
+    )).toBe(true)
+    const retrySystemPrompt = callAi.mock.calls[1]?.[0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('【结构化重试反馈】')
+    expect(retrySystemPrompt).toContain('当前净字数：2000')
+    expect(retrySystemPrompt).toContain('还差净字数：800')
   })
 
   it('accepts advisory postProcess warnings without downgrading a valid output', async () => {

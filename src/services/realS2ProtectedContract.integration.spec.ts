@@ -13,7 +13,8 @@ vi.mock('./realSkillLoader', () => ({
   loadRealSkill: vi.fn()
 }))
 vi.mock('./aiService', () => ({
-  getAiService: vi.fn()
+  getAiService: vi.fn(),
+  filterThinkingTags: vi.fn((text: string) => text)
 }))
 
 const loadRealSkillMock = vi.mocked(loadRealSkill)

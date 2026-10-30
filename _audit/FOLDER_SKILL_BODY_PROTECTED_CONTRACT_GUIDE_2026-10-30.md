@@ -48,7 +48,7 @@ S2 的执行顺序是：
 - `FACT_LOCK` 继续逐行字段输出，八个字段不允许省略。
 - 模板中的“不要输出解释或元数据”指分析、说明、自造元信息；协议要求的 `【正文交接】` 仍必须输出。
 
-应用不接管上述校验，仍由真实 S2 `postProcess` 执行；应用只在外层测量候选并选优。
+应用不接管交接字段完整性校验，仍由真实 S2 `postProcess` 执行。但应用在 postProcess 之后还有一层正文契约执法：只要受保护 body 契约存在，应用会先按同一口径剥离 `【正文交接】`，再对正文本体执行 80% 下限 / 200% 上限检查。SKILL postProcess 漏报“生成下限”或未报字数错误时，应用仍会产生 `protected-body-contract` blocking issue，触发 word-gap 重试。
 
 ## 应用如何测量每个候选
 
@@ -58,14 +58,14 @@ S2 的执行顺序是：
 |---|---|
 | `attempt` | 第几次尝试，当前上限 3 次 |
 | `rawChars` | 候选输出字符长度 |
-| `netWords` | 应用净字数口径，来自 `countBodyWords` |
+| `netWords` | 应用净字数口径；先剥离 `【正文交接】`，再对正文本体执行 `countBodyWords` |
 | `handoffCount` | `【正文交接】` 出现次数 |
 | `contractDistance` | `max(0, minWords-netWords)+max(0, netWords-maxWords)` |
 | `missingHandoff` | 是否没有交接区块 |
 | `valid` | SKILL `postProcess` 校验是否通过 |
 | `errorCount` | 校验失败项数量 |
 
-这些字段写入运行记录的 `apiCalls[].bodyCandidateLedger`。最终保留结果写入 `apiCalls[].bodyCandidateRetention`。
+这些字段写入运行记录的 `apiCalls[].bodyCandidateLedger`。最终保留结果写入 `apiCalls[].bodyCandidateRetention`。账本长度不影响候选排序：正文本体相同而交接账本一长一短时，两个候选的 `netWords` 与 `contractDistance` 必须相同。
 
 ### 候选保留规则
 
@@ -143,6 +143,7 @@ SKILL 侧若调整模板角色声明，请同步更新 `kaixuan-s3` 的终步角
 - 禁止删除或改写最终 user prompt 末尾的契约句。
 - 禁止把 `【正文交接】` 当成可选元数据省略。
 - 禁止按总字符数与 3500/2800/7000 比较来宣称达标；应用使用净字数。
+- 禁止把交接账本当成凑字数工具；应用测量与执法都会剥离 `【正文交接】` 后再计算。
 - 禁止因 word-gap 反馈未携带全文而重置事实、场景或段落结构。
 
 ## 排查与对账命令
@@ -157,7 +158,7 @@ rg -n "请生成本章节正文|protected-contract-missing|bodyCandidateLedger|b
 npx vitest run src/services/realS2ProtectedContract.integration.spec.ts src/services/realSkillExecutor.spec.ts src/services/schemaRetryFeedback.spec.ts src/stores/runTrace.spec.ts
 ```
 
-当前基线：12 个定向文件 306 条用例通过；`npm run type-check` exit 0。
+当前基线：12 个定向文件 303 条用例通过；`npm run type-check` exit 0。
 
 ## 证据
 
@@ -165,4 +166,7 @@ npx vitest run src/services/realS2ProtectedContract.integration.spec.ts src/serv
 - `src/services/realSkillExecutor.ts:952-970` 契约缺失阻断。
 - `src/services/realSkillExecutor.ts:1378-1412` 候选比选与账本落点。
 - `src/services/schemaRetryFeedback.ts:78-116` word-gap 分支。
+- `src/services/protectedSkillContract.ts:62-105` 剥离账本后的候选测量与应用侧契约执法。
+- `src/services/realSkillExecutor.ts:1177-1193` postProcess 后的应用侧执法门。
+- `src/services/protectedSkillContract.spec.ts:1-88` 口径、执法与账本长度防误导测试。
 - `src/services/realS2ProtectedContract.integration.spec.ts:52-141` 真实 S2 适配测试。

@@ -1,4 +1,4 @@
-import { countBodyWords } from './bodyArtifactContract'
+import { countProtectedBodyWords } from './protectedSkillContract'
 import { splitLegacyMetadataSections } from './legacyMetadataSections'
 import { resolveProseWordContract } from './proseWordContract'
 
@@ -136,7 +136,7 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
 
   if (contract?.kind === 'body' && isWordGapFailure) {
     const { targetWords, minWords, maxWords } = resolveProseWordContract(contract)
-    const currentWords = candidate ? countBodyWords(candidate) : 0
+    const currentWords = candidate ? countProtectedBodyWords(candidate) : 0
     const gap = currentWords < minWords
       ? minWords - currentWords
       : currentWords > maxWords ? currentWords - maxWords : 0

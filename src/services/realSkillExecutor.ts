@@ -18,6 +18,7 @@ import {
   isProtectedSkillContract,
   measureProtectedBodyCandidate,
   protectedContractText,
+  validateProtectedBodyCandidate,
   type ProtectedSkillContract,
   type ProtectedBodyCandidateMeasurement
 } from './protectedSkillContract'
@@ -1176,6 +1177,16 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           candidateOutput = postResult.fields.output
         }
         const postIssues = normalizePostIssues(postResult.fields.issues)
+        const protectedBodyViolation = protectedContract?.kind === 'body'
+          ? validateProtectedBodyCandidate(candidateOutput, protectedContract)
+          : null
+        if (protectedBodyViolation) {
+          postIssues.push({
+            code: 'protected-body-contract',
+            message: protectedBodyViolation.message,
+            severity: 'blocking'
+          })
+        }
         postProcessReport = {
           applied: true,
           changedOutput: candidateOutput !== postInput,
