@@ -163,6 +163,12 @@ export type WorkspaceSkillTemplate = {
   outputSchema?: JsonSchema | string
   retryPolicy?: SkillRetryPolicy | string
   intents?: string[]
+  meta?: Record<string, unknown>
+  contextPolicy?: {
+    chatHistory?: 'none' | 'recent' | 'summary' | 'full'
+    includeOutline?: boolean
+    includeMemory?: boolean
+  }
 }
 
 export type WorkspacePromptParts = {
@@ -805,7 +811,10 @@ function contextPolicy(
   const policy = contextService.getPolicy(
     'generate',
     template.id,
-    adapter.getSkillPolicy(template),
+    {
+      ...adapter.getSkillPolicy(template),
+      ...template.contextPolicy,
+    },
   )
   if (
     typeof templateContext?.outlineContent === 'string' &&

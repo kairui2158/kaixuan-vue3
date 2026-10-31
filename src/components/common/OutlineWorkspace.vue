@@ -357,6 +357,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceArtifactContract, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { hydrateRuntimeFolderTemplates } from '../../services/folderSkillRuntimeHydration'
 import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
@@ -3348,6 +3349,8 @@ function getWorkspaceTemplates(): WorkspaceSkillTemplate[] {
       outputSchema: skill.outputSchema,
       retryPolicy: skill.retryPolicy
       ,intents: skill.intents
+      ,meta: skill.meta
+      ,contextPolicy: skill.contextPolicy
     }))
 }
 
@@ -5125,6 +5128,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   }
   currentOutlineUserRequest = requestText
   const templates = getWorkspaceTemplates()
+  await hydrateRuntimeFolderTemplates(templates)
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })

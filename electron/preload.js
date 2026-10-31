@@ -148,8 +148,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   skillPackageListVersions: function(skillId) {
     return ipcRenderer.invoke('skillPackage:listVersions', skillId)
   },
-  skillPackageExport: function(skillId, targetPath) {
-    return ipcRenderer.invoke('skillPackage:export', skillId, targetPath)
+  skillPackageResolveVersion: function(skillId, version) {
+    return ipcRenderer.invoke('skillPackage:resolveVersion', skillId, version)
+  },
+  skillPackageExport: function(skillId, targetPath, version) {
+    return ipcRenderer.invoke('skillPackage:export', skillId, targetPath, version)
   },
   skillOpenFolder: function(folderPath) { return ipcRenderer.invoke('skill:openFolder', folderPath) },
   skillLoadFolder: function(folderPath) { return ipcRenderer.invoke('skill:loadFolder', folderPath) },

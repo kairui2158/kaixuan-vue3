@@ -210,12 +210,82 @@ describe('config exchange skills', () => {
     expect(result.value?.skills[0].validationRules).toEqual(['required:volumes'])
   })
 
+  it('imports protocol v2 folder records with a compatibility warning and preserves v3 metadata', () => {
+    const v2 = parseSkillJson(JSON.stringify({
+      schema: 'shenyi.skill',
+      version: 2,
+      skills: [{
+        id: 'folder:KAI-S1',
+        name: '骨架师',
+        format: 'folder',
+        folderPath: 'D:/skills/kaixuan-s1',
+        sourceId: 'KAI-S1',
+        version: '1.0.0',
+        template: '模板',
+        category: 'folder',
+      }],
+    }))
+    expect(v2.ok).toBe(true)
+    expect(v2.issues).toContainEqual(expect.objectContaining({
+      code: 'warning',
+      field: '$.version',
+      message: '版本 2 低于当前 3，已兼容导入',
+    }))
+
+    const v3 = serializeSkillJson({
+      skills: [{
+        ...skillFixture,
+        format: 'folder',
+        folderPath: 'D:/skills/kaixuan-s1',
+        sourceId: 'KAI-S1',
+        version: '1.2.0',
+        source: 'external',
+        resourceSummary: { resourceCount: 2, warningCount: 1 },
+        contextPolicy: { chatHistory: 'recent', includeOutline: true },
+        meta: { deai: { generation: 'suffix-only' } },
+        intents: ['generate'],
+      }],
+      pipelineSkills: ['folder:KAI-S1'],
+      deAiSkills: [],
+    })
+    const parsedV3 = parseSkillJson(v3)
+    expect(parsedV3.ok).toBe(true)
+    expect(parsedV3.value?.skills[0]).toMatchObject({
+      format: 'folder',
+      sourceId: 'KAI-S1',
+      version: '1.2.0',
+      source: 'external',
+      resourceSummary: { resourceCount: 2, warningCount: 1 },
+      contextPolicy: { chatHistory: 'recent', includeOutline: true },
+      intents: ['generate'],
+    })
+    expect((parsedV3.value?.skills[0].meta as any).deai).toEqual({ generation: 'suffix-only' })
+  })
+
   it('round-trips skill markdown without losing validation, split, vars or template', () => {
-    const markdown = serializeSkillMd(skillFixture)
+    const markdown = serializeSkillMd({
+      ...skillFixture,
+      format: 'folder',
+      sourceId: 'KAI-S1',
+      folderPath: 'D:/skills/kaixuan-s1',
+      version: '1.2.0',
+      resourceSummary: { resourceCount: 2, warningCount: 1 },
+      contextPolicy: { chatHistory: 'recent', includeOutline: true },
+      meta: { deai: { generation: 'suffix-only' } },
+      intents: ['generate', 'discuss'],
+    })
     const result = parseSkillMd(markdown)
     expect(result.ok).toBe(true)
     const skill = result.value?.skill
     expect(skill?.id).toBe('L3-S1')
+    expect(skill?.format).toBe('folder')
+    expect(skill?.sourceId).toBe('KAI-S1')
+    expect(skill?.folderPath).toBe('D:/skills/kaixuan-s1')
+    expect(skill?.version).toBe('1.2.0')
+    expect(skill?.resourceSummary).toEqual({ resourceCount: 2, warningCount: 1 })
+    expect(skill?.contextPolicy).toEqual({ chatHistory: 'recent', includeOutline: true })
+    expect((skill?.meta as any).deai).toEqual({ generation: 'suffix-only' })
+    expect(skill?.intents).toEqual(['generate', 'discuss'])
     expect(skill?.validationRules).toEqual(['required:volumes'])
     expect(skill?.splitSize).toBe(2000)
     expect(skill?.customVars).toEqual({ tone: '悬疑' })
@@ -293,7 +363,7 @@ name: 半标准技能
   it('reports unknown front-matter fields instead of silently treating them as standard fields', () => {
     const result = parseSkillMd(`---
 schema: shenyi.skill
-version: 1
+protocolVersion: 1
 id: third-party-skill
 name: 第三方技能
 vendorMode: experimental

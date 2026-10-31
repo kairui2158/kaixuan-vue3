@@ -1,13 +1,13 @@
 export const CONFIG_PROTOCOL = {
   agent: { schema: 'shenyi.agent', version: 1 },
-  skill: { schema: 'shenyi.skill', version: 2 },
+  skill: { schema: 'shenyi.skill', version: 3 },
   skillMd: { schema: 'shenyi.skill', version: 1 },
   binding: { schema: 'shenyi.binding', version: 1 },
   bundle: { schema: 'shenyi.bundle', version: 1 },
 } as const
 
 export const AGENT_JSON_VERSION = 1
-export const SKILL_JSON_VERSION = 2
+export const SKILL_JSON_VERSION = 3
 export const SKILL_MD_VERSION = 1
 export const BINDING_JSON_VERSION = 1
 export const BUNDLE_JSON_VERSION = 1
@@ -88,6 +88,17 @@ export interface SkillRecord {
   inputSchema?: unknown
   outputSchema?: unknown
   retryPolicy?: unknown
+  resourceSummary?: {
+    resourceCount: number
+    warningCount: number
+  }
+  contextPolicy?: {
+    chatHistory?: 'none' | 'recent' | 'summary' | 'full'
+    includeOutline?: boolean
+    includeMemory?: boolean
+  }
+  meta?: Record<string, unknown>
+  intents?: string[]
 }
 
 export interface PipelineBindingRecord {

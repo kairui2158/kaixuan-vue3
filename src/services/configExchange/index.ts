@@ -57,6 +57,10 @@ export function toSkillRecord(skill: Skill): SkillRecord {
       inputSchema: skill.inputSchema,
       outputSchema: skill.outputSchema,
       retryPolicy: skill.retryPolicy,
+      resourceSummary: skill.resourceSummary,
+      contextPolicy: skill.contextPolicy,
+      meta: skill.meta,
+      intents: skill.intents,
     },
     'skill',
     [],
@@ -93,6 +97,10 @@ function fromStoreSkill(skill: Skill): SkillRecord {
     inputSchema: skill.inputSchema,
     outputSchema: skill.outputSchema,
     retryPolicy: skill.retryPolicy,
+    resourceSummary: skill.resourceSummary,
+    contextPolicy: skill.contextPolicy,
+    meta: skill.meta,
+    intents: skill.intents,
   }
 }
 
@@ -140,6 +148,10 @@ export function fromSkillRecord(record: SkillRecord): Skill {
     inputSchema: record.inputSchema as never,
     outputSchema: record.outputSchema as never,
     retryPolicy: record.retryPolicy as never,
+    resourceSummary: record.resourceSummary,
+    contextPolicy: record.contextPolicy,
+    meta: record.meta,
+    intents: record.intents,
   }
 }
 

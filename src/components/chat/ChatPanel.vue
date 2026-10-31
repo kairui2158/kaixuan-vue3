@@ -188,6 +188,7 @@ import {
 import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { hydrateRuntimeFolderTemplates } from '../../services/folderSkillRuntimeHydration'
 import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
@@ -1959,6 +1960,8 @@ function getHomeSkillTemplates(): WorkspaceSkillTemplate[] {
       outputSchema: skill.outputSchema,
       retryPolicy: skill.retryPolicy
       ,intents: skill.intents
+      ,meta: skill.meta
+      ,contextPolicy: skill.contextPolicy
     }))
 }
 
@@ -2458,6 +2461,8 @@ async function runHomeCoCreationSkills(
   let homeTurnOutcomeVerified = false
   const runStartedAt = performance.now()
   const skillNames = selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill))
+  const templates = getHomeSkillTemplates()
+  await hydrateRuntimeFolderTemplates(templates)
   // A budget-exhausted resume must keep the spent count and the user's
   // extension on the same budget object; minting a fresh one resets 8/12 to 0/8.
   const apiBudget = routingDecision.resumedApiBudget || createApiCallBudget(8)
@@ -2469,7 +2474,7 @@ async function runHomeCoCreationSkills(
   })
   const result = await runWorkspaceSkills({
     requestText,
-    templates: getHomeSkillTemplates(),
+    templates,
     mode: coCreationMode.value,
     aiService: await getAiService(),
     contextService: conversationContextService,

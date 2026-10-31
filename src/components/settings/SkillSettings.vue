@@ -475,6 +475,10 @@ import {
   type FolderSkillBatchResultItem,
   type FolderSkillBatchStrategy
 } from '../../services/folderSkillBatchImport'
+import {
+  buildFolderSkillRecord,
+  parseFolderSkillId
+} from '../../services/folderSkillRecordFactory'
 
 const skillStore = useSkillStore()
 const modalQueue = useModalQueue()
@@ -686,6 +690,8 @@ async function openHealthReport(id: string) {
     folderPath: skill.folderPath,
     loadError: loaded.error || undefined,
     package: loaded.package,
+    sourceId: skill.sourceId,
+    version: skill.version,
   })
 }
 
@@ -710,7 +716,7 @@ async function openVersionRollback(id: string) {
   versionRollbackCurrent.value = skill.version || ''
   versionRollbackLoading.value = true
   try {
-    const result = await api.skillPackageListVersions(id)
+    const result = await api.skillPackageListVersions(parseFolderSkillId(id))
     if (!result?.ok) {
       showMessage(result?.message || '技能版本读取失败')
       return
@@ -741,24 +747,28 @@ function closeVersionRollback() {
 async function applyVersionRollback(version: string) {
   const id = versionRollbackSkillId.value
   if (!id || !version) return
+  const api = window.electronAPI as any
   const skill = skillStore.getSkill(id)
-  if (!skill || !skill.folderPath) {
+  if (!skill) {
     showMessage('该技能不是本地包技能，无法回退')
     return
   }
-  const targetPath = skill.folderPath.replace(/[\\/][^\\/]+$/, '') + '\\' + version
-  const loaded = await window.electronAPI.skillLoadFolder(targetPath)
+  if (!api?.skillPackageResolveVersion) {
+    showMessage('当前运行环境不支持技能版本定位')
+    return
+  }
+  const resolved = await api.skillPackageResolveVersion(parseFolderSkillId(id), version)
+  if (!resolved?.ok || !resolved.folderPath) {
+    showMessage(resolved?.message || '目标版本定位失败')
+    return
+  }
+  const loaded = await window.electronAPI.skillLoadFolder(resolved.folderPath)
   if (!loaded?.ok || !loaded.skill) {
     showMessage(loaded?.message || '目标版本读取失败')
     return
   }
-  await skillStore.updateSkill(id, {
-    format: 'folder',
-    folderPath: loaded.folderPath,
-    version,
-    name: loaded.skill.name,
-    template: loaded.skill.template || '',
-  })
+  const record = buildFolderSkillRecord({ loaded })
+  await skillStore.updateSkill(id, record)
   await refreshFolderStatuses()
   showMessage(`已回退到版本 ${version}`)
   closeVersionRollback()
@@ -777,7 +787,7 @@ async function exportSkillPackage(id: string) {
   }
   const targetPath = await api.dialogSaveFileAsync(`${skill.id || 'skill'}.zip`)
   if (!targetPath) return
-  const result = await api.skillPackageExport(id, targetPath)
+  const result = await api.skillPackageExport(parseFolderSkillId(id), targetPath, skill.version || undefined)
   showMessage(result?.ok ? `技能包已导出：${targetPath}` : (result?.message || '技能包导出失败'))
 }
 
@@ -853,37 +863,7 @@ async function loadFolderSkill(folderPath: string, overwrite = false) {
   }
 
   const skill = loaded.skill
-  const now = new Date().toISOString()
-  const resourceSummary = {
-    resourceCount: Array.isArray(skill.resources) ? skill.resources.length : 0,
-    warningCount: Array.isArray(skill.warnings) ? skill.warnings.length : 0
-  }
-  const record = {
-    id: skill.id,
-    sourceId: skill.id,
-    name: skill.name,
-    version: typeof skill.manifest?.version === 'string' ? skill.manifest.version : '',
-    format: 'folder' as const,
-    folderPath: loaded.folderPath,
-    template: skill.template,
-    category: 'folder',
-    description: skill.description || '',
-    resourceSummary,
-    executionMode: 'chain' as const,
-    outputFormat: 'text' as const,
-    validationRules: [],
-    splitSize: 1000,
-    injectMode: 'system_prefix',
-    bindTarget: 'project',
-    linkedSkillIds: [],
-    createdAt: now,
-    updatedAt: now,
-    customVars: {},
-    inputSchema: '' as string,
-    outputSchema: '' as string,
-    retryPolicy: '' as string
-    ,intents: (skill.meta && Array.isArray(skill.meta.intents)) ? skill.meta.intents : undefined
-  }
+  const record = buildFolderSkillRecord({ loaded, folderPath })
 
   const result = await skillStore.importSkills([record], { strategy: overwrite ? 'overwrite' : 'skip' })
   const normalizedFolderId = skillStore.normalizeSkillId(record.id, 'folder')
@@ -1010,37 +990,7 @@ async function confirmFolderBatchImport() {
         continue
       }
       const skill = loaded.skill
-      const now = new Date().toISOString()
-      const resourceSummary = {
-        resourceCount: Array.isArray(skill.resources) ? skill.resources.length : 0,
-        warningCount: Array.isArray(skill.warnings) ? skill.warnings.length : 0
-      }
-      const record = {
-        id: skill.id,
-        sourceId: skill.id,
-        name: skill.name,
-        version: typeof skill.manifest?.version === 'string' ? skill.manifest.version : '',
-        format: 'folder' as const,
-        folderPath: loaded.folderPath,
-        template: skill.template,
-        category: 'folder',
-        description: skill.description || '',
-        resourceSummary,
-        executionMode: 'chain' as const,
-        outputFormat: 'text' as const,
-        validationRules: [],
-        splitSize: 1000,
-        injectMode: 'system_prefix',
-        bindTarget: 'project',
-        linkedSkillIds: [],
-        createdAt: now,
-        updatedAt: now,
-        customVars: {},
-        inputSchema: '' as string,
-        outputSchema: '' as string,
-        retryPolicy: '' as string
-        ,intents: (skill.meta && Array.isArray(skill.meta.intents)) ? skill.meta.intents : undefined
-      }
+      const record = buildFolderSkillRecord({ loaded, folderPath: item.folderPath })
       const result = await skillStore.importSkills([record], { strategy: item.action === 'overwrite' ? 'overwrite' : 'skip' })
       folderStatusMap.value[skillStore.normalizeSkillId(record.id, 'folder')] = {
         valid: true,
@@ -1080,7 +1030,8 @@ async function reselectFolderSkill(id: string) {
       showMessage(loaded?.message || '重新选择的路径无效')
       return
     }
-    await skillStore.updateSkill(id, { format: 'folder', folderPath: loaded.folderPath, name: loaded.skill.name, template: loaded.skill.template, intents: (loaded.skill.meta && Array.isArray(loaded.skill.meta.intents)) ? loaded.skill.meta.intents : undefined })
+    const record = buildFolderSkillRecord({ loaded, folderPath })
+    await skillStore.updateSkill(id, record)
     folderStatusMap.value[id] = {
       valid: true,
       message: '路径有效',

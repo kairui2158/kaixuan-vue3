@@ -776,7 +776,7 @@ import { formatPreflightFailure, preflightFolderSkills } from "../../services/pi
 import { createApiCallBudget } from "../../services/apiCallBudget"
 import { formatFolderSkillBoundary } from "../../services/folderSkillBoundary"
 import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
-import { loadRealSkill } from "../../services/realSkillLoader"
+import { loadRealSkill, loadRuntimeFolderSkillMetadata } from "../../services/realSkillLoader"
 import { mergeChapterCommit } from "../../services/chapterArtifactCommit"
 import { useConfigExchange } from "../../composables/useConfigExchange"
 import type { PipelineBindingRecord } from "../../services/configExchange"
@@ -2445,6 +2445,8 @@ type PipelineSkillTemplate = {
   inputSchema?: any
   outputSchema?: any
   retryPolicy?: any
+  intents?: string[]
+  contextPolicy?: Skill['contextPolicy']
 }
 
 type HydratedFolderMeta = { meta?: unknown }
@@ -2466,7 +2468,9 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
       validationRules: s.validationRules || [],
       inputSchema: s.inputSchema,
       outputSchema: s.outputSchema,
-      retryPolicy: s.retryPolicy
+      retryPolicy: s.retryPolicy,
+      intents: s.intents,
+      contextPolicy: s.contextPolicy
     })
   }
   return templates
@@ -2494,14 +2498,22 @@ async function hydrateFolderTemplates(
   }
   for (const t of templates) {
     if (t.skill?.format !== 'folder' || !t.skill.folderPath) continue
-    const loaded = await loadRealSkill(t.skill.folderPath)
-    if (loaded.package?.template) t.template = loaded.package.template
-    const loadedMeta = (loaded.package as { meta?: unknown } | null)?.meta
+    const loaded = await loadRuntimeFolderSkillMetadata(t.skill.folderPath)
+    if (loaded.template) t.template = loaded.template
+    const loadedMeta = loaded.meta
     if (loadedMeta && typeof loadedMeta === 'object') {
       ;(t as HydratedFolderMeta).meta = loadedMeta
       // The body-contract selector reads t.skill.meta; keep the hydrated folder
       // declaration on the same object so catalog and package stay single-source.
       ;(t.skill as { meta?: unknown }).meta = loadedMeta
+    }
+    if (loaded.intents) {
+      t.intents = loaded.intents
+      ;(t.skill as { intents?: string[] }).intents = loaded.intents
+    }
+    if (loaded.contextPolicy) {
+      t.contextPolicy = loaded.contextPolicy as Skill['contextPolicy']
+      ;(t.skill as { contextPolicy?: Skill['contextPolicy'] }).contextPolicy = loaded.contextPolicy as Skill['contextPolicy']
     }
   }
 }

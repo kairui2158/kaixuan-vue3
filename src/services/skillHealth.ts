@@ -59,7 +59,17 @@ export function analyzeSkillHealth(input: {
     script?: string
     samples?: string
     schema?: unknown
+    evals?: unknown
+    fingerprint?: unknown[]
+    warnings?: unknown[]
+    manifest?: {
+      id?: unknown
+      name?: unknown
+      version?: unknown
+    } | null
   } | null
+  sourceId?: string
+  version?: string
 }): SkillHealthReport {
   const issues: SkillHealthIssue[] = []
   const pkg = input.package
@@ -81,6 +91,59 @@ export function analyzeSkillHealth(input: {
     }
     if (pkg && !String(pkg.samples || '').trim()) {
       issues.push({ level: 'info', field: 'samples.txt', message: '未提供示例文本' })
+    }
+    if (!Array.isArray(pkg?.fingerprint) || pkg.fingerprint.length === 0) {
+      issues.push({ level: 'warning', field: 'fingerprint', message: '技能包缺少文件指纹，版本变更追踪不完整' })
+    }
+    for (const warning of Array.isArray(pkg?.warnings) ? pkg.warnings : []) {
+      if (!warning || typeof warning !== 'object') continue
+      const item = warning as { code?: unknown; message?: unknown }
+      const code = String(item.code || 'skill-warning')
+      issues.push({ level: 'warning', field: `loader:${code}`, message: String(item.message || code) })
+    }
+    if (pkg?.manifest) {
+      const manifestId = String(pkg.manifest.id ?? '').trim()
+      if (manifestId && input.sourceId && manifestId !== input.sourceId) {
+        issues.push({
+          level: 'error',
+          field: 'skill.json.id',
+          message: `manifest id (${manifestId}) 与技能记录 id (${input.sourceId}) 不一致`,
+        })
+      }
+      const manifestName = String(pkg.manifest.name ?? '').trim()
+      if (!manifestName) {
+        issues.push({ level: 'warning', field: 'skill.json.name', message: 'skill.json 未声明技能名称' })
+      }
+      const manifestVersion = String(pkg.manifest.version ?? '').trim()
+      if (manifestVersion && input.version && manifestVersion !== input.version) {
+        issues.push({
+          level: 'warning',
+          field: 'skill.json.version',
+          message: `manifest 版本 (${manifestVersion}) 与技能记录版本 (${input.version}) 不一致`,
+        })
+      }
+    }
+    const intents = Array.isArray(pkg?.meta?.intents)
+      ? (pkg.meta.intents as unknown[]).filter((item): item is string => typeof item === 'string')
+      : []
+    if (pkg && intents.length === 0) {
+      issues.push({ level: 'warning', field: 'meta.intents', message: '未声明可解析的 intents，技能用途不完整' })
+    }
+    const rawPolicy = pkg?.meta?.contextPolicy
+    if (pkg && (!rawPolicy || typeof rawPolicy !== 'object' || Array.isArray(rawPolicy))) {
+      issues.push({ level: 'warning', field: 'meta.contextPolicy', message: 'contextPolicy 缺失或不是对象，运行时将退回默认上下文' })
+    } else if (rawPolicy && typeof rawPolicy === 'object' && !Array.isArray(rawPolicy)) {
+      const policy = rawPolicy as Record<string, unknown>
+      const chatHistory = String(policy.chatHistory || '')
+      if (chatHistory && !['none', 'latest', 'all'].includes(chatHistory)) {
+        issues.push({ level: 'error', field: 'meta.contextPolicy.chatHistory', message: `chatHistory 非法：${chatHistory}` })
+      }
+      if (policy.includeOutline !== undefined && typeof policy.includeOutline !== 'boolean') {
+        issues.push({ level: 'error', field: 'meta.contextPolicy.includeOutline', message: 'includeOutline 必须是布尔值' })
+      }
+    }
+    if (pkg?.evals !== undefined && pkg.evals !== null && (typeof pkg.evals !== 'object' || Array.isArray(pkg.evals))) {
+      issues.push({ level: 'warning', field: 'evals.json', message: 'evals.json 不是对象，已被加载器忽略' })
     }
     const sampleIssues = inspectSkillSamples(String(pkg?.samples || ''))
     issues.push(...sampleIssues)

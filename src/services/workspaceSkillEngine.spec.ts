@@ -1040,6 +1040,74 @@ describe('workspace skill engine', () => {
     expect(calls[0].messages[1]?.content).not.toContain(previousOutput)
   })
 
+  it('prefers folder template context policy over the store snapshot', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      getSkillPolicy: () => ({
+        chatHistory: 'full' as const,
+        recentTurns: 99,
+        includeOutline: true,
+        includeSettings: true,
+        includeMemory: true,
+      }),
+    })
+    loadRealSkillMock.mockResolvedValue({
+      package: {
+        id: 'runtime-policy',
+        name: 'runtime-policy',
+        description: '',
+        template: '',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/runtime-policy',
+      } as any,
+      error: null,
+      folderPackageCache: false,
+    })
+    executeRealSkillMock.mockResolvedValue({
+      status: 'success',
+      output: 'folder 结果',
+      errors: [],
+      diagnostics: [],
+      folderPackageCache: false,
+      apiMeta: { requestMessages: [] },
+    } as any)
+    const { aiService } = makeAiService(['第一步输出'])
+    const folderTemplate: WorkspaceSkillTemplate = {
+      ...makeTemplate('runtime-policy', 'runtime-policy'),
+      contextPolicy: {
+        chatHistory: 'none',
+        includeOutline: false,
+        includeMemory: false,
+      },
+      skill: {
+        format: 'folder',
+        folderPath: 'D:/skills/runtime-policy',
+      } as any,
+    }
+    await runWorkspaceSkills({
+      requestText: '执行运行时策略',
+      templates: [folderTemplate],
+      mode: 'chain',
+      routingOverride: { forcedIntent: 'generate' },
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(context.getPolicy).toHaveBeenCalledWith(
+      'generate',
+      'runtime-policy',
+      expect.objectContaining({
+        chatHistory: 'none',
+        recentTurns: 99,
+        includeOutline: false,
+        includeMemory: false,
+      }),
+    )
+  })
+
   it('records real SKILL protocol-field warnings without granting execution authority', async () => {
     const context = makeContextService()
     const buildTools = vi.fn<

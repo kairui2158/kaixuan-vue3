@@ -233,7 +233,12 @@ export function parseSkillMd(
     : { front: extracted.front, body: extracted.body, fields: [], diagnostics: [] }
   const { front, body } = inferred
   if (front.schema !== undefined) {
-    if (!checkSchemaVersion('$', front, CONFIG_PROTOCOL.skill.schema, SKILL_MD_VERSION, issues)) {
+    // The record-level `version` belongs to the folder package and is kept in
+    // front matter; schema `version` takes priority but both must be valid.
+    const clean = front.schema === CONFIG_PROTOCOL.skill.schema && front.protocolVersion !== undefined
+      ? { ...front, version: front.protocolVersion }
+      : front
+    if (!checkSchemaVersion('$', clean, CONFIG_PROTOCOL.skill.schema, SKILL_MD_VERSION, issues)) {
       return { ok: false, issues, source: markdownSource(kind, source), fieldTrace: inferred.fields, diagnostics: inferred.diagnostics }
     }
   } else {
@@ -242,7 +247,7 @@ export function parseSkillMd(
 
   const itemRaw: Record<string, unknown> = { ...front }
   delete itemRaw.schema
-  delete itemRaw.version
+  if (itemRaw.protocolVersion !== undefined) delete itemRaw.protocolVersion
   itemRaw.template = front.template ?? body.replace(/^\r?\n+/, '')
 
   const unknownFields: string[] = []
@@ -265,12 +270,13 @@ export function parseSkillMd(
 export function serializeSkillMd(skill: SkillRecord): string {
   const entries: Array<[string, unknown]> = [
     ['schema', CONFIG_PROTOCOL.skill.schema],
-    ['version', SKILL_MD_VERSION],
+    ['protocolVersion', SKILL_MD_VERSION],
     ['id', skill.id],
     ['name', skill.name],
     ['format', skill.format || 'text'],
     ['sourceId', skill.sourceId || (skill.format === 'folder' ? skill.id.replace(/^folder:/, '') : '')],
     ['folderPath', skill.folderPath || ''],
+    ['version', skill.version || ''],
     ['category', skill.category || 'general'],
     ['description', skill.description || ''],
     ['executionMode', skill.executionMode || 'chain'],
@@ -286,6 +292,10 @@ export function serializeSkillMd(skill: SkillRecord): string {
     ['inputSchema', skill.inputSchema || ''],
     ['outputSchema', skill.outputSchema || ''],
     ['retryPolicy', skill.retryPolicy || ''],
+    ['resourceSummary', skill.resourceSummary || { resourceCount: 0, warningCount: 0 }],
+    ['contextPolicy', skill.contextPolicy || {}],
+    ['meta', skill.meta || {}],
+    ['intents', skill.intents || []],
     ['createdAt', skill.createdAt || ''],
     ['updatedAt', skill.updatedAt || ''],
   ]

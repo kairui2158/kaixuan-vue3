@@ -1499,3 +1499,11 @@
 - 交付：版本升级 3.110.11；全量回归 231 files / 2478 tests；封装并真实启动核验安装包；清理 3.110.10 旧产物；release 与降AI校准资产分两次提交。
 - 验证：`node scripts/verify-packaging-3-110-11.mjs` PASS；安装包 SHA256 `e0c7084c841a87d7a60238e6c6106db8a15ef0d23d9b1a4dd1f9ce5448f8887d`；证据 `_audit/verification-packaging-3-110-11/packaging-evidence.json`。
 - 边界：live 供应商生成未测；降AI release gate 仍 NOT_READY；`神意助手-Setup-3.110.6.exe` 维持 ACL 损坏边界。
+
+# 2026-10-31 技能/智能导入链路八步收口
+
+- 文件：[_audit/DEV_LOG_2026-10-31_skill-import-chain-overhaul.md](_audit/DEV_LOG_2026-10-31_skill-import-chain-overhaul.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_skill-import-chain-overhaul.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_skill-import-chain-overhaul.md)
+- 交付：统一 folder 记录构造器；Electron 技能库版本定位闭环；配置协议 v3；运行时三面共享磁盘元数据水合器；ZIP 二进制保真；删除技能 store 旧语义；健康检查补元数据维度；测试矩阵补齐。
+- 验证：定向 6 files / 91 tests passed；协议冲突补修后 `configExchange.spec.ts` 25 tests passed；全量与封装结果见 DEV_LOG 第 5 节。
+- 边界：真实 Electron UI 导入路径未测，登记为 `untested`；live 供应商不适用。

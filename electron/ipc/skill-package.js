@@ -9,6 +9,9 @@ const { validateSkillDeaiMeta } = require('../../dist-renderer/skillDeaiContract
 const MAX_ENTRIES = 500
 const MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 const MANIFEST_NAME = 'skill-package.json'
+const SKILL_PACKAGE_SCHEMA = 'shenyi.skill-package/1'
+
+let injectedSkillLibraryRoot = ''
 
 function ok(value) {
   return { ok: true, ...value }
@@ -180,6 +183,17 @@ function listZipEntries(zipPath) {
 }
 
 function readZipTextEntries(zipPath, wanted) {
+  return readZipEntries(zipPath, wanted).then(function(read) {
+    if (!read.ok) return read
+    const files = {}
+    for (const name of Object.keys(read.files)) {
+      files[name] = read.files[name].toString('utf8')
+    }
+    return ok({ files })
+  })
+}
+
+function readZipEntries(zipPath, wanted) {
   return new Promise(function(resolve) {
     const wantedSet = new Set(wanted)
     const results = {}
@@ -229,7 +243,7 @@ function readZipTextEntries(zipPath, wanted) {
               chunks.push(chunk)
             })
             readStream.on('end', function() {
-              results[relativePath] = Buffer.concat(chunks).toString('utf8')
+              results[relativePath] = Buffer.concat(chunks)
               wantedSet.delete(relativePath)
               if (wantedSet.size === 0) zipFile.close()
               else zipFile.readEntry()
@@ -254,6 +268,66 @@ function readZipTextEntries(zipPath, wanted) {
       resolve(fail('zip-reader-missing', error.message || '压缩包读取器不可用'))
     }
   })
+}
+
+function isVersionDirectory(name) {
+  return /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(name)
+}
+
+function safeSkillLibraryId(skillId) {
+  return String(skillId || '').replace(/[^A-Za-z0-9_-]/g, '')
+}
+
+function setSkillLibraryRoot(value) {
+  injectedSkillLibraryRoot = typeof value === 'string' && value ? path.resolve(value) : ''
+}
+
+function skillLibraryBase() {
+  return injectedSkillLibraryRoot || path.join(app.getPath('userData'), 'skills')
+}
+
+function skillLibraryRoot(skillId) {
+  const safeId = safeSkillLibraryId(skillId)
+  if (!safeId) return null
+  return path.join(skillLibraryBase(), safeId)
+}
+
+function compareVersionDirectories(a, b) {
+  const pa = String(a).split('-')[0].split('.').map(Number)
+  const pb = String(b).split('-')[0].split('.').map(Number)
+  for (let i = 0; i < 3; i++) {
+    if (pa[i] !== pb[i]) return pb[i] - pa[i]
+  }
+  if (a === b) return 0
+  // Prerelease versions sort below their release counterpart.
+  if (String(a).includes('-') && !String(b).includes('-')) return 1
+  if (!String(a).includes('-') && String(b).includes('-')) return -1
+  return String(b).localeCompare(String(a))
+}
+
+function listVersionDirectories(skillId) {
+  const skillRoot = skillLibraryRoot(skillId)
+  if (!skillRoot) return fail('invalid-skill-id', '技能 id 非法')
+  if (!fs.existsSync(skillRoot)) return []
+  return fs.readdirSync(skillRoot).filter(function(name) {
+    return isVersionDirectory(name) && fs.statSync(path.join(skillRoot, name)).isDirectory()
+  }).sort(compareVersionDirectories)
+}
+
+function resolveSkillLibraryVersion(skillId, version) {
+  const safeId = safeSkillLibraryId(skillId)
+  if (!safeId) return fail('invalid-skill-id', '技能 id 非法')
+  const requested = String(version || '').replace(/[^A-Za-z0-9.-]/g, '')
+  const versions = listVersionDirectories(safeId)
+  if (versions instanceof Array && versions.length === 0) {
+    return fail('skill-not-installed', '技能库中没有可用版本')
+  }
+  if (versions && !Array.isArray(versions) && versions.ok === false) return versions
+  const selected = requested && versions.includes(requested)
+    ? requested
+    : (Array.isArray(versions) ? versions[0] : '')
+  if (!selected) return fail('version-not-found', `技能库中没有版本 ${version || 'latest'}`)
+  return ok({ skillId: safeId, version: selected, folderPath: path.join(String(skillLibraryRoot(safeId)), selected) })
 }
 
 function readPackagePreview(zipPath) {
@@ -315,7 +389,7 @@ function readPackagePreview(zipPath) {
 }
 
 function copyZipToSkillLibrary(zipPath, skillId, version) {
-  const safeId = String(skillId || '').replace(/[^A-Za-z0-9_-]/g, '')
+  const safeId = safeSkillLibraryId(skillId)
   const safeVersion = String(version || '').replace(/[^A-Za-z0-9.-]/g, '')
   if (!safeId || !safeVersion) return Promise.resolve(fail('invalid-install-target', '技能 id 或版本非法'))
 
@@ -331,9 +405,9 @@ function copyZipToSkillLibrary(zipPath, skillId, version) {
     const wanted = rootEntries.map(function(entry) {
       return entry.relativePath
     })
-    return readZipTextEntries(zipPath, wanted).then(function(read) {
+    return readZipEntries(zipPath, wanted).then(function(read) {
       if (!read.ok) return read
-      const libraryRoot = path.join(app.getPath('userData'), 'skills')
+      const libraryRoot = skillLibraryBase()
       const installRoot = path.join(libraryRoot, safeId, safeVersion)
       if (!installRoot.startsWith(path.join(libraryRoot, safeId))) {
         return fail('invalid-install-target', '安装路径非法')
@@ -347,7 +421,7 @@ function copyZipToSkillLibrary(zipPath, skillId, version) {
         const target = path.join(installRoot, relative)
         if (!target.startsWith(installRoot)) continue
         fs.mkdirSync(path.dirname(target), { recursive: true })
-        fs.writeFileSync(target, content, 'utf8')
+        fs.writeFileSync(target, content)
       }
       const loaded = loadSkillFolder(installRoot)
       if (!loaded.ok) return loaded
@@ -361,29 +435,26 @@ function openSkillPackage() {
 }
 
 function listInstalledVersions(skillId) {
-  const safeId = String(skillId || '').replace(/[^A-Za-z0-9_-]/g, '')
-  if (!safeId) return fail('invalid-skill-id', '技能 id 非法')
-  const skillRoot = path.join(app.getPath('userData'), 'skills', safeId)
-  if (!fs.existsSync(skillRoot)) return ok({ versions: [] })
-  const versions = fs.readdirSync(skillRoot).filter(function(name) {
-    return /^\d+\.\d+\.\d+$/.test(name) && fs.statSync(path.join(skillRoot, name)).isDirectory()
-  })
+  const versions = listVersionDirectories(skillId)
+  if (versions && !Array.isArray(versions) && versions.ok === false) return versions
+  if (!Array.isArray(versions)) return ok({ versions: [] })
   return ok({ versions })
 }
 
 function createZipBuffer(files) {
-  const zlib = require('zlib')
   const chunks = []
   const entries = Object.keys(files)
   for (const name of entries) {
-    const content = Buffer.from(String(files[name] || ''), 'utf8')
+    const content = Buffer.isBuffer(files[name]) ? files[name] : Buffer.from(String(files[name] ?? ''), 'utf8')
     const nameBuffer = Buffer.from(name, 'utf8')
     const local = Buffer.alloc(30)
     local.writeUInt32LE(0x04034b50, 0)
     local.writeUInt16LE(20, 4)
     // General-purpose bit 11 marks UTF-8 file names, required for Chinese entry names.
     local.writeUInt16LE(0x0800, 6)
-    local.writeUInt16LE(8, 8)
+    // Stored entries (method 0) keep resources byte-identical; the former
+    // method-8 marker forced readers to deflate already-uncompressed bytes.
+    local.writeUInt16LE(0, 8)
     local.writeUInt16LE(0, 10)
     local.writeUInt16LE(0, 12)
     local.writeUInt32LE(0, 14)
@@ -397,13 +468,13 @@ function createZipBuffer(files) {
   const centralChunks = []
   let offset = 0
   entries.forEach(function(name, index) {
-    const content = Buffer.from(String(files[name] || ''), 'utf8')
+    const content = Buffer.isBuffer(files[name]) ? files[name] : Buffer.from(String(files[name] ?? ''), 'utf8')
     const nameBuffer = Buffer.from(name, 'utf8')
     const central = Buffer.alloc(46)
     central.writeUInt32LE(0x02014b50, 0)
     central.writeUInt16LE(20, 4)
     central.writeUInt16LE(20, 6)
-    central.writeUInt16LE(8, 10)
+    central.writeUInt16LE(0, 10)
     central.writeUInt16LE(0, 12)
     central.writeUInt16LE(0, 14)
     // General-purpose bit 11 marks UTF-8 file names, required for Chinese entry names.
@@ -427,44 +498,54 @@ function createZipBuffer(files) {
   return Buffer.concat(chunks)
 }
 
-function exportSkillPackage(skillId, targetPath) {
-  const loaded = loadSkillFolderFromLibrary(skillId)
-  if (!loaded.ok) return loaded
-  const skill = loaded.skill
-  const files = {
-    'SKILL.md': `---\nid: ${skill.id}\nname: ${skill.name}\ndescription: ${skill.description || ''}\n---\n`,
-    'template.md': skill.template || ''
+function collectSkillDirectoryFiles(folderPath) {
+  const files = {}
+  const queue = [{ directory: folderPath, relativePath: '' }]
+  while (queue.length > 0) {
+    const current = queue.shift()
+    for (const entry of fs.readdirSync(current.directory)) {
+      if (entry.startsWith('.')) continue
+      const fullPath = path.join(current.directory, entry)
+      const stat = fs.statSync(fullPath)
+      if (stat.isDirectory()) {
+        const relativePath = current.relativePath ? `${current.relativePath}/${entry}` : entry
+        if (safeRelativePath(relativePath)) {
+          queue.push({ directory: fullPath, relativePath })
+        }
+        continue
+      }
+      if (!stat.isFile()) continue
+      const relativePath = current.relativePath ? `${current.relativePath}/${entry}` : entry
+      if (!safeRelativePath(relativePath)) continue
+      files[relativePath] = fs.readFileSync(fullPath)
+    }
   }
-  if (skill.script) files['script.js'] = skill.script
-  if (skill.samples) files['samples.txt'] = skill.samples
-  if (skill.schema) files['schema.json'] = JSON.stringify(skill.schema, null, 2)
-  if (skill.meta && Object.keys(skill.meta).length) files['meta.json'] = JSON.stringify(skill.meta, null, 2)
+  return files
+}
+
+function exportSkillPackage(skillId, targetPath, version) {
+  const resolved = resolveSkillLibraryVersion(skillId, version)
+  if (!resolved.ok) return resolved
   try {
+    const files = collectSkillDirectoryFiles(resolved.folderPath)
+    const manifest = {
+      schema: SKILL_PACKAGE_SCHEMA,
+      id: resolved.skillId,
+      version: resolved.version,
+      exportedAt: new Date().toISOString()
+    }
+    files['skill-package.json'] = Buffer.from(JSON.stringify(manifest, null, 2), 'utf8')
     fs.writeFileSync(targetPath, createZipBuffer(files))
-    return ok({ path: targetPath })
+    return ok({ path: targetPath, version: resolved.version, fileCount: Object.keys(files).length })
   } catch (error) {
     return fail('export-failed', error.message || '技能包导出失败')
   }
 }
 
-function loadSkillFolderFromLibrary(skillId) {
-  const safeId = String(skillId || '').replace(/[^A-Za-z0-9_-]/g, '')
-  if (!safeId) return fail('invalid-skill-id', '技能 id 非法')
-  const skillRoot = path.join(app.getPath('userData'), 'skills', safeId)
-  if (!fs.existsSync(skillRoot)) return fail('skill-not-installed', '技能未安装到技能库')
-  const versions = fs.readdirSync(skillRoot).filter(function(name) {
-    return /^\d+\.\d+\.\d+$/.test(name) && fs.statSync(path.join(skillRoot, name)).isDirectory()
-  })
-  if (versions.length === 0) return fail('skill-not-installed', '技能库中没有可导出版本')
-  versions.sort(function(a, b) {
-    const pa = a.split('.').map(Number)
-    const pb = b.split('.').map(Number)
-    for (let i = 0; i < 3; i++) {
-      if (pa[i] !== pb[i]) return pb[i] - pa[i]
-    }
-    return 0
-  })
-  return loadSkillFolder(path.join(skillRoot, versions[0]))
+function loadSkillFolderFromLibrary(skillId, version) {
+  const resolved = resolveSkillLibraryVersion(skillId, version)
+  if (!resolved.ok) return resolved
+  return loadSkillFolder(resolved.folderPath)
 }
 
 function registerSkillPackageHandlers(dialog) {
@@ -488,11 +569,15 @@ function registerSkillPackageHandlers(dialog) {
     return listInstalledVersions(skillId)
   })
 
-  ipcMain.handle('skillPackage:export', function(event, skillId, targetPath) {
+  ipcMain.handle('skillPackage:resolveVersion', function(event, skillId, version) {
+    return resolveSkillLibraryVersion(skillId, version)
+  })
+
+  ipcMain.handle('skillPackage:export', function(event, skillId, targetPath, version) {
     if (typeof targetPath !== 'string' || !targetPath.toLowerCase().endsWith('.zip')) {
       return fail('invalid-export-path', '请选择 .zip 导出路径')
     }
-    return exportSkillPackage(skillId, targetPath)
+    return exportSkillPackage(skillId, targetPath, version)
   })
 
   ipcMain.handle('skillPackage:openDialog', async function() {
@@ -508,6 +593,7 @@ function registerSkillPackageHandlers(dialog) {
 
 module.exports = {
   registerSkillPackageHandlers,
+  setSkillLibraryRoot,
   createZipBuffer,
   listZipEntries,
   findSkillRoot,
@@ -515,5 +601,6 @@ module.exports = {
   readPackagePreview,
   copyZipToSkillLibrary,
   listInstalledVersions,
-  exportSkillPackage
+  exportSkillPackage,
+  resolveSkillLibraryVersion
 }

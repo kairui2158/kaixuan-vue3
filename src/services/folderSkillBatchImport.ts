@@ -1,4 +1,5 @@
 import type { Skill } from '../stores/skill'
+import { buildFolderSkillId, buildFolderSkillRecord, parseFolderSkillId } from './folderSkillRecordFactory'
 
 export type FolderSkillBatchStrategy = 'skip' | 'overwrite'
 
@@ -92,8 +93,8 @@ export async function previewFolderSkill(
     return { ok: false, message: loaded?.message || '缺少 SKILL.md', item: null }
   }
 
-  const sourceId = String(loaded.skill.id)
-  const id = `folder:${sourceId}`
+  const sourceId = parseFolderSkillId(String(loaded.skill.id))
+  const id = buildFolderSkillId(sourceId)
   const exists = existingIds.includes(id)
   const message = buildImportMessage(loaded.skill)
   const warnings = normalizeLoadWarnings(loaded.skill.warnings)
@@ -159,36 +160,7 @@ function normalizeFolderEntry(entry: unknown): { folderName: string; folderPath:
 }
 
 function toSkillRecord(loaded: any, folderPath: string): Skill {
-  const now = new Date().toISOString()
-  const skill = loaded?.skill || {}
-  return {
-    id: String(skill.id || ''),
-      sourceId: String(skill.id || ''),
-      name: String(skill.name || skill.id || ''),
-      version: typeof skill.manifest?.version === 'string' ? skill.manifest.version : '',
-      format: 'folder',
-    folderPath: String(loaded.folderPath || folderPath),
-    template: String(skill.template || ''),
-    category: 'folder',
-    description: String(skill.description || ''),
-    resourceSummary: {
-      resourceCount: Array.isArray(skill.resources) ? skill.resources.length : 0,
-      warningCount: normalizeLoadWarnings(skill.warnings).length
-    },
-    executionMode: 'chain',
-    outputFormat: 'text',
-    validationRules: [],
-    splitSize: 1000,
-    injectMode: 'system_prefix',
-    bindTarget: 'project',
-    linkedSkillIds: [],
-    createdAt: now,
-    updatedAt: now,
-    customVars: {},
-    inputSchema: '',
-    outputSchema: '',
-    retryPolicy: ''
-  }
+  return buildFolderSkillRecord({ loaded, folderPath })
 }
 
 export async function previewFolderSkillBatch(
@@ -245,8 +217,7 @@ export async function previewFolderSkillBatch(
       })
       continue
     }
-    const sourceId = String(loaded.skill.id)
-    const id = `folder:${sourceId}`
+    const id = buildFolderSkillId(String(loaded.skill.id))
     const exists = existingFolderIds.has(id) || seenIds.has(id)
     const message = buildImportMessage(loaded.skill)
     const warnings = normalizeLoadWarnings(loaded.skill.warnings)

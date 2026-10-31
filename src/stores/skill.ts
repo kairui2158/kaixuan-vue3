@@ -69,6 +69,30 @@ export const useSkillStore = defineStore('skill', () => {
     return format === 'folder' ? `folder:${id.replace(/^folder:/, '')}` : id
   }
 
+  const FOLDER_RECORD_FIELDS = new Set([
+    'id', 'name', 'format', 'sourceId', 'folderPath', 'version', 'source', 'packageHash',
+    'template', 'category', 'description', 'resourceSummary', 'executionMode', 'outputFormat',
+    'validationRules', 'splitSize', 'injectMode', 'bindTarget', 'linkedSkillIds', 'createdAt',
+    'updatedAt', 'injectFrequency', 'injectDepth', 'contextPolicy', 'customVars', 'inputSchema',
+    'outputSchema', 'retryPolicy', 'meta', 'intents'
+  ])
+
+  function replaceFolderRecord(current: Skill, incoming: Skill, now: string): Skill {
+    const next: Skill = {
+      ...incoming,
+      id: normalizeSkillId(incoming.id, incoming.format),
+      format: 'folder',
+      updatedAt: now
+    }
+    for (const key of Object.keys(current)) {
+      if (!FOLDER_RECORD_FIELDS.has(key) && !(key in next)) {
+        const record = next as unknown as Record<string, unknown>
+        record[key] = current[key as keyof Skill]
+      }
+    }
+    return next
+  }
+
   function displaySkillName(skill: Pick<Skill, 'name' | 'format'>) {
     return skill.format === 'folder' ? `${skill.name}（文件夹）` : `${skill.name}（文本）`
   }
@@ -93,7 +117,10 @@ export const useSkillStore = defineStore('skill', () => {
       const current = existing.get(normalized.id)
       if (current) {
         if (strategy === 'overwrite') {
-          Object.assign(current, normalized, { updatedAt: now })
+          const index = skills.value.findIndex(s => s.id === normalized.id)
+          skills.value[index] = normalized.format === 'folder'
+            ? replaceFolderRecord(current, normalized, now)
+            : { ...current, ...normalized, updatedAt: now }
           updated++
         } else {
           skipped++
@@ -121,50 +148,10 @@ export const useSkillStore = defineStore('skill', () => {
 
   async function loadSkills() {
     const data = await window.electronAPI.storageRead(storageKey('skills'))
-    if (data) {
-      if (Array.isArray(data)) {
-        skills.value = data.map(function(s: any) {
-          return {
-            id: s.id,
-            name: s.name,
-            format: s.format || 'text',
-            sourceId: s.sourceId || (s.format === 'folder' ? s.id.replace(/^folder:/, '') : ''),
-            folderPath: s.folderPath || '',
-            version: s.version || '',
-            source: s.source || 'legacy',
-            packageHash: s.packageHash || '',
-            template: s.template,
-            category: s.category || 'general',
-            description: s.description || '',
-            resourceSummary: s.format === 'folder' || s.resourceSummary ? {
-              resourceCount: Number(s.resourceSummary?.resourceCount || 0),
-              warningCount: Number(s.resourceSummary?.warningCount || 0)
-            } : undefined,
-            executionMode: s.executionMode || 'chain',
-            outputFormat: s.outputFormat || 'text',
-            validationRules: s.validationRules || [],
-            splitSize: s.splitSize || 1000,
-            injectMode: s.injectMode,
-            bindTarget: s.bindTarget,
-            linkedSkillIds: s.linkedSkillIds || [],
-            createdAt: s.createdAt,
-            updatedAt: s.updatedAt,
-            injectFrequency: s.injectFrequency,
-            injectDepth: s.injectDepth,
-            contextPolicy: s.contextPolicy,
-            customVars: s.customVars || {},
-            inputSchema: s.inputSchema,
-            outputSchema: s.outputSchema,
-            retryPolicy: s.retryPolicy,
-            meta: s.meta && typeof s.meta === 'object' ? s.meta : undefined
-            ,intents: s.intents
-          }
-        })
-      } else {
-        skills.value = data.skills || []
-        pipelineSkills.value = data.pipelineSkills || []
-        deAiSkills.value = data.deAiSkills || []
-      }
+    if (data && !Array.isArray(data)) {
+      skills.value = data.skills || []
+      pipelineSkills.value = data.pipelineSkills || []
+      deAiSkills.value = data.deAiSkills || []
     }
   }
 
@@ -203,69 +190,6 @@ export const useSkillStore = defineStore('skill', () => {
     return serializeSkillMd(toSkillRecord(s))
   }
 
-  /** 全量导出所有 SKILL 为 JSON */
-  function exportAllToJSON(): string {
-    return JSON.stringify({
-      exportVersion: '1.0',
-      exportedAt: new Date().toISOString(),
-      skills: JSON.parse(JSON.stringify(skills.value)),
-      pipelineSkills: JSON.parse(JSON.stringify(pipelineSkills.value)),
-      deAiSkills: JSON.parse(JSON.stringify(deAiSkills.value))
-    }, null, 2)
-  }
-
-  /** 从 JSON 导入 SKILL */
-  function importFromJSON(jsonStr: string): { added: number; skipped: number } {
-    let result = { added: 0, skipped: 0 }
-    try {
-      const data = JSON.parse(jsonStr)
-      const incoming: any[] = data.skills || data || []
-      if (!Array.isArray(incoming)) return result
-      const existingIds = new Set(skills.value.map(s => s.id))
-      for (const s of incoming) {
-        if (!s.id || !s.name) continue
-        if (existingIds.has(s.id)) {
-          result.skipped++
-          continue
-        }
-        skills.value.push({
-          id: s.id,
-          name: s.name,
-          format: s.format || 'text',
-          folderPath: s.folderPath || '',
-          version: s.version || '',
-          source: s.source || 'legacy',
-          packageHash: s.packageHash || '',
-          template: s.template || '',
-          category: s.category || 'general',
-          description: s.description || '',
-          executionMode: s.executionMode || 'chain',
-          outputFormat: s.outputFormat || 'text',
-          validationRules: s.validationRules || [],
-          splitSize: s.splitSize || 1000,
-          injectMode: s.injectMode,
-          bindTarget: s.bindTarget,
-          linkedSkillIds: s.linkedSkillIds || [],
-          createdAt: s.createdAt || new Date().toISOString(),
-          updatedAt: s.updatedAt,
-          injectFrequency: s.injectFrequency,
-          injectDepth: s.injectDepth,
-          customVars: s.customVars || {},
-          inputSchema: s.inputSchema,
-          outputSchema: s.outputSchema,
-          retryPolicy: s.retryPolicy
-          ,intents: s.intents
-        })
-        existingIds.add(s.id)
-        result.added++
-      }
-      if (result.added > 0) saveSkills()
-      return result
-    } catch {
-      return result
-    }
-  }
-
   function movePipelineSkillUp(index: number) {
     if (index > 0) {
       const arr = [...pipelineSkills.value]
@@ -289,7 +213,7 @@ export const useSkillStore = defineStore('skill', () => {
     orderedPipelineSkills, orderedDeAiSkills,
     getSkill, normalizeSkillId, displaySkillName, loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
     movePipelineSkillUp, movePipelineSkillDown,
-    exportSkillToMD, exportAllToJSON, importFromJSON, importSkills
+    exportSkillToMD, importSkills
   }
 })
 

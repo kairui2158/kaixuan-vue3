@@ -63,6 +63,11 @@ const SKILL_ALLOWED_KEYS = new Set([
   'inputSchema',
   'outputSchema',
   'retryPolicy',
+  'protocolVersion',
+  'resourceSummary',
+  'contextPolicy',
+  'meta',
+  'intents',
 ])
 
 const EXECUTION_MODES = new Set<ExchangeExecutionMode>([
@@ -349,6 +354,18 @@ export function normalizeSkillItem(
   if (raw.customVars !== undefined && !isRecord(raw.customVars)) {
     issues.push({ code: 'warning', field: `${field}.customVars`, message: 'customVars 必须是对象' })
   }
+  if (raw.resourceSummary !== undefined && !isRecord(raw.resourceSummary)) {
+    issues.push({ code: 'warning', field: `${field}.resourceSummary`, message: 'resourceSummary 必须是对象' })
+  }
+  if (raw.contextPolicy !== undefined && !isRecord(raw.contextPolicy)) {
+    issues.push({ code: 'warning', field: `${field}.contextPolicy`, message: 'contextPolicy 必须是对象' })
+  }
+  if (raw.meta !== undefined && !isRecord(raw.meta)) {
+    issues.push({ code: 'warning', field: `${field}.meta`, message: 'meta 必须是对象' })
+  }
+  if (raw.intents !== undefined && !toStringArray(raw.intents)) {
+    issues.push({ code: 'warning', field: `${field}.intents`, message: 'intents 必须是字符串数组' })
+  }
 
   return {
     id: id.trim(),
@@ -377,5 +394,9 @@ export function normalizeSkillItem(
     inputSchema: raw.inputSchema,
     outputSchema: raw.outputSchema,
     retryPolicy: raw.retryPolicy,
+    resourceSummary: isRecord(raw.resourceSummary) ? raw.resourceSummary as SkillRecord['resourceSummary'] : undefined,
+    contextPolicy: isRecord(raw.contextPolicy) ? raw.contextPolicy as SkillRecord['contextPolicy'] : undefined,
+    meta: isRecord(raw.meta) ? raw.meta as Record<string, unknown> : undefined,
+    intents: toStringArray(raw.intents),
   }
 }

@@ -147,6 +147,55 @@ export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadRe
   }
 }
 
+/**
+ * Single runtime source for folder SKILL metadata. Components may use the
+ * store snapshot for initial rendering, but execution must re-read this value
+ * so an updated folder is effective without re-importing it.
+ */
+export async function loadRuntimeFolderSkillMetadata(folderPath: string): Promise<{
+  package: RealSkillPackage | null
+  error: string | null
+  meta: Record<string, unknown>
+  intents: string[] | undefined
+  contextPolicy: Record<string, unknown> | undefined
+  template: string
+  fingerprint: RealSkillFileFingerprint[] | undefined
+  warnings: RealSkillLoadWarning[]
+}> {
+  const loaded = await loadRealSkill(folderPath)
+  if (!loaded.package) {
+    return {
+      package: null,
+      error: loaded.error,
+      meta: {},
+      intents: undefined,
+      contextPolicy: undefined,
+      template: '',
+      fingerprint: undefined,
+      warnings: []
+    }
+  }
+  const pkg = loaded.package
+  const meta = (pkg.meta && typeof pkg.meta === 'object') ? pkg.meta : {}
+  const intents = Array.isArray((meta as { intents?: unknown }).intents)
+    ? ((meta as { intents?: unknown[] }).intents ?? []).filter((item): item is string => typeof item === 'string')
+    : undefined
+  const rawPolicy = (meta as { contextPolicy?: unknown }).contextPolicy
+  const contextPolicy = rawPolicy && typeof rawPolicy === 'object' && !Array.isArray(rawPolicy)
+    ? rawPolicy as Record<string, unknown>
+    : undefined
+  return {
+    package: pkg,
+    error: null,
+    meta,
+    intents,
+    contextPolicy,
+    template: String(pkg.template || ''),
+    fingerprint: pkg.fingerprint,
+    warnings: pkg.warnings || []
+  }
+}
+
 export function clearRealSkillCache(folderPath?: string) {
   if (folderPath) cache.delete(folderPath)
   else cache.clear()

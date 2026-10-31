@@ -5,6 +5,7 @@ import {
   validateSkillPackageManifest,
   type SkillPackageManifest,
 } from '../services/skillPackageManager'
+import { buildFolderSkillRecord } from '../services/folderSkillRecordFactory'
 
 export interface SkillPackagePreviewFile {
   path: string
@@ -167,30 +168,12 @@ export function useSkillPackageInstall() {
       }
 
       const skillStore = useSkillStore()
-      const now = new Date().toISOString()
-      const loadedSkill = installed.skill
-      const skill = {
-        id: loadedSkill.id || skillId,
-        name: loadedSkill.name || skillId,
-        format: 'folder' as const,
+      const skill = buildFolderSkillRecord({
+        loaded: { folderPath: installed.installedPath, skill: installed.skill },
         folderPath: installed.installedPath,
-        version,
-        source: 'package' as const,
+        source: 'package',
         packageHash: hashPackageMeta(manifest || { zipPath: preview.zipPath, files: preview.entries }),
-        template: loadedSkill.template || '',
-        category: 'package',
-        description: loadedSkill.description || '',
-        executionMode: 'chain' as const,
-        outputFormat: 'text' as const,
-        validationRules: [],
-        splitSize: 1000,
-        injectMode: 'system_prefix',
-        bindTarget: 'project',
-        linkedSkillIds: [],
-        createdAt: now,
-        updatedAt: now,
-        customVars: {},
-      }
+      })
       const strategy = action === 'unknown' || (packageInstallApproved.value && action !== 'add') ? 'overwrite' : 'skip'
       const result = await skillStore.importSkills([skill], { strategy })
       if (result.skipped > 0) return '技能库中已存在相同版本，未覆盖安装'
