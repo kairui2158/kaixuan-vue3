@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import fs from 'node:fs'
 import {
-  DEAI_CREATIVE_PROMPT,
-  DEAI_METHODOLOGY_PROMPT,
-  DEAI_POLISH_PROMPT,
-  resolveDeaiPromptForChainStep,
-} from '../../../services/de-ai'
+  buildDeaiGuidancePack,
+  buildDeaiGuidancePackTraceEvent,
+} from '../../../services/deaiGuidancePack'
 import {
   DEFAULT_SKILL_DEAI_META,
   SKILL_DEAI_CONTRACT_VERSION,
@@ -30,9 +29,14 @@ const settingsSource = await import('node:fs')
   .then(fs => fs.readFileSync(new URL('../../settings/DeAiSettings.vue', import.meta.url), 'utf8'))
   .catch(() => '')
 
+const settingsObservationSource = await import('node:fs')
+  .then(fs => fs.readFileSync(new URL('../../settings/DeAiSettingsObservations.ts', import.meta.url), 'utf8'))
+  .catch(() => '')
+
 const RETAINED_DEAI_EVENT_TYPES = [
   'deai-prompt-variant',
   'deai-voice-profile',
+  'deai-guidance-pack',
   'deai-injection-policy',
   'deai-contract-warning',
   'deai-conflict-policy',
@@ -49,18 +53,23 @@ const retainedAuditSource = await import('node:fs')
 
 describe('DEAI injection policy integration contract', () => {
   it('keeps the contract, tests, and folder SKILL guide on the same fields and values', () => {
-    expect(SKILL_DEAI_CONTRACT_VERSION).toBe(1)
+    expect(SKILL_DEAI_CONTRACT_VERSION).toBe(2)
     expect(DEFAULT_SKILL_DEAI_META).toEqual({
-      contractVersion: 1,
+      contractVersion: 2,
       generation: 'on',
       finalStepDetection: 'on',
-      conflictPolicy: 'report',
+      conflictPolicy: 'skill-wins',
+      guidanceOwnership: 'app',
+      overlaps: [],
     })
 
-    expect(guideSource).toContain('版本：v1（对应 `contractVersion: 1`）')
+    expect(guideSource).toContain('版本：v2（对应 `contractVersion: 2`）')
     expect(guideSource).toContain('`generation` | `on` / `off` / `suffix-only` | `on`')
     expect(guideSource).toContain('`finalStepDetection` | `on` / `off` | `on`')
-    expect(guideSource).toContain('`conflictPolicy` | `report` / `skill-wins` / `app-wins` | `report`')
+    expect(guideSource).toContain('`conflictPolicy` | `report` / `skill-wins` / `app-wins` | `skill-wins`')
+    expect(guideSource).toContain('`guidanceOwnership` | `skill` / `app` / `split` | `app`')
+    expect(guideSource).toContain('`overlaps` | 字符串数组 | `[]`')
+    expect(guideSource).toContain('contractVersion 1 已迁移为 2')
     expect(guideSource).toContain('不得通过 `meta.deai` 覆盖用户的 `hardRuleMode`')
     expect(guideSource).toContain('跳过手册更新等同发布未完成')
   })
@@ -71,13 +80,85 @@ describe('DEAI injection policy integration contract', () => {
     }
   })
 
+  it('emits the guidance-pack budget event from both production call paths', () => {
+    const pack = buildDeaiGuidancePack({ role: 'creative', voiceProfile: null })
+    const event = buildDeaiGuidancePackTraceEvent(pack, {
+      step: 4,
+      skillIndex: 1,
+      totalSkillCount: 3,
+    })
+    const detail = JSON.parse(String(event?.detail || '{}'))
+
+    expect(event?.type).toBe('deai-guidance-pack')
+    expect(detail.guidanceChars).toBe(pack.guidanceChars)
+    expect(detail.voiceProfileChars).toBe(pack.voiceProfileChars)
+    expect(detail.totalInjectionChars).toBe(pack.totalInjectionChars)
+    expect(detail.totalInjectionChars).toBeLessThanOrEqual(1900)
+
+    expect(pipelineSource).toContain('buildDeaiGuidancePackTraceEvent(')
+    expect(pipelineSource.match(/buildDeaiGuidancePackTraceEvent\(/g) || []).toHaveLength(2)
+    expect(pipelineSource).toContain(
+      'buildDeaiGuidancePackTraceEvent(deaiProjection.guidancePack, {',
+    )
+    expect(pipelineSource).toContain(
+      "const guidancePackTraceEvent = deaiProjection.guidancePack",
+    )
+    expect(pipelineSource).toContain(
+      'if (traceRunId && guidancePackTraceEvent && systemPromptSuffix)',
+    )
+    expect(pipelineSource).toContain(
+      'if (runId && deaiPrompt) {',
+    )
+    expect(pipelineSource).toContain(
+      "runTraceStore.addEvent(traceRunId, guidancePackTraceEvent)",
+    )
+    expect(pipelineSource).toContain(
+      "runTraceStore.addEvent(runId, guidancePackTraceEvent)",
+    )
+  })
+
+  it('keeps runtime UI and guidance copy aligned with the actual guidance pack', async () => {
+    const pipelineSource = fs.readFileSync(
+      new URL('../PipelinePanel.vue', import.meta.url),
+      'utf8',
+    )
+    const helpSource = await fs.promises.readFile(
+      new URL('../../common/HelpGuide.vue', import.meta.url),
+      'utf8',
+    )
+    const traceSource = await fs.promises.readFile(
+      new URL('../../../../src/services/deaiGuidancePack.ts', import.meta.url),
+      'utf8',
+    )
+
+    for (const source of [pipelineSource, helpSource]) {
+      expect(source).not.toContain('17条')
+      expect(source).not.toContain('硬规则清洗')
+      expect(source).not.toContain('硬规则后处理')
+    }
+
+    expect(pipelineSource).toContain('id="pl-deai-guidance-badge"')
+    expect(pipelineSource).toContain('displayedBodyDeaiGuidanceBadge')
+    expect(pipelineSource).toContain('displayedBodyDeaiGuidanceFeedback')
+    expect(pipelineSource).toContain('informational-only')
+    expect(pipelineSource).toContain('deaiGuidanceTraceForRun')
+    expect(helpSource).toContain('生成前提供方法指导')
+    expect(helpSource).toContain('不改写正文')
+    expect(traceSource).toContain('已构造：${itemCount}条 / ${pack.guidanceChars}字符')
+  })
+
   it('shows the skill-declared final-step shutdown next to the user post-processing mode', () => {
     expect(pipelineSource).toContain("type: 'deai-injection-policy'")
     expect(pipelineSource).toContain('policy: projection.policy')
 
-    expect(settingsSource).toContain("event.type === 'deai-injection-policy'")
-    expect(settingsSource).toContain("detail.step === 4")
-    expect(settingsSource).toContain("detail.policy?.finalStepDetection === 'off'")
+    expect(settingsSource).toContain("import { collectDeaiSettingsObservations } from './DeAiSettingsObservations'")
+    expect(settingsSource).toContain('return collectDeaiSettingsObservations(runTraceStore.runs)')
+    expect(settingsObservationSource).toContain("event.type === 'deai-injection-policy'")
+    expect(settingsObservationSource).toContain("import { BODY_LAYER_STEP } from '../../services/skillDeaiContract'")
+    expect(settingsObservationSource).toContain("run.source === 'home'")
+    expect(settingsObservationSource).toContain("run.source === 'pipeline'")
+    expect(settingsObservationSource).toContain("detail.step === BODY_LAYER_STEP")
+    expect(settingsObservationSource).toContain("detail.policy?.finalStepDetection === 'off'")
     expect(settingsSource).toContain('终步降AI检测已由 SKILL 声明关闭')
     expect(settingsSource).toContain('用户后处理模式仍为：{{ hardRuleModeLabel }}')
     const declarationStart = settingsSource.indexOf('id="deai-skill-final-step-detection"')
@@ -115,7 +196,10 @@ describe('DEAI injection policy integration contract', () => {
       expect(projection.prompt).toContain('主角声口：狠、短、少解释')
       expect(projection.prompt).toContain('关键转折使用短句')
       expect(projection.prompt).toBe(appendDeaiVoiceProfile(
-        resolveDeaiPromptForChainStep(4, projections.indexOf(projection), 3),
+        buildDeaiGuidancePack({
+          role: projection.variant === 'off' ? 'methodology' : projection.variant,
+          voiceProfile: profile,
+        }).text,
         profile,
       ))
     })
@@ -141,14 +225,14 @@ describe('DEAI injection policy integration contract', () => {
       4,
       1,
       3,
-      { contractVersion: 1, generation: 'on' },
+      { contractVersion: 2, generation: 'on' },
       { voiceProfile: null },
     )
     const suffixOnlyProjection = resolveDeaiPromptForSkillStep(
       4,
       1,
       3,
-      { contractVersion: 1, generation: 'suffix-only' },
+      { contractVersion: 2, generation: 'suffix-only' },
       { voiceProfile: null },
     )
 
@@ -165,11 +249,11 @@ describe('DEAI injection policy integration contract', () => {
       [2, 3],
       [undefined, undefined],
     ] as const
-    const expectedPrompts = [
-      DEAI_METHODOLOGY_PROMPT,
-      DEAI_CREATIVE_PROMPT,
-      DEAI_POLISH_PROMPT,
-      DEAI_METHODOLOGY_PROMPT,
+    const expectedPacks = [
+      buildDeaiGuidancePack({ role: 'methodology', voiceProfile: null }),
+      buildDeaiGuidancePack({ role: 'creative', voiceProfile: null }),
+      buildDeaiGuidancePack({ role: 'polish', voiceProfile: null }),
+      buildDeaiGuidancePack({ role: 'methodology-compose', voiceProfile: null }),
     ]
 
     chainCases.forEach(([chainIndex, chainCount], index) => {
@@ -188,8 +272,12 @@ describe('DEAI injection policy integration contract', () => {
         { voiceProfile: null },
       )
 
-      expect(folderProjection.prompt).toBe(expectedPrompts[index])
-      expect(agentProjection.prompt).toBe(expectedPrompts[index])
+      expect(folderProjection.prompt).toBe(expectedPacks[index]!.text)
+      expect(agentProjection.prompt).toBe(expectedPacks[index]!.text)
+      expect(folderProjection.guidancePack?.hash).toBe(expectedPacks[index]!.hash)
+      expect(folderProjection.prompt).not.toContain('【降AI创作约束 - 生成阶段执行】')
+      expect(folderProjection.prompt).not.toContain('【降AI创作风格 - 创作执行阶段】')
+      expect(folderProjection.prompt).not.toContain('【降AI创作约束 - 打磨阶段】')
       expect(folderProjection.variant).toBe(agentProjection.variant)
       expect(folderProjection.source).toBe('skill-declared')
       expect(agentProjection.source).toBe('app-default-no-skill-meta')
@@ -202,7 +290,7 @@ describe('DEAI injection policy integration contract', () => {
       4,
       2,
       3,
-      { contractVersion: 1, generation: 'off' },
+      { contractVersion: 2, generation: 'off' },
       { voiceProfile: null },
     )
 
@@ -214,7 +302,7 @@ describe('DEAI injection policy integration contract', () => {
       'const skillDeaiMeta = skillDeaiMetaParam ?? null',
     )
     expect(pipelineSource).toContain(
-      'const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta)',
+      'const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta, pipelineRunIdParam)',
     )
     expect(pipelineSource).toContain(
       'resolveSkillDeaiMetaFromTemplate(template)',
@@ -238,7 +326,10 @@ describe('DEAI injection policy integration contract', () => {
       expect.stringContaining('generation'),
       expect.stringContaining('unknownField'),
     ]))
-    expect(validation.warnings).toHaveLength(validation.errors.length)
+    expect(validation.warnings).toEqual([
+      expect.stringContaining('contractVersion'),
+      expect.stringContaining('generation'),
+    ])
 
     const projection = resolveDeaiPromptForSkillStep(
       4,
@@ -247,24 +338,45 @@ describe('DEAI injection policy integration contract', () => {
       invalidMeta as never,
       { voiceProfile: null },
     )
-    expect(projection.prompt).toBe(DEAI_METHODOLOGY_PROMPT)
+    const methodologyPack = buildDeaiGuidancePack({ role: 'methodology', voiceProfile: null })
+    expect(projection.prompt).toBe(methodologyPack.text)
     expect(projection.source).toBe('skill-declared')
   })
 
   it('removes overlapping app projection only when the skill declares skill-wins', () => {
     const template = '正文模板规则：短句只用于关键转折；对白不得解释因果。'
+    const methodologyPack = buildDeaiGuidancePack({ role: 'methodology', voiceProfile: null })
     const report = resolveDeaiPromptConflict(
       template,
-      resolveDeaiPromptForSkillStep(4, 0, 3, { conflictPolicy: 'report' }, { voiceProfile: null }),
+      resolveDeaiPromptForSkillStep(4, 0, 3, { conflictPolicy: 'report', guidanceOwnership: 'app' }, { voiceProfile: null }),
     )
-    expect(report.prompt).toBe(DEAI_METHODOLOGY_PROMPT)
+    expect(report.prompt).toBe(methodologyPack.text)
     expect(report.action).toBe('report')
 
     const skillWins = resolveDeaiPromptConflict(
       template,
-      resolveDeaiPromptForSkillStep(4, 0, 3, { conflictPolicy: 'skill-wins' }, { voiceProfile: null }),
+      resolveDeaiPromptForSkillStep(4, 0, 3, { conflictPolicy: 'skill-wins', guidanceOwnership: 'app' }, { voiceProfile: null }),
     )
     expect(skillWins.prompt).toBe('')
     expect(skillWins.action).toBe('skill-wins')
+  })
+
+  it('withdraws guidance from both production paths when the skill owns guidance', () => {
+    const projection = resolveDeaiPromptForSkillStep(
+      4,
+      2,
+      3,
+      { contractVersion: 2, guidanceOwnership: 'skill' },
+      { voiceProfile: null },
+    )
+
+    expect(projection.prompt).toBe('')
+    expect(projection.guidancePack).toBeNull()
+    expect(projection.source).toBe('skill-declared')
+
+    expect(pipelineSource).toContain('deaiProjection.guidancePack')
+    expect(pipelineSource).toContain(
+      'deaiProjection.policy.guidanceOwnership === \'skill\'',
+    )
   })
 })

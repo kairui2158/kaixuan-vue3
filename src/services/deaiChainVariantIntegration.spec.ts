@@ -25,11 +25,8 @@ vi.stubGlobal('window', {
 })
 
 import {
-  DEAI_CREATIVE_PROMPT,
-  DEAI_METHODOLOGY_PROMPT,
-  DEAI_POLISH_PROMPT,
-  resolveDeaiPromptForChainStep
-} from './de-ai'
+  buildDeaiGuidancePack
+} from './deaiGuidancePack'
 import { getAiService } from './aiService'
 import { routeSkill } from './skillRouter'
 import { loadRealSkill } from './realSkillLoader'
@@ -70,28 +67,25 @@ describe('DEAI chain variant integration', () => {
     } as any)
   })
 
-  it('keeps each routed body-chain request on its own DEAI variant', async () => {
-    const variants = [
-      DEAI_METHODOLOGY_PROMPT,
-      DEAI_CREATIVE_PROMPT,
-      DEAI_POLISH_PROMPT
-    ]
+  it('keeps each routed body-chain request on its own DEAI guidance pack', async () => {
+    const variants = ['methodology', 'creative', 'polish'] as const
 
     for (let chainSkillIndex = 0; chainSkillIndex < variants.length; chainSkillIndex += 1) {
+      const guidancePack = buildDeaiGuidancePack({ role: variants[chainSkillIndex]!, voiceProfile: null })
       const result = await routeSkill(
         { id: 'body-chain-skill', format: 'folder', folderPath: 'D:/skills/body-chain' },
         {
           input: '本章大纲',
           budget: createBudget(),
-          systemPromptSuffix: resolveDeaiPromptForChainStep(4, chainSkillIndex, 3)
+          systemPromptSuffix: guidancePack.text
         }
       )
 
       const systemMessage = result.folderResult?.apiMeta?.requestMessages.find(message => message.role === 'system')
-      expect(systemMessage?.content).toContain(variants[chainSkillIndex])
-      for (const unexpected of variants.filter(variant => variant !== variants[chainSkillIndex])) {
-        expect(systemMessage?.content).not.toContain(unexpected)
-      }
+      expect(systemMessage?.content).toContain(guidancePack.text)
+      expect(systemMessage?.content).not.toContain('【降AI创作约束 - 生成阶段执行】')
+      expect(systemMessage?.content).not.toContain('【降AI创作风格 - 创作执行阶段】')
+      expect(systemMessage?.content).not.toContain('【降AI创作约束 - 打磨阶段】')
     }
   })
 })

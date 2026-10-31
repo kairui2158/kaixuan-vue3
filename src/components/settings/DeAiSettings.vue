@@ -277,6 +277,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { useProviderStore } from '../../stores/provider'
 import { useRunTraceStore } from '../../stores/runTrace'
+import { collectDeaiSettingsObservations } from './DeAiSettingsObservations'
 import DeAiFlowPreview from '../deai/DeAiFlowPreview.vue'
 
 const deAiStore = useDeAiStore()
@@ -295,21 +296,6 @@ const hardRuleModeValue = computed<DeAiHardRuleMode>({
 
 const verifyProvider = computed(() => providerStore.activeVerifyProvider)
 
-interface DeaiInjectionPolicyDetail {
-  step?: unknown
-  skillIndex?: unknown
-  totalSkillCount?: unknown
-  source?: unknown
-  variant?: unknown
-  policy?: {
-    contractVersion?: unknown
-    generation?: unknown
-    finalStepDetection?: unknown
-    conflictPolicy?: unknown
-  } | null
-  warnings?: unknown[]
-}
-
 const hardRuleModeLabels: Record<DeAiHardRuleMode, string> = {
   'legacy-auto': '兼容清洗',
   'detect-report': '检测报告',
@@ -319,44 +305,16 @@ const hardRuleModeLabels: Record<DeAiHardRuleMode, string> = {
 const hardRuleModeLabel = computed(() => hardRuleModeLabels[deAiStore.hardRuleMode])
 
 const latestDeaiObservations = computed(() => {
-  let lastChangeRate: number | null = null
-  let qualityGateDegraded = ''
-  let finalStepDetection: 'on' | 'off' | null = null
-  const observationsIncomplete = () =>
-    lastChangeRate === null || !qualityGateDegraded || finalStepDetection === null
-  for (let runIndex = runTraceStore.runs.length - 1; runIndex >= 0 && observationsIncomplete(); runIndex -= 1) {
-    const events = runTraceStore.runs[runIndex]?.events || []
-    for (let eventIndex = events.length - 1; eventIndex >= 0 && observationsIncomplete(); eventIndex -= 1) {
-      const event = events[eventIndex]
-      if (lastChangeRate === null && event.type === 'deai-change-rate') {
-        try {
-          const value = JSON.parse(String(event.detail || '{}')) as { changeRate?: unknown }
-          if (typeof value.changeRate === 'number' && Number.isFinite(value.changeRate)) {
-            lastChangeRate = value.changeRate
-          }
-        } catch {
-          // Invalid detail stays invisible instead of breaking the settings page.
-        }
-      } else if (!qualityGateDegraded && event.type === 'deai-quality-gate-degraded') {
-        qualityGateDegraded = event.detail || '终步降AI检测降级'
-      } else if (finalStepDetection === null && event.type === 'deai-injection-policy') {
-        try {
-          const detail = JSON.parse(String(event.detail || '{}')) as DeaiInjectionPolicyDetail
-          if (detail.step === 4 && detail.policy?.finalStepDetection === 'off') {
-            finalStepDetection = 'off'
-          }
-        } catch {
-          // A malformed detail must not hide the other observations.
-        }
-      }
-    }
-  }
-  return { lastChangeRate, qualityGateDegraded, finalStepDetection }
+  return collectDeaiSettingsObservations(runTraceStore.runs)
 })
 
 const lastDeaiChangeRate = computed(() => latestDeaiObservations.value.lastChangeRate)
 const deAiQualityGateDegraded = computed(() => latestDeaiObservations.value.qualityGateDegraded)
 const skillFinalStepDetection = computed(() => latestDeaiObservations.value.finalStepDetection)
+
+defineExpose({
+  __deaiSettingsObservations: collectDeaiSettingsObservations,
+})
 
 // 硬规则定义与 de-ai.js 的 HARD_RULES 保持单一事实源
 const hardRulesList = [

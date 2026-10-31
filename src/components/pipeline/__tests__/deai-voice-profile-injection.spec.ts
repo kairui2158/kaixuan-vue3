@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  DEAI_METHODOLOGY_PROMPT,
-  DEAI_CREATIVE_PROMPT,
-  DEAI_POLISH_PROMPT,
-  resolveDeaiPromptForChainStep
-} from '../../../services/de-ai'
+  buildDeaiGuidancePack
+} from '../../../services/deaiGuidancePack'
 import {
   appendDeaiVoiceProfile,
   buildDeaiVoiceProfile,
@@ -20,14 +17,19 @@ const lockedStyle = {
 }
 
 describe('DEAI voice profile injection', () => {
-  it('keeps all generation and deep-fix paths on one voice projection', () => {
+  it('keeps all generation and teaching paths on one voice projection', () => {
     const profile = buildDeaiVoiceProfile(lockedStyle)
     expect(profile).not.toBeNull()
 
+    const guidancePacks = [
+      buildDeaiGuidancePack({ role: 'methodology', voiceProfile: profile }),
+      buildDeaiGuidancePack({ role: 'creative', voiceProfile: profile }),
+      buildDeaiGuidancePack({ role: 'polish', voiceProfile: profile }),
+    ]
     const prompts = [
-      resolveDeaiPromptForChainStep(4, 0, 3),
-      resolveDeaiPromptForChainStep(4, 1, 3),
-      resolveDeaiPromptForChainStep(4, 2, 3),
+      guidancePacks[0]!.text,
+      guidancePacks[1]!.text,
+      guidancePacks[2]!.text,
       '',
     ].map(prompt => appendDeaiVoiceProfile(prompt, profile))
 
@@ -36,15 +38,16 @@ describe('DEAI voice profile injection', () => {
       expect(prompt).toContain('主角声口：狠、短、少解释')
       expect(prompt).toContain('这些主题以作者声纹为准')
     }
-    expect(prompts[0]).toContain(DEAI_METHODOLOGY_PROMPT)
-    expect(prompts[1]).toContain(DEAI_CREATIVE_PROMPT)
-    expect(prompts[2]).toContain(DEAI_POLISH_PROMPT)
+    expect(prompts[0]).toContain(guidancePacks[0]!.text)
+    expect(prompts[1]).toContain(guidancePacks[1]!.text)
+    expect(prompts[2]).toContain(guidancePacks[2]!.text)
   })
 
   it('does not inject when the profile is unlocked', () => {
     const profile = buildDeaiVoiceProfile({ ...lockedStyle, locked: false, injected: false })
     expect(profile).toBeNull()
-    expect(appendDeaiVoiceProfile(DEAI_METHODOLOGY_PROMPT, profile)).toBe(DEAI_METHODOLOGY_PROMPT)
+    const methodologyPack = buildDeaiGuidancePack({ role: 'methodology', voiceProfile: null })
+    expect(appendDeaiVoiceProfile(methodologyPack.text, profile)).toBe(methodologyPack.text)
     expect(buildDeaiVoiceProfileTraceEvent(profile)).toBeNull()
   })
 

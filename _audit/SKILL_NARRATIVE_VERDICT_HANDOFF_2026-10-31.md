@@ -58,6 +58,8 @@ stateChangingScenes：<场景标识或数量>
 
 ## 5. 对正文层 SKILL 的具体要求
 
+`meta.json` 的磁盘声明要求另见 [FOLDER_SKILL_META_DECLARATION_SPEC_2026-11-01.md](FOLDER_SKILL_META_DECLARATION_SPEC_2026-11-01.md)；本手册只约束叙事 verdict 与卷契约终局裁决语义。
+
 1. S1 骨架层：若章纲事件材料不足以支撑状态改变动作，输出 `narrativeStatus: not_ready`，并在 `narrativeReason` 写清缺口；应用会阻断并回上游。
 2. S2 生成层：完成事件密度判定后，在交接中自报 `narrativeStatus`、`narrativeReason`、`stateChangingScenes`。
 3. S3 打磨层：只负责表达，不新增叙事裁决；若发现结构缺陷，应输出 `not_ready` 而不是尝试扩写补事实。

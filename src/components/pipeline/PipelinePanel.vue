@@ -586,7 +586,11 @@
               <button id="btn-primary-gen-body" class="btn-primary" @click="genBodyForSelected" :disabled="pipelineStore.isTargetGenerating('body', selectedBodyTarget)">
                 {{ pipelineStore.isTargetGenerating('body', selectedBodyTarget) ? '生成中...' : 'AI生成正文' }}
               </button>
-              <span class="pl-deai-badge" data-tooltip="本层已内嵌降AI方法论（17条前置约束 + 硬规则后处理），生成时自动执行">已内嵌降AI</span>
+              <span
+                v-if="displayedBodyDeaiGuidanceBadge"
+                id="pl-deai-guidance-badge"
+                class="pl-deai-badge"
+              >{{ displayedBodyDeaiGuidanceBadge }}</span>
               <button id="btn-pl-insert-body" class="btn-secondary" @click="insertToEditor" :disabled="!(currentBodyContent || bodyResult)">插入到编辑器</button>
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
@@ -603,6 +607,13 @@
               @cancel="cancelDisplayedRun(4)"
               @close="closeBodyGenerationFeedback"
             />
+            <div
+              v-if="displayedBodyDeaiGuidanceFeedback"
+              id="pl-deai-guidance-feedback"
+              class="pl-deai-guidance-feedback informational-only"
+            >
+              {{ displayedBodyDeaiGuidanceFeedback }}
+            </div>
           </div>
         </div>
       </div>
@@ -761,7 +772,6 @@ import { folderDiagnosticsStatus, useRunTraceStore } from "../../stores/runTrace
 import { useAiCallTrace, type AiCallContext } from "../../composables/useAiCallTrace"
 import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
-import { useDeAiStore } from "../../stores/deai"
 import { getAiService } from "../../services/aiService"
 import {
   buildPipelineProviderChannelSnapshot,
@@ -866,7 +876,6 @@ import {
 } from "../../services/proseHardSignalRepair"
 import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
 import { buildPipelineChainWarningLine, coalescePipelineStepWarning } from "../../services/pipelineStepLog"
-import { DeAiProcessor } from "../../services/de-ai"
 import {
   resolveDeaiPromptConflict,
   resolveDeaiPromptForSkillStep,
@@ -875,10 +884,10 @@ import {
 } from "../../services/skillDeaiContract"
 import {
   appendDeaiVoiceProfile,
-  buildDeaiVoiceProfile,
   buildDeaiVoiceProfileTraceEvent
 } from "../../services/deaiVoiceProfile"
-import { buildDeaiDetectSummaryEvents } from "../../services/deaiObservationEvents"
+import { createDeaiVoiceProfileRunSnapshotStore } from "../../services/deaiVoiceProfileRunSnapshot"
+import { buildDeaiGuidancePackTraceEvent } from "../../services/deaiGuidancePack"
 import { buildFinalStepFeedback } from "../../services/finalStepFeedback"
 import { parseGenerationResult } from "../../services/generationResult"
 import {
@@ -913,10 +922,18 @@ const execLogStore = useExecutionLogStore()
 const runTraceStore = useRunTraceStore()
 const pipelineStyleCard = ref<InstanceType<typeof StyleProfileCard> | null>(null)
 const pipelineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
-const pipelineDeaiVoiceProfile = computed(() => buildDeaiVoiceProfile(pipelineStyleProfileEffective.value))
-function emitDeaiVoiceProfileTrace(runId: string | null | undefined) {
+const activePipelineRunIds = computed(() => new Set(pipelineStore.activeRuns.map(run => run.runId)))
+const deaiVoiceProfileRunSnapshots = createDeaiVoiceProfileRunSnapshotStore({
+  activeRunIds: activePipelineRunIds,
+  styleProfile: pipelineStyleProfileEffective,
+})
+function resolveDeaiVoiceProfileForRun(pipelineRunId: string | null | undefined) {
+  return deaiVoiceProfileRunSnapshots.resolveForRun(pipelineRunId)
+}
+function emitDeaiVoiceProfileTrace(runId: string | null | undefined, pipelineRunId?: string | null) {
   if (!runId) return
-  const event = buildDeaiVoiceProfileTraceEvent(pipelineDeaiVoiceProfile.value)
+  const ownerRunId = pipelineRunId ?? pipelineStore.getPipelineRunIdForTrace(runId)
+  const event = buildDeaiVoiceProfileTraceEvent(resolveDeaiVoiceProfileForRun(ownerRunId))
   if (!event) return
   runTraceStore.addEvent(runId, event)
 }
@@ -931,13 +948,14 @@ function resolveDeaiProjection(
   chainSkillIndex: number | undefined,
   chainSkillCount: number | undefined,
   skillDeaiMeta: SkillDeaiMeta | null,
+  pipelineRunId: string | null | undefined,
 ) {
   return resolveDeaiPromptForSkillStep(
     step,
     chainSkillIndex,
     chainSkillCount,
     skillDeaiMeta,
-    { voiceProfile: pipelineDeaiVoiceProfile.value },
+    { voiceProfile: resolveDeaiVoiceProfileForRun(pipelineRunId) },
   )
 }
 
@@ -1178,7 +1196,6 @@ function readChainHandoffMeta(skill: Skill | undefined): ChainHandoffTemplateMet
   return meta && typeof meta === 'object' ? (meta as ChainHandoffTemplateMeta) : null
 }
 const settingsStore = useSettingsStore()
-const deAiStore = useDeAiStore()
 const { importBindingsFromFile, exportBindingsJSON } = useConfigExchange()
 const bindingImportPreview = ref<{
   ok: boolean
@@ -1306,6 +1323,48 @@ const displayedSettingsRunId = computed(() => displayRunForLayer('settings')?.ru
 const displayedVolumesRunId = computed(() => displayRunForLayer('volumes')?.runId || null)
 const displayedChaptersRunId = computed(() => displayRunForLayer('chapters')?.runId || null)
 const displayedBodyRunId = computed(() => displayRunForLayer('body')?.runId || null)
+
+function deaiGuidanceTraceForRun(pipelineRunId: string | null) {
+  if (!pipelineRunId) return null
+  for (const trace of runTraceStore.sortedRuns) {
+    if (trace.pipelineRunId !== pipelineRunId
+      && pipelineStore.getPipelineRunIdForTrace(trace.id) !== pipelineRunId) continue
+    const event = [...trace.events]
+      .reverse()
+      .find(item => item.type === 'deai-guidance-pack')
+    if (!event) continue
+    try {
+      const detail = JSON.parse(event.detail || '{}')
+      if (typeof detail.itemCount === 'number' && typeof detail.guidanceChars === 'number') {
+        return detail as {
+          itemCount: number
+          guidanceChars: number
+          totalInjectionChars?: number
+          constructionMs?: number
+        }
+      }
+    } catch {
+      // Malformed trace detail is already retained in the run trace itself.
+    }
+  }
+  return null
+}
+
+const displayedBodyDeaiGuidanceTrace = computed(() =>
+  deaiGuidanceTraceForRun(displayedBodyRunId.value),
+)
+
+const displayedBodyDeaiGuidanceBadge = computed(() => {
+  const detail = displayedBodyDeaiGuidanceTrace.value
+  if (!detail) return ''
+  return `方法指导 ${detail.itemCount}条 / ${detail.guidanceChars}字符`
+})
+
+const displayedBodyDeaiGuidanceFeedback = computed(() => {
+  const detail = displayedBodyDeaiGuidanceTrace.value
+  if (!detail) return ''
+  return `降AI方法指导：${detail.itemCount}条 / ${detail.guidanceChars}字符（informational-only，不改写正文、不改终态）`
+})
 
 function displayedRunForStep(step: number) {
   if (step === 1) return displayRunForLayer('settings')
@@ -2666,6 +2725,7 @@ interface BodyFeedbackAuditState {
   finalStep: null | {
     sourceCounts: Record<string, number>
     length: number
+    kind: 'retry' | 'teaching'
   }
 }
 
@@ -2773,7 +2833,7 @@ async function callValidatedSkill(
     emitPipelineRequestProfileTrace(requestProfile, traceRunId, step)
     const fallbackProviderId = requestProfile.providerId
     const skillDeaiMeta = resolveSkillDeaiMetaFromTemplate(template)
-    const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta)
+    const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta, pipelineRunIdParam)
     const protectedBodyContract = resolveProtectedBodySkillContract(stepArtifactContext)
     if (deaiProjection.warnings.length) {
       const validation = validateSkillDeaiMeta(skillDeaiMeta)
@@ -2792,6 +2852,20 @@ async function callValidatedSkill(
       }
     }
     emitDeaiInjectionPolicyTrace(traceRunId, deaiProjection, chainSkillIndex, chainSkillCount, step)
+    if (deaiProjection.policy.guidanceOwnership === 'skill') {
+      runTraceStore.addEvent(traceRunId, {
+        type: 'deai-injection-policy',
+        level: 'info',
+        label: '降AI方法指导已由 SKILL 接管，应用注入退场',
+        detail: JSON.stringify({
+          skillId: template.id,
+          step,
+          ownership: 'skill',
+          variant: deaiProjection.variant,
+          policy: deaiProjection.policy,
+        }),
+      })
+    }
     const deaiConflict = resolveDeaiPromptConflict(template.template || '', deaiProjection)
     if (deaiConflict.overlaps.length && deaiConflict.action !== 'skill-wins') {
       runTraceStore.addEvent(traceRunId, {
@@ -2821,11 +2895,21 @@ async function callValidatedSkill(
       })
     }
     const systemPromptSuffix = deaiConflict.prompt
+    const guidancePackTraceEvent = deaiProjection.guidancePack
+      ? buildDeaiGuidancePackTraceEvent(deaiProjection.guidancePack, {
+          step,
+          skillIndex: chainSkillIndex,
+          totalSkillCount: chainSkillCount,
+        })
+      : null
     let traceCallId = ''
     const startedAt = Date.now()
     const deaiVariant = deaiProjection.variant
     const logDeaiVariant = () => {
-      emitDeaiVoiceProfileTrace(traceRunId)
+      emitDeaiVoiceProfileTrace(traceRunId, pipelineRunIdParam)
+      if (traceRunId && guidancePackTraceEvent && systemPromptSuffix) {
+        runTraceStore.addEvent(traceRunId, guidancePackTraceEvent)
+      }
       if (traceRunId && systemPromptSuffix) {
         runTraceStore.addEvent(traceRunId, {
           type: 'deai-prompt-variant',
@@ -3003,18 +3087,21 @@ async function callValidatedSkill(
           })
         },
         onFinalStepFeedbackComposed: (result) => {
+          const kind = result.kind ?? 'retry'
           bodyFeedbackAudit.finalStep = {
             sourceCounts: { ...result.sourceCounts },
-            length: result.length
+            length: result.length,
+            kind
           }
           if (!traceRunId) return
           runTraceStore.addEvent(traceRunId, {
             type: 'final-step-feedback-composed',
             level: 'info',
-            label: `终步重试反馈已单源合成：${template.name || template.id}`,
+            label: `${kind === 'teaching' ? '终步教学反馈' : '终步重试反馈'}已单源合成：${template.name || template.id}`,
             detail: JSON.stringify({
               sourceCounts: result.sourceCounts,
-              length: result.length
+              length: result.length,
+              kind
             })
           })
         },
@@ -3712,7 +3799,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
  const agentPart = agentConfig?.systemPrompt || ""
  // P1: 正文层降AI注入只消费 folder SKILL 契约投影，禁止第二套提示词语义。
  const skillDeaiMeta = skillDeaiMetaParam ?? null
- const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta)
+ const deaiProjection = resolveDeaiProjection(step, chainSkillIndex, chainSkillCount, skillDeaiMeta, pipelineRunIdParam)
  if (deaiProjection.warnings.length) {
    const validation = validateSkillDeaiMeta(skillDeaiMeta)
    for (const warning of deaiProjection.warnings) {
@@ -3732,6 +3819,13 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
  emitDeaiInjectionPolicyTrace(traceRunIdParam, deaiProjection, chainSkillIndex, chainSkillCount, step)
  const deaiPrompt = deaiProjection.prompt
  const deaiVariant = deaiProjection.variant
+ const guidancePackTraceEvent = deaiProjection.guidancePack
+   ? buildDeaiGuidancePackTraceEvent(deaiProjection.guidancePack, {
+       step,
+       skillIndex: chainSkillIndex,
+       totalSkillCount: chainSkillCount,
+     })
+   : null
     const systemPrompt = [skillPart, agentPart, deaiPrompt].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
@@ -3747,7 +3841,10 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
       })
   }
   if (runId && deaiPrompt) {
-    emitDeaiVoiceProfileTrace(runId)
+    emitDeaiVoiceProfileTrace(runId, pipelineRunIdParam)
+    if (guidancePackTraceEvent) {
+      runTraceStore.addEvent(runId, guidancePackTraceEvent)
+    }
     runTraceStore.addEvent(runId, {
       type: 'deai-prompt-variant',
       level: 'info',
@@ -5740,8 +5837,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const settingsProjection = getLockedSettingsForLayer('body', sc)
     trace.addEvent(buildSettingsProjectionTraceEvent('body', settingsProjection))
     appendStepLogForRun(bodyRunId, 4, "已加载锁定设定 " + settingsProjection.lockedCount + " 项，准备调用 API")
-    appendStepLogForRun(bodyRunId, 4, "降AI方法论已注入（17条生成约束，仅正文层生效）")
-    pipelineStore.updateProgress(20, "API 生成正文中（已注入降AI约束）", bodyRunId)
+    appendStepLogForRun(bodyRunId, 4, "降AI方法指导进入预注入阶段，实际条数与字符数以运行记录 deai-guidance-pack 事件为准")
+    pipelineStore.updateProgress(20, "API 生成正文中（降AI方法指导预注入）", bodyRunId)
     const styleCtx = getBodyStyleContext(trace.runId)
     const pacingCtx = pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.pacingParams : ""
     const bodyVolId = volId ?? (vol.id || vol.name)
@@ -6087,215 +6184,6 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       label: '卷契约协议观测',
       detail: JSON.stringify(contractReview)
     })
-    // P2: 后处理层 — 自动降AI清洗
-    if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
-      appendStepLogForRun(bodyRunId, 4,
-        deAiStore.hardRuleMode === 'legacy-auto'
-          ? "开始降AI硬规则清洗（兼容自动替换模式）…"
-          : "开始降AI硬规则检测（只报告，不改写正文）…"
-      )
-      pipelineStore.updateProgress(90, "降AI后处理中", bodyRunId)
-    }
-    if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
-      try {
-        const deaiStartedAt = Date.now()
-        const deaiInputPreview = finalBody.slice(0, 200)
-        if (deAiStore.hardRuleMode === 'legacy-auto') {
-          // V55: 兼容模式保留 processBody（只做字符级替换，不重组段落/句子结构）
-          const deaiResult = DeAiProcessor.processBody(finalBody, { hardRules: deAiStore.hardRules })
-          if (deaiResult && deaiResult.text && deaiResult.text.length > 0) {
-            appendStepLogForRun(bodyRunId, 4,
-              "降AI后处理完成：" +
-              (deaiResult.stats?.total || 0) + " 处修正" +
-              (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
-            )
-            finalBody = deaiResult.text
-            const deaiContractValidation = validateBodyArtifact(finalBody, bodyChainContract)
-            if (!deaiContractValidation.valid) {
-              bodyArtifact = {
-                ...bodyArtifact,
-                attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
-                  attemptId: postProcessAttemptId,
-                  stage: 'deai',
-                  processor: 'deai-hard-rules',
-                  success: false,
-                  wordCount: deaiContractValidation.wordCount,
-                  errors: deaiContractValidation.errors
-                })
-              }
-              runTraceStore.addEvent(trace.runId!, {
-                type: 'body-post-process-contract-rejected',
-                level: 'error',
-                label: '正文后处理输出未通过契约验收',
-                detail: JSON.stringify({
-                  stage: 'deai',
-                  wordCount: deaiContractValidation.wordCount,
-                  targetWords: bodyChainContract.targetWords,
-                  errors: deaiContractValidation.errors
-                })
-              })
-              throw new Error(`降AI清洗后正文未通过契约验收：${deaiContractValidation.errors.join('；')}`)
-            }
-            bodyArtifact = {
-              ...bodyArtifact,
-              attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
-                attemptId: postProcessAttemptId,
-                stage: 'deai',
-                processor: 'deai-hard-rules',
-                success: true,
-                wordCount: countBodyWords(finalBody)
-              })
-            }
-          }
-          runTraceStore.attachProcessingReport(trace.runId!, {
-            stage: 'post',
-            processor: 'hard-rules-legacy-auto',
-            status: 'success',
-            inputPreview: deaiInputPreview,
-            outputPreview: finalBody.slice(0, 200),
-            ruleHits: Object.entries(deaiResult.stats || {}).map(([rule, count]) => ({
-              rule,
-              count: typeof count === 'number' ? count : 0
-            })),
-            startedAt: deaiStartedAt,
-            endedAt: Date.now(),
-            durationMs: Date.now() - deaiStartedAt
-          })
-          trace.addEvent({
-            type: 'deai-post-processed',
-            level: 'info',
-            label: '降AI兼容清洗完成',
-            detail: JSON.stringify({
-              beforeWords: bodyArtifact.attempts[bodyArtifact.attempts.length - 1]?.wordCount ?? 0,
-              afterWords: countBodyWords(finalBody)
-            })
-          })
-        } else {
-          // V2：检测报告/深度修复都先出报告；检测模式不改写正文。
-          const report = DeAiProcessor.detectBody(finalBody, { hardRules: deAiStore.hardRules })
-          deAiStore.setLastDetectReport(report)
-          const blocking = report.findings.filter((item: any) => item.severity === 'blocking').length
-          const advisory = report.findings.length - blocking
-          bodyArtifact = {
-            ...bodyArtifact,
-            attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
-              attemptId: postProcessAttemptId,
-              stage: 'deai',
-              processor: 'deai-detect',
-              success: blocking === 0,
-              wordCount: countBodyWords(finalBody),
-              errors: blocking > 0 ? [`降AI检测存在 ${blocking} 项阻断问题`] : []
-            })
-          }
-          appendStepLogForRun(bodyRunId, 4,
-            "降AI检测完成：需处理 " + blocking + " 项，建议 " + advisory + " 项；正文保持原始生成结果"
-          )
-          trace.addEvent({
-            type: "deai-detect",
-            level: blocking > 0 ? "warn" : "info",
-            label: "降AI检测报告",
-            detail: JSON.stringify(report)
-          })
-          buildDeaiDetectSummaryEvents(report).forEach(event => trace.addEvent(event))
-          runTraceStore.attachProcessingReport(trace.runId!, {
-            stage: 'post',
-            processor: 'deai-detect-v2',
-            status: blocking > 0 ? 'warning' : 'success',
-            inputPreview: deaiInputPreview,
-            outputPreview: finalBody.slice(0, 200),
-            ruleHits: report.findings.map((item: any) => ({
-              rule: item.type || item.code || 'unknown',
-              count: item.count || 1
-            })),
-            issues: report.findings.map((item: any) => ({
-              level: item.severity === 'blocking' ? 'error' : 'warning',
-              code: item.type || item.code || 'unknown',
-              message: item.message || item.summary || '',
-              blocking: item.severity === 'blocking'
-            })),
-            startedAt: deaiStartedAt,
-            endedAt: Date.now(),
-            durationMs: Date.now() - deaiStartedAt
-          })
-          if (deAiStore.hardRuleMode === 'deep-fix') {
-            appendStepLogForRun(bodyRunId, 4, "降AI深度修复执行中（最小编辑 + 保护片段回对 + 完整性门禁）…")
-            pipelineStore.updateProgress(94, "降AI深度修复中", bodyRunId)
-            finalBody = await runBodyMinimalEdit(finalBody, report, trace.runId!, bodyRunId)
-            const deepFixValidation = validateBodyArtifact(finalBody, bodyChainContract)
-            if (!deepFixValidation.valid) {
-              const deepFixError = `降AI深度修复后正文未通过契约验收：${deepFixValidation.errors.join('；')}`
-              bodyArtifact = {
-                ...bodyArtifact,
-                attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
-                  attemptId: postProcessAttemptId,
-                  stage: 'deai',
-                  processor: 'deai-deep-fix',
-                  success: false,
-                  wordCount: deepFixValidation.wordCount,
-                  errors: deepFixValidation.errors
-                })
-              }
-              runTraceStore.addEvent(trace.runId!, {
-                type: 'body-post-process-contract-rejected',
-                level: 'error',
-                label: '正文后处理输出未通过契约验收',
-                detail: JSON.stringify({
-                  stage: 'deai-deep-fix',
-                  wordCount: deepFixValidation.wordCount,
-                  targetWords: bodyChainContract.targetWords,
-                  errors: deepFixValidation.errors
-                })
-              })
-              throw new Error(deepFixError)
-            }
-            bodyArtifact = {
-              ...bodyArtifact,
-              attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
-                attemptId: postProcessAttemptId,
-                stage: 'deai',
-                processor: 'deai-deep-fix',
-                success: finalBody.length > 0,
-                wordCount: countBodyWords(finalBody)
-              })
-            }
-            appendStepLogForRun(bodyRunId, 4,
-              "降AI深度修复结束；未通过门禁或 API 失败时保留原始正文"
-            )
-          }
-        }
-      } catch (deaiErr: any) {
-        if (pipelineStore.isGenerationCanceled(bodyRunId)) throw deaiErr
-        console.warn("[DEAI] post-process failed, using raw body:", deaiErr)
-        appendStepLogForRun(bodyRunId, 4, "降AI后处理跳过：" + (deaiErr?.message || "未知错误"))
-        runTraceStore.attachProcessingReport(trace.runId!, {
-          stage: 'post',
-          processor: 'deai-detect-v2',
-          status: 'failed',
-          inputPreview: finalBody.slice(0, 200),
-          outputPreview: finalBody.slice(0, 200),
-          issues: [{
-            level: 'error',
-            code: 'deai-post-process-failed',
-            message: deaiErr?.message || String(deaiErr),
-            blocking: false
-          }],
-          startedAt: Date.now(),
-          endedAt: Date.now(),
-          durationMs: 0
-        })
-        bodyArtifact = {
-          ...bodyArtifact,
-          attempts: recordBodyArtifactPostProcess(bodyArtifact.attempts, {
-            attemptId: postProcessAttemptId,
-            stage: 'deai',
-            processor: 'deai-post-process',
-            success: false,
-            wordCount: countBodyWords(finalBody),
-            errors: [deaiErr?.message || String(deaiErr)]
-          })
-        }
-      }
-    }
     bodyResult.value = finalBody
     ch.body = finalBody
     ch.generationMetadata = generationResult.metadata
@@ -6363,156 +6251,6 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       ? undefined
       : outcome.error
     trace.finish(outcome.status, bodyTraceError, outcome.status === 'success' ? 'body_generation_complete' : 'generation_failed')
-  }
-}
-
-async function runBodyMinimalEdit(
-  text: string,
-  report: any,
-  traceRunId: string,
-  bodyRunId: string
-): Promise<string> {
-  if (!report?.findings?.length) return text
-  const requestProfile = resolvePipelineRunRequestProfile(bodyRunId, 4, null)
-  assertPipelineRequestProfileUsable(requestProfile, traceRunId, 4)
-  emitPipelineRequestProfileTrace(requestProfile, traceRunId, 4)
-
-  const spans = DeAiProcessor.extractProtectedSpans(text, {})
-  const reportText = report.findings.map((item: any) =>
-    `${item.type}（${item.count} 处，每千字 ${item.perKilo}）：${item.samples.join('；')}`
-  ).join('\n')
-  const systemPrompt = [
-    DeAiProcessor.getMinimalEditPrompt(),
-    '',
-    appendDeaiVoiceProfile('', pipelineDeaiVoiceProfile.value),
-    '',
-    '【检测报告】',
-    reportText,
-    '',
-    '【必须保留的人名/设定/对白】',
-    spans.map((span: any) => span.value).join('\n') || '无'
-  ].join('\n')
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: text }
-  ]
-  const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
-  const provider = providerStore.getProvider(requestProfile.providerId)
-  const model = requestProfile.model
-  const aiService = await getAiService()
-  const callId = runTraceStore.startApiCall(traceRunId, {
-    step: 4,
-    skillName: '降AI深度修复',
-    providerId: provider?.id,
-    providerName: provider?.name,
-    model,
-    requestMessages
-  })
-  try {
-    const result = await aiService.callAi({
-      purpose: 'generate',
-      providerId: requestProfile.providerId || undefined,
-      messages,
-      model: model || undefined,
-      stream: false,
-      retry: true,
-      signal: pipelineStore.getGenerationSignal(bodyRunId),
-      onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId),
-      meta: { source: 'PipelinePanel.runBodyMinimalEdit' }
-    })
-    const edited = result.text || ''
-    const traceStatus = traceStatusFromAiResult(result)
-    runTraceStore.finishApiCall(traceRunId, callId, {
-      status: traceStatus.status,
-      responseText: edited,
-      reasoningText: result.reasoning || '',
-      finishReason: result.finishReason,
-      usage: result.usage,
-      durationMs: result.durationMs,
-      error: traceStatus.error
-    })
-    if (traceStatus.status === 'failed') {
-      appendStepLogForRun(bodyRunId, 4, traceStatus.error || '降AI深度修复未生成正文，保留原文')
-      return text
-    }
-    if (!edited.trim()) {
-      runTraceStore.addEvent(traceRunId, {
-        type: 'deai-minimal-edit',
-        level: 'warn',
-        label: '降AI深度修复结果为空，保留原文'
-      })
-      return text
-    }
-
-    const blockingFindingCount = report.findings.filter((item: any) => item.severity === 'blocking').length
-    const changeRateGate = DeAiProcessor.evaluateDeepFixEdit(text, edited, blockingFindingCount)
-    runTraceStore.addEvent(traceRunId, {
-      type: 'deai-change-rate',
-      level: changeRateGate.accepted ? (changeRateGate.warning ? 'warn' : 'info') : 'warn',
-      label: changeRateGate.accepted
-        ? (changeRateGate.warning ? '降AI深度修复变更率偏高' : '降AI深度修复变更率')
-        : '降AI深度修复变更率超限，保留原文',
-      detail: JSON.stringify({
-        changeRate: changeRateGate.changeRate,
-        warnThreshold: changeRateGate.warnThreshold,
-        rejectThreshold: changeRateGate.rejectThreshold,
-        accepted: changeRateGate.accepted,
-        warning: changeRateGate.warning || null
-      })
-    })
-    if (!changeRateGate.accepted) {
-      runTraceStore.addEvent(traceRunId, {
-        type: 'deai-minimal-edit',
-        level: 'warn',
-        label: '降AI深度修复变更率超限，保留原文',
-        detail: JSON.stringify({
-          changeRate: changeRateGate.changeRate,
-          rejectThreshold: changeRateGate.rejectThreshold,
-          reason: changeRateGate.reason
-        })
-      })
-      appendStepLogForRun(bodyRunId, 4, `降AI深度修复变更率 ${(changeRateGate.changeRate * 100).toFixed(0)}% 超过门禁，保留原文`)
-      return text
-    }
-
-    const spanCheck = DeAiProcessor.verifyProtectedSpans(text, edited, spans)
-    const integrityOk = DeAiProcessor.passesBodyIntegrityCheck(text, edited)
-    if (spanCheck.mustMissing > 0 || !integrityOk) {
-      runTraceStore.addEvent(traceRunId, {
-        type: 'deai-minimal-edit',
-        level: 'warn',
-        label: '降AI深度修复未通过门禁，保留原文',
-        detail: JSON.stringify({
-          mustMissing: spanCheck.mustMissing,
-          shouldMissing: spanCheck.shouldMissing,
-          integrityOk
-        })
-      })
-      return text
-    }
-
-    runTraceStore.addEvent(traceRunId, {
-      type: 'deai-minimal-edit',
-      level: 'info',
-      label: '降AI深度修复完成',
-      detail: JSON.stringify({
-        mustMissing: spanCheck.mustMissing,
-        shouldMissing: spanCheck.shouldMissing,
-        integrityOk,
-        changeRate: changeRateGate.changeRate,
-        retentionRatio: spanCheck.retentionRatio,
-        originalLength: text.length,
-        editedLength: edited.length
-      })
-    })
-    return edited
-  } catch (error) {
-    const canceled = pipelineStore.isGenerationCanceled(bodyRunId)
-    runTraceStore.finishApiCall(traceRunId, callId, {
-      status: canceled ? 'canceled' : 'failed',
-      error: error instanceof Error ? error.message : String(error)
-    })
-    throw error
   }
 }
 
@@ -7301,6 +7039,15 @@ function memoryTextFromRetrieval(retrieval: ReturnType<typeof retrieveContext>, 
 .pl-run-trace-suggestions p { margin: 0; }
 .pl-run-trace-legacy-empty { padding: var(--space-4); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
 .pl-deai-badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-4); font-size: var(--font-size-xs); color: var(--success); background: var(--success-dim); border-radius: var(--radius-sm); white-space: nowrap; }
+.pl-deai-guidance-feedback {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
 .pl-fullscreen { align-items: stretch; justify-content: stretch; }
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
 .pl-memory-preview-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); pointer-events: auto; }

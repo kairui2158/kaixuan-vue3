@@ -1,5 +1,6 @@
 import type { StyleProfileEffectiveLike } from './styleContextCompiler'
 import type { StyleRule } from '../stores/project'
+import { findDeaiSharedTopicConflicts } from './deaiSharedTopics'
 
 export interface DeAiVoiceProfileSection {
   section: '声纹' | '场景写法' | '量化' | '正向规则' | '警戒线'
@@ -31,14 +32,6 @@ export interface DeAiVoiceProfileConflict {
 
 export const DEAI_VOICE_PROFILE_BUDGET = 700
 
-const SHARED_TOPICS: Array<{ key: string; topic: string; terms: string[] }> = [
-  { key: 'sentence-rhythm', topic: '句长节奏与短句使用', terms: ['短句', '句长', '碎片'] },
-  { key: 'transition', topic: '连接词与过渡方式', terms: ['连接词', '过渡'] },
-  { key: 'dialogue', topic: '对白完整度与轻重', terms: ['对白', '对话', '台词'] },
-  { key: 'perspective', topic: '叙事视角', terms: ['视角'] },
-  { key: 'integrity', topic: '人物设定与伏笔保护', terms: ['人物', '设定', '伏笔'] },
-]
-
 function enabledRuleText(rules: StyleRule[] | undefined): string[] {
   return (rules || [])
     .filter(rule => rule.enabled && rule.text.trim())
@@ -67,13 +60,11 @@ function quantitativeLine(style: StyleProfileEffectiveLike): string | null {
 }
 
 function detectConflicts(text: string): DeAiVoiceProfileConflict[] {
-  return SHARED_TOPICS
-    .filter(topic => topic.terms.some(term => text.includes(term)))
-    .map(topic => ({
-      key: topic.key,
-      topic: topic.topic,
-      profileTerms: topic.terms.filter(term => text.includes(term)),
-    }))
+  return findDeaiSharedTopicConflicts(text).map(topic => ({
+    key: topic.key,
+    topic: topic.topic,
+    profileTerms: topic.terms,
+  }))
 }
 
 export function buildDeaiVoiceProfile(

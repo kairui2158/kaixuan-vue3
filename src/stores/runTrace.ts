@@ -964,6 +964,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   'chapter-count-arbitration',
   'chapter-count-arbitration-failed',
   'deai-voice-profile',
+  'deai-guidance-pack',
   'deai-injection-policy',
   'deai-contract-warning',
   'deai-conflict-policy',

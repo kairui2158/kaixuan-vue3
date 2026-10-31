@@ -122,10 +122,18 @@ describe('skillPackageManager manifest validation', () => {
   it('preflights valid meta.deai and reports invalid or unknown fields', () => {
     const valid = validateSkillPackageManifest({
       ...validManifest,
-      meta: { deai: { contractVersion: 1, generation: 'off', finalStepDetection: 'off', conflictPolicy: 'skill-wins' } },
+      meta: { deai: { contractVersion: 2, generation: 'off', finalStepDetection: 'off', conflictPolicy: 'skill-wins', guidanceOwnership: 'skill', overlaps: ['短句'] } },
     }, '3.110.7')
     expect(valid.valid).toBe(true)
     expect(valid.warnings).toHaveLength(0)
+
+    const legacy = validateSkillPackageManifest({
+      ...validManifest,
+      meta: { deai: { contractVersion: 1, generation: 'off', conflictPolicy: 'report' } },
+    }, '3.110.7')
+    expect(legacy.valid).toBe(true)
+    expect(legacy.warnings?.map(warning => warning.field)).toEqual(['meta.deai'])
+    expect(legacy.warnings?.[0].message).toContain('contractVersion 1 已迁移为 2')
 
     const invalid = validateSkillPackageManifest({
       ...validManifest,
@@ -135,8 +143,6 @@ describe('skillPackageManager manifest validation', () => {
     expect(invalid.issues.map(issue => issue.field)).toEqual(
       expect.arrayContaining(['meta.deai', 'meta.deai', 'meta.deai']),
     )
-    expect(invalid.warnings?.map(warning => warning.field)).toEqual(
-      expect.arrayContaining(['meta.deai']),
-    )
+    expect(invalid.warnings?.map(warning => warning.field)).toEqual(['meta.deai', 'meta.deai'])
   })
 })

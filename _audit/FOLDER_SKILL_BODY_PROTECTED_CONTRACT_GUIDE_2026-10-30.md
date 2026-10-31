@@ -11,6 +11,7 @@
 ## 适用对象
 
 - 目标读者：`D:/codex/玄武规划SKILL/凯旋-正文层/kaixuan-s2` 及后续同构正文 generator SKILL。
+- `meta.json` 的磁盘声明要求另见 [FOLDER_SKILL_META_DECLARATION_SPEC_2026-11-01.md](FOLDER_SKILL_META_DECLARATION_SPEC_2026-11-01.md)；本手册只约束正文受保护契约、候选账本与 word-gap 语义。
 - 应用版本：基于 3.110.8 工作区实现；本轮修复未升版、未封装、未提交，等待用户确认。
 - 事故样本：`C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-正文层-20261030-213657-deep`。
 - 代码单源：`src/services/protectedSkillContract.ts`、`src/services/realSkillExecutor.ts`、`src/services/schemaRetryFeedback.ts`。

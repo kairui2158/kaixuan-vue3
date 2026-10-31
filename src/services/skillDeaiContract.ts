@@ -1,17 +1,21 @@
 import {
-  resolveDeaiPromptForChainStep,
-} from './de-ai'
+  buildDeaiGuidancePack,
+  type DeaiGuidancePack,
+} from './deaiGuidancePack'
 import {
   appendDeaiVoiceProfile,
   type DeAiVoiceProfile,
 } from './deaiVoiceProfile'
+import { findDeaiSharedTerms } from './deaiSharedTopics'
 import {
+  BODY_LAYER_STEP,
   DEFAULT_SKILL_DEAI_META,
   SKILL_DEAI_CONTRACT_VERSION,
   SUFFIX_ONLY_EQUIVALENT_MODE,
   type DeaiConflictPolicy,
   type DeaiFinalStepDetectionMode,
   type DeaiGenerationMode,
+  type DeaiGuidanceOwnership,
   type RequiredSkillDeaiMeta,
   type SkillDeaiMeta,
   type SkillDeaiValidation,
@@ -19,6 +23,7 @@ import {
 } from './skillDeaiContractValidation'
 
 export {
+  BODY_LAYER_STEP,
   DEFAULT_SKILL_DEAI_META,
   SKILL_DEAI_CONTRACT_VERSION,
   SUFFIX_ONLY_EQUIVALENT_MODE,
@@ -28,6 +33,7 @@ export type {
   DeaiConflictPolicy,
   DeaiFinalStepDetectionMode,
   DeaiGenerationMode,
+  DeaiGuidanceOwnership,
   RequiredSkillDeaiMeta,
   SkillDeaiMeta,
   SkillDeaiValidation,
@@ -52,11 +58,13 @@ export interface DeaiPromptProjection {
   source: DeaiInjectionSource
   policy: RequiredSkillDeaiMeta
   warnings: string[]
+  guidancePack: DeaiGuidancePack | null
 }
 
 export interface DeaiConflictResolution {
   prompt: string
   overlaps: string[]
+  overlapOrigins: Array<'keyword' | 'declared'>
   action: 'none' | 'report' | 'skill-wins' | 'app-wins'
   policy: RequiredSkillDeaiMeta['conflictPolicy']
 }
@@ -94,40 +102,41 @@ export function resolveDeaiPromptForSkillStep(
   const policy = validation.meta
   const source = resolveSource(skillDeaiMeta, policy.generation)
 
-    if (step !== 4 || policy.generation === 'off') {
+    if (step !== BODY_LAYER_STEP || policy.generation === 'off') {
     return {
       prompt: '',
       variant: 'off',
       source,
       policy,
       warnings: validation.warnings,
+      guidancePack: null,
     }
   }
 
-  const basePrompt = resolveDeaiPromptForChainStep(step, chainIndex, chainCount)
-  const prompt = appendDeaiVoiceProfile(basePrompt, context.voiceProfile)
+  const promptVariant = resolveVariant(chainIndex, chainCount)
+  if (policy.guidanceOwnership === 'skill') {
+    return {
+      prompt: '',
+      variant: promptVariant,
+      source,
+      policy,
+      warnings: validation.warnings,
+      guidancePack: null,
+    }
+  }
+  const guidancePack = buildDeaiGuidancePack({
+    role: promptVariant === 'off' ? 'methodology' : promptVariant,
+    voiceProfile: context.voiceProfile,
+  })
   return {
-    prompt,
-    variant: resolveVariant(chainIndex, chainCount),
+    prompt: appendDeaiVoiceProfile(guidancePack.text, context.voiceProfile),
+    variant: promptVariant,
     source,
     policy,
     warnings: validation.warnings,
+    guidancePack,
   }
 }
-
-const DEAI_CONFLICT_TERMS = [
-  '短句',
-  '句长',
-  '碎片',
-  '连接词',
-  '过渡',
-  '对白',
-  '对话',
-  '视角',
-  '人物',
-  '伏笔',
-  'AI痕迹',
-]
 
 export function resolveDeaiPromptConflict(
   skillTemplateText: string,
@@ -137,18 +146,27 @@ export function resolveDeaiPromptConflict(
     return {
       prompt: projection.prompt,
       overlaps: [],
+      overlapOrigins: [],
       action: 'none',
       policy: projection.policy.conflictPolicy,
     }
   }
 
-  const overlaps = DEAI_CONFLICT_TERMS.filter(term =>
-    projection.prompt.includes(term) && skillTemplateText.includes(term)
+  const keywordOverlaps = findDeaiSharedTerms(projection.prompt)
+    .filter(term => skillTemplateText.includes(term))
+  const declaredOverlaps = projection.policy.overlaps.filter(term =>
+    projection.prompt.includes(term) || skillTemplateText.includes(term)
   )
+  const overlaps = [...keywordOverlaps, ...declaredOverlaps]
+  const overlapOrigins = [
+    ...keywordOverlaps.map(() => 'keyword' as const),
+    ...declaredOverlaps.map(() => 'declared' as const),
+  ]
   if (!overlaps.length) {
     return {
       prompt: projection.prompt,
       overlaps,
+      overlapOrigins,
       action: 'none',
       policy: projection.policy.conflictPolicy,
     }
@@ -158,6 +176,7 @@ export function resolveDeaiPromptConflict(
     return {
       prompt: '',
       overlaps,
+      overlapOrigins,
       action: 'skill-wins',
       policy: projection.policy.conflictPolicy,
     }
@@ -165,6 +184,7 @@ export function resolveDeaiPromptConflict(
   return {
     prompt: projection.prompt,
     overlaps,
+    overlapOrigins,
     action: projection.policy.conflictPolicy === 'app-wins' ? 'app-wins' : 'report',
     policy: projection.policy.conflictPolicy,
   }

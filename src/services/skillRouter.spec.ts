@@ -286,6 +286,90 @@ describe('skillRouter composite mapping', () => {
       protectedContract: { kind: 'body', targetWords: 3500 }
     }))
   })
+
+  it('forwards the final-step retry contract to the folder executor', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'folder',
+        name: 'folder',
+        description: '',
+        template: '模板',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/folder'
+      } as any,
+      error: null,
+      folderPackageCache: false
+    })
+    executeRealSkillMock.mockResolvedValueOnce({
+      status: 'success',
+      output: '输出',
+      errors: [],
+      diagnostics: [],
+      folderPackageCache: false
+    })
+    const finalStepRetry = {
+      role: 'polish' as const,
+      deaiDetection: 'on' as const,
+      upstreamAnchors: ['S2 权威事实锚点'],
+      deaiFindings: []
+    }
+
+    const result = await routeSkill(
+      { id: 'folder', format: 'folder', folderPath: 'D:/skills/folder' },
+      {
+        input: '输入',
+        budget: budget(),
+        finalStepRetry
+      }
+    )
+
+    expect(result.mode).toBe('folder')
+    expect(executeRealSkillMock).toHaveBeenCalledWith(expect.objectContaining({
+      finalStepRetry
+    }))
+  })
+
+  it('forwards the final-step retry contract to the composite executor', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'parent',
+        name: 'parent',
+        description: '',
+        template: '',
+        meta: { executionMode: 'composite' },
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/parent'
+      } as any,
+      error: null,
+      folderPackageCache: false
+    })
+    executeCompositeSkillMock.mockResolvedValueOnce(compositeResult('DONE'))
+    const finalStepRetry = {
+      role: 'polish' as const,
+      deaiDetection: 'on' as const,
+      upstreamAnchors: ['S2 权威事实锚点'],
+      deaiFindings: []
+    }
+
+    const result = await routeSkill(
+      { id: 'parent', format: 'folder', folderPath: 'D:/skills/parent' },
+      {
+        input: '输入',
+        budget: budget(),
+        finalStepRetry
+      }
+    )
+
+    expect(result.mode).toBe('folder')
+    expect(executeCompositeSkillMock).toHaveBeenCalledWith(expect.objectContaining({
+      finalStepRetry
+    }))
+  })
 })
 
 describe('skillRouter pipeline no-tool boundary', () => {

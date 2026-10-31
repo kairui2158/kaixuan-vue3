@@ -38,6 +38,7 @@ import { loadRealSkill } from './realSkillLoader'
 import { DeAiSamples } from './deai-samples.js'
 import { getAiService } from './aiService'
 import type { CallAiParams } from './aiService'
+import type { FinalStepFeedbackResult } from './finalStepFeedback'
 
 const loadRealSkillMock = vi.mocked(loadRealSkill)
 const getAiServiceMock = vi.mocked(getAiService)
@@ -807,6 +808,7 @@ describe('realSkillExecutor single pass', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -937,6 +939,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1045,6 +1048,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1081,6 +1085,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1126,6 +1131,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1164,6 +1170,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1284,6 +1291,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1422,6 +1430,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1448,6 +1457,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1479,6 +1489,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1503,6 +1514,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1534,6 +1546,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1803,6 +1816,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       error: null,
       folderPackageCache: false
     })
+    const composed: FinalStepFeedbackResult[] = []
 
     const result = await executeRealSkill({
       folderPath: 'D:/skill',
@@ -1811,11 +1825,14 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       finalStepRetry: {
         role: 'polish',
         upstreamAnchors: ['S2 权威事实锚点'],
-      }
+      },
+      onFinalStepFeedbackComposed: feedback => composed.push(feedback)
     })
 
     expect(result.status).toBe('success')
     expect(callAi).toHaveBeenCalledTimes(2)
+    expect(composed).toHaveLength(1)
+    expect(composed[0]!.kind).toBe('retry')
     const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
     expect(retrySystemPrompt).toContain('终步重试协议')
     expect(retrySystemPrompt).toContain('FACT_LOCK')
@@ -1866,6 +1883,75 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(retrySystemPrompt).toContain('FACT_LOCK')
     expect(retrySystemPrompt).toContain('S2 权威事实锚点')
     expect(retrySystemPrompt).not.toContain('三、降AI语言打磨项')
+  })
+
+  it('composes app-owned DEAI teaching feedback on a valid normal final step', async () => {
+    const fragments: string[] = []
+    for (let index = 0; index < 30; index += 1) {
+      fragments.push(`他忽然停住，肩膀绷紧，呼吸停滞，瞳孔收缩，${index + 1}。`)
+    }
+    const candidateOutput = fragments.join('')
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: candidateOutput }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const composed: FinalStepFeedbackResult[] = []
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '上游原文',
+      budget: createBudget(),
+      finalStepRetry: {
+        role: 'polish',
+        deaiDetection: 'on'
+      },
+      onFinalStepFeedbackComposed: feedback => composed.push(feedback)
+    })
+
+    expect(result.status).toBe('success')
+    expect(result.errors).toEqual([])
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(composed).toHaveLength(1)
+    expect(composed[0]!.kind).toBe('teaching')
+    expect(composed[0]!.sourceCounts.deai).toBeGreaterThan(0)
+    expect(composed[0]!.feedback).toContain('三、降AI语言打磨项')
+    expect(result.diagnostics.some(item => item.code === 'quality_gate_degraded')).toBe(false)
+  })
+
+  it('keeps a valid normal final step free of app-owned DEAI teaching feedback when detection is off', async () => {
+    const fragments: string[] = []
+    for (let index = 0; index < 30; index += 1) {
+      fragments.push(`他忽然停住，肩膀绷紧，呼吸停滞，瞳孔收缩，${index + 1}。`)
+    }
+    const candidateOutput = fragments.join('')
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: candidateOutput }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const composed: FinalStepFeedbackResult[] = []
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '上游原文',
+      budget: createBudget(),
+      finalStepRetry: {
+        role: 'polish',
+        deaiDetection: 'off'
+      },
+      onFinalStepFeedbackComposed: feedback => composed.push(feedback)
+    })
+
+    expect(result.status).toBe('success')
+    expect(result.errors).toEqual([])
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(composed).toHaveLength(0)
+    expect(result.diagnostics.some(item => item.code === 'quality_gate_degraded')).toBe(false)
   })
 
   it('keeps the normal retry protocol for non-final chain steps', async () => {

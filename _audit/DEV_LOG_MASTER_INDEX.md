@@ -1534,3 +1534,67 @@
 - 交付：版本升级 3.110.12；合流单一裁判权审计闭环、技能/智能导入链路 V2.1 与叙事 verdict 单通道；封装并真实启动核验安装包；替换核验脚本并保留 3.110.6 ACL 边界件；完成审计登记与 git 提交。
 - 验证：全量回归 234 files / 2512 tests passed；`npm run type-check` exit 0；技能导入 V2.1 Electron UI 验证 PASS；`node scripts/verify-packaging-3-110-12.mjs` PASS；安装包 SHA256 `83465391a78cf3da4e32a3cec029643a116a944eabd2c72b4f9740f05728527d`。
 - 边界：live 供应商生成未测；降AI release gate 仍 NOT_READY；`神意助手-Setup-3.110.6.exe` 维持 ACL 损坏边界。
+
+# 2026-11-01 folder SKILL meta.json 声明规范与 SKILL handoff
+
+- 文件：[_audit/DEV_LOG_2026-11-01_folder-skill-meta-declaration-handoff.md](_audit/DEV_LOG_2026-11-01_folder-skill-meta-declaration-handoff.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_folder-skill-meta-declaration-handoff.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_folder-skill-meta-declaration-handoff.md)
+- 交付：判定“文件夹磁盘声明缺失”为权威源迁移后应用侧手册断链；新增 `meta.json` 磁盘声明规范与 SKILL 补齐 handoff；既有 SKILL 手册补交叉引用；G1.23 回写权威源迁移条款，经验文件升级 v9.8.8。
+- 验证：定向语义测试与类型检查通过；规范字段与运行时/体检实现锚点逐项对账；全层 meta.json 扫描确认缺口清单。
+- 边界：SKILL 层磁盘包待其按 handoff 补齐；不升版、不封装、不提交 git。
+
+# 2026-11-01 内嵌降AI诊断-路由-回归方案
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-diagnose-route-return-proposal.md](_audit/DEV_LOG_2026-11-01_deai-diagnose-route-return-proposal.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-diagnose-route-return-proposal.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-diagnose-route-return-proposal.md)
+- 交付：产出内嵌降AI V1 方案：降AI降权为只读诊断器、findings 位置化、退化指纹独立、修复按 owner 路由、skill-wins 默认化、legacy-auto/deep-fix 分阶段退役；包含20轮推演、三阶段实施、七面影响圈与验收门禁。
+- 验证：只读对账 `de-ai.js`、`skillDeaiContract.ts`、`PipelinePanel.vue` 与 story-deslop 检测脚本锚点；方案按 G0.6 给出成熟结论；无生产代码改动。
+- 边界：待用户审核；不改生产代码、不升版、不封装、不提交 git；folder SKILL 适配说明待批准后输出。
+
+# 2026-11-01 内嵌降AI指导者方案 V2
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-proposal.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-proposal.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-proposal.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-proposal.md)
+- 交付：在 V1 编译器方案基础上升级为“方法论指导者 + 确定性门禁”：生成前分步指导包、生成后位置化教学反馈、`meta.deai` contractVersion 2 与 `guidanceOwnership`、旧三段提示词七层退役；明确资料支撑方法论指导者但不支撑自动语义/评分/改稿导师。
+- 验证：只读对账 story-deslop 方法论锚点与应用注入/契约/流水线消费点；方案包含20轮推演、三阶段实施、七面影响圈、G0.6 成熟度结论与 6 个决策点；无生产代码改动。
+- 边界：待用户审核；不改生产代码、不升版、不封装、不提交 git；教学有效性待影子观察（20章、2题材、2模型）达标后才能宣称验证。
+
+# 2026-11-01 内嵌降AI方法指导者方案 V3
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v3.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v3.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v3.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v3.md)
+- 交付：按用户五条裁决升级 V3：严格区分流水线内嵌降AI与手动去AI味并切断流水线读取 `deAiStore` 的状态纠缠；补齐旧三段提示词与 `legacy-auto/deep-fix` 的 G0.10 七层清零与五证退场；角色唯一化为方法指导者；新增 6条/1200字符/5ms 耗时预算与 20章影子对比；明确徽章、日志、可折叠教学反馈的 UI 体现。
+- 验证：只读对账 `PipelinePanel.vue` 注入/后处理/跨 store 读取、`de-ai.js` 三段提示词、`runTrace.ts` 字段与 6 类守护测试；无生产代码改动。
+- 边界：待用户审核；不改生产代码、不升版、不封装、不提交 git；教学有效性待影子观察达标。
+
+# 2026-11-01 内嵌降AI方法指导者方案 V4
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v4.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v4.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v4.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v4.md)
+- 交付：把 V3 的 21 项风险全部升级为“机制、证据、断言、停机条件”四件套；修正纠缠面为 4 读 1 写并纳入 `runBodyMinimalEdit` 退场；承认 overlap 为 keyword-lite 并设计 declared overlaps；先修 `finalStepDetection` 正常终步接线；限定零 diff 为确定性构造物比较；补齐 `suffix-only` 分叉迁移门禁与文档-测试-实现三方绑定。
+- 验证：只读源码复核 `PipelinePanel.vue:6091-6176,6223,6369-6500`、`skillDeaiContract.ts:118-146`、`skillDeaiContractValidation.ts:30`、`realSkillExecutor.ts:526-528`、`runTrace.ts:197-384,2269-2357`；确认 `deai-injection-policy.spec.ts:22-30` 三方绑定与 `proseHardSignalWiring.spec.ts:9` 位置耦合；无生产代码改动。
+- 边界：待用户审核；不改生产代码、不升版、不封装、不提交 git；教学有效性与校准状态保持 provisional。
+
+# 2026-11-01 内嵌降AI方法指导者方案 V4.1
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v4-1.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v4-1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v4-1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v4-1.md)
+- 交付：补入 V4 审计出的 10 个漏项（混源隔离、blocking 第二裁判、声纹预算、step 4 耦合、HelpGuide、预检 warning、finalStepRetry 透传、keyword-lite 双实现、voice profile 快照、脆弱断言）；新增执行条例：Task 单元、预写验证、五列执行对账表、中断恢复协议、回头看清单、违例即停。
+- 验证：只读复核全部漏项当前源码锚点；无生产代码改动。
+- 边界：待用户审核；不改生产代码、不升版、不封装、不提交 git；教学有效性与校准状态保持 provisional。
+
+# 2026-11-01 内嵌降AI方法指导者最终执行方案 V5 FINAL
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 交付：完成 V1-V4.1 跨版本审计；显式裁决三处被后续版本覆盖的早期承诺（手动入口不改造、blocking 退场、skill-wins 默认化保留）；合并 14 项锁定决策；V4.1 的 10 漏项全部映射到 Phase Task；执行条例与预写验证命令并入最终方案。
+- 验证：V1/V2/V3 全文复读，V4/V4.1 复用前轮源码锚点复核；无生产代码改动。
+- 边界：待用户确认执行；不改生产代码、不升版、不封装、不提交 git；教学有效性与校准状态保持 provisional。
+
+# 2026-11-01 3.110.13 降AI方法指导者执行与封装
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 交付：V5 FINAL Phase A/B/C 全部落地：切断手动 DEAI store 纠缠、run 级声纹快照、确定性指导包、`meta.deai` v2 契约、UI trace 实值显示、旧三段提示词与流水线改稿语义七层清零；版本升级 3.110.13 并封装。
+- 验证：type-check exit 0；全量 238 files / 2539 tests passed；两组真实 Electron UI 验证 PASS；app.asar 旧语义 0 命中；安装包 231,646,326 字节。
+- 边界：B6 保持 provisional，配对影子数据为 0；手动去AI味功能本体不变；教学反馈不携带候选全文。

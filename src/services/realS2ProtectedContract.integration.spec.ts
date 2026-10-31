@@ -88,6 +88,7 @@ describe('real kaixuan S2 protected body contract', () => {
       '【正文交接】',
       '章节：第1章',
       'POV：王芳',
+      'chapterIntent：王芳在仓库发现旧账册并确认北仓线索',
       '已完成场景：场景1、场景2、场景3、场景4',
       '未完成场景：无',
       '来源覆盖状态：全部场景已覆盖',

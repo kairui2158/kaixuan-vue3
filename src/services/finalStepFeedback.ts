@@ -18,6 +18,7 @@ export interface FinalStepFeedbackResult {
   feedback: string
   sourceCounts: Record<FinalStepFeedbackSource, number>
   length: number
+  kind?: 'retry' | 'teaching'
 }
 
 const DEFAULT_MAX_ANCHORS = 3

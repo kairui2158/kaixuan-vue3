@@ -177,7 +177,7 @@ describe('pipeline progress readers', () => {
     const bodyBypassQueues = queueMatchers
       .filter(match => match[1].startsWith('PipelinePanel.runBody') || match[1].startsWith('PipelinePanel.runHard'))
       .map(match => match[0])
-    expect(bodyBypassQueues).toHaveLength(2)
+    expect(bodyBypassQueues).toHaveLength(1)
     expect(bodyBypassQueues.every(source => source.includes('onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId)'))).toBe(true)
   })
 })

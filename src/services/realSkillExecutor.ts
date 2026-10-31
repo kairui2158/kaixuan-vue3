@@ -531,8 +531,30 @@ function buildFinalStepSchemaRetryFeedback(
     upstreamAnchors: options.finalStepRetry?.upstreamAnchors,
     deaiFindings: deaiFindings ?? options.finalStepRetry?.deaiFindings,
   })
-  options.onFinalStepFeedbackComposed?.(result)
+  options.onFinalStepFeedbackComposed?.({ ...result, kind: 'retry' })
   return result.feedback
+}
+
+/**
+ * Normal final steps have no failure feedback to inject. DEAI findings remain
+ * teaching-only observability: the composed result is reported to the caller
+ * and never changes status, errors, output, or retries.
+ */
+function composeFinalStepTeachingFeedback(
+  options: RealSkillExecuteOptions,
+  candidate: string,
+  diagnostics: RealSkillDiagnostic[],
+): void {
+  const deaiDetection = options.finalStepRetry?.deaiDetection ?? 'on'
+  if (deaiDetection === 'off') return
+  const result = buildFinalStepFeedback({
+    errors: [],
+    upstreamAnchors: options.finalStepRetry?.upstreamAnchors,
+    deaiFindings: collectFinalStepDeaiFindings(candidate, diagnostics)
+  })
+  if (result.sourceCounts.deai > 0) {
+    options.onFinalStepFeedbackComposed?.({ ...result, kind: 'teaching' })
+  }
 }
 
 function collectFinalStepDeaiFindings(
@@ -1346,6 +1368,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           toolResults = (result as CallAiToolResultLike).toolResults
           toolRequestDeltas = (result as CallAiToolResultLike).toolRequestDeltas
           toolAudit = (result as CallAiToolResultLike).toolAudit
+          if (options.finalStepRetry?.role === 'polish') {
+            composeFinalStepTeachingFeedback(options, candidateOutput, diagnostics)
+          }
           if (isMultiPass) {
             dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done', traceRunId: options.traceRunId })
           }

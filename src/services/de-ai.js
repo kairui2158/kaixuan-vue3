@@ -1,4 +1,5 @@
 
+import { BODY_LAYER_STEP } from './skillDeaiContractValidation'
 
 var DeAiProcessor = (function() {
   // ================================================================
@@ -1203,7 +1204,6 @@ function buildDetectReportV2(text, base) {
     detectBannedVocab: detectBannedVocab,
     detectBannedPhrases: detectBannedPhrases,
     passesBodyIntegrityCheck: passesBodyIntegrityCheck,
-    getMethodologyPrompt: function() { return DEAI_METHODOLOGY_PROMPT; },
     extractProtectedSpans: extractProtectedSpans,
     verifyProtectedSpans: verifyProtectedSpans,
     evaluateDeepFixEdit: evaluateDeepFixEdit,
@@ -1214,12 +1214,6 @@ function buildDetectReportV2(text, base) {
   };
 })();
 
-// ================================================================
-// 方法论注入层：完整降AI方法论作为创作约束
-// 注入到SKILL链的system prompt中，让模型在生成阶段就遵守
-// 覆盖脚本无法实现的语义规则（具体化、打破信息均匀）
-// ================================================================
-var DEAI_METHODOLOGY_PROMPT = "【降AI创作约束 - 生成阶段执行】\n你在生成文本时必须遵守以下降AI写作规则。核心认知：同义词替换无效，真正影响AI特征的是表达规律——句子排列、段落组织、信息顺序、完整度分布。以下以肯定式约束为主；风格细节以作者声纹为准。\n\n1. 第一句必须是具体动作、身体感受、环境声音或视觉画面；禁止「随着」「众所周知」等空泛开头。\n2. 句长方差要大：连续三句长度差异>30%；短句仅用于关键转折，禁止连续三句以上低于8字的碎片链。\n3. 用明确部位、力度和方向的具体动作替代抽象形容；情绪写成可见行为，不写「空气仿佛凝固」。\n4. 场景按戏剧价值分配篇幅，结尾允许保留未解决张力；禁止均匀分段和总结腔收束。\n5. 连接词只按叙事需要使用；优先用动作变化、选择性观察和信息顺序承担过渡，必须改变信息呈现顺序本身。\n6. 叙述视角体现判断：看什么不看什么、语气倾向、信息节奏；叙述者不是评论员。\n7. 段落结构要有变化；禁止「描述-对话-描述」循环，每个对话回合的描写配比必须不同。\n8. 对白要有残缺和轻重：有些回合只有动作，有些只有台词；不替读者总结因果，少用解释性从句。\n9. 同一段保持叙事视角一致；紧张场景短句密集，舒缓场景长句铺陈。\n10. 自然不等于混乱：禁止语病、错别字和故意重复；过度纠错（连续碎片、「不是X。是Y。」）本身也是AI信号。\n11. 小说正文特殊保护：人物名字、地点、时间、等级体系、金手指设定、关键剧情、伏笔不得改变；伏笔回收距离至少3章。\n12. 禁止Chatbot痕迹和模糊填充：不出现助手腔；角色不安就写具体表现，不用「似乎」「仿佛」「给人一种...的感觉」。\n\n以上规则在生成时执行，不是事后修改。";
 function collectDeaiFindingsWithObservability(candidate, onDegraded, detect) {
   var detector = detect || function(text) { return DeAiProcessor.detectBody(text, {}); };
   try {
@@ -1230,41 +1224,8 @@ function collectDeaiFindingsWithObservability(candidate, onDegraded, detect) {
     return { findings: [], degraded: true, degradedReason: message };
   }
 }
-var DEAI_CREATIVE_PROMPT = [
-  '【降AI创作风格 - 创作执行阶段】',
-  '只做正向风格执行，不做方法解释，不输出检查清单。',
-  '1. 开场进入具体动作、身体感受、环境声音或视觉画面；连续三句长度保持明显差异，短句仅用于关键转折，禁止碎片链。',
-  '2. 用明确部位、力度和方向的动作呈现情绪；保留人物名字、地点、时间、等级体系、金手指设定、关键剧情和伏笔。',
-  '3. 场景按戏剧价值分配轻重，结尾允许保留未解决张力；连接词只按叙事需要使用，用动作和信息顺序承担过渡。',
-  '4. 对白保留残缺和轻重，不替读者总结因果；同一段视角一致，紧张场景短句密集，舒缓场景长句铺陈。',
-  '5. 整文章节号密度参考上限35/千字；过度纠错和过度碎片化本身也是AI信号。只输出本步骤定稿产物。'
-].join('\n');
-var DEAI_POLISH_PROMPT = [
-  '【降AI打磨契约 - 语言收敛阶段】',
-  '只做语言层收敛，不重新创作，不改变叙事结构和事实。',
-  '1. 保留上游段落数量、场景顺序、人物设定、伏笔和对白含义。',
-  '2. 只修改词语生硬处、重复处、报告腔和明显的AI痕迹。',
-  '3. 修复AI痕迹时优先使用具体动作、身体感受和现场细节，不用泛化同义词替换。',
-  '4. 不为了降低检测命中而增加新比喻；明喻数量不得高于打磨前。',
-  '5. 不扩写、不压缩、不补设定，不为字数目标服务。信息无损的相邻短句合并、句号改逗号或分号，属于合法语言打磨，不算结构变更。',
-  '6. 只输出本步骤定稿产物。'
-].join('\n');
-
-function resolveDeaiPromptForChainStep(step, skillIndex, totalSkillCount) {
-  if (step !== 4) return "";
-  var count = Number.isFinite(totalSkillCount) ? totalSkillCount : 3;
-  if (count <= 1) return DEAI_METHODOLOGY_PROMPT;
-  if (skillIndex === undefined || skillIndex === null) return DEAI_METHODOLOGY_PROMPT;
-  if (skillIndex <= 0) return DEAI_METHODOLOGY_PROMPT;
-  if (skillIndex >= count - 1) return DEAI_POLISH_PROMPT;
-  return DEAI_CREATIVE_PROMPT;
-}
-
 export {
+  BODY_LAYER_STEP,
   DeAiProcessor,
-  DEAI_METHODOLOGY_PROMPT,
-  DEAI_CREATIVE_PROMPT,
-  DEAI_POLISH_PROMPT,
-  resolveDeaiPromptForChainStep,
   collectDeaiFindingsWithObservability
 };

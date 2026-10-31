@@ -6,12 +6,11 @@ const pipelineSource = readFileSync(new URL('../components/pipeline/PipelinePane
 describe('prose hard signal wiring', () => {
   it('runs the hard signal net before persistence and independently of DEAI switches', () => {
     const hardSignalCall = pipelineSource.indexOf('runProseHardSignalNet(')
-    const deaiCall = pipelineSource.indexOf('deAiStore.hardruleEnabled')
     const bodyPersistenceCall = pipelineSource.indexOf("await trace.measurePhase('persistence', () => projectStore.saveProject())", pipelineSource.indexOf('async function genBody('))
 
     expect(hardSignalCall).toBeGreaterThan(-1)
-    expect(hardSignalCall).toBeLessThan(deaiCall)
     expect(hardSignalCall).toBeLessThan(bodyPersistenceCall)
+    expect(pipelineSource).not.toContain('deAiStore.hardruleEnabled')
   })
 
   it('uses a bounded local repair window instead of resending the full body', () => {

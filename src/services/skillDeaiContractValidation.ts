@@ -1,14 +1,22 @@
-export const SKILL_DEAI_CONTRACT_VERSION = 1
+export const SKILL_DEAI_CONTRACT_VERSION = 2
+
+/**
+ * Body is the only generation layer that consumes DEAI prompt injection today.
+ */
+export const BODY_LAYER_STEP = 4
 
 export type DeaiGenerationMode = 'on' | 'off' | 'suffix-only'
 export type DeaiFinalStepDetectionMode = 'on' | 'off'
 export type DeaiConflictPolicy = 'skill-wins' | 'app-wins' | 'report'
+export type DeaiGuidanceOwnership = 'skill' | 'app' | 'split'
 
 export interface SkillDeaiMeta {
   contractVersion?: number
   generation?: DeaiGenerationMode
   finalStepDetection?: DeaiFinalStepDetectionMode
   conflictPolicy?: DeaiConflictPolicy
+  guidanceOwnership?: DeaiGuidanceOwnership
+  overlaps?: string[]
 }
 
 export type RequiredSkillDeaiMeta = Required<SkillDeaiMeta>
@@ -24,7 +32,9 @@ export const DEFAULT_SKILL_DEAI_META: RequiredSkillDeaiMeta = {
   contractVersion: SKILL_DEAI_CONTRACT_VERSION,
   generation: 'on',
   finalStepDetection: 'on',
-  conflictPolicy: 'report',
+  conflictPolicy: 'skill-wins',
+  guidanceOwnership: 'app',
+  overlaps: [],
 }
 
 export const SUFFIX_ONLY_EQUIVALENT_MODE: DeaiGenerationMode = 'on'
@@ -34,11 +44,15 @@ const ALLOWED_KEYS = new Set([
   'generation',
   'finalStepDetection',
   'conflictPolicy',
+  'guidanceOwnership',
+  'overlaps',
 ])
 
 const ALLOWED_GENERATION: readonly DeaiGenerationMode[] = ['on', 'off', 'suffix-only']
 const ALLOWED_DETECTION: readonly DeaiFinalStepDetectionMode[] = ['on', 'off']
 const ALLOWED_CONFLICT: readonly DeaiConflictPolicy[] = ['skill-wins', 'app-wins', 'report']
+const ALLOWED_OWNERSHIP: readonly DeaiGuidanceOwnership[] = ['skill', 'app', 'split']
+const SUPPORTED_CONTRACT_VERSIONS: readonly number[] = [1, SKILL_DEAI_CONTRACT_VERSION]
 
 function invalidValue(field: string, value: unknown, allowed: readonly string[]): string {
   return `${field} 必须是 ${allowed.join(' / ')}，当前值：${JSON.stringify(value)}`
@@ -64,17 +78,17 @@ export function validateSkillDeaiMeta(meta: unknown): SkillDeaiValidation {
   const source = meta as Record<string, unknown>
   for (const key of Object.keys(source)) {
     if (!ALLOWED_KEYS.has(key)) {
-      const message = `未知字段：${key}`
-      errors.push(message)
-      warnings.push(`${message}，运行时忽略该字段`)
+      errors.push(`未知字段：${key}，运行时忽略该字段`)
     }
   }
 
   if (source.contractVersion !== undefined) {
-    if (source.contractVersion !== SKILL_DEAI_CONTRACT_VERSION) {
-      const message = `contractVersion 仅支持 ${SKILL_DEAI_CONTRACT_VERSION}，当前值：${JSON.stringify(source.contractVersion)}`
+    if (!SUPPORTED_CONTRACT_VERSIONS.includes(source.contractVersion as number)) {
+      const message = `contractVersion 仅支持 ${SUPPORTED_CONTRACT_VERSIONS.join(' / ')}，当前值：${JSON.stringify(source.contractVersion)}`
       errors.push(message)
       warnings.push(`${message}，已回退默认契约`)
+    } else if (source.contractVersion !== SKILL_DEAI_CONTRACT_VERSION) {
+      warnings.push('contractVersion 1 已迁移为 2：skill-wins 默认与 guidanceOwnership=app 显式生效')
     } else {
       normalized.contractVersion = source.contractVersion as number
     }
@@ -108,6 +122,29 @@ export function validateSkillDeaiMeta(meta: unknown): SkillDeaiValidation {
     } else {
       normalized.conflictPolicy = source.conflictPolicy as DeaiConflictPolicy
     }
+  }
+
+  if (source.guidanceOwnership !== undefined) {
+    if (!ALLOWED_OWNERSHIP.includes(source.guidanceOwnership as DeaiGuidanceOwnership)) {
+      const message = invalidValue('guidanceOwnership', source.guidanceOwnership, ALLOWED_OWNERSHIP)
+      errors.push(message)
+    } else {
+      normalized.guidanceOwnership = source.guidanceOwnership as DeaiGuidanceOwnership
+    }
+  }
+
+  if (source.overlaps !== undefined) {
+    if (!Array.isArray(source.overlaps) || source.overlaps.some(value =>
+      typeof value !== 'string' || value.trim().length === 0 || value.length > 50,
+    )) {
+      errors.push(invalidValue('overlaps', source.overlaps, ['非空字符串数组']))
+    } else {
+      normalized.overlaps = [...source.overlaps as string[]]
+    }
+  }
+
+  if (source.guidanceOwnership === undefined && source.conflictPolicy !== undefined) {
+    normalized.guidanceOwnership = normalized.conflictPolicy === 'skill-wins' ? 'skill' : 'app'
   }
 
   return { valid: errors.length === 0, meta: normalized, errors, warnings }

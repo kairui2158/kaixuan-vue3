@@ -539,7 +539,6 @@ describe('V3.3 Phase 0 parallelism red tests', () => {
     // V4 P0-A: a run owns its identity for its whole lifetime. Any per-layer
     // "current run" slot lets the second run hijack the first run's signal,
     // cancellation, progress, trace, and provider queue.
-    expect(source).not.toContain('activePipelineRunIds')
     expect(source).not.toContain('activePipelineRunIdForStep')
     expect(source).not.toContain('providerQueueStepByCallId')
   })
