@@ -45,7 +45,7 @@ describe('folderSkillRuntimeHydration', () => {
       } as any,
     })
 
-    await hydrateRuntimeFolderTemplates([item])
+    const diagnostics = await hydrateRuntimeFolderTemplates([item])
 
     expect(item.template).toBe('disk 模板')
     expect(item.meta).toEqual({ deai: { generation: 'suffix-only' } })
@@ -54,6 +54,7 @@ describe('folderSkillRuntimeHydration', () => {
     expect((item.skill as any).meta).toEqual({ deai: { generation: 'suffix-only' } })
     expect((item.skill as any).intents).toEqual(['generate'])
     expect((item.skill as any).contextPolicy).toEqual({ chatHistory: 'none', includeOutline: false })
+    expect(diagnostics).toEqual([])
   })
 
   it('keeps the store snapshot when disk loading fails', async () => {
@@ -72,10 +73,19 @@ describe('folderSkillRuntimeHydration', () => {
       skill: { format: 'folder', folderPath: 'D:/skills/missing' } as any,
     })
 
-    await hydrateRuntimeFolderTemplates([item])
+    const diagnostics = await hydrateRuntimeFolderTemplates([item])
 
     expect(item.template).toBe('store 模板')
     expect(item.meta).toBeUndefined()
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        type: 'folder-hydration-load-failed',
+        level: 'warn',
+        skillId: 'folder:KAI-S1',
+        folderPath: 'D:/skills/missing',
+        error: 'skill-not-found',
+      }),
+    ])
   })
 
   it('does not touch text templates or folder records without a path', async () => {
@@ -85,5 +95,42 @@ describe('folderSkillRuntimeHydration', () => {
     await hydrateRuntimeFolderTemplates([text, missingPath])
 
     expect(loadMock).not.toHaveBeenCalled()
+  })
+
+  it('treats disk as authoritative and reports cleared fields', async () => {
+    loadMock.mockResolvedValueOnce({
+      package: null,
+      error: null,
+      meta: {},
+      intents: undefined,
+      contextPolicy: undefined,
+      template: 'disk-only template',
+      fingerprint: undefined,
+      warnings: [],
+    })
+    const item = template({
+      template: 'store 模板',
+      skill: {
+        format: 'folder',
+        folderPath: 'D:/skills/thinned',
+        meta: { deai: { generation: 'suffix-only' } },
+        intents: ['generate'],
+        contextPolicy: { chatHistory: 'recent' },
+      } as any,
+    })
+
+    const diagnostics = await hydrateRuntimeFolderTemplates([item])
+
+    expect(item.template).toBe('disk-only template')
+    expect(item.meta).toEqual({})
+    expect(item.intents).toBeUndefined()
+    expect(item.contextPolicy).toBeUndefined()
+    expect((item.skill as any).meta).toEqual({})
+    expect((item.skill as any).intents).toBeUndefined()
+    expect((item.skill as any).contextPolicy).toBeUndefined()
+    expect(diagnostics).toEqual([
+      expect.objectContaining({ type: 'folder-hydration-field-cleared', field: 'intents' }),
+      expect.objectContaining({ type: 'folder-hydration-field-cleared', field: 'contextPolicy' }),
+    ])
   })
 })

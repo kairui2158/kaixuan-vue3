@@ -166,6 +166,49 @@ describe('skillRouter composite mapping', () => {
     })
   })
 
+  it('throws with folderResult when a SKILL narrative verdict blocks execution', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'folder',
+        name: 'folder',
+        description: '',
+        template: '',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        format: 'folder',
+        folderPath: 'D:/skills/folder'
+      } as any,
+      error: null,
+      folderPackageCache: false
+    })
+    executeRealSkillMock.mockResolvedValueOnce({
+      status: 'blocked',
+      output: 'narrativeStatus: not_ready\nnarrativeReason：全章只有确认与核对，未改变状态',
+      errors: ['全章只有确认与核对，未改变状态；SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点，正文层不重试、不改写。'],
+      diagnostics: [{
+        type: 'error',
+        code: 'chapter-narrative-not-ready',
+        message: 'SKILL narrative verdict not_ready',
+        at: '2026-10-31T00:00:00.000Z'
+      }],
+      folderPackageCache: false
+    })
+
+    await expect(routeSkill(
+      { id: 'folder', format: 'folder', folderPath: 'D:/skills/folder' },
+      { input: '输入', budget: budget() }
+    )).rejects.toMatchObject({
+      folderResult: {
+        status: 'blocked',
+        diagnostics: [{
+          code: 'chapter-narrative-not-ready'
+        }]
+      }
+    })
+  })
+
   it('falls back to text mode when folder loading fails', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: null,

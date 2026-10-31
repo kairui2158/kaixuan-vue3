@@ -1,4 +1,4 @@
-export type NarrativeValidationResult = {
+export type StructureValidationResult = {
   valid: boolean
   errors: string[]
   missingCount: number
@@ -20,7 +20,7 @@ function duplicateLabels(items: unknown[], label: (item: any) => string): string
   return [...duplicates]
 }
 
-export function validateVolumeNarrative(volumes: any[], expectedCount?: number): NarrativeValidationResult {
+export function validateVolumeStructure(volumes: any[], expectedCount?: number): StructureValidationResult {
   const errors: string[] = []
   const list = Array.isArray(volumes) ? volumes : []
   if (expectedCount !== undefined && list.length !== expectedCount) {
@@ -41,7 +41,7 @@ export function validateVolumeNarrative(volumes: any[], expectedCount?: number):
   return { valid: errors.length === 0, errors, missingCount: Math.max(0, (expectedCount || 0) - list.length) }
 }
 
-export function validateChapterNarrative(chapters: any[], expectedCount?: number): NarrativeValidationResult {
+export function validateChapterStructure(chapters: any[], expectedCount?: number): StructureValidationResult {
   const errors: string[] = []
   const list = Array.isArray(chapters) ? chapters : []
   if (expectedCount !== undefined && list.length !== expectedCount) {
@@ -91,7 +91,7 @@ function checkSourceRefNumbering(refs: string[]): string[] {
 export function validateChapterExecutionPackage(
   pkg: any,
   options?: { expectedSceneCount?: number }
-): NarrativeValidationResult {
+): StructureValidationResult {
   if (!pkg || typeof pkg !== 'object' || Array.isArray(pkg)) {
     return { valid: false, errors: ['章节执行包缺失'], missingCount: 1 }
   }
@@ -139,16 +139,4 @@ export function validateChapterExecutionPackage(
     errors.push(`执行包缺少场景列表，预期 ${expectedSceneCount} 个场景`)
   }
   return { valid: errors.length === 0, errors, missingCount }
-}
-
-export function selectCompleteChapters(chapters: any[]): any[] {
-  if (!Array.isArray(chapters)) return []
-  const titles = new Set<string>()
-  return chapters.filter((chapter) => {
-    const title = text(chapter?.title)
-    const plot = text(chapter?.plot) || text(chapter?.summary)
-    if (!title || !plot || titles.has(title)) return false
-    titles.add(title)
-    return true
-  })
 }

@@ -1109,7 +1109,7 @@ function formatDiagnosticLevel(level: ConfigDiagnostic['level']) {
 }
 
 function refreshImportPlan() {
-  importPlan.value = buildImportPlan(skillStore.skills.map(s => s.id), pendingSkillRecords.value, importStrategy.value)
+  importPlan.value = buildImportPlan(skillStore.skills.map(s => s.id), pendingSkillRecords.value, importStrategy.value, 'folder')
 }
 
 async function exportSkill(id: string) {

@@ -154,27 +154,40 @@ SKILL 侧若调整模板角色声明，请同步更新 `kaixuan-s3` 的终步角
 
 ## 章级事件增量硬闸（2026-10-31 新增）
 
-应用已适配正文层 folder SKILL 的“章级事件密度不足”语义：
+应用已适配正文层 folder SKILL 的“章级事件密度不足”语义。2026-10-31 晚间起，应用执行“同一维度单一裁判”边界：叙事有效性由 SKILL 层裁定，应用层只做平台合同与协议观测。
 
 1. S1 输出 `NOT-READY` 且缺口包含“章级事件密度不足”时，应用在第一次物理返回后立即返回 `blocked`，不再进入第 2/3 次正文层重试。
-2. 应用会写 trace 事件 `chapter-event-density-not-ready`，并在步骤日志中明确提示“回到章节规划/剧情层补足事件点”。
-3. `【正文交接】` 的必填字段 `事件增量` 会进入应用验收 advisory：非豁免推进章至少两类不可归一收益；静章、抒情章、关系观察章按豁免标记处理。
-4. advisory 目前只观测与告警，不改变正文契约的 accept/reject 决策；字段缺失仍属于 SKILL 侧结构失败。
-5. SKILL 不需要输出应用专属 JSON。只要保持现有 `NOT-READY` 文案与 `事件增量` 交接字段，应用即可识别。
+2. `【正文交接】` 的必填字段 `事件增量` 只做协议存在性观测：字段缺失写 `chapter-event-increment-advisory` warning；字段存在即通过。应用不再做收益分类、豁免判定或“至少两类收益”判定，这些叙事质量判定完全归 SKILL 层。
+3. SKILL 可在交接中显式声明机器可读叙事裁决：
+   - `narrativeStatus: ready | not_ready`
+   - `narrativeReason: <缺口或达标说明>`
+   - `stateChangingScenes: <场景标识或数量>`
+4. `narrativeStatus: not_ready` 会被应用当作上游材料缺口：第一次物理返回后立即 `blocked`，不进入第 2/3 次正文层重试，trace 写 `chapter-narrative-not-ready`，并提示回到章节规划/剧情层。`ready` 只透传为 `chapter-narrative-verdict` trace 事件，应用不复查、不推断。
+5. 未声明 `narrativeStatus` 时应用不推断叙事质量；默认责任仍在 SKILL 的 NOT-READY 与交接校验上。
+6. SKILL 不需要输出应用专属 JSON。保持 `NOT-READY` 文案、`事件增量` 与显式 verdict 字段即可。
 
-### 事件增量识别口径
+### 事件增量与叙事裁决识别口径
 
-- 收益类别：新信息、处境改变、关系位移、威胁升级、资产得失、地位变化、情绪兑现。
-- 豁免标记：静章、抒情章、关系观察章。
-    - 豁免章只需“情绪兑现”一类收益，不触发收益同质 advisory。
-    - 非豁免推进章少于两类不可归一收益时，应用写 `chapter-event-increment-advisory` warning。
-    - 字段缺失也写 advisory，但仍按结构失败交由 SKILL postProcess 语义处理，应用不伪造通过。
+字面匹配格式：
+
+```text
+事件增量：<一句话或多标签说明>
+narrativeStatus: ready | not_ready
+narrativeReason：<达标或缺口说明>
+stateChangingScenes：<场景清单/数量>
+```
+
+也支持 `【narrativeStatus】` 形式。正文本体中出现这些词不参与识别；应用只读交接元数据区。
 
 ### 禁止事项
 
 - 禁止把 `NOT-READY` 当成普通失败触发正文层重试；应用会阻断该路径。
 - 禁止在正文层拆微场景凑事件密度；材料不足应回到上游剧情/章纲层。
-- 禁止把 `事件增量` 写成纯标签清单；需要能让应用识别收益类别。
+- 禁止把 `事件增量` 写成纯标签清单；必须描述本章实际事件推进，是否达标由 SKILL 层判定。
+- 禁止依赖应用帮忙判断“几类收益”“是否豁免”；这些语义已从应用侧退役。
+- 禁止把 `narrativeStatus: not_ready` 当成本层可重试失败；它的出路是上游补材料，不是正文层重写。
+- `NOT-READY` 旧短格式仍是兼容通道，不是新契约外语义；两者都在第一次物理返回后 blocked，不进正文层第 2/3 次重试。旧格式写 `chapter-event-density-not-ready`，新 verdict 写 `chapter-narrative-not-ready`，差异仅用于 trace 区分输出格式。
+- 应用没有做收益分类、状态改变动作计数或叙事质量复查；SKILL 侧施工闸门属于 SKILL 层叙事裁决，不构成应用双门槛。
 
 ## 排查与对账命令
 

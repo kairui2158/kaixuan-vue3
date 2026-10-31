@@ -7,6 +7,7 @@ import type {
   SkillRecord,
 } from './types'
 import { normalizeAgentItem, normalizeSkillItem } from './validation'
+import { normalizeContextPolicy, normalizeSkillId } from '../skillIdentity'
 
 export * from './types'
 export * from './json'
@@ -98,7 +99,7 @@ function fromStoreSkill(skill: Skill): SkillRecord {
     outputSchema: skill.outputSchema,
     retryPolicy: skill.retryPolicy,
     resourceSummary: skill.resourceSummary,
-    contextPolicy: skill.contextPolicy,
+    contextPolicy: normalizeContextPolicy(skill.contextPolicy).policy,
     meta: skill.meta,
     intents: skill.intents,
   }
@@ -121,8 +122,9 @@ export function fromAgentRecord(record: AgentRecord): Agent {
 }
 
 export function fromSkillRecord(record: SkillRecord): Skill {
+  const normalizedPolicy = normalizeContextPolicy(record.contextPolicy)
   return {
-    id: record.id,
+    id: normalizeSkillId(record.id, record.format),
     name: record.name,
     format: record.format || 'text',
     sourceId: record.sourceId || (record.format === 'folder' ? record.id.replace(/^folder:/, '') : ''),
@@ -149,7 +151,7 @@ export function fromSkillRecord(record: SkillRecord): Skill {
     outputSchema: record.outputSchema as never,
     retryPolicy: record.retryPolicy as never,
     resourceSummary: record.resourceSummary,
-    contextPolicy: record.contextPolicy,
+    contextPolicy: normalizedPolicy.policy,
     meta: record.meta,
     intents: record.intents,
   }
@@ -157,21 +159,23 @@ export function fromSkillRecord(record: SkillRecord): Skill {
 
 export function buildImportPlan(
   existingIds: string[],
-  incoming: Array<{ id: string; name?: string }>,
+  incoming: Array<{ id: string; name?: string; format?: 'text' | 'folder' }>,
   strategy: ImportStrategy = 'skip',
+  format?: 'text' | 'folder',
 ): ImportPlanItem[] {
   const known = new Set(existingIds)
   const folderKnown = new Set(existingIds.filter(id => id.startsWith('folder:')))
   return incoming.map(item => {
-    const incomingFolderId = item.id.startsWith('folder:') ? item.id : `folder:${item.id}`
-    if (!known.has(item.id) && !folderKnown.has(incomingFolderId)) {
+    const incomingId = normalizeSkillId(item.id, item.format || format)
+    const incomingFolderId = incomingId.startsWith('folder:') ? incomingId : `folder:${incomingId}`
+    if (!known.has(incomingId) && !folderKnown.has(incomingFolderId)) {
       known.add(item.id)
       folderKnown.add(incomingFolderId)
-      return { id: item.id, name: item.name || item.id, action: 'add', reason: '新增' }
+      return { id: incomingId, name: item.name || incomingId, action: 'add', reason: '新增' }
     }
     if (strategy === 'overwrite') {
-      return { id: item.id, name: item.name || item.id, action: 'update', reason: '覆盖已有配置' }
+      return { id: incomingId, name: item.name || incomingId, action: 'update', reason: '覆盖已有配置' }
     }
-    return { id: item.id, name: item.name || item.id, action: 'skip', reason: '已存在相同 id' }
+    return { id: incomingId, name: item.name || incomingId, action: 'skip', reason: '已存在相同 id' }
   })
 }

@@ -465,4 +465,25 @@ describe('import planning', () => {
     const overwrite = buildImportPlan(['existing-a'], [{ id: 'existing-a' }], 'overwrite')
     expect(overwrite[0].action).toBe('update')
   })
+
+  it('keeps text and folder records in separate skill namespaces when planning imports', () => {
+    const existing = ['KAI-S1', 'folder:KAI-S1']
+    const plan = buildImportPlan(
+      existing,
+      [
+        { id: 'KAI-S1', name: '文本版', format: 'text' },
+        { id: 'folder:KAI-S1', name: '文件夹版', format: 'folder' },
+        { id: 'KAI-S2', name: '新文件夹', format: 'folder' },
+        { id: 'KAI-S3', name: '未声明格式' },
+      ],
+      'skip',
+      'folder',
+    )
+    expect(plan).toEqual([
+      { id: 'KAI-S1', name: '文本版', action: 'skip', reason: '已存在相同 id' },
+      { id: 'folder:KAI-S1', name: '文件夹版', action: 'skip', reason: '已存在相同 id' },
+      { id: 'folder:KAI-S2', name: '新文件夹', action: 'add', reason: '新增' },
+      { id: 'folder:KAI-S3', name: '未声明格式', action: 'add', reason: '新增' },
+    ])
+  })
 })

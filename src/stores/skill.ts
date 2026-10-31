@@ -4,6 +4,8 @@ import { storageKey } from '../utils/storage-key'
 import type { JsonSchema, SkillRetryPolicy } from '../services/skillValidation'
 import { serializeSkillMd } from '../services/configExchange/markdown'
 import { toSkillRecord } from '../services/configExchange'
+import { normalizeContextPolicy, normalizeSkillId as normalizeSkillIdentity } from '../services/skillIdentity'
+import { clearRealSkillCache } from '../services/realSkillLoader'
 
 export interface Skill {
   id: string
@@ -66,7 +68,31 @@ export const useSkillStore = defineStore('skill', () => {
 
   /** 文件夹技能使用独立命名空间，允许与同 ID 文本技能共存 */
   function normalizeSkillId(id: string, format?: 'text' | 'folder') {
-    return format === 'folder' ? `folder:${id.replace(/^folder:/, '')}` : id
+    return normalizeSkillIdentity(id, format)
+  }
+
+  function logContextPolicyMigration(skillId: string, migratedFrom: 'latest' | 'all') {
+    const detail = {
+      skillId,
+      field: 'contextPolicy.chatHistory',
+      from: migratedFrom,
+      to: migratedFrom === 'latest' ? 'recent' : 'full',
+    }
+    console.warn('[skill] context policy migrated to current contract', detail)
+    ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+      'warn',
+      'skill/context-policy-migration',
+      '技能上下文策略已从旧语义迁移',
+      detail,
+    )
+  }
+
+  function normalizeSkillRecord(skill: Skill): Skill {
+    const normalizedPolicy = normalizeContextPolicy(skill.contextPolicy)
+    if (normalizedPolicy.migratedFrom) {
+      logContextPolicyMigration(skill.id, normalizedPolicy.migratedFrom)
+    }
+    return normalizedPolicy.policy ? { ...skill, contextPolicy: normalizedPolicy.policy } : skill
   }
 
   const FOLDER_RECORD_FIELDS = new Set([
@@ -111,26 +137,32 @@ export const useSkillStore = defineStore('skill', () => {
     let updated = 0
     let skipped = 0
     const now = new Date().toISOString()
+    const cachePathsToClear = new Set<string>()
 
     for (const skill of list) {
       const normalized = { ...skill, id: normalizeSkillId(skill.id, skill.format) }
+      const normalizedRecord = normalizeSkillRecord(normalized)
       const current = existing.get(normalized.id)
       if (current) {
         if (strategy === 'overwrite') {
           const index = skills.value.findIndex(s => s.id === normalized.id)
           skills.value[index] = normalized.format === 'folder'
-            ? replaceFolderRecord(current, normalized, now)
-            : { ...current, ...normalized, updatedAt: now }
+            ? replaceFolderRecord(current, normalizedRecord, now)
+            : { ...current, ...normalizedRecord, updatedAt: now }
           updated++
+          if (current.folderPath) cachePathsToClear.add(current.folderPath)
+          if (normalizedRecord.folderPath) cachePathsToClear.add(normalizedRecord.folderPath)
         } else {
           skipped++
         }
       } else {
-        skills.value.push(normalized)
-        existing.set(normalized.id, normalized)
+        skills.value.push(normalizedRecord)
+        existing.set(normalized.id, normalizedRecord)
         added++
+        if (normalizedRecord.folderPath) cachePathsToClear.add(normalizedRecord.folderPath)
       }
     }
+    for (const folderPath of cachePathsToClear) clearRealSkillCache(folderPath)
 
     for (const id of options.pipelineSkills || []) {
       const normalizedId = existing.has(id) ? id : normalizeSkillId(id, 'folder')
@@ -149,9 +181,11 @@ export const useSkillStore = defineStore('skill', () => {
   async function loadSkills() {
     const data = await window.electronAPI.storageRead(storageKey('skills'))
     if (data && !Array.isArray(data)) {
-      skills.value = data.skills || []
+      skills.value = (data.skills || []).map((skill: Skill) => normalizeSkillRecord(skill))
       pipelineSkills.value = data.pipelineSkills || []
       deAiSkills.value = data.deAiSkills || []
+      const shouldPersist = skills.value.some((skill, index) => skill !== (data.skills || [])[index])
+      if (shouldPersist) await saveSkills()
     }
   }
 
@@ -171,12 +205,18 @@ export const useSkillStore = defineStore('skill', () => {
   function updateSkill(id: string, data: Partial<Skill>) {
     const idx = skills.value.findIndex(s => s.id === id)
     if (idx >= 0) {
-      skills.value[idx] = { ...skills.value[idx], ...data }
+      const current = skills.value[idx]
+      const next = normalizeSkillRecord({ ...current, ...data })
+      if (current.folderPath) clearRealSkillCache(current.folderPath)
+      if (next.folderPath && next.folderPath !== current.folderPath) clearRealSkillCache(next.folderPath)
+      skills.value[idx] = next
       saveSkills()
     }
   }
 
   function removeSkill(id: string) {
+    const removed = skills.value.find(s => s.id === id)
+    if (removed?.folderPath) clearRealSkillCache(removed.folderPath)
     skills.value = skills.value.filter(s => s.id !== id)
     pipelineSkills.value = pipelineSkills.value.filter(sid => sid !== id)
     deAiSkills.value = deAiSkills.value.filter(sid => sid !== id)

@@ -1,0 +1,48 @@
+{
+  "skills": [
+    {
+      "id": "folder:context-policy-skill",
+      "sourceId": "context-policy-skill",
+      "name": "上下文策略实测技能",
+      "version": "",
+      "format": "folder",
+      "folderPath": "D:\\codex\\novel-workshop-vue3\\_data\\skill-context-policy-v21-profile\\skills\\context-policy-skill",
+      "source": "external",
+      "packageHash": "",
+      "template": "新模板版本：V2-CONTEXT-POLICY\n你必须输出：CONTEXT_POLICY_TEST_OK\n只输出该标记，不输出解释。",
+      "category": "folder",
+      "description": "V2.1 上下文语义与导入链路实测",
+      "resourceSummary": {
+        "resourceCount": 0,
+        "warningCount": 0
+      },
+      "executionMode": "chain",
+      "outputFormat": "text",
+      "validationRules": [],
+      "splitSize": 1000,
+      "injectMode": "system_prefix",
+      "bindTarget": "project",
+      "linkedSkillIds": [],
+      "createdAt": "2026-10-31T13:21:55.958Z",
+      "updatedAt": "2026-10-31T13:21:55.958Z",
+      "customVars": {},
+      "inputSchema": "",
+      "outputSchema": "",
+      "retryPolicy": "",
+      "meta": {
+        "contextPolicy": {
+          "chatHistory": "recent",
+          "includeOutline": true,
+          "includeMemory": false
+        }
+      },
+      "contextPolicy": {
+        "chatHistory": "recent",
+        "includeOutline": true,
+        "includeMemory": false
+      }
+    }
+  ],
+  "pipelineSkills": [],
+  "deAiSkills": []
+}

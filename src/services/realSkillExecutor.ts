@@ -6,7 +6,7 @@ import {
 } from './dialogueToolSurface'
 import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
-import { detectChapterEventDensityNotReady } from './chapterEventDensity'
+import { resolveChapterNarrativeBlock } from './chapterEventDensity'
 import { collectDeaiFindingsWithObservability, DeAiProcessor } from './de-ai'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { getProviderReasoningControl } from './providerProtocols'
@@ -1171,17 +1171,17 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
 
         let candidateOutput = result.text || ''
-        const chapterDensityGap = detectChapterEventDensityNotReady(candidateOutput)
-        if (chapterDensityGap.detected) {
+        const narrativeBlock = resolveChapterNarrativeBlock(candidateOutput)
+        if (narrativeBlock) {
           diagnostics.push(diagnostic(
             'error',
-            chapterDensityGap.code,
-            `${chapterDensityGap.gap}${chapterDensityGap.guidance}`
+            narrativeBlock.code,
+            `${narrativeBlock.gap}${narrativeBlock.guidance}`
           ))
           return {
             status: 'blocked',
             output: candidateOutput,
-            errors: [`${chapterDensityGap.gap}；${chapterDensityGap.guidance}`],
+            errors: [`${narrativeBlock.gap}；${narrativeBlock.guidance}`],
             diagnostics,
             folderPackageCache: loaded.folderPackageCache === true,
             postProcessReport,

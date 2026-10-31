@@ -90,9 +90,17 @@
 - **发现**：收口审计时发现 Skill Markdown 原有字段 `version` 同时承载协议版本和 folder 版本。为满足协议 v3 保留 folder `version` 后，`serializeSkillMd` 产生重复 `version` key，解析把 `1.2.0` 当协议版本并失败。
 - **修复**：协议 key 改为 `protocolVersion`，解析端优先用它校验协议；业务 `version` 原样进入 record。旧 Markdown 无 `schema/protocolVersion` 时仍走兼容 warning。测试 `configExchange.spec.ts:265-295` 扩展为 folder 元数据完整往返断言。
 
+### 6.3 V2.1 旧语义退役与真实 UI 闭环
+
+1. **store/导入面旧语义迁移**：`src/stores/skill.ts:181-190` 的 `loadSkills` 将旧 `chatHistory: latest/all` 归一为 `recent` 并落盘；`src/services/skillIdentity.ts` 新增 `normalizeContextPolicy` 单源。测试：`src/stores/skill.spec.ts`、`src/services/skillIdentity.spec.ts`。
+2. **磁盘 SKILL 包语义权威化**：`src/services/skillHealth.ts` 对 folder 包内 `latest/all` 报 error，禁止旧语义再从导入面回流；`src/services/skillHealth.spec.ts` 覆盖正负向。
+3. **运行时消费磁盘元数据**：`src/services/folderSkillRuntimeHydration.ts:18-42` 统一水合 template/meta/intents/contextPolicy；`ChatPanel.vue`、`OutlineWorkspace.vue`、`PipelinePanel.vue` 三面接入同一加载源，store 快照不再作为执行期事实。
+4. **真实 Electron UI 验证**：新增 `scripts/verify-skill-context-policy-v21-electron.mjs`。验证器先按 URL 分流 `/models` JSON，再按 `stream:false` 分流非流式 chat JSON；请求账本区分模型列表与 chat completions。修复前复现 `Cannot read properties of null (reading 'json')`；修复后同命令复跑无 page error，并新增两次技能测试结果 `CONTEXT_POLICY_TEST_OK` 硬断言。
+5. **验证证据**：`node scripts/verify-skill-context-policy-v21-electron.mjs` → `===== SKILL CONTEXT POLICY V2.1 ELECTRON PASSED =====`；报告 `_audit/verification-skill-context-policy-v21-electron/report.json` 记录 `persistedChatHistoryAfterLoad=recent`、`persistedChatHistoryAfterOverwrite=recent`、`chatCompletionRequestCount=2`、`oldTemplateSeen=true`、`newTemplateSeen=true`。物理请求原件见同目录 `provider-requests.json`。
+6. **回归证据**：`npx vue-tsc --noEmit` exit 0；`npx vitest run` 首跑出现 `de-ai-v2.spec.ts` 20k 预算用例 319ms > 300ms 的并发性能波动，单文件复跑 14/14 通过，全量复跑 234 files / 2500 tests 全通过。该用例未修改阈值，未用放宽断言换取绿灯。
+
 ## 7. Gap List
 
-1. **真实 Electron UI 导入未测**：本轮自动化覆盖协议、构造器、水合、ZIP 等价，但未执行真实窗口中的设置页导入/导出/回退 UI 鼠标路径。按 G1.12，此边界必须如实登记为 `untested`，不得用单测替代。
-2. **live 供应商/模型生成不适用**：本任务不涉及 API 生成链路，无需 live 供应商验证。
-3. **`skillHealth` 旧 folder 包仍会产生 protocol warning**：这是诊断行为而非缺陷，测试已锚定。
-4. **工作区中 Agent 域 `agent.ts` 的 `exportAllToJSON`**：属于 Agent 导出语义，非技能导入链路残留，按影响圈不动。
+1. **live 供应商/模型生成不适用**：本任务验证目标是本地 UI 导入、持久化、缓存失效与请求组装，使用本地真实 HTTP provider 证据；不涉及外部供应商差异面。
+2. **`skillHealth` 旧 folder 包仍会产生 protocol/samples/intents 提示**：这是诊断行为而非缺陷，测试已锚定；本轮 UI 报告仅剩 samples/intents 提示与警告。
+3. **工作区中 Agent 域 `agent.ts` 的 `exportAllToJSON`**：属于 Agent 导出语义，非技能导入链路残留，按影响圈不动。

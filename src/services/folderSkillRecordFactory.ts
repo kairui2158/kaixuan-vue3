@@ -1,16 +1,11 @@
 import type { Skill } from '../stores/skill'
+import {
+  buildFolderSkillId,
+  normalizeContextPolicy,
+  parseFolderSkillId,
+} from './skillIdentity'
 
-export const FOLDER_SKILL_ID_PREFIX = 'folder:'
-
-/** Parse either the raw folder id or the namespaced store id. */
-export function parseFolderSkillId(id: string): string {
-  return String(id || '').replace(/^folder:/, '')
-}
-
-/** Build the one namespaced id used by the store, exports, and installer. */
-export function buildFolderSkillId(id: string): string {
-  return `${FOLDER_SKILL_ID_PREFIX}${parseFolderSkillId(id)}`
-}
+export { FOLDER_SKILL_ID_PREFIX, buildFolderSkillId, parseFolderSkillId } from './skillIdentity'
 
 function normalizeWarnings(warnings: unknown): number {
   return Array.isArray(warnings) ? warnings.length : 0
@@ -23,10 +18,9 @@ function normalizeIntents(skill: Record<string, any>): string[] | undefined {
   return normalized.length > 0 ? normalized : undefined
 }
 
-function normalizeContextPolicy(skill: Record<string, any>): Skill['contextPolicy'] | undefined {
+function normalizeSkillContextPolicy(skill: Record<string, any>): Skill['contextPolicy'] | undefined {
   const policy = skill?.meta?.contextPolicy
-  if (!policy || typeof policy !== 'object' || Array.isArray(policy)) return undefined
-  return policy as Skill['contextPolicy']
+  return normalizeContextPolicy(policy).policy
 }
 
 function normalizeMeta(skill: Record<string, any>): Record<string, unknown> | undefined {
@@ -90,6 +84,6 @@ export function buildFolderSkillRecord({
     retryPolicy: '',
     meta: normalizeMeta(skill),
     intents: normalizeIntents(skill),
-    contextPolicy: normalizeContextPolicy(skill)
+    contextPolicy: normalizeSkillContextPolicy(skill)
   }
 }

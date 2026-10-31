@@ -1,5 +1,5 @@
 import { parseGenerationResult } from './generationResult'
-import { evaluateChapterEventIncrement } from './chapterEventDensity'
+import { detectChapterNarrativeVerdict, evaluateChapterEventIncrement } from './chapterEventDensity'
 import type { GenerationMetadata } from './generationResult'
 import {
   countBodyWords,
@@ -94,6 +94,7 @@ export interface StepArtifactFlowResult {
     message: string
   } | null
   chapterEventIncrementAdvisory: ReturnType<typeof evaluateChapterEventIncrement>
+  chapterNarrativeVerdict: ReturnType<typeof detectChapterNarrativeVerdict>
 }
 
 export function makeStepArtifactEnvelope(input: {
@@ -181,6 +182,9 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
         }
       : null,
     chapterEventIncrementAdvisory: evaluateChapterEventIncrement(
+      acceptance.metadata.extractedMeta?.join('\n') || ''
+    ),
+    chapterNarrativeVerdict: detectChapterNarrativeVerdict(
       acceptance.metadata.extractedMeta?.join('\n') || ''
     )
   }

@@ -250,7 +250,7 @@ export function useConfigExchange() {
         return { ok: false, issues, diagnostics: [], fieldTrace: [], unknownFields: [], plan: [], records, pipelineSkills, deAiSkills, source: file.path }
       }
       const skillStore = useSkillStore()
-      const plan = buildImportPlan(skillStore.skills.map(s => s.id), records)
+      const plan = buildImportPlan(skillStore.skills.map(s => s.id), records, 'skip', 'folder')
       return { ok: true, issues, diagnostics, fieldTrace, sourceInfo, unknownFields, plan, records, pipelineSkills, deAiSkills, source: file.path }
     } catch (e: any) {
       exchangeError.value = e?.message || '导入异常'

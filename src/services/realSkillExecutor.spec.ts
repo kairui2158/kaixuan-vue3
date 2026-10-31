@@ -116,6 +116,30 @@ describe('realSkillExecutor single pass', () => {
     expect(result.diagnostics.some(item => item.code === 'chapter-event-density-not-ready')).toBe(true)
   })
 
+  it('blocks an explicit SKILL narrative not_ready verdict without retrying', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: 'narrativeStatus: not_ready\nnarrativeReason：全章只有确认与核对，未改变状态'
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('blocked')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(result.errors[0]).toContain('全章只有确认与核对，未改变状态')
+    expect(result.errors[0]).toContain('章节规划/剧情层')
+    expect(result.diagnostics.some(item => item.code === 'chapter-narrative-not-ready')).toBe(true)
+  })
+
   it('lets an explicit agent provider override the layer provider', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),

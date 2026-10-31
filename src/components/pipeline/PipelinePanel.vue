@@ -777,6 +777,7 @@ import { createApiCallBudget } from "../../services/apiCallBudget"
 import { formatFolderSkillBoundary } from "../../services/folderSkillBoundary"
 import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
 import { loadRealSkill, loadRuntimeFolderSkillMetadata } from "../../services/realSkillLoader"
+import { hydrateRuntimeFolderTemplates, type FolderSkillHydrationDiagnostic } from "../../services/folderSkillRuntimeHydration"
 import { mergeChapterCommit } from "../../services/chapterArtifactCommit"
 import { useConfigExchange } from "../../composables/useConfigExchange"
 import type { PipelineBindingRecord } from "../../services/configExchange"
@@ -808,7 +809,7 @@ import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepEcho
 import type { ProtectedBodyContract } from "../../services/protectedSkillContract"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
-import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
+import { validateChapterStructure, validateVolumeStructure } from "../../services/narrativeValidation"
 import { buildVolumePrompt, hasVolumeContent } from "../../services/volumeGeneration"
 import { compileStyleContext } from "../../services/styleContextCompiler"
 import { buildStyleTemplateVariables } from "../../services/styleTemplateContext"
@@ -818,7 +819,7 @@ import { buildChapterHistoryFacts, renderChapterHistoryContext, resolveChapterCo
 import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
 import { planChapterGeneration, type ChapterGenerationMode } from "../../services/chapterBatchPlanning"
 import { buildVolumeHistoryFacts, extractVolumeContractSemantics, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
-import { reviewVolumeContractSemantics } from "../../services/contractReview"
+import { observeVolumeContractMentions } from "../../services/contractReview"
 import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
 import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
 import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
@@ -851,7 +852,9 @@ import {
 } from "../../services/stepArtifactAcceptance"
 import {
   CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
-  detectChapterEventDensityNotReady
+  CHAPTER_NARRATIVE_NOT_READY_CODE,
+  detectChapterEventDensityNotReady,
+  isChapterNarrativeBlockDiagnosticCode
 } from "../../services/chapterEventDensity"
 import { hashEditorContent } from "../../services/editorTarget"
 import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
@@ -2451,6 +2454,7 @@ type PipelineSkillTemplate = {
 
 type HydratedFolderMeta = { meta?: unknown }
 
+
 function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
   const ids = getStepSkillIds(step)
   const templates: PipelineSkillTemplate[] = []
@@ -2493,28 +2497,31 @@ async function hydrateFolderTemplates(
         detail
       })
     }
-    appendStepLogForRun(pipelineRunId, step, `SKILL 路径预检失败：${detail}`)
+  appendStepLogForRun(pipelineRunId, step, `SKILL 路径预检失败：${detail}`)
     throw new Error(detail)
   }
-  for (const t of templates) {
-    if (t.skill?.format !== 'folder' || !t.skill.folderPath) continue
-    const loaded = await loadRuntimeFolderSkillMetadata(t.skill.folderPath)
-    if (loaded.template) t.template = loaded.template
-    const loadedMeta = loaded.meta
-    if (loadedMeta && typeof loadedMeta === 'object') {
-      ;(t as HydratedFolderMeta).meta = loadedMeta
-      // The body-contract selector reads t.skill.meta; keep the hydrated folder
-      // declaration on the same object so catalog and package stay single-source.
-      ;(t.skill as { meta?: unknown }).meta = loadedMeta
+  const diagnostics = await hydrateRuntimeFolderTemplates(templates)
+  for (const diagnostic of diagnostics) {
+    const message = diagnostic.type === 'folder-hydration-load-failed'
+      ? `文件夹 SKILL 磁盘刷新失败：${diagnostic.folderPath} (${diagnostic.error})`
+      : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field} (${diagnostic.folderPath})`
+    if (traceRunId) {
+      runTraceStore.addEvent(traceRunId, {
+        type: diagnostic.type,
+        level: diagnostic.level,
+        label: diagnostic.type === 'folder-hydration-load-failed'
+          ? '文件夹 SKILL 磁盘刷新失败，已保留当前快照'
+          : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field}`,
+        detail: JSON.stringify(diagnostic),
+      })
     }
-    if (loaded.intents) {
-      t.intents = loaded.intents
-      ;(t.skill as { intents?: string[] }).intents = loaded.intents
-    }
-    if (loaded.contextPolicy) {
-      t.contextPolicy = loaded.contextPolicy as Skill['contextPolicy']
-      ;(t.skill as { contextPolicy?: Skill['contextPolicy'] }).contextPolicy = loaded.contextPolicy as Skill['contextPolicy']
-    }
+    appendStepLogForRun(pipelineRunId, step, message)
+    ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+      'warn',
+      `pipeline/${diagnostic.type}`,
+      message,
+      diagnostic,
+    )
   }
 }
 
@@ -3093,29 +3100,41 @@ async function callValidatedSkill(
         finishFolderTraceFromResult(folderResult)
         if (
           folderResult.status === 'blocked' &&
-          folderResult.diagnostics.some(item => item.code === CHAPTER_EVENT_DENSITY_NOT_READY_CODE)
+          folderResult.diagnostics.some(item => isChapterNarrativeBlockDiagnosticCode(item.code))
         ) {
           const density = detectChapterEventDensityNotReady(folderResult.output)
+          const narrativeBlocked = folderResult.diagnostics.some(
+            item => item.code === CHAPTER_NARRATIVE_NOT_READY_CODE
+          )
+          const blockCode = narrativeBlocked
+            ? CHAPTER_NARRATIVE_NOT_READY_CODE
+            : CHAPTER_EVENT_DENSITY_NOT_READY_CODE
+          const blockGap = density.detected ? density.gap : folderResult.errors[0]
+          const blockGuidance = density.detected
+            ? density.guidance
+            : 'SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点。'
           const detail = JSON.stringify({
-            code: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
-            gap: density.detected ? density.gap : folderResult.errors[0],
-            guidance: density.detected ? density.guidance : '上游剧情材料不足，请回到章节规划/剧情层补足事件点。',
+            code: blockCode,
+            gap: blockGap,
+            guidance: blockGuidance,
             retryableInBodyLayer: false
           })
           if (traceRunId) {
             runTraceStore.addEvent(traceRunId, {
-              type: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
+              type: blockCode,
               level: 'error',
-              label: '章级事件密度不足：需要上游补剧情点',
+              label: narrativeBlocked
+                ? 'SKILL 叙事裁决 NOT_READY：需要上游补剧情点'
+                : '章级事件密度不足：需要上游补剧情点',
               detail
             })
           }
           appendStepLogForRun(
             pipelineRunIdParam,
             step,
-            `章级事件密度不足：已终止本层重试。${density.detected ? density.guidance : '请回到章节规划/剧情层补足事件点。'}`
+            `SKILL 叙事裁决 NOT_READY：已终止本层重试。${blockGuidance}`
           )
-          throw new Error(`章级事件密度不足，需上游补剧情点：${density.detected ? density.gap : folderResult.errors[0]}`)
+          throw new Error(`SKILL 叙事裁决 NOT_READY：${blockGap}`)
         }
       } else {
         finishFolderTrace('failed', error instanceof Error ? error.message : String(error))
@@ -3557,12 +3576,12 @@ function getStepAgentConfig(step: number) {
 }
 
 function validateVolumes(vols: any[]): { valid: boolean; errors: string[] } {
-  const result = validateVolumeNarrative(vols)
+  const result = validateVolumeStructure(vols)
   return { valid: result.valid, errors: result.errors }
 }
 
 function validateChapters(chs: any[], expectedCount?: number): { valid: boolean; errors: string[] } {
-  const result = validateChapterNarrative(chs, expectedCount)
+  const result = validateChapterStructure(chs, expectedCount)
   return { valid: result.valid, errors: result.errors }
 }
 
@@ -4443,12 +4462,21 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           })
           const acceptance = artifactFlow.acceptance
           const incrementAdvisory = artifactFlow.chapterEventIncrementAdvisory
+          const narrativeVerdict = artifactFlow.chapterNarrativeVerdict
           if (runId && incrementAdvisory) {
             runTraceStore.addEvent(runId, {
               type: incrementAdvisory.code,
               level: incrementAdvisory.detected ? 'warn' : 'info',
-              label: `正文生成步骤 ${si + 1}/${templates.length} 事件增量验收`,
+              label: `正文生成步骤 ${si + 1}/${templates.length} 事件增量协议观测`,
               detail: JSON.stringify(incrementAdvisory)
+            })
+          }
+          if (runId && narrativeVerdict) {
+            runTraceStore.addEvent(runId, {
+              type: narrativeVerdict.code,
+              level: narrativeVerdict.status === 'not_ready' ? 'error' : 'info',
+              label: `正文生成步骤 ${si + 1}/${templates.length} SKILL 叙事裁决透传`,
+              detail: JSON.stringify(narrativeVerdict)
             })
           }
           if (incrementAdvisory?.detected) {
@@ -4608,13 +4636,13 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           volumeIndex: selectedVolumeIndex.value
         }))
       } catch (error) {
-        const densityBlocked = (error as Error & { folderResult?: RealSkillExecutionResult })
+        const narrativeBlocked = (error as Error & { folderResult?: RealSkillExecutionResult })
           .folderResult?.status === 'blocked' &&
           Boolean(
             (error as Error & { folderResult?: RealSkillExecutionResult })
-              .folderResult?.diagnostics.some(item => item.code === CHAPTER_EVENT_DENSITY_NOT_READY_CODE)
+              .folderResult?.diagnostics.some(item => isChapterNarrativeBlockDiagnosticCode(item.code))
           )
-        if (!densityBlocked && si > 0 && handoffDelivery !== 'full_text') {
+        if (!narrativeBlocked && si > 0 && handoffDelivery !== 'full_text') {
           try {
             if (runId) {
               const escalationDetail = JSON.stringify({
@@ -4904,12 +4932,21 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     })
     const acceptance = artifactFlow.acceptance
     const incrementAdvisory = artifactFlow.chapterEventIncrementAdvisory
+    const narrativeVerdict = artifactFlow.chapterNarrativeVerdict
     if (runId && incrementAdvisory) {
       runTraceStore.addEvent(runId, {
         type: incrementAdvisory.code,
         level: incrementAdvisory.detected ? 'warn' : 'info',
-        label: `正文生成步骤 1/${Math.max(1, templates.length)} 事件增量验收`,
+        label: `正文生成步骤 1/${Math.max(1, templates.length)} 事件增量协议观测`,
         detail: JSON.stringify(incrementAdvisory)
+      })
+    }
+    if (runId && narrativeVerdict) {
+      runTraceStore.addEvent(runId, {
+        type: narrativeVerdict.code,
+        level: narrativeVerdict.status === 'not_ready' ? 'error' : 'info',
+        label: `正文生成步骤 1/${Math.max(1, templates.length)} SKILL 叙事裁决透传`,
+        detail: JSON.stringify(narrativeVerdict)
       })
     }
     if (incrementAdvisory?.detected) {
@@ -5837,6 +5874,13 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const rememberBodyStepOutputs = (outputs: ChainBreakpointStepOutput[]) => {
       previousBodyStepOutputs = outputs
     }
+    const bodySkillMetadataText = (): string => {
+      const metadata: unknown = bodyAttemptMetadataState.finalStepFlow?.metadata || bodyArtifact.metadata
+      const extractedMeta = (metadata as { extractedMeta?: unknown } | null | undefined)?.extractedMeta
+      return Array.isArray(extractedMeta)
+        ? extractedMeta.map(item => String(item)).join('\n')
+        : ''
+    }
     let currentBodyRunId: string | null = null
     let bodyArtifact = await generateBodyArtifact({
       contract: bodyChainContract,
@@ -6030,14 +6074,17 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         wordCount: countBodyWords(finalBody)
       })
     }
-    const contractReview = reviewVolumeContractSemantics({
+    const contractReview = observeVolumeContractMentions({
       prose: finalBody,
-      forbiddenFinalCards: outlineClosure.contractForbiddenFinalCards
+      forbiddenFinalCards: outlineClosure.contractForbiddenFinalCards,
+      skillVerdictText: bodySkillMetadataText()
     })
     trace.addEvent({
       type: 'contract_review',
-      level: contractReview.status === 'contract_broken' ? 'error' : contractReview.detected ? 'warn' : 'info',
-      label: '卷契约语义审查',
+      level: contractReview.skillVerdict.status === 'broken'
+        ? 'error'
+        : contractReview.detected ? 'warn' : 'info',
+      label: '卷契约协议观测',
       detail: JSON.stringify(contractReview)
     })
     // P2: 后处理层 — 自动降AI清洗

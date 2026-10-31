@@ -78,6 +78,8 @@
 | 287 | 2026-09-27 | 长文档重排架构 V2 Phase 1-2 | 执行计划单源、供应商窗口冲突纠偏、EditTask plan_ready 事件顺序与批次元数据修复 | 长文档整理按计划分段执行，不再出现 0 可用上下文、计划缺失与 steering/toolPolicy 互相矛盾 | [DEV_LOG_2026-09-27_long_document_restructure_phase1_phase2.md](DEV_LOG_2026-09-27_long_document_restructure_phase1_phase2.md) |
 | 288 | 2026-10-03 | Phase 7-A3 compose 统一 Agent runtime | 大纲工作台与首页 compose 路径接入统一 Agent runtime，SKILL guidance 真实注入，旧 chain 引擎在 compose 模式下防御性抛错 | compose 对话不再回退旧引擎；SKILL 只影响提示词与领域能力，不改变应用执行协议 | [DEV_LOG_2026-10-03_phase7-a3-compose-unified-runtime.md](DEV_LOG_2026-10-03_phase7-a3-compose-unified-runtime.md) |
 | 289 | 2026-10-03 | 3.72.0 Phase 7-A3 收尾封装 | 更新经验门禁、归档并清理旧运行日志、删除调试脚本、升版 NSIS 封装并完成真实启动核验 | 交付包含 compose 统一 runtime 的 3.72.0 安装包；工作区无 3.71.0 旧安装产物与临时运行目录 | [DEV_LOG_2026-10-03_phase7-a3-packaging-3-72-0.md](DEV_LOG_2026-10-03_phase7-a3-packaging-3-72-0.md) |
+| 290 | 2026-10-31 | 技能/智能导入链路与 contextPolicy 旧语义退役 | folder 记录构造、协议 v3、ZIP 二进制等价、运行时三面水合单源化，`chatHistory: latest/all` 全链路退役并完成真实 Electron UI 验证 | 设置页导入、覆盖导入、体检与技能测试共用同一事实源；旧上下文语义不再回流，导入后消费磁盘新模板并可通过物理请求对账 | [DEV_LOG_2026-10-31_skill-import-chain-overhaul.md](DEV_LOG_2026-10-31_skill-import-chain-overhaul.md) |
+| 291 | 2026-10-31 | 经验文件 v9.8.6 与技能链路收尾回写 | 旧语义退役五项验收、本地 mock 协议分流、测试成功结果硬断言与请求类型分账 | contextPolicy 旧语义退役和 UI 验证器事故沉淀为门禁，后续验证器不再把模型列表请求或请求报告冒充业务成功 | [DEV_LOG_2026-10-31_skill-import-chain-overhaul.md](DEV_LOG_2026-10-31_skill-import-chain-overhaul.md) |
 | 290 | 2026-10-03 | SKILL/Agent 权限单源化 | 写入授权改为“意图 + 操作类型 + 执行计划模式”三元组单源，长文档 discussion 只读，SKILL 仅提供 guidance | `discuss/analyze` 加载 SKILL 后不再被 workflow 授权推向写入或 tool-loop；合法 edit/generate 直写链路保持可用 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
 | 291 | 2026-10-03 | 3.73.0 封装 | 升版、构建 NSIS 安装包并执行 asar、真实启动、electronAPI、安装路径与 SHA256 核验 | 交付包含 SKILL/Agent 权限单源化修复的 3.73.0 安装包 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
 | 292 | 2026-10-03 | 开发经验文件 v7 去旧补新重整 | v6 四层门禁升级为 v7：取消 G0.11 平行优先级、通用化执行路径迁移防御、吸收 SKILL / 无 SKILL 同一执行方案，删除 v6 并更新活跃引用 | 后续任务只读一份最新经验规则，消除特殊优先级矛盾与新旧规则并存风险 | [DEV_LOG_2026-10-03_experience-file-v7.md](DEV_LOG_2026-10-03_experience-file-v7.md) |
@@ -1505,5 +1507,30 @@
 - 文件：[_audit/DEV_LOG_2026-10-31_skill-import-chain-overhaul.md](_audit/DEV_LOG_2026-10-31_skill-import-chain-overhaul.md)
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_skill-import-chain-overhaul.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_skill-import-chain-overhaul.md)
 - 交付：统一 folder 记录构造器；Electron 技能库版本定位闭环；配置协议 v3；运行时三面共享磁盘元数据水合器；ZIP 二进制保真；删除技能 store 旧语义；健康检查补元数据维度；测试矩阵补齐。
-- 验证：定向 6 files / 91 tests passed；协议冲突补修后 `configExchange.spec.ts` 25 tests passed；全量与封装结果见 DEV_LOG 第 5 节。
-- 边界：真实 Electron UI 导入路径未测，登记为 `untested`；live 供应商不适用。
+- V2.1 追加：`chatHistory: latest/all` 旧语义全链路退役；真实 Electron UI 验证导入、覆盖导入、缓存失效与两次物理请求；验证器补模型列表/非流式 chat/mock 协议分流。
+- 验证：定向 6 files / 91 tests passed；`vue-tsc --noEmit` exit 0；全量 Vitest 234 files / 2500 tests passed（首跑 de-ai-v2 性能阈值并发波动，单文件与全量复跑均通过）；UI 验证输出 `SKILL CONTEXT POLICY V2.1 ELECTRON PASSED`。
+- 边界：live 外部供应商不适用，本轮使用本地真实 HTTP provider；未升版、未封装、未提交 git。
+
+# 2026-10-31 双层验收边界收口
+
+- 文件：[_audit/DEV_LOG_2026-10-31_narrative-verdict-ownership.md](_audit/DEV_LOG_2026-10-31_narrative-verdict-ownership.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_narrative-verdict-ownership.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_narrative-verdict-ownership.md)
+- 交付：应用侧事件增量收益分类与豁免判定退役；新增 `narrativeStatus / narrativeReason / stateChangingScenes` 单通道 verdict 消费；`not_ready` 第一次物理返回即 blocked 并路由回上游；`ready` 只透传 trace；链式与 compose 双路径接入；更新 SKILL 适配手册与经验门禁 G2.9。
+- 验证：旧语义 `rg` 0 matches；定向 4 files / 106 tests passed；`vue-tsc --noEmit` exit 0。
+- 边界：不做 live 供应商验证；未升版、未封装、未提交 git；不回滚技能/智能导入链路 V2.1 未提交改动。
+
+# 2026-10-31 全层单一裁判权审计与闭环
+
+- 文件：[_audit/AUDIT_2026-10-31_single-owner-verdict-full-scope.md](_audit/AUDIT_2026-10-31_single-owner-verdict-full-scope.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_single-owner-audit-closure.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_single-owner-audit-closure.md)
+- 交付：全层只读审计后闭环三个残留项：`contractReview` 退役揭示词表与本地三态，改为底牌提及观测 + SKILL `contractStatus/contractReason` verdict；`narrativeValidation` 更名 Structure 并删除 `selectCompleteChapters` 死语义；更新经验 G2.9、SKILL handoff、审计报告与开发日志。
+- 验证：定向 3 files / 18 tests passed；`npm run type-check` exit 0；旧语义 `rg` 清零（卷纲 `contractRisk` 平台合同保留）。
+- 边界：待 SKILL 真实输出 `contractStatus` 后做一次 trace 回放；未升版、未封装、未提交 git。
+
+# 2026-10-31 3.110.12 版本封装与提交
+
+- 文件：[_audit/DEV_LOG_2026-10-31_release-3-110-12.md](_audit/DEV_LOG_2026-10-31_release-3-110-12.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_packaging-3-110-12.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-10-31_packaging-3-110-12.md)
+- 交付：版本升级 3.110.12；合流单一裁判权审计闭环、技能/智能导入链路 V2.1 与叙事 verdict 单通道；封装并真实启动核验安装包；替换核验脚本并保留 3.110.6 ACL 边界件；完成审计登记与 git 提交。
+- 验证：全量回归 234 files / 2512 tests passed；`npm run type-check` exit 0；技能导入 V2.1 Electron UI 验证 PASS；`node scripts/verify-packaging-3-110-12.mjs` PASS；安装包 SHA256 `83465391a78cf3da4e32a3cec029643a116a944eabd2c72b4f9740f05728527d`。
+- 边界：live 供应商生成未测；降AI release gate 仍 NOT_READY；`神意助手-Setup-3.110.6.exe` 维持 ACL 损坏边界。

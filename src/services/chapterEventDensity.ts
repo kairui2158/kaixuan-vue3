@@ -1,16 +1,26 @@
 export const CHAPTER_EVENT_DENSITY_NOT_READY_CODE = 'chapter-event-density-not-ready'
+export const CHAPTER_NARRATIVE_NOT_READY_CODE = 'chapter-narrative-not-ready'
 
 const NOT_READY_PATTERN = /(?:^|\n)\s*\[?NOT-READY\]?\s*[：:]?\s*(.+)/i
 const DENSITY_GAP_PATTERN = /章级事件密度不足/
+const NARRATIVE_STATUS_PATTERN = /(?:^|\n)\s*(?:【)?\s*narrativeStatus\s*(?:】)?\s*[：:]\s*(ready|not_ready)\s*/i
+const NARRATIVE_REASON_PATTERN = /(?:^|\n)\s*(?:【)?\s*narrativeReason\s*(?:】)?\s*[：:]\s*(.+)/i
+const STATE_CHANGING_SCENES_PATTERN = /(?:^|\n)\s*(?:【)?\s*stateChangingScenes\s*(?:】)?\s*[：:]\s*(.+)/i
 
 export interface ChapterEventIncrementAdvisory {
   code: 'chapter-event-increment-advisory'
   severity: 'warning'
   detected: boolean
-  exempted: boolean
-  exemptReason: string | null
-  benefitCategories: string[]
-  distinctBenefitCategoryCount: number
+  incrementValue: string | null
+  message: string
+}
+
+export interface ChapterNarrativeVerdict {
+  code: 'chapter-narrative-verdict'
+  detected: boolean
+  status: 'ready' | 'not_ready' | 'undeclared'
+  reason: string | null
+  stateChangingScenes: string | null
   message: string
 }
 
@@ -23,21 +33,12 @@ export interface ChapterEventDensityResult {
   rawOutput: string
 }
 
-const BENEFIT_CATEGORIES: Array<{ category: string; aliases: string[] }> = [
-  { category: '新信息', aliases: ['新信息'] },
-  { category: '处境改变', aliases: ['处境改变', '处境变化'] },
-  { category: '关系位移', aliases: ['关系位移', '关系变化'] },
-  { category: '威胁升级', aliases: ['威胁升级', '威胁加深'] },
-  { category: '资产得失', aliases: ['资产得失', '资产变化'] },
-  { category: '地位变化', aliases: ['地位变化', '地位升降'] },
-  { category: '情绪兑现', aliases: ['情绪兑现', '情绪收获'] }
-]
-
-const EXEMPTION_LABELS: Array<{ label: string; reason: string }> = [
-  { label: '静章', reason: '静章按情绪兑现豁免密度闸' },
-  { label: '抒情章', reason: '抒情章按豁免标记处理' },
-  { label: '关系观察章', reason: '关系观察章按豁免标记处理' }
-]
+export interface ChapterNarrativeBlock {
+  code: typeof CHAPTER_EVENT_DENSITY_NOT_READY_CODE | typeof CHAPTER_NARRATIVE_NOT_READY_CODE
+  gap: string
+  guidance: string
+  retryableInBodyLayer: false
+}
 
 export function detectChapterEventDensityNotReady(text: string): ChapterEventDensityResult {
   const rawOutput = String(text || '')
@@ -72,9 +73,26 @@ export function findChapterEventIncrementValue(text: string): string | null {
   return null
 }
 
-function findExemption(text: string): { label: string; reason: string } | null {
+export function detectChapterNarrativeVerdict(text: string): ChapterNarrativeVerdict {
   const raw = String(text || '')
-  return EXEMPTION_LABELS.find(entry => raw.includes(entry.label)) || null
+  const statusMatch = NARRATIVE_STATUS_PATTERN.exec(raw)
+  const status = statusMatch
+    ? (statusMatch[1].toLowerCase() === 'not_ready' ? 'not_ready' : 'ready')
+    : 'undeclared'
+  const reasonMatch = NARRATIVE_REASON_PATTERN.exec(raw)
+  const stateChangingScenesMatch = STATE_CHANGING_SCENES_PATTERN.exec(raw)
+  const reason = reasonMatch?.[1]?.split(/\r?\n/)[0]?.trim() || null
+  const stateChangingScenes = stateChangingScenesMatch?.[1]?.split(/\r?\n/)[0]?.trim() || null
+  return {
+    code: 'chapter-narrative-verdict',
+    detected: status !== 'undeclared',
+    status,
+    reason,
+    stateChangingScenes,
+    message: status === 'undeclared'
+      ? 'SKILL 未声明 narrativeStatus；应用不推断叙事质量。'
+      : `SKILL 叙事裁决：${status}${reason ? `；${reason}` : ''}`
+  }
 }
 
 export function evaluateChapterEventIncrement(
@@ -82,35 +100,42 @@ export function evaluateChapterEventIncrement(
 ): ChapterEventIncrementAdvisory {
   const raw = String(text || '')
   const incrementValue = findChapterEventIncrementValue(raw)
-  const exemption = findExemption(raw)
-  const categories = new Set<string>()
-  if (incrementValue) {
-    for (const entry of BENEFIT_CATEGORIES) {
-      if (entry.aliases.some(alias => incrementValue.includes(alias))) {
-        categories.add(entry.category)
-      }
-    }
-  }
-  if (exemption && categories.size === 0) categories.add('情绪兑现')
-
-  const detected = !incrementValue || (!exemption && categories.size < 2)
-  let message: string
-  if (!incrementValue) {
-    message = '【正文交接】缺少必填字段「事件增量」，属于结构失败；请按 SKILL 交接契约补全。'
-  } else if (!exemption && categories.size < 2) {
-    message = `事件增量收益同质（${Array.from(categories).join('、') || '未识别'}）：非豁免推进章至少需要两类不可归一收益。`
-  } else {
-    message = `事件增量验收通过：${Array.from(categories).join('、')}。`
-  }
+  const detected = !incrementValue
+  const message = detected
+    ? '【正文交接】缺少必填字段「事件增量」，属于交接协议缺口；叙事质量由 SKILL 层裁定。'
+    : '事件增量字段已按 SKILL 交接协议交付；应用只做协议观测，不评估叙事质量。'
 
   return {
     code: 'chapter-event-increment-advisory',
     severity: 'warning',
     detected,
-    exempted: Boolean(exemption),
-    exemptReason: exemption?.reason || null,
-    benefitCategories: Array.from(categories),
-    distinctBenefitCategoryCount: categories.size,
+    incrementValue,
     message
   }
+}
+
+export function resolveChapterNarrativeBlock(text: string): ChapterNarrativeBlock | null {
+  const density = detectChapterEventDensityNotReady(text)
+  if (density.detected) {
+    return {
+      code: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
+      gap: density.gap || '章级事件密度不足，需上游补剧情点',
+      guidance: density.guidance,
+      retryableInBodyLayer: false
+    }
+  }
+  const verdict = detectChapterNarrativeVerdict(text)
+  if (verdict.status === 'not_ready') {
+    return {
+      code: CHAPTER_NARRATIVE_NOT_READY_CODE,
+      gap: verdict.reason || 'SKILL 声明叙事 NOT_READY，需上游补足剧情材料',
+      guidance: 'SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点，正文层不重试、不改写。',
+      retryableInBodyLayer: false
+    }
+  }
+  return null
+}
+
+export function isChapterNarrativeBlockDiagnosticCode(code: string): boolean {
+  return code === CHAPTER_EVENT_DENSITY_NOT_READY_CODE || code === CHAPTER_NARRATIVE_NOT_READY_CODE
 }

@@ -65,12 +65,11 @@ describe('acceptStepArtifact', () => {
     expect(result.acceptance.decision).toBe('accept')
     expect(result.chapterEventIncrementAdvisory).toMatchObject({
       detected: true,
-      exempted: false,
-      distinctBenefitCategoryCount: 0
+      incrementValue: null
     })
   })
 
-  it('exposes a passing event increment advisory for a two-benefit chapter', () => {
+  it('passes any declared event increment through without narrative judgment', () => {
     const result = resolveStepArtifactFlow({
       stepOutput: [
         '正文'.repeat(2800),
@@ -86,11 +85,11 @@ describe('acceptStepArtifact', () => {
     expect(result.acceptance.decision).toBe('accept')
     expect(result.chapterEventIncrementAdvisory).toMatchObject({
       detected: false,
-      benefitCategories: ['新信息', '处境改变']
+      incrementValue: '王芳获得新信息，处境改变。'
     })
   })
 
-  it('does not infer event increment semantics from the narrative body', () => {
+  it('does not infer a narrative verdict from the body', () => {
     const result = resolveStepArtifactFlow({
       stepOutput: [
         '王芳获得新信息，处境改变，威胁升级。'.repeat(650),
@@ -105,8 +104,32 @@ describe('acceptStepArtifact', () => {
 
     expect(result.chapterEventIncrementAdvisory).toMatchObject({
       detected: true,
-      benefitCategories: [],
-      distinctBenefitCategoryCount: 0
+      incrementValue: null
+    })
+    expect(result.chapterNarrativeVerdict.status).toBe('undeclared')
+  })
+
+  it('passes through an explicit SKILL narrative verdict without judging it', () => {
+    const result = resolveStepArtifactFlow({
+      stepOutput: [
+        '正文'.repeat(2800),
+        '',
+        '【正文交接】',
+        '事件增量：王芳获得新信息，处境改变。',
+        'narrativeStatus：ready',
+        'narrativeReason：状态改变动作达标',
+        'stateChangingScenes：3',
+        '【正文交接结束】'
+      ].join('\n'),
+      stepIndex: 0,
+      contract
+    })
+
+    expect(result.chapterNarrativeVerdict).toMatchObject({
+      detected: true,
+      status: 'ready',
+      reason: '状态改变动作达标',
+      stateChangingScenes: '3'
     })
   })
 

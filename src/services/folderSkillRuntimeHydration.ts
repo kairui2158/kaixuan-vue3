@@ -11,30 +11,85 @@ type MutableTemplate = WorkspaceSkillTemplate & {
   }
 }
 
+export type FolderSkillHydrationDiagnostic =
+  | {
+      type: 'folder-hydration-load-failed'
+      level: 'warn'
+      skillId: string
+      folderPath: string
+      error: string
+    }
+  | {
+      type: 'folder-hydration-field-cleared'
+      level: 'warn'
+      skillId: string
+      folderPath: string
+      field: 'meta' | 'intents' | 'contextPolicy'
+    }
+
+type HydratableFolderTemplate = WorkspaceSkillTemplate | (PipelineSkillTemplateLike & HomeSkillTemplateLike)
+
+type PipelineSkillTemplateLike = {
+  skill?: {
+    format?: string
+    folderPath?: string
+    meta?: unknown
+    intents?: string[]
+    contextPolicy?: unknown
+  }
+  meta?: unknown
+  intents?: string[]
+  contextPolicy?: unknown
+  template?: unknown
+}
+
+type HomeSkillTemplateLike = {
+  id: string
+  name: string
+  template: string
+}
+
 /**
  * Refresh folder SKILL declarations from disk before execution. Store records
  * remain the UI source; execution reads the same values as the folder package.
  */
 export async function hydrateRuntimeFolderTemplates(
-  templates: WorkspaceSkillTemplate[],
-): Promise<void> {
+  templates: Array<WorkspaceSkillTemplate | (PipelineSkillTemplateLike & HomeSkillTemplateLike)>,
+): Promise<FolderSkillHydrationDiagnostic[]> {
+  const diagnostics: FolderSkillHydrationDiagnostic[] = []
   for (const template of templates) {
     const skill = (template as MutableTemplate).skill
     if (skill?.format !== 'folder' || !skill.folderPath) continue
     const loaded = await loadRuntimeFolderSkillMetadata(skill.folderPath)
-    if (loaded.error) continue
-    if (loaded.template) template.template = loaded.template
-    if (loaded.meta && typeof loaded.meta === 'object') {
-      template.meta = loaded.meta
-      skill.meta = loaded.meta
+    if (loaded.error) {
+      diagnostics.push({
+        type: 'folder-hydration-load-failed',
+        level: 'warn',
+        skillId: template.id,
+        folderPath: skill.folderPath,
+        error: loaded.error,
+      })
+      continue
     }
-    if (loaded.intents) {
-      template.intents = loaded.intents
-      skill.intents = loaded.intents
-    }
-    if (loaded.contextPolicy) {
-      template.contextPolicy = loaded.contextPolicy as WorkspaceSkillTemplate['contextPolicy']
-      skill.contextPolicy = loaded.contextPolicy
+    ;(template as MutableTemplate).template = loaded.template
+    const loadedMeta = loaded.meta && typeof loaded.meta === 'object' ? loaded.meta : undefined
+    ;(template as MutableTemplate).meta = loadedMeta
+    skill.meta = loadedMeta
+    ;(template as MutableTemplate).intents = loaded.intents
+    skill.intents = loaded.intents
+    ;(template as MutableTemplate).contextPolicy = loaded.contextPolicy as WorkspaceSkillTemplate['contextPolicy']
+    skill.contextPolicy = loaded.contextPolicy
+    for (const field of ['meta', 'intents', 'contextPolicy'] as const) {
+      if (!loaded[field]) {
+        diagnostics.push({
+          type: 'folder-hydration-field-cleared',
+          level: 'warn',
+          skillId: template.id,
+          folderPath: skill.folderPath,
+          field,
+        })
+      }
     }
   }
+  return diagnostics
 }

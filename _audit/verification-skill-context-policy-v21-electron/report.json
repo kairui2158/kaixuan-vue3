@@ -1,0 +1,20 @@
+{
+  "schema": "shenyi.skill-context-policy-v21.electron",
+  "version": 1,
+  "generatedAt": "2026-10-31T13:21:56.388Z",
+  "script": "verify-skill-context-policy-v21-electron.mjs",
+  "persistedChatHistoryAfterLoad": "recent",
+  "persistedChatHistoryAfterOverwrite": "recent",
+  "healthReportText": "技能体检报告上下文策略实测技能（文件夹）提示samples.txt未提供示例文本警告meta.intents未声明可解析的 intents，技能用途不完整关闭",
+  "providerRequestCount": 2,
+  "chatCompletionRequestCount": 2,
+  "oldTemplateSeen": true,
+  "newTemplateSeen": true,
+  "hardRules": {
+    "visibleElectron": true,
+    "realUiOperations": "#btn-settings / #tab-skill / skill card buttons / #btn-import-folder-skill / #btn-confirm-folder-import / #st-test-input / #btn-run-skill-test",
+    "realDirectoryDialogHook": true,
+    "realProviderRequests": true,
+    "cacheInvalidationProven": true
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "skills": [
+    {
+      "id": "folder:context-policy-skill",
+      "sourceId": "context-policy-skill",
+      "name": "上下文策略实测技能",
+      "format": "folder",
+      "folderPath": "D:\\codex\\novel-workshop-vue3\\_data\\skill-context-policy-v21-profile\\skills\\context-policy-skill",
+      "template": "旧持久化模板：仅迁移用",
+      "category": "folder",
+      "description": "V2.1 上下文语义与导入链路实测",
+      "executionMode": "chain",
+      "outputFormat": "text",
+      "validationRules": [],
+      "splitSize": 1000,
+      "injectMode": "system_prefix",
+      "bindTarget": "project",
+      "linkedSkillIds": [],
+      "customVars": {},
+      "contextPolicy": {
+        "chatHistory": "recent",
+        "includeOutline": true
+      }
+    }
+  ],
+  "pipelineSkills": [],
+  "deAiSkills": []
+}

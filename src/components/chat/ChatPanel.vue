@@ -188,7 +188,7 @@ import {
 import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
-import { hydrateRuntimeFolderTemplates } from '../../services/folderSkillRuntimeHydration'
+import { hydrateRuntimeFolderTemplates, type FolderSkillHydrationDiagnostic } from '../../services/folderSkillRuntimeHydration'
 import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
@@ -2462,7 +2462,7 @@ async function runHomeCoCreationSkills(
   const runStartedAt = performance.now()
   const skillNames = selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill))
   const templates = getHomeSkillTemplates()
-  await hydrateRuntimeFolderTemplates(templates)
+  reportHomeFolderHydrationDiagnostics(await hydrateRuntimeFolderTemplates(templates))
   // A budget-exhausted resume must keep the spent count and the user's
   // extension on the same budget object; minting a fresh one resets 8/12 to 0/8.
   const apiBudget = routingDecision.resumedApiBudget || createApiCallBudget(8)
@@ -2941,8 +2941,30 @@ let homeDirectStallRetryRequest: {
     promptSource: string
     protocolDiagnostics?: RealSkillDiagnostic[]
   }
+
   directApiBudget: ApiCallBudget
 } | null = null
+
+function reportHomeFolderHydrationDiagnostics(diagnostics: FolderSkillHydrationDiagnostic[]) {
+  for (const diagnostic of diagnostics) {
+    addHomeTraceEvent({
+      type: diagnostic.type,
+      level: diagnostic.level,
+      label: diagnostic.type === 'folder-hydration-load-failed'
+        ? '文件夹 SKILL 磁盘刷新失败，已保留当前快照'
+        : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field}`,
+      detail: JSON.stringify(diagnostic),
+    })
+    ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+      'warn',
+      `home/${diagnostic.type}`,
+      diagnostic.type === 'folder-hydration-load-failed'
+        ? '文件夹 SKILL 磁盘刷新失败，已保留当前快照'
+        : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field}`,
+      diagnostic,
+    )
+  }
+}
 
 function retryStalledHomeDirectRequest(): void {
   homeToolRunSupervisor?.dispose()

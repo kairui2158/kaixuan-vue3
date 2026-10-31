@@ -50,7 +50,7 @@ describe('folderSkillRecordFactory', () => {
       executionMode: 'chain',
       outputFormat: 'text',
       intents: ['generate', 'discuss'],
-      contextPolicy: { chatHistory: 'latest', includeOutline: true },
+      contextPolicy: { chatHistory: 'recent', includeOutline: true },
       createdAt: '2026-10-31T08:00:00.000Z',
       updatedAt: '2026-10-31T08:00:00.000Z',
     })

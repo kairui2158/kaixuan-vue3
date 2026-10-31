@@ -65,7 +65,7 @@ describe('skillHealth', () => {
         manifest: { id: 'demo', name: 'Demo Skill', version: '1.0.0' },
         meta: {
           intents: ['generate'],
-          contextPolicy: { chatHistory: 'latest', includeOutline: true },
+          contextPolicy: { chatHistory: 'recent', includeOutline: true },
         },
         fingerprint: [{ path: 'SKILL.md', hash: 'abc' }],
         warnings: [],
@@ -104,6 +104,30 @@ describe('skillHealth', () => {
       { level: 'error', field: 'meta.contextPolicy.chatHistory', message: 'chatHistory 非法：sometimes' },
       { level: 'error', field: 'meta.contextPolicy.includeOutline', message: 'includeOutline 必须是布尔值' },
     ]))
+  })
+
+  it('keeps legacy disk-authored chat history modes out of the accepted contract', () => {
+    for (const chatHistory of ['latest', 'all']) {
+      const report = analyzeSkillHealth({
+        skillId: 'demo',
+        format: 'folder',
+        folderPath: 'D:/skills/demo',
+        sourceId: 'demo',
+        package: {
+          template: '模板',
+          meta: {
+            intents: ['generate'],
+            contextPolicy: { chatHistory },
+          },
+        },
+      })
+      expect(report.healthy).toBe(false)
+      expect(report.issues).toContainEqual({
+        level: 'error',
+        field: 'meta.contextPolicy.chatHistory',
+        message: `chatHistory 非法：${chatHistory}`,
+      })
+    }
   })
 
   it('keeps old folder packages readable with protocol warnings', () => {

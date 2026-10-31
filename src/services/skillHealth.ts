@@ -135,7 +135,7 @@ export function analyzeSkillHealth(input: {
     } else if (rawPolicy && typeof rawPolicy === 'object' && !Array.isArray(rawPolicy)) {
       const policy = rawPolicy as Record<string, unknown>
       const chatHistory = String(policy.chatHistory || '')
-      if (chatHistory && !['none', 'latest', 'all'].includes(chatHistory)) {
+      if (chatHistory && !(SKILL_CONTEXT_HISTORY_MODES as readonly string[]).includes(chatHistory)) {
         issues.push({ level: 'error', field: 'meta.contextPolicy.chatHistory', message: `chatHistory 非法：${chatHistory}` })
       }
       if (policy.includeOutline !== undefined && typeof policy.includeOutline !== 'boolean') {
@@ -164,3 +164,4 @@ export function analyzeSkillHealth(input: {
     issues,
   }
 }
+import { SKILL_CONTEXT_HISTORY_MODES } from './skillIdentity'

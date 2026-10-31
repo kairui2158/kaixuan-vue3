@@ -1,7 +1,7 @@
 export type VolumeContractReviewStatus =
-  | 'contract_safe'
-  | 'contract_needs_reinforcement'
-  | 'contract_broken'
+  | 'no_declared_cards'
+  | 'no_card_mentions'
+  | 'card_mention_observed'
 
 export interface VolumeContractReviewFinding {
   card: string
@@ -13,18 +13,41 @@ export interface VolumeContractReviewFinding {
 export interface VolumeContractReviewInput {
   prose: string
   forbiddenFinalCards: unknown
+  skillVerdictText?: string
+}
+
+export interface VolumeContractSkillVerdict {
+  status: 'safe' | 'broken' | 'undeclared'
+  reason: string | null
 }
 
 export interface VolumeContractReview {
   status: VolumeContractReviewStatus
   detected: boolean
   findings: VolumeContractReviewFinding[]
+  skillVerdict: VolumeContractSkillVerdict
+  ownership: 'app_protocol_observation'
 }
 
 const PENDING = '[待补充]'
-const REVEAL_RE = /(揭晓|揭示|公开|就是|真相是)/
+const SKILL_VERDICT_STATUS_PATTERN = /(?:^|\n)\s*(?:【)?\s*contractStatus\s*(?:】)?\s*[：:]\s*(safe|broken)\s*/i
+const SKILL_VERDICT_REASON_PATTERN = /(?:^|\n)\s*(?:【)?\s*contractReason\s*(?:】)?\s*[：:]\s*(.+)/i
 
-export function reviewVolumeContractSemantics(input: VolumeContractReviewInput): VolumeContractReview {
+export function detectVolumeContractSkillVerdict(text: string): VolumeContractSkillVerdict {
+  const raw = String(text || '')
+  const statusMatch = SKILL_VERDICT_STATUS_PATTERN.exec(raw)
+  const reasonMatch = SKILL_VERDICT_REASON_PATTERN.exec(raw)
+  const reason = reasonMatch?.[1]?.split(/\r?\n/)[0]?.trim() || null
+  if (!statusMatch) {
+    return { status: 'undeclared', reason }
+  }
+  return {
+    status: statusMatch[1].toLowerCase() === 'broken' ? 'broken' : 'safe',
+    reason
+  }
+}
+
+export function observeVolumeContractMentions(input: VolumeContractReviewInput): VolumeContractReview {
   const prose = String(input.prose || '')
   const cards = Array.isArray(input.forbiddenFinalCards)
     ? input.forbiddenFinalCards.map(card => String(card ?? '').trim())
@@ -53,17 +76,17 @@ export function reviewVolumeContractSemantics(input: VolumeContractReviewInput):
   }
 
   findings.sort((left, right) => left.start - right.start)
-  const broken = findings.length > 0 && findings.some(finding =>
-    REVEAL_RE.test(prose.slice(finding.start, Math.min(prose.length, finding.end + 80)))
-  )
+  const skillVerdict = detectVolumeContractSkillVerdict(input.skillVerdictText || '')
 
   return {
-    status: broken
-      ? 'contract_broken'
+    status: activeCards.length === 0
+      ? 'no_declared_cards'
       : findings.length > 0
-        ? 'contract_needs_reinforcement'
-        : 'contract_safe',
+        ? 'card_mention_observed'
+        : 'no_card_mentions',
     detected: findings.length > 0,
-    findings
+    findings,
+    skillVerdict,
+    ownership: 'app_protocol_observation'
   }
 }

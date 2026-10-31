@@ -357,7 +357,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceArtifactContract, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
-import { hydrateRuntimeFolderTemplates } from '../../services/folderSkillRuntimeHydration'
+import { hydrateRuntimeFolderTemplates, type FolderSkillHydrationDiagnostic } from '../../services/folderSkillRuntimeHydration'
 import { formatSkillFallback } from '../../services/skillRouter'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
@@ -1177,6 +1177,7 @@ function startOutlineRun(
     })
     outlineSessionProjectId = outlineProjectId()
   }
+  reportPendingOutlineFolderHydrationDiagnostics()
   outlineRunTurnId = runTraceStore.startTurn(outlineRunTraceId, {
     userRequest: requestText,
     skillNames,
@@ -2058,6 +2059,48 @@ function recordOutlineProviderQueue(callId: string | undefined, event: ProviderQ
     detail: JSON.stringify(event),
     turnId: callId || undefined,
   })
+}
+
+function reportOutlineFolderHydrationDiagnostics(diagnostics: FolderSkillHydrationDiagnostic[]) {
+  for (const diagnostic of diagnostics) {
+    const message = diagnostic.type === 'folder-hydration-load-failed'
+      ? '文件夹 SKILL 磁盘刷新失败，已保留当前快照'
+      : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field}`
+    if (outlineRunTraceId) {
+      addOutlineTraceEvent({
+        type: diagnostic.type,
+        level: diagnostic.level,
+        label: message,
+        detail: JSON.stringify(diagnostic),
+      })
+    } else {
+      pendingOutlineFolderHydrationDiagnostics.push(diagnostic)
+    }
+    ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+      'warn',
+      `outline/${diagnostic.type}`,
+      diagnostic.type === 'folder-hydration-load-failed'
+        ? '文件夹 SKILL 磁盘刷新失败，已保留当前快照'
+        : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field}`,
+      diagnostic,
+    )
+  }
+}
+
+function reportPendingOutlineFolderHydrationDiagnostics() {
+  if (!pendingOutlineFolderHydrationDiagnostics.length) return
+  const diagnostics = pendingOutlineFolderHydrationDiagnostics
+  pendingOutlineFolderHydrationDiagnostics = []
+  for (const diagnostic of diagnostics) {
+    addOutlineTraceEvent({
+      type: diagnostic.type,
+      level: diagnostic.level,
+      label: diagnostic.type === 'folder-hydration-load-failed'
+        ? '文件夹 SKILL 磁盘刷新失败，已保留当前快照'
+        : `文件夹 SKILL 磁盘声明缺失：${diagnostic.field}`,
+      detail: JSON.stringify(diagnostic),
+    })
+  }
 }
 
 function recordOutlineToolCall(callId: string | undefined, event: {
@@ -3286,6 +3329,7 @@ const outlineStalledRetryProviders = computed(() =>
 let cancelController: AbortController | null = null
 let lastEditorHistoryAt = 0
 let outlineRunTraceId: string | null = null
+let pendingOutlineFolderHydrationDiagnostics: FolderSkillHydrationDiagnostic[] = []
 let outlineStreamLength = 0
 let lastOutlineToolAudit: unknown
 const workspaceAgentId = ref('')
@@ -5128,7 +5172,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   }
   currentOutlineUserRequest = requestText
   const templates = getWorkspaceTemplates()
-  await hydrateRuntimeFolderTemplates(templates)
+  pendingOutlineFolderHydrationDiagnostics = await hydrateRuntimeFolderTemplates(templates)
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
