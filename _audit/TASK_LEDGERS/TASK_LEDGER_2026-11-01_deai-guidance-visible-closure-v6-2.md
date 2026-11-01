@@ -93,5 +93,5 @@
 ## 7. 缺口清单
 
 - 已完成：`npm run build:vue`、五态 Electron 真实 UI 验证器完整重跑、3.110.15 安装包核验、全量回归、DEV_LOG_MASTER_INDEX 登记。
-- 已完成：git 提交 `030049c4`（`feat(deai): render per-skill guidance ownership states`，18 files changed，1673 insertions，89 deletions）。
+- 已完成：git 提交 `298f5bb4`（`feat(deai): render per-skill guidance ownership states`，18 files changed，1673 insertions，89 deletions）；本行为后续补记，独立于该功能提交。
 - 边界：B6 教学有效性保持 provisional；本轮不声明降AI质量效果；不修改手动降AI功能；`callApiWithAgentVariant` 死接口清理为后续项。
