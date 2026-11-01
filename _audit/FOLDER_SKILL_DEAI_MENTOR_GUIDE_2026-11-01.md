@@ -145,6 +145,7 @@
 4. 不碰风格：风格卡片与作者声纹优先。
 5. trace 只存摘要：条数、字符、hash、构造耗时、丢弃项，不存提示词全文。
 6. 流水线不再执行 `legacy-auto`、`deep-fix` 或“最小编辑改稿”；设置页手动去AI味功能保持独立。
+7. agent 调用唯一生产入口是 `callApiWithAgentVariantOwned`；旧包装名 `callApiWithAgentVariant` 已在 3.110.16 退役，SKILL 对账和 trace 溯源不得再按旧名判断 agent 路径。
 
 ## 10. trace 与 UI
 

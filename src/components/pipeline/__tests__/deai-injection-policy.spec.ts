@@ -318,6 +318,17 @@ describe('DEAI injection policy integration contract', () => {
     )
   })
 
+  it('keeps the retired agent variant wrapper from returning', () => {
+    expect(pipelineSource).not.toContain('async function callApiWithAgentVariant(')
+    expect(pipelineSource).toContain('async function callApiWithAgentVariantOwned(')
+    expect(pipelineSource).toContain('await callApiWithAgentVariantOwned(')
+
+    const retiredWrapperReferences = pipelineSource.match(
+      /callApiWithAgentVariant(?!Owned)/g,
+    ) || []
+    expect(retiredWrapperReferences).toHaveLength(0)
+  })
+
   it('keeps contract fallback observable instead of silently failing', () => {
     const invalidMeta: unknown = {
       contractVersion: '1.0',

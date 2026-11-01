@@ -1622,3 +1622,11 @@
 - 交付：正文层降AI观测面从单一 `deai-guidance-pack` 升级为 `deai-injection-policy` 判 owner、`deai-guidance-pack` 判 app 注入量；每 SKILL 独立投影 + 链级 mixed 聚合；app/skill/off/mixed/unknown 五态真实 UI 常显；手册升级 v2；版本 3.110.15。
 - 验证：定向 37 tests passed；type-check exit 0；全量 239 files / 2552 tests passed；五态真实 Electron 验证 A/B/C/D/E 全 PASS；`npm run build:vue` 与 `npm run build` exit 0；安装包 231,644,738 字节，asar 版本标记 3.110.15。
 - 边界：不回滚 `guidanceOwnership=skill`；不伪造 pack；`callApiWithAgentVariant` 死接口清理登记为独立后续项；B6 教学有效性保持 provisional。
+
+# 2026-11-02 callApiWithAgentVariant 死接口闭环与 3.110.16
+
+- 文件：[_audit/DEV_LOG_2026-11-02_callapi-agent-variant-dead-interface-closure.md](_audit/DEV_LOG_2026-11-02_callapi-agent-variant-dead-interface-closure.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_callapi-agent-variant-dead-interface-closure.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_callapi-agent-variant-dead-interface-closure.md)
+- 交付：删除无调用方的 `callApiWithAgentVariant` 三行转发包装，保留唯一生产入口 `callApiWithAgentVariantOwned`；新增死接口负向守护；手册登记 agent 唯一生产入口；版本 3.110.16。
+- 验证：RED→GREEN 守护闭环；定向 38 tests、type-check、`build:vue`、五态真实 Electron A-E、全量 239 files / 2553 tests 全部通过；生产裸名引用清零。
+- 边界：不扩展全仓死代码扫描；B6 教学有效性保持 provisional。

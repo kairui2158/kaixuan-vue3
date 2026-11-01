@@ -3807,10 +3807,6 @@ function prevStep() {
   }
 }
 
-async function callApiWithAgentVariant(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null, pipelineRunIdParam?: string | null, skillDeaiMeta?: SkillDeaiMeta | null): Promise<string> {
-  return callApiWithAgentVariantOwned(step, skillTemplate, prompt, skillAgentOverride, promptParts, signal, timeoutMs, skillId, chainSkillIndex, chainSkillCount, traceRunIdParam, pipelineRunIdParam, skillDeaiMeta)
-}
-
 async function callApiWithAgentVariantOwned(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string, chainSkillIndex?: number, chainSkillCount?: number, traceRunIdParam?: string | null, pipelineRunIdParam?: string | null, skillDeaiMetaParam?: SkillDeaiMeta | null): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
