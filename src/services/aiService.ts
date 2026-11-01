@@ -443,6 +443,21 @@ function withTableOutputGuideline(
   return [{ role: 'system', content: TABLE_OUTPUT_GUIDELINE }, ...messages]
 }
 
+function resolveRequestCompositionContent(params: Pick<CallAiParams, 'messages' | 'jsonMode'>): {
+  systemPrompt: string
+  userPrompt: string
+} {
+  const wireMessages = withTableOutputGuideline(params.messages, params.jsonMode === true)
+  const systemContents = wireMessages
+    .filter(message => message.role === 'system')
+    .map(message => String(message.content ?? ''))
+  const firstUserMessage = wireMessages.find(message => message.role === 'user')
+  return {
+    systemPrompt: systemContents.join('\n'),
+    userPrompt: String(firstUserMessage?.content ?? ''),
+  }
+}
+
 function withEditorWriteProtocol(
   messages: CallAiParams['messages'],
   executionPlan?: LongDocumentExecutionPlan | null,
@@ -3792,8 +3807,7 @@ export function createAiService(
             providerType,
             providerId,
             model: resolveModel(provider, params.model),
-            systemPrompt: String(params.messages[0]?.content || ''),
-            userPrompt: String(params.messages[1]?.content || ''),
+            ...resolveRequestCompositionContent(params),
           })
           : undefined
         if (status !== 'running') {

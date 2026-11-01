@@ -1636,5 +1636,6 @@
 - 文件：[_audit/DEV_LOG_2026-11-02_pipeline-context-cache-v2-1.md](_audit/DEV_LOG_2026-11-02_pipeline-context-cache-v2-1.md)
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_pipeline-context-cache-v2-1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_pipeline-context-cache-v2-1.md)
 - 交付：默认请求行为不变的上下文组成与 provider cache 观测底座：cache family/前缀指纹/稳定占比、OpenAI-compatible 与 Anthropic cache usage 归一、物理请求 trace 持久化、JSON/文本导出、folder 主链 `contextLayer` 接线；修复 ratio 越界与 layer 单复数漂移。
-- 验证：RED→GREEN（cache ratio 1.2→1）；定向 6 files / 382 tests passed；type-check exit 0；负向断言覆盖 prompt 全文不落账、未知身份不合并、缺 usage 不发明命中。
+- 验证：RED→GREEN（cache ratio 1.2→1）；定向 6 files / 382 tests passed；type-check exit 0；负向断言覆盖 prompt 全文不落账、未知身份不合并、缺 usage 不发明命中；G0.5 回头看补修测量口径（system/user 长度改从 wire 消息推导，覆盖表格指引与 Anthropic 多 system 合并），全量 240 files / 2572 tests passed。
 - 边界：真实供应商 cache 矩阵、20 章 shadow A/B、安装包级真实运行保持 `untested`；agent 变体与辅助调用只有 cache usage 观测、无 request composition，登记为非阻塞缺口。
+- 回头看补充：外部 S2 活体契约新增 `场景类型`、`对白排布` 并收紧 `stateChangingScenes` 格式，按 G1.26 判定为外部契约演进；集成夹具同步，生产断言未放松。

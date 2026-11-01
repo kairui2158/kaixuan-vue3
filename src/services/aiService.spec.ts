@@ -2285,6 +2285,9 @@ describe('createAiService.callAi', () => {
     })).resolves.toMatchObject({ text: 'ok' });
 
     const terminal = physicalEvents.find(event => event.status === 'success');
+    const wireBody = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    const wireSystem = wireBody.messages.find((message: any) => message.role === 'system').content as string;
+    const wireUser = wireBody.messages.find((message: any) => message.role === 'user').content as string;
     expect(terminal?.cacheUsageSummary).toEqual({
       status: 'reported',
       cacheReadInputTokens: 80,
@@ -2299,13 +2302,93 @@ describe('createAiService.callAi', () => {
       providerType: 'openai-compatible',
       model: 'test-model',
       cacheFamily: 'openai-compatible:runtime:test-model:chapter:step-2',
-      systemLength: 'system-prefix'.length,
-      userLength: 'user-prefix'.length,
+      systemLength: wireSystem.length,
+      userLength: wireUser.length,
       stableChars: 'system-prefix'.length + 'user-prefix'.length,
-      variableChars: 0,
+      variableChars: wireSystem.length - 'system-prefix'.length,
     });
     expect(Object.keys(terminal?.contextComposition || {})).not.toContain('systemPrompt');
     expect(Object.keys(terminal?.contextComposition || {})).not.toContain('userPrompt');
+    vi.unstubAllGlobals();
+  });
+
+  it('measures request composition from the full wire system message', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore({
+      ...runtimeProvider,
+      providerType: 'anthropic',
+      baseUrl: 'https://api.anthropic.com',
+    }));
+    const physicalEvents: any[] = [];
+    await expect(service.callAi({
+      purpose: 'verify',
+      messages: [
+        { role: 'system', content: 'system-one' },
+        { role: 'system', content: 'system-two' },
+        { role: 'user', content: 'user-one' },
+        { role: 'assistant', content: 'assistant-one' },
+        { role: 'user', content: 'user-two' },
+      ],
+      stream: false,
+      retry: false,
+      contextComposition: {
+        layer: 'body',
+        step: 3,
+        stableSystemPrefix: 'system-one',
+        stableUserPrefix: 'user-one',
+      },
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    })).resolves.toMatchObject({ text: 'ok' });
+
+    const wireBody = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(wireBody.system).toContain('system-one');
+    expect(wireBody.system).toContain('system-two');
+    expect(wireBody.messages).toHaveLength(3);
+    const terminal = physicalEvents.find(event => event.status === 'success');
+    expect(terminal?.contextComposition).toMatchObject({
+      systemLength: wireBody.system.length,
+      userLength: 'user-one'.length,
+      stableSystemPrefixLength: 'system-one'.length,
+      stableUserPrefixLength: 'user-one'.length,
+      stableChars: 'system-one'.length + 'user-one'.length,
+      variableChars: wireBody.system.length + 'user-one'.length - 'system-one'.length - 'user-one'.length,
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it('does not add table guidance to request composition measurement in JSON mode', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: '{"ok":true}' } }] }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    await expect(service.callAi({
+      purpose: 'verify',
+      messages: [
+        { role: 'system', content: '{"schema":"ok"}' },
+        { role: 'user', content: 'test' },
+      ],
+      stream: false,
+      retry: false,
+      jsonMode: true,
+      contextComposition: {
+        layer: 'chapter',
+        step: 2,
+        stableSystemPrefix: '{"schema":"ok"}',
+        stableUserPrefix: 'test',
+      },
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    })).resolves.toMatchObject({ text: '{"ok":true}' });
+
+    const terminal = physicalEvents.find(event => event.status === 'success');
+    expect(terminal?.contextComposition).toMatchObject({
+      systemLength: '{"schema":"ok"}'.length,
+      userLength: 'test'.length,
+      stableRatio: 1,
+    });
     vi.unstubAllGlobals();
   });
 

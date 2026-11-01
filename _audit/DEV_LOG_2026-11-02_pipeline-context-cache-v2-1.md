@@ -28,3 +28,12 @@
 - `mock-verified`: 请求组成构造、cache usage 归一、trace 持久化、导出显示、folder 主链 `contextLayer` 传递。
 - `untested`: 真实供应商 cache 命中矩阵、20 章 shadow A/B、安装包级真实运行。
 - `callApiWithAgentVariantOwned`、风格分析与硬信号修复调用暂无 `contextComposition`；它们的 cache usage 仍由 `aiService` 观测，但请求组成未观测。作为非阻塞观测缺口登记，后续 Phase 1 再统一接线。
+
+## 回头看补账（G0.5）
+
+- 全量复跑触发唯一失败：外部活体 S2 契约演进出新必填字段 `场景类型`、`对白排布`，且 `stateChangingScenes` 要求 `场景N（维度：起点值→终点值）` 格式。按 G1.26 判定为外部契约演进，不是应用回归，也不是 V2.1 引入的缺陷；仅同步集成测试夹具，未放松生产验收。
+- 回头看发现并修复一个 V2.1 真实观测缺陷：`contextComposition` 原先按 `messages[0]/messages[1]` 位置推算，低估 wire 上 system 长度（表格输出指引、Anthropic 多 system 合并均被漏掉），并可能错配多消息请求。现从 `withTableOutputGuideline` 后的 wire 消息推导测量，默认请求内容不变。
+- RED 复核：旧断言按源码 system 长度计 13，wire 口径测量为 118，先红后绿；断言改为从实际 wire body 派生。
+- 新增边界测试：Anthropic 多 system 合并后的测量口径；JSON 模式下表格指引不进入测量。
+- 验证：`npx vitest run src/services/aiService.spec.ts --reporter=verbose` → exit 0，182 tests passed；`npm run type-check` → exit 0；全量 `npx vitest run` → exit 0，240 files / 2572 tests passed；`git diff --check` 仅剩 CRLF 标准警告。
+- 边界更新：agent/辅助调用 request composition、真实供应商 cache 矩阵、20 章 shadow A/B、安装包级真实运行仍为登记缺口；S2 新字段演进需转达 SKILL 层。
