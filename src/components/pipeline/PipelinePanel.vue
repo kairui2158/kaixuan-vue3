@@ -587,7 +587,6 @@
                 {{ pipelineStore.isTargetGenerating('body', selectedBodyTarget) ? '生成中...' : 'AI生成正文' }}
               </button>
               <span
-                v-if="displayedBodyDeaiGuidanceBadge"
                 id="pl-deai-guidance-badge"
                 class="pl-deai-badge"
               >{{ displayedBodyDeaiGuidanceBadge }}</span>
@@ -608,11 +607,14 @@
               @close="closeBodyGenerationFeedback"
             />
             <div
-              v-if="displayedBodyDeaiGuidanceFeedback"
               id="pl-deai-guidance-feedback"
               class="pl-deai-guidance-feedback informational-only"
             >
-              {{ displayedBodyDeaiGuidanceFeedback }}
+              <div
+                v-for="(line, index) in displayedBodyDeaiGuidanceFeedback"
+                :key="index"
+                class="pl-deai-guidance-feedback-line"
+              >{{ line }}</div>
             </div>
           </div>
         </div>
@@ -888,6 +890,12 @@ import {
 } from "../../services/deaiVoiceProfile"
 import { createDeaiVoiceProfileRunSnapshotStore } from "../../services/deaiVoiceProfileRunSnapshot"
 import { buildDeaiGuidancePackTraceEvent } from "../../services/deaiGuidancePack"
+import {
+  mergeDeaiChainGuidanceDisplays,
+  resolveDeaiChainGuidanceDisplay,
+  type DeaiGuidanceDisplayTraceEvent,
+  type DeaiChainGuidanceDisplay,
+} from "../../services/deaiGuidanceDisplay"
 import { buildFinalStepFeedback } from "../../services/finalStepFeedback"
 import { parseGenerationResult } from "../../services/generationResult"
 import {
@@ -1324,46 +1332,68 @@ const displayedVolumesRunId = computed(() => displayRunForLayer('volumes')?.runI
 const displayedChaptersRunId = computed(() => displayRunForLayer('chapters')?.runId || null)
 const displayedBodyRunId = computed(() => displayRunForLayer('body')?.runId || null)
 
-function deaiGuidanceTraceForRun(pipelineRunId: string | null) {
-  if (!pipelineRunId) return null
-  for (const trace of runTraceStore.sortedRuns) {
-    if (trace.pipelineRunId !== pipelineRunId
-      && pipelineStore.getPipelineRunIdForTrace(trace.id) !== pipelineRunId) continue
-    const event = [...trace.events]
-      .reverse()
-      .find(item => item.type === 'deai-guidance-pack')
-    if (!event) continue
+function parseDeaiDisplaySkillCount(events: readonly DeaiGuidanceDisplayTraceEvent[]): number | null {
+  for (const event of events) {
+    if (event.type !== 'deai-injection-policy' && event.type !== 'deai-guidance-pack') continue
     try {
-      const detail = JSON.parse(event.detail || '{}')
-      if (typeof detail.itemCount === 'number' && typeof detail.guidanceChars === 'number') {
-        return detail as {
-          itemCount: number
-          guidanceChars: number
-          totalInjectionChars?: number
-          constructionMs?: number
-        }
+      const detail = JSON.parse(event.detail || '{}') as { totalSkillCount?: unknown }
+      if (typeof detail.totalSkillCount === 'number'
+        && Number.isFinite(detail.totalSkillCount)
+        && detail.totalSkillCount > 0) {
+        return Math.trunc(detail.totalSkillCount)
       }
     } catch {
-      // Malformed trace detail is already retained in the run trace itself.
+      // Malformed details are retained in trace; the projection reports unknown.
     }
   }
   return null
 }
 
-const displayedBodyDeaiGuidanceTrace = computed(() =>
-  deaiGuidanceTraceForRun(displayedBodyRunId.value),
+function deaiGuidanceDisplaysForRun(pipelineRunId: string | null): DeaiChainGuidanceDisplay[] {
+  if (!pipelineRunId) return []
+  return runTraceStore.sortedRuns
+    .filter(trace => trace.mode === 'body'
+      && (trace.pipelineRunId === pipelineRunId
+        || pipelineStore.getPipelineRunIdForTrace(trace.id) === pipelineRunId))
+    .map(trace => {
+      const events = trace.events.filter(
+        (event): event is DeaiGuidanceDisplayTraceEvent => event.type === 'deai-injection-policy'
+          || event.type === 'deai-guidance-pack',
+      )
+      const skillCount = parseDeaiDisplaySkillCount(events)
+        ?? trace.skillNames.length
+      return resolveDeaiChainGuidanceDisplay({ events, skillCount })
+    })
+    .filter(display => display.skills.length > 0)
+}
+
+const displayedBodyDeaiGuidance = computed(() =>
+  mergeDeaiChainGuidanceDisplays(deaiGuidanceDisplaysForRun(displayedBodyRunId.value)),
 )
 
 const displayedBodyDeaiGuidanceBadge = computed(() => {
-  const detail = displayedBodyDeaiGuidanceTrace.value
-  if (!detail) return ''
-  return `方法指导 ${detail.itemCount}条 / ${detail.guidanceChars}字符`
+  const display = displayedBodyDeaiGuidance.value
+  if (display.state === 'app') {
+    return `方法指导 ${display.itemCount ?? 0}/${display.skills.length}步 · ${display.guidanceChars ?? 0}字符`
+  }
+  if (display.state === 'skill') return 'SKILL 方法指导接管 · 0注入'
+  if (display.state === 'off') return '应用方法指导关闭'
+  if (display.state === 'mixed') return '方法指导混合 · 展开查看'
+  return '未观测到方法指导契约'
 })
 
 const displayedBodyDeaiGuidanceFeedback = computed(() => {
-  const detail = displayedBodyDeaiGuidanceTrace.value
-  if (!detail) return ''
-  return `降AI方法指导：${detail.itemCount}条 / ${detail.guidanceChars}字符（informational-only，不改写正文、不改终态）`
+  const display = displayedBodyDeaiGuidance.value
+  const header = '降AI方法指导（informational-only，不改写正文、不改终态）：'
+  const lines = display.skills.map(skill => {
+    const label = `S${skill.skillIndex + 1} ${skill.variant || 'unknown'}`
+    if (skill.state === 'app') return `${label} · ${skill.itemCount ?? 0}条/${skill.guidanceChars ?? 0}字符`
+    if (skill.state === 'skill') return `${label} · SKILL接管 0条/0字符`
+    if (skill.state === 'off') return `${label} · 应用方法指导关闭`
+    if (skill.warnings.includes('multi-trace-state-conflict')) return `${label} · 多trace状态冲突，请检查运行记录`
+    return `${label} · 未观测到契约`
+  })
+  return [header, ...lines]
 })
 
 function displayedRunForStep(step: number) {
@@ -5837,7 +5867,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const settingsProjection = getLockedSettingsForLayer('body', sc)
     trace.addEvent(buildSettingsProjectionTraceEvent('body', settingsProjection))
     appendStepLogForRun(bodyRunId, 4, "已加载锁定设定 " + settingsProjection.lockedCount + " 项，准备调用 API")
-    appendStepLogForRun(bodyRunId, 4, "降AI方法指导进入预注入阶段，实际条数与字符数以运行记录 deai-guidance-pack 事件为准")
+    appendStepLogForRun(bodyRunId, 4, "降AI方法指导进入预注入阶段，实际归属与注入量以运行记录 deai-injection-policy 与 deai-guidance-pack 事件对账为准")
     pipelineStore.updateProgress(20, "API 生成正文中（降AI方法指导预注入）", bodyRunId)
     const styleCtx = getBodyStyleContext(trace.runId)
     const pacingCtx = pipelineStyleProfileEffective.value.injected ? pipelineStyleProfileEffective.value.pacingParams : ""
@@ -7048,6 +7078,7 @@ function memoryTextFromRetrieval(retrieval: ReturnType<typeof retrieveContext>, 
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
 }
+.pl-deai-guidance-feedback-line { line-height: 1.6; }
 .pl-fullscreen { align-items: stretch; justify-content: stretch; }
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
 .pl-memory-preview-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); pointer-events: auto; }

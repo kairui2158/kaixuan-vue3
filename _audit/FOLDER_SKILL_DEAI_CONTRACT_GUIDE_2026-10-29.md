@@ -69,7 +69,7 @@
 
 ## 5. 冲突升级路径
 
-1. 默认 `report`：观察 `deai-conflict-policy` 事件中的重叠主题。
+1. 观察模式：不声明或声明 `report` 时，观察 `deai-conflict-policy` 事件中的重叠主题；应用默认策略为 `skill-wins`。
 2. 若 SKILL 模板规则更成熟，改为 `skill-wins`：应用移除重叠投影，trace 记录动作。
 3. 若应用投影必须保留，改为 `app-wins`：应用投影保留，SKILL 声明留痕。
 4. `guidanceOwnership: "skill"` 是更彻底的退场：应用不注入指导文本，只留 trace 观测。
@@ -140,7 +140,7 @@ npx vitest run src/services/deaiChainVariantIntegration.spec.ts
 ## 9. 生成期注入形态（2026-11-01 起）
 
 1. 应用在正文层生成前构造“方法指导包”，只进入 S1/S2/S3 的 system prompt，不改写正文、不改终态、不触发重试；`guidanceOwnership: "skill"` 时应用注入退场，只保留观测 trace。
-2. 每步注入预算：指导包 1200 字符 + 作者声纹 700 字符，总上限 1900 字符；实际值以 `deai-guidance-pack` trace 事件为准，UI 徽章与反馈面板也按该事件实值显示。
+2. 每步注入预算：指导包 1200 字符 + 作者声纹 700 字符，总上限 1900 字符。运行语义以 2026-11-01 手册为准：归属由 `deai-injection-policy` 判定；应用注入量由 `deai-guidance-pack` 判定，且仅在 `guidanceOwnership=app` 时读取。
 3. 旧三段提示词 `DEAI_METHODOLOGY_PROMPT / DEAI_CREATIVE_PROMPT / DEAI_POLISH_PROMPT` 已从生产源码退役；SKILL 不应再引用这些旧名，也不应假设应用会在生成后改写正文。
 4. 流水线内不再执行 `legacy-auto`、`deep-fix` 或“最小编辑改稿”。用户在设置里的手动去AI味功能保持独立，可在生成后手动使用，但它不属于流水线产物链路。
 

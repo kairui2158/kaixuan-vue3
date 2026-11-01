@@ -26,6 +26,27 @@
 2. Phase0 守卫的 `activePipelineRunIds` 禁令误伤 A5 的多 run 快照集合；按“单一活跃 run 槽位”意图收窄到 `activePipelineRunIdForStep`。
 3. 外部 folder SKILL S2 契约新增必填 `chapterIntent`，集成测试夹具漂移；补齐夹具，不改生产行为。
 
+## 2026-11-01 V5 FINAL 倒查与接口清理
+
+1. 倒查结论：生产源码无新旧降AI语义双写、无流水线/手动状态纠缠、无 run 快照线程纠缠；`dist-renderer` 命中均为手动功能本体与契约校验设计内保留。
+2. 清理 `src/services/deaiVoiceProfileRunSnapshot.ts` 中未接线的 `resetTerminalRun`；终态释放唯一权威保持为 `activeRunIds` watch，避免 success/fail/cancel 多入口逐点释放漏清。
+3. 新增负向守护：run 快照 store 不得再暴露 `resetTerminalRun`。
+4. 台账追加 Task R1，记录倒查证据、清理 diff、Ruling 与回归输出。
+
+追加验证：
+
+1. `npx vitest run` 指向 4 个降AI规格 → exit 0，Test Files 4 passed / Tests 22 passed。
+2. `npx vitest run` 指向快照与 Phase0 规格 → exit 0，Test Files 2 passed / Tests 35 passed。
+3. `npm run type-check` → exit 0。
+4. `npm run test:services` → exit 0，`Test Files 238 passed (238)`，`Tests 2540 passed (2540)`。
+
+## 2026-11-01 3.110.14 升版与重新封装
+
+1. 版本升级 `3.110.13 → 3.110.14`，覆盖本轮死接口清理、接口负向守护与 SKILL 手册交付物。
+2. `npm run build` → exit 0，renderer、protocols、Electron 打包全部完成。
+3. 安装包：`dist\神意助手-Setup-3.110.14.exe`，231,648,526 字节，生成时间 2026-11-01 09:29:56。
+4. `rg -a` 扫描 `dist/win-unpacked/resources/app.asar`：旧三段提示词、`runBodyMinimalEdit`、`resetTerminalRun` 均 0 命中。
+
 ## 边界
 
 1. B6 保持 `provisional`：教学有效性、效率劣化与合同失败率需要 20 章、2 题材、2 模型的有/无指导包配对样本，当前配对数据为 0，禁止宣称接管有效。

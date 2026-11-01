@@ -10,7 +10,6 @@ export interface DeaiVoiceProfileRunSnapshotSource {
 
 export interface DeaiVoiceProfileRunSnapshotStore {
   resolveForRun: (runId: string | null | undefined) => DeAiVoiceProfile | null
-  resetTerminalRun: (runId: string | null | undefined) => void
   profiles: ShallowRef<ReadonlyMap<string, DeAiVoiceProfile | null>>
 }
 
@@ -37,13 +36,6 @@ export function createDeaiVoiceProfileRunSnapshotStore({
     return snapshot
   }
 
-  function resetTerminalRun(runId: string | null | undefined) {
-    if (!runId || !profiles.value.has(runId)) return
-    const next = new Map(profiles.value)
-    next.delete(runId)
-    profiles.value = next
-  }
-
   watch([activeRunIdList, styleProfile], ([runIds, style]) => {
     if (!runIds.length) {
       if (profiles.value.size !== 0) profiles.value = new Map()
@@ -57,5 +49,5 @@ export function createDeaiVoiceProfileRunSnapshotStore({
     profiles.value = next
   }, { immediate: true })
 
-  return { resolveForRun, resetTerminalRun, profiles }
+  return { resolveForRun, profiles }
 }

@@ -103,46 +103,98 @@ function removeProfile(target) {
   console.warn(`[WARN] DEAI guidance temp profile retained: ${target}`)
 }
 
-function seedGuidanceRun() {
+function seedGuidanceRun(run) {
   const pipeline = window.__pinia?._s?.get('pipeline')
   const trace = window.__pinia?._s?.get('runTrace')
   if (!pipeline?.startGeneration || !pipeline?.finishGeneration) throw new Error('pipeline store is unreachable')
   if (!trace?.startRun || !trace?.addEvent || !trace?.finishRun) throw new Error('run trace store is unreachable')
 
-  const pipelineRunId = pipeline.startGeneration('body', 'ui-smoke-body', {
-    configSnapshot: { uiSmoke: true },
+  const target = `ui-smoke-body-${run}`
+  const pipelineRunId = pipeline.startGeneration('body', target, {
+    configSnapshot: { uiSmoke: true, run },
   })
-  pipeline.updateProgress(35, 'UI 冒烟：正文层', pipelineRunId)
+  pipeline.updateProgress(35, `UI 冒烟：正文层 ${run}`, pipelineRunId)
   const traceRunId = trace.startRun({
     source: 'pipeline',
     step: 4,
     stepName: '正文层',
     mode: 'body',
     pipelineRunId,
-    skillNames: ['ui-smoke-skill'],
+    skillNames: ['ui-smoke-s1', 'ui-smoke-s2', 'ui-smoke-s3'],
   })
-  trace.addEvent(traceRunId, {
+  pipeline.rememberTraceRunOwnership(traceRunId, pipelineRunId)
+
+  const skillVariants = ['methodology', 'creative', 'polish']
+  const addPolicy = (skillIndex, ownership, generation = 'on') => trace.addEvent(traceRunId, {
+    type: 'deai-injection-policy',
+    level: 'info',
+    label: '降AI注入策略',
+    detail: JSON.stringify({
+      step: 4,
+      skillIndex,
+      totalSkillCount: 3,
+      source: 'ui-smoke',
+      variant: generation === 'off' ? 'off' : skillVariants[skillIndex],
+      policy: {
+        contractVersion: 2,
+        generation,
+        finalStepDetection: 'on',
+        conflictPolicy: ownership === 'skill' ? 'skill-wins' : 'report',
+        guidanceOwnership: ownership,
+        overlaps: [],
+      },
+      warnings: [],
+    }),
+  })
+  const addPack = (skillIndex, itemCount, guidanceChars) => trace.addEvent(traceRunId, {
     type: 'deai-guidance-pack',
     level: 'info',
-    label: '降AI方法指导包已构造：6条 / 1180字符',
+    label: `降AI方法指导包已构造：${itemCount}条 / ${guidanceChars}字符`,
     detail: JSON.stringify({
       schemaVersion: 1,
       step: 4,
       bodyLayerStep: 4,
-      skillIndex: 1,
+      skillIndex,
       totalSkillCount: 3,
-      role: 'creative',
-      itemCount: 6,
+      role: skillVariants[skillIndex],
+      itemCount,
       droppedItemIds: [],
-      guidanceChars: 1180,
+      guidanceChars,
       voiceProfileChars: 120,
-      totalInjectionChars: 1300,
+      totalInjectionChars: guidanceChars + 120,
       truncated: false,
       constructionMs: 2,
       slowConstruction: false,
-      hash: 'ui-smoke',
+      hash: `ui-smoke-${run}-${skillIndex}`,
     }),
   })
+
+  if (run === 'A') {
+    addPolicy(0, 'app')
+    addPack(0, 6, 1180)
+    addPolicy(1, 'app')
+    addPack(1, 6, 1210)
+    addPolicy(2, 'app')
+    addPack(2, 4, 820)
+  } else if (run === 'B') {
+    addPolicy(0, 'skill')
+    addPolicy(1, 'skill')
+    addPolicy(2, 'skill')
+  } else if (run === 'C') {
+    addPolicy(0, 'skill', 'off')
+    addPolicy(1, 'skill', 'off')
+    addPolicy(2, 'skill', 'off')
+  } else if (run === 'E') {
+    addPolicy(0, 'skill')
+    addPolicy(1, 'app')
+    addPack(1, 6, 1180)
+    addPolicy(2, 'skill', 'off')
+  }
+  // Run D intentionally emits no deai events.
+
+  trace.finishRun(traceRunId, 'success')
+  pipeline.finishGeneration(pipelineRunId)
+
   return { pipelineRunId, traceRunId }
 }
 
@@ -174,35 +226,89 @@ async function main() {
     await page.locator('#pl-steps .pl-step').nth(4).click()
     await page.locator('#pl-step-5-content').waitFor({ state: 'visible', timeout: 10_000 })
 
-    const seeded = await page.evaluate(seedGuidanceRun)
-    assert.equal(typeof seeded.pipelineRunId, 'string', 'body pipeline run was created')
-    assert.equal(typeof seeded.traceRunId, 'string', 'body trace run was created')
+    const cases = [
+      {
+        run: 'A',
+        badge: '方法指导 16/3步 · 3210字符',
+        feedback: [
+          'S1 methodology · 6条/1180字符',
+          'S2 creative · 6条/1210字符',
+          'S3 polish · 4条/820字符',
+        ],
+      },
+      {
+        run: 'B',
+        badge: 'SKILL 方法指导接管 · 0注入',
+        feedback: [
+          'S1 methodology · SKILL接管 0条/0字符',
+          'S2 creative · SKILL接管 0条/0字符',
+          'S3 polish · SKILL接管 0条/0字符',
+        ],
+      },
+      {
+        run: 'C',
+        badge: '应用方法指导关闭',
+        feedback: [
+          'S1 off · 应用方法指导关闭',
+          'S2 off · 应用方法指导关闭',
+          'S3 off · 应用方法指导关闭',
+        ],
+      },
+      {
+        run: 'D',
+        badge: '未观测到方法指导契约',
+        feedback: [
+          'S1 unknown · 未观测到契约',
+          'S2 unknown · 未观测到契约',
+          'S3 unknown · 未观测到契约',
+        ],
+      },
+      {
+        run: 'E',
+        badge: '方法指导混合 · 展开查看',
+        feedback: [
+          'S1 methodology · SKILL接管 0条/0字符',
+          'S2 creative · 6条/1180字符',
+          'S3 off · 应用方法指导关闭',
+        ],
+      },
+    ]
 
-    await page.locator('#pl-deai-guidance-badge').waitFor({ state: 'visible', timeout: 10_000 })
-    await page.locator('#pl-deai-guidance-feedback').waitFor({ state: 'visible', timeout: 10_000 })
-    await page.waitForTimeout(200)
+    for (const expected of cases) {
+      const seedFunction = `(${seedGuidanceRun.toString()})(${JSON.stringify(expected.run)})`
+      const seeded = await page.evaluate(source => window.eval(source), seedFunction)
+      assert.equal(typeof seeded.pipelineRunId, 'string', `body pipeline run ${expected.run} was created`)
+      assert.equal(typeof seeded.traceRunId, 'string', `body trace run ${expected.run} was created`)
 
-    const actual = await page.evaluate(() => ({
-      badgeText: document.querySelector('#pl-deai-guidance-badge')?.textContent || '',
-      feedbackText: document.querySelector('#pl-deai-guidance-feedback')?.textContent || '',
-      feedbackClass: document.querySelector('#pl-deai-guidance-feedback')?.className || '',
-      badgeVisible: Boolean(
-        document.querySelector('#pl-deai-guidance-badge')
-        && document.querySelector('#pl-deai-guidance-badge')?.getBoundingClientRect().height > 0,
-      ),
-      feedbackVisible: Boolean(
-        document.querySelector('#pl-deai-guidance-feedback')
-        && document.querySelector('#pl-deai-guidance-feedback')?.getBoundingClientRect().height > 0,
-      ),
-    }))
+      await page.locator('#pl-deai-guidance-badge').waitFor({ state: 'visible', timeout: 10_000 })
+      await page.locator('#pl-deai-guidance-feedback').waitFor({ state: 'visible', timeout: 10_000 })
+      await page.waitForTimeout(200)
 
-    assert.equal(actual.badgeVisible, true, 'guidance badge is rendered in real UI')
-    assert.equal(actual.badgeText.trim(), '方法指导 6条 / 1180字符', 'guidance badge uses trace itemCount and guidanceChars')
-    assert.equal(actual.feedbackVisible, true, 'informational feedback is rendered in real UI')
-    assert.match(actual.feedbackText, /6条 \/ 1180字符/, 'feedback uses trace itemCount and guidanceChars')
-    assert.match(actual.feedbackText, /informational-only/, 'feedback states its informational-only policy')
-    assert.match(actual.feedbackText, /不改写正文、不改终态/, 'feedback states no rewrite and no terminal impact')
-    assert.match(actual.feedbackClass, /informational-only/, 'feedback element retains informational-only marker')
+      const actual = await page.evaluate(() => ({
+        badgeText: document.querySelector('#pl-deai-guidance-badge')?.textContent || '',
+        feedbackText: document.querySelector('#pl-deai-guidance-feedback')?.textContent || '',
+        feedbackClass: document.querySelector('#pl-deai-guidance-feedback')?.className || '',
+        badgeVisible: Boolean(
+          document.querySelector('#pl-deai-guidance-badge')
+          && document.querySelector('#pl-deai-guidance-badge')?.getBoundingClientRect().height > 0,
+        ),
+        feedbackVisible: Boolean(
+          document.querySelector('#pl-deai-guidance-feedback')
+          && document.querySelector('#pl-deai-guidance-feedback')?.getBoundingClientRect().height > 0,
+        ),
+      }))
+
+      assert.equal(actual.badgeVisible, true, `guidance badge ${expected.run} is rendered in real UI`)
+      assert.equal(actual.badgeText.trim(), expected.badge, `guidance badge ${expected.run} state text`)
+      assert.equal(actual.feedbackVisible, true, `informational feedback ${expected.run} is rendered in real UI`)
+      for (const line of expected.feedback) {
+        assert.match(actual.feedbackText, new RegExp(line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `feedback ${expected.run} line: ${line}`)
+      }
+      assert.match(actual.feedbackText, /informational-only/, `feedback ${expected.run} states its informational-only policy`)
+      assert.match(actual.feedbackText, /不改写正文、不改终态/, `feedback ${expected.run} states no rewrite and no terminal impact`)
+      assert.match(actual.feedbackClass, /informational-only/, `feedback ${expected.run} retains informational-only marker`)
+      console.log(`[PASS] run ${expected.run}: ${actual.badgeText.trim()}`)
+    }
 
     assert.deepEqual(pageErrors, [], `renderer page errors: ${pageErrors.join('; ')}`)
     const relevantConsoleErrors = consoleErrors.filter(message =>
@@ -212,8 +318,7 @@ async function main() {
       && !message.includes('检测到存储损坏并已从备份恢复'))
     assert.deepEqual(relevantConsoleErrors, [], `renderer console errors: ${relevantConsoleErrors.join('; ')}`)
 
-    console.log('[PASS] DEAI guidance badge and informational-only feedback render in real Electron UI')
-    console.log('badgeText=方法指导 6条 / 1180字符 feedbackInformationalOnly=true')
+    console.log('[PASS] DEAI guidance per-skill ownership states render in real Electron UI')
   } finally {
     await browser?.close().catch(() => {})
     await stopElectron(electronApp)

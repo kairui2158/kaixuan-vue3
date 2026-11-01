@@ -509,3 +509,31 @@ Ruling:
 2. `npm run build` → exit 0，完整安装包封装成功。
 
 状态：complete。下一项：收尾（经验文件、开发日志、主索引、git 提交）。
+
+### Task R1 — complete
+
+方案条文：V5 FINAL 交付后倒查残余、新旧语义打架、线程/状态纠缠；对发现的死接口执行清理并回归。
+
+倒查结论：
+
+1. 旧三段提示词与 `runBodyMinimalEdit` 生产源码清零，仅剩负向守护测试命中；`dist-renderer` 中的降AI命中为手动功能本体与契约校验代码，属设计内保留。
+2. `PipelinePanel.vue` 无 `deAiStore` 硬规则读写、`setLastDetectReport`、`DeAiProcessor.processBody`、`legacy-auto/deep-fix/detect-report` 接线；手动路径保留在 `useDeAi.ts`，隔离不变式成立。
+3. 旧 processor 枚举仅作历史 trace 兼容，执行层新增写入点只剩手动路径 `useDeAi.ts:252`；流水线写入 `deaiPromptVariant` 新契约，无新旧语义双写。
+4. `BODY_LAYER_STEP` 契约收口成立；`PipelinePanel.vue` 剩余 `step === 4` 为已登记的正文业务编号点，不属契约/注入面违规。
+5. trace 白名单保留 `deai-guidance-pack`、`deai-injection-policy`、`deai-contract-warning`、`deai-conflict-policy`、`deai-change-rate`，G1.26 事故点未复发。
+6. 快照释放由 `activeRunIds` watch 统一处理，多 run 冻结/释放/隔离测试通过；`activePipelineRunIds` 多 run 集合与 `activePipelineRunIdForStep` 单 run 槽位守卫意图已区分，无误伤。
+
+实施文件：
+
+1. `src/services/deaiVoiceProfileRunSnapshot.ts`：删除未接线的 `resetTerminalRun` 接口声明、实现与返回值；终态释放唯一权威保持为 `activeRunIds` watch。
+2. `src/services/deaiVoiceProfileRunSnapshot.spec.ts`：新增负向守护，断言 run 快照 store 不再暴露 `resetTerminalRun`，防止未来重新引入多终态入口释放造成漏清。
+
+验证命令与原始输出：
+
+1. `rg -n "resetTerminalRun" src _audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md` → 源码仅剩负向断言 `deaiVoiceProfileRunSnapshot.spec.ts:24`；台账第 201 行为历史裁决记录。
+2. `npx vitest run src/services/deaiVoiceProfileRunSnapshot.spec.ts src/components/pipeline/__tests__/deai-voice-profile-run-snapshot.spec.ts src/components/pipeline/__tests__/deai-voice-profile-injection.spec.ts src/components/pipeline/__tests__/deai-injection-policy.spec.ts` → exit 0，Test Files 4 passed / Tests 22 passed。
+3. `npx vitest run src/services/deaiVoiceProfileRunSnapshot.spec.ts src/services/pipelineParallelismPhase0.spec.ts` → exit 0，Test Files 2 passed / Tests 35 passed。
+
+Ruling: 不把 `resetTerminalRun` 接回终态入口。success/fail/cancel 入口分散，逐点释放会重新引入漏清风险；以 `activeRuns` 集合为唯一状态源是更稳的释放语义。若未来 run registry 出现滞留 running 的缺陷，应修 registry 终态推进，而不是给快照层加旁路释放。
+
+状态：complete。

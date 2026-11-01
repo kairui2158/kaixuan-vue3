@@ -1598,3 +1598,27 @@
 - 交付：V5 FINAL Phase A/B/C 全部落地：切断手动 DEAI store 纠缠、run 级声纹快照、确定性指导包、`meta.deai` v2 契约、UI trace 实值显示、旧三段提示词与流水线改稿语义七层清零；版本升级 3.110.13 并封装。
 - 验证：type-check exit 0；全量 238 files / 2539 tests passed；两组真实 Electron UI 验证 PASS；app.asar 旧语义 0 命中；安装包 231,646,326 字节。
 - 边界：B6 保持 provisional，配对影子数据为 0；手动去AI味功能本体不变；教学反馈不携带候选全文。
+
+# 2026-11-01 V5 FINAL 降AI残余倒查与死接口清理
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 交付：完成 V5 FINAL 残余倒查（旧三段提示词、跨 store 读写、旧处理器接线、trace 白名单、多 run 快照、守卫意图）；清理未接线的 `resetTerminalRun` 并新增接口负向守护，终态释放唯一权威保持为 `activeRunIds` watch。
+- 验证：type-check exit 0；全量 238 files / 2540 tests passed；降AI定向 22 tests、快照与 Phase0 定向 35 tests 全部通过。
+- 边界：不接回逐 run 释放入口；若 run registry 出现滞留 running 缺陷，修 registry 终态推进而非快照旁路。
+
+# 2026-11-01 3.110.14 降AI倒查清理封装
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/DEV_LOG_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-mentor-guidance-v5-final.md)
+- 交付：版本升级 3.110.14 并重新封装；安装包覆盖 `resetTerminalRun` 死接口清理、接口负向守护、两份 folder SKILL 降AI手册。
+- 验证：`npm run build` exit 0；安装包 231,648,526 字节；app.asar 中旧三段提示词、`runBodyMinimalEdit`、`resetTerminalRun` 全部 0 命中。
+- 边界：无行为变更，仅为接口清理与交付封装；B6 教学有效性仍保持 provisional。
+
+# 2026-11-01 降AI可视闭环 V6.2 与 3.110.15
+
+- 文件：[_audit/DEV_LOG_2026-11-01_deai-guidance-visible-closure-v6-2.md](_audit/DEV_LOG_2026-11-01_deai-guidance-visible-closure-v6-2.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-guidance-visible-closure-v6-2.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-01_deai-guidance-visible-closure-v6-2.md)
+- 交付：正文层降AI观测面从单一 `deai-guidance-pack` 升级为 `deai-injection-policy` 判 owner、`deai-guidance-pack` 判 app 注入量；每 SKILL 独立投影 + 链级 mixed 聚合；app/skill/off/mixed/unknown 五态真实 UI 常显；手册升级 v2；版本 3.110.15。
+- 验证：定向 37 tests passed；type-check exit 0；全量 239 files / 2552 tests passed；五态真实 Electron 验证 A/B/C/D/E 全 PASS；`npm run build:vue` 与 `npm run build` exit 0；安装包 231,644,738 字节，asar 版本标记 3.110.15。
+- 边界：不回滚 `guidanceOwnership=skill`；不伪造 pack；`callApiWithAgentVariant` 死接口清理登记为独立后续项；B6 教学有效性保持 provisional。

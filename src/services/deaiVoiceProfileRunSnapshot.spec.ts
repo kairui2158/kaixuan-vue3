@@ -16,6 +16,14 @@ const styleB = {
 }
 
 describe('DEAI voice profile run snapshots', () => {
+  it('does not expose per-run terminal reset because the active-run watch owns release', async () => {
+    const style = ref(styleA)
+    const activeIds = computed(() => new Set(['run-1']))
+    const store = createDeaiVoiceProfileRunSnapshotStore({ activeRunIds: activeIds, styleProfile: style })
+
+    expect(store).not.toHaveProperty('resetTerminalRun')
+  })
+
   it('keeps the profile frozen for a run after the project style changes', async () => {
     const style = ref(styleA)
     const runIds = ref(['run-1'])
