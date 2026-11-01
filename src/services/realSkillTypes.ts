@@ -76,6 +76,8 @@ export interface RealSkillPostProcessReport {
     message: string
   }>
   durationMs: number
+  /** FNV-1a fingerprint of the script text that produced this report. */
+  ruleFingerprint?: string
 }
 
 export interface WorkspaceSkillRunMetaPostProcess {

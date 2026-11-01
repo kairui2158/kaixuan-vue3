@@ -18,7 +18,7 @@ export interface ChapterEventIncrementAdvisory {
 export interface ChapterNarrativeVerdict {
   code: 'chapter-narrative-verdict'
   detected: boolean
-  status: 'ready' | 'not_ready' | 'undeclared'
+  status: 'declared_ready' | 'declared_not_ready' | 'undeclared' | 'unreadable_because_missing_handoff'
   reason: string | null
   stateChangingScenes: string | null
   message: string
@@ -75,10 +75,18 @@ export function findChapterEventIncrementValue(text: string): string | null {
 
 export function detectChapterNarrativeVerdict(text: string): ChapterNarrativeVerdict {
   const raw = String(text || '')
+  const hasHandoff = /【正文交接】/.test(raw)
   const statusMatch = NARRATIVE_STATUS_PATTERN.exec(raw)
-  const status = statusMatch
+  const declaredStatus = statusMatch
     ? (statusMatch[1].toLowerCase() === 'not_ready' ? 'not_ready' : 'ready')
-    : 'undeclared'
+    : null
+  const status = !declaredStatus
+    ? 'undeclared'
+    : !hasHandoff
+      ? 'unreadable_because_missing_handoff'
+      : declaredStatus === 'ready'
+        ? 'declared_ready'
+        : 'declared_not_ready'
   const reasonMatch = NARRATIVE_REASON_PATTERN.exec(raw)
   const stateChangingScenesMatch = STATE_CHANGING_SCENES_PATTERN.exec(raw)
   const reason = reasonMatch?.[1]?.split(/\r?\n/)[0]?.trim() || null
@@ -91,6 +99,8 @@ export function detectChapterNarrativeVerdict(text: string): ChapterNarrativeVer
     stateChangingScenes,
     message: status === 'undeclared'
       ? 'SKILL 未声明 narrativeStatus；应用不推断叙事质量。'
+      : status === 'unreadable_because_missing_handoff'
+        ? 'narrativeStatus 出现但【正文交接】缺失；verdict 无法归因到有效交付账本。'
       : `SKILL 叙事裁决：${status}${reason ? `；${reason}` : ''}`
   }
 }
@@ -125,11 +135,15 @@ export function resolveChapterNarrativeBlock(text: string): ChapterNarrativeBloc
     }
   }
   const verdict = detectChapterNarrativeVerdict(text)
-  if (verdict.status === 'not_ready') {
+  if (verdict.status === 'declared_not_ready' || verdict.status === 'unreadable_because_missing_handoff') {
     return {
       code: CHAPTER_NARRATIVE_NOT_READY_CODE,
-      gap: verdict.reason || 'SKILL 声明叙事 NOT_READY，需上游补足剧情材料',
-      guidance: 'SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点，正文层不重试、不改写。',
+      gap: verdict.status === 'unreadable_because_missing_handoff'
+        ? 'narrativeStatus 声明存在，但【正文交接】缺失，verdict 无法归属到可审计候选'
+        : verdict.reason || 'SKILL 声明叙事 NOT_READY，需上游补足剧情材料',
+      guidance: verdict.status === 'unreadable_because_missing_handoff'
+        ? '叙事 verdict 载体缺失：需先补齐【正文交接】再判断叙事状态；本次不进入正文层重试。'
+        : 'SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点，正文层不重试、不改写。',
       retryableInBodyLayer: false
     }
   }

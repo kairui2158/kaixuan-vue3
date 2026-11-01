@@ -1,5 +1,9 @@
 import { parseGenerationResult } from './generationResult'
-import { detectChapterNarrativeVerdict, evaluateChapterEventIncrement } from './chapterEventDensity'
+import {
+  detectChapterNarrativeVerdict,
+  evaluateChapterEventIncrement,
+  findChapterEventIncrementValue
+} from './chapterEventDensity'
 import type { GenerationMetadata } from './generationResult'
 import {
   countBodyWords,
@@ -95,6 +99,11 @@ export interface StepArtifactFlowResult {
   } | null
   chapterEventIncrementAdvisory: ReturnType<typeof evaluateChapterEventIncrement>
   chapterNarrativeVerdict: ReturnType<typeof detectChapterNarrativeVerdict>
+  traceAuditFields: {
+    sourceCandidateIndex: number | null
+    sourceResponseHash: string | null
+    eventIncrement: string | null
+  }
 }
 
 export function makeStepArtifactEnvelope(input: {
@@ -133,8 +142,24 @@ export function parseStepArtifactEnvelope(stepOutput: string): StepArtifactEnvel
   }
 }
 
+function parseStepArtifactCandidateAudit(stepOutput: string): {
+  attempt: number
+  sourceResponseHash: string
+} | null {
+  const envelope = parseStepArtifactEnvelope(stepOutput)
+  const raw = envelope?.rawOutput || String(stepOutput || '')
+  const attemptMatch = /(?:^|\n)\s*(?:【)?\s*candidateAttempt\s*(?:】)?\s*[：:]\s*(\d+)/.exec(raw)
+  const hashMatch = /(?:^|\n)\s*(?:【)?\s*candidateResponseHash\s*(?:】)?\s*[：:]\s*([A-Za-z0-9_]+)/.exec(raw)
+  if (!attemptMatch || !hashMatch) return null
+  return {
+    attempt: Number(attemptMatch[1]),
+    sourceResponseHash: hashMatch[1]
+  }
+}
+
 export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtifactFlowResult {
   const envelope = parseStepArtifactEnvelope(input.stepOutput)
+  const stepCandidateAudit = parseStepArtifactCandidateAudit(input.stepOutput)
   const acceptance = acceptStepArtifact({
     rawOutput: envelope?.rawOutput ?? input.stepOutput,
     contract: input.contract,
@@ -186,7 +211,14 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
     ),
     chapterNarrativeVerdict: detectChapterNarrativeVerdict(
       acceptance.metadata.extractedMeta?.join('\n') || ''
-    )
+    ),
+    traceAuditFields: {
+      sourceCandidateIndex: stepCandidateAudit?.attempt ?? null,
+      sourceResponseHash: stepCandidateAudit?.sourceResponseHash ?? null,
+      eventIncrement: findChapterEventIncrementValue(
+        acceptance.metadata.extractedMeta?.join('\n') || ''
+      )
+    }
   }
 }
 

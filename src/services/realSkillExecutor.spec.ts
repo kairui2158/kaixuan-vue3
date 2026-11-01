@@ -154,7 +154,7 @@ describe('realSkillExecutor single pass', () => {
       folderPackageCache: false
     })
     const callAi = vi.fn(async () => ({
-      text: 'narrativeStatus: not_ready\nnarrativeReason：全章只有确认与核对，未改变状态'
+      text: '【正文交接】\nnarrativeStatus: not_ready\nnarrativeReason：全章只有确认与核对，未改变状态'
     }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
 

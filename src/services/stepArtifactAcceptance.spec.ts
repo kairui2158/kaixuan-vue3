@@ -127,9 +127,14 @@ describe('acceptStepArtifact', () => {
 
     expect(result.chapterNarrativeVerdict).toMatchObject({
       detected: true,
-      status: 'ready',
+      status: 'declared_ready',
       reason: '状态改变动作达标',
       stateChangingScenes: '3'
+    })
+    expect(result.traceAuditFields).toEqual({
+      sourceCandidateIndex: null,
+      sourceResponseHash: null,
+      eventIncrement: '王芳获得新信息，处境改变。'
     })
   })
 

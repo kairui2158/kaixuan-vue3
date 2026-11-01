@@ -1276,7 +1276,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             code: issue.code || 'post-process-issue',
             message: issue.message
           })),
-          durationMs: Date.now() - postStartedAt
+          durationMs: Date.now() - postStartedAt,
+          ruleFingerprint: fnv1a32(pkg.script)
         }
         timingLedger.postProcessMs += Date.now() - postStartedAt
         for (const issue of postIssues) {

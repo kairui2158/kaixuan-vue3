@@ -88,7 +88,7 @@ describe('detectChapterNarrativeVerdict', () => {
 
     expect(result).toMatchObject({
       detected: true,
-      status: 'ready',
+      status: 'declared_ready',
       reason: '状态改变动作达标',
       stateChangingScenes: '3'
     })
@@ -96,12 +96,12 @@ describe('detectChapterNarrativeVerdict', () => {
 
   it('passes through an explicit SKILL not_ready verdict', () => {
     const result = detectChapterNarrativeVerdict(
-      'narrativeStatus: not_ready\nnarrativeReason：全章只有确认与核对，未改变状态'
+      '【正文交接】\nnarrativeStatus: not_ready\nnarrativeReason：全章只有确认与核对，未改变状态'
     )
 
     expect(result).toMatchObject({
       detected: true,
-      status: 'not_ready',
+      status: 'declared_not_ready',
       reason: '全章只有确认与核对，未改变状态'
     })
   })
@@ -116,6 +116,18 @@ describe('detectChapterNarrativeVerdict', () => {
       status: 'undeclared',
       reason: null,
       stateChangingScenes: null
+    })
+  })
+
+  it('marks a declared verdict unreadable when the handoff carrier is missing', () => {
+    const result = detectChapterNarrativeVerdict(
+      'narrativeStatus: ready\nnarrativeReason：状态改变动作达标'
+    )
+
+    expect(result).toMatchObject({
+      detected: true,
+      status: 'unreadable_because_missing_handoff',
+      reason: '状态改变动作达标'
     })
   })
 })
@@ -134,7 +146,7 @@ describe('resolveChapterNarrativeBlock', () => {
 
   it('routes an explicit not_ready verdict to the upstream block route', () => {
     const result = resolveChapterNarrativeBlock(
-      'narrativeStatus: not_ready\nnarrativeReason：状态改变动作场景数为 1'
+      '【正文交接】\nnarrativeStatus: not_ready\nnarrativeReason：状态改变动作场景数为 1'
     )
 
     expect(result).toMatchObject({
@@ -145,7 +157,7 @@ describe('resolveChapterNarrativeBlock', () => {
   })
 
   it('does not block a ready verdict', () => {
-    const result = resolveChapterNarrativeBlock('narrativeStatus: ready')
+    const result = resolveChapterNarrativeBlock('【正文交接】\nnarrativeStatus: ready')
 
     expect(result).toBeNull()
   })

@@ -4616,11 +4616,17 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             })
           }
           if (runId && narrativeVerdict) {
+            const narrativeTraceDetail = {
+              ...narrativeVerdict,
+              sourceCandidateIndex: artifactFlow.traceAuditFields.sourceCandidateIndex,
+              sourceResponseHash: artifactFlow.traceAuditFields.sourceResponseHash,
+              eventIncrement: artifactFlow.traceAuditFields.eventIncrement
+            }
             runTraceStore.addEvent(runId, {
               type: narrativeVerdict.code,
-              level: narrativeVerdict.status === 'not_ready' ? 'error' : 'info',
+              level: narrativeVerdict.status === 'declared_not_ready' || narrativeVerdict.status === 'unreadable_because_missing_handoff' ? 'error' : 'info',
               label: `正文生成步骤 ${si + 1}/${templates.length} SKILL 叙事裁决透传`,
-              detail: JSON.stringify(narrativeVerdict)
+              detail: JSON.stringify(narrativeTraceDetail)
             })
           }
           if (incrementAdvisory?.detected) {
@@ -5086,11 +5092,17 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       })
     }
     if (runId && narrativeVerdict) {
+      const narrativeTraceDetail = {
+        ...narrativeVerdict,
+        sourceCandidateIndex: artifactFlow.traceAuditFields.sourceCandidateIndex,
+        sourceResponseHash: artifactFlow.traceAuditFields.sourceResponseHash,
+        eventIncrement: artifactFlow.traceAuditFields.eventIncrement
+      }
       runTraceStore.addEvent(runId, {
         type: narrativeVerdict.code,
-        level: narrativeVerdict.status === 'not_ready' ? 'error' : 'info',
+        level: narrativeVerdict.status === 'declared_not_ready' || narrativeVerdict.status === 'unreadable_because_missing_handoff' ? 'error' : 'info',
         label: `正文生成步骤 1/${Math.max(1, templates.length)} SKILL 叙事裁决透传`,
-        detail: JSON.stringify(narrativeVerdict)
+        detail: JSON.stringify(narrativeTraceDetail)
       })
     }
     if (incrementAdvisory?.detected) {
