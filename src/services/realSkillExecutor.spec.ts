@@ -1148,6 +1148,59 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     )).toBe(true)
   })
 
+  it('records per-attempt candidate audits for non-body folder skills', async () => {
+    const outputs = [
+      '骨架一',
+      '骨架二'
+    ]
+    let callIndex = 0
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: outputs[Math.min(callIndex++, outputs.length - 1)] ?? outputs[outputs.length - 1]
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 's1-narrative-invalid', severity: 'blocking', message: '场景一未推进' }] } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('degraded')
+    expect(result.output).toBe(outputs[0])
+    expect(result.apiMeta?.candidateLedger).toHaveLength(3)
+    expect(result.apiMeta?.candidateLedger?.map(item => ({
+      passIndex: item.passIndex,
+      attempt: item.attempt,
+      valid: item.valid,
+      errorCount: item.errorCount,
+      errors: item.errors,
+      postProcessIssueCodes: item.postProcessIssueCodes,
+      retained: item.retained
+    }))).toEqual([
+      { passIndex: 0, attempt: 1, valid: false, errorCount: 1, errors: ['场景一未推进'], postProcessIssueCodes: ['s1-narrative-invalid'], retained: true },
+      { passIndex: 0, attempt: 2, valid: false, errorCount: 1, errors: ['场景一未推进'], postProcessIssueCodes: ['s1-narrative-invalid'], retained: false },
+      { passIndex: 0, attempt: 3, valid: false, errorCount: 1, errors: ['场景一未推进'], postProcessIssueCodes: ['s1-narrative-invalid'], retained: false }
+    ])
+    const fnv1a32 = (text: string) => {
+      let hash = 0x811c9dc5
+      for (let index = 0; index < text.length; index += 1) {
+        hash ^= text.charCodeAt(index)
+        hash = Math.imul(hash, 0x01000193)
+      }
+      return `fnv1a32_${(hash >>> 0).toString(16).padStart(8, '0')}`
+    }
+    expect(result.apiMeta?.candidateLedger?.[0]?.sourceResponseHash).toBe(fnv1a32('骨架一'))
+    expect(result.apiMeta?.candidateLedger?.[0]?.rawChars).toBe(3)
+  })
+
   it('prioritizes a complete handoff over a lower error count for the protected body contract', async () => {
     const outputs = [
       '正文'.repeat(1391) + '\n【正文交接】\n章节：第1章\nFACT_LOCK：示例事实',

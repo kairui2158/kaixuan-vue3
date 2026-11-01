@@ -26,6 +26,7 @@ import {
 import { validateSkillOutput } from './skillValidation'
 import type {
   RealSkillAgentContext,
+  RealSkillCandidateLedgerEntry,
   RealSkillDiagnostic,
   RealSkillExecuteOptions,
   RealSkillExecutionResult,
@@ -50,6 +51,15 @@ const DIRECT_OUTPUT_SUFFIX = [
 ].join('\n')
 
 export type RealSkillPassInputMode = 'original' | 'previous'
+
+function fnv1a32(text: string): string {
+  let hash = 0x811c9dc5
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return `fnv1a32_${(hash >>> 0).toString(16).padStart(8, '0')}`
+}
 
 export function countRepeatedPromptBlocks(userPrompt: string): Record<string, number> {
   const result: Record<string, number> = {}
@@ -842,6 +852,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
   const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
   let retainedCandidateIndex = 0
+  const candidateAuditLedger: RealSkillCandidateLedgerEntry[] = []
   let bodyCandidateLedger: NonNullable<RealSkillExecutionResult['apiMeta']>['bodyCandidateLedger']
   let bodyCandidateRetention: NonNullable<RealSkillExecutionResult['apiMeta']>['bodyCandidateRetention']
 
@@ -888,6 +899,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       validation: { valid: boolean; errors: string[] }
       attempt: number
       measurement: ProtectedBodyCandidateMeasurement | null
+      audit: RealSkillCandidateLedgerEntry
     }> = []
     let schemaRetryFeedback: string | undefined
 
@@ -1290,6 +1302,29 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             : { valid: true, errors: [] }
         const hasBlockingPostIssue = postIssues.some(issue => issue.severity === 'blocking')
         timingLedger.schemaValidateMs += Date.now() - schemaValidateStartedAt
+        const candidateErrorMessages = validation.valid
+          ? []
+          : hasBlockingPostIssue
+            ? postIssues.filter(issue => issue.severity === 'blocking').map(issue => issue.message)
+            : validation.errors
+        const candidateErrorCount = validation.valid
+          ? 0
+          : hasBlockingPostIssue
+            ? postIssues.filter(issue => issue.severity === 'blocking').length
+            : validation.errors.length
+        const candidateIssueCodes = postIssues.map(issue => issue.code || 'post-process-issue')
+        const candidateAudit = {
+          passIndex,
+          attempt,
+          rawChars: result.text.length,
+          sourceResponseHash: fnv1a32(result.text),
+          valid: validation.valid,
+          schemaValidationValid: validation.valid,
+          errorCount: candidateErrorCount,
+          errors: candidateErrorMessages,
+          postProcessIssueCodes: candidateIssueCodes,
+          retained: false
+        }
         if (!validation.valid && hasBlockingPostIssue) {
           const blockingErrors = postIssues
             .filter(issue => issue.severity === 'blocking')
@@ -1302,8 +1337,14 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             attempt,
             measurement: protectedContract?.kind === 'body'
               ? measureProtectedBodyCandidate(candidateOutput, protectedContract)
-              : null
+              : null,
+            audit: {
+              ...candidateAudit,
+              errors: retryErrors,
+              errorCount: retryErrors.length
+            }
           })
+          candidateAuditLedger.push(candidateLedger[candidateLedger.length - 1].audit)
           if (options.finalStepRetry?.role === 'polish') {
             schemaRetryFeedback = buildFinalStepSchemaRetryFeedback(options, retryErrors, candidateOutput, diagnostics)
           } else {
@@ -1340,8 +1381,16 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             attempt,
             measurement: protectedContract?.kind === 'body'
               ? measureProtectedBodyCandidate(candidateOutput, protectedContract)
-              : null
+              : null,
+            audit: {
+              ...candidateAudit,
+              valid: true,
+              schemaValidationValid: false,
+              errors: validation.errors,
+              errorCount: validation.errors.length
+            }
           })
+          candidateAuditLedger.push(candidateLedger[candidateLedger.length - 1].audit)
           diagnostics.push(diagnostic(
             'warning',
             'schema-contract-warning',
@@ -1363,8 +1412,14 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           attempt,
           measurement: protectedContract?.kind === 'body'
             ? measureProtectedBodyCandidate(candidateOutput, protectedContract)
-            : null
+            : null,
+          audit: {
+            ...candidateAudit,
+            errors: validation.valid ? [] : validation.errors,
+            errorCount: validation.valid ? 0 : validation.errors.length
+          }
         })
+        candidateAuditLedger.push(candidateLedger[candidateLedger.length - 1].audit)
 
         if (validation.valid) {
           output = candidateOutput
@@ -1443,7 +1498,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             toolResults,
             toolRequestDeltas,
             toolAudit,
-            timingLedger: { ...timingLedger }
+            timingLedger: { ...timingLedger },
+            candidateLedger: candidateAuditLedger
           }
         }
       }
@@ -1488,6 +1544,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     retainedCandidateIndex = retainedCandidate
       ? candidateLedger.findIndex(item => item === retainedCandidate) + 1
       : 0
+    candidateAuditLedger.forEach((entry, index) => {
+      entry.retained = retainedCandidateIndex === index + 1
+    })
     bodyCandidateRetention = protectedContract?.kind === 'body' && retainedCandidate
       ? {
         retainedCandidateIndex,
@@ -1540,10 +1599,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           toolResults,
           toolRequestDeltas,
           toolAudit,
-          timingLedger: { ...timingLedger },
-          retainedCandidateIndex,
-          bodyCandidateLedger,
-          bodyCandidateRetention
+            timingLedger: { ...timingLedger },
+            retainedCandidateIndex,
+            candidateLedger: candidateAuditLedger,
+            bodyCandidateLedger,
+            bodyCandidateRetention
         }
       }
     }
@@ -1578,10 +1638,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       toolResults,
       toolRequestDeltas,
       toolAudit,
-      timingLedger: { ...timingLedger },
-      retainedCandidateIndex,
-      bodyCandidateLedger,
-      bodyCandidateRetention
+        timingLedger: { ...timingLedger },
+        retainedCandidateIndex,
+        candidateLedger: candidateAuditLedger,
+        bodyCandidateLedger,
+        bodyCandidateRetention
     }
   }
 }

@@ -20,6 +20,22 @@ export interface RealSkillBodyCandidateLedgerEntry {
   errorCount: number
 }
 
+export interface RealSkillCandidateLedgerEntry {
+  passIndex: number
+  attempt: number
+  rawChars: number
+  /** Stable FNV-1a hash of the physical model response before postProcess. */
+  sourceResponseHash: string
+  /** Candidate validity used by the retention decision. */
+  valid: boolean
+  /** Actual output-schema validation result, even when degraded to valid. */
+  schemaValidationValid?: boolean
+  errorCount: number
+  errors: string[]
+  postProcessIssueCodes: string[]
+  retained: boolean
+}
+
 export interface RealSkillBodyCandidateRetention {
   retainedCandidateIndex: number
   retainedAttempt: number
@@ -180,6 +196,8 @@ export interface RealSkillExecutionResult {
     }
     /** Candidate ledger position retained by the executor when schema retries are exhausted. */
     retainedCandidateIndex?: number
+    /** Per-attempt candidate audit for every folder skill, not only body contracts. */
+    candidateLedger?: RealSkillCandidateLedgerEntry[]
     /** Per-attempt protected-body metrics for schema retry diagnosis. */
     bodyCandidateLedger?: RealSkillBodyCandidateLedgerEntry[]
     /** Structured explanation of which retry candidate was retained and why. */

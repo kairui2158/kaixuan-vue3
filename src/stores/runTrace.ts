@@ -206,6 +206,19 @@ export interface RunTraceApiCall {
     valid: boolean
     errorCount: number
   }>
+  /** Per-attempt candidate audit for every folder skill execution. */
+  candidateLedger?: Array<{
+    passIndex: number
+    attempt: number
+    rawChars: number
+    sourceResponseHash: string
+    valid: boolean
+    schemaValidationValid?: boolean
+    errorCount: number
+    errors: string[]
+    postProcessIssueCodes: string[]
+    retained: boolean
+  }>
   /** Structured explanation of the retry candidate retained by the executor. */
   bodyCandidateRetention?: {
     retainedCandidateIndex: number
@@ -788,6 +801,7 @@ export interface FinishApiCallInput {
   readLedger?: RunTraceReadLedgerSnapshot
   deaiPromptVariant?: RunTraceApiCall['deaiPromptVariant']
   timingLedger?: RunTraceTimingLedger
+  candidateLedger?: RunTraceApiCall['candidateLedger']
   bodyCandidateLedger?: RunTraceApiCall['bodyCandidateLedger']
   bodyCandidateRetention?: RunTraceApiCall['bodyCandidateRetention']
 }
@@ -2412,6 +2426,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       ...computeApiCallTimingLedger(call),
       ...patch.timingLedger
     }
+    if (patch.candidateLedger) call.candidateLedger = patch.candidateLedger
     if (patch.bodyCandidateLedger) call.bodyCandidateLedger = patch.bodyCandidateLedger
     if (patch.bodyCandidateRetention) call.bodyCandidateRetention = patch.bodyCandidateRetention
     call.usage = patch.usage ?? call.usage

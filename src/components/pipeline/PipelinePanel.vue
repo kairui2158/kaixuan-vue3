@@ -2992,6 +2992,7 @@ async function callValidatedSkill(
         contextBudgetReason: apiMeta?.contextBudget?.reason,
         usageReconciliation: apiMeta?.usageReconciliation,
         timingLedger: apiMeta?.timingLedger,
+        candidateLedger: apiMeta?.candidateLedger,
         bodyCandidateLedger: apiMeta?.bodyCandidateLedger,
         bodyCandidateRetention: apiMeta?.bodyCandidateRetention
       })

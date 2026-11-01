@@ -1364,6 +1364,38 @@ describe('runTrace store', () => {
     expect(JSON.stringify(exported)).toContain('retainedCandidateIndex')
   })
 
+  it('persists the all-layer candidate ledger on the API call', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 1, stepName: '正文层', mode: 'body', skillNames: ['骨架技能'] })
+    const callId = store.startApiCall(runId, {
+      step: 1,
+      requestMessages: [{ role: 'user', content: '骨架任务' }],
+      model: 'test-model'
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'degraded',
+      responseText: '骨架一',
+      error: '输出未通过校验，已达最大尝试次数 3',
+      durationMs: 100,
+      candidateLedger: [
+        { passIndex: 0, attempt: 1, rawChars: 3, sourceResponseHash: 'fnv1a32_aaaaaaaa', valid: false, errorCount: 1, errors: ['场景一未推进'], postProcessIssueCodes: ['s1-narrative-invalid'], retained: true },
+        { passIndex: 0, attempt: 2, rawChars: 3, sourceResponseHash: 'fnv1a32_bbbbbbbb', valid: false, errorCount: 1, errors: ['场景一未推进'], postProcessIssueCodes: ['s1-narrative-invalid'], retained: false },
+        { passIndex: 0, attempt: 3, rawChars: 3, sourceResponseHash: 'fnv1a32_cccccccc', valid: false, errorCount: 1, errors: ['场景一未推进'], postProcessIssueCodes: ['s1-narrative-invalid'], retained: false }
+      ],
+      bodyCandidateRetention: {
+        retainedCandidateIndex: 1,
+        retainedAttempt: 1,
+        retainedReason: 'errors:1'
+      }
+    })
+
+    const run = store.getRun(runId)!
+    expect(run.apiCalls[0]?.candidateLedger).toHaveLength(3)
+    expect(run.apiCalls[0]?.candidateLedger?.[0]?.retained).toBe(true)
+    const exported = store.exportRunToJson(run) as typeof run
+    expect(JSON.stringify(exported)).toContain('sourceResponseHash')
+  })
+
   it('masks sensitive strings recursively in JSON export', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
