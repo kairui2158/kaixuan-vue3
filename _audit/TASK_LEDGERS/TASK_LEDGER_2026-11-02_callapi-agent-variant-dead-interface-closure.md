@@ -61,4 +61,5 @@
 - 构建：`npm run build` → exit 0，生成 `dist/神意助手-Setup-3.110.16.exe`，大小 231,644,711 bytes。
 - asar 核验：`npx asar extract-file dist/win-unpacked/resources/app.asar package.json` → `version: 3.110.16`；`dist-renderer/assets/index-Ci_Rzbbh.js` 仅命中 `PipelinePanel.callApiWithAgentVariantOwned`，旧包装名无生产命中。
 - 版本恢复复核：asar 抽取命令会覆盖工作区 `package.json`，误删后已恢复并重新执行 `npm version 3.110.16 --no-git-tag-version`；恢复后定向测试 13 tests、type-check、五态真实 Electron A-E 再次全 PASS。
+- Git：功能提交 `dbaaf03a`（`refactor(pipeline): remove dead agent variant wrapper`，9 files changed，328 insertions，7 deletions）；提交后 `git status --short` 无输出，工作区干净。
 - 边界：全仓其他死代码扫描未执行，属独立后续审计；B6 教学有效性保持 provisional。
