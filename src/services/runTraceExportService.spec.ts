@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { exportRunTraceToJson, exportRunTraceToText } from './runTraceExportService'
-import type { RunTrace } from '../stores/runTrace'
+import type { RunTrace, RunTracePhysicalCall } from '../stores/runTrace'
 
 function makeRun(overrides: Partial<RunTrace> = {}): RunTrace {
   return {
@@ -59,5 +59,57 @@ describe('run trace export service', () => {
     expect(exported.sessionSnapshot).toBe(true)
     expect(exported.status).toBe('running')
     expect(exportRunTraceToText(run)).toContain('会话快照：导出时会话仍在应用内继续')
+  })
+
+  it('keeps physical cache observations in JSON and text exports', () => {
+    const run = makeRun({
+      apiCalls: [{
+        id: 'call-1',
+        seq: 1,
+        status: 'success',
+        requestMessages: [{ role: 'user', content: '生成章节' }],
+        responseText: '章节内容',
+        streamText: '',
+        reasoningText: '',
+        physicalCalls: [{
+          id: 'physical-1',
+          seq: 1,
+          phase: 'normal',
+          status: 'success',
+          requestMessages: [{ role: 'user', content: '生成章节' }],
+          responseText: '章节内容',
+          streamText: '',
+          cacheUsageSummary: {
+            status: 'reported',
+            cacheReadInputTokens: 80,
+            cacheReadInputRatio: 0.8
+          },
+          contextComposition: {
+            layer: 'chapter',
+            step: 3,
+            cacheFamily: 'openai-compatible:provider-a:model-a:chapter:step-3',
+            prefixFingerprint: 'prefix-a',
+            stableRatio: 0.714
+          }
+        } as RunTracePhysicalCall]
+      } as RunTrace['apiCalls'][number]]
+    })
+
+    const json = exportRunTraceToJson(run)
+    const physical = (json.apiCalls as unknown as RunTrace['apiCalls'])[0]?.physicalCalls?.[0]
+    expect(physical?.cacheUsageSummary).toEqual({
+      status: 'reported',
+      cacheReadInputTokens: 80,
+      cacheReadInputRatio: 0.8
+    })
+    expect(physical?.contextComposition).toMatchObject({
+      layer: 'chapter',
+      step: 3,
+      cacheFamily: 'openai-compatible:provider-a:model-a:chapter:step-3'
+    })
+
+    const text = exportRunTraceToText(run)
+    expect(text).toContain('缓存命中：80 input tokens (80%)')
+    expect(text).toContain('上下文组成：stable=0.714 family=openai-compatible:provider-a:model-a:chapter:step-3')
   })
 })

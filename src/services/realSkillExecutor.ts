@@ -1057,6 +1057,18 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           onProviderQueue: options.onProviderQueue,
           retry: true,
           model: resolvedProviderModel,
+          contextComposition: options.contextLayer
+            ? {
+              layer: options.contextLayer,
+              step: passIndex,
+              providerId: agent?.providerId || options.providerId || undefined,
+              model: resolvedProviderModel,
+              // Phase 0 observes composition only. System prompts are
+              // known-stable candidates; user prompts stay fully variable.
+              stableSystemPrefix: systemPrompt,
+              stableUserPrefix: ''
+            }
+            : undefined,
           temperature: attempt === RETRY_LIMIT
             ? Math.min((agent?.temperature ?? 0.7) + 0.05, 1.0)
             : agent?.temperature,

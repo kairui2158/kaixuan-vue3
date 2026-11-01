@@ -94,6 +94,36 @@ describe('realSkillExecutor single pass', () => {
     }))
   })
 
+  it('passes observability-only context composition without changing request messages', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      contextLayer: 'chapters',
+      providerId: 'provider-layer',
+      providerModel: 'model-a',
+      budget: createBudget()
+    })
+
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
+      contextComposition: {
+        layer: 'chapters',
+        step: 0,
+        providerId: 'provider-layer',
+        model: 'model-a',
+        stableSystemPrefix: expect.any(String),
+        stableUserPrefix: ''
+      }
+    }))
+  })
+
   it('blocks chapter event density NOT-READY without retrying', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),

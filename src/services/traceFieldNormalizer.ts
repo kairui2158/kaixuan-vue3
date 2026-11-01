@@ -21,6 +21,14 @@ export interface NormalizedToolCallId {
   fallback: boolean
 }
 
+export interface CacheUsageSummary {
+  status: 'reported' | 'not_reported' | 'usage_unavailable'
+  cacheReadInputTokens?: number
+  cacheWriteInputTokens?: number
+  cacheReadInputRatio?: number
+  estimatedInputTokens?: number
+}
+
 const USAGE_KEYS: Record<keyof NormalizedUsage, string[]> = {
   inputTokens: ['inputTokens', 'input_tokens', 'promptTokens', 'prompt_tokens', 'promptTokenCount'],
   outputTokens: ['outputTokens', 'output_tokens', 'completionTokens', 'completion_tokens', 'candidatesTokenCount'],
@@ -29,6 +37,7 @@ const USAGE_KEYS: Record<keyof NormalizedUsage, string[]> = {
     'cacheReadInputTokens',
     'cache_read_input_tokens',
     'promptTokensDetails.cacheReadTokenCount',
+    'prompt_tokens_details.cached_tokens',
     'cachedTokens',
     'cached_tokens',
     'cachedContentTokenCount',
@@ -63,7 +72,13 @@ function readFiniteNumber(source: Record<string, unknown>, key: string): number 
  */
 export function normalizeUsage(providerType: string | undefined, rawUsage: unknown): NormalizedUsage | undefined {
   if (!rawUsage || typeof rawUsage !== 'object') return undefined
-  const source = rawUsage as Record<string, unknown>
+  const wrapper = rawUsage as Record<string, unknown>
+  // Anthropic's response schema nests token usage under `usage`.
+  const source = (
+    wrapper.usage && typeof wrapper.usage === 'object'
+      ? wrapper.usage
+      : wrapper
+  ) as Record<string, unknown>
   const normalized: NormalizedUsage = {}
 
   for (const [target, keys] of Object.entries(USAGE_KEYS) as Array<[keyof NormalizedUsage, string[]]>) {
@@ -82,6 +97,47 @@ export function normalizeUsage(providerType: string | undefined, rawUsage: unkno
   }
 
   return Object.keys(normalized).length ? normalized : undefined
+}
+
+/**
+ * Single source for cache observability. A cache hit is only claimed when the
+ * provider reported one; estimates are kept separate from physical usage.
+ */
+export function buildCacheUsageSummary(
+  usage: NormalizedUsage | undefined,
+  estimatedInputTokens?: number
+): CacheUsageSummary {
+  if (!usage) {
+    return {
+      status: 'usage_unavailable',
+      cacheReadInputTokens: undefined,
+      cacheWriteInputTokens: undefined,
+      cacheReadInputRatio: undefined,
+      estimatedInputTokens,
+    }
+  }
+  const read = usage.cacheReadInputTokens
+  const write = usage.cacheWriteInputTokens
+  if (read == null && write == null) {
+    return {
+      status: 'not_reported',
+      cacheReadInputTokens: undefined,
+      cacheWriteInputTokens: undefined,
+      cacheReadInputRatio: undefined,
+      estimatedInputTokens: undefined,
+    }
+  }
+  const input = usage.inputTokens
+  const ratio = read != null && input != null && input > 0
+    ? Math.min(1, Math.round((read / input) * 1000) / 1000)
+    : undefined
+  return {
+    status: 'reported',
+    cacheReadInputTokens: read,
+    cacheWriteInputTokens: write,
+    cacheReadInputRatio: ratio,
+    estimatedInputTokens: undefined,
+  }
 }
 
 const FINISH_REASON_MAP: Record<string, NormalizedFinishReason> = {

@@ -3078,6 +3078,7 @@ async function callValidatedSkill(
         budget: createApiCallBudget(8),
         providerId: fallbackProviderId || undefined,
         providerSource: requestProfile.source,
+        contextLayer: pipelineLayerForStep(step) || undefined,
         skillId: template.id,
         aiService: await getAiService(),
         stream: true,
@@ -3192,7 +3193,9 @@ async function callValidatedSkill(
             lastReasoningAt: event.lastReasoningAt,
             bodyAbsentMs: event.bodyAbsentMs,
             firstTokenMs: event.firstTokenMs,
-            outputMs: event.outputMs
+            outputMs: event.outputMs,
+            cacheUsageSummary: event.cacheUsageSummary,
+            contextComposition: event.contextComposition
           })
         },
       onProviderQueue: event => recordPipelineProviderQueue(traceRunId, traceCallId, event, pipelineRunIdParam),

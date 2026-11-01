@@ -120,6 +120,31 @@ export function exportRunTraceToText(run: RunTrace): string {
           `耗时：${physical.durationMs ?? 0}ms`,
           `finish_reason：${physical.finishReason || '-'}`
         )
+        if (physical.cacheUsageSummary) {
+          const cache = physical.cacheUsageSummary as {
+            status?: string
+            cacheReadInputTokens?: number
+            cacheReadInputRatio?: number
+          }
+          const percentage = cache.cacheReadInputRatio != null
+            ? `${Math.round(cache.cacheReadInputRatio * 100)}%`
+            : '-'
+          lines.push(
+            `缓存状态：${cache.status || '-'}`,
+            cache.cacheReadInputTokens != null
+              ? `缓存命中：${cache.cacheReadInputTokens} input tokens (${percentage})`
+              : '缓存命中：-'
+          )
+        }
+        if (physical.contextComposition) {
+          const composition = physical.contextComposition as {
+            stableRatio?: number
+            cacheFamily?: string
+          }
+          lines.push(
+            `上下文组成：stable=${composition.stableRatio ?? '-'} family=${composition.cacheFamily || '-'}`
+          )
+        }
         physical.requestMessages.forEach(message => {
           lines.push(`[${message.role}]`, maskRunTraceSensitiveText(message.content))
         })

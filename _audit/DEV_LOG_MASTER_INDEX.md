@@ -1630,3 +1630,11 @@
 - 交付：删除无调用方的 `callApiWithAgentVariant` 三行转发包装，保留唯一生产入口 `callApiWithAgentVariantOwned`；新增死接口负向守护；手册登记 agent 唯一生产入口；版本 3.110.16。
 - 验证：RED→GREEN 守护闭环；定向 38 tests、type-check、`build:vue`、五态真实 Electron A-E、全量 239 files / 2553 tests 全部通过；生产裸名引用清零。
 - 边界：不扩展全仓死代码扫描；B6 教学有效性保持 provisional。
+
+# 2026-11-02 Pipeline Context Cache V2.1 观测底座
+
+- 文件：[_audit/DEV_LOG_2026-11-02_pipeline-context-cache-v2-1.md](_audit/DEV_LOG_2026-11-02_pipeline-context-cache-v2-1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_pipeline-context-cache-v2-1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_pipeline-context-cache-v2-1.md)
+- 交付：默认请求行为不变的上下文组成与 provider cache 观测底座：cache family/前缀指纹/稳定占比、OpenAI-compatible 与 Anthropic cache usage 归一、物理请求 trace 持久化、JSON/文本导出、folder 主链 `contextLayer` 接线；修复 ratio 越界与 layer 单复数漂移。
+- 验证：RED→GREEN（cache ratio 1.2→1）；定向 6 files / 382 tests passed；type-check exit 0；负向断言覆盖 prompt 全文不落账、未知身份不合并、缺 usage 不发明命中。
+- 边界：真实供应商 cache 矩阵、20 章 shadow A/B、安装包级真实运行保持 `untested`；agent 变体与辅助调用只有 cache usage 观测、无 request composition，登记为非阻塞缺口。

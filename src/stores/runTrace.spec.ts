@@ -377,6 +377,49 @@ describe('runTrace store', () => {
     expect(physical?.lastContentAt).toBeUndefined()
   })
 
+  it('persists provider cache and request composition observations on physical calls', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 3, stepName: '章节层', mode: 'single', skillNames: ['章节技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成章节' }]
+    })
+    const cacheUsageSummary = {
+      status: 'reported',
+      cacheReadInputTokens: 80,
+      cacheReadInputRatio: 0.8
+    }
+    const contextComposition = {
+      layer: 'chapter',
+      step: 3,
+      cacheFamily: 'openai-compatible:provider-a:model-a:chapter:step-3',
+      prefixFingerprint: 'stable-prefix',
+      systemLength: 100,
+      userLength: 40,
+      stableSystemPrefixLength: 80,
+      stableUserPrefixLength: 20,
+      stableChars: 100,
+      variableChars: 40,
+      stableRatio: 0.714
+    }
+
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'cache-observation-1',
+      requestMessages: [{ role: 'user', content: '生成章节' }],
+      cacheUsageSummary,
+      contextComposition
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'cache-observation-1',
+      requestMessages: [{ role: 'user', content: '生成章节' }],
+      responseText: ''
+    })
+
+    const physical = store.getRun(runId)?.apiCalls[0]?.physicalCalls?.[0]
+    expect(physical?.cacheUsageSummary).toEqual(cacheUsageSummary)
+    expect(physical?.contextComposition).toEqual(contextComposition)
+    expect(JSON.stringify(physical?.contextComposition)).not.toContain('生成章节')
+  })
+
   it('stores physical timing segments and computes api call timing ledger', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })

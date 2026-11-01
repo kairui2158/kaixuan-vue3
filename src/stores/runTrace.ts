@@ -359,6 +359,10 @@ export interface RunTracePhysicalCall {
   bodyAbsentMs?: number
   /** Number of older successful read tool results compacted for this physical request. */
   contextCompactedMessageCount?: number
+  /** Provider-reported cache usage; absent usage is never treated as a hit. */
+  cacheUsageSummary?: unknown
+  /** Observability-only request composition; excludes prompt full text. */
+  contextComposition?: unknown
 }
 
 export interface RunTraceTimingLedger {
@@ -833,6 +837,8 @@ export interface PhysicalCallInput {
   bodyAbsentMs?: number
   heartbeat?: boolean
   contextCompactedMessageCount?: number
+  cacheUsageSummary?: RunTracePhysicalCall['cacheUsageSummary']
+  contextComposition?: RunTracePhysicalCall['contextComposition']
 }
 
 export interface ToolCallInput {
@@ -1816,6 +1822,8 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       existing.lastReasoningAt = input.lastReasoningAt ?? existing.lastReasoningAt
       existing.bodyAbsentMs = input.bodyAbsentMs ?? existing.bodyAbsentMs
       existing.contextCompactedMessageCount = input.contextCompactedMessageCount ?? existing.contextCompactedMessageCount
+      existing.cacheUsageSummary = input.cacheUsageSummary ?? existing.cacheUsageSummary
+      existing.contextComposition = input.contextComposition ?? existing.contextComposition
       if (input.heartbeat) existing.heartbeat = true
       addEvent(runId, {
         type: 'physical-call',
@@ -1868,6 +1876,8 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       lastReasoningAt: input.lastReasoningAt,
       bodyAbsentMs: input.bodyAbsentMs,
       contextCompactedMessageCount: input.contextCompactedMessageCount,
+      cacheUsageSummary: input.cacheUsageSummary,
+      contextComposition: input.contextComposition,
       heartbeat: input.heartbeat,
     }
     call.physicalCalls.push(physical)

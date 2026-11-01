@@ -24,6 +24,7 @@ export interface SkillRouteOptions {
   agent?: RealSkillAgentContext | null
   purpose?: 'rewrite' | 'verify' | 'generate'
   providerId?: string
+  contextLayer?: RealSkillExecuteOptions['contextLayer']
   providerModel?: string
   providerModelSource?: 'caller-profile'
   providerModelFallback?: { reason: 'agent-model-without-provider'; configuredModel: string }
@@ -180,6 +181,7 @@ export async function routeSkill(
     agentSource: options.agentSource,
     purpose: options.purpose,
     providerId: options.providerId,
+    contextLayer: options.contextLayer,
     providerModel: options.providerModel,
     providerModelSource: options.providerModelSource,
     providerModelFallback: options.providerModelFallback,

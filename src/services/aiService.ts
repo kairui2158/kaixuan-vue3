@@ -31,6 +31,15 @@ import {
   type UsageReconciliation,
 } from './contextBudget'
 import {
+  buildCacheUsageSummary,
+  normalizeUsage,
+  type CacheUsageSummary,
+} from './traceFieldNormalizer'
+import {
+  buildRequestContextComposition,
+  type RequestContextComposition,
+} from './requestContextComposition'
+import {
   buildProviderChatUrl,
   buildProviderHeaders,
   buildProviderModelsUrl,
@@ -231,6 +240,15 @@ export interface CallAiParams {
   suppressToolProtocolStream?: boolean
   /** @internal Number of older successful read tool results compacted for this physical request. */
   contextCompactedMessageCount?: number
+  /** Observability only: request prefix/cache provenance, never affects the wire request. */
+  contextComposition?: {
+    layer?: string
+    step?: number
+    providerId?: string
+    model?: string
+    stableSystemPrefix?: string
+    stableUserPrefix?: string
+  }
   /** @internal Used by tool-loop and downgrade wrappers to classify physical requests. */
   physicalPhase?: PhysicalCallEvent['phase']
   /** @internal Wraps the caller's onChunk to capture per-request stream deltas. */
@@ -306,6 +324,10 @@ export interface PhysicalCallEvent {
   contextBudget?: ContextBudgetResult
   /** Reconciles estimated input tokens against provider-reported usage. */
   usageReconciliation?: UsageReconciliation
+  /** Provider-reported cache usage summary; absent usage is never treated as a hit. */
+  cacheUsageSummary?: CacheUsageSummary
+  /** Observability-only request composition; excludes prompt full text. */
+  contextComposition?: RequestContextComposition
   /** True when a running request is alive but has produced no stream bytes yet. */
   heartbeat?: boolean
   /** Stable classification for transport interruptions delegated to a task layer. */
@@ -3758,6 +3780,22 @@ export function createAiService(
           estimatedInputTokens: contextBudget.estimatedInputTokens,
           usage: result?.usage,
         })
+        const cacheUsageSummary = status === 'running'
+          ? undefined
+          : buildCacheUsageSummary(
+            normalizeUsage(providerType, result?.usage),
+            contextBudget.estimatedInputTokens,
+          )
+        const contextComposition = params.contextComposition
+          ? buildRequestContextComposition({
+            ...params.contextComposition,
+            providerType,
+            providerId,
+            model: resolveModel(provider, params.model),
+            systemPrompt: String(params.messages[0]?.content || ''),
+            userPrompt: String(params.messages[1]?.content || ''),
+          })
+          : undefined
         if (status !== 'running') {
           updateInputTokenCalibration({
             providerId,
@@ -3798,6 +3836,8 @@ export function createAiService(
           modelCapability,
           contextBudget,
           contextCompactedMessageCount: params.contextCompactedMessageCount,
+          cacheUsageSummary,
+          contextComposition,
           usageReconciliation: reconciliation,
           heartbeat: status === 'running'
             ? Boolean(heartbeat || physicalHeartbeatTimer !== null)

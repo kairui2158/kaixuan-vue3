@@ -248,6 +248,8 @@ export interface RealSkillExecuteOptions {
   purpose?: 'rewrite' | 'verify' | 'generate'
   /** Layer-level provider channel resolved by the pipeline caller. */
   providerId?: string
+  /** Observability-only request context identity; never changes request bytes. */
+  contextLayer?: 'settings' | 'volumes' | 'chapters' | 'body'
   /** Source of the effective provider binding; kept for request-level diagnostics. */
   providerSource?: 'agent' | 'layer' | 'global'
   budget: { tryConsume: (step: string, skillLimit?: number | null) => ApiBudgetDecisionLike }

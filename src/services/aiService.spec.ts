@@ -2253,6 +2253,62 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('reports provider cache usage on physical calls without inventing hits', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: 'ok' } }],
+        usage: {
+          prompt_tokens: 100,
+          completion_tokens: 20,
+          prompt_tokens_details: { cached_tokens: 80 },
+        },
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    await expect(service.callAi({
+      purpose: 'verify',
+      messages: [
+        { role: 'system', content: 'system-prefix' },
+        { role: 'user', content: 'user-prefix' },
+      ],
+      stream: false,
+      retry: false,
+      contextComposition: {
+        layer: 'chapter',
+        step: 2,
+        providerId: 'runtime',
+        stableSystemPrefix: 'system-prefix',
+        stableUserPrefix: 'user-prefix',
+      },
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    })).resolves.toMatchObject({ text: 'ok' });
+
+    const terminal = physicalEvents.find(event => event.status === 'success');
+    expect(terminal?.cacheUsageSummary).toEqual({
+      status: 'reported',
+      cacheReadInputTokens: 80,
+      cacheWriteInputTokens: undefined,
+      cacheReadInputRatio: 0.8,
+      estimatedInputTokens: undefined,
+    });
+    expect(terminal?.contextComposition).toMatchObject({
+      layer: 'chapter',
+      step: 2,
+      providerId: 'runtime',
+      providerType: 'openai-compatible',
+      model: 'test-model',
+      cacheFamily: 'openai-compatible:runtime:test-model:chapter:step-2',
+      systemLength: 'system-prefix'.length,
+      userLength: 'user-prefix'.length,
+      stableChars: 'system-prefix'.length + 'user-prefix'.length,
+      variableChars: 0,
+    });
+    expect(Object.keys(terminal?.contextComposition || {})).not.toContain('systemPrompt');
+    expect(Object.keys(terminal?.contextComposition || {})).not.toContain('userPrompt');
+    vi.unstubAllGlobals();
+  });
+
   it('records first-token timing for streamed physical calls', async () => {
     vi.useFakeTimers();
     let emitMainNetEvent: ((payload: any) => void) | null = null;
