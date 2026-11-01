@@ -94,9 +94,9 @@ describe('buildSchemaRetryFeedback', () => {
       }
     })
 
-    expect(result.strategy).toBe('word-gap')
-    expect(result.feedback).toContain('上一版候选没有可解析的【正文交接】账本')
-    expect(result.feedback).toContain('不要把缺失骨架降级为丢弃段落结构')
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.feedback).toContain('上一版候选正文中没有出现【正文交接】标记')
+    expect(result.feedback).toContain('修复基础缺失')
     expect(result.scaffoldChars).toBe(0)
     expect(result.scaffoldFieldCount).toBe(0)
     expect(result.feedback).not.toContain('正'.repeat(100))
@@ -125,8 +125,8 @@ describe('buildSchemaRetryFeedback', () => {
       chainUpstreamContext: upstream
     })
 
-    expect(result.strategy).toBe('word-gap')
-    expect(result.feedback).toContain('上一版候选没有可解析的【正文交接】账本')
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.feedback).toContain('上一版候选正文中没有出现【正文交接】标记')
     expect(result.feedback).toContain('[上一章事实]')
     expect(result.feedback).toContain('王芳拿到账册')
     expect(result.feedback).toContain('【场景1：酒馆问线】')
@@ -151,8 +151,8 @@ describe('buildSchemaRetryFeedback', () => {
       chainUpstreamContext: '   '
     })
 
-    expect(result.strategy).toBe('word-gap')
-    expect(result.feedback).toContain('无法提供结构骨架')
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.feedback).toContain('修复基础缺失')
     expect(result.feedback).toContain('按原始任务输入重建正文')
     expect(result.scaffoldSource).toBe('none')
     expect(result.scaffoldFieldCount).toBe(0)
@@ -161,7 +161,7 @@ describe('buildSchemaRetryFeedback', () => {
   it('keeps bounded-summary feedback for quality failures', () => {
     const result = buildSchemaRetryFeedback({
       errors: ['复述上一步内容过多'],
-      previousOutput: '候选',
+      previousOutput: '候选\n\n【正文交接】\nFACT_LOCK：示例事实',
       protectedContract: {
         kind: 'body',
         targetWords: 3500
@@ -171,5 +171,85 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.strategy).toBe('bounded-summary')
     expect(result.feedback).toContain('请基于原始任务输入重新输出完整结果')
     expect(result.feedback).not.toContain('请以上一版候选输出为基底补写缺失场景')
+  })
+
+  it('repairs a missing handoff from bounded upstream facts without carrying prose', () => {
+    const candidate = '正'.repeat(2000)
+    const upstream = [
+      '[上一章事实]',
+      '王芳拿到账册；林越确认旧案时间。',
+      'FACT_LOCK：王芳=话痨；账册=旧案关键物'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：2000字，要求不低于2800字'],
+      previousOutput: candidate,
+      chainUpstreamContext: upstream,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.scaffoldSource).toBe('upstream')
+    expect(result.feedback).toContain('上一版候选正文中没有出现【正文交接】标记')
+    expect(result.feedback).toContain('链路上游事实链（有界）')
+    expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
+    expect(result.feedback).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(result.feedback).not.toContain('正'.repeat(100))
+    expect(result.feedback).not.toContain('【结构化重试反馈】\n本反馈描述净字数缺口')
+    expect(result.scaffoldChars).toBeLessThanOrEqual(800)
+    expect(result.suppressedCandidateChars).toBe(candidate.length)
+  })
+
+  it('declares an explicit repair escalation when handoff and upstream facts are both unavailable', () => {
+    const candidate = '正'.repeat(2000)
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：2000字，要求不低于2800字'],
+      previousOutput: candidate,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.scaffoldSource).toBe('none')
+    expect(result.feedback).toContain('修复基础缺失')
+    expect(result.feedback).toContain('链路上游事实链不可用')
+    expect(result.feedback).toContain('按原始任务输入重建正文')
+    expect(result.feedback).not.toContain('正'.repeat(100))
+    expect(result.scaffoldChars).toBe(0)
+    expect(result.suppressedCandidateChars).toBe(candidate.length)
+  })
+
+  it('repairs a declared handoff failure with only the bounded handoff ledger', () => {
+    const candidate = [
+      '正'.repeat(2000),
+      '【正文交接】',
+      '章节：第12章 王芳入局',
+      'POV：林越',
+      'FACT_LOCK：王芳=话痨；账册=旧案关键物',
+      '事件增量：王芳获得新信息，处境改变。',
+      '【正文交接结束】'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['【正文交接】缺少必填字段「事件增量」'],
+      previousOutput: candidate,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.scaffoldSource).toBe('candidate')
+    expect(result.feedback).toContain('上一版【正文交接】账本（有界，不是正文全文）')
+    expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
+    expect(result.feedback).toContain('只修复失败项')
+    expect(result.feedback).not.toContain('正'.repeat(100))
+    expect(result.scaffoldChars).toBeGreaterThan(0)
+    expect(result.scaffoldChars).toBeLessThanOrEqual(800)
+    expect(result.suppressedCandidateChars).toBe(candidate.length)
   })
 })

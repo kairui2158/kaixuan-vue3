@@ -1334,10 +1334,11 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     )).toBe(true)
     const retrySystemPrompt = callAi.mock.calls[1]?.[0].messages[0]?.content || ''
     expect(retrySystemPrompt).toContain('【结构化重试反馈】')
-    expect(retrySystemPrompt).toContain('当前净字数：2000')
-    expect(retrySystemPrompt).toContain('还差净字数：800')
+    expect(retrySystemPrompt).toContain('上一版候选正文中没有出现【正文交接】标记')
     expect(retrySystemPrompt).toContain('FACT_LOCK：王芳=话痨')
     expect(retrySystemPrompt).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(retrySystemPrompt).toContain('正文过短：2000字，要求不低于2800字')
+    expect(retrySystemPrompt).not.toContain('当前净字数：2000')
     expect(retrySystemPrompt).not.toContain('按原始任务输入重建正文')
   })
 

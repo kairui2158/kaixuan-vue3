@@ -16,7 +16,7 @@ export interface SchemaRetryFeedbackInput {
 
 export interface SchemaRetryFeedbackResult {
   feedback: string
-  strategy: 'bounded-summary' | 'word-gap'
+  strategy: 'bounded-summary' | 'word-gap' | 'handoff-repair'
   scaffoldSource: 'candidate' | 'upstream' | 'none'
   candidateChars: number
   feedbackChars: number
@@ -45,6 +45,13 @@ const SCAFFOLD_FIELD_PATTERNS = [
   { key: '场景总数', pattern: /^场景总数[:：]/ },
   { key: 'FACT_LOCK', pattern: /^FACT_LOCK[:：]/i },
   { key: 'NEW_FACT', pattern: /^NEW_FACT[:：]/i }
+] as const
+
+const HANDOFF_FAILURE_PATTERNS = [
+  /正文交接.{0,12}(?:缺失|缺少|为空|没有输出)/,
+  /缺少【正文交接】/,
+  /【正文交接】.{0,20}(?:缺失|缺少|为空|没有输出)/,
+  /事件增量.{0,8}(?:缺失|缺少|为空|没有输出)/,
 ] as const
 
 interface WordGapScaffold {
@@ -81,6 +88,10 @@ function buildWordGapScaffold(candidate: string, maxChars: number): WordGapScaff
   let text = normalized.join('\n')
   if (text.length > limit) text = `${text.slice(0, limit)}\n（结构骨架超长，已截断）`
   return { text, fieldCount: normalized.length, available: true, source: 'candidate' }
+}
+
+function isHandoffFailure(errors: string[]): boolean {
+  return errors.some(error => HANDOFF_FAILURE_PATTERNS.some(pattern => pattern.test(String(error))))
 }
 
 function buildUpstreamWordGapScaffold(upstream: string, maxChars: number): WordGapScaffold {
@@ -184,6 +195,80 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
   const maxPreviewEdgeChars = input.maxPreviewEdgeChars ?? DEFAULT_MAX_PREVIEW_EDGE_CHARS
   const maxScaffoldChars = input.maxScaffoldChars ?? DEFAULT_MAX_SCAFFOLD_CHARS
   const contract = input.protectedContract
+  const missingHandoff = Boolean(contract?.kind === 'body' && candidate && !candidate.includes('【正文交接】'))
+  const handoffFailure = isHandoffFailure(errors)
+  const upstreamScaffold = missingHandoff
+    ? buildUpstreamWordGapScaffold(input.chainUpstreamContext || '', maxScaffoldChars)
+    : null
+  const candidateHandoffScaffold = missingHandoff
+    ? null
+    : buildWordGapScaffold(candidate, maxScaffoldChars)
+
+  if (contract?.kind === 'body' && (missingHandoff || handoffFailure)) {
+    const lines = [
+      '【结构化重试反馈】',
+      '本反馈只携带失败指标与有界【正文交接】账本，不携带正文全文。请基于原始任务输入重建完整正文，并在正文本体后补齐【正文交接】账本。',
+      '',
+      '一、校验失败项',
+      ...buildErrorLines(errors, maxErrors),
+    ]
+
+    if (missingHandoff) {
+      lines.push('', '二、载体诊断', '上一版候选正文中没有出现【正文交接】标记。')
+    } else {
+      const handoff = candidateHandoffScaffold ?? buildWordGapScaffold(candidate, maxScaffoldChars)
+      lines.push(
+        '',
+        '二、上一版【正文交接】账本（有界，不是正文全文）',
+        handoff.available
+          ? handoff.text
+          : '（上一版候选没有可解析的【正文交接】账本。）'
+      )
+    }
+
+    if (missingHandoff) {
+      if (upstreamScaffold?.available) {
+        lines.push(
+          '',
+          '三、链路上游事实链（有界）',
+          upstreamScaffold.text,
+          '',
+          '修复要求：基于 FACT_LOCK 与上游事实链重建【正文交接】账本；正文事实不得漂移，正文末尾必须保留【正文交接】区块。'
+        )
+      } else {
+        lines.push(
+          '',
+          '三、修复基础缺失',
+          '链路上游事实链不可用，本次无法提供可复用状态骨架。',
+          '',
+          '修复要求：按原始任务输入重建正文，并补齐【正文交接】账本；不要复述本反馈，不要输出解释。'
+        )
+      }
+    } else {
+      lines.push('', '修复要求：保留上一版已完成事实与段落结构，只修复失败项；正文末尾必须保留【正文交接】区块。')
+    }
+
+    const feedback = lines.join('\n')
+    return {
+      feedback,
+      strategy: 'handoff-repair',
+      scaffoldSource: missingHandoff
+        ? (upstreamScaffold?.available ? 'upstream' : 'none')
+        : candidateHandoffScaffold?.source || 'none',
+      candidateChars: candidate.length,
+      feedbackChars: feedback.length,
+      anchorCount: 0,
+      previewChars: 0,
+      scaffoldChars: missingHandoff
+        ? upstreamScaffold?.text.length || 0
+        : candidateHandoffScaffold?.text.length || 0,
+      scaffoldFieldCount: missingHandoff
+        ? upstreamScaffold?.fieldCount || 0
+        : candidateHandoffScaffold?.fieldCount || 0,
+      suppressedCandidateChars: candidate.length
+    }
+  }
+
   const isWordGapFailure = Boolean(contract?.kind === 'body' &&
     errors.some(error => /正文过短|正文过长/.test(String(error))))
 
