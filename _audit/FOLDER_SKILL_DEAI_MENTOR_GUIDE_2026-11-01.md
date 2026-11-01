@@ -1,6 +1,6 @@
 # Folder SKILL 正文层内嵌降AI方法指导者手册
 
-版本：3.110.16 手册 v3（应用契约 v2）
+版本：3.110.16 手册 v3.1（应用契约 v2）
 
 适用层：生成流水线正文层（step 4）  
 适用对象：folder SKILL 作者、SKILL 迭代测试者、应用层维护者  
@@ -138,6 +138,17 @@
 
 推荐升级路径：先观察一轮 `deai-conflict-policy` trace；若重叠主题确实被 SKILL 模板覆盖，直接声明 `guidanceOwnership: "skill"` 让应用注入退场，或声明 `overlaps` 精确圈定冲突域。不要在未看 trace 前盲切。
 
+### 8.1 双路径接线差异
+
+folder 与 agent 两条路径的注入策略一致，但冲突处理深度不同：
+
+| 路径 | 生产接线 | 冲突检测 | 注入来源 |
+|---|---|---|---|
+| folder 链 | `runStepSkills` 内直接解析模板并调用 `routeSkill` | 对 `template.template` 执行 `resolveDeaiPromptConflict`，重叠时按第 8 节策略移除条目或留痕 | `deaiConflict.prompt` |
+| agent 路径 | `callApiWithAgentVariantOwned`，第 15 个参数透传 `resolveSkillDeaiMetaFromTemplate(template)` | 不重复执行模板关键词检测，直接消费同一份 `meta.deai` 投影 | `deaiProjection.prompt` |
+
+SKILL 层对账时注意：`deai-conflict-policy` 只来自 folder 链；agent 路径的归属与开关以 `deai-injection-policy` 为准。若 SKILL 声明 `overlaps`，folder 链会按声明清空应用投影，agent 路径则只在 `guidanceOwnership: "skill"` 时整体退场。
+
 ## 9. 运行行为边界
 
 1. 只进 prompt，不改稿：产物一个字不动。
@@ -156,8 +167,9 @@
 | `deai-injection-policy` | 注入策略：step、variant、source、policy、warnings |
 | `deai-contract-warning` | 契约声明非法，已回退默认策略 |
 | `deai-conflict-policy` | 模板重叠及处理动作 |
+| `deai-prompt-variant` | 实际发生注入时记录链位、variant 与字符数；folder 与 agent 双路径均发射 |
 
-白名单位置：`src/stores/runTrace.ts:967`。UI 与 trace 的对账规则是：
+白名单位置：`src/stores/runTrace.ts:958` 的 `RETAINED_AUDIT_EVENT_TYPES`；其中 `deai-kernel-v2`、`deai-score`、`deai-change-rate`、`deai-style-drift` 属手动降AI观测事件，不代表流水线教学注入。UI 与 trace 的对账规则是：
 
 1. **归属判断一律以 `deai-injection-policy` 事件为准**：`policy.guidanceOwnership` 与 `policy.generation` 决定该 SKILL 的显示状态是 `app`、`skill` 还是 `off`。SKILL 接管后应用 0 注入是设计内行为，不视为失效。
 2. **应用注入量以 `deai-guidance-pack` 事件为准**：只有 `state=app` 的 SKILL 才读取 `itemCount` 与 `guidanceChars`。`guidance-pack` 缺失时显示 `unknown`，不得用 0 冒充已观测。
@@ -209,3 +221,9 @@ B6 效果验证仍是 `provisional`：配对影子数据为 0。因此当前只�
 1. 3.110.16 起，agent 调用唯一生产入口为 `callApiWithAgentVariantOwned`，旧包装名 `callApiWithAgentVariant` 已退役；见第 9 节第 7 条。
 2. folder/agent 双路径接线语义不变：`meta.deai` 继续经 `Owned` 入口透传，trace source 仍为 `PipelinePanel.callApiWithAgentVariantOwned`。
 3. 本次变更不改变指导包构造、注入策略、trace 事件与五态 UI；对 SKILL 层的唯一要求是对账 agent 路径时不得再按旧包装名检索。
+
+## 15. v3.1 变更记录（2026-11-02）
+
+1. 第 8.1 节新增 folder/agent 双路径接线差异表，明确 agent 路径透传 `meta.deai`，但不重复执行模板关键词冲突检测。
+2. 第 10 节事件表补录 `deai-prompt-variant`，并修正 trace 白名单位置为 `runTrace.ts:958`。
+3. 明确 `deai-kernel-v2`、`deai-score`、`deai-change-rate`、`deai-style-drift` 属手动降AI观测，不属于流水线教学注入。
