@@ -67,8 +67,17 @@ function metadataEnvelope(body) {
   ].join('\n')
 }
 
-const S2_REJECT_OUTPUT = metadataEnvelope(bodyText(82))
-const S2_ACCEPT_OUTPUT = metadataEnvelope(bodyText(140))
+function narrativeMetadataEnvelope(body) {
+  return [
+    metadataEnvelope(body),
+    'narrativeStatus：ready',
+    'narrativeReason：状态改变动作达标',
+    'stateChangingScenes：3',
+  ].join('\n')
+}
+
+const S2_REJECT_OUTPUT = narrativeMetadataEnvelope(bodyText(82))
+const S2_ACCEPT_OUTPUT = narrativeMetadataEnvelope(bodyText(140))
 const S2_LEDGER_MISSING_OUTPUT = bodyText(140)
 const S3_OUTPUT = [
   '林照将纸条压进灯座，潮声第一次完全盖住他的呼吸。',

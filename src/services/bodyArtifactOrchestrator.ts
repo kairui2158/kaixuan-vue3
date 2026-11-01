@@ -421,7 +421,11 @@ export async function generateBodyArtifact(
       return {
         status: 'complete',
         body: generation.body,
-        metadata: generation.metadata,
+        metadata: {
+          ...generation.metadata,
+          decisionPath: buildDecisionPath(attempts, 'contract_valid').decisionPath,
+          terminalReason: 'contract_valid'
+        },
         attempts,
         errors: []
       }

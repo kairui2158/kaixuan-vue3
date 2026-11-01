@@ -2967,9 +2967,14 @@ async function callValidatedSkill(
     const finishFolderTraceFromResult = (result: typeof route.folderResult) => {
       if (!traceRunId || !traceCallId) return
       flushPipelineStreamState(step, traceRunId, pipelineRunIdParam)
-      const apiMeta = result?.apiMeta
-      const hasOutput = Boolean(result?.output?.trim())
-      const traceStatus = result?.status === 'failed'
+        const apiMeta = result?.apiMeta
+        const hasOutput = Boolean(result?.output?.trim())
+        const retainedCandidateIndex = Number(apiMeta?.retainedCandidateIndex || 0)
+        const retainedCandidate = retainedCandidateIndex > 0
+          ? apiMeta?.candidateLedger?.[retainedCandidateIndex - 1]
+          : undefined
+        const retainedCandidateOutput = retainedCandidate?.output || result?.output || ''
+        const traceStatus = result?.status === 'failed'
         ? 'failed'
         : result?.status === 'blocked'
           ? 'blocked'
@@ -2978,9 +2983,9 @@ async function callValidatedSkill(
           : result?.status === 'degraded'
             ? 'degraded'
             : 'success'
-      runTraceStore.finishApiCall(traceRunId, traceCallId, {
+        runTraceStore.finishApiCall(traceRunId, traceCallId, {
         status: traceStatus,
-        responseText: result?.output || '',
+        responseText: retainedCandidateOutput,
         error: traceStatus === 'failed' ? (result?.errors?.[0] || 'folder SKILL 未生成有效输出') : traceStatus === 'blocked' ? 'folder SKILL 已阻断，等待恢复条件' : traceStatus === 'degraded' ? 'folder SKILL 降级完成，已保留可用输出' : undefined,
         durationMs: Date.now() - startedAt,
         finishReason: apiMeta?.finishReason,
@@ -2994,9 +2999,25 @@ async function callValidatedSkill(
         timingLedger: apiMeta?.timingLedger,
         candidateLedger: apiMeta?.candidateLedger,
         bodyCandidateLedger: apiMeta?.bodyCandidateLedger,
-        bodyCandidateRetention: apiMeta?.bodyCandidateRetention
+        bodyCandidateRetention: apiMeta?.bodyCandidateRetention,
+        retainedCandidateIndex: apiMeta?.retainedCandidateIndex
       })
     }
+
+  function stepArtifactCandidateAudit(
+    apiMeta: RealSkillExecutionResult['apiMeta']
+  ): Parameters<typeof makeStepArtifactEnvelope>[0]['traceAuditFields'] {
+    const retainedCandidateIndex = Number(apiMeta?.retainedCandidateIndex || 0)
+    const candidate = apiMeta?.candidateLedger?.[retainedCandidateIndex - 1]
+    if (!Number.isInteger(retainedCandidateIndex) || retainedCandidateIndex <= 0 || !candidate?.sourceResponseHash) {
+      return undefined
+    }
+    return {
+      sourceCandidateIndex: retainedCandidateIndex,
+      sourceResponseHash: candidate.sourceResponseHash
+    }
+  }
+
   let route: Awaited<ReturnType<typeof routeSkill>>
   const bodyFeedbackAudit = createBodyFeedbackAuditState()
     try {
@@ -3312,7 +3333,8 @@ async function callValidatedSkill(
         ? makeStepArtifactEnvelope({
             status: folderStatus,
             output: route.folderResult.output,
-            errors: route.folderResult.errors
+            errors: route.folderResult.errors,
+            traceAuditFields: stepArtifactCandidateAudit(route.folderResult.apiMeta)
           })
         : route.folderResult.output
     }
@@ -6141,6 +6163,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             validationMs: attempt.validationMs,
             errors: attempt.errors,
             bodyPreview: (attempt.body || '').slice(0, 200),
+            traceAuditFields: attempt.traceAuditFields,
             requestFingerprint: attempt.metadata?.requestFingerprint,
             generatorStepIndex: bodyGeneratorStepIndexForRun(bodyRunId),
             feedbackAudits: currentBodyRunId ? runTraceStore.getBodyFeedbackAudits(currentBodyRunId) : [],
@@ -6177,6 +6200,17 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     appendStepLogForRun(bodyRunId, 4, "API 已返回，正在执行正文契约验收")
     if (bodyArtifact.status !== 'complete') {
       const failure = bodyArtifact.errors.join("; ") || "正文未通过验收"
+      trace.addEvent({
+        type: "body-artifact-terminal",
+        level: "error",
+        label: "正文批次验收终态",
+        detail: JSON.stringify({
+          status: bodyArtifact.status,
+          terminalReason: bodyArtifact.metadata.terminalReason || 'unknown',
+          decisionPath: bodyArtifact.metadata.decisionPath || [],
+          errors: bodyArtifact.errors
+        })
+      })
       pipelineStore.failGeneration(failure, bodyRunId)
       appendStepLogForRun(bodyRunId, 4, "正文契约校验失败：" + failure)
       return
@@ -6263,6 +6297,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       label: "正文批次验收通过",
       detail: JSON.stringify({
         chapterId: String(ch.id || ''),
+        terminalReason: bodyArtifact.metadata.terminalReason || 'contract_valid',
+        decisionPath: bodyArtifact.metadata.decisionPath || [],
         targetWords: _bodyWordsPerChapter,
         wordCount: validatedAttempt?.wordCount ?? countBodyWords(finalBody),
         ratio: validatedAttempt?.ratio ?? 0,

@@ -48,6 +48,7 @@ export function exportRunTraceToJson(run: RunTrace): Record<string, unknown> {
   delete exportable.dirName
   return {
     schemaVersion: RUN_TRACE_EXPORT_SCHEMA_VERSION,
+    exportSchemaVersion: RUN_TRACE_EXPORT_SCHEMA_VERSION,
     ...(maskRunTraceSensitiveValue(exportable) as Record<string, unknown>)
   }
 }

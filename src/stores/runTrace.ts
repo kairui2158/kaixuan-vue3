@@ -225,6 +225,8 @@ export interface RunTraceApiCall {
     retainedAttempt: number
     retainedReason: string
   }
+  /** 1-based retained candidate position from candidateLedger; 0 means no retained candidate. */
+  retainedCandidateIndex?: number
   status: RunTraceStatus
   error?: string
   /** Total streamed chars ever received; streamText may be a bounded tail preview. */
@@ -805,6 +807,7 @@ export interface FinishApiCallInput {
   candidateLedger?: RunTraceApiCall['candidateLedger']
   bodyCandidateLedger?: RunTraceApiCall['bodyCandidateLedger']
   bodyCandidateRetention?: RunTraceApiCall['bodyCandidateRetention']
+  retainedCandidateIndex?: number
 }
 
 export interface AttachSemanticInput {
@@ -2443,6 +2446,9 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
     if (patch.candidateLedger) call.candidateLedger = patch.candidateLedger
     if (patch.bodyCandidateLedger) call.bodyCandidateLedger = patch.bodyCandidateLedger
     if (patch.bodyCandidateRetention) call.bodyCandidateRetention = patch.bodyCandidateRetention
+    if (patch.retainedCandidateIndex !== undefined) {
+      call.retainedCandidateIndex = patch.retainedCandidateIndex
+    }
     call.usage = patch.usage ?? call.usage
     call.usageUnavailable = patch.usageUnavailable ?? (patch.usage ? false : call.usageUnavailable)
     call.error = patch.error

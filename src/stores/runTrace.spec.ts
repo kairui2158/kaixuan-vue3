@@ -1366,6 +1366,41 @@ describe('runTrace store', () => {
     expect(JSON.stringify(exported)).toContain('retainedCandidateIndex')
   })
 
+  it('keeps the retained candidate index on the API call even when the aggregate response is empty', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'body', skillNames: ['正文技能'] })
+    const callId = store.startApiCall(runId, {
+      step: 4,
+      requestMessages: [{ role: 'user', content: '正文任务' }],
+      model: 'test-model'
+    })
+    store.appendPhysicalCall(runId, callId, {
+      phase: 'schema_retry',
+      status: 'success',
+      requestMessages: [{ role: 'user', content: '第三次物理请求' }],
+      responseText: '第三次物理响应'
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'degraded',
+      responseText: '',
+      error: '输出未通过校验，已达最大尝试次数 3',
+      durationMs: 100,
+      retainedCandidateIndex: 1,
+      bodyCandidateRetention: {
+        retainedCandidateIndex: 1,
+        retainedAttempt: 1,
+        retainedReason: 'missing-handoff'
+      }
+    })
+
+    const call = store.getRun(runId)!.apiCalls[0]!
+    expect(call.retainedCandidateIndex).toBe(1)
+    expect(call.responseText).toBe('第三次物理响应')
+    const run = store.getRun(runId)!
+    const exported = store.exportRunToJson(run) as typeof run
+    expect(JSON.stringify(exported)).toContain('"retainedCandidateIndex":1')
+  })
+
   it('warns when the build fingerprint falls back to dev metadata', () => {
     const store = useRunTraceStore()
     vi.stubGlobal('__SHENYI_BUILD_MANIFEST__', '')
@@ -2183,6 +2218,7 @@ describe('runTrace store', () => {
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
     expect(exported.schemaVersion).toBe(20)
+    expect(exported.exportSchemaVersion).toBe(20)
   })
 
   it('exports pipeline artifact validation events for all three stages', () => {

@@ -32,8 +32,30 @@ describe('step artifact envelope', () => {
     expect(parseStepArtifactEnvelope(encoded)).toEqual({
       rawOutput: output,
       callerStatus: 'degraded',
+      traceAuditFields: null,
       degradedErrors: ['缺 NEW_FACT']
     })
+  })
+
+  it('carries retained-candidate provenance through the envelope', () => {
+    const encoded = makeStepArtifactEnvelope({
+      status: 'degraded',
+      output: rawOutput(2800),
+      errors: ['缺 NEW_FACT'],
+      traceAuditFields: {
+        sourceCandidateIndex: 2,
+        sourceResponseHash: 'fnv1a32_1a2b3c4d'
+      }
+    })
+    const parsed = parseStepArtifactEnvelope(encoded)
+    expect(parsed?.traceAuditFields).toEqual({
+      sourceCandidateIndex: 2,
+      sourceResponseHash: 'fnv1a32_1a2b3c4d'
+    })
+
+    const result = resolveStepArtifactFlow({ stepOutput: encoded, stepIndex: 1, contract })
+    expect(result.traceAuditFields.sourceCandidateIndex).toBe(2)
+    expect(result.traceAuditFields.sourceResponseHash).toBe('fnv1a32_1a2b3c4d')
   })
 
   it('does not treat a malformed envelope as an authorization to flow', () => {

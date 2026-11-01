@@ -39,7 +39,13 @@ export interface StepArtifactAcceptanceResult {
 export interface StepArtifactEnvelope {
   rawOutput: string
   callerStatus: StepArtifactCallerStatus
+  traceAuditFields: StepArtifactEnvelopeTraceAudit | null
   degradedErrors: string[]
+}
+
+export interface StepArtifactEnvelopeTraceAudit {
+  sourceCandidateIndex: number
+  sourceResponseHash: string
 }
 
 export interface FinalStepMetadataWarning {
@@ -110,12 +116,14 @@ export function makeStepArtifactEnvelope(input: {
   status: StepArtifactCallerStatus
   output: string
   errors?: string[]
+  traceAuditFields?: StepArtifactEnvelopeTraceAudit
 }): string {
   return JSON.stringify({
     __shenyiStepArtifact: true,
     status: input.status,
     output: input.output,
-    errors: input.errors || []
+    errors: input.errors || [],
+    ...(input.traceAuditFields ? { traceAuditFields: input.traceAuditFields } : {})
   })
 }
 
@@ -130,9 +138,13 @@ export function parseStepArtifactEnvelope(stepOutput: string): StepArtifactEnvel
       return null
     }
     const rawOutput = String(value.output || '')
+    const traceAuditFields = isStepArtifactEnvelopeTraceAudit(value.traceAuditFields)
+      ? value.traceAuditFields
+      : null
     return {
       rawOutput,
       callerStatus: status,
+      traceAuditFields,
       degradedErrors: Array.isArray(value.errors)
         ? value.errors.map(item => String(item)).filter(Boolean)
         : []
@@ -142,11 +154,29 @@ export function parseStepArtifactEnvelope(stepOutput: string): StepArtifactEnvel
   }
 }
 
+function isStepArtifactEnvelopeTraceAudit(
+  value: unknown
+): value is StepArtifactEnvelopeTraceAudit {
+  if (!value || typeof value !== 'object') return false
+  const record = value as Record<string, unknown>
+  const candidateIndex = Number(record.sourceCandidateIndex)
+  return Number.isInteger(candidateIndex) &&
+    candidateIndex > 0 &&
+    typeof record.sourceResponseHash === 'string' &&
+    /^fnv1a32_[0-9a-fA-F]{8}$/.test(record.sourceResponseHash)
+}
+
 function parseStepArtifactCandidateAudit(stepOutput: string): {
   attempt: number
   sourceResponseHash: string
 } | null {
   const envelope = parseStepArtifactEnvelope(stepOutput)
+  if (envelope?.traceAuditFields) {
+    return {
+      attempt: envelope.traceAuditFields.sourceCandidateIndex,
+      sourceResponseHash: envelope.traceAuditFields.sourceResponseHash
+    }
+  }
   const raw = envelope?.rawOutput || String(stepOutput || '')
   const attemptMatch = /(?:^|\n)\s*(?:【)?\s*candidateAttempt\s*(?:】)?\s*[：:]\s*(\d+)/.exec(raw)
   const hashMatch = /(?:^|\n)\s*(?:【)?\s*candidateResponseHash\s*(?:】)?\s*[：:]\s*([A-Za-z0-9_]+)/.exec(raw)
