@@ -1,0 +1,28 @@
+{
+  "schema": "shenyi.run-trace-audit.electron",
+  "version": 1,
+  "script": "verify-run-trace-audit-electron.mjs",
+  "generatedAt": "2026-11-01T23:43:39.950Z",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "777a0fd5e4f5",
+    "buildTime": "2026-11-01T23:29:33.717Z",
+    "appVersion": "3.111.0"
+  },
+  "exported": {
+    "success": true,
+    "message": "已导出：D:\\codex\\novel-workshop-vue3\\_data\\run-trace-audit-profile\\run-trace-exports\\run-trace-正文层-20261102-074338-deep（115730 bytes）"
+  },
+  "assertions": [
+    "trace export schemaVersion=20",
+    "deep export run.id matches the live current run",
+    "runtimeFingerprint four fields",
+    "S2 retainedCandidateIndex>0",
+    "aggregate response=retained candidate",
+    "chapter-narrative-verdict candidate attribution",
+    "body-artifact-validated terminalReason=contract_valid",
+    "chapter-narrative-verdict four-state contract",
+    "deep export payloads closed"
+  ]
+}

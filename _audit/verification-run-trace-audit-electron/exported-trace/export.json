@@ -1,0 +1,2106 @@
+{
+  "schema": "shenyi.run-trace",
+  "version": 6,
+  "exportedAt": "2026-11-01T23:43:39.675Z",
+  "run": {
+    "schemaVersion": 20,
+    "exportSchemaVersion": 20,
+    "id": "run-1793576618331-1",
+    "source": "pipeline",
+    "sourceName": "生成流水线",
+    "step": 4,
+    "stepName": "正文层",
+    "mode": "body",
+    "projectId": "run-trace-audit-electron",
+    "projectName": "运行记录审计真实UI实测",
+    "providerId": "run-trace-audit-provider",
+    "providerName": "Run Trace Audit Provider",
+    "model": "run-trace-audit-model",
+    "skillNames": [
+      "S1 骨架（文件夹）",
+      "S2 生成（文件夹）",
+      "S3 打磨（文件夹）"
+    ],
+    "skillMode": "chain",
+    "pipelineRunId": "pipeline-run-1793576618320-1",
+    "status": "success",
+    "runtimeFingerprint": {
+      "source": "vite-manifest",
+      "manifestVersion": "1",
+      "commit": "777a0fd5e4f5",
+      "buildTime": "2026-11-01T23:29:33.717Z",
+      "appVersion": "3.111.0"
+    },
+    "startedAt": 1793576618331,
+    "stateHistory": [
+      {
+        "fromStatus": "running",
+        "toStatus": "success",
+        "reason": "body_generation_complete",
+        "recordedAt": 1793576618662
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1793576618331-2",
+        "ts": 1793576618331,
+        "seq": 1,
+        "type": "started",
+        "level": "info",
+        "label": "开始生成流水线 正文层运行"
+      },
+      {
+        "id": "event-1793576618332-3",
+        "ts": 1793576618332,
+        "seq": 2,
+        "type": "settings-projection-composed",
+        "level": "info",
+        "label": "设定锁定投影已组装",
+        "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+      },
+      {
+        "id": "event-1793576618333-4",
+        "ts": 1793576618333,
+        "seq": 3,
+        "type": "style-semantics-merged",
+        "level": "info",
+        "label": "风格语义已仲裁合并",
+        "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+      },
+      {
+        "id": "event-1793576618335-5",
+        "ts": 1793576618335,
+        "seq": 4,
+        "type": "context_scope",
+        "level": "info",
+        "label": "正文层上下文闭包",
+        "detail": "{\"volume\":\"第一卷 灯塔\",\"chapter\":\"第1章 纸条\",\"unitId\":\"H1-01\",\"mode\":\"unit_closure\",\"permanentCount\":0,\"unitCount\":1,\"undeclaredCount\":0,\"closureBytes\":188,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":null}"
+      },
+      {
+        "id": "event-1793576618336-6",
+        "ts": 1793576618336,
+        "seq": 5,
+        "type": "memory_context",
+        "level": "info",
+        "label": "正文层记忆上下文",
+        "detail": "{\"chapterId\":\"ch-run-trace-audit\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
+      },
+      {
+        "id": "event-1793576618337-7",
+        "ts": 1793576618337,
+        "seq": 6,
+        "type": "prompt-built",
+        "level": "info",
+        "label": "正文层执行包已构建",
+        "detail": "{\"volume\":\"第一卷 灯塔\",\"chapter\":\"第1章 纸条\",\"targetWords\":3500}"
+      },
+      {
+        "id": "event-1793576618372-8",
+        "ts": 1793576618372,
+        "seq": 7,
+        "type": "chain-context-slim",
+        "level": "info",
+        "label": "链式步骤 1/3 上下文决策",
+        "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":267,\"finalPromptLength\":267,\"outlineOriginalLength\":0}"
+      },
+      {
+        "id": "event-1793576618374-9",
+        "ts": 1793576618374,
+        "seq": 8,
+        "type": "chain-step",
+        "level": "info",
+        "label": "链式步骤 1/3",
+        "detail": "S1 骨架（文件夹）"
+      },
+      {
+        "id": "event-1793576618378-10",
+        "ts": 1793576618378,
+        "seq": 9,
+        "type": "pipeline-request-profile-resolved",
+        "level": "info",
+        "label": "生成流水线请求形态：global",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"run-trace-audit-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+      },
+      {
+        "id": "event-1793576618380-11",
+        "ts": 1793576618380,
+        "seq": 10,
+        "type": "deai-injection-policy",
+        "level": "info",
+        "label": "降AI注入策略",
+        "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"source\":\"app-default-no-skill-meta\",\"variant\":\"methodology\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+      },
+      {
+        "id": "event-1793576618383-13",
+        "ts": 1793576618383,
+        "seq": 11,
+        "type": "api-start",
+        "level": "info",
+        "label": "第 1 次 API 调用开始",
+        "detail": "{\"skillName\":\"S1 骨架（文件夹）\",\"model\":\"run-trace-audit-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+      },
+      {
+        "id": "event-1793576618383-14",
+        "ts": 1793576618383,
+        "seq": 12,
+        "type": "deai-guidance-pack",
+        "level": "info",
+        "label": "降AI方法指导包已构造：5条 / 358字符",
+        "detail": "{\"schemaVersion\":1,\"step\":4,\"bodyLayerStep\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"role\":\"methodology\",\"itemCount\":5,\"droppedItemIds\":[],\"guidanceChars\":358,\"voiceProfileChars\":0,\"totalInjectionChars\":358,\"truncated\":false,\"constructionMs\":0.2999999523162842,\"slowConstruction\":false,\"hash\":\"b93fcca6\"}"
+      },
+      {
+        "id": "event-1793576618383-15",
+        "ts": 1793576618383,
+        "seq": 13,
+        "type": "deai-prompt-variant",
+        "level": "info",
+        "label": "降AI注入变体：链步骤 1/3",
+        "detail": "{\"skillIndex\":0,\"totalSkillCount\":3,\"variant\":\"methodology\",\"charCount\":358}"
+      },
+      {
+        "id": "event-1793576618383-16",
+        "ts": 1793576618383,
+        "seq": 14,
+        "type": "pipeline-provider-channel-resolved",
+        "level": "info",
+        "label": "生成流水线供应商通道：S1 骨架（文件夹）",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"run-trace-audit-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+      },
+      {
+        "id": "event-1793576618408-17",
+        "ts": 1793576618408,
+        "seq": 15,
+        "type": "folder-pass-input",
+        "level": "info",
+        "label": "Folder pass 输入口径 1",
+        "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":267,\"userPromptLength\":428,\"systemPromptLength\":486,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793576618331-1\",\"traceCallId\":\"api-1793576618383-12\"}"
+      },
+      {
+        "id": "event-1793576618414-19",
+        "ts": 1793576618414,
+        "seq": 16,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/S1 骨架（文件夹）",
+        "payload": {
+          "source": "physical_call_running",
+          "detail": "1/S1 骨架（文件夹）"
+        }
+      },
+      {
+        "id": "event-1793576618414-20",
+        "ts": 1793576618414,
+        "seq": 17,
+        "type": "long-request-in-progress",
+        "level": "info",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "payload": {
+          "physicalCallId": "physical-1793576618414-18",
+          "seq": 1,
+          "heartbeat": false
+        }
+      },
+      {
+        "id": "event-1793576618414-21",
+        "ts": 1793576618414,
+        "seq": 18,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / S1 骨架（文件夹） / run-trace-audit-model"
+      },
+      {
+        "id": "event-1793576618428-22",
+        "ts": 1793576618428,
+        "seq": 19,
+        "turnId": "api-1793576618383-12",
+        "type": "provider-queue",
+        "level": "info",
+        "label": "已获得供应商槽位",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+      },
+      {
+        "id": "event-1793576618462-23",
+        "ts": 1793576618462,
+        "seq": 20,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求完成",
+        "detail": "normal / S1 骨架（文件夹） / run-trace-audit-model / stop"
+      },
+      {
+        "id": "event-1793576618466-24",
+        "ts": 1793576618466,
+        "seq": 21,
+        "type": "folder-diagnostics",
+        "level": "info",
+        "label": "记录 folder SKILL 诊断"
+      },
+      {
+        "id": "event-1793576618467-25",
+        "ts": 1793576618467,
+        "seq": 22,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=1",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=1"
+        }
+      },
+      {
+        "id": "event-1793576618468-26",
+        "ts": 1793576618468,
+        "seq": 23,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=1/terminal",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=1/terminal"
+        }
+      },
+      {
+        "id": "event-1793576618469-27",
+        "ts": 1793576618469,
+        "seq": 24,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "apiCall=api-1793576618383-12 seq=1"
+      },
+      {
+        "id": "event-1793576618470-28",
+        "ts": 1793576618470,
+        "seq": 25,
+        "type": "api-success",
+        "level": "info",
+        "label": "第 1 次 API 调用完成",
+        "detail": "S1 骨架（文件夹） / run-trace-audit-model"
+      },
+      {
+        "id": "event-1793576618472-30",
+        "ts": 1793576618472,
+        "seq": 26,
+        "type": "processing-report",
+        "level": "info",
+        "label": "本地处理完成：chain-handoff",
+        "detail": "post"
+      },
+      {
+        "id": "event-1793576618472-31",
+        "ts": 1793576618472,
+        "seq": 27,
+        "type": "chain-handoff",
+        "level": "info",
+        "label": "链式步骤 1/3 Handoff",
+        "detail": "{\"artifactId\":\"handoff-0-54e776e5\",\"sourceStep\":0,\"sourceSkillId\":\"folder:RUN-TRACE-S1\",\"outputHash\":\"54e776e5\",\"fullTextLength\":259,\"delivery\":\"full_text\",\"excerptLength\":259,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+      },
+      {
+        "id": "event-1793576618486-32",
+        "ts": 1793576618486,
+        "seq": 28,
+        "type": "chain-context-slim",
+        "level": "info",
+        "label": "链式步骤 2/3 上下文决策",
+        "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":267,\"finalPromptLength\":267,\"outlineOriginalLength\":0}"
+      },
+      {
+        "id": "event-1793576618486-33",
+        "ts": 1793576618486,
+        "seq": 29,
+        "type": "chain-handoff-delivery",
+        "level": "info",
+        "label": "链式步骤 2/3 上游交付决策",
+        "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":259,\"deliveredLength\":259,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:RUN-TRACE-S2\",\"skillName\":\"S2 生成（文件夹）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
+      },
+      {
+        "id": "event-1793576618487-34",
+        "ts": 1793576618487,
+        "seq": 30,
+        "type": "chain-step",
+        "level": "info",
+        "label": "链式步骤 2/3",
+        "detail": "S2 生成（文件夹）"
+      },
+      {
+        "id": "event-1793576618487-35",
+        "ts": 1793576618487,
+        "seq": 31,
+        "type": "pipeline-request-profile-resolved",
+        "level": "info",
+        "label": "生成流水线请求形态：global",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"run-trace-audit-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+      },
+      {
+        "id": "event-1793576618488-36",
+        "ts": 1793576618488,
+        "seq": 32,
+        "type": "deai-injection-policy",
+        "level": "info",
+        "label": "降AI注入策略",
+        "detail": "{\"step\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"source\":\"app-default-no-skill-meta\",\"variant\":\"creative\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+      },
+      {
+        "id": "event-1793576618491-38",
+        "ts": 1793576618491,
+        "seq": 33,
+        "type": "api-start",
+        "level": "info",
+        "label": "第 2 次 API 调用开始",
+        "detail": "{\"skillName\":\"S2 生成（文件夹）\",\"model\":\"run-trace-audit-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+      },
+      {
+        "id": "event-1793576618491-39",
+        "ts": 1793576618491,
+        "seq": 34,
+        "type": "deai-guidance-pack",
+        "level": "info",
+        "label": "降AI方法指导包已构造：5条 / 355字符",
+        "detail": "{\"schemaVersion\":1,\"step\":4,\"bodyLayerStep\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"role\":\"creative\",\"itemCount\":5,\"droppedItemIds\":[],\"guidanceChars\":355,\"voiceProfileChars\":0,\"totalInjectionChars\":355,\"truncated\":false,\"constructionMs\":0,\"slowConstruction\":false,\"hash\":\"7dd8cc67\"}"
+      },
+      {
+        "id": "event-1793576618491-40",
+        "ts": 1793576618491,
+        "seq": 35,
+        "type": "deai-prompt-variant",
+        "level": "info",
+        "label": "降AI注入变体：链步骤 2/3",
+        "detail": "{\"skillIndex\":1,\"totalSkillCount\":3,\"variant\":\"creative\",\"charCount\":355}"
+      },
+      {
+        "id": "event-1793576618491-41",
+        "ts": 1793576618491,
+        "seq": 36,
+        "type": "pipeline-provider-channel-resolved",
+        "level": "info",
+        "label": "生成流水线供应商通道：S2 生成（文件夹）",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"run-trace-audit-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+      },
+      {
+        "id": "event-1793576618496-42",
+        "ts": 1793576618496,
+        "seq": 37,
+        "type": "folder-pass-input",
+        "level": "info",
+        "label": "Folder pass 输入口径 1",
+        "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":672,\"userPromptLength\":890,\"systemPromptLength\":485,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793576618331-1\",\"traceCallId\":\"api-1793576618491-37\"}"
+      },
+      {
+        "id": "event-1793576618497-44",
+        "ts": 1793576618497,
+        "seq": 38,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/S2 生成（文件夹）",
+        "payload": {
+          "source": "physical_call_running",
+          "detail": "1/S2 生成（文件夹）"
+        }
+      },
+      {
+        "id": "event-1793576618497-45",
+        "ts": 1793576618497,
+        "seq": 39,
+        "type": "long-request-in-progress",
+        "level": "info",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "payload": {
+          "physicalCallId": "physical-1793576618497-43",
+          "seq": 1,
+          "heartbeat": false
+        }
+      },
+      {
+        "id": "event-1793576618497-46",
+        "ts": 1793576618497,
+        "seq": 40,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / S2 生成（文件夹） / run-trace-audit-model"
+      },
+      {
+        "id": "event-1793576618507-47",
+        "ts": 1793576618507,
+        "seq": 41,
+        "turnId": "api-1793576618491-37",
+        "type": "provider-queue",
+        "level": "info",
+        "label": "已获得供应商槽位",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+      },
+      {
+        "id": "event-1793576618514-48",
+        "ts": 1793576618514,
+        "seq": 42,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求完成",
+        "detail": "normal / S2 生成（文件夹） / run-trace-audit-model / stop"
+      },
+      {
+        "id": "event-1793576618521-49",
+        "ts": 1793576618521,
+        "seq": 43,
+        "type": "folder-diagnostics",
+        "level": "info",
+        "label": "记录 folder SKILL 诊断"
+      },
+      {
+        "id": "event-1793576618522-50",
+        "ts": 1793576618522,
+        "seq": 44,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=2",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=2"
+        }
+      },
+      {
+        "id": "event-1793576618522-51",
+        "ts": 1793576618522,
+        "seq": 45,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=2/terminal",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=2/terminal"
+        }
+      },
+      {
+        "id": "event-1793576618522-52",
+        "ts": 1793576618522,
+        "seq": 46,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "apiCall=api-1793576618491-37 seq=2"
+      },
+      {
+        "id": "event-1793576618522-53",
+        "ts": 1793576618522,
+        "seq": 47,
+        "type": "api-success",
+        "level": "info",
+        "label": "第 2 次 API 调用完成",
+        "detail": "S2 生成（文件夹） / run-trace-audit-model"
+      },
+      {
+        "id": "event-1793576618527-54",
+        "ts": 1793576618527,
+        "seq": 48,
+        "type": "chapter-event-increment-advisory",
+        "level": "info",
+        "label": "正文生成步骤 2/3 事件增量协议观测",
+        "detail": "{\"code\":\"chapter-event-increment-advisory\",\"severity\":\"warning\",\"detected\":false,\"incrementValue\":\"纸条从灯座移动到林照手中\",\"message\":\"事件增量字段已按 SKILL 交接协议交付；应用只做协议观测，不评估叙事质量。\"}"
+      },
+      {
+        "id": "event-1793576618527-55",
+        "ts": 1793576618527,
+        "seq": 49,
+        "type": "chapter-narrative-verdict",
+        "level": "info",
+        "label": "正文生成步骤 2/3 SKILL 叙事裁决透传",
+        "detail": "{\"code\":\"chapter-narrative-verdict\",\"detected\":true,\"status\":\"declared_ready\",\"reason\":\"状态改变动作达标\",\"stateChangingScenes\":\"3\",\"message\":\"SKILL 叙事裁决：declared_ready；状态改变动作达标\",\"sourceCandidateIndex\":1,\"sourceResponseHash\":\"fnv1a32_0123abcd\",\"eventIncrement\":\"纸条从灯座移动到林照手中\"}"
+      },
+      {
+        "id": "event-1793576618527-56",
+        "ts": 1793576618527,
+        "seq": 50,
+        "type": "body-step-acceptance",
+        "level": "info",
+        "label": "正文生成步骤 2/3 统一验收",
+        "detail": "{\"stepIndex\":1,\"callerStatus\":\"success\",\"rawWordCount\":2877,\"extractedWordCount\":2805,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\nchapterId：ch-run-trace-audit\\nPOV：林照\\nNEW_FACT：林照取走纸条\\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\\n事件增量：纸条从灯座移动到林照手中\\nnarrativeStatus：ready\\nnarrativeReason：状态改变动作达标\\nstateChangingScenes：3\\n【正文交接结束】\"]},\"metadataDelta\":72,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3500,\"minWords\":2800,\"maxWords\":7000},\"degradedErrors\":[],\"contractErrors\":[]}"
+      },
+      {
+        "id": "event-1793576618527-58",
+        "ts": 1793576618527,
+        "seq": 51,
+        "type": "processing-report",
+        "level": "info",
+        "label": "本地处理完成：chain-handoff",
+        "detail": "post"
+      },
+      {
+        "id": "event-1793576618528-59",
+        "ts": 1793576618528,
+        "seq": 52,
+        "type": "chain-handoff",
+        "level": "info",
+        "label": "链式步骤 2/3 Handoff",
+        "detail": "{\"artifactId\":\"handoff-1-77eb5af1\",\"sourceStep\":1,\"sourceSkillId\":\"folder:RUN-TRACE-S2\",\"outputHash\":\"77eb5af1\",\"fullTextLength\":3449,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+      },
+      {
+        "id": "event-1793576618540-60",
+        "ts": 1793576618540,
+        "seq": 53,
+        "type": "chain-context-slim",
+        "level": "info",
+        "label": "链式步骤 3/3 上下文决策",
+        "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":267,\"finalPromptLength\":267,\"outlineOriginalLength\":0}"
+      },
+      {
+        "id": "event-1793576618542-61",
+        "ts": 1793576618542,
+        "seq": 54,
+        "type": "chain-handoff-delivery",
+        "level": "info",
+        "label": "链式步骤 3/3 上游交付决策",
+        "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":3449,\"deliveredLength\":3449,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:RUN-TRACE-S3\",\"skillName\":\"S3 打磨（文件夹）\",\"fullReason\":\"\",\"fullReasonMissing\":false}"
+      },
+      {
+        "id": "event-1793576618546-62",
+        "ts": 1793576618546,
+        "seq": 55,
+        "type": "chain-step",
+        "level": "info",
+        "label": "链式步骤 3/3",
+        "detail": "S3 打磨（文件夹）"
+      },
+      {
+        "id": "event-1793576618547-63",
+        "ts": 1793576618547,
+        "seq": 56,
+        "type": "pipeline-request-profile-resolved",
+        "level": "info",
+        "label": "生成流水线请求形态：global",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"run-trace-audit-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+      },
+      {
+        "id": "event-1793576618547-64",
+        "ts": 1793576618547,
+        "seq": 57,
+        "type": "deai-injection-policy",
+        "level": "info",
+        "label": "降AI注入策略",
+        "detail": "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"source\":\"app-default-no-skill-meta\",\"variant\":\"polish\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+      },
+      {
+        "id": "event-1793576618549-66",
+        "ts": 1793576618549,
+        "seq": 58,
+        "type": "api-start",
+        "level": "info",
+        "label": "第 3 次 API 调用开始",
+        "detail": "{\"skillName\":\"S3 打磨（文件夹）\",\"model\":\"run-trace-audit-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+      },
+      {
+        "id": "event-1793576618549-67",
+        "ts": 1793576618549,
+        "seq": 59,
+        "type": "deai-guidance-pack",
+        "level": "info",
+        "label": "降AI方法指导包已构造：5条 / 360字符",
+        "detail": "{\"schemaVersion\":1,\"step\":4,\"bodyLayerStep\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"role\":\"polish\",\"itemCount\":5,\"droppedItemIds\":[],\"guidanceChars\":360,\"voiceProfileChars\":0,\"totalInjectionChars\":360,\"truncated\":false,\"constructionMs\":0.10000014305114746,\"slowConstruction\":false,\"hash\":\"0e5aa30a\"}"
+      },
+      {
+        "id": "event-1793576618549-68",
+        "ts": 1793576618549,
+        "seq": 60,
+        "type": "deai-prompt-variant",
+        "level": "info",
+        "label": "降AI注入变体：链步骤 3/3",
+        "detail": "{\"skillIndex\":2,\"totalSkillCount\":3,\"variant\":\"polish\",\"charCount\":360}"
+      },
+      {
+        "id": "event-1793576618549-69",
+        "ts": 1793576618549,
+        "seq": 61,
+        "type": "pipeline-provider-channel-resolved",
+        "level": "info",
+        "label": "生成流水线供应商通道：S3 打磨（文件夹）",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"run-trace-audit-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+      },
+      {
+        "id": "event-1793576618553-70",
+        "ts": 1793576618553,
+        "seq": 62,
+        "type": "folder-pass-input",
+        "level": "info",
+        "label": "Folder pass 输入口径 1",
+        "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":4100,\"userPromptLength\":4261,\"systemPromptLength\":487,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1793576618331-1\",\"traceCallId\":\"api-1793576618549-65\"}"
+      },
+      {
+        "id": "event-1793576618554-72",
+        "ts": 1793576618554,
+        "seq": 63,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/S3 打磨（文件夹）",
+        "payload": {
+          "source": "physical_call_running",
+          "detail": "1/S3 打磨（文件夹）"
+        }
+      },
+      {
+        "id": "event-1793576618554-73",
+        "ts": 1793576618554,
+        "seq": 64,
+        "type": "long-request-in-progress",
+        "level": "info",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "payload": {
+          "physicalCallId": "physical-1793576618554-71",
+          "seq": 1,
+          "heartbeat": false
+        }
+      },
+      {
+        "id": "event-1793576618554-74",
+        "ts": 1793576618554,
+        "seq": 65,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / S3 打磨（文件夹） / run-trace-audit-model"
+      },
+      {
+        "id": "event-1793576618561-75",
+        "ts": 1793576618561,
+        "seq": 66,
+        "turnId": "api-1793576618549-65",
+        "type": "provider-queue",
+        "level": "info",
+        "label": "已获得供应商槽位",
+        "detail": "{\"providerId\":\"run-trace-audit-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+      },
+      {
+        "id": "event-1793576618571-76",
+        "ts": 1793576618571,
+        "seq": 67,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求完成",
+        "detail": "normal / S3 打磨（文件夹） / run-trace-audit-model / stop"
+      },
+      {
+        "id": "event-1793576618585-77",
+        "ts": 1793576618585,
+        "seq": 68,
+        "type": "final-step-feedback-composed",
+        "level": "info",
+        "label": "终步教学反馈已单源合成：S3 打磨（文件夹）",
+        "detail": "{\"sourceCounts\":{\"content_contract\":0,\"deai\":4,\"upstream_anchor\":1},\"length\":590,\"kind\":\"teaching\"}"
+      },
+      {
+        "id": "event-1793576618588-78",
+        "ts": 1793576618588,
+        "seq": 69,
+        "type": "body-feedback-audit",
+        "level": "info",
+        "label": "正文修复反馈审计：终步反馈单源合成",
+        "detail": "{\"channel\":\"final_step\",\"sourceCounts\":{\"content_contract\":0,\"deai\":4,\"upstream_anchor\":1},\"feedbackChars\":590}"
+      },
+      {
+        "id": "event-1793576618588-79",
+        "ts": 1793576618588,
+        "seq": 70,
+        "type": "folder-diagnostics",
+        "level": "info",
+        "label": "记录 folder SKILL 诊断"
+      },
+      {
+        "id": "event-1793576618588-80",
+        "ts": 1793576618588,
+        "seq": 71,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=3",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=3"
+        }
+      },
+      {
+        "id": "event-1793576618589-81",
+        "ts": 1793576618589,
+        "seq": 72,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "stream_delta / apiCall=3/terminal",
+        "payload": {
+          "source": "stream_delta",
+          "detail": "apiCall=3/terminal"
+        }
+      },
+      {
+        "id": "event-1793576618589-82",
+        "ts": 1793576618589,
+        "seq": 73,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "apiCall=api-1793576618549-65 seq=3"
+      },
+      {
+        "id": "event-1793576618589-83",
+        "ts": 1793576618589,
+        "seq": 74,
+        "type": "api-success",
+        "level": "info",
+        "label": "第 3 次 API 调用完成",
+        "detail": "S3 打磨（文件夹） / run-trace-audit-model"
+      },
+      {
+        "id": "event-1793576618594-84",
+        "ts": 1793576618594,
+        "seq": 75,
+        "type": "body-final-step-metadata",
+        "level": "info",
+        "label": "正文终步 3/3 元数据对账",
+        "detail": "{\"decision\":\"pass\",\"comparison\":{\"matched\":[],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}},\"authoritativeKeys\":[\"extractedMeta\"],\"metadataKeys\":[\"extractedMeta\"],\"consumedMetadata\":{\"extractedMeta\":[\"【正文交接】\\nchapterId：ch-run-trace-audit\\nPOV：林照\\nNEW_FACT：林照取走纸条\\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\\n事件增量：纸条从灯座移动到林照手中\\nnarrativeStatus：ready\\nnarrativeReason：状态改变动作达标\\nstateChangingScenes：3\\n【正文交接结束】\"]}}"
+      },
+      {
+        "id": "event-1793576618594-85",
+        "ts": 1793576618594,
+        "seq": 76,
+        "type": "chain-handoff",
+        "level": "info",
+        "label": "链式步骤 3/3 Handoff",
+        "detail": "{\"artifactId\":\"handoff-2-f9ee6601\",\"sourceStep\":2,\"sourceSkillId\":\"folder:RUN-TRACE-S3\",\"outputHash\":\"f9ee6601\",\"fullTextLength\":3631,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+      },
+      {
+        "id": "event-1793576618615-86",
+        "ts": 1793576618615,
+        "seq": 77,
+        "type": "body-artifact-attempt",
+        "level": "info",
+        "label": "正文批次验收",
+        "detail": "{\"attemptId\":\"ch-run-trace-audit-attempt-1-lxsxo9uz\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":2805,\"targetWords\":3500,\"ratio\":0.8014285714285714,\"validationMs\":0,\"errors\":[],\"bodyPreview\":\"candidateAttempt：1\\ncandidateResponseHash：fnv1a32_0123abcd\\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\\n林照把纸\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"none\"},\"requestFingerprint\":{\"physicalRequests\":3,\"promptHash\":\"fnv1a32_a1410c8f\",\"outputHash\":\"fnv1a32_dd49f377\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2877,\"extractedWordCount\":2805,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":72}"
+      },
+      {
+        "id": "event-1793576618619-87",
+        "ts": 1793576618619,
+        "seq": 78,
+        "type": "hard_signal_scan",
+        "level": "info",
+        "label": "正文硬信号扫描通过",
+        "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
+      },
+      {
+        "id": "event-1793576618623-88",
+        "ts": 1793576618623,
+        "seq": 79,
+        "type": "contract_review",
+        "level": "info",
+        "label": "卷契约协议观测",
+        "detail": "{\"status\":\"no_declared_cards\",\"detected\":false,\"findings\":[],\"skillVerdict\":{\"status\":\"undeclared\",\"reason\":null},\"ownership\":\"app_protocol_observation\"}"
+      },
+      {
+        "id": "event-1793576618624-89",
+        "ts": 1793576618624,
+        "seq": 80,
+        "type": "body-artifact-validated",
+        "level": "info",
+        "label": "正文批次验收通过",
+        "detail": "{\"chapterId\":\"ch-run-trace-audit\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-run-trace-audit-attempt-1-lxsxo9uz\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":2805,\"targetWords\":3500,\"errors\":[]}],\"targetWords\":3500,\"wordCount\":2805,\"ratio\":0.8014285714285714,\"status\":\"complete\",\"repairAttempts\":0}"
+      },
+      {
+        "id": "event-1793576618658-90",
+        "ts": 1793576618658,
+        "seq": 81,
+        "type": "write",
+        "level": "info",
+        "label": "正文已写入项目",
+        "detail": "字数 2805"
+      },
+      {
+        "id": "event-1793576618662-91",
+        "ts": 1793576618662,
+        "seq": 82,
+        "type": "finished",
+        "level": "info",
+        "label": "运行完成",
+        "detail": "body_generation_complete"
+      },
+      {
+        "id": "event-1793576618662-92",
+        "ts": 1793576618662,
+        "seq": 83,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "body_generation_complete / run=run-1793576618331-1"
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1793576618383-12",
+        "seq": 1,
+        "step": 4,
+        "skillId": "folder:RUN-TRACE-S1",
+        "skillName": "S1 骨架（文件夹）",
+        "providerId": "run-trace-audit-provider",
+        "providerName": "Run Trace Audit Provider",
+        "model": "run-trace-audit-model",
+        "requestMessages": {
+          "__payload": {
+            "id": "payload-001"
+          }
+        },
+        "deaiPromptVariant": "methodology",
+        "streamText": {
+          "__payload": {
+            "id": "payload-003"
+          }
+        },
+        "status": "success",
+        "startedAt": 1793576618383,
+        "physicalCalls": [
+          {
+            "id": "physical-1793576618414-18",
+            "physicalCallId": "physical-1793576618411-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "requestMessages": {
+              "__payload": {
+                "id": "payload-001"
+              }
+            },
+            "streamText": {
+              "__payload": {
+                "id": "payload-003"
+              }
+            },
+            "finishReason": "stop",
+            "usage": {
+              "inputTokens": 10,
+              "outputTokens": 20,
+              "totalTokens": 30
+            },
+            "usageUnavailable": false,
+            "startedAt": 1793576618414,
+            "durationMs": 48,
+            "firstTokenMs": 43,
+            "outputMs": 5,
+            "endedAt": 1793576618462,
+            "toolsEnabled": false,
+            "toolsDowngraded": false,
+            "maxTokens": 8192,
+            "providerContextWindowTokens": 128000,
+            "estimatedInputTokens": 440,
+            "contextBudgetDecision": "fits",
+            "contextBudgetReason": "上下文可容纳：输入 440 / 可用 119808",
+            "usageReconciliation": {
+              "status": "available",
+              "estimatedInputTokens": 440,
+              "actualInputTokens": 10,
+              "driftRatio": -0.9772727272727273,
+              "correctedRatio": 0.022727272727272728
+            },
+            "firstContentAt": 1793576618456,
+            "lastContentAt": 1793576618456,
+            "cacheUsageSummary": {
+              "status": "not_reported"
+            },
+            "contextComposition": {
+              "layer": "body",
+              "step": 0,
+              "providerType": "openai-compatible",
+              "providerId": "run-trace-audit-provider",
+              "model": "run-trace-audit-model",
+              "cacheFamily": "openai-compatible:run-trace-audit-provider:run-trace-audit-model:body:step-0",
+              "prefixFingerprint": "73035092-b26e68be-486:811c9dc5-1000193-0",
+              "systemLength": 591,
+              "userLength": 428,
+              "stableSystemPrefixLength": 486,
+              "stableUserPrefixLength": 0,
+              "stableChars": 486,
+              "variableChars": 533,
+              "stableRatio": 0.477
+            },
+            "heartbeat": false,
+            "responseTextPayloadRef": "payload-002",
+            "responseTextPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】"
+          }
+        ],
+        "lastExecutionActivityAt": 1793576618467,
+        "streamTotalChars": 259,
+        "lastStreamActivityAt": 1793576618467,
+        "providerContextWindowTokens": 128000,
+        "estimatedInputTokens": 440,
+        "contextBudgetDecision": "fits",
+        "contextBudgetReason": "上下文可容纳：输入 440 / 可用 119808",
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 440,
+          "actualInputTokens": 10,
+          "driftRatio": -0.9772727272727273,
+          "correctedRatio": 0.022727272727272728
+        },
+        "finishReason": "stop",
+        "durationMs": 87,
+        "timingLedger": {
+          "physicalCallCount": 1,
+          "retryPhysicalCallCount": 0,
+          "physicalDurationSumMs": 48,
+          "firstTokenSumMs": 43,
+          "outputSumMs": 5,
+          "minFirstTokenMs": 43,
+          "maxFirstTokenMs": 43,
+          "localOverheadMs": 39,
+          "requestBuildMs": 0,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 0,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "candidateLedger": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "rawChars": 259,
+            "sourceResponseHash": "fnv1a32_95192009",
+            "valid": true,
+            "schemaValidationValid": true,
+            "errorCount": 0,
+            "errors": [],
+            "postProcessIssueCodes": [],
+            "retained": true
+          }
+        ],
+        "retainedCandidateIndex": 1,
+        "usage": {
+          "inputTokens": 10,
+          "outputTokens": 20,
+          "totalTokens": 30
+        },
+        "usageUnavailable": false,
+        "endedAt": 1793576618469,
+        "semantic": {
+          "conversationId": "run-1793576618331-1",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          }
+        },
+        "responseTextPayloadRef": "payload-002",
+        "responseTextPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】"
+      },
+      {
+        "id": "api-1793576618491-37",
+        "seq": 2,
+        "step": 4,
+        "skillId": "folder:RUN-TRACE-S2",
+        "skillName": "S2 生成（文件夹）",
+        "providerId": "run-trace-audit-provider",
+        "providerName": "Run Trace Audit Provider",
+        "model": "run-trace-audit-model",
+        "requestMessages": {
+          "__payload": {
+            "id": "payload-004"
+          }
+        },
+        "deaiPromptVariant": "creative",
+        "streamText": {
+          "__payload": {
+            "id": "payload-006"
+          }
+        },
+        "status": "success",
+        "startedAt": 1793576618491,
+        "physicalCalls": [
+          {
+            "id": "physical-1793576618497-43",
+            "physicalCallId": "physical-1793576618496-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "requestMessages": {
+              "__payload": {
+                "id": "payload-004"
+              }
+            },
+            "streamText": {
+              "__payload": {
+                "id": "payload-006"
+              }
+            },
+            "finishReason": "stop",
+            "usage": {
+              "inputTokens": 10,
+              "outputTokens": 20,
+              "totalTokens": 30
+            },
+            "usageUnavailable": false,
+            "startedAt": 1793576618497,
+            "durationMs": 16,
+            "firstTokenMs": 15,
+            "outputMs": 1,
+            "endedAt": 1793576618514,
+            "toolsEnabled": false,
+            "toolsDowngraded": false,
+            "maxTokens": 8192,
+            "providerContextWindowTokens": 128000,
+            "estimatedInputTokens": 415,
+            "contextBudgetDecision": "fits",
+            "contextBudgetReason": "上下文可容纳：输入 415 / 可用 119808",
+            "usageReconciliation": {
+              "status": "available",
+              "estimatedInputTokens": 415,
+              "actualInputTokens": 10,
+              "driftRatio": -0.9759036144578314,
+              "correctedRatio": 0.024096385542168676
+            },
+            "firstContentAt": 1793576618512,
+            "lastContentAt": 1793576618512,
+            "cacheUsageSummary": {
+              "status": "not_reported"
+            },
+            "contextComposition": {
+              "layer": "body",
+              "step": 0,
+              "providerType": "openai-compatible",
+              "providerId": "run-trace-audit-provider",
+              "model": "run-trace-audit-model",
+              "cacheFamily": "openai-compatible:run-trace-audit-provider:run-trace-audit-model:body:step-0",
+              "prefixFingerprint": "2d08cc0c-b8d07323-485:811c9dc5-1000193-0",
+              "systemLength": 590,
+              "userLength": 890,
+              "stableSystemPrefixLength": 485,
+              "stableUserPrefixLength": 0,
+              "stableChars": 485,
+              "variableChars": 995,
+              "stableRatio": 0.328
+            },
+            "heartbeat": false,
+            "responseTextPayloadRef": "payload-005",
+            "responseTextPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+          }
+        ],
+        "lastExecutionActivityAt": 1793576618522,
+        "streamTotalChars": 3631,
+        "lastStreamActivityAt": 1793576618522,
+        "providerContextWindowTokens": 128000,
+        "estimatedInputTokens": 415,
+        "contextBudgetDecision": "fits",
+        "contextBudgetReason": "上下文可容纳：输入 415 / 可用 119808",
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 415,
+          "actualInputTokens": 10,
+          "driftRatio": -0.9759036144578314,
+          "correctedRatio": 0.024096385542168676
+        },
+        "finishReason": "stop",
+        "durationMs": 34,
+        "timingLedger": {
+          "physicalCallCount": 1,
+          "retryPhysicalCallCount": 0,
+          "physicalDurationSumMs": 16,
+          "firstTokenSumMs": 15,
+          "outputSumMs": 1,
+          "minFirstTokenMs": 15,
+          "maxFirstTokenMs": 15,
+          "localOverheadMs": 18,
+          "requestBuildMs": 1,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 3,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "candidateLedger": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "rawChars": 3631,
+            "sourceResponseHash": "fnv1a32_dd49f377",
+            "valid": true,
+            "schemaValidationValid": true,
+            "errorCount": 0,
+            "errors": [],
+            "postProcessIssueCodes": [],
+            "retained": true
+          }
+        ],
+        "bodyCandidateLedger": [
+          {
+            "attempt": 1,
+            "rawChars": 3631,
+            "netWords": 2805,
+            "handoffCount": 1,
+            "contractDistance": 0,
+            "missingHandoff": false,
+            "valid": true,
+            "errorCount": 0
+          }
+        ],
+        "bodyCandidateRetention": {
+          "retainedCandidateIndex": 1,
+          "retainedAttempt": 1,
+          "retainedReason": "first-valid-candidate"
+        },
+        "retainedCandidateIndex": 1,
+        "usage": {
+          "inputTokens": 10,
+          "outputTokens": 20,
+          "totalTokens": 30
+        },
+        "usageUnavailable": false,
+        "endedAt": 1793576618522,
+        "semantic": {
+          "conversationId": "run-1793576618331-1",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          }
+        },
+        "responseTextPayloadRef": "payload-005",
+        "responseTextPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+      },
+      {
+        "id": "api-1793576618549-65",
+        "seq": 3,
+        "step": 4,
+        "skillId": "folder:RUN-TRACE-S3",
+        "skillName": "S3 打磨（文件夹）",
+        "providerId": "run-trace-audit-provider",
+        "providerName": "Run Trace Audit Provider",
+        "model": "run-trace-audit-model",
+        "requestMessages": {
+          "__payload": {
+            "id": "payload-007"
+          }
+        },
+        "deaiPromptVariant": "polish",
+        "streamText": {
+          "__payload": {
+            "id": "payload-006"
+          }
+        },
+        "status": "success",
+        "startedAt": 1793576618549,
+        "physicalCalls": [
+          {
+            "id": "physical-1793576618554-71",
+            "physicalCallId": "physical-1793576618553-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "requestMessages": {
+              "__payload": {
+                "id": "payload-007"
+              }
+            },
+            "streamText": {
+              "__payload": {
+                "id": "payload-006"
+              }
+            },
+            "finishReason": "stop",
+            "usage": {
+              "inputTokens": 10,
+              "outputTokens": 20,
+              "totalTokens": 30
+            },
+            "usageUnavailable": false,
+            "startedAt": 1793576618554,
+            "durationMs": 17,
+            "firstTokenMs": 16,
+            "outputMs": 1,
+            "endedAt": 1793576618571,
+            "toolsEnabled": false,
+            "toolsDowngraded": false,
+            "maxTokens": 8192,
+            "providerContextWindowTokens": 128000,
+            "estimatedInputTokens": 1529,
+            "contextBudgetDecision": "fits",
+            "contextBudgetReason": "上下文可容纳：输入 1529 / 可用 119808",
+            "usageReconciliation": {
+              "status": "available",
+              "estimatedInputTokens": 1529,
+              "actualInputTokens": 10,
+              "driftRatio": -0.9934597776324395,
+              "correctedRatio": 0.006540222367560497
+            },
+            "firstContentAt": 1793576618570,
+            "lastContentAt": 1793576618570,
+            "cacheUsageSummary": {
+              "status": "not_reported"
+            },
+            "contextComposition": {
+              "layer": "body",
+              "step": 0,
+              "providerType": "openai-compatible",
+              "providerId": "run-trace-audit-provider",
+              "model": "run-trace-audit-model",
+              "cacheFamily": "openai-compatible:run-trace-audit-provider:run-trace-audit-model:body:step-0",
+              "prefixFingerprint": "c1f216f4-b26a3cc7-487:811c9dc5-1000193-0",
+              "systemLength": 592,
+              "userLength": 4261,
+              "stableSystemPrefixLength": 487,
+              "stableUserPrefixLength": 0,
+              "stableChars": 487,
+              "variableChars": 4366,
+              "stableRatio": 0.1
+            },
+            "heartbeat": false,
+            "responseTextPayloadRef": "payload-005",
+            "responseTextPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+          }
+        ],
+        "lastExecutionActivityAt": 1793576618588,
+        "streamTotalChars": 3631,
+        "lastStreamActivityAt": 1793576618588,
+        "providerContextWindowTokens": 128000,
+        "estimatedInputTokens": 1529,
+        "contextBudgetDecision": "fits",
+        "contextBudgetReason": "上下文可容纳：输入 1529 / 可用 119808",
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 1529,
+          "actualInputTokens": 10,
+          "driftRatio": -0.9934597776324395,
+          "correctedRatio": 0.006540222367560497
+        },
+        "finishReason": "stop",
+        "durationMs": 41,
+        "timingLedger": {
+          "physicalCallCount": 1,
+          "retryPhysicalCallCount": 0,
+          "physicalDurationSumMs": 17,
+          "firstTokenSumMs": 16,
+          "outputSumMs": 1,
+          "minFirstTokenMs": 16,
+          "maxFirstTokenMs": 16,
+          "localOverheadMs": 24,
+          "requestBuildMs": 0,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 0,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "candidateLedger": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "rawChars": 3631,
+            "sourceResponseHash": "fnv1a32_dd49f377",
+            "valid": true,
+            "schemaValidationValid": true,
+            "errorCount": 0,
+            "errors": [],
+            "postProcessIssueCodes": [],
+            "retained": true
+          }
+        ],
+        "retainedCandidateIndex": 1,
+        "usage": {
+          "inputTokens": 10,
+          "outputTokens": 20,
+          "totalTokens": 30
+        },
+        "usageUnavailable": false,
+        "endedAt": 1793576618589,
+        "semantic": {
+          "conversationId": "run-1793576618331-1",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          }
+        },
+        "responseTextPayloadRef": "payload-005",
+        "responseTextPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+      }
+    ],
+    "sessionKind": "task",
+    "promptSnapshots": [],
+    "processingReports": [
+      {
+        "id": "processing-1793576618472-29",
+        "stage": "post",
+        "processor": "chain-handoff",
+        "status": "success",
+        "startedAt": 1793576618472,
+        "endedAt": 1793576618472,
+        "durationMs": 0,
+        "inputRef": "payload-008",
+        "outputRef": "payload-009",
+        "outputLength": 259
+      },
+      {
+        "id": "processing-1793576618527-57",
+        "stage": "post",
+        "processor": "chain-handoff",
+        "status": "success",
+        "startedAt": 1793576618527,
+        "endedAt": 1793576618527,
+        "durationMs": 0,
+        "inputRef": "payload-008",
+        "outputRef": "payload-011",
+        "outputLength": 3449
+      }
+    ],
+    "payloads": [
+      {
+        "id": "payload-001",
+        "kind": "request",
+        "file": "001-request.json",
+        "bytes": 2447,
+        "chars": 1049,
+        "sha256": "80ab5828b1f5e4f88ab380404fb16b44d1b4e637a6cef4d5bd808c9497ebdcfa",
+        "duplicateCount": 3,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-002",
+        "kind": "response",
+        "file": "002-response.json",
+        "bytes": 543,
+        "chars": 259,
+        "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+        "duplicateCount": 2,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-003",
+        "kind": "stream",
+        "file": "003-stream.json",
+        "bytes": 543,
+        "chars": 259,
+        "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+        "duplicateCount": 2,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-004",
+        "kind": "request",
+        "file": "004-request.json",
+        "bytes": 3503,
+        "chars": 1533,
+        "sha256": "55d9d8db7b5badda976f750881bce9330142dbec7984fb78efcf051a35beb08a",
+        "duplicateCount": 3,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-005",
+        "kind": "response",
+        "file": "005-response.json",
+        "bytes": 9655,
+        "chars": 3631,
+        "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+        "duplicateCount": 4,
+        "artifactRole": "final",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-006",
+        "kind": "stream",
+        "file": "006-stream.json",
+        "bytes": 9655,
+        "chars": 3631,
+        "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+        "duplicateCount": 4,
+        "artifactRole": "final",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-007",
+        "kind": "request",
+        "file": "007-request.json",
+        "bytes": 12678,
+        "chars": 5036,
+        "sha256": "89fcbb18e301cd42683c7114b22d3a310914e9e4e580337f3c0d94a1c3e0da83",
+        "duplicateCount": 3,
+        "artifactRole": "final",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-008",
+        "kind": "processing-input",
+        "file": "008-processing-input.json",
+        "bytes": 639,
+        "chars": 267,
+        "sha256": "9d2d33b10be6c5bc11b1c063009a076e4493eff513465ebb14834bbbfc481724",
+        "duplicateCount": 2,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-009",
+        "kind": "processing-output",
+        "file": "009-processing-output.json",
+        "bytes": 543,
+        "chars": 259,
+        "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+        "duplicateCount": 3,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-010",
+        "kind": "processing-output",
+        "file": "010-processing-output.json",
+        "bytes": 1294,
+        "chars": 500,
+        "sha256": "e15f7fbf0d8518ae5b1cb90ae0d9944d0283d7ca6770a8357b4605ee0a1a1db4",
+        "duplicateCount": 1,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-011",
+        "kind": "processing-output",
+        "file": "011-processing-output.json",
+        "bytes": 9333,
+        "chars": 3449,
+        "sha256": "b9f06d3b8c42e6084132dc0fb50de4796dfb2014f2ec1b3c1356499ea55a1292",
+        "duplicateCount": 1,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-012",
+        "kind": "folder-output",
+        "file": "012-folder-output.json",
+        "bytes": 543,
+        "chars": 259,
+        "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+        "duplicateCount": 1,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-013",
+        "kind": "folder-output",
+        "file": "013-folder-output.json",
+        "bytes": 9655,
+        "chars": 3631,
+        "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+        "duplicateCount": 2,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      },
+      {
+        "id": "payload-014",
+        "kind": "processing-output",
+        "file": "014-processing-output.json",
+        "bytes": 9655,
+        "chars": 3631,
+        "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+        "duplicateCount": 2,
+        "artifactRole": "intermediate",
+        "createdAt": 1793576619689
+      }
+    ],
+    "eventLedger": {
+      "totalEvents": 83,
+      "droppedInfoEvents": 0,
+      "droppedWarnEvents": 0,
+      "droppedErrorEvents": 0
+    },
+    "folderDiagnostics": [
+      {
+        "status": "success",
+        "errors": [],
+        "diagnostics": [
+          {
+            "type": "info",
+            "code": "folder-template-priority",
+            "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+            "at": "2026-11-01T23:43:38.405Z"
+          },
+          {
+            "type": "info",
+            "code": "folder-template-variables-missing",
+            "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+            "at": "2026-11-01T23:43:38.406Z"
+          }
+        ],
+        "folderPackageCache": true,
+        "postProcessReport": {
+          "applied": true,
+          "changedOutput": false,
+          "issues": [],
+          "durationMs": 0,
+          "ruleFingerprint": "fnv1a32_811c9dc5",
+          "outputPayloadRef": "payload-009",
+          "outputLength": 259,
+          "outputPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】"
+        },
+        "apiMeta": {
+          "finishReason": "stop",
+          "providerId": "run-trace-audit-provider",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          },
+          "maxTokens": 8192,
+          "reasoningText": "",
+          "contextBudget": {
+            "decision": "fits",
+            "providerContextWindowTokens": 128000,
+            "windowDeclared": true,
+            "outputLimitDeclared": true,
+            "estimatedInputTokens": 440,
+            "outputReserveTokens": 8192,
+            "availableContextTokens": 119808,
+            "reason": "上下文可容纳：输入 440 / 可用 119808"
+          },
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 440,
+            "actualInputTokens": 10,
+            "driftRatio": -0.9772727272727273,
+            "correctedRatio": 0.022727272727272728
+          },
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\nCreated and removed by the run trace audit Electron verifier.\n\n输出章节骨架与叙事裁决。\n\n【降AI方法指导 - 骨架与因果】\n执行角色：生成前方法指导；不修改请求产物，不做裁判，不输出总分。\n风格卡片是唯一风格 owner；本指导只是默认方法，不覆盖风格选择。\n叙事缺口按 SKILL 契约上报，不擅自补设因果。\n事件密度：每场至少一个可核验的状态改变；确认、求证、判断不算推进。写前先说出进入状态和退出状态。\n因果骨架：先定行动、阻碍、代价、结果，再决定描写。因果不清楚时不补设定，按 SKILL 契约上报缺口。\n场景作用：场景按戏剧价值分配轻重，结尾允许留张力；不同场景的进入信息、退出信息和感官通道不重复。\n方法边界：短句只用于关键转折，连续碎片不是风格。判断标准是读起来更像活人叙事，不是命中更少检测词。\n风格优先：风格卡片与声纹优先于本指导；有冲突时按风格执行。方法只补默认路径，不覆盖作者选择。",
+              "length": 486
+            },
+            {
+              "role": "user",
+              "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\n[单元闭包卷纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 灯塔 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[当前章节剧情点]\n第1章 纸条 - 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪。\n\n请执行本章节的正文生成链路。",
+              "length": 428
+            }
+          ],
+          "attemptRequestMessages": [
+            {
+              "passIndex": 0,
+              "attempt": 1,
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\nCreated and removed by the run trace audit Electron verifier.\n\n输出章节骨架与叙事裁决。\n\n【降AI方法指导 - 骨架与因果】\n执行角色：生成前方法指导；不修改请求产物，不做裁判，不输出总分。\n风格卡片是唯一风格 owner；本指导只是默认方法，不覆盖风格选择。\n叙事缺口按 SKILL 契约上报，不擅自补设因果。\n事件密度：每场至少一个可核验的状态改变；确认、求证、判断不算推进。写前先说出进入状态和退出状态。\n因果骨架：先定行动、阻碍、代价、结果，再决定描写。因果不清楚时不补设定，按 SKILL 契约上报缺口。\n场景作用：场景按戏剧价值分配轻重，结尾允许留张力；不同场景的进入信息、退出信息和感官通道不重复。\n方法边界：短句只用于关键转折，连续碎片不是风格。判断标准是读起来更像活人叙事，不是命中更少检测词。\n风格优先：风格卡片与声纹优先于本指导；有冲突时按风格执行。方法只补默认路径，不覆盖作者选择。"
+                },
+                {
+                  "role": "user",
+                  "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\n[单元闭包卷纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 灯塔 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[当前章节剧情点]\n第1章 纸条 - 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪。\n\n请执行本章节的正文生成链路。"
+                }
+              ]
+            }
+          ],
+          "timingLedger": {
+            "requestBuildMs": 0,
+            "schemaValidateMs": 0,
+            "retryMs": 0,
+            "postProcessMs": 0,
+            "schemaRetryCount": 0,
+            "repeatedPromptBlocks": {
+              "[已生成卷事实清单]": 0,
+              "[全书大纲]": 0,
+              "[大纲]": 0,
+              "[style reference]": 1,
+              "[上一步 SKILL 完整输出]": 0
+            }
+          },
+          "retainedCandidateIndex": 1,
+          "candidateLedger": [
+            {
+              "passIndex": 0,
+              "attempt": 1,
+              "rawChars": 259,
+              "sourceResponseHash": "fnv1a32_95192009",
+              "valid": true,
+              "schemaValidationValid": true,
+              "errorCount": 0,
+              "errors": [],
+              "postProcessIssueCodes": [],
+              "retained": true
+            }
+          ],
+          "requestPayloadRef": "payload-001"
+        },
+        "outputPayloadRef": "payload-012",
+        "outputLength": 259,
+        "outputPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】"
+      },
+      {
+        "status": "success",
+        "errors": [],
+        "diagnostics": [
+          {
+            "type": "info",
+            "code": "folder-template-priority",
+            "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+            "at": "2026-11-01T23:43:38.494Z"
+          },
+          {
+            "type": "info",
+            "code": "folder-template-variables-missing",
+            "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+            "at": "2026-11-01T23:43:38.494Z"
+          }
+        ],
+        "folderPackageCache": true,
+        "postProcessReport": {
+          "applied": true,
+          "changedOutput": false,
+          "issues": [],
+          "durationMs": 3,
+          "ruleFingerprint": "fnv1a32_811c9dc5",
+          "outputPayloadRef": "payload-014",
+          "outputLength": 3631,
+          "outputPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+        },
+        "apiMeta": {
+          "finishReason": "stop",
+          "providerId": "run-trace-audit-provider",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          },
+          "maxTokens": 8192,
+          "reasoningText": "",
+          "contextBudget": {
+            "decision": "fits",
+            "providerContextWindowTokens": 128000,
+            "windowDeclared": true,
+            "outputLimitDeclared": true,
+            "estimatedInputTokens": 415,
+            "outputReserveTokens": 8192,
+            "availableContextTokens": 119808,
+            "reason": "上下文可容纳：输入 415 / 可用 119808"
+          },
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 415,
+            "actualInputTokens": 10,
+            "driftRatio": -0.9759036144578314,
+            "correctedRatio": 0.024096385542168676
+          },
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\nCreated and removed by the run trace audit Electron verifier.\n\n输出完整正文与【正文交接】。\n\n【降AI方法指导 - 创作执行】\n执行角色：生成前方法指导；不修改请求产物，不做裁判，不输出总分。\n风格卡片是唯一风格 owner；本指导只是默认方法，不覆盖风格选择。\n叙事缺口按 SKILL 契约上报，不擅自补设因果。\n方法边界：短句只用于关键转折，连续碎片不是风格。判断标准是读起来更像活人叙事，不是命中更少检测词。\n事件表达：情绪、判断和关系写成可见行为。优先用动作变化、选择性和信息顺序呈现，不用评论腔解释。\n叙事用笔：视角带判断：看什么不看什么、语气倾向和节奏轻重。同一段视角一致，紧张场景收短，舒缓场景铺长。\n对白轻重：对白留残缺和轻重，有些回合只有动作，有些只有台词。不替读者总结因果，不写解释性从句。\n风格优先：风格卡片与声纹优先于本指导；有冲突时按风格执行。方法只补默认路径，不覆盖作者选择。",
+              "length": 485
+            },
+            {
+              "role": "user",
+              "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 灯塔 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[当前章节剧情点]\n第1章 纸条 - 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回",
+              "length": 890
+            }
+          ],
+          "attemptRequestMessages": [
+            {
+              "passIndex": 0,
+              "attempt": 1,
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\nCreated and removed by the run trace audit Electron verifier.\n\n输出完整正文与【正文交接】。\n\n【降AI方法指导 - 创作执行】\n执行角色：生成前方法指导；不修改请求产物，不做裁判，不输出总分。\n风格卡片是唯一风格 owner；本指导只是默认方法，不覆盖风格选择。\n叙事缺口按 SKILL 契约上报，不擅自补设因果。\n方法边界：短句只用于关键转折，连续碎片不是风格。判断标准是读起来更像活人叙事，不是命中更少检测词。\n事件表达：情绪、判断和关系写成可见行为。优先用动作变化、选择性和信息顺序呈现，不用评论腔解释。\n叙事用笔：视角带判断：看什么不看什么、语气倾向和节奏轻重。同一段视角一致，紧张场景收短，舒缓场景铺长。\n对白轻重：对白留残缺和轻重，有些回合只有动作，有些只有台词。不替读者总结因果，不写解释性从句。\n风格优先：风格卡片与声纹优先于本指导；有冲突时按风格执行。方法只补默认路径，不覆盖作者选择。"
+                },
+                {
+                  "role": "user",
+                  "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 灯塔 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[当前章节剧情点]\n第1章 纸条 - 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】\n\n请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。"
+                }
+              ]
+            }
+          ],
+          "timingLedger": {
+            "requestBuildMs": 1,
+            "schemaValidateMs": 0,
+            "retryMs": 0,
+            "postProcessMs": 3,
+            "schemaRetryCount": 0,
+            "repeatedPromptBlocks": {
+              "[已生成卷事实清单]": 0,
+              "[全书大纲]": 0,
+              "[大纲]": 0,
+              "[style reference]": 1,
+              "[上一步 SKILL 完整输出]": 0
+            }
+          },
+          "retainedCandidateIndex": 1,
+          "candidateLedger": [
+            {
+              "passIndex": 0,
+              "attempt": 1,
+              "rawChars": 3631,
+              "sourceResponseHash": "fnv1a32_dd49f377",
+              "valid": true,
+              "schemaValidationValid": true,
+              "errorCount": 0,
+              "errors": [],
+              "postProcessIssueCodes": [],
+              "retained": true
+            }
+          ],
+          "bodyCandidateLedger": [
+            {
+              "attempt": 1,
+              "rawChars": 3631,
+              "netWords": 2805,
+              "handoffCount": 1,
+              "contractDistance": 0,
+              "missingHandoff": false,
+              "valid": true,
+              "errorCount": 0
+            }
+          ],
+          "bodyCandidateRetention": {
+            "retainedCandidateIndex": 1,
+            "retainedAttempt": 1,
+            "retainedReason": "first-valid-candidate"
+          },
+          "requestPayloadRef": "payload-004"
+        },
+        "outputPayloadRef": "payload-013",
+        "outputLength": 3631,
+        "outputPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+      },
+      {
+        "status": "success",
+        "errors": [],
+        "diagnostics": [
+          {
+            "type": "info",
+            "code": "folder-template-priority",
+            "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+            "at": "2026-11-01T23:43:38.553Z"
+          },
+          {
+            "type": "info",
+            "code": "folder-template-variables-missing",
+            "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+            "at": "2026-11-01T23:43:38.553Z"
+          }
+        ],
+        "folderPackageCache": true,
+        "postProcessReport": {
+          "applied": true,
+          "changedOutput": false,
+          "issues": [],
+          "durationMs": 0,
+          "ruleFingerprint": "fnv1a32_811c9dc5",
+          "outputPayloadRef": "payload-014",
+          "outputLength": 3631,
+          "outputPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+        },
+        "apiMeta": {
+          "finishReason": "stop",
+          "providerId": "run-trace-audit-provider",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 20,
+            "totalTokens": 30
+          },
+          "maxTokens": 8192,
+          "reasoningText": "",
+          "contextBudget": {
+            "decision": "fits",
+            "providerContextWindowTokens": 128000,
+            "windowDeclared": true,
+            "outputLimitDeclared": true,
+            "estimatedInputTokens": 1529,
+            "outputReserveTokens": 8192,
+            "availableContextTokens": 119808,
+            "reason": "上下文可容纳：输入 1529 / 可用 119808"
+          },
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 1529,
+            "actualInputTokens": 10,
+            "driftRatio": -0.9934597776324395,
+            "correctedRatio": 0.006540222367560497
+          },
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\nCreated and removed by the run trace audit Electron verifier.\n\n只保留正文并完成打磨。\n\n【降AI方法指导 - 语言收敛】\n执行角色：生成前方法指导；不修改请求产物，不做裁判，不输出总分。\n风格卡片是唯一风格 owner；本指导只是默认方法，不覆盖风格选择。\n叙事缺口按 SKILL 契约上报，不擅自补设因果。\n方法边界：短句只用于关键转折，连续碎片不是风格。判断标准是读起来更像活人叙事，不是命中更少检测词。\n最小修复：只改表达硬处、重复处和报告腔；保留事实、场景顺序、对白含义和事实账本。不扩写、不压缩、不补设定。\n语义保真：修改前后用事实链、人物状态、位置和因果对齐。发现叙事缺口不擅自改，按契约路由回上游。\n无损合并：相邻短句合并且信息无损，或句号改逗号/分号，是合法打磨。不以降检测为目标增加新比喻或碎句。\n风格优先：风格卡片与声纹优先于本指导；有冲突时按风格执行。方法只补默认路径，不覆盖作者选择。",
+              "length": 487
+            },
+            {
+              "role": "user",
+              "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 3/3\n\n[单元闭包卷纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 灯塔 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[当前章节剧情点]\n第1章 纸条 - 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回",
+              "length": 4261
+            }
+          ],
+          "attemptRequestMessages": [
+            {
+              "passIndex": 0,
+              "attempt": 1,
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\nCreated and removed by the run trace audit Electron verifier.\n\n只保留正文并完成打磨。\n\n【降AI方法指导 - 语言收敛】\n执行角色：生成前方法指导；不修改请求产物，不做裁判，不输出总分。\n风格卡片是唯一风格 owner；本指导只是默认方法，不覆盖风格选择。\n叙事缺口按 SKILL 契约上报，不擅自补设因果。\n方法边界：短句只用于关键转折，连续碎片不是风格。判断标准是读起来更像活人叙事，不是命中更少检测词。\n最小修复：只改表达硬处、重复处和报告腔；保留事实、场景顺序、对白含义和事实账本。不扩写、不压缩、不补设定。\n语义保真：修改前后用事实链、人物状态、位置和因果对齐。发现叙事缺口不擅自改，按契约路由回上游。\n无损合并：相邻短句合并且信息无损，或句号改逗号/分号，是合法打磨。不以降检测为目标增加新比喻或碎句。\n风格优先：风格卡片与声纹优先于本指导；有冲突时按风格执行。方法只补默认路径，不覆盖作者选择。"
+                },
+                {
+                  "role": "user",
+                  "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 3/3\n\n[单元闭包卷纲]\n## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 灯塔 - ## 剧情单元 H1-01 灯塔\n> 作用域：单元级 H1-01\n章节范围：第 1 章\n- 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪，完成一次状态推进。\n\n[当前章节剧情点]\n第1章 纸条 - 林照打开灯塔底舱，取走纸条，确认风暴信标三次红闪。\n\n请执行本章节的正文生成链路。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条压进灯座，潮声第12次盖住他的呼吸。\n林照把纸条压进灯座，潮声第13次盖住他的呼吸。\n林照把纸条压进灯座，潮声第14次盖住他的呼吸。\n林照把纸条压进灯座，潮声第15次盖住他的呼吸。\n林照把纸条压进灯座，潮声第16次盖住他的呼吸。\n林照把纸条压进灯座，潮声第17次盖住他的呼吸。\n林照把纸条压进灯座，潮声第18次盖住他的呼吸。\n林照把纸条压进灯座，潮声第19次盖住他的呼吸。\n林照把纸条压进灯座，潮声第20次盖住他的呼吸。\n林照把纸条压进灯座，潮声第21次盖住他的呼吸。\n林照把纸条压进灯座，潮声第22次盖住他的呼吸。\n林照把纸条压进灯座，潮声第23次盖住他的呼吸。\n林照把纸条压进灯座，潮声第24次盖住他的呼吸。\n林照把纸条压进灯座，潮声第25次盖住他的呼吸。\n林照把纸条压进灯座，潮声第26次盖住他的呼吸。\n林照把纸条压进灯座，潮声第27次盖住他的呼吸。\n林照把纸条压进灯座，潮声第28次盖住他的呼吸。\n林照把纸条压进灯座，潮声第29次盖住他的呼吸。\n林照把纸条压进灯座，潮声第30次盖住他的呼吸。\n林照把纸条压进灯座，潮声第31次盖住他的呼吸。\n林照把纸条压进灯座，潮声第32次盖住他的呼吸。\n林照把纸条压进灯座，潮声第33次盖住他的呼吸。\n林照把纸条压进灯座，潮声第34次盖住他的呼吸。\n林照把纸条压进灯座，潮声第35次盖住他的呼吸。\n林照把纸条压进灯座，潮声第36次盖住他的呼吸。\n林照把纸条压进灯座，潮声第37次盖住他的呼吸。\n林照把纸条压进灯座，潮声第38次盖住他的呼吸。\n林照把纸条压进灯座，潮声第39次盖住他的呼吸。\n林照把纸条压进灯座，潮声第40次盖住他的呼吸。\n林照把纸条压进灯座，潮声第41次盖住他的呼吸。\n林照把纸条压进灯座，潮声第42次盖住他的呼吸。\n林照把纸条压进灯座，潮声第43次盖住他的呼吸。\n林照把纸条压进灯座，潮声第44次盖住他的呼吸。\n林照把纸条压进灯座，潮声第45次盖住他的呼吸。\n林照把纸条压进灯座，潮声第46次盖住他的呼吸。\n林照把纸条压进灯座，潮声第47次盖住他的呼吸。\n林照把纸条压进灯座，潮声第48次盖住他的呼吸。\n林照把纸条压进灯座，潮声第49次盖住他的呼吸。\n林照把纸条压进灯座，潮声第50次盖住他的呼吸。\n林照把纸条压进灯座，潮声第51次盖住他的呼吸。\n林照把纸条压进灯座，潮声第52次盖住他的呼吸。\n林照把纸条压进灯座，潮声第53次盖住他的呼吸。\n林照把纸条压进灯座，潮声第54次盖住他的呼吸。\n林照把纸条压进灯座，潮声第55次盖住他的呼吸。\n林照把纸条压进灯座，潮声第56次盖住他的呼吸。\n林照把纸条压进灯座，潮声第57次盖住他的呼吸。\n林照把纸条压进灯座，潮声第58次盖住他的呼吸。\n林照把纸条压进灯座，潮声第59次盖住他的呼吸。\n林照把纸条压进灯座，潮声第60次盖住他的呼吸。\n林照把纸条压进灯座，潮声第61次盖住他的呼吸。\n林照把纸条压进灯座，潮声第62次盖住他的呼吸。\n林照把纸条压进灯座，潮声第63次盖住他的呼吸。\n林照把纸条压进灯座，潮声第64次盖住他的呼吸。\n林照把纸条压进灯座，潮声第65次盖住他的呼吸。\n林照把纸条压进灯座，潮声第66次盖住他的呼吸。\n林照把纸条压进灯座，潮声第67次盖住他的呼吸。\n林照把纸条压进灯座，潮声第68次盖住他的呼吸。\n林照把纸条压进灯座，潮声第69次盖住他的呼吸。\n林照把纸条压进灯座，潮声第70次盖住他的呼吸。\n林照把纸条压进灯座，潮声第71次盖住他的呼吸。\n林照把纸条压进灯座，潮声第72次盖住他的呼吸。\n林照把纸条压进灯座，潮声第73次盖住他的呼吸。\n林照把纸条压进灯座，潮声第74次盖住他的呼吸。\n林照把纸条压进灯座，潮声第75次盖住他的呼吸。\n林照把纸条压进灯座，潮声第76次盖住他的呼吸。\n林照把纸条压进灯座，潮声第77次盖住他的呼吸。\n林照把纸条压进灯座，潮声第78次盖住他的呼吸。\n林照把纸条压进灯座，潮声第79次盖住他的呼吸。\n林照把纸条压进灯座，潮声第80次盖住他的呼吸。\n林照把纸条压进灯座，潮声第81次盖住他的呼吸。\n林照把纸条压进灯座，潮声第82次盖住他的呼吸。\n林照把纸条压进灯座，潮声第83次盖住他的呼吸。\n林照把纸条压进灯座，潮声第84次盖住他的呼吸。\n林照把纸条压进灯座，潮声第85次盖住他的呼吸。\n林照把纸条压进灯座，潮声第86次盖住他的呼吸。\n林照把纸条压进灯座，潮声第87次盖住他的呼吸。\n林照把纸条压进灯座，潮声第88次盖住他的呼吸。\n林照把纸条压进灯座，潮声第89次盖住他的呼吸。\n林照把纸条压进灯座，潮声第90次盖住他的呼吸。\n林照把纸条压进灯座，潮声第91次盖住他的呼吸。\n林照把纸条压进灯座，潮声第92次盖住他的呼吸。\n林照把纸条压进灯座，潮声第93次盖住他的呼吸。\n林照把纸条压进灯座，潮声第94次盖住他的呼吸。\n林照把纸条压进灯座，潮声第95次盖住他的呼吸。\n林照把纸条压进灯座，潮声第96次盖住他的呼吸。\n林照把纸条压进灯座，潮声第97次盖住他的呼吸。\n林照把纸条压进灯座，潮声第98次盖住他的呼吸。\n林照把纸条压进灯座，潮声第99次盖住他的呼吸。\n林照把纸条压进灯座，潮声第100次盖住他的呼吸。\n林照把纸条压进灯座，潮声第101次盖住他的呼吸。\n林照把纸条压进灯座，潮声第102次盖住他的呼吸。\n林照把纸条压进灯座，潮声第103次盖住他的呼吸。\n林照把纸条压进灯座，潮声第104次盖住他的呼吸。\n林照把纸条压进灯座，潮声第105次盖住他的呼吸。\n林照把纸条压进灯座，潮声第106次盖住他的呼吸。\n林照把纸条压进灯座，潮声第107次盖住他的呼吸。\n林照把纸条压进灯座，潮声第108次盖住他的呼吸。\n林照把纸条压进灯座，潮声第109次盖住他的呼吸。\n林照把纸条压进灯座，潮声第110次盖住他的呼吸。\n林照把纸条压进灯座，潮声第111次盖住他的呼吸。\n林照把纸条压进灯座，潮声第112次盖住他的呼吸。\n林照把纸条压进灯座，潮声第113次盖住他的呼吸。\n林照把纸条压进灯座，潮声第114次盖住他的呼吸。\n林照把纸条压进灯座，潮声第115次盖住他的呼吸。\n林照把纸条压进灯座，潮声第116次盖住他的呼吸。\n林照把纸条压进灯座，潮声第117次盖住他的呼吸。\n林照把纸条压进灯座，潮声第118次盖住他的呼吸。\n林照把纸条压进灯座，潮声第119次盖住他的呼吸。\n林照把纸条压进灯座，潮声第120次盖住他的呼吸。\n林照把纸条压进灯座，潮声第121次盖住他的呼吸。\n林照把纸条压进灯座，潮声第122次盖住他的呼吸。\n林照把纸条压进灯座，潮声第123次盖住他的呼吸。\n林照把纸条压进灯座，潮声第124次盖住他的呼吸。\n林照把纸条压进灯座，潮声第125次盖住他的呼吸。\n林照把纸条压进灯座，潮声第126次盖住他的呼吸。\n林照把纸条压进灯座，潮声第127次盖住他的呼吸。\n林照把纸条压进灯座，潮声第128次盖住他的呼吸。\n林照把纸条压进灯座，潮声第129次盖住他的呼吸。\n林照把纸条压进灯座，潮声第130次盖住他的呼吸。\n林照把纸条压进灯座，潮声第131次盖住他的呼吸。\n林照把纸条压进灯座，潮声第132次盖住他的呼吸。\n林照把纸条压进灯座，潮声第133次盖住他的呼吸。\n林照把纸条压进灯座，潮声第134次盖住他的呼吸。\n林照把纸条压进灯座，潮声第135次盖住他的呼吸。\n林照把纸条压进灯座，潮声第136次盖住他的呼吸。\n林照把纸条压进灯座，潮声第137次盖住他的呼吸。\n林照把纸条压进灯座，潮声第138次盖住他的呼吸。\n林照把纸条压进灯座，潮声第139次盖住他的呼吸。\n林照把纸条压进灯座，潮声第140次盖住他的呼吸。\n\n--- 上一步结构化交接（终步账本） ---\n- extractedMeta[0]: [metadata-section] chapterId：ch-run-trace-audit POV：林照 NEW_FACT：林照取走纸条 FACT_LOCK：纸条在林照手中；信标确认三次红闪 事件增量：纸条从灯座移动到林照手中 narrativeStatus：ready narrativeReason：状态改变动作达标 stateChangingScenes：3 【正文交接结束】"
+                }
+              ]
+            }
+          ],
+          "timingLedger": {
+            "requestBuildMs": 0,
+            "schemaValidateMs": 0,
+            "retryMs": 0,
+            "postProcessMs": 0,
+            "schemaRetryCount": 0,
+            "repeatedPromptBlocks": {
+              "[已生成卷事实清单]": 0,
+              "[全书大纲]": 0,
+              "[大纲]": 0,
+              "[style reference]": 1,
+              "[上一步 SKILL 完整输出]": 0
+            }
+          },
+          "retainedCandidateIndex": 1,
+          "candidateLedger": [
+            {
+              "passIndex": 0,
+              "attempt": 1,
+              "rawChars": 3631,
+              "sourceResponseHash": "fnv1a32_dd49f377",
+              "valid": true,
+              "schemaValidationValid": true,
+              "errorCount": 0,
+              "errors": [],
+              "postProcessIssueCodes": [],
+              "retained": true
+            }
+          ],
+          "requestPayloadRef": "payload-007"
+        },
+        "outputPayloadRef": "payload-013",
+        "outputLength": 3631,
+        "outputPreview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+      }
+    ],
+    "stepPhaseTiming": {
+      "validation": 0,
+      "persistence": 33
+    },
+    "timingLedger": {
+      "apiCallCount": 3,
+      "physicalCallCount": 3,
+      "retryPhysicalCallCount": 0,
+      "physicalDurationSumMs": 81,
+      "firstTokenSumMs": 74,
+      "outputSumMs": 7,
+      "localOverheadSumMs": 81,
+      "requestBuildSumMs": 1,
+      "schemaValidateSumMs": 0,
+      "retrySumMs": 0,
+      "postProcessSumMs": 3,
+      "repeatedPromptBlocks": {
+        "[已生成卷事实清单]": 0,
+        "[全书大纲]": 0,
+        "[大纲]": 0,
+        "[style reference]": 1,
+        "[上一步 SKILL 完整输出]": 0
+      }
+    },
+    "stepTimingLedger": {
+      "promptBuildMs": 1,
+      "apiCallCount": 3,
+      "physicalCallCount": 3,
+      "retryCallCount": 0,
+      "continuationCallCount": 0,
+      "firstTokenSumMs": 74,
+      "outputSumMs": 7,
+      "postProcessSumMs": 0,
+      "validationSumMs": 0,
+      "persistenceSumMs": 33,
+      "repeatedPromptBlocks": {
+        "[已生成卷事实清单]": 0,
+        "[全书大纲]": 0,
+        "[大纲]": 0,
+        "[style reference]": 1,
+        "[上一步 SKILL 完整输出]": 0
+      },
+      "contextChars": 7037,
+      "outputChars": 7521,
+      "physicalDurationSumMs": 81
+    },
+    "endedAt": 1793576618662,
+    "durationMs": 331,
+    "apiResponseIndex": [
+      {
+        "apiCallId": "api-1793576618383-12",
+        "seq": 1,
+        "status": "success",
+        "response": {
+          "ref": "payload-002",
+          "file": "002-response.json",
+          "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+          "bytes": 543,
+          "chars": 259,
+          "preview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】"
+        },
+        "stream": {
+          "ref": "payload-003",
+          "file": "003-stream.json",
+          "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+          "bytes": 543,
+          "chars": 259
+        },
+        "physicalCalls": [
+          {
+            "physicalCallId": "physical-1793576618411-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "response": {
+              "ref": "payload-002",
+              "file": "002-response.json",
+              "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+              "bytes": 543,
+              "chars": 259,
+              "preview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照打开底舱并取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\n场景1：林照打开底舱门，状态从关闭到打开。\n场景2：林照取走灯座下的纸条，纸条从藏匿到携带。\n场景3：林照确认信标三次红闪，航线从未知到确认。\nnarrativeStatus：ready\nnarrativeReason：三个场景均改变状态\nstateChangingScenes：3\n【正文交接结束】"
+            },
+            "stream": {
+              "ref": "payload-003",
+              "file": "003-stream.json",
+              "sha256": "528d5020b7368c9e17342f30100a6610c9189dd67d7853cf21a66f0b8b10b4b7",
+              "bytes": 543,
+              "chars": 259
+            }
+          }
+        ]
+      },
+      {
+        "apiCallId": "api-1793576618491-37",
+        "seq": 2,
+        "status": "success",
+        "response": {
+          "ref": "payload-005",
+          "file": "005-response.json",
+          "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+          "bytes": 9655,
+          "chars": 3631,
+          "preview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+        },
+        "stream": {
+          "ref": "payload-006",
+          "file": "006-stream.json",
+          "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+          "bytes": 9655,
+          "chars": 3631
+        },
+        "physicalCalls": [
+          {
+            "physicalCallId": "physical-1793576618496-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "response": {
+              "ref": "payload-005",
+              "file": "005-response.json",
+              "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+              "bytes": 9655,
+              "chars": 3631,
+              "preview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+            },
+            "stream": {
+              "ref": "payload-006",
+              "file": "006-stream.json",
+              "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+              "bytes": 9655,
+              "chars": 3631
+            }
+          }
+        ]
+      },
+      {
+        "apiCallId": "api-1793576618549-65",
+        "seq": 3,
+        "status": "success",
+        "response": {
+          "ref": "payload-005",
+          "file": "005-response.json",
+          "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+          "bytes": 9655,
+          "chars": 3631,
+          "preview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+        },
+        "stream": {
+          "ref": "payload-006",
+          "file": "006-stream.json",
+          "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+          "bytes": 9655,
+          "chars": 3631
+        },
+        "physicalCalls": [
+          {
+            "physicalCallId": "physical-1793576618553-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "response": {
+              "ref": "payload-005",
+              "file": "005-response.json",
+              "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+              "bytes": 9655,
+              "chars": 3631,
+              "preview": "【正文交接】\nchapterId：ch-run-trace-audit\nPOV：林照\nNEW_FACT：林照取走纸条\nFACT_LOCK：纸条在林照手中；信标确认三次红闪\n事件增量：纸条从灯座移动到林照手中\nnarrativeStatus：ready\nnarrativeReason：状态改变动作达标\nstateChangingScenes：3\n【正文交接结束】\ncandidateAttempt：1\ncandidateResponseHash：fnv1a32_0123abcd\n林照把纸条压进灯座，潮声第1次盖住他的呼吸。\n林照把纸条压进灯座，潮声第2次盖住他的呼吸。\n林照把纸条压进灯座，潮声第3次盖住他的呼吸。\n林照把纸条压进灯座，潮声第4次盖住他的呼吸。\n林照把纸条压进灯座，潮声第5次盖住他的呼吸。\n林照把纸条压进灯座，潮声第6次盖住他的呼吸。\n林照把纸条压进灯座，潮声第7次盖住他的呼吸。\n林照把纸条压进灯座，潮声第8次盖住他的呼吸。\n林照把纸条压进灯座，潮声第9次盖住他的呼吸。\n林照把纸条压进灯座，潮声第10次盖住他的呼吸。\n林照把纸条压进灯座，潮声第11次盖住他的呼吸。\n林照把纸条"
+            },
+            "stream": {
+              "ref": "payload-006",
+              "file": "006-stream.json",
+              "sha256": "60938298f45c71021afbd5119f17ee58a3237aac1b18b7ef6fdcf759fdecf79c",
+              "bytes": 9655,
+              "chars": 3631
+            }
+          }
+        ]
+      }
+    ],
+    "payloadIntegrityWarnings": []
+  },
+  "exportMode": "deep",
+  "payloadDirectoryHint": "",
+  "payloadDirectory": "payloads",
+  "payloadCount": 14,
+  "payloadVerification": {
+    "total": 14,
+    "missing": [],
+    "hashMismatch": [],
+    "ok": true
+  },
+  "apiResponseIndexVerification": {
+    "total": 3,
+    "brokenRefs": [],
+    "ok": true
+  }
+}

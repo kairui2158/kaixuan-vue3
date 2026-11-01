@@ -1,0 +1,39 @@
+{
+  "schema": "shenyi.run-trace-audit",
+  "version": 1,
+  "tracePath": "D:\\codex\\novel-workshop-vue3\\_data\\run-trace-audit-profile\\run-trace-exports\\run-trace-正文层-20261102-074338-deep\\run-trace.json",
+  "traceId": "run-1793576618331-1",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "777a0fd5e4f5",
+    "buildTime": "2026-11-01T23:29:33.717Z",
+    "appVersion": "3.111.0"
+  },
+  "payloadCount": 14,
+  "candidateAttribution": [],
+  "eventAudit": {
+    "attemptCount": 1,
+    "narrativeStatuses": [
+      "declared_ready"
+    ]
+  },
+  "responseIndex": [
+    {
+      "status": "success",
+      "response": "payload-002",
+      "physicalCount": 1
+    },
+    {
+      "status": "success",
+      "response": "payload-005",
+      "physicalCount": 1
+    },
+    {
+      "status": "success",
+      "response": "payload-005",
+      "physicalCount": 1
+    }
+  ]
+}

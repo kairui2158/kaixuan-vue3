@@ -1,0 +1,13 @@
+【正文交接】
+chapterId：ch-run-trace-audit
+POV：林照
+NEW_FACT：林照打开底舱并取走纸条
+FACT_LOCK：纸条在林照手中；信标确认三次红闪
+事件增量：纸条从灯座移动到林照手中
+场景1：林照打开底舱门，状态从关闭到打开。
+场景2：林照取走灯座下的纸条，纸条从藏匿到携带。
+场景3：林照确认信标三次红闪，航线从未知到确认。
+narrativeStatus：ready
+narrativeReason：三个场景均改变状态
+stateChangingScenes：3
+【正文交接结束】
