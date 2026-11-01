@@ -513,6 +513,7 @@ export interface RunTrace {
     manifestVersion: string
     commit: string
     buildTime: string
+    appVersion: string
   }
   sessionSnapshot?: boolean
   folderDiagnostics?: RunTraceFolderDiagnostic[]
@@ -993,6 +994,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   'deai-change-rate',
   'deai-style-drift',
   'deai-quality-gate-degraded',
+  'runtime-fingerprint-missing',
 ])
   // Bounded renderer memory for a single run. requestMessages are already
   // memory-mapped by aiService; stream events and one run's event list are the
@@ -1311,6 +1313,18 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       level: 'info',
       label: `开始${RUN_TRACE_SOURCE_NAMES[source]}${input.stepName ? ' ' + input.stepName : ''}运行`
     })
+    if (run.runtimeFingerprint?.source !== 'vite-manifest') {
+      addEvent(run.id, {
+        type: 'runtime-fingerprint-missing',
+        level: 'warn',
+        label: '运行指纹缺失',
+        detail: `source=${run.runtimeFingerprint?.source || 'unknown'} missingFields=schemaVersion,commit,buildTime,appVersion`,
+        payload: {
+          source: run.runtimeFingerprint?.source || 'unknown',
+          missingFields: ['schemaVersion', 'commit', 'buildTime', 'appVersion'],
+        }
+      })
+    }
     if (run.executionContext) {
       addEvent(run.id, {
         type: 'execution-context',

@@ -599,7 +599,8 @@ async function main() {
       source: 'vite-manifest',
       manifestVersion: String(diskManifest.schemaVersion),
       commit: diskManifest.commit,
-      buildTime: diskManifest.buildTime
+      buildTime: diskManifest.buildTime,
+      appVersion: diskManifest.appVersion
     }, 'trace runtime fingerprint matches the disk build manifest')
 
     assert(!events.some(event => event.type.includes('echo') && event.level === 'warn'),

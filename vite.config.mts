@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import type { Plugin } from 'vite'
 import { dirname } from 'node:path'
 
@@ -14,16 +15,29 @@ function readGitCommit(): string {
   }
 }
 
-function createBuildManifest(): { schemaVersion: number; commit: string; buildTime: string } {
+function readAppVersion(): string {
+  try {
+    const pkg = JSON.parse(readFileSync(
+      fileURLToPath(new URL('./package.json', import.meta.url)),
+      'utf8'
+    )) as { version?: unknown }
+    return typeof pkg.version === 'string' && pkg.version.trim() ? pkg.version.trim() : 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
+function createBuildManifest(): { schemaVersion: number; commit: string; buildTime: string; appVersion: string } {
   const manifest = {
     schemaVersion: 1,
     commit: readGitCommit(),
     buildTime: new Date().toISOString(),
+    appVersion: readAppVersion(),
   }
   return manifest
 }
 
-function buildManifestPlugin(manifest: { schemaVersion: number; commit: string; buildTime: string }): Plugin {
+function buildManifestPlugin(manifest: { schemaVersion: number; commit: string; buildTime: string; appVersion: string }): Plugin {
   const manifestPath = fileURLToPath(new URL('./dist-renderer/build-manifest.json', import.meta.url))
   return {
     name: 'shenyi-build-manifest',

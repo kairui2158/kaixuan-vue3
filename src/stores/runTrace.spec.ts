@@ -15,7 +15,8 @@ describe('runTrace store', () => {
     vi.stubGlobal('__SHENYI_BUILD_MANIFEST__', JSON.stringify({
       schemaVersion: 1,
       commit: 'fingerprint-test',
-      buildTime: '2026-10-17T03:11:00.000Z'
+      buildTime: '2026-10-17T03:11:00.000Z',
+      appVersion: '3.111.0'
     }))
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const run = store.getRun(runId)
@@ -24,6 +25,7 @@ describe('runTrace store', () => {
       manifestVersion: expect.any(String),
       commit: expect.any(String),
       buildTime: expect.any(String),
+      appVersion: '3.111.0',
     })
     const exported = store.exportRunToJson(run!) as Record<string, unknown>
     expect(exported.runtimeFingerprint).toEqual(run?.runtimeFingerprint)
@@ -1364,6 +1366,41 @@ describe('runTrace store', () => {
     expect(JSON.stringify(exported)).toContain('retainedCandidateIndex')
   })
 
+  it('warns when the build fingerprint falls back to dev metadata', () => {
+    const store = useRunTraceStore()
+    vi.stubGlobal('__SHENYI_BUILD_MANIFEST__', '')
+    const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
+    const run = store.getRun(runId)
+    expect(run?.runtimeFingerprint).toEqual({
+      source: 'dev',
+      manifestVersion: '0',
+      commit: 'dev',
+      buildTime: 'dev',
+      appVersion: 'dev',
+    })
+    const warning = run?.events.find(event => event.type === 'runtime-fingerprint-missing')
+    expect(warning?.level).toBe('warn')
+    expect((warning?.payload as { missingFields?: string[] } | undefined)?.missingFields)
+      .toContain('appVersion')
+    vi.unstubAllGlobals()
+  })
+
+  it('keeps legacy manifests on the dev fingerprint and warns about missing fields', () => {
+    const store = useRunTraceStore()
+    vi.stubGlobal('__SHENYI_BUILD_MANIFEST__', JSON.stringify({
+      schemaVersion: 1,
+      commit: 'fingerprint-test',
+      buildTime: '2026-10-17T03:11:00.000Z'
+    }))
+    const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
+    const run = store.getRun(runId)
+    expect(run?.runtimeFingerprint?.source).toBe('dev')
+    const warning = run?.events.find(event => event.type === 'runtime-fingerprint-missing')
+    expect((warning?.payload as { missingFields?: string[] } | undefined)?.missingFields)
+      .toContain('appVersion')
+    vi.unstubAllGlobals()
+  })
+
   it('persists the all-layer candidate ledger on the API call', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 1, stepName: '正文层', mode: 'body', skillNames: ['骨架技能'] })
@@ -1504,7 +1541,7 @@ describe('runTrace store', () => {
     expect(run?.turns).toHaveLength(1)
     expect(run?.apiCalls).toHaveLength(3)
     expect(run?.apiCalls.every(call => call.turnId === turnId)).toBe(true)
-    expect(run?.events.filter(event => event.type !== 'started').every(event => event.turnId === turnId)).toBe(true)
+    expect(run?.events.filter(event => !['started', 'runtime-fingerprint-missing'].includes(String(event.type))).every(event => event.turnId === turnId)).toBe(true)
   })
 
   it('updates the running turn after late intent routing', () => {
@@ -2452,7 +2489,7 @@ describe('runTrace store', () => {
       expect(run.events.some(event => event.type === 'diagnostic-keep')).toBe(true)
       expect(run.events.some(event => event.type === 'terminal-diagnostics')).toBe(true)
       expect(run.events.filter(event => event.type?.startsWith('noise-')).length).toBeLessThanOrEqual(127)
-      expect(run.eventLedger?.totalEvents).toBe(144)
+      expect(run.eventLedger?.totalEvents).toBe(145)
       expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThanOrEqual(13)
       expect(run.events.some(event => event.type === 'trace-events-compacted')).toBe(true)
       const seqs = run.events.map(event => event.seq).filter((seq): seq is number => typeof seq === 'number')
@@ -2462,7 +2499,7 @@ describe('runTrace store', () => {
 
     it('keeps contract audit events when compacting info events', () => {
       const store = useRunTraceStore()
-      const previous = store.setMemoryLimits({ maxEvents: 8 })
+      const previous = store.setMemoryLimits({ maxEvents: 10 })
       const runId = store.startRun({ step: 3, stepName: '章节层', mode: 'batch', skillNames: [] })
 
       store.addEvent(runId, {
@@ -3335,7 +3372,7 @@ describe('runTrace store', () => {
 
     const run = store.getRun(runId)!
     expect(run.status).toBe('running')
-    expect(run.events.map(event => event.label)).toEqual([
+    expect(run.events.filter(event => event.type !== 'runtime-fingerprint-missing').map(event => event.label)).toEqual([
       expect.stringContaining('开始'),
       '运行进入等待用户确认',
       '等待用户确认已恢复',

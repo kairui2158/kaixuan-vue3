@@ -3,12 +3,15 @@ export interface RuntimeBuildFingerprint {
   manifestVersion: string
   commit: string
   buildTime: string
+  appVersion: string
+  missingFields?: string[]
 }
 
 interface BuildManifest {
   schemaVersion?: number
   commit?: string
   buildTime?: string
+  appVersion?: string
 }
 
 const DEV_FINGERPRINT: RuntimeBuildFingerprint = {
@@ -16,6 +19,7 @@ const DEV_FINGERPRINT: RuntimeBuildFingerprint = {
   manifestVersion: '0',
   commit: 'dev',
   buildTime: 'dev',
+  appVersion: 'dev',
 }
 
 export function resolveRuntimeBuildFingerprint(): RuntimeBuildFingerprint {
@@ -25,18 +29,25 @@ export function resolveRuntimeBuildFingerprint(): RuntimeBuildFingerprint {
   if (!raw) return { ...DEV_FINGERPRINT }
   try {
     const manifest = JSON.parse(raw) as BuildManifest
-    if (
-      !Number.isInteger(manifest.schemaVersion) ||
-      typeof manifest.commit !== 'string' ||
-      typeof manifest.buildTime !== 'string'
-    ) {
+    const missingFields = [
+      Number.isInteger(manifest.schemaVersion) ? null : 'schemaVersion',
+      typeof manifest.commit === 'string' && manifest.commit ? null : 'commit',
+      typeof manifest.buildTime === 'string' && manifest.buildTime ? null : 'buildTime',
+      typeof manifest.appVersion === 'string' && manifest.appVersion ? null : 'appVersion',
+    ].filter((field): field is string => Boolean(field))
+    if (missingFields.length) {
       return { ...DEV_FINGERPRINT }
     }
+    const schemaVersion = manifest.schemaVersion as number
+    const commit = manifest.commit as string
+    const buildTime = manifest.buildTime as string
+    const appVersion = manifest.appVersion as string
     return {
       source: 'vite-manifest',
-      manifestVersion: String(manifest.schemaVersion),
-      commit: manifest.commit,
-      buildTime: manifest.buildTime,
+      manifestVersion: String(schemaVersion),
+      commit,
+      buildTime,
+      appVersion,
     }
   } catch {
     return { ...DEV_FINGERPRINT }
