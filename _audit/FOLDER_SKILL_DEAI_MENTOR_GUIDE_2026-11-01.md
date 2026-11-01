@@ -1,6 +1,7 @@
 # Folder SKILL 正文层内嵌降AI方法指导者手册
 
-版本：3.110.15 手册 v2（应用契约 v2）  
+版本：3.110.16 手册 v3（应用契约 v2）
+
 适用层：生成流水线正文层（step 4）  
 适用对象：folder SKILL 作者、SKILL 迭代测试者、应用层维护者  
 上游文档：`_audit/FOLDER_SKILL_DEAI_CONTRACT_GUIDE_2026-10-29.md`
@@ -202,3 +203,9 @@ B6 效果验证仍是 `provisional`：配对影子数据为 0。因此当前只�
 5. 冲突检测能力或策略。
 
 跳过手册更新等同发布未完成。
+
+## 14. v3 变更记录（2026-11-02）
+
+1. 3.110.16 起，agent 调用唯一生产入口为 `callApiWithAgentVariantOwned`，旧包装名 `callApiWithAgentVariant` 已退役；见第 9 节第 7 条。
+2. folder/agent 双路径接线语义不变：`meta.deai` 继续经 `Owned` 入口透传，trace source 仍为 `PipelinePanel.callApiWithAgentVariantOwned`。
+3. 本次变更不改变指导包构造、注入策略、trace 事件与五态 UI；对 SKILL 层的唯一要求是对账 agent 路径时不得再按旧包装名检索。
