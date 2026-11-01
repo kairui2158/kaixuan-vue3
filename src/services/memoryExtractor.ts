@@ -1,4 +1,4 @@
-import { getAiService, type PhysicalCallEvent } from './aiService'
+import { getAiService, type CallAiParams, type PhysicalCallEvent } from './aiService'
 import { extractJsonObject } from './jsonExtraction'
 import type {
   Foreshadowing,
@@ -56,6 +56,7 @@ export async function unifiedMemoryAiCall(
   prompt: string,
   systemPrompt: string,
   trace?: UnifiedMemoryAiCallTrace & {
+    contextComposition?: CallAiParams['contextComposition']
     onPhysicalCall?: (event: MemoryPhysicalCallEvent) => void
   }
 ): Promise<string | null> {
@@ -73,6 +74,7 @@ export async function unifiedMemoryAiCall(
     stream: false,
     retry: false,
     timeoutMs: 300_000,
+    contextComposition: trace?.contextComposition,
     meta: { source: 'memory-extraction.unified' },
     onPhysicalCall: (event: MemoryPhysicalCallEvent) => trace?.onPhysicalCall?.(event)
   })

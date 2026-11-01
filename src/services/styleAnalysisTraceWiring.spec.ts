@@ -44,6 +44,18 @@ describe('style analysis trace wiring', () => {
     expect(handler).toContain('startStepTrace(0, "大纲风格分析", "style-analysis")')
   })
 
+  it('records cache usage and request composition for the pipeline style-analysis call', () => {
+    const handler = handlerSlice(
+      pipelineSource,
+      'async function handlePipelineStyleAnalysisRequest',
+      'function getStepAgentConfig'
+    )
+    expect(handler).toContain("layer: 'outline'")
+    expect(handler).toContain('contextComposition,')
+    expect(handler).toContain('cacheUsageSummary: event.cacheUsageSummary')
+    expect(handler).toContain('contextComposition: event.contextComposition')
+  })
+
   it('records the outline style-analysis model request in the run trace', () => {
     const handler = handlerSlice(
       outlineSource,

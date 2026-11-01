@@ -25,6 +25,10 @@ const pipelineSource = await import('node:fs')
   .then(fs => fs.readFileSync(new URL('../PipelinePanel.vue', import.meta.url), 'utf8'))
   .catch(() => '')
 
+const memoryExtractorSource = await import('node:fs')
+  .then(fs => fs.readFileSync(new URL('../../../services/memoryExtractor.ts', import.meta.url), 'utf8'))
+  .catch(() => '')
+
 const settingsSource = await import('node:fs')
   .then(fs => fs.readFileSync(new URL('../../settings/DeAiSettings.vue', import.meta.url), 'utf8'))
   .catch(() => '')
@@ -327,6 +331,22 @@ describe('DEAI injection policy integration contract', () => {
       /callApiWithAgentVariant(?!Owned)/g,
     ) || []
     expect(retiredWrapperReferences).toHaveLength(0)
+  })
+
+  it('keeps direct pipeline AI paths observable for cache composition', () => {
+    expect(pipelineSource).toContain('layer: pipelineLayerForStep(step)')
+    expect(pipelineSource).toContain('stableSystemPrefix: systemPrompt')
+    expect(pipelineSource).toContain("layer: 'body'")
+    expect(memoryExtractorSource).toContain('contextComposition: trace?.contextComposition')
+    expect(pipelineSource).toContain('contextComposition,')
+
+    const directCallSites = pipelineSource.match(/aiService\.callAi\(/g) || []
+    const compositionMarkers = pipelineSource.match(/contextComposition[,:]/g) || []
+    expect(directCallSites.length).toBeGreaterThan(0)
+    expect(compositionMarkers.length).toBeGreaterThanOrEqual(directCallSites.length + 3)
+
+    const physicalHandlers = pipelineSource.match(/cacheUsageSummary: event\.cacheUsageSummary/g) || []
+    expect(physicalHandlers).toHaveLength(5)
   })
 
   it('keeps contract fallback observable instead of silently failing', () => {

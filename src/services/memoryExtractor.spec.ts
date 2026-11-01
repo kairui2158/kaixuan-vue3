@@ -22,4 +22,19 @@ describe('unifiedMemoryAiCall', () => {
       ]
     }))
   })
+
+  it('forwards request composition observability when the pipeline provides it', async () => {
+    const contextComposition = {
+      layer: 'body',
+      step: 4,
+      stableSystemPrefix: 'system',
+      stableUserPrefix: ''
+    }
+    await unifiedMemoryAiCall('prompt', 'system', {
+      beginApiCall: () => '',
+      finishApiCall: () => {},
+      contextComposition
+    })
+    expect(callAi).toHaveBeenCalledWith(expect.objectContaining({ contextComposition }))
+  })
 })

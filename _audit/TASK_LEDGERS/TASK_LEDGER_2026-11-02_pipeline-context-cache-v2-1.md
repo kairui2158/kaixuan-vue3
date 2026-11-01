@@ -60,8 +60,19 @@
 - Type gate after look-back: `npm run type-check` → exit 0.
 - `git diff --check` → clean apart from repo-standard CRLF warnings.
 - Consumption-side scan: `rg -n "systemLength|userLength|stableRatio|contextComposition" src --glob "!*.spec.ts"` found no additional consumer depending on the old positional caliber; runTrace and exporter consumers are field-shape based.
+- Closure scan found four direct pipeline AI paths without request composition, not the three originally registered: style analysis, agent variant, hard-signal repair, and memory extraction. All four now pass `contextComposition`, and their physical-call handlers persist `cacheUsageSummary` plus `contextComposition`.
+- Memory extraction path closure: [PipelinePanel.vue](../src/components/pipeline/PipelinePanel.vue:6619) builds body-layer composition; [memoryExtractor.ts](../src/services/memoryExtractor.ts:59) forwards it through `unifiedMemoryAiCall` to `callAi`.
+- Type defect found and fixed during closure: `pipelineLayerForStep(step)` can return `null`, normalized to `undefined` at [PipelinePanel.vue](../src/components/pipeline/PipelinePanel.vue:3922).
+- Guard correction during closure: the memory-path assertion initially targeted the wrong file. It now reads `memoryExtractor.ts` separately instead of loosening the assertion.
+- Closure commands: `npm run type-check` → exit 0; `npx vitest run src/services/memoryExtractor.spec.ts src/services/styleAnalysisTraceWiring.spec.ts src/components/pipeline/__tests__/deai-injection-policy.spec.ts` → exit 0, 3 files / 20 tests passed; full `npx vitest run` → exit 0, 240 files / 2575 tests passed.
+- Version bump: `npm version 3.110.17 --no-git-tag-version` → `3.110.17`.
+- Packaging build: `npm run build` → exit 0. Installer `dist\神意助手-Setup-3.110.17.exe`, 231,651,182 bytes, SHA-256 `4a29f1a8bcb561ba2176584184c749dabec47c50cfe275b2a69a1e70485a6c4b`.
+- Packaged verification: `node scripts/verify-packaging-3-110-17.mjs` → PASS three times (final rerun 2026-11-02 04:49 local); evidence at [packaging-evidence.json](../_audit/verification-packaging-3-110-17/packaging-evidence.json) with 87 renderer files, 94 electronAPI methods, real packaged Electron launch, window, app version, and rendered body text verified.
+- Cleanup: old installers/blockmaps 3.110.12-3.110.16 deleted. `dist\神意助手-Setup-3.110.6.exe` remains locked by 360 antivirus (Win32 error 5 on delete, ACL read, takeown, and native delete); recorded as an environment boundary, not an app defect.
+- Historical evidence protection: the 3.110.12 packaging evidence was accidentally overwritten by an early run of the copied verifier. Restored to the committed 3.110.12 values; new 3.110.17 evidence lives in its own directory.
 
 ## 7. Gap list
 
-- Registered gaps (must be resolved before closing): real provider cache matrix `untested`; 20-chapter shadow A/B `untested`; installer-level real run `untested`.
-- Non-blocking observation gaps: agent-variant/style-analysis/hard-signal calls have cache usage observation but no `contextComposition`; the newly added external S2 fields `场景类型` and `对白排布` are a SKILL-layer contract evolution to relay to the SKILL owner, while the app fixture follows the living contract.
+- Registered gaps (must be resolved before closing): real provider cache matrix `untested`; 20-chapter shadow A/B `untested`.
+- Closed observation gaps: agent-variant/style-analysis/hard-signal/memory-extraction calls now emit both cache usage and request composition. No direct `aiService.callAi` call site remains inside `PipelinePanel.vue` without composition.
+- Still external: the newly added S2 fields `场景类型` and `对白排布` are a SKILL-layer contract evolution to relay to the SKILL owner; the app fixture follows the living contract.

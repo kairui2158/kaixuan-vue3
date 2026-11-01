@@ -37,3 +37,21 @@
 - 新增边界测试：Anthropic 多 system 合并后的测量口径；JSON 模式下表格指引不进入测量。
 - 验证：`npx vitest run src/services/aiService.spec.ts --reporter=verbose` → exit 0，182 tests passed；`npm run type-check` → exit 0；全量 `npx vitest run` → exit 0，240 files / 2572 tests passed；`git diff --check` 仅剩 CRLF 标准警告。
 - 边界更新：agent/辅助调用 request composition、真实供应商 cache 矩阵、20 章 shadow A/B、安装包级真实运行仍为登记缺口；S2 新字段演进需转达 SKILL 层。
+
+## 闭环补账（3.110.17）
+
+- 反向扫描发现 4 条而非 3 条直连流水线 AI 路径缺 request composition：风格分析、agent 变体、硬信号修复、记忆抽取。前三者在 [PipelinePanel.vue](../src/components/pipeline/PipelinePanel.vue:3589)、[PipelinePanel.vue](../src/components/pipeline/PipelinePanel.vue:3921)、[PipelinePanel.vue](../src/components/pipeline/PipelinePanel.vue:6329) 接线；记忆抽取由 [PipelinePanel.vue](../src/components/pipeline/PipelinePanel.vue:6619) 组装并经 [memoryExtractor.ts](../src/services/memoryExtractor.ts:59) 透传。
+- 5 个物理调用观测点全部持久化 `cacheUsageSummary` 与 `contextComposition`：folder 主链、风格分析、agent 变体、硬信号修复、记忆抽取。
+- 修复闭环中真实类型缺陷：`pipelineLayerForStep` 可返回 `null`，agent 路径归一化为 `undefined` 后通过类型门禁。
+- 守卫同步修正：记忆路径断言改为独立读取 `memoryExtractor.ts`，不通过放松断言换取绿灯。
+- 验证：`npm run type-check` exit 0；定向 3 files / 20 tests passed；全量 `npx vitest run` exit 0，240 files / 2575 tests passed。
+- 边界：真实供应商 cache 矩阵、20 章 shadow A/B 仍为 `untested`；安装包级验证随 3.110.17 封装执行后更新。
+
+## 封装与收尾（3.110.17）
+
+- 版本：`npm version 3.110.17 --no-git-tag-version`。
+- 构建：`npm run build` exit 0；安装包 `dist\神意助手-Setup-3.110.17.exe`，231,651,182 字节，SHA-256 `4a29f1a8bcb561ba2176584184c749dabec47c50cfe275b2a69a1e70485a6c4b`。
+- 封装验证：`node scripts/verify-packaging-3-110-17.mjs` 三次 PASS（最终复跑 2026-11-02 04:49）；证据 `_audit/verification-packaging-3-110-17/packaging-evidence.json`（87 renderer files、94 electronAPI methods、真实 Electron 启动、窗口、版本、正文渲染）。
+- 证据治理：复用旧校验脚本时，3.110.12 历史 evidence 被误写成 3.110.17 数据；已恢复仓库原值，并确认 `git diff --quiet` 对该文件 clean。新证据独立落位 3-110-17 目录，禁止覆盖历史版本证据。
+- 产物清理：3.110.12-3.110.16 的旧安装包与 blockmap 已删除；`dist\神意助手-Setup-3.110.6.exe` 被 360 安全软件锁定，删除、ACL 读取、takeown 与原生删除均 Win32 error 5。登记为环境边界，需用户在 360 中解除/信任后清理，或重启后重试。
+- 边界：真实供应商 cache 矩阵、20 章 shadow A/B 仍为 `untested`；S2 外部契约演进仍需转达 SKILL 层。

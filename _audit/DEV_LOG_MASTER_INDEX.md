@@ -1639,3 +1639,11 @@
 - 验证：RED→GREEN（cache ratio 1.2→1）；定向 6 files / 382 tests passed；type-check exit 0；负向断言覆盖 prompt 全文不落账、未知身份不合并、缺 usage 不发明命中；G0.5 回头看补修测量口径（system/user 长度改从 wire 消息推导，覆盖表格指引与 Anthropic 多 system 合并），全量 240 files / 2572 tests passed。
 - 边界：真实供应商 cache 矩阵、20 章 shadow A/B、安装包级真实运行保持 `untested`；agent 变体与辅助调用只有 cache usage 观测、无 request composition，登记为非阻塞缺口。
 - 回头看补充：外部 S2 活体契约新增 `场景类型`、`对白排布` 并收紧 `stateChangingScenes` 格式，按 G1.26 判定为外部契约演进；集成夹具同步，生产断言未放松。
+
+# 2026-11-02 Pipeline Context Cache 观测闭环与 3.110.17
+
+- 文件：[_audit/DEV_LOG_2026-11-02_pipeline-context-cache-v2-1.md](_audit/DEV_LOG_2026-11-02_pipeline-context-cache-v2-1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_pipeline-context-cache-v2-1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_pipeline-context-cache-v2-1.md)
+- 交付：反向扫描补齐 4 条直连流水线 AI 路径（风格分析、agent 变体、硬信号修复、记忆抽取）的 `contextComposition`；5 个物理调用观测点全部持久化 cache usage 与上下文组成；版本升级并封装 3.110.17；恢复被误写的 3.110.12 历史 evidence；清理 3.110.12-3.110.16 旧安装产物。
+- 验证：type-check exit 0；定向 3 files / 20 tests passed；全量 240 files / 2575 tests passed；`node scripts/verify-packaging-3-110-17.mjs` 三次 PASS（真实 Electron 启动、87 renderer files、94 electronAPI methods）；安装包 231,651,182 字节，SHA-256 `4a29f1a8bcb561ba2176584184c749dabec47c50cfe275b2a69a1e70485a6c4b`。
+- 边界：真实供应商 cache 矩阵、20 章 shadow A/B 保持 `untested`；`dist\神意助手-Setup-3.110.6.exe` 被 360 锁定为环境边界；S2 新增 handoff 字段需转达 SKILL 层。

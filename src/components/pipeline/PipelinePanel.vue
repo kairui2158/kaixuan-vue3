@@ -774,7 +774,7 @@ import { folderDiagnosticsStatus, useRunTraceStore } from "../../stores/runTrace
 import { useAiCallTrace, type AiCallContext } from "../../composables/useAiCallTrace"
 import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
-import { getAiService } from "../../services/aiService"
+import { getAiService, type CallAiParams } from "../../services/aiService"
 import {
   buildPipelineProviderChannelSnapshot,
   resolvePipelineRequestProfile,
@@ -3586,6 +3586,12 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
     { role: "system", content: STYLE_ANALYSIS_SYSTEM_PROMPT },
     { role: "user", content: buildStyleAnalysisUserPrompt(projectStore.pipelineOutlineText) },
   ]
+  const contextComposition = {
+    layer: 'outline',
+    step: 0,
+    stableSystemPrefix: STYLE_ANALYSIS_SYSTEM_PROMPT,
+    stableUserPrefix: ''
+  } satisfies CallAiParams['contextComposition']
   const apiCallId = traceRunId ? runTraceStore.startApiCall(traceRunId, {
     step: 0,
     skillName: "创作风格 AI 分析",
@@ -3608,6 +3614,7 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
       temperature: 0.2,
       stream: false,
       retry: true,
+      contextComposition,
       onPhysicalCall: (event) => {
         if (!traceRunId || !apiCallId) return
         runTraceStore.appendPhysicalCall(traceRunId, apiCallId, {
@@ -3630,6 +3637,8 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
           estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
           firstTokenMs: event.firstTokenMs,
           outputMs: event.outputMs,
+          cacheUsageSummary: event.cacheUsageSummary,
+          contextComposition: event.contextComposition
         })
       },
       onProviderQueue: event => recordPipelineProviderQueue(traceRunId, apiCallId, event, undefined),
@@ -3909,6 +3918,12 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     model,
     temperature,
     maxTokens,
+    contextComposition: {
+      layer: pipelineLayerForStep(step) || undefined,
+      step,
+      stableSystemPrefix: systemPrompt,
+      stableUserPrefix: ''
+    },
     onChunk: (text: string) => {
       appendPipelineDelta(step, 'text', text, runId, pipelineRunIdParam, apiCallId)
     },
@@ -3945,7 +3960,9 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
             lastReasoningAt: event.lastReasoningAt,
             bodyAbsentMs: event.bodyAbsentMs,
             firstTokenMs: event.firstTokenMs,
-            outputMs: event.outputMs
+            outputMs: event.outputMs,
+            cacheUsageSummary: event.cacheUsageSummary,
+            contextComposition: event.contextComposition
           })
         },
     onProviderQueue: event => recordPipelineProviderQueue(runId, apiCallId, event, pipelineRunIdParam),
@@ -6309,6 +6326,12 @@ async function runHardSignalRepair(
     { role: 'user', content: repairPrompt }
   ]
   const requestMessages = messages.map(message => ({ role: message.role, content: String(message.content || '') }))
+  const contextComposition = {
+    layer: 'body',
+    step: 4,
+    stableSystemPrefix: systemPrompt,
+    stableUserPrefix: ''
+  } satisfies CallAiParams['contextComposition']
   const provider = providerStore.getProvider(requestProfile.providerId)
   const model = requestProfile.model
   const aiService = await getAiService()
@@ -6328,7 +6351,43 @@ async function runHardSignalRepair(
       model: model || undefined,
       stream: false,
       retry: true,
+      contextComposition,
       signal: pipelineStore.getGenerationSignal(bodyRunId),
+      onPhysicalCall: (event) => {
+        runTraceStore.appendPhysicalCall(traceRunId, callId, {
+          physicalCallId: event.physicalCallId,
+          phase: event.phase,
+          status: event.status,
+          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+          responseText: event.responseText || '',
+          streamText: event.streamText || '',
+          reasoningText: event.reasoningText || '',
+          finishReason: event.finishReason,
+          usage: event.usage,
+          durationMs: event.durationMs,
+          error: event.error,
+          toolsEnabled: event.toolsEnabled,
+          toolsDowngraded: event.toolsDowngraded,
+          downgradeReason: event.downgradeReason,
+          retryStrategy: event.retryStrategy,
+          maxTokens: event.maxTokens,
+          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+          contextBudgetDecision: event.contextBudget?.decision,
+          contextBudgetReason: event.contextBudget?.reason,
+          usageReconciliation: event.usageReconciliation,
+          interruptionCode: event.interruptionCode,
+          heartbeat: event.heartbeat,
+          firstContentAt: event.firstContentAt,
+          lastContentAt: event.lastContentAt,
+          lastReasoningAt: event.lastReasoningAt,
+          bodyAbsentMs: event.bodyAbsentMs,
+          firstTokenMs: event.firstTokenMs,
+          outputMs: event.outputMs,
+          cacheUsageSummary: event.cacheUsageSummary,
+          contextComposition: event.contextComposition
+        })
+      },
       onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId),
       meta: { source: `PipelinePanel.runHardSignalRepair.attempt-${attempt}` }
     })
@@ -6557,6 +6616,12 @@ async function callMemoryApi(
   systemPrompt: string,
   trace?: Parameters<typeof unifiedMemoryAiCall>[2]
 ): Promise<string | null> {
+  const contextComposition = {
+    layer: 'body',
+    step: 4,
+    stableSystemPrefix: systemPrompt,
+    stableUserPrefix: ''
+  } satisfies CallAiParams['contextComposition']
   const traceRunIdForMemory = () => (trace as { runId?: string } | undefined)?.runId || null
   const memoryTrace = trace as (UnifiedMemoryAiCallTrace & { runId?: string }) | undefined
   const traceCallIdForMemory = () => (
@@ -6567,6 +6632,7 @@ async function callMemoryApi(
   try {
     return await unifiedMemoryAiCall(prompt, systemPrompt, trace ? {
       ...trace,
+      contextComposition,
       onPhysicalCall: (event) => {
         const runId = traceRunIdForMemory()
         const callId = traceCallIdForMemory()
@@ -6601,7 +6667,9 @@ async function callMemoryApi(
           lastReasoningAt: event.lastReasoningAt,
           bodyAbsentMs: event.bodyAbsentMs,
           firstTokenMs: event.firstTokenMs,
-          outputMs: event.outputMs
+          outputMs: event.outputMs,
+          cacheUsageSummary: event.cacheUsageSummary,
+          contextComposition: event.contextComposition
         })
       }
     } : undefined)
