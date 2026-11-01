@@ -1647,3 +1647,11 @@
 - 交付：反向扫描补齐 4 条直连流水线 AI 路径（风格分析、agent 变体、硬信号修复、记忆抽取）的 `contextComposition`；5 个物理调用观测点全部持久化 cache usage 与上下文组成；版本升级并封装 3.110.17；恢复被误写的 3.110.12 历史 evidence；清理 3.110.12-3.110.16 旧安装产物。
 - 验证：type-check exit 0；定向 3 files / 20 tests passed；全量 240 files / 2575 tests passed；`node scripts/verify-packaging-3-110-17.mjs` 三次 PASS（真实 Electron 启动、87 renderer files、94 electronAPI methods）；安装包 231,651,182 字节，SHA-256 `4a29f1a8bcb561ba2176584184c749dabec47c50cfe275b2a69a1e70485a6c4b`。
 - 边界：真实供应商 cache 矩阵、20 章 shadow A/B 保持 `untested`；`dist\神意助手-Setup-3.110.6.exe` 被 360 锁定为环境边界；S2 新增 handoff 字段需转达 SKILL 层。
+
+# 2026-11-02 Run Trace 归因审计与 3.111.0
+
+- 文件：[_audit/DEV_LOG_2026-11-02_run-trace-audit-attribution.md](_audit/DEV_LOG_2026-11-02_run-trace-audit-attribution.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_run-trace-audit-attribution.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_run-trace-audit-attribution.md)
+- 交付：候选保留归因、验收终态原因与决策路径、`exportSchemaVersion` 版本域拆分、验证器按 `data-run-id` 精确导出并校验当前 run 身份；版本升级 3.111.0；附 SKILL 适配说明。
+- 验证：`node --check` exit 0；定向 3 files / 130 tests passed；真实 Electron UI PASS（`run-1793576618331-1`）；独立 trace 审计 PASS（payloads=14、attempts=1）；全量 240 files / 2586 tests passed。
+- 边界：本轮 provider 为 mock，不声明真实供应商内容质量；独立审计 `retained=0` 仅统计 degraded 调用；B6 教学有效性保持 provisional。
