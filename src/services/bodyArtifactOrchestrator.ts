@@ -18,6 +18,28 @@ export interface BodyArtifactAttempt {
   validationMs?: number
   body?: string
   metadata?: Record<string, unknown>
+  traceAuditFields?: BodyArtifactTraceAuditFields
+}
+
+export type BodyArtifactPreviousBodySource =
+  | 'none'
+  | 'candidate_metadata_only'
+  | 'not_reused'
+
+export interface BodyArtifactTraceAuditFields {
+  repairScope: BodyArtifactRepairScope
+  previousBodySource: BodyArtifactPreviousBodySource
+  degradationReason: string
+}
+
+export interface BodyArtifactDecisionPathEntry {
+  attemptId: string
+  repairAttempt: number
+  repairScope: BodyArtifactRepairScope
+  status: BodyArtifactAttempt['status']
+  wordCount: number
+  targetWords: number
+  errors: string[]
 }
 
 export type BodyArtifactRepairScope = 'none' | 'targeted' | 'full_chain' | 'post_process'
@@ -78,7 +100,11 @@ export interface GenerateBodyArtifactInput {
 export interface BodyArtifactResult {
   status: 'complete' | 'failed'
   body: string
-  metadata: Record<string, unknown>
+  metadata: {
+    decisionPath?: BodyArtifactDecisionPathEntry[]
+    terminalReason?: string
+    [key: string]: unknown
+  }
   attempts: BodyArtifactAttempt[]
   errors: string[]
 }
@@ -99,6 +125,7 @@ export function recordBodyArtifactPostProcess(
   const base = attempts[attempts.length - 1]
   if (!base) return attempts
   const errors = [...(base.errors || []), ...(context.errors || [])]
+  const repairScope: BodyArtifactRepairScope = 'post_process'
   const nextStatus: BodyArtifactAttempt['status'] = context.success
     ? base.status
     : 'execution_invalid'
@@ -106,9 +133,16 @@ export function recordBodyArtifactPostProcess(
     ...attempts.slice(0, -1),
     {
       ...base,
-      repairScope: 'post_process',
+      repairScope,
       status: nextStatus,
       errors: [...new Set(errors)],
+      traceAuditFields: buildTraceAuditFields({
+        repairScope,
+        previousBody: base.body || '',
+        degradationReason: context.success
+          ? base.traceAuditFields?.degradationReason || 'none'
+          : (context.errors?.[0] || 'post_process_failed')
+      }),
       metadata: {
         ...(base.metadata || {}),
         postProcesses: [
@@ -196,6 +230,40 @@ function createAttemptId(chapterId: string, repairAttempt: number): string {
   return `${chapterId}-attempt-${repairAttempt + 1}-${random}`
 }
 
+function buildTraceAuditFields(input: {
+  repairScope: BodyArtifactRepairScope
+  previousBody: string
+  degradationReason: string
+}): BodyArtifactTraceAuditFields {
+  return {
+    repairScope: input.repairScope,
+    previousBodySource: input.repairScope === 'none'
+      ? 'none'
+      : input.repairScope === 'targeted'
+        ? 'candidate_metadata_only'
+        : 'not_reused',
+    degradationReason: input.degradationReason || 'unknown'
+  }
+}
+
+function buildDecisionPath(
+  attempts: BodyArtifactAttempt[],
+  terminalReason: string
+): { decisionPath: BodyArtifactDecisionPathEntry[]; terminalReason: string } {
+  return {
+    decisionPath: attempts.map(attempt => ({
+      attemptId: attempt.attemptId,
+      repairAttempt: attempt.repairAttempt,
+      repairScope: attempt.repairScope,
+      status: attempt.status,
+      wordCount: attempt.wordCount,
+      targetWords: attempt.targetWords,
+      errors: attempt.errors
+    })),
+    terminalReason
+  }
+}
+
 export async function generateBodyArtifact(
   input: GenerateBodyArtifactInput
 ): Promise<BodyArtifactResult> {
@@ -216,10 +284,11 @@ export async function generateBodyArtifact(
   let targetedRepairFailed = false
   while (true) {
     if (input.shouldContinue && !input.shouldContinue()) {
+      const terminal = buildDecisionPath(attempts, 'cancelled')
       return {
         status: 'failed',
         body: '',
-        metadata: {},
+        metadata: terminal,
         attempts,
         errors: ['正文生成已被用户取消']
       }
@@ -281,7 +350,12 @@ export async function generateBodyArtifact(
         targetWords: input.contract.targetWords,
         ratio: 0,
         errors: [message],
-        body: ''
+        body: '',
+        traceAuditFields: buildTraceAuditFields({
+          repairScope,
+          previousBody,
+          degradationReason: message
+        })
       }
       attempts.push(attempt)
       input.onAttempt?.(attempt)
@@ -289,6 +363,7 @@ export async function generateBodyArtifact(
     }
 
     if (fingerprint && Number(fingerprint.physicalRequests) <= 0) {
+      const zeroRequestError = '执行无效：本次 attempt 零物理请求，疑似被断点回放短路'
       const attempt: BodyArtifactAttempt = {
         attemptId,
         repairAttempt,
@@ -297,8 +372,13 @@ export async function generateBodyArtifact(
         wordCount: 0,
         targetWords: input.contract.targetWords,
         ratio: 0,
-        errors: ['执行无效：本次 attempt 零物理请求，疑似被断点回放短路'],
+        errors: [zeroRequestError],
         body: '',
+        traceAuditFields: buildTraceAuditFields({
+          repairScope,
+          previousBody,
+          degradationReason: zeroRequestError
+        }),
         metadata: { requestFingerprint: fingerprint }
       }
       attempts.push(attempt)
@@ -306,9 +386,9 @@ export async function generateBodyArtifact(
       return {
         status: 'failed',
         body: '',
-        metadata: {},
+        metadata: buildDecisionPath(attempts, 'zero_physical_requests'),
         attempts,
-        errors: ['执行无效：本次 attempt 零物理请求，疑似被断点回放短路']
+        errors: [zeroRequestError]
       }
     }
 
@@ -327,6 +407,11 @@ export async function generateBodyArtifact(
       validationMs,
       errors: validation.errors,
       body: generation.body,
+      traceAuditFields: buildTraceAuditFields({
+        repairScope,
+        previousBody,
+        degradationReason: validation.valid ? 'none' : validation.errors[0] || 'unknown'
+      }),
       ...(fingerprint ? { metadata: { requestFingerprint: fingerprint } } : {})
     }
     attempts.push(attempt)
@@ -358,7 +443,7 @@ export async function generateBodyArtifact(
   return {
     status: 'failed',
     body: '',
-    metadata: {},
+    metadata: buildDecisionPath(attempts, 'repair_exhausted'),
     attempts,
     errors: last?.errors && last.errors.length ? errors : errors
   }

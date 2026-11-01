@@ -134,6 +134,11 @@ describe('generateBodyArtifact', () => {
     expect(calls[1].prompt).not.toContain('【上一版正文】')
     expect(result.attempts[0].repairScope).toBe('none')
     expect(result.attempts[1].repairScope).toBe('targeted')
+    expect(result.attempts[1].traceAuditFields).toEqual({
+      repairScope: 'targeted',
+      previousBodySource: 'candidate_metadata_only',
+      degradationReason: 'none'
+    })
   })
 
   it('uses full chain repair for an empty draft', async () => {
@@ -167,6 +172,10 @@ describe('generateBodyArtifact', () => {
     expect(result.status).toBe('failed')
     expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
     expect(result.attempts.map(attempt => attempt.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+    expect(result.metadata.terminalReason).toBe('repair_exhausted')
+    expect(result.metadata.decisionPath).toHaveLength(3)
+    expect(result.metadata.decisionPath?.map(entry => entry.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+    expect(result.metadata.decisionPath?.at(-1)?.errors).toContain('正文过短：1字，要求不低于8字')
   })
 
   it('gives every attempt a stable id and passes it to the API', async () => {
@@ -226,6 +235,8 @@ describe('generateBodyArtifact', () => {
     expect(result.attempts[0].status).toBe('execution_invalid')
     expect(result.attempts[0].metadata?.requestFingerprint).toMatchObject({ physicalRequests: 0 })
     expect(result.errors[0]).toContain('零物理请求')
+    expect(result.metadata.terminalReason).toBe('zero_physical_requests')
+    expect(result.attempts[0].traceAuditFields?.degradationReason).toContain('零物理请求')
   })
 })
 
@@ -373,6 +384,11 @@ describe('recordBodyArtifactPostProcess', () => {
 
     expect(result).toHaveLength(1)
     expect(result[0].repairScope).toBe('post_process')
+    expect(result[0].traceAuditFields).toEqual({
+      repairScope: 'post_process',
+      previousBodySource: 'not_reused',
+      degradationReason: 'none'
+    })
     expect(result[0].metadata?.postProcesses).toEqual([{
       attemptId: attempt.attemptId,
       stage: 'hard_signal',
