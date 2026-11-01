@@ -1148,6 +1148,55 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     )).toBe(true)
   })
 
+  it('prioritizes a complete handoff over a lower error count for the protected body contract', async () => {
+    const outputs = [
+      '正文'.repeat(1391) + '\n【正文交接】\n章节：第1章\nFACT_LOCK：示例事实',
+      '正文'.repeat(1486),
+      '正文'.repeat(1486)
+    ]
+    let callIndex = 0
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: outputs[Math.min(callIndex++, outputs.length - 1)] ?? outputs[outputs.length - 1]
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(output) { const issues = output.includes('【正文交接】') ? [{ code: 'issue-a', severity: 'blocking', message: '失败一' }, { code: 'issue-b', severity: 'blocking', message: '失败二' }] : [{ code: 'protected-body-contract', severity: 'blocking', message: '正文过短' }]; return { output, valid: false, issues } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.status).toBe('degraded')
+    expect(result.output).toBe(outputs[0])
+    expect(result.apiMeta?.retainedCandidateIndex).toBe(1)
+    expect(result.apiMeta?.bodyCandidateLedger).toEqual([
+      { attempt: 1, rawChars: 2811, netWords: 2782, handoffCount: 1, contractDistance: 18, missingHandoff: false, valid: false, errorCount: 3 },
+      { attempt: 2, rawChars: 2972, netWords: 2972, handoffCount: 0, contractDistance: 0, missingHandoff: true, valid: false, errorCount: 1 },
+      { attempt: 3, rawChars: 2972, netWords: 2972, handoffCount: 0, contractDistance: 0, missingHandoff: true, valid: false, errorCount: 1 }
+    ])
+    expect(result.apiMeta?.bodyCandidateRetention).toEqual({
+      retainedCandidateIndex: 1,
+      retainedAttempt: 1,
+      retainedReason: 'net-words:2782|contract-distance:18|errors:3'
+    })
+    expect(result.diagnostics.some(item =>
+      item.code === 'schema-validation-best-candidate-retained' &&
+      item.message.includes('第 1/3 次候选')
+    )).toBe(true)
+  })
+
   it('injects the protected body contract after folder preProcess and blocks a missing contract before the API call', async () => {
     const contract = '请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。'
     const callAi = vi.fn(async () => ({ text: '正'.repeat(3000) }))

@@ -1455,16 +1455,20 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           if (best.validation.valid !== current.validation.valid) {
             return best.validation.valid ? best : current
           }
+          if (protectedContract?.kind === 'body') {
+            const bestMissingHandoff = best.measurement?.missingHandoff ?? true
+            const currentMissingHandoff = current.measurement?.missingHandoff ?? true
+            if (bestMissingHandoff !== currentMissingHandoff) {
+              return currentMissingHandoff ? best : current
+            }
+            const bestDistance = best.measurement?.contractDistance ?? Number.POSITIVE_INFINITY
+            const currentDistance = current.measurement?.contractDistance ?? Number.POSITIVE_INFINITY
+            if (bestDistance !== currentDistance) {
+              return bestDistance <= currentDistance ? best : current
+            }
+          }
           if (best.validation.errors.length !== current.validation.errors.length) {
             return best.validation.errors.length <= current.validation.errors.length ? best : current
-          }
-          if (best.measurement && current.measurement) {
-            if (best.measurement.missingHandoff !== current.measurement.missingHandoff) {
-              return current.measurement.missingHandoff ? best : current
-            }
-            if (best.measurement.contractDistance !== current.measurement.contractDistance) {
-              return best.measurement.contractDistance <= current.measurement.contractDistance ? best : current
-            }
           }
           return best.attempt <= current.attempt ? best : current
         })
