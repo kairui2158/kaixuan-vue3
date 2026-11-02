@@ -1653,5 +1653,5 @@
 - 文件：[_audit/DEV_LOG_2026-11-02_run-trace-audit-attribution.md](_audit/DEV_LOG_2026-11-02_run-trace-audit-attribution.md)
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_run-trace-audit-attribution.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_run-trace-audit-attribution.md)
 - 交付：候选保留归因、验收终态原因与决策路径、`exportSchemaVersion` 版本域拆分、验证器按 `data-run-id` 精确导出并校验当前 run 身份；版本升级 3.111.0；附 SKILL 适配说明。
-- 验证：`node --check` exit 0；定向 3 files / 130 tests passed；真实 Electron UI PASS（`run-1793576618331-1`）；独立 trace 审计 PASS（payloads=14、attempts=1）；全量 240 files / 2586 tests passed。
-- 边界：本轮 provider 为 mock，不声明真实供应商内容质量；独立审计 `retained=0` 仅统计 degraded 调用；B6 教学有效性保持 provisional。
+- 验证：`node --check` exit 0；定向 3 files / 130 tests passed；真实 Electron UI PASS（`run-1793576618331-1`）；独立 trace 审计 PASS（payloads=14、attempts=1）；全量 240 files / 2586 tests passed；最终发布构建在当前 HEAD 重跑全量 240 files / 2586 tests passed，安装包 231,649,652 bytes，SHA-256 `C37E5B23857CFC8FDCEB0152568936B7E47AB551BF4F53ACC1892C76FC96E03F`，asar 内 version=3.111.0、构建指纹 `99e8981e04cc`。
+- 边界：本轮 provider 为 mock，不声明真实供应商内容质量；独立审计 `retained=0` 仅统计 degraded 调用；B6 教学有效性保持 provisional；3.110.17 旧产物已清理，3.110.6 为 360 锁定环境边界。

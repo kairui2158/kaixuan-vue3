@@ -28,8 +28,8 @@
 - 真实 Electron UI：`SHENYI_RUN_TRACE_AUDIT_KEEP_PROFILE=1 node scripts/verify-run-trace-audit-electron.mjs` → `===== RUN TRACE AUDIT ELECTRON PASSED =====`，当前 run `run-1793576618331-1`。
 - 独立审计：`node scripts/verify-run-trace-audit.mjs`（指向 Electron 导出）→ `[PASS] trace audit: run-1793576618331-1; payloads=14; attempts=1; retained=0`。
 - 全量回归：`npm run test:services` → 240 files / 2586 tests passed。
-- 构建封装：`npm run build` → exit 0，生成 `dist/神意助手-Setup-3.111.0.exe`（231,652,117 bytes，SHA-256 `138D3D9852F73630542B2B0710FDCB02DB8A875C1EE8EEFB085075009C178A9E`）。
-- asar 核验：包内 `package.json` version=`3.111.0`；包内 `dist-renderer/assets/runTrace-1VUWEuvQ.js` SHA-256=`2CB2BD454DDB451A485235E70E9BF6041B396AA0037DF567938B458DC863109C`，与构建产物同名文件一致；bundle 内存在 `exportSchemaVersion:20` 与 `retainedCandidateIndex`。
+- 构建封装：`npm run build` → exit 0，生成 `dist/神意助手-Setup-3.111.0.exe`。最终发布产物为 231,649,652 bytes，SHA-256 `C37E5B23857CFC8FDCEB0152568936B7E47AB551BF4F53ACC1892C76FC96E03F`，构建指纹 `99e8981e04cc`。
+- asar 核验：包内 `package.json` version=`3.111.0`、name=`shenyi-assistant`；包内 `dist-renderer/assets/runTrace-DCJB2pPl.js` 与构建产物同名文件一致，bundle 内存在 `exportSchemaVersion:20`、`retainedCandidateIndex`、构建指纹 `99e8981e04cc`。
 - 证据：`_audit/verification-run-trace-audit-electron/report.json`、`_audit/verification-run-trace-audit/report.json`。
 
 ## 5. 边界
@@ -37,7 +37,7 @@
 - `retained=0` 是独立审计的口径差异：它只统计 degraded 候选；当前 run 的 S2 为 success，验证器已断言 `retainedCandidateIndex>0`。
 - 本轮 mock provider 只证明链路、观测与导出闭环，不证明真实供应商内容质量。
 - B6 降AI教学有效性仍保持 provisional，与本次 trace 修复无关。
-- 运行验证 report 的构建指纹为 `777a0fd5e4f5`（功能提交时构建），安装包与 asar bundle 的构建指纹为 `fd88249230a4`（发布文档提交后构建）。功能验证绑定功能实现，封装核验绑定发布产物，不混称为同一构建。
+- 运行验证 report 的构建指纹为 `777a0fd5e4f5`（功能提交时构建），最终发布产物与 asar bundle 的构建指纹为 `99e8981e04cc`（当前 HEAD）。功能验证绑定功能实现，封装核验绑定发布产物，不混称为同一构建。
 
 ## 6. 回头看
 
@@ -49,4 +49,5 @@
 ## 7. 遗留
 
 - 本轮无登记缺口；安装包封装与 git 提交见对应收尾记录。
-- 收尾边界：asar `extract-file` 会按 basename 把文件解到当前目录，曾覆盖根目录 `package.json`，已通过 `git restore package.json` 恢复；解包产物与临时目录已清理。
+- 收尾边界：asar `extract-file` 会按 basename 把文件解到当前目录，两次覆盖根目录 `package.json`，均通过 `git restore package.json` 恢复；解包产物与临时目录已清理。
+- 清理边界：`dist/神意助手-Setup-3.110.17.exe` 及 blockmap 已清理；`dist/神意助手-Setup-3.110.6.exe` 删除与读取均返回 EPERM/拒绝访问，判定为 360 锁定的环境边界，登记保留，不冒充已清理。

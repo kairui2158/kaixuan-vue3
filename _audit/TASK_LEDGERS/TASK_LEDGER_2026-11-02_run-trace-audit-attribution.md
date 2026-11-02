@@ -30,10 +30,10 @@ Electron 验证器 PASS、独立审计 PASS、全量服务测试 0 failure、导
 - `src/services/runTraceExportService.ts`：导出新增 `exportSchemaVersion`。
 - `_audit/verification-run-trace-audit-electron/report.json`：`run-1793576618331-1`、3.111.0、schema 20。
 - `_audit/verification-run-trace-audit/report.json`：payloads=14、attempts=1。
-- `dist/神意助手-Setup-3.111.0.exe`：231,652,117 bytes，SHA-256 `138D3D9852F73630542B2B0710FDCB02DB8A875C1EE8EEFB085075009C178A9E`。
-- asar 核验：包内 version=`3.111.0`；`runTrace-1VUWEuvQ.js` SHA-256 与构建产物一致，并含 `exportSchemaVersion` 与 `retainedCandidateIndex`。
+- `dist/神意助手-Setup-3.111.0.exe`：最终发布产物 231,649,652 bytes，SHA-256 `C37E5B23857CFC8FDCEB0152568936B7E47AB551BF4F53ACC1892C76FC96E03F`，构建指纹 `99e8981e04cc`。
+- asar 核验：包内 version=`3.111.0`、name=`shenyi-assistant`；`runTrace-DCJB2pPl.js` 与构建产物一致，并含 `exportSchemaVersion`、`retainedCandidateIndex`、构建指纹。
 - 全量：240 files / 2586 tests passed。
 
 ## 7. 缺口清单
 
-本轮无登记缺口。独立审计 `retained=0` 为 success 口径差异，非缺陷。运行验证指纹（`777a0fd5e4f5`）与发布产物指纹（`fd88249230a4`）已分域记录；asar 抽取造成的工作区污染已恢复并清理。
+本轮无登记缺口。独立审计 `retained=0` 为 success 口径差异，非缺陷。运行验证指纹（`777a0fd5e4f5`）与最终发布产物指纹（`99e8981e04cc`）已分域记录；asar 抽取造成的工作区污染已恢复并清理；3.110.17 旧产物已清理，3.110.6 为 360 锁定环境边界。
