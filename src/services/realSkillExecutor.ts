@@ -1318,6 +1318,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           passIndex,
           attempt,
           rawChars: result.text.length,
+          output: candidateOutput,
           sourceResponseHash: fnv1a32(result.text),
           valid: validation.valid,
           schemaValidationValid: validation.valid,

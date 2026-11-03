@@ -18,6 +18,9 @@ function registerDialogHandlers() {
     try {
       if (process.env.SHENYI_TEST_EXPORT_PATH) {
         logDialog('[dialog:saveFileAsync] test-path', { defaultName, path: process.env.SHENYI_TEST_EXPORT_PATH })
+        if (process.env.SHENYI_TEST_EXPORT_DELAY_MS) {
+          await new Promise(resolve => setTimeout(resolve, Number(process.env.SHENYI_TEST_EXPORT_DELAY_MS)))
+        }
         return process.env.SHENYI_TEST_EXPORT_PATH
       }
       const parentWindow = BrowserWindow.fromWebContents(event.sender)

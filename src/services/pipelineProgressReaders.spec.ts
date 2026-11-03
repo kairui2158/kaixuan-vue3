@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 const pipelineSource = readFileSync(new URL('../components/pipeline/PipelinePanel.vue', import.meta.url), 'utf8')
+const perRunStateSource = readFileSync(new URL('./pipelinePerRunUiState.ts', import.meta.url), 'utf8')
 const pipelineStoreSource = readFileSync(new URL('../stores/pipeline.ts', import.meta.url), 'utf8')
 
 describe('pipeline progress readers', () => {
@@ -157,7 +158,7 @@ describe('pipeline progress readers', () => {
   })
 
   it('closing feedback hides the owning run without deleting execution state', () => {
-    expect(pipelineSource).toContain('feedbackHidden?: boolean')
+    expect(perRunStateSource).toContain('feedbackHidden?: boolean')
     expect(pipelineSource).toContain('function isPipelineRunTerminal(runId: string): boolean')
     expect(pipelineSource).toContain('function isPerRunFeedbackHidden(runId: string | null | undefined): boolean')
     expect(pipelineSource).toContain('function cleanupTerminalPerRunUi()')

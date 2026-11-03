@@ -591,6 +591,7 @@
                 class="pl-deai-badge"
               >{{ displayedBodyDeaiGuidanceBadge }}</span>
               <button id="btn-pl-insert-body" class="btn-secondary" @click="insertToEditor" :disabled="!(currentBodyContent || bodyResult)">插入到编辑器</button>
+              <button id="btn-pl-deai-skill-report" class="btn-secondary" @click="exportDisplayedDeaiSkillReport" :disabled="!displayedBodyDeaiSkillReportAvailable || displayedBodyDeaiSkillReportExporting">导出降AI报告</button>
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
             <GenerationProgressBar
@@ -615,6 +616,24 @@
                 :key="index"
                 class="pl-deai-guidance-feedback-line"
               >{{ line }}</div>
+              <div v-if="displayedBodyDeaiSkillReport" class="pl-deai-false-positive-form">
+                <input
+                  id="pl-deai-false-positive-input"
+                  v-model="displayedBodyDeaiFalsePositiveDraft"
+                  class="pl-input-sm"
+                  type="text"
+                  maxlength="500"
+                  placeholder="登记误伤候选，例如：deai-short-sentence：S3 合法打磨"
+                  @keydown.enter.prevent="registerDisplayedBodyDeaiFalsePositive"
+                />
+                <button
+                  id="btn-pl-deai-false-positive"
+                  class="btn-secondary"
+                  type="button"
+                  :disabled="!displayedBodyDeaiFalsePositiveDraft.trim()"
+                  @click="registerDisplayedBodyDeaiFalsePositive"
+                >登记误伤</button>
+              </div>
             </div>
           </div>
         </div>
@@ -879,6 +898,10 @@ import {
 import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
 import { buildPipelineChainWarningLine, coalescePipelineStepWarning } from "../../services/pipelineStepLog"
 import {
+  pipelinePerRunGenerationUi,
+  type PipelinePerRunGenerationUiState,
+} from "../../services/pipelinePerRunUiState"
+import {
   resolveDeaiPromptConflict,
   resolveDeaiPromptForSkillStep,
   validateSkillDeaiMeta,
@@ -888,11 +911,39 @@ import {
   appendDeaiVoiceProfile,
   buildDeaiVoiceProfileTraceEvent
 } from "../../services/deaiVoiceProfile"
+import { BODY_LAYER_STEP } from "../../services/skillDeaiContractValidation"
 import { createDeaiVoiceProfileRunSnapshotStore } from "../../services/deaiVoiceProfileRunSnapshot"
 import { buildDeaiGuidancePackTraceEvent } from "../../services/deaiGuidancePack"
 import {
+  buildDeaiStageDiagnosis,
+  buildDeaiStageGuidanceTraceEvent,
+  type DeaiStageDiagnosis,
+  formatDeaiStageGuidance
+} from "../../services/deaiStageDiagnosis"
+import {
+  DEAI_CALIBRATION_LEDGER_STORAGE_KEY,
+  readDeaiCalibrationLedger,
+  recordDeaiCalibrationFindings,
+  type DeaiCalibrationPruneResult,
+  type DeaiCalibrationLedger,
+  type DeaiCalibrationStorage,
+} from "../../services/deaiCalibrationLedger"
+import {
+  buildDeaiModelProfileGuidance,
+  buildDeaiModelProfileTraceEvent,
+  createDeaiModelProfileRunSnapshotStore,
+  type DeaiModelProfileSnapshot,
+} from "../../services/deaiModelProfile"
+import { buildDeaiCalibrationTraceEvent } from "../../services/deaiCalibrationLedger"
+import {
+  exportDeaiSkillReport,
+  type DeaiSkillReportInput,
+} from "../../services/deaiSkillReport"
+import {
   mergeDeaiChainGuidanceDisplays,
   resolveDeaiChainGuidanceDisplay,
+  resolveDeaiCollaborationDisplay,
+  resolveDeaiCollaborationDisplayForPipelineRun,
   type DeaiGuidanceDisplayTraceEvent,
   type DeaiChainGuidanceDisplay,
 } from "../../services/deaiGuidanceDisplay"
@@ -930,13 +981,90 @@ const execLogStore = useExecutionLogStore()
 const runTraceStore = useRunTraceStore()
 const pipelineStyleCard = ref<InstanceType<typeof StyleProfileCard> | null>(null)
 const pipelineStyleProfileEffective = computed(() => projectStore.styleProfileEffective)
-const activePipelineRunIds = computed(() => new Set(pipelineStore.activeRuns.map(run => run.runId)))
+function activePipelineRunIds(): ReadonlySet<string> {
+  return new Set(pipelineStore.activeRuns.map(run => run.runId))
+}
+const activePipelineRunIdSet = computed(() => activePipelineRunIds())
 const deaiVoiceProfileRunSnapshots = createDeaiVoiceProfileRunSnapshotStore({
-  activeRunIds: activePipelineRunIds,
+  activeRunIds: activePipelineRunIdSet,
   styleProfile: pipelineStyleProfileEffective,
+})
+const deaiCalibrationStorage: DeaiCalibrationStorage = {
+  read: async () => {
+    try {
+      return await window.electronAPI?.storageRead?.(DEAI_CALIBRATION_LEDGER_STORAGE_KEY) ?? null
+    } catch {
+      return null
+    }
+  },
+  write: async (data: DeaiCalibrationLedger) => {
+    try {
+      return await window.electronAPI?.storageWrite?.(DEAI_CALIBRATION_LEDGER_STORAGE_KEY, data) === true
+    } catch {
+      return false
+    }
+  },
+}
+const deaiModelProfileRunSnapshots = createDeaiModelProfileRunSnapshotStore({
+  activeRunIds: activePipelineRunIds,
+  loadLedger: async () => {
+    return readDeaiCalibrationLedger(deaiCalibrationStorage)
+  },
 })
 function resolveDeaiVoiceProfileForRun(pipelineRunId: string | null | undefined) {
   return deaiVoiceProfileRunSnapshots.resolveForRun(pipelineRunId)
+}
+async function resolveDeaiModelProfileGuidanceForRun(
+  pipelineRunId: string | null | undefined,
+  skillIndex: number,
+  totalSkillCount: number,
+  agentConfig: { model?: string; provider?: string } | null | undefined,
+): Promise<{
+  guidance: string
+  traceEvent: ReturnType<typeof buildDeaiModelProfileTraceEvent> | null
+  warning: string | null
+}> {
+  try {
+    const requestProfile = resolvePipelineRunRequestProfile(
+      pipelineRunId,
+      BODY_LAYER_STEP,
+      agentConfig,
+    )
+    const snapshot: DeaiModelProfileSnapshot | null = await deaiModelProfileRunSnapshots.resolveForRun(
+      pipelineRunId,
+      requestProfile.providerId || '',
+      requestProfile.model || '',
+    )
+    const guidance = buildDeaiModelProfileGuidance(snapshot)
+    const traceEvent = buildDeaiModelProfileTraceEvent(snapshot, guidance, {
+      step: BODY_LAYER_STEP,
+      skillIndex,
+      totalSkillCount,
+    })
+    return { guidance, traceEvent, warning: null }
+  } catch (error) {
+    return {
+      guidance: '',
+      traceEvent: null,
+      warning: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+function diagnosisReportInput(
+  diagnosis: DeaiStageDiagnosis | null,
+  guidance: string,
+): DeaiSkillReportInput['diagnosis'] {
+  return {
+    findingCount: diagnosis?.findings.length ?? 0,
+    droppedFindingCount: diagnosis?.droppedFindingCount ?? 0,
+    guidanceChars: guidance.length,
+    findings: (diagnosis?.findings || []).map(finding => ({
+      id: finding.id,
+      type: finding.type,
+      positionPercent: finding.positionPercent,
+    })),
+  }
 }
 function emitDeaiVoiceProfileTrace(runId: string | null | undefined, pipelineRunId?: string | null) {
   if (!runId) return
@@ -1235,18 +1363,9 @@ const newCategoryName = ref("")
 const selectedSettingCategory = ref("")
 const selectedSettingId = ref("")
 type PipelineLayer = 'settings' | 'volumes' | 'chapters' | 'body'
-type PerRunGenerationUiState = {
-  logs: string[]
-  skillSteps: SkillStepState[]
-  generationVolume?: any
-  bodyChainContract?: BodyArtifactContract | null
-  bodyGeneratorStepIndex?: number | null
-  bodyStepAcceptance?: StepArtifactAcceptanceResult[]
-  bodyFinalStepMetadata?: FinalStepMetadataFlowResult | null
-  active: boolean
-  feedbackHidden?: boolean
-}
-const perRunGenerationUi = reactive(new Map<string, PerRunGenerationUiState>())
+type PerRunGenerationUiState = PipelinePerRunGenerationUiState
+const perRunGenerationUi = pipelinePerRunGenerationUi
+const PER_RUN_UI_TERMINAL_RETENTION_LIMIT = 40
 
 function perRunUi(runId: string | null | undefined): PerRunGenerationUiState | null {
   if (!runId) return null
@@ -1254,6 +1373,7 @@ function perRunUi(runId: string | null | undefined): PerRunGenerationUiState | n
   if (!state) {
     state = { logs: [], skillSteps: [], active: true }
     perRunGenerationUi.set(runId, state)
+    trimTerminalPerRunUiState()
   }
   return state
 }
@@ -1313,6 +1433,28 @@ function cleanupTerminalPerRunUi() {
   for (const [runId, state] of perRunGenerationUi) {
     if (state.feedbackHidden && isPipelineRunTerminal(runId)) perRunGenerationUi.delete(runId)
   }
+}
+
+function trimTerminalPerRunUiState() {
+  const terminalRunIds = [...perRunGenerationUi.keys()]
+    .filter(runId => isPipelineRunTerminal(runId))
+  while (terminalRunIds.length > PER_RUN_UI_TERMINAL_RETENTION_LIMIT) {
+    const oldestRunId = terminalRunIds.shift()
+    if (!oldestRunId) break
+    perRunGenerationUi.delete(oldestRunId)
+  }
+}
+
+function collectDeaiPromptVariants(runId: string | null | undefined): string[] {
+  if (!runId) return []
+  const run = runTraceStore.getRun(runId)
+  if (!run) return []
+  const variants = new Set<string>()
+  for (const call of run.apiCalls) {
+    const variant = call.deaiPromptVariant
+    if (variant && variant !== 'off') variants.add(variant)
+  }
+  return [...variants]
 }
 
 function displayRunForLayer(layer: PipelineLayer) {
@@ -1382,19 +1524,64 @@ const displayedBodyDeaiGuidanceBadge = computed(() => {
   return '未观测到方法指导契约'
 })
 
-const displayedBodyDeaiGuidanceFeedback = computed(() => {
-  const display = displayedBodyDeaiGuidance.value
-  const header = '降AI方法指导（informational-only，不改写正文、不改终态）：'
-  const lines = display.skills.map(skill => {
-    const label = `S${skill.skillIndex + 1} ${skill.variant || 'unknown'}`
-    if (skill.state === 'app') return `${label} · ${skill.itemCount ?? 0}条/${skill.guidanceChars ?? 0}字符`
-    if (skill.state === 'skill') return `${label} · SKILL接管 0条/0字符`
-    if (skill.state === 'off') return `${label} · 应用方法指导关闭`
-    if (skill.warnings.includes('multi-trace-state-conflict')) return `${label} · 多trace状态冲突，请检查运行记录`
-    return `${label} · 未观测到契约`
+const displayedBodyDeaiCollaboration = computed(() => {
+  return resolveDeaiCollaborationDisplayForPipelineRun({
+    pipelineRunId: displayedBodyRunId.value,
+    traces: runTraceStore.sortedRuns,
+    resolvePipelineRunId: traceId => pipelineStore.getPipelineRunIdForTrace(traceId),
   })
-  return [header, ...lines]
 })
+
+const displayedBodyDeaiGuidanceFeedback = computed(() => {
+  return displayedBodyDeaiCollaboration.value.lines
+})
+
+const displayedBodyDeaiSkillReport = computed(() =>
+  perRunUi(displayedBodyRunId.value)?.deaiSkillReport || null,
+)
+
+const displayedBodyDeaiSkillReportAvailable = computed(() => Boolean(displayedBodyDeaiSkillReport.value))
+const displayedBodyDeaiSkillReportExporting = computed(() =>
+  perRunUi(displayedBodyRunId.value)?.deaiSkillReportExporting === true,
+)
+
+const displayedBodyDeaiFalsePositiveDraft = ref('')
+
+function registerDisplayedBodyDeaiFalsePositive(): void {
+  const value = displayedBodyDeaiFalsePositiveDraft.value.trim().slice(0, 500)
+  const runUi = perRunUi(displayedBodyRunId.value)
+  const report = runUi?.deaiSkillReport
+  if (!value || !runUi || !report) return
+  report.falsePositives = [...report.falsePositives, value]
+  displayedBodyDeaiFalsePositiveDraft.value = ''
+  appendStepLogForRun(displayedBodyRunId.value, 4, '已登记降AI误伤候选：' + value)
+}
+
+async function exportDisplayedDeaiSkillReport(): Promise<void> {
+  const report = displayedBodyDeaiSkillReport.value
+  if (!report) {
+    appendStepLogForRun(displayedBodyRunId.value, 4, '本次运行没有可导出的降AI协同报告')
+    return
+  }
+  const runUi = perRunUi(displayedBodyRunId.value)
+  if (runUi) runUi.deaiSkillReportExporting = true
+  try {
+    const result = await exportDeaiSkillReport({
+      dialogSaveFileAsync: name => window.electronAPI.dialogSaveFileAsync(name),
+      dialogWriteFile: (filePath, content) => window.electronAPI.dialogWriteFile(filePath, content),
+    }, report, {
+      defaultName: `deai-skill-report-${report.runId}.md`,
+    })
+    const message = result.ok
+      ? `降AI协同报告已导出：${result.path}`
+      : result.reason === 'canceled'
+        ? '降AI协同报告导出已取消'
+        : '降AI协同报告写入失败'
+    appendStepLogForRun(displayedBodyRunId.value, 4, message)
+  } finally {
+    if (runUi) runUi.deaiSkillReportExporting = false
+  }
+}
 
 function displayedRunForStep(step: number) {
   if (step === 1) return displayRunForLayer('settings')
@@ -1991,6 +2178,7 @@ watch(() => ({
 // must eventually leave this component Map.
 watch(() => pipelineStore.runs, () => {
   cleanupTerminalPerRunUi()
+  deaiModelProfileRunSnapshots.cleanupTerminalRuns()
 }, { deep: false })
 
 // Verification bridge for responsive E2E; no runtime behavior depends on it.
@@ -2940,7 +3128,7 @@ async function callValidatedSkill(
       if (traceRunId && guidancePackTraceEvent && systemPromptSuffix) {
         runTraceStore.addEvent(traceRunId, guidancePackTraceEvent)
       }
-      if (traceRunId && systemPromptSuffix) {
+      if (traceRunId && deaiVariant !== 'off') {
         runTraceStore.addEvent(traceRunId, {
           type: 'deai-prompt-variant',
           level: 'info',
@@ -2949,7 +3137,7 @@ async function callValidatedSkill(
             skillIndex: chainSkillIndex,
             totalSkillCount: chainSkillCount,
             variant: deaiVariant,
-            charCount: systemPromptSuffix.length
+            charCount: systemPromptSuffix?.length ?? 0
           })
         })
       }
@@ -3059,7 +3247,7 @@ async function callValidatedSkill(
           providerName: providerStore.getProvider(fallbackProviderId)?.name,
           model: requestProfile.model,
           requestMessages: [{ role: 'user', content: prompt }],
-          deaiPromptVariant: systemPromptSuffix ? deaiVariant : undefined
+          deaiPromptVariant: deaiVariant !== 'off' ? deaiVariant : undefined
         })
         : ''
       logDeaiVariant()
@@ -3901,7 +4089,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
         detail: JSON.stringify({ ...requestProfile, layer: pipelineLayerForStep(step), step })
       })
   }
-  if (runId && deaiPrompt) {
+  if (runId && deaiVariant !== 'off') {
     emitDeaiVoiceProfileTrace(runId, pipelineRunIdParam)
     if (guidancePackTraceEvent) {
       runTraceStore.addEvent(runId, guidancePackTraceEvent)
@@ -3914,7 +4102,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
         skillIndex: chainSkillIndex,
         totalSkillCount: chainSkillCount,
         variant: deaiVariant,
-        charCount: deaiPrompt.length
+        charCount: deaiPrompt?.length ?? 0
       })
     })
   }
@@ -3930,7 +4118,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     temperature,
     maxTokens,
     requestMessages,
-    deaiPromptVariant: deaiPrompt ? deaiVariant : undefined
+    deaiPromptVariant: deaiVariant !== 'off' ? deaiVariant : undefined
   }) : ""
   const requestAi = (requestMessages: Array<{ role: string; content: string }>) =>
     aiService.callAi({
@@ -4180,6 +4368,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     }
     let startSi = resumePoint.startIndex
     let current = resumePoint.previousOutput || prompt
+    let pendingStageDiagnosisGuidance = ''
     let completedStepOutputs = resumePoint.stepOutputs.slice()
     let upstreamStepMetadata: Record<string, unknown> | null =
       resumePoint.stepOutputs.find(output => output.skillIndex === startSi - 1)?.metadata || null
@@ -4365,6 +4554,40 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         metadataMode: finalStepMetadataMode,
         chainStepMark: `chain step ${si + 1}/${templates.length}`
       })
+      const stageGuidancePrompt = pendingStageDiagnosisGuidance
+        ? `${nextPrompt}\n\n${pendingStageDiagnosisGuidance}`
+        : nextPrompt
+      let modelProfilePrompt = ''
+      const skillAgentId = getStepSkillAgentId(step, t.id)
+      const isBodyLayer = pipelineLayerForStep(step) === 'body'
+      if (isBodyLayer) {
+        const skillAgentConfig = skillAgentId ? agentStore.getAgent(skillAgentId) || null : null
+        const modelProfile = await resolveDeaiModelProfileGuidanceForRun(
+          pipelineRunId,
+          si,
+          templates.length,
+          skillAgentConfig,
+        )
+        modelProfilePrompt = modelProfile.guidance
+        if (runId && modelProfile.warning) {
+          runTraceStore.addEvent(runId, {
+            type: 'deai-model-profile',
+            level: 'warn',
+            label: '模型事实画像解析失败，已跳过注入',
+            detail: JSON.stringify({
+              step,
+              skillIndex: si,
+              totalSkillCount: templates.length,
+              reason: modelProfile.warning,
+            }),
+          })
+        } else if (runId && modelProfile.traceEvent) {
+          runTraceStore.addEvent(runId, modelProfile.traceEvent)
+        }
+      }
+      const promptWithModelProfile = modelProfilePrompt
+        ? `${modelProfilePrompt}\n\n${stageGuidancePrompt}`
+        : stageGuidancePrompt
       const previousOutput = si === 0 ? "" : previousResolution.output
       const ctxForSkill = {
         ...chainCtx,
@@ -4494,14 +4717,13 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       })
     }
       // Need 1: per-skill agent override
-      const skillAgentId = getStepSkillAgentId(step, t.id)
       const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
       try {
         let stepOutput = await callValidatedSkill(
           step,
           t,
           injection,
-          nextPrompt,
+          promptWithModelProfile,
           { ...ctxForSkill, previousOutput },
           timeoutMs,
           skillAgentId,
@@ -4573,7 +4795,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             step,
             t,
             injection,
-            `${nextPrompt}\n\n${buildFinalStepEchoRetryFeedback(
+            `${stageGuidancePrompt}\n\n${buildFinalStepEchoRetryFeedback(
             finalStepRetry ?? { role: 'polish' as const, deaiDetection: 'on' as const },
               si,
               templates.length,
@@ -4737,6 +4959,30 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         }
         current = stepOutput
         chainCtx.prevResponse = current
+        if (
+          isBodyLayer &&
+          si < templates.length - 1 &&
+          isGeneratorStep &&
+          bodyChainContract &&
+          stepOutput
+        ) {
+          const stageDiagnosis = buildDeaiStageDiagnosis(stepOutput)
+          const stageGuidance = formatDeaiStageGuidance(stageDiagnosis)
+          const stageGuidanceEvent = buildDeaiStageGuidanceTraceEvent(stageDiagnosis, stageGuidance, {
+            step,
+            sourceSkillIndex: si,
+            targetSkillIndex: si + 1,
+            totalSkillCount: templates.length
+          })
+          if (stageGuidanceEvent && runId) {
+            runTraceStore.addEvent(runId, stageGuidanceEvent)
+          }
+          pendingStageDiagnosisGuidance = stageGuidance
+          const runUi = perRunUi(pipelineRunId)
+          if (runUi) runUi.deaiStageDiagnosis = stageDiagnosis
+        } else {
+          pendingStageDiagnosisGuidance = ''
+        }
         if (step === 4 && si === templates.length - 1) {
           upstreamStepMetadata = authoritativeGeneratorMetadata || upstreamStepMetadata
         }
@@ -6082,6 +6328,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             acceptanceState.bodyStepAcceptance = []
             acceptanceState.bodyFinalStepMetadata = null
             acceptanceState.bodyGeneratorStepIndex = null
+            acceptanceState.deaiStageDiagnosis = null
           }
           const executionPlan = {
           ...context.executionPlan,
@@ -6310,6 +6557,80 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     bodyArtifactDelivered = true
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
+    try {
+      const requestProfile = resolvePipelineRunRequestProfile(bodyRunId, 4, null)
+      const finalDiagnosis = buildDeaiStageDiagnosis(finalBody)
+      const finalGuidance = formatDeaiStageGuidance(finalDiagnosis)
+        const calibrationRecord = await recordDeaiCalibrationFindings(
+        deaiCalibrationStorage,
+        {
+          provider: requestProfile.providerId,
+          model: requestProfile.model,
+          findings: finalDiagnosis.findings,
+        },
+      )
+      if (trace.runId) {
+        runTraceStore.addEvent(trace.runId, buildDeaiCalibrationTraceEvent({
+          provider: requestProfile.providerId,
+          model: requestProfile.model,
+          findingCount: finalDiagnosis.findings.length,
+          ledger: calibrationRecord?.ledger || null,
+          pruneResult: calibrationRecord?.pruneResult || null,
+        }))
+      }
+      const collaboration = resolveDeaiCollaborationDisplayForPipelineRun({
+        pipelineRunId: bodyRunId,
+        traces: runTraceStore.sortedRuns,
+        resolvePipelineRunId: traceId => pipelineStore.getPipelineRunIdForTrace(traceId),
+      })
+      const stagedDiagnosis = perRunUi(bodyRunId)?.deaiStageDiagnosis || null
+      const diagnosis = diagnosisReportInput(stagedDiagnosis, formatDeaiStageGuidance(stagedDiagnosis || {
+        findings: [],
+        droppedFindingCount: 0,
+        degraded: false,
+        budgetExceeded: false,
+        durationMs: 0,
+      }))
+      const finalReportDiagnosis = diagnosisReportInput(finalDiagnosis, finalGuidance)
+      const falsePositiveFeedback = [...(
+        perRunUi(bodyRunId)?.deaiSkillReport?.falsePositives || []
+      )]
+      const reportInput: DeaiSkillReportInput = {
+        runId: trace.runId || bodyRunId,
+        chapterTitle: ch.title || ch.id || '未命名章节',
+        generatedAt: Date.now(),
+        provider: requestProfile.providerId,
+        model: requestProfile.model,
+        methodology: {
+          ownership: collaboration.methodology.state === 'app'
+            ? 'app'
+            : collaboration.methodology.state === 'skill'
+            ? 'skill'
+            : collaboration.methodology.state === 'off'
+            ? 'off'
+            : 'app',
+          injectedItemCount: collaboration.methodology.itemCount ?? 0,
+          injectedChars: collaboration.methodology.guidanceChars ?? 0,
+          variants: collectDeaiPromptVariants(trace.runId),
+        },
+        diagnosis,
+        finalDiagnosis: finalReportDiagnosis,
+        falsePositives: falsePositiveFeedback,
+      }
+      const runUi = perRunUi(bodyRunId)
+      if (runUi) runUi.deaiSkillReport = reportInput
+    } catch (error) {
+      if (trace.runId) {
+        runTraceStore.addEvent(trace.runId, {
+          type: 'deai-calibration',
+          level: 'warn',
+          label: '降AI校准落账失败，不影响正文交付',
+          detail: JSON.stringify({
+            reason: error instanceof Error ? error.message : String(error),
+          }),
+        })
+      }
+    }
     const finalWordCount = countBodyWords(finalBody)
     appendStepLogForRun(bodyRunId, 4, "正文生成完成，字数：" + finalWordCount)
     trace.addEvent({ type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + finalWordCount })
@@ -7195,6 +7516,14 @@ function memoryTextFromRetrieval(retrieval: ReturnType<typeof retrieveContext>, 
   border-radius: var(--radius-sm);
 }
 .pl-deai-guidance-feedback-line { line-height: 1.6; }
+.pl-deai-false-positive-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.pl-deai-false-positive-form .pl-input-sm { flex: 1 1 auto; min-width: 0; }
+.pl-deai-false-positive-form .btn-secondary { flex: 0 0 auto; }
 .pl-fullscreen { align-items: stretch; justify-content: stretch; }
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
 .pl-memory-preview-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); pointer-events: auto; }

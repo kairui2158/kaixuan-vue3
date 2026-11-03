@@ -101,6 +101,14 @@ function buildUpstreamWordGapScaffold(upstream: string, maxChars: number): WordG
 
   const lines = source.split(/\r?\n/)
   const fields: string[] = []
+  let legacyHandoffFields: string[] = []
+  let currentLegacyField: { key: string; lines: string[] } | null = null
+  const closeLegacyField = () => {
+    if (!currentLegacyField) return
+    const value = normalizeWhitespace(`${currentLegacyField.key}：${currentLegacyField.lines.join(' / ')}`)
+    if (value) legacyHandoffFields.push(value)
+    currentLegacyField = null
+  }
   let inLegacyHandoff = false
   let inPreviousChapterFacts = false
   for (const rawLine of lines) {
@@ -111,10 +119,20 @@ function buildUpstreamWordGapScaffold(upstream: string, maxChars: number): WordG
       continue
     }
     if (/^【正文交接结束】$/.test(line)) {
+      closeLegacyField()
       inLegacyHandoff = false
       continue
     }
-    if (inLegacyHandoff) continue
+    if (inLegacyHandoff) {
+      const matched = SCAFFOLD_FIELD_PATTERNS.find(field => field.pattern.test(line))
+      if (matched) {
+        closeLegacyField()
+        currentLegacyField = { key: matched.key, lines: [line] }
+      } else if (currentLegacyField && line) {
+        currentLegacyField.lines.push(line)
+      }
+      continue
+    }
     if (/^\[上一章事实\]$/.test(line)) {
       inPreviousChapterFacts = true
       fields.push('[上一章事实]')
@@ -132,12 +150,20 @@ function buildUpstreamWordGapScaffold(upstream: string, maxChars: number): WordG
       fields.push(normalizeWhitespace(line))
       continue
     }
+    if (/^场景[一二三四五六七八九十]+：/.test(line)) {
+      fields.push(normalizeWhitespace(line))
+      continue
+    }
     if (/^(?:POV|视角)[:：]/i.test(line) || /^FACT_LOCK[:：]/i.test(line)) {
+      fields.push(normalizeWhitespace(line))
+      continue
+    }
+    if (/^(?:POV|视角)为/i.test(line) || /^FACT_LOCK为/i.test(line)) {
       fields.push(normalizeWhitespace(line))
     }
   }
 
-  const normalized = fields.filter(Boolean)
+  const normalized = [...legacyHandoffFields, ...fields.filter(Boolean)]
   if (normalized.length === 0) return { text: '', fieldCount: 0, available: false, source: 'none' }
   let text = normalized.join('\n')
   if (text.length > limit) text = `${text.slice(0, limit)}\n（上游事实链超长，已截断）`
@@ -282,26 +308,39 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
     const scaffold = candidateScaffold.available
       ? candidateScaffold
       : buildUpstreamWordGapScaffold(input.chainUpstreamContext || '', maxScaffoldChars)
+    const isUnderMinimum = currentWords < minWords
+    const lengthRepairRequirement = isUnderMinimum
+      ? '优先扩写动作链、对白回合、阻碍代价、判断变化、空间结果来补足净字数；本轮净字数不得低于下限，也不得低于上一版净字数。'
+      : '优先压缩重复说明与无效描写；不得删除场景、事实或对白回合，净字数不得低于下限。'
     const lines = [
       '【结构化重试反馈】',
-      '本反馈描述净字数缺口与有界结构骨架。候选全文未随本反馈回传，请基于原始任务输入、结构骨架与已生成的场景结构补写缺口，不要复述反馈本身，不要输出解释。',
+      '本反馈不携带上一版正文全文；请输出覆盖全部场景的完整正文，不要复述反馈本身，不要输出解释，不要输出补字片段。',
       '',
       `目标净字数：${targetWords}`,
       `下限净字数：${minWords}`,
       `上限净字数：${maxWords}`,
       `当前净字数：${currentWords}`,
       `还差净字数：${gap}`,
+      '当前净字数/还差净字数只描述上一轮候选，不是本轮输出长度。',
       '',
       '一、上一版场景结构骨架（有界，不是候选全文）'
     ]
     if (scaffold.available) {
-      lines.push(scaffold.text, '', '修复要求：以上方结构骨架为保留边界，只补足缺口场景和承接段；正文末尾必须保留【正文交接】区块。')
+      lines.push(
+        scaffold.text,
+        '',
+        `修复要求：以上一版场景结构骨架为结构与事实边界完整施工；不删除场景、不压缩必要对白、不新增事实、不注水、不逐字复述上一版；${lengthRepairRequirement}正文末尾必须保留【正文交接】区块。`
+      )
     } else {
-      lines.push('（上一版候选没有可解析的【正文交接】账本，无法提供结构骨架。）', '', '修复要求：按原始任务输入重建正文，并补足【正文交接】账本；不要把缺失骨架降级为丢弃段落结构。')
+      lines.push(
+        '（上一版候选没有可解析的【正文交接】账本，无法提供事实边界。）',
+        '',
+        '修复要求：按原始任务输入完整重交付正文，并补齐【正文交接】账本；不要把缺失账本降级为丢弃段落结构。'
+      )
     }
     if (scaffold.source === 'upstream') {
       lines.push('', '状态说明：上一版候选没有可解析的【正文交接】账本，已改用链路上游事实链。')
-      lines.push('', '补充要求：基于 FACT_LOCK 与上游事实链重建【正文交接】账本，只补足缺口，不要整段正文重写。')
+      lines.push('', '补充要求：以上游事实链为事实边界，基于原始骨架输出覆盖全部场景的完整正文，并重建【正文交接】账本；不要输出补字片段。')
     }
     const feedback = lines.join('\n')
     return {

@@ -1199,6 +1199,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     }
     expect(result.apiMeta?.candidateLedger?.[0]?.sourceResponseHash).toBe(fnv1a32('骨架一'))
     expect(result.apiMeta?.candidateLedger?.[0]?.rawChars).toBe(3)
+    expect(result.apiMeta?.candidateLedger?.[0]?.output).toBe('骨架一')
   })
 
   it('prioritizes a complete handoff over a lower error count for the protected body contract', async () => {

@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.111.0",
+  "version": "3.112.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -21,6 +21,8 @@
     "verify:provider-wire-electron": "node scripts/verify-api-direct-write-provider-wire-electron.mjs",
     "verify:provider-channel-electron": "node scripts/verify-pipeline-provider-channel-electron.mjs",
     "verify:provider-channel-live": "SHENYI_PROVIDER_CHANNEL_LIVE=1 node scripts/verify-pipeline-provider-channel-electron.mjs",
+    "verify:packaging": "node scripts/verify-packaging.mjs",
+    "verify:deai-stage-guidance-live": "node scripts/verify-deai-stage-guidance-live.mjs",
     "verify:chapter-batch-contract-electron": "npm run build:vue && node scripts/verify-chapter-batch-contract-electron.mjs",
     "verify:outline-legacy-restore-electron": "node scripts/verify-outline-legacy-restore-electron.mjs",
     "verify:postprocess-ui-electron": "npm run build:vue && node scripts/verify-postprocess-terminal-ui-electron.mjs",

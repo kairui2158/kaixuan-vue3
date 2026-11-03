@@ -1,0 +1,18 @@
+{
+  "schema": "shenyi.deai-stage-guidance.electron",
+  "version": 1,
+  "generatedAt": "2026-11-03T03:56:19.208Z",
+  "script": "verify-deai-stage-guidance-electron.mjs",
+  "projectId": "deai-stage-guidance-live",
+  "runId": "run-1793678176294-1",
+  "runStatus": "success",
+  "requestCount": 3,
+  "evidenceDirectory": "D:\\codex\\novel-workshop-vue3\\_data\\deai-stage-guidance-exports\\run-trace-正文层-20261103-115616-deep",
+  "hardRules": {
+    "visibleElectron": true,
+    "realUiSkillSelection": "#pl-s5-skill / #pl-s5-add-skill / #pl-s5-skills-list",
+    "realBodyButtonClick": "#btn-primary-gen-body",
+    "deepTraceExport": true,
+    "physicalRequestAssertion": true
+  }
+}

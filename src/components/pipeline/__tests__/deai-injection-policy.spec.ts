@@ -111,7 +111,7 @@ describe('DEAI injection policy integration contract', () => {
       'if (traceRunId && guidancePackTraceEvent && systemPromptSuffix)',
     )
     expect(pipelineSource).toContain(
-      'if (runId && deaiPrompt) {',
+      "if (runId && deaiVariant !== 'off') {",
     )
     expect(pipelineSource).toContain(
       "runTraceStore.addEvent(traceRunId, guidancePackTraceEvent)",

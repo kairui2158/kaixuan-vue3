@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-31
+更新日期：2026-11-03
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -92,6 +92,7 @@
 | 299 | 2026-10-04 | 大纲导出 API 回复索引与 3.74.1 封装 | trace schema 13、`apiResponseIndex`、导出索引完整性校验、流式回填守卫与 3.74.1 重封装 | SKILL 层可直接从主 JSON 定位每个 API 回复 payload，不再被外置 `responseText` 断链 | [DEV_LOG_2026-10-04-outline-export-response-index.md](DEV_LOG_2026-10-04-outline-export-response-index.md) |
 | 300 | 2026-10-04 | 预览状态机移除与直写协议收口 | 删除修改预览/批准写回/写入未执行状态机与会话级操作提示，统一 `editor.write` 直写；Electron 中立执行验证通过 | API 对话不再被旧确认链路拦截或降级；SKILL / Agent 只影响领域能力，写入权限保持三元组单源 | [DEV_LOG_2026-10-04-preview-state-machine-removal.md](DEV_LOG_2026-10-04-preview-state-machine-removal.md) |
 | 301 | 2026-10-04 | 3.75.0 封装 | 版本升级、NSIS 重封装、asar/renderer/electronAPI/真实启动核验与 3.74.1 旧产物清理 | 交付删除预览状态机并统一直写协议后的 3.75.0 客户安装包 | [DEV_LOG_2026-10-04-preview-state-machine-removal.md](DEV_LOG_2026-10-04-preview-state-machine-removal.md) |
+| 302 | 2026-11-02 | 正文层内嵌降AI协同 V6.1 Phase A | S2 retry 上游事实链修复、S2→S3 位置化诊断注入、`deai-stage-guidance` trace、候选账本保留输出 | SKILL 接管写作时应用只送有界情报；诊断不参与验收/终态/retry，运行记录可审计诊断链路且不携带候选正文 | [DEV_LOG_2026-11-02_body-deai-v6-1-phase-a.md](DEV_LOG_2026-11-02_body-deai-v6-1-phase-a.md) |
 
 | 序号 | 日期 | 开发工作 | 开发功能 | 用途 | 日志文件 |
 |---:|---|---|---|---|---|
@@ -1655,3 +1656,45 @@
 - 交付：候选保留归因、验收终态原因与决策路径、`exportSchemaVersion` 版本域拆分、验证器按 `data-run-id` 精确导出并校验当前 run 身份；版本升级 3.111.0；附 SKILL 适配说明。
 - 验证：`node --check` exit 0；定向 3 files / 130 tests passed；真实 Electron UI PASS（`run-1793576618331-1`）；独立 trace 审计 PASS（payloads=14、attempts=1）；全量 240 files / 2586 tests passed；最终发布构建在当前 HEAD 重跑全量 240 files / 2586 tests passed，安装包 231,649,652 bytes，SHA-256 `C37E5B23857CFC8FDCEB0152568936B7E47AB551BF4F53ACC1892C76FC96E03F`，asar 内 version=3.111.0、构建指纹 `99e8981e04cc`。
 - 边界：本轮 provider 为 mock，不声明真实供应商内容质量；独立审计 `retained=0` 仅统计 degraded 调用；B6 教学有效性保持 provisional；3.110.17 旧产物已清理，3.110.6 为 360 锁定环境边界。
+
+# 2026-11-03 正文层内嵌降AI协同 V6.1 Phase B/C
+
+- 文件：[_audit/DEV_LOG_2026-11-03_body-deai-v6-1-phase-bc.md](_audit/DEV_LOG_2026-11-03_body-deai-v6-1-phase-bc.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_body-deai-v6-1-phase-bc.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-02_body-deai-v6-1-phase-bc.md)
+- 交付：provider/model 画像读取与 run 内 immutable 快照；UI 三线显示（方法论/诊断/校准）；终稿 findings 落校准账本；SKILL 迭代报告导出；per-run UI 状态结构化与终态有界化；S2 诊断存续修复；报告变体从真实 apiCalls 派生。
+- 验证：RED→GREEN；定向 6 files / 47 tests passed；type-check exit 0；`build:vue` exit 0；真实 Electron E2E PASS（`run-1793645741138-1`，3 物理请求，报告导出 615 bytes），报告断言 `S2诊断：3条`、`变体: methodology, creative, polish`、`误伤候选 - 无`；全量 245 files / 2623 tests passed。
+- 边界：mock Electron E2E 已验证真实 UI/trace/物理请求组装；后续真实供应商 observational live 已在五个证据目录留证。本轮当时不升版、不封装、不提交 git，3.112.0 发布证据由发布台账接续。
+
+# 2026-11-03 正文层内嵌降AI协同 V6.1 真实供应商 Live 观测修正
+
+- 文件：[_audit/DEV_LOG_2026-11-03_body-deai-v6-1-live.md](_audit/DEV_LOG_2026-11-03_body-deai-v6-1-live.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-deai-v6-1-live.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-deai-v6-1-live.md)
+- 交付：真实供应商 observational live：Electron safeStorage 密钥解密桥（明文不落盘）、超时与失败留证脚本补丁、`verify:deai-stage-guidance-live` 入口；五个证据目录保留真实失败/running/success 状态，成功章节 variant/诊断/校准/UI 与 trace 一致。
+- 验证：summary/trace 对账一致；早期三个无证据 runId 与“3/3 success”声明已撤回；观测产物密钥形状反查 0 命中。
+- SKILL 交接：[_audit/SKILL_ADAPTATION_2026-11-03_body-deai-v6-1-live.md](_audit/SKILL_ADAPTATION_2026-11-03_body-deai-v6-1-live.md)
+- 边界：observational 不证明写作质量、不是发布门禁；S3 postProcess 阈值与 S2 施工净字数缺口交 SKILL 作者迭代；发布交付由 3.112.0 发布台账接续。
+
+# 2026-11-03 正文层内嵌降AI协同 V6.1 缺口闭环
+
+- 文件：[_audit/DEV_LOG_2026-11-03_body-deai-v6-1-gap-closure.md](_audit/DEV_LOG_2026-11-03_body-deai-v6-1-gap-closure.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-deai-v6-1-gap-closure.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-deai-v6-1-gap-closure.md)
+- SKILL 交接：[_audit/SKILL_ADAPTATION_2026-11-03_body-deai-v6-1-gap-closure.md](_audit/SKILL_ADAPTATION_2026-11-03_body-deai-v6-1-gap-closure.md)
+- 交付：校准账本 500 条上限与裁剪 trace；误伤候选 UI 登记入口并随报告导出；模型画像与 S2→S3 诊断入口均改为 `pipelineLayerForStep(step) === 'body'` 语义入口并加负向守护；诊断/报告 per-run 并发守护测试补齐；`releaseGate` 冻结观测、单条 sample 120 字符截断、0 finding 观测事件、停滞检测时间戳污染修复。
+- 验证：画像调用点 RED→GREEN（先 1 failed 后 14 passed）；定向 3 files / 34 tests passed；`npm run type-check` exit 0；`npm run build:vue` exit 0；真实 Electron E2E PASS（3 逻辑 call、3 物理 call）；`npm run test:services` 245 files / 2638 tests passed。
+- 边界：真实供应商 live 为五个 observational 证据目录（含失败与 running）；误伤登记只进报告、不进校准与终态；3.112.0 发布交付由发布台账接续。
+
+# 2026-11-03 正文层内嵌降AI V6.1 过度设计冻结与死项清理
+
+- 文件：[_audit/DEV_LOG_2026-11-03_body-deai-v6-1-overdesign-freeze.md](_audit/DEV_LOG_2026-11-03_body-deai-v6-1-overdesign-freeze.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-deai-v6-1-overdesign-freeze.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-deai-v6-1-overdesign-freeze.md)
+- 交付：模型画像 prompt 注入在校准 NOT READY 期间冻结，trace 保留冻结原因；清理 `deai-skill-report` 无发射点的 trace whitelist 死项，报告导出与误伤登记功能本体保留。
+- 验证：冻结定向 2 files / 21 tests passed；死项清理后 2 files / 19 tests passed；`npm run type-check` exit 0；`npm run test:services` 245 files / 2631 tests passed。
+- 边界：冻结后的 Electron E2E 已重跑通过；真实供应商 observational live 已在五个证据目录留证，含失败与 running 状态。observational 结果不证明写作质量；3.112.0 发布证据由发布台账接续。
+
+# 2026-11-03 3.112.0 正文层内嵌降AI协同交付
+
+- 文件：[_audit/DEV_LOG_2026-11-03_release-3.112.0.md](_audit/DEV_LOG_2026-11-03_release-3.112.0.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_release-3.112.0.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_release-3.112.0.md)
+- 交付：撤回无证据 live 3/3 成功声明并保留五个真实 observational 目录；多 run 报告绑定修复；V6.1 降AI协同、冻结画像观测、诊断/校准/报告链路随 3.112.0 发布。
+- 门禁：`git diff --check`、`type-check`、`test:services`、`build`、`verify:packaging`、敏感扫描、显式 staging、git commit、提交后复查；全部通过后才允许完成声明。
+- 边界：live observational 不证明写作质量；folder SKILL 生产目录不由应用侧修改；发布完成证据以发布台账第 6 节为准。

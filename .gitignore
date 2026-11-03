@@ -51,6 +51,7 @@ _audit/tmp/*backup*.json
 _audit/tmp/
 _audit/verification-chapter-batch-contract-live-archive/
 _audit/verification-outline-deletion-gate/client-turn6-trace/
+_audit/verification-deai-stage-guidance-live/
 
 # Local research repositories retained as audit source bodies; tracked evidence
 # lives in _audit/agent-research/{candidates,rounds,selected}.json and reports.

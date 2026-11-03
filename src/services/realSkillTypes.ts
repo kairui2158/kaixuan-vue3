@@ -24,6 +24,8 @@ export interface RealSkillCandidateLedgerEntry {
   passIndex: number
   attempt: number
   rawChars: number
+  /** Retained candidate output for trace response extraction. */
+  output?: string
   /** Stable FNV-1a hash of the physical model response before postProcess. */
   sourceResponseHash: string
   /** Candidate validity used by the retention decision. */

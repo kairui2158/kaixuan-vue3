@@ -28,6 +28,39 @@ export interface DeaiChainGuidanceDisplay {
   guidanceChars: number | null
 }
 
+export interface DeaiCollaborationMethodologyDisplay {
+  state: DeaiChainGuidanceDisplayState
+  itemCount: number | null
+  guidanceChars: number | null
+}
+
+export interface DeaiCollaborationDiagnosisDisplay {
+  observed: boolean
+  eventCount: number
+  findingCount: number
+  guidanceChars: number
+}
+
+export interface DeaiCollaborationCalibrationDisplay {
+  observed: boolean
+  findingCount: number
+  ledgerWritten: boolean
+}
+
+export interface DeaiCollaborationDisplay {
+  methodology: DeaiCollaborationMethodologyDisplay
+  diagnosis: DeaiCollaborationDiagnosisDisplay
+  calibration: DeaiCollaborationCalibrationDisplay
+  lines: string[]
+}
+
+export interface DeaiCollaborationTraceSource {
+  id: string
+  mode?: string
+  pipelineRunId?: string | null
+  events: readonly DeaiGuidanceDisplayTraceEvent[]
+}
+
 interface DeaiInjectionPolicyDetail {
   step?: unknown
   skillIndex?: unknown
@@ -248,4 +281,99 @@ export function mergeDeaiChainGuidanceDisplays(
       ? knownSkills.reduce((sum, skill) => sum + (skill.guidanceChars ?? 0), 0)
       : null,
   }
+}
+
+export function resolveDeaiCollaborationDisplay(input: {
+  events: readonly DeaiGuidanceDisplayTraceEvent[]
+}): DeaiCollaborationDisplay {
+  const events = input.events || []
+  const policyDetails = events
+    .filter(event => event.type === 'deai-injection-policy')
+    .map(event => parseEventDetail(event))
+    .filter((detail): detail is Record<string, unknown> => Boolean(detail))
+  const skillCount = policyDetails.reduce((max, detail) => {
+    const count = Number(detail.totalSkillCount)
+    return Number.isFinite(count) && count > max ? Math.trunc(count) : max
+  }, 0)
+  const methodology = resolveDeaiChainGuidanceDisplay({ events, skillCount })
+
+  const diagnosisEvents = events
+    .filter(event => event.type === 'deai-stage-guidance')
+    .map(event => parseEventDetail(event))
+    .filter((detail): detail is Record<string, unknown> => Boolean(detail))
+  const latestDiagnosis = diagnosisEvents[diagnosisEvents.length - 1] || null
+  const diagnosis: DeaiCollaborationDiagnosisDisplay = {
+    observed: Boolean(latestDiagnosis),
+    eventCount: diagnosisEvents.length,
+    findingCount: Number(latestDiagnosis?.findingCount) || 0,
+    guidanceChars: Number(latestDiagnosis?.guidanceChars) || 0,
+  }
+
+  const calibrationEvents = events
+    .filter(event => event.type === 'deai-calibration')
+    .map(event => parseEventDetail(event))
+    .filter((detail): detail is Record<string, unknown> => Boolean(detail))
+  const latestCalibration = calibrationEvents[calibrationEvents.length - 1] || null
+  const calibration: DeaiCollaborationCalibrationDisplay = {
+    observed: Boolean(latestCalibration),
+    findingCount: Number(latestCalibration?.findingCount) || 0,
+    ledgerWritten: latestCalibration?.ledgerWritten === true,
+  }
+
+  const observedMethodologyStates = new Set(
+    methodology.skills.map(skill => skill.state).filter(state => state !== 'unknown')
+  )
+  const methodologyState: DeaiChainGuidanceDisplayState = observedMethodologyStates.size === 0
+    ? 'unknown'
+    : observedMethodologyStates.size === 1
+    ? [...observedMethodologyStates][0] as DeaiSkillGuidanceDisplayState
+    : 'mixed'
+  const methodologyLine = methodologyState === 'unknown'
+    ? '方法论 · 未观测'
+    : methodologyState === 'skill'
+    ? `方法论 · SKILL接管 · ${methodology.itemCount ?? 0}条/${methodology.guidanceChars ?? 0}字符`
+    : methodologyState === 'off'
+    ? '方法论 · 关闭'
+    : `方法论 · 应用注入 · ${methodology.itemCount ?? 0}条/${methodology.guidanceChars ?? 0}字符`
+  const diagnosisLine = diagnosis.observed
+    ? `诊断 · ${diagnosis.findingCount}条/${diagnosis.guidanceChars}字符`
+    : '诊断 · 未观测'
+  const calibrationLine = calibration.observed
+    ? `校准 · ${calibration.findingCount}条 · ${calibration.ledgerWritten ? '已落账' : '未落账'}`
+    : '校准 · 未观测'
+
+  return {
+    methodology: {
+      state: methodology.state,
+      itemCount: methodology.itemCount,
+      guidanceChars: methodology.guidanceChars,
+    },
+    diagnosis,
+    calibration,
+    lines: [methodologyLine, diagnosisLine, calibrationLine],
+  }
+}
+
+export function resolveDeaiCollaborationDisplayForPipelineRun(input: {
+  pipelineRunId: string | null | undefined
+  traces: readonly DeaiCollaborationTraceSource[]
+  resolvePipelineRunId?: (traceId: string) => string | null | undefined
+}): DeaiCollaborationDisplay {
+  const { pipelineRunId, traces, resolvePipelineRunId } = input
+  if (!pipelineRunId) {
+    return resolveDeaiCollaborationDisplay({ events: [] })
+  }
+
+  const events = traces
+    .filter(trace => trace.mode === 'body')
+    .filter(trace => trace.pipelineRunId === pipelineRunId
+      || resolvePipelineRunId?.(trace.id) === pipelineRunId)
+    .flatMap(trace => trace.events.filter(
+      (event): event is DeaiGuidanceDisplayTraceEvent => event.type === 'deai-injection-policy'
+        || event.type === 'deai-guidance-pack'
+        || event.type === 'deai-stage-guidance'
+        || event.type === 'deai-calibration'
+    ))
+
+  return resolveDeaiCollaborationDisplay({ events })
 }

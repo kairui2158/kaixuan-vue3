@@ -84,7 +84,7 @@ describe('real kaixuan S2 protected body contract', () => {
     } satisfies RealSkillLoadResult)
 
     const validOutput = [
-      '正文'.repeat(1650),
+      '正文'.repeat(1750),
       '【正文交接】',
       '章节：第1章',
       'POV：王芳',
@@ -145,7 +145,7 @@ describe('real kaixuan S2 protected body contract', () => {
     // The protected contract sentence itself names the handoff marker. Count
     // only markers that precede it, where upstream handoff folding happened.
     const foldedInput = userPrompt.slice(0, userPrompt.lastIndexOf(contractText))
-    expect(foldedInput.split('【正文交接】').length - 1).toBe(1)
+    expect(foldedInput.split('\n【正文交接】\n').length - 1).toBe(1)
     expect(userPrompt.endsWith(contractText)).toBe(true)
     expect(userPrompt.lastIndexOf(contractText)).toBeGreaterThan(
       foldedInput.lastIndexOf('【正文交接】')

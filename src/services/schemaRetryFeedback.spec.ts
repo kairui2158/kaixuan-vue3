@@ -72,7 +72,16 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).toContain('下限净字数：2800')
     expect(result.feedback).toContain('当前净字数：1000')
     expect(result.feedback).toContain('还差净字数：1800')
-    expect(result.feedback).toContain('候选全文未随本反馈回传')
+    expect(result.feedback).toContain('本反馈不携带上一版正文全文')
+    expect(result.feedback).toContain('请输出覆盖全部场景的完整正文')
+    expect(result.feedback).toContain('以上一版场景结构骨架为结构与事实边界完整施工')
+    expect(result.feedback).toContain('本轮净字数不得低于下限，也不得低于上一版净字数')
+    expect(result.feedback).toContain('当前净字数/还差净字数只描述上一轮候选，不是本轮输出长度')
+    expect(result.feedback).toContain('不删除场景、不压缩必要对白、不新增事实、不注水、不逐字复述上一版')
+    expect(result.feedback).toContain('优先扩写动作链、对白回合、阻碍代价、判断变化、空间结果')
+    expect(result.feedback).not.toContain('只补足缺口场景和承接段')
+    expect(result.feedback).not.toContain('只补足缺口')
+    expect(result.feedback).not.toContain('不要整段正文重写')
     expect(result.feedback).toContain('一、上一版场景结构骨架（有界，不是候选全文）')
     expect(result.feedback).toContain('已完成场景：1. 王芳在酒馆讲出线索')
     expect(result.feedback).toContain('FACT_LOCK：王芳=话痨；账册=旧案关键物')
@@ -82,6 +91,8 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).not.toContain('请以上一版候选输出为基底补写缺失场景')
     expect(result.feedback).not.toContain(candidate)
     expect(result.feedback).not.toContain('请基于原始任务输入重新输出完整结果')
+    expect(result.feedback).not.toContain('请基于原始任务输入完整重交付正文')
+    expect(result.feedback).not.toContain('只作为事实边界，不是正文基底')
   })
 
   it('declares the missing scaffold instead of pretending the previous structure exists', () => {
@@ -158,6 +169,70 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.scaffoldFieldCount).toBe(0)
   })
 
+  it('extracts a bounded scaffold from real S1 natural scene handoff syntax', () => {
+    const upstream = [
+      '上一步结构化交接：',
+      '第12章《王芳入局》',
+      '场景一：酒馆问线；场景目标是确认账册来源；POV为林越。',
+      '场景二：仓库对峙；场景目标是拿到账册；POV为林越。',
+      '场景三：分头行动；场景目标是封锁出口；POV为王芳。',
+      'FACT_LOCK为 王芳=话痨；账册=旧案关键物；林越=怀疑内鬼。',
+      'POV为 陈暮。',
+      'narrativeStatus为 READY。'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：2000字，要求不低于2800字'],
+      previousOutput: '正'.repeat(2000),
+      chainUpstreamContext: upstream,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.scaffoldSource).toBe('upstream')
+    expect(result.scaffoldFieldCount).toBeGreaterThan(0)
+    expect(result.feedback).toContain('链路上游事实链（有界）')
+    expect(result.feedback).toContain('场景一：酒馆问线')
+    expect(result.feedback).toContain('FACT_LOCK为 王芳=话痨')
+    expect(result.feedback).not.toContain('修复基础缺失')
+    expect(result.feedback).not.toContain('按原始任务输入重建正文')
+    expect(result.feedback).not.toContain('正'.repeat(100))
+    expect(result.scaffoldChars).toBeLessThanOrEqual(800)
+  })
+
+  it('reuses the legacy handoff ledger inside a real S1 upstream prompt', () => {
+    const upstream = [
+      '上一步结构化交接：',
+      '【正文交接】',
+      '章节：灰绿光下的舱门',
+      'POV：陈暮，全程限知',
+      '已完成场景：场景1—场景4',
+      'FACT_LOCK：王芳=话痨；账册=旧案关键物',
+      '事件增量：确认可感知范围无人且菌膜仍存',
+      '【正文交接结束】'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：2000字，要求不低于2800字'],
+      previousOutput: '正'.repeat(2000),
+      chainUpstreamContext: upstream,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.scaffoldSource).toBe('upstream')
+    expect(result.scaffoldFieldCount).toBeGreaterThan(0)
+    expect(result.feedback).toContain('链路上游事实链（有界）')
+    expect(result.feedback).toContain('章节：灰绿光下的舱门')
+    expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
+    expect(result.feedback).not.toContain('修复基础缺失')
+    expect(result.scaffoldChars).toBeLessThanOrEqual(800)
+  })
+
   it('keeps bounded-summary feedback for quality failures', () => {
     const result = buildSchemaRetryFeedback({
       errors: ['复述上一步内容过多'],
@@ -171,6 +246,34 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.strategy).toBe('bounded-summary')
     expect(result.feedback).toContain('请基于原始任务输入重新输出完整结果')
     expect(result.feedback).not.toContain('请以上一版候选输出为基底补写缺失场景')
+  })
+
+  it('asks an overlong candidate to compress without dropping bounded structure', () => {
+    const candidate = [
+      '正'.repeat(5000),
+      '【正文交接】',
+      '章节：第12章 王芳入局',
+      'POV：林越',
+      '已完成场景：1. 王芳在酒馆讲出线索；2. 林越确认旧案时间',
+      'FACT_LOCK：王芳=话痨；账册=旧案关键物',
+      '【正文交接结束】'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过长：5000字，要求不超过4000字'],
+      previousOutput: candidate,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('word-gap')
+    expect(result.scaffoldSource).toBe('candidate')
+    expect(result.feedback).toContain('优先压缩重复说明与无效描写')
+    expect(result.feedback).toContain('不得删除场景、事实或对白回合')
+    expect(result.feedback).toContain('净字数不得低于下限')
+    expect(result.feedback).not.toContain('不得低于上一版净字数')
+    expect(result.feedback).not.toContain(candidate)
   })
 
   it('repairs a missing handoff from bounded upstream facts without carrying prose', () => {
