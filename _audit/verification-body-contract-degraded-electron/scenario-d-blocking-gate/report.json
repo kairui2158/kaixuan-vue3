@@ -1,0 +1,10 @@
+{
+  "scenario": "scenario-d-blocking-gate",
+  "runId": "run-1793829016009-265",
+  "runStatus": "failed",
+  "requestCount": 4,
+  "heartbeatFrames": 1,
+  "screenshots": [
+    "scenario-d-blocking-gate.png"
+  ]
+}

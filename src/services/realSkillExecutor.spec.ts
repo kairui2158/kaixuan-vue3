@@ -1031,7 +1031,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(retrySystemPrompt).not.toContain('请基于上一版候选输出修正上述错误')
   })
 
-  it('keeps blocking postProcess exhaustion terminal after candidate-preserving retries', async () => {
+  it('fails blocking postProcess exhaustion after candidate-preserving retries', async () => {
     const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
@@ -1045,7 +1045,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('failed')
+    expect(result.blockingGateFailed).toBe(true)
     expect(result.output).toBe('输出')
     expect(callAi).toHaveBeenCalledTimes(3)
     expect(result.errors.join('\n')).toContain('第 3/3 次输出未通过 postProcess 校验')
@@ -1088,7 +1089,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     })
 
     expect(callAi).toHaveBeenCalledTimes(3)
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('failed')
+    expect(result.blockingGateFailed).toBe(true)
     expect(result.output).toBe(outputs[0])
     expect(result.diagnostics.some(item =>
       item.code === 'schema-validation-best-candidate-retained' &&
@@ -1127,7 +1129,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       }
     })
 
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('failed')
+    expect(result.blockingGateFailed).toBe(true)
     expect(result.output).toBe(outputs[2])
     expect(result.apiMeta?.retainedCandidateIndex).toBe(3)
     expect(result.apiMeta?.bodyCandidateLedger).toEqual([
@@ -1173,7 +1176,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       budget: createBudget()
     })
 
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('failed')
+    expect(result.blockingGateFailed).toBe(true)
     expect(result.output).toBe(outputs[0])
     expect(result.apiMeta?.candidateLedger).toHaveLength(3)
     expect(result.apiMeta?.candidateLedger?.map(item => ({
@@ -1232,7 +1236,8 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       }
     })
 
-    expect(result.status).toBe('degraded')
+    expect(result.status).toBe('failed')
+    expect(result.blockingGateFailed).toBe(true)
     expect(result.output).toBe(outputs[0])
     expect(result.apiMeta?.retainedCandidateIndex).toBe(1)
     expect(result.apiMeta?.bodyCandidateLedger).toEqual([
@@ -1385,6 +1390,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
     expect(result.status).toBe('degraded')
+    expect(result.blockingGateFailed).toBe(false)
     expect(result.diagnostics.filter(item => item.code === 'post-process-issue:missing-marker')[0]?.type).toBe('warning')
     expect(result.diagnostics.filter(item => item.code === 'post-process-issue:minor-warning')[0]?.type).toBe('warning')
     expect(result.output).toBe('输出')
@@ -1548,6 +1554,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     })
 
     expect(result.status).toBe('degraded')
+    expect(result.blockingGateFailed).toBe(false)
     const dynamicParams = (callAi.mock.calls[0] as unknown as Array<CallAiParams>)[0]
     expect(dynamicParams.messages[0]?.content).toContain('chain解析后模板')
     expect(result.diagnostics.some(item => item.code === 'base-template-fallback')).toBe(true)
@@ -1903,7 +1910,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(callAi.mock.calls[2]![0]).toMatchObject({ physicalPhase: 'normal' })
   })
 
-  it('retries schema validation up to three attempts and returns degraded output', async () => {
+  it('retries schema validation up to three attempts and keeps schema exhaustion degraded', async () => {
     const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '{"wrong": true}' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
@@ -1919,6 +1926,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     })
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
     expect(result.status).toBe('degraded')
+    expect(result.blockingGateFailed).toBe(false)
     expect(callAi).toHaveBeenCalledTimes(3)
     expect(result.errors.length).toBeGreaterThanOrEqual(4)
   })
@@ -1972,6 +1980,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
     expect(result.status).toBe('degraded')
+    expect(result.blockingGateFailed).toBe(false)
     expect(callAi).toHaveBeenCalledTimes(3)
     for (let index = 1; index < callAi.mock.calls.length; index += 1) {
       const systemPrompt = callAi.mock.calls[index]![0].messages[0]?.content || ''
@@ -2216,6 +2225,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     })
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
     expect(result.status).toBe('degraded')
+    expect(result.blockingGateFailed).toBe(false)
     expect((window as any).dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'real-skill:step' })
     )

@@ -236,6 +236,41 @@ describe('acceptStepArtifact', () => {
     expect(result.errors).toEqual(['降级原因'])
   })
 
+  it('rejects a degraded SKILL blocking gate even when the body contract passes', () => {
+    const result = acceptStepArtifact({
+      rawOutput: JSON.stringify({ body: '正文'.repeat(2800), metadata: { extractedMeta: ['FACT_LOCK:人物=王芳'] } }),
+      contract,
+      callerStatus: 'degraded',
+      blockingGateFailed: true,
+      degradedErrors: ['正文交接缺少NEW_FACT']
+    })
+
+    expect(result).toMatchObject({
+      decision: 'reject',
+      reason: 'contract_failed',
+      downstreamPayload: null
+    })
+    expect(result.errors).toEqual([
+      '正文交接缺少NEW_FACT',
+      'SKILL 阻断裁决未通过，禁止以降级候选进入下一层'
+    ])
+  })
+
+  it('keeps explicit caller failure authoritative over a SKILL blocking gate flag', () => {
+    const result = acceptStepArtifact({
+      rawOutput: '失败输出',
+      contract: null,
+      callerStatus: 'failed',
+      blockingGateFailed: true
+    })
+
+    expect(result).toMatchObject({
+      decision: 'reject',
+      reason: 'caller_failed',
+      downstreamPayload: null
+    })
+  })
+
   it('rejects a degraded contract candidate that passes word count but carries no ledger', () => {
     const result = acceptStepArtifact({
       rawOutput: '正文'.repeat(2800),

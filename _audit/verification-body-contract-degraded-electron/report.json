@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.body-contract-degraded.electron",
   "version": 1,
-  "generatedAt": "2026-11-04T16:52:18.517Z",
+  "generatedAt": "2026-11-04T21:50:16.732Z",
   "script": "verify-body-contract-degraded-electron.mjs",
   "projectId": "body-contract-degraded-gate",
   "chapterId": "ch-body-contract-degraded",
@@ -9,8 +9,8 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "70035742d999",
-    "buildTime": "2026-11-04T16:31:02.981Z"
+    "commit": "faea5ac15852",
+    "buildTime": "2026-11-04T21:32:06.196Z"
   },
   "hardRules": {
     "visibleElectron": true,
@@ -21,15 +21,17 @@
   "scenarios": {
     "reject-before-s3": {
       "status": "failed",
-      "runId": "run-1793811135072-1",
+      "runId": "run-1793829008915-1",
       "requestCount": 4,
       "extractedWordCount": 1640,
-      "rejectReason": "degraded_plus_contract_failure"
+      "gateEvent": "folder-skill-blocking-gate",
+      "chainTerminalEvent": "body-generator-blocking-gate",
+      "acceptanceFaceRecorded": false
     },
     "accept-and-extract": {
       "status": "success",
-      "runId": "run-1793811136592-89",
-      "requestCount": 5,
+      "runId": "run-1793829010830-85",
+      "requestCount": 3,
       "extractedWordCount": 2800,
       "s3ReceivesExtractedFace": true,
       "s3ReceivesStructuredHandoff": true,
@@ -38,14 +40,24 @@
     },
     "ledger-missing-terminal": {
       "status": "failed",
-      "runId": "run-1793811137809-212",
+      "runId": "run-1793829011851-190",
       "requestCount": 2,
       "extractedWordCount": 2800,
       "terminalEvent": "body-generator-ledger-missing",
       "terminalStepCalled": false,
       "bodyPersisted": false
+    },
+    "blocking-gate-terminal": {
+      "status": "failed",
+      "runId": "run-1793829016009-265",
+      "requestCount": 4,
+      "rawNetWordCount": 2961,
+      "gateEvent": "folder-skill-blocking-gate",
+      "chainTerminalEvent": "body-generator-blocking-gate",
+      "s3Called": false,
+      "bodyPersisted": false
     }
   },
-  "heartbeatFrames": 5,
-  "heartbeatDurationMs": 4398
+  "heartbeatFrames": 9,
+  "heartbeatDurationMs": 8634
 }

@@ -18,6 +18,7 @@ export interface StepArtifactAcceptanceInput {
   rawOutput: string
   contract: BodyArtifactContract | null
   callerStatus: StepArtifactCallerStatus
+  blockingGateFailed?: boolean
   degradedErrors?: string[]
 }
 
@@ -25,6 +26,7 @@ export interface StepArtifactAcceptanceResult {
   decision: 'accept' | 'reject'
   reason: 'no_contract' | 'no_contract_degraded' | 'contract_valid' | 'contract_failed' | 'caller_failed'
   callerStatus: StepArtifactCallerStatus
+  blockingGateFailed: boolean
   stepIndex?: number
   extractedBody: string
   metadata: GenerationMetadata
@@ -43,7 +45,8 @@ export interface StepArtifactStepCandidateAudit {
 
 export interface StructuredSkillStepOutput {
   output: string
-  callerStatus: 'success' | 'degraded'
+  callerStatus: StepArtifactCallerStatus
+  blockingGateFailed?: boolean
   errors: string[]
   stepCandidateAudit?: StepArtifactStepCandidateAudit | null
 }
@@ -126,6 +129,7 @@ function parseStepArtifactCandidateAudit(stepOutput: string): StepArtifactStepCa
 function normalizeStepArtifactInput(stepOutput: string | StructuredSkillStepOutput): {
   rawOutput: string
   callerStatus: StepArtifactCallerStatus
+  blockingGateFailed: boolean | undefined
   degradedErrors: string[] | undefined
   stepCandidateAudit: StepArtifactStepCandidateAudit | null
 } {
@@ -133,6 +137,7 @@ function normalizeStepArtifactInput(stepOutput: string | StructuredSkillStepOutp
     return {
       rawOutput: stepOutput,
       callerStatus: 'success',
+      blockingGateFailed: undefined,
       degradedErrors: undefined,
       stepCandidateAudit: parseStepArtifactCandidateAudit(stepOutput)
     }
@@ -140,6 +145,7 @@ function normalizeStepArtifactInput(stepOutput: string | StructuredSkillStepOutp
   return {
     rawOutput: String(stepOutput.output || ''),
     callerStatus: stepOutput.callerStatus,
+    blockingGateFailed: stepOutput.blockingGateFailed === true,
     degradedErrors: (stepOutput.errors || []).filter(Boolean),
     stepCandidateAudit: stepOutput.stepCandidateAudit || null
   }
@@ -152,6 +158,7 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
     rawOutput: normalized.rawOutput,
     contract: input.contract,
     callerStatus: normalized.callerStatus,
+    blockingGateFailed: normalized.blockingGateFailed,
     degradedErrors: normalized.degradedErrors
   })
   const result: StepArtifactAcceptanceResult = { ...acceptance, stepIndex: input.stepIndex }
@@ -397,6 +404,8 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
   const rawOutput = String(input.rawOutput || '')
   const rawWordCount = countBodyWords(rawOutput)
   const callerFailed = input.callerStatus === 'failed' || input.callerStatus === 'blocked'
+  const degradedErrors = (input.degradedErrors || []).filter(Boolean)
+  const blockingGateFailed = input.blockingGateFailed === true
 
   if (callerFailed) {
     const failedGeneration = parseGenerationResult(rawOutput)
@@ -404,6 +413,7 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
       decision: 'reject',
       reason: 'caller_failed',
       callerStatus: input.callerStatus,
+      blockingGateFailed,
       extractedBody: '',
       metadata: failedGeneration.metadata,
       rawWordCount,
@@ -418,11 +428,11 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
   if (!input.contract) {
     const noContractGeneration = parseGenerationResult(rawOutput)
     if (input.callerStatus === 'degraded') {
-      const degradedErrors = (input.degradedErrors || []).filter(Boolean)
       return {
-        decision: 'reject',
-        reason: 'no_contract_degraded',
-        callerStatus: input.callerStatus,
+      decision: 'reject',
+      reason: 'no_contract_degraded',
+      callerStatus: input.callerStatus,
+      blockingGateFailed,
         extractedBody: '',
         metadata: noContractGeneration.metadata,
         rawWordCount,
@@ -437,6 +447,7 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
       decision: 'accept',
       reason: 'no_contract',
       callerStatus: input.callerStatus,
+      blockingGateFailed,
       extractedBody: rawOutput,
       metadata: noContractGeneration.metadata,
       rawWordCount,
@@ -453,15 +464,28 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
   const extractedWordCount = countBodyWords(extractedBody)
   const metadataDelta = Math.max(0, rawWordCount - extractedWordCount)
   const validation = validateBodyArtifact(extractedBody, input.contract)
-  const degradedErrors = input.callerStatus === 'degraded'
-    ? (input.degradedErrors || []).filter(Boolean)
-    : []
-
+  if (input.callerStatus === 'degraded' && blockingGateFailed) {
+    return {
+      decision: 'reject',
+      reason: 'contract_failed',
+      callerStatus: input.callerStatus,
+      blockingGateFailed,
+      extractedBody,
+      metadata: generation.metadata,
+      rawWordCount,
+      extractedWordCount,
+      metadataDelta,
+      validation,
+      downstreamPayload: null,
+      errors: [...degradedErrors, 'SKILL 阻断裁决未通过，禁止以降级候选进入下一层']
+    }
+  }
   if (!validation.valid) {
     return {
       decision: 'reject',
       reason: 'contract_failed',
       callerStatus: input.callerStatus,
+      blockingGateFailed,
       extractedBody,
       metadata: generation.metadata,
       rawWordCount,
@@ -478,6 +502,7 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
       decision: 'reject',
       reason: 'contract_failed',
       callerStatus: input.callerStatus,
+      blockingGateFailed,
       extractedBody,
       metadata: generation.metadata,
       rawWordCount,
@@ -493,6 +518,7 @@ export function acceptStepArtifact(input: StepArtifactAcceptanceInput): StepArti
     decision: 'accept',
     reason: 'contract_valid',
     callerStatus: input.callerStatus,
+    blockingGateFailed,
     extractedBody,
     metadata: generation.metadata,
     rawWordCount,

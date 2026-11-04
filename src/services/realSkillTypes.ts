@@ -150,6 +150,8 @@ export interface RealSkillDiagnostic {
 
 export interface RealSkillExecutionResult {
   status: RealSkillExecutionStatus
+  /** True when folder postProcess blocked every retained candidate. */
+  blockingGateFailed?: boolean
   output: string
   errors: string[]
   diagnostics: RealSkillDiagnostic[]

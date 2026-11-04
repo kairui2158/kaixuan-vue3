@@ -869,6 +869,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
   const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
   let retainedCandidateIndex = 0
+  let retainedCandidateBlocking = false
   const candidateAuditLedger: RealSkillCandidateLedgerEntry[] = []
   let bodyCandidateLedger: NonNullable<RealSkillExecutionResult['apiMeta']>['bodyCandidateLedger']
   let bodyCandidateRetention: NonNullable<RealSkillExecutionResult['apiMeta']>['bodyCandidateRetention']
@@ -1347,6 +1348,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           retained: false
         }
         if (!validation.valid && hasBlockingPostIssue) {
+          retainedCandidateBlocking = true
           const blockingErrors = postIssues
             .filter(issue => issue.severity === 'blocking')
             .map(issue => issue.message)
@@ -1396,6 +1398,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           continue
         }
         if (!validation.valid && options.validateOutputSchema) {
+          retainedCandidateBlocking = false
           candidateLedger.push({
             output: candidateOutput,
             validation: { valid: true, errors: [] },
@@ -1427,6 +1430,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           }
           break
         }
+        retainedCandidateBlocking = false
         candidateLedger.push({
           output: candidateOutput,
           validation,
@@ -1583,6 +1587,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       }
       : undefined
     if (!retainedCandidate || !retainedCandidate.validation.valid) {
+      const blockingGateFailed = Boolean(retainedCandidate) && retainedCandidateBlocking
       if (isMultiPass) {
         dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
       } else {
@@ -1599,7 +1604,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       }
       diagnostics.push(diagnostic('error', 'schema-validation-exhausted', '输出未通过校验，已达最大尝试次数'))
       return {
-        status: 'degraded',
+        status: blockingGateFailed ? 'failed' : 'degraded',
+        blockingGateFailed,
         output: retainedCandidate?.output || '',
         errors,
         diagnostics,
@@ -1639,6 +1645,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     : 'success'
   return {
     status,
+    blockingGateFailed: false,
     output,
     errors,
     diagnostics,

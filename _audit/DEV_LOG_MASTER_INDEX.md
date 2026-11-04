@@ -1746,3 +1746,10 @@
 - 交付：`injectResolvedVariables` 补反向占位符检查，有残留时 error 诊断并 hard fail 阻止 API 调用（含调用方零变量分支，`useFolderTemplate` 为真时无条件扫描）；五个 SKILL preProcess（kaixuan-s1/s2/s3、l2-s2、l4-s1）把链式输入中字面 `{{var}}` 改写为 `[未替换占位符:var]`；`folderSkillTest` 补齐代表性模板变量；新增 executor spec 覆盖"模板含未提供变量 → failed + error 诊断 + API 不被调用"及"调用方完全未传 templateVariables → 同样阻断"。
 - 验证：executor spec 70 tests 通过（含新用例）；router/workspace/orchestrator 68 tests 通过；全量服务 2266 tests 零回归；`folderSkillTest.spec` 3 tests 通过。
 - 边界：SKILL 磁盘包改动不在应用 git 管理范围内；真实 Electron 四层链实测本轮未执行（服务层与执行器级测试覆盖注入器行为，preProcess 可见标记属纵深防御）。
+
+# 2026-11-05 SKILL blocking 终态与真实 UI 门禁
+
+- 文件：[_audit/DEV_LOG_2026-11-05_skill-blocking-gate-e2e.md](_audit/DEV_LOG_2026-11-05_skill-blocking-gate-e2e.md)
+- 交付：SKILL postProcess blocking 耗尽后 run 终态固定 `failed`；`blockingGateFailed` 单源传递；step acceptance 二级防线 reject；PipelinePanel 记录 folder gate、传播链式 gate，并把 warning-only 降级 errors 合入事件与步骤日志。
+- 验证：真实 Electron 四场景 PASS——A blocking 耗尽 failed、B warning-only accept + S3 success、C 无账本终步 failed、D 2961 字 blocking 耗尽 failed 且不覆盖旧正文；`npm run type-check` exit 0；`realSkillExecutor.spec.ts` + `stepArtifactAcceptance.spec.ts` 92/92 通过；修复夹具正则 bridge 序列化陷阱与 mock 供应商 reset 队列残留。
+- 边界：夹具 folder SKILL 仅验证门禁语义，不验证真实 kaixuan SKILL 的内容质量；真实供应商 `untested`；本轮不升版、不封装。

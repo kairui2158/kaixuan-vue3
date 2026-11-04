@@ -3452,6 +3452,38 @@ async function callValidatedSkill(
       } else {
         finishFolderTrace('failed', error instanceof Error ? error.message : String(error))
       }
+      if (
+        folderResult &&
+        (folderResult.status === 'failed' || folderResult.status === 'blocked') &&
+        !(
+          folderResult.status === 'blocked' &&
+          folderResult.diagnostics.some(item => isChapterNarrativeBlockDiagnosticCode(item.code))
+        )
+      ) {
+        const gateErrors = folderResult.errors.length
+          ? folderResult.errors.join("；")
+          : `folder SKILL ${folderResult.status === 'failed' ? '执行失败' : '已阻断'}`
+        appendStepLogForRun(
+          pipelineRunIdParam,
+          step,
+          `「${template.name}」SKILL 硬门禁未通过：${gateErrors}`
+        )
+        if (traceRunId) {
+          runTraceStore.addEvent(traceRunId, {
+            type: 'folder-skill-blocking-gate',
+            level: 'error',
+            label: `SKILL「${template.name || template.id}」硬门禁未通过`,
+            detail: JSON.stringify({
+              step,
+              status: folderResult.status,
+              blockingGateFailed: folderResult.blockingGateFailed === true,
+              errors: folderResult.errors
+            })
+          })
+        }
+        ;(error as Error & { blockingGateFailed?: boolean }).blockingGateFailed =
+          folderResult.blockingGateFailed === true
+      }
       throw error
     }
     if (route.mode === "folder" && route.folderResult) {
@@ -3477,7 +3509,37 @@ async function callValidatedSkill(
         }
       }
       finishFolderTraceFromResult(route.folderResult)
+      if ((folderStatus === "failed" || folderStatus === "blocked")) {
+        if (stepArtifactContext) {
+          return {
+            output: route.folderResult.output,
+            callerStatus: folderStatus,
+            blockingGateFailed: route.folderResult.blockingGateFailed === true,
+            errors: route.folderResult.errors,
+            stepCandidateAudit: stepArtifactCandidateAudit(route.folderResult.apiMeta)
+          }
+        }
+        const errors = route.folderResult.errors.length
+          ? route.folderResult.errors.join("；")
+          : `folder SKILL ${folderStatus === 'failed' ? '失败' : '被阻断'}`
+        throw new Error(`folder SKILL 未通过硬门禁：${errors}`)
+      }
       if (folderStatus === "degraded") {
+        if (route.folderResult.blockingGateFailed) {
+          if (stepArtifactContext) {
+            return {
+              output: route.folderResult.output,
+              callerStatus: 'degraded',
+              blockingGateFailed: true,
+              errors: route.folderResult.errors,
+              stepCandidateAudit: stepArtifactCandidateAudit(route.folderResult.apiMeta)
+            }
+          }
+          const errors = route.folderResult.errors.length
+            ? route.folderResult.errors.join("；")
+            : 'SKILL 阻断裁决未通过'
+          throw new Error(`folder SKILL 阻断门失败：${errors}`)
+        }
         if (!stepArtifactContext && !route.folderResult.output.trim()) {
           const errors = route.folderResult.errors.length
             ? route.folderResult.errors.join("；")
@@ -3490,12 +3552,12 @@ async function callValidatedSkill(
           .filter(Boolean)
           .join("；")
         const errorMessages = route.folderResult.errors.join("；")
-        if (errorMessages && traceRunId) {
+        if ((errorMessages || warnings) && traceRunId) {
           runTraceStore.addEvent(traceRunId, {
             type: 'folder-skill-degraded-with-error',
             level: 'warn',
             label: `SKILL「${template.name || template.id}」降级但保留有效输出`,
-            detail: errorMessages
+            detail: errorMessages || warnings
           })
         }
         appendStepLogForRun(pipelineRunIdParam, step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
@@ -3504,7 +3566,14 @@ async function callValidatedSkill(
         return {
           output: route.folderResult.output,
           callerStatus: 'degraded',
-          errors: route.folderResult.errors,
+          blockingGateFailed: route.folderResult.blockingGateFailed === true,
+          errors: [
+            ...route.folderResult.errors,
+            ...route.folderResult.diagnostics
+              .filter(item => item.type === "warning")
+              .map(item => item.message)
+              .filter(Boolean),
+          ],
           stepCandidateAudit: stepArtifactCandidateAudit(route.folderResult.apiMeta)
         }
       }
@@ -5050,6 +5119,10 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           volumeIndex: selectedVolumeIndex.value
         }))
       } catch (error) {
+        const chainFolderResult = (error as Error & { folderResult?: RealSkillExecutionResult }).folderResult
+        if (chainFolderResult?.blockingGateFailed === true) {
+          ;(error as Error & { blockingGateFailed?: boolean }).blockingGateFailed = true
+        }
         const narrativeBlocked = (error as Error & { folderResult?: RealSkillExecutionResult })
           .folderResult?.status === 'blocked' &&
           Boolean(
@@ -5246,6 +5319,18 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           }
         }
         // A failed Skill is a terminal chain state for this run; never pass stale output onward.
+        if ((error as Error & { blockingGateFailed?: boolean }).blockingGateFailed === true && runId) {
+          runTraceStore.addEvent(runId, {
+            type: 'body-generator-blocking-gate',
+            level: 'error',
+            label: `正文生成步骤 ${si + 1}/${templates.length} SKILL 硬门禁阻断`,
+            detail: JSON.stringify({
+              stepIndex: si,
+              totalSteps: templates.length,
+              errors: chainFolderResult?.errors || [error instanceof Error ? error.message : String(error)]
+            })
+          })
+        }
         await pipelineStore.saveBreakpoint(createChainFailureBreakpoint({
           step,
           projectId: checkpointProjectId,

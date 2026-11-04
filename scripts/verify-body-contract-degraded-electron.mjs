@@ -83,6 +83,7 @@ function narrativeMetadataEnvelope(body) {
 }
 
 const S2_REJECT_OUTPUT = narrativeMetadataEnvelope(bodyText(82))
+const S2_BLOCKING_GATE_OUTPUT = narrativeMetadataEnvelope(bodyText(148))
 const S2_ACCEPT_OUTPUT = narrativeMetadataEnvelope(bodyText(140))
 const S2_LEDGER_MISSING_OUTPUT = bodyText(140)
 const S3_OUTPUT = [
@@ -188,6 +189,14 @@ function writeSkills() {
       script: [
         'exports.postProcess = function (output) {',
         '  if (output.includes("【正文交接】")) {',
+        '    const body = output.split("【正文交接】")[0] || ""',
+        '    const bodyWords = (body.match(/[一-龥]/g) || []).length + (body.match(/[A-Za-z0-9]+/g) || []).length',
+        '    if (bodyWords >= 2900) {',
+        "      return { issues: [{ severity: 'blocking', code: 'intentional-blocking', message: 'intentional blocking after 2900 words' }] }",
+        '    }',
+        '    if (bodyWords >= 2800) {',
+        "      return { issues: [{ severity: 'warning', code: 'missing-marker', message: 'intentional non-blocking degraded' }] }",
+        '    }',
         '    return {',
         "      issues: [{ severity: 'blocking', code: 'intentional-degraded', message: '正文交接缺少NEW_FACT事实锁' }]",
         '    }',
@@ -351,7 +360,7 @@ function startProvider() {
       const provider = {
         port: server.address().port,
         requests: () => requests.map(item => ({ ...item })),
-        reset: () => { requests.length = 0 },
+        reset: () => { requests.length = 0; queue.length = 0 },
         enqueue: response => { queue.push(response) },
         close: () => new Promise(done => server.close(() => done())),
       }
@@ -559,7 +568,7 @@ function startHeartbeat(page, electronPid) {
 async function runBodyThroughUi(page) {
   await clearBodyBreakpoints(page)
   const previousClose = page.locator('.pl-gen-bar-close')
-  if (await previousClose.count()) {
+  while (await previousClose.count()) {
     const closeDiagnostic = await page.evaluate(() => ({
       bars: [...document.querySelectorAll('.pl-gen-bar')].map((bar, index) => ({
         index,
@@ -574,7 +583,20 @@ async function runBodyThroughUi(page) {
     }))
     console.log('[PRE-CLOSE DIAGNOSTIC]', JSON.stringify(closeDiagnostic, null, 2))
     await previousClose.first().click()
-    await page.waitForSelector('.pl-gen-bar-close', { state: 'detached', timeout: 10_000 })
+    await page.waitForTimeout(1000)
+    const afterCloseDiagnostic = await page.evaluate(() => ({
+      bars: [...document.querySelectorAll('.pl-gen-bar')].map((bar, index) => ({
+        index,
+        text: (bar.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 220),
+        hasClose: Boolean(bar.querySelector('.pl-gen-bar-close')),
+      })),
+      runs: [...(window.__pinia?._s?.get('pipeline')?.runs || [])].map(run => ({
+        runId: run.runId,
+        layer: run.layer,
+        status: run.status,
+      })),
+    }))
+    console.log('[AFTER-CLOSE DIAGNOSTIC]', JSON.stringify(afterCloseDiagnostic, null, 2))
   }
   if (!await page.locator('#pipeline-panel').count()) {
     await page.click('#btn-pipeline')
@@ -650,8 +672,12 @@ function assertS2SchemaRetryLedger(run, expectedTotalPhysicalCalls) {
     ? ['normal', 'normal']
     : expectedTotalPhysicalCalls === 4
       ? ['normal', 'normal', 'schema_retry', 'schema_retry']
-      : ['normal', 'normal', 'schema_retry', 'schema_retry', 'normal']
-  const expectedS2CallCount = expectedTotalPhysicalCalls === 2 ? 1 : 3
+      : expectedTotalPhysicalCalls === 3
+        ? ['normal', 'normal', 'normal']
+        : ['normal', 'normal', 'schema_retry', 'schema_retry', 'normal']
+  const expectedS2CallCount = expectedTotalPhysicalCalls === 2 ? 1
+    : expectedTotalPhysicalCalls === 3 ? 1
+    : 3
   assert.equal(physicalCalls.length, expectedTotalPhysicalCalls,
     `run records the expected physical lifecycle, got ${physicalCalls.length}/${expectedTotalPhysicalCalls}`)
   assert.deepEqual(physicalCalls.map(call => call.phase),
@@ -727,52 +753,39 @@ async function runRejectScenario(page, provider) {
   const { run, body } = await currentRun(page)
   const requests = provider.requests()
   const acceptanceEvents = eventsByType(run, 'body-step-acceptance')
+  const gateEvents = eventsByType(run, 'folder-skill-blocking-gate')
+  const chainGateEvents = eventsByType(run, 'body-generator-blocking-gate')
   const rejectedEvents = eventsByType(run, 'body-generator-step-rejected')
   const attemptEvents = eventsByType(run, 'body-artifact-attempt')
-  const degradedEvents = eventsByType(run, 'folder-skill-degraded-with-error')
 
   assert.equal(state.runStatus, 'failed', `scenario A run fails, got ${state.runStatus}`)
   assert.equal(state.isGenerating, false, 'scenario A releases the generation lock')
-  assert.equal(acceptanceEvents.length, 1,
-    `scenario A records one generator acceptance decision, got ${acceptanceEvents.length}`)
-  const acceptance = parseDetail(acceptanceEvents[0].detail)
-  assert.equal(acceptance.stepIndex, 1, 'scenario A acceptance belongs to S2')
-  assert.equal(acceptance.callerStatus, 'degraded', 'scenario A records degraded caller status')
-  assert.equal(acceptance.decision, 'reject', 'scenario A rejects the artifact')
-  assert.equal(acceptance.reason, 'contract_failed', 'scenario A rejects on the extracted-face contract')
-  assert.equal(acceptance.extractedWordCount, 1640, 'scenario A measures the extracted face')
-  assert.ok(acceptance.rawWordCount > acceptance.extractedWordCount + 1000,
-    `scenario A proves the raw face was materially longer: ${JSON.stringify(acceptance)}`)
-  assert.equal(acceptance.contract.minWords, MIN_WORDS, 'scenario A carries the unchanged contract threshold')
-  assert.ok(acceptance.degradedErrors.some(item => item.includes('NEW_FACT')),
-    `scenario A retains degraded diagnostics: ${JSON.stringify(acceptance.degradedErrors)}`)
-  assert.ok(acceptance.contractErrors.some(item => item.includes('1640') && item.includes(String(MIN_WORDS))),
-    `scenario A carries the concrete contract error: ${JSON.stringify(acceptance.contractErrors)}`)
-
-  assert.equal(rejectedEvents.length, 1, `scenario A records the downstream rejection event once, got ${rejectedEvents.length}`)
-  const rejection = parseDetail(rejectedEvents[0].detail)
-  assert.equal(rejection.reason, 'degraded_plus_contract_failure',
-    'scenario A names degraded-plus-contract as the failure reason')
+  assert.equal(acceptanceEvents.length, 0,
+    `scenario A stops before the acceptance face because routeSkill wraps a failed folder call, got ${acceptanceEvents.length}`)
+  assert.equal(gateEvents.length, 1,
+    `scenario A records one structured folder gate event, got ${gateEvents.length}`)
+  const gate = parseDetail(gateEvents[0].detail)
+  assert.equal(gate.step, 4, 'scenario A folder gate uses the S2 global step id')
+  assert.equal(gate.status, 'failed', 'scenario A preserves the executor failed status')
+  assert.equal(gate.blockingGateFailed, true, 'scenario A carries the structured gate flag')
+  assert.ok(gate.errors.some(item => item.includes('NEW_FACT')),
+    `scenario A retains degraded diagnostics: ${JSON.stringify(gate.errors)}`)
+  assert.ok(gate.errors.some(item => item.includes('1640') && item.includes(String(MIN_WORDS))),
+    `scenario A carries the concrete contract error: ${JSON.stringify(gate.errors)}`)
+  assert.equal(chainGateEvents.length, 1,
+    `scenario A records the chain terminal once, got ${chainGateEvents.length}`)
+  const chainGate = parseDetail(chainGateEvents[0].detail)
+  assert.equal(chainGate.stepIndex, 1, 'scenario A chain gate identifies S2 inside the body chain')
+  assert.equal(chainGate.totalSteps, 3, 'scenario A chain gate carries the body chain size')
+  assert.equal(rejectedEvents.length, 0,
+    'scenario A does not emit the old degraded acceptance rejection event')
   assert.equal(attemptEvents.length, 1,
     `scenario A records one attempt and does not start repair retries, got ${attemptEvents.length}`)
   const attempt = parseDetail(attemptEvents[0].detail)
   assert.equal(attempt.status, 'error', 'scenario A attempt is terminal at the generator gate')
-  assert.deepEqual(attempt.stepAcceptanceDecisions, [{
-    stepIndex: 1,
-    callerStatus: 'degraded',
-    decision: 'reject',
-    reason: 'contract_failed',
-    rawWordCount: acceptance.rawWordCount,
-    extractedWordCount: 1640,
-    errors: acceptance.degradedErrors.concat(acceptance.contractErrors),
-  }], `scenario A attempt ledger matches the step decision: ${JSON.stringify(attempt.stepAcceptanceDecisions)}`)
-  assert.deepEqual(attempt.degradedSteps, [{
-    stepIndex: 1,
-    errors: acceptance.degradedErrors.concat(acceptance.contractErrors),
-  }], 'scenario A attempt ledger retains the degraded step')
-  assert(attempt.rawVsExtractedDelta > 1000, 'scenario A attempt ledger quantifies the raw/extracted delta')
+  assert.ok(attempt.errors.some(item => item.includes('NEW_FACT')),
+    `scenario A attempt ledger retains the gate diagnostics: ${JSON.stringify(attempt.errors)}`)
   assert(attempt.generatorStepIndex === 1, 'scenario A identifies S2 as the generator')
-  assert(degradedEvents.length >= 1, 'scenario A shows a visible degraded warning in trace')
 
   assert.equal(requests.length, 4,
     `scenario A uses S1 once and S2 three times, got ${requests.length}`)
@@ -793,9 +806,7 @@ async function runAcceptScenario(page, provider) {
   console.log('\n[SCENARIO B] degraded + extracted body 2800 words accepts, extracts, then runs S3')
   provider.reset()
   provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    provider.enqueue({ body: S2_ACCEPT_OUTPUT, finishReason: 'stop' })
-  }
+  provider.enqueue({ body: S2_ACCEPT_OUTPUT, finishReason: 'stop' })
   provider.enqueue({ body: S3_OUTPUT, finishReason: 'stop' })
 
   const state = await runBodyThroughUi(page)
@@ -825,10 +836,10 @@ async function runAcceptScenario(page, provider) {
   assert.equal(attempt.generatorStepIndex, 1, 'scenario B identifies S2 as the generator')
   assert.equal(attempt.rawVsExtractedDelta > 1000, true, 'scenario B attempt ledger records metadata delta')
 
-  assert.equal(requests.length, 5,
-    `scenario B uses S1 once, S2 three times, S3 once, got ${requests.length}`)
-  assertS2SchemaRetryLedger(run, 5)
-  const s3Request = requests[4]
+  assert.equal(requests.length, 3,
+    `scenario B uses S1 once, S2 once, and S3 once; a warning-only degradation must not trigger retries, got ${requests.length}`)
+  assertS2SchemaRetryLedger(run, 3)
+  const s3Request = requests[2]
   const s3Prompt = userText(s3Request.messages)
   assert(s3Prompt.includes(UPSTREAM_METADATA_HEADER),
     'S3 request receives the final-step ledger handoff')
@@ -897,6 +908,60 @@ async function runLedgerMissingScenario(page, provider) {
   return { state, run, requests }
 }
 
+async function runBlockingGateScenario(page, provider) {
+  console.log('\n[SCENARIO D] SKILL blocking gate on a 2961-word candidate must fail before S3')
+  provider.reset()
+  provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    provider.enqueue({ body: S2_BLOCKING_GATE_OUTPUT, finishReason: 'stop' })
+  }
+  const baseline = await currentRun(page)
+  const baselineBody = baseline.body
+
+  const state = await runBodyThroughUi(page)
+  const { run, body } = await currentRun(page)
+  const requests = provider.requests()
+  const acceptanceEvents = eventsByType(run, 'body-step-acceptance')
+  const gateEvents = eventsByType(run, 'folder-skill-blocking-gate')
+  const chainGateEvents = eventsByType(run, 'body-generator-blocking-gate')
+  const attemptEvents = eventsByType(run, 'body-artifact-attempt')
+
+  assert.equal(state.runStatus, 'failed', `scenario D run fails, got ${state.runStatus}`)
+  assert.equal(state.isGenerating, false, 'scenario D releases the generation lock')
+  assert.equal(acceptanceEvents.length, 0,
+    `scenario D stops before the acceptance face because routeSkill wraps a failed folder call, got ${acceptanceEvents.length}`)
+  assert.equal(gateEvents.length, 1,
+    `scenario D records one structured folder gate event, got ${gateEvents.length}`)
+  const gate = parseDetail(gateEvents[0].detail)
+  assert.equal(gate.step, 4, 'scenario D identifies S2 by its global pipeline step id')
+  assert.equal(gate.status, 'failed', 'scenario D preserves the executor failed status')
+  assert.equal(gate.blockingGateFailed, true, 'scenario D carries the structured gate flag')
+  assert.ok(gate.errors.some(item => item.includes('intentional blocking')),
+    `scenario D retains the SKILL blocking diagnostics: ${JSON.stringify(gate.errors)}`)
+  assert.equal(chainGateEvents.length, 1,
+    `scenario D records the chain terminal once, got ${chainGateEvents.length}`)
+  const chainGate = parseDetail(chainGateEvents[0].detail)
+  assert.equal(chainGate.stepIndex, 1, 'scenario D identifies S2 as chain step 1')
+  assert.equal(chainGate.totalSteps, 3, 'scenario D carries the three-step body chain size')
+  assert.equal(attemptEvents.length, 1,
+    `scenario D records one terminal attempt, got ${attemptEvents.length}`)
+  const attempt = parseDetail(attemptEvents[0].detail)
+  assert.equal(attempt.status, 'error', 'scenario D attempt is terminal')
+  assert.ok(attempt.errors.some(item => item.includes('intentional blocking')),
+    `scenario D carries the user-readable gate error: ${JSON.stringify(attempt.errors)}`)
+
+  assert.equal(requests.length, 4,
+    `scenario D uses S1 once and S2 three times; S3 must not run, got ${requests.length}`)
+  assertS2SchemaRetryLedger(run, 4)
+  assert.equal(body, baselineBody,
+    'scenario D leaves the chapter body unchanged; a failed blocking gate must not overwrite the artifact')
+  assert.equal(run.id === baseline.run?.id, false,
+    'scenario D produces a new run instead of reusing the baseline run')
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'scenario-d-blocking-gate.png'), fullPage: false })
+  await archiveEvidence('scenario-d-blocking-gate', run, requests, 1, ['scenario-d-blocking-gate.png'])
+  return { state, run, requests }
+}
+
 async function main() {
   const diskManifest = assertFreshRendererBuild()
   const archivedEvidence = archivePreviousEvidence()
@@ -941,6 +1006,7 @@ async function main() {
     const scenarioA = await runRejectScenario(page, provider)
     const scenarioB = await runAcceptScenario(page, provider)
     const scenarioC = await runLedgerMissingScenario(page, provider)
+    const scenarioD = await runBlockingGateScenario(page, provider)
     const heartbeatFrames = heartbeat.frameCount()
     const heartbeatDuration = heartbeat.durationMs()
     assert(heartbeatFrames >= 1, `heartbeat records the run, got ${heartbeatFrames} frames`)
@@ -973,7 +1039,9 @@ async function main() {
           runId: scenarioA.run?.id,
           requestCount: scenarioA.requests.length,
           extractedWordCount: 1640,
-          rejectReason: 'degraded_plus_contract_failure',
+          gateEvent: 'folder-skill-blocking-gate',
+          chainTerminalEvent: 'body-generator-blocking-gate',
+          acceptanceFaceRecorded: false,
         },
         'accept-and-extract': {
           status: scenarioB.state.runStatus,
@@ -992,6 +1060,16 @@ async function main() {
           extractedWordCount: 2800,
           terminalEvent: 'body-generator-ledger-missing',
           terminalStepCalled: false,
+          bodyPersisted: false,
+        },
+        'blocking-gate-terminal': {
+          status: scenarioD.state.runStatus,
+          runId: scenarioD.run?.id,
+          requestCount: scenarioD.requests.length,
+          rawNetWordCount: 2961,
+          gateEvent: 'folder-skill-blocking-gate',
+          chainTerminalEvent: 'body-generator-blocking-gate',
+          s3Called: false,
           bodyPersisted: false,
         },
       },
