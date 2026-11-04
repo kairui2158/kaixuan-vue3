@@ -1730,3 +1730,11 @@
 - 交付：流水线层绑定供应商裁决固定为 `layer > agent > global`；Agent 不再覆盖层绑定；辅助记忆外呼声明 `providerSource: auxiliary`；trace、api call、物理请求三面同源；HEAD 回归修因与三条真实 UI 溯源断言后版本升级 3.114.0。
 - 验证：`build:vue` exit 0；真实 Electron 分层通道验证 `[PASS] ... requests=6`；type-check exit 0；全量回归 `247 files / 2653 tests` 通过；`verify:packaging` 与安装包哈希见台账 3.114.0 封装章节。
 - 边界：真实 UI/Electron 使用 mock 四层供应商；不声明真实供应商内容质量；不做负载均衡、健康切换、自动回退或额外 preflight。
+
+# 2026-11-04 正文链旧信封退役 A 路线
+
+- 文件：[_audit/DEV_LOG_2026-11-04_body-step-envelope-retirement.md](_audit/DEV_LOG_2026-11-04_body-step-envelope-retirement.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-04_body-step-envelope-retirement.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-04_body-step-envelope-retirement.md)
+- 交付：`__shenyiStepArtifact` 兼容构造/解析执行面退役；caller 状态与错误改为 `StructuredSkillStepOutput` 内存直传；主链/echo/escalation/compose 四调用点迁移；断点旧信封只做显式 trace 的内存净化；测试改为负向断言旧信封不得拆包或携带状态。
+- 验证：定向五文件 `72 tests` 通过；全量 `247 files / 2655 tests` 通过；type-check 与 `git diff --check` 通过；现役信封构造/解析执行面 0 命中。
+- 边界：真实 folder SKILL、真实供应商、真实 Electron 正文链与 echo/escalation 直入统一验收均 `untested`；本轮不升版、不封装。

@@ -1,4 +1,5 @@
 import { parseGenerationResult } from './generationResult'
+import type { StructuredSkillStepOutput } from './stepArtifactAcceptance'
 import {
   isBodyArtifactContractInput,
   validateBodyArtifact,
@@ -78,7 +79,10 @@ export interface BodyArtifactRequestFingerprint {
 export type BodyArtifactCallResult = string | {
   text: string
   fingerprint: BodyArtifactRequestFingerprint
-}
+} | (StructuredSkillStepOutput & {
+  text?: string
+  fingerprint?: BodyArtifactRequestFingerprint
+})
 
 export interface GenerateBodyArtifactInput {
   contract: BodyArtifactContract
@@ -331,12 +335,20 @@ export async function generateBodyArtifact(
 
     let raw: string
     let fingerprint: BodyArtifactRequestFingerprint | undefined
+    let callerErrors: string[] = []
     try {
       const callResult = await input.callBodyApi(prompt, context)
       if (typeof callResult === 'string') {
         raw = callResult
+      } else if ('output' in callResult && typeof callResult.output === 'string') {
+        raw = callResult.output
+        callerErrors = (callResult.errors || []).filter(Boolean)
+        fingerprint = callResult.fingerprint
       } else {
-        raw = callResult.text
+        raw = String(callResult.text ?? '')
+        if ('errors' in callResult && Array.isArray(callResult.errors)) {
+          callerErrors = callResult.errors.map(item => String(item)).filter(Boolean)
+        }
         fingerprint = callResult.fingerprint
       }
     } catch (error: unknown) {
@@ -393,6 +405,9 @@ export async function generateBodyArtifact(
     }
 
     const generation = parseGenerationResult(raw)
+    if (callerErrors.length) {
+      generation.metadata.degradedErrors = callerErrors
+    }
     const validationStartedAt = Date.now()
     const validation = validateBodyArtifact(generation.body, input.contract)
     const validationMs = Math.max(0, Date.now() - validationStartedAt)
@@ -405,7 +420,7 @@ export async function generateBodyArtifact(
       targetWords: input.contract.targetWords,
       ratio: validation.ratio,
       validationMs,
-      errors: validation.errors,
+      errors: [...callerErrors, ...validation.errors],
       body: generation.body,
       traceAuditFields: buildTraceAuditFields({
         repairScope,

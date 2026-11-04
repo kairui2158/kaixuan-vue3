@@ -74,10 +74,11 @@ describe('final step metadata fidelity wiring', () => {
   })
 
   it('keeps compose mode out of the final-step retry contract', () => {
-    const composeCall = source.indexOf('result = await callValidatedSkill')
+    const composeCall = source.indexOf('composeStepResult = await callValidatedSkill')
     expect(composeCall).toBeGreaterThan(0)
     const composeSlice = source.slice(composeCall, source.indexOf(')', composeCall))
     expect(composeSlice).not.toContain('finalStepRetry')
     expect(source).toContain('composeArtifactContext')
+    expect(source).toContain('result = composeStepResult.output')
   })
 })

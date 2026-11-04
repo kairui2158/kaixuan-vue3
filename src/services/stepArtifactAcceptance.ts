@@ -36,16 +36,16 @@ export interface StepArtifactAcceptanceResult {
   errors: string[]
 }
 
-export interface StepArtifactEnvelope {
-  rawOutput: string
-  callerStatus: StepArtifactCallerStatus
-  traceAuditFields: StepArtifactEnvelopeTraceAudit | null
-  degradedErrors: string[]
+export interface StepArtifactStepCandidateAudit {
+  attempt: number
+  sourceResponseHash: string
 }
 
-export interface StepArtifactEnvelopeTraceAudit {
-  sourceCandidateIndex: number
-  sourceResponseHash: string
+export interface StructuredSkillStepOutput {
+  output: string
+  callerStatus: 'success' | 'degraded'
+  errors: string[]
+  stepCandidateAudit?: StepArtifactStepCandidateAudit | null
 }
 
 export interface FinalStepMetadataWarning {
@@ -72,7 +72,7 @@ export interface FinalStepMetadataFlowResult {
 }
 
 export interface StepArtifactFlowInput {
-  stepOutput: string
+  stepOutput: string | StructuredSkillStepOutput
   stepIndex: number
   contract: BodyArtifactContract | null
 }
@@ -112,72 +112,8 @@ export interface StepArtifactFlowResult {
   }
 }
 
-export function makeStepArtifactEnvelope(input: {
-  status: StepArtifactCallerStatus
-  output: string
-  errors?: string[]
-  traceAuditFields?: StepArtifactEnvelopeTraceAudit
-}): string {
-  return JSON.stringify({
-    __shenyiStepArtifact: true,
-    status: input.status,
-    output: input.output,
-    errors: input.errors || [],
-    ...(input.traceAuditFields ? { traceAuditFields: input.traceAuditFields } : {})
-  })
-}
-
-export function parseStepArtifactEnvelope(stepOutput: string): StepArtifactEnvelope | null {
-  const text = String(stepOutput || '')
-  if (!text.startsWith('{"__shenyiStepArtifact"')) return null
-  try {
-    const value = JSON.parse(text) as Record<string, unknown>
-    if (value?.__shenyiStepArtifact !== true) return null
-    const status = value.status
-    if (status !== 'success' && status !== 'degraded' && status !== 'failed' && status !== 'blocked') {
-      return null
-    }
-    const rawOutput = String(value.output || '')
-    const traceAuditFields = isStepArtifactEnvelopeTraceAudit(value.traceAuditFields)
-      ? value.traceAuditFields
-      : null
-    return {
-      rawOutput,
-      callerStatus: status,
-      traceAuditFields,
-      degradedErrors: Array.isArray(value.errors)
-        ? value.errors.map(item => String(item)).filter(Boolean)
-        : []
-    }
-  } catch {
-    return null
-  }
-}
-
-function isStepArtifactEnvelopeTraceAudit(
-  value: unknown
-): value is StepArtifactEnvelopeTraceAudit {
-  if (!value || typeof value !== 'object') return false
-  const record = value as Record<string, unknown>
-  const candidateIndex = Number(record.sourceCandidateIndex)
-  return Number.isInteger(candidateIndex) &&
-    candidateIndex > 0 &&
-    typeof record.sourceResponseHash === 'string' &&
-    /^fnv1a32_[0-9a-fA-F]{8}$/.test(record.sourceResponseHash)
-}
-
-function parseStepArtifactCandidateAudit(stepOutput: string): {
-  attempt: number
-  sourceResponseHash: string
-} | null {
-  const envelope = parseStepArtifactEnvelope(stepOutput)
-  if (envelope?.traceAuditFields) {
-    return {
-      attempt: envelope.traceAuditFields.sourceCandidateIndex,
-      sourceResponseHash: envelope.traceAuditFields.sourceResponseHash
-    }
-  }
-  const raw = envelope?.rawOutput || String(stepOutput || '')
+function parseStepArtifactCandidateAudit(stepOutput: string): StepArtifactStepCandidateAudit | null {
+  const raw = String(stepOutput || '')
   const attemptMatch = /(?:^|\n)\s*(?:【)?\s*candidateAttempt\s*(?:】)?\s*[：:]\s*(\d+)/.exec(raw)
   const hashMatch = /(?:^|\n)\s*(?:【)?\s*candidateResponseHash\s*(?:】)?\s*[：:]\s*([A-Za-z0-9_]+)/.exec(raw)
   if (!attemptMatch || !hashMatch) return null
@@ -187,14 +123,36 @@ function parseStepArtifactCandidateAudit(stepOutput: string): {
   }
 }
 
+function normalizeStepArtifactInput(stepOutput: string | StructuredSkillStepOutput): {
+  rawOutput: string
+  callerStatus: StepArtifactCallerStatus
+  degradedErrors: string[] | undefined
+  stepCandidateAudit: StepArtifactStepCandidateAudit | null
+} {
+  if (typeof stepOutput === 'string') {
+    return {
+      rawOutput: stepOutput,
+      callerStatus: 'success',
+      degradedErrors: undefined,
+      stepCandidateAudit: parseStepArtifactCandidateAudit(stepOutput)
+    }
+  }
+  return {
+    rawOutput: String(stepOutput.output || ''),
+    callerStatus: stepOutput.callerStatus,
+    degradedErrors: (stepOutput.errors || []).filter(Boolean),
+    stepCandidateAudit: stepOutput.stepCandidateAudit || null
+  }
+}
+
 export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtifactFlowResult {
-  const envelope = parseStepArtifactEnvelope(input.stepOutput)
-  const stepCandidateAudit = parseStepArtifactCandidateAudit(input.stepOutput)
+  const normalized = normalizeStepArtifactInput(input.stepOutput)
+  const stepCandidateAudit = normalized.stepCandidateAudit
   const acceptance = acceptStepArtifact({
-    rawOutput: envelope?.rawOutput ?? input.stepOutput,
+    rawOutput: normalized.rawOutput,
     contract: input.contract,
-    callerStatus: envelope?.callerStatus ?? 'success',
-    degradedErrors: envelope?.degradedErrors
+    callerStatus: normalized.callerStatus,
+    degradedErrors: normalized.degradedErrors
   })
   const result: StepArtifactAcceptanceResult = { ...acceptance, stepIndex: input.stepIndex }
   const rejected = result.decision === 'reject'
@@ -227,7 +185,7 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
         minWords: result.validation?.minWords ?? null,
         maxWords: result.validation?.maxWords ?? null
       },
-      degradedErrors: result.callerStatus === 'degraded' ? (envelope?.degradedErrors || []) : [],
+      degradedErrors: result.callerStatus === 'degraded' ? (normalized.degradedErrors || []) : [],
       contractErrors: result.validation?.errors || []
     },
     failure: rejected

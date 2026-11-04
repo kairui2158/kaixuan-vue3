@@ -875,11 +875,12 @@ import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../servi
 import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords, validateBodyArtifact } from "../../services/bodyArtifactContract"
 import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
+const LEGACY_STEP_ARTIFACT_MARKER = '__shenyiStepArtifact'
 import {
-  makeStepArtifactEnvelope,
   resolveFinalStepMetadataFlow,
   resolveStepArtifactFlow,
   type FinalStepMetadataFlowResult,
+  type StructuredSkillStepOutput,
   type StepArtifactAcceptanceResult
 } from "../../services/stepArtifactAcceptance"
 import {
@@ -3047,7 +3048,7 @@ async function callValidatedSkill(
   },
   traceRunIdParam: string | null | undefined = undefined,
   pipelineRunIdParam: string | null | undefined = undefined
-): Promise<string> {
+): Promise<StructuredSkillStepOutput> {
   validateSkillInputOrThrow(template, inputContext)
   if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
     const agentId = skillAgentId || getStepAgentId(step)
@@ -3206,14 +3207,14 @@ async function callValidatedSkill(
 
   function stepArtifactCandidateAudit(
     apiMeta: RealSkillExecutionResult['apiMeta']
-  ): Parameters<typeof makeStepArtifactEnvelope>[0]['traceAuditFields'] {
+  ): StructuredSkillStepOutput['stepCandidateAudit'] {
     const retainedCandidateIndex = Number(apiMeta?.retainedCandidateIndex || 0)
     const candidate = apiMeta?.candidateLedger?.[retainedCandidateIndex - 1]
     if (!Number.isInteger(retainedCandidateIndex) || retainedCandidateIndex <= 0 || !candidate?.sourceResponseHash) {
       return undefined
     }
     return {
-      sourceCandidateIndex: retainedCandidateIndex,
+      attempt: retainedCandidateIndex,
       sourceResponseHash: candidate.sourceResponseHash
     }
   }
@@ -3500,14 +3501,19 @@ async function callValidatedSkill(
         }
         appendStepLogForRun(pipelineRunIdParam, step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
       }
-      return folderStatus === "degraded" && stepArtifactContext
-        ? makeStepArtifactEnvelope({
-            status: folderStatus,
-            output: route.folderResult.output,
-            errors: route.folderResult.errors,
-            traceAuditFields: stepArtifactCandidateAudit(route.folderResult.apiMeta)
-          })
-        : route.folderResult.output
+      if (folderStatus === "degraded" && stepArtifactContext) {
+        return {
+          output: route.folderResult.output,
+          callerStatus: 'degraded',
+          errors: route.folderResult.errors,
+          stepCandidateAudit: stepArtifactCandidateAudit(route.folderResult.apiMeta)
+        }
+      }
+      return {
+        output: route.folderResult.output,
+        callerStatus: 'success',
+        errors: []
+      }
     }
     if (route.fallbackReason) {
       const detail = formatSkillFallback(route.fallback) || route.fallbackReason
@@ -3572,7 +3578,11 @@ async function callValidatedSkill(
     )
     try {
       validateSkillOutputOrThrow(template, output)
-      return output
+      return {
+        output,
+        callerStatus: 'success',
+        errors: []
+      }
     } catch (error) {
       currentError = error
       if (attempt === maxAttempts) throw error
@@ -4257,6 +4267,33 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   }
 }
 
+function sanitizeLegacyEnvelopeArtifact(text: string): {
+  output: string
+  recovery: 'clean' | 'migrated' | 'reset'
+} {
+  const raw = String(text || '')
+  if (!raw.includes(LEGACY_STEP_ARTIFACT_MARKER)) return { output: raw, recovery: 'clean' }
+  try {
+    const value = JSON.parse(raw) as Record<string, unknown>
+    if (
+      value?.__shenyiStepArtifact === true &&
+      typeof value.output === 'string' &&
+      (value.status === 'success' || value.status === 'degraded')
+    ) {
+      return {
+        output: value.output,
+        recovery: 'migrated'
+      }
+    }
+  } catch {
+    // A malformed checkpoint is treated as unusable below.
+  }
+  return {
+    output: '',
+    recovery: 'reset'
+  }
+}
+
 async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined, pipelineRunId: string | null | undefined = undefined) {
   const templates = hydratedTemplates
   const runId = traceRunId || null
@@ -4299,11 +4336,34 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       })
     }
     let startSi = resumePoint.startIndex
-    let current = resumePoint.previousOutput || prompt
+    const legacyArtifact = sanitizeLegacyEnvelopeArtifact(resumePoint.previousOutput || '')
+    if (legacyArtifact.recovery !== 'clean' && runId && resumePoint.previousOutput) {
+      runTraceStore.addEvent(runId, {
+        type: 'legacy-step-artifact-breakpoint-sanitized',
+        level: legacyArtifact.recovery === 'migrated' ? 'warn' : 'error',
+        label: legacyArtifact.recovery === 'migrated'
+          ? '旧信封断点产物已迁移为真实正文'
+          : '旧信封断点产物不可恢复，已从头执行',
+        detail: JSON.stringify({
+          ownerKey: checkpointOwnerKey,
+          skillIndex: resumePoint.startIndex,
+          recovery: legacyArtifact.recovery,
+          legacyChars: resumePoint.previousOutput.length
+        })
+      })
+    }
+    let current = legacyArtifact.recovery === 'reset'
+      ? prompt
+      : (legacyArtifact.output || prompt)
+    if (legacyArtifact.recovery === 'reset') startSi = 0
     let pendingStageDiagnosisGuidance = ''
     let completedStepOutputs = resumePoint.stepOutputs.slice()
     let upstreamStepMetadata: Record<string, unknown> | null =
       resumePoint.stepOutputs.find(output => output.skillIndex === startSi - 1)?.metadata || null
+    if (startSi === 0) {
+      completedStepOutputs = completedStepOutputs.filter(output => output.skillIndex < 0)
+      upstreamStepMetadata = null
+    }
     let authoritativeGeneratorMetadata: Record<string, unknown> | null = null
     if (step === 4) {
       const persistedGeneratorIndex = resolveBodyGeneratorStepIndex().index
@@ -4651,7 +4711,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       // Need 1: per-skill agent override
       const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
       try {
-        let stepOutput = await callValidatedSkill(
+        const stepResult = await callValidatedSkill(
           step,
           t,
           injection,
@@ -4671,6 +4731,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           traceRunId,
           pipelineRunId
         )
+        let stepOutput = stepResult.output
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
         }
@@ -4723,7 +4784,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               detail: JSON.stringify({ echoRatio: echoDiagnostic.echoRatio })
             })
           }
-          stepOutput = await callValidatedSkill(
+          const echoRetryResult = await callValidatedSkill(
             step,
             t,
             injection,
@@ -4748,6 +4809,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             traceRunId,
             pipelineRunId
           )
+          stepOutput = echoRetryResult.output
         }
         const repairedEchoDiagnostic = detectChainOutputEcho(
           si === 0 ? undefined : previousResolution.output,
@@ -4776,7 +4838,10 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           bodyChainContract
         ) {
           const artifactFlow = resolveStepArtifactFlow({
-            stepOutput,
+            stepOutput: {
+              ...stepResult,
+              output: stepOutput
+            },
             stepIndex: si,
             contract: bodyChainContract
           })
@@ -5035,7 +5100,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               previousOutput: current,
               previousSkillOutput: current
             })
-            let stepOutput = await callValidatedSkill(
+            const escalationStepResult = await callValidatedSkill(
               step,
               t,
               injection,
@@ -5055,6 +5120,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               traceRunId,
               pipelineRunId
             )
+            let stepOutput = escalationStepResult.output
             validateSkillOutputOrThrow(t, stepOutput)
             if (si < templates.length - 1) {
               const dedupedOutput = dedupeChainIntermediateOutput(stepOutput)
@@ -5254,7 +5320,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   if (composeArtifactContext) {
     setBodyGeneratorStepIndexForRun(pipelineRunId, 0)
   }
-  result = await callValidatedSkill(
+  const composeStepResult = await callValidatedSkill(
     step,
     composeTemplate,
     merged,
@@ -5274,9 +5340,10 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     traceRunId,
     pipelineRunId
   )
+  result = composeStepResult.output
   if (composeArtifactContext && bodyChainContract) {
     const artifactFlow = resolveStepArtifactFlow({
-      stepOutput: result,
+      stepOutput: composeStepResult,
       stepIndex: 0,
       contract: bodyChainContract
     })

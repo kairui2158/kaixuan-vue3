@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  makeStepArtifactEnvelope,
-  parseStepArtifactEnvelope,
+  type StructuredSkillStepOutput,
   resolveStepArtifactFlow
 } from './stepArtifactAcceptance'
 
@@ -17,56 +16,97 @@ function rawOutput(bodyWords: number, metadataWords = 1300): string {
   ].join('\n')
 }
 
-function envelope(status: 'success' | 'degraded' | 'failed', bodyWords: number, errors: string[] = []): string {
-  return makeStepArtifactEnvelope({
-    status,
+function structuredOutput(
+  status: 'success' | 'degraded',
+  bodyWords: number,
+  errors: string[] = []
+): StructuredSkillStepOutput {
+  return {
     output: rawOutput(bodyWords),
+    callerStatus: status,
     errors
-  })
+  }
 }
 
-describe('step artifact envelope', () => {
-  it('round-trips the diagnostic status and output', () => {
+describe('structured step artifact input', () => {
+  it('carries degraded status and diagnostics without text serialization', () => {
     const output = rawOutput(2200)
-    const encoded = makeStepArtifactEnvelope({ status: 'degraded', output, errors: ['缺 NEW_FACT'] })
-    expect(parseStepArtifactEnvelope(encoded)).toEqual({
-      rawOutput: output,
-      callerStatus: 'degraded',
-      traceAuditFields: null,
-      degradedErrors: ['缺 NEW_FACT']
+    const result = resolveStepArtifactFlow({
+      stepOutput: {
+        output,
+        callerStatus: 'degraded',
+        errors: ['缺 NEW_FACT']
+      },
+      stepIndex: 1,
+      contract
     })
+
+    expect(result.acceptance.callerStatus).toBe('degraded')
+    expect(result.traceDetail.degradedErrors).toEqual(['缺 NEW_FACT'])
+    expect(result.traceDetail.rawWordCount).toBeGreaterThan(0)
   })
 
-  it('carries retained-candidate provenance through the envelope', () => {
-    const encoded = makeStepArtifactEnvelope({
-      status: 'degraded',
-      output: rawOutput(2800),
-      errors: ['缺 NEW_FACT'],
-      traceAuditFields: {
-        sourceCandidateIndex: 2,
-        sourceResponseHash: 'fnv1a32_1a2b3c4d'
-      }
-    })
-    const parsed = parseStepArtifactEnvelope(encoded)
-    expect(parsed?.traceAuditFields).toEqual({
-      sourceCandidateIndex: 2,
-      sourceResponseHash: 'fnv1a32_1a2b3c4d'
+  it('carries retained-candidate provenance through structured state', () => {
+    const result = resolveStepArtifactFlow({
+      stepOutput: {
+        output: rawOutput(2800),
+        callerStatus: 'degraded',
+        errors: ['缺 NEW_FACT'],
+        stepCandidateAudit: {
+          attempt: 2,
+          sourceResponseHash: 'fnv1a32_1a2b3c4d'
+        }
+      },
+      stepIndex: 1,
+      contract
     })
 
-    const result = resolveStepArtifactFlow({ stepOutput: encoded, stepIndex: 1, contract })
     expect(result.traceAuditFields.sourceCandidateIndex).toBe(2)
     expect(result.traceAuditFields.sourceResponseHash).toBe('fnv1a32_1a2b3c4d')
   })
 
-  it('does not treat a malformed envelope as an authorization to flow', () => {
-    expect(parseStepArtifactEnvelope('{"__shenyiStepArtifact":broken')).toBeNull()
-    expect(parseStepArtifactEnvelope('plain prose')).toBeNull()
+  it('parses legacy candidate markers without restoring the envelope contract', () => {
+    const result = resolveStepArtifactFlow({
+      stepOutput: [
+        rawOutput(2800),
+        `candidateAttempt:2`,
+        `candidateResponseHash:fnv1a32_1a2b3c4d`
+      ].join('\n'),
+      stepIndex: 1,
+      contract
+    })
+
+    expect(result.traceAuditFields.sourceCandidateIndex).toBe(2)
+    expect(result.traceAuditFields.sourceResponseHash).toBe('fnv1a32_1a2b3c4d')
+  })
+
+  it('does not treat a retired envelope string as a structured authorization', () => {
+    const encoded = JSON.stringify({
+      __shenyiStepArtifact: true,
+      output: '正文一句。',
+      status: 'degraded',
+      errors: ['缺 NEW_FACT']
+    })
+    const result = resolveStepArtifactFlow({ stepOutput: encoded, stepIndex: 1, contract })
+
+    expect(result.acceptance.callerStatus).toBe('success')
+    expect(result.traceDetail.degradedErrors).toEqual([])
+    expect(result.downstreamPayload).toBeNull()
+    expect(result.acceptance.extractedBody).toContain('__shenyiStepArtifact')
+    expect(result.acceptance.decision).toBe('reject')
+    expect(result.failure?.reason).toBe('contract_failure')
   })
 
   it('preserves degraded diagnostics even when the retained output is empty', () => {
-    const encoded = makeStepArtifactEnvelope({ status: 'degraded', output: '', errors: ['降级且无输出'] })
-    const result = resolveStepArtifactFlow({ stepOutput: encoded, stepIndex: 1, contract })
-
+    const result = resolveStepArtifactFlow({
+      stepOutput: {
+        output: '',
+        callerStatus: 'degraded',
+        errors: ['降级且无输出']
+      },
+      stepIndex: 1,
+      contract
+    })
     expect(result.acceptance.decision).toBe('reject')
     expect(result.acceptance.callerStatus).toBe('degraded')
     expect(result.traceDetail.extractedWordCount).toBe(0)
@@ -79,7 +119,7 @@ describe('step artifact envelope', () => {
 
 describe('step artifact flow matrix', () => {
   type MatrixCase = {
-    status: 'success' | 'degraded' | 'failed'
+    status: 'success' | 'degraded'
     bodyWords: number
     expected: 'accept' | 'reject'
     downstream: boolean
@@ -90,13 +130,12 @@ describe('step artifact flow matrix', () => {
     { status: 'success', bodyWords: 1654, expected: 'reject', downstream: false },
     { status: 'degraded', bodyWords: 2800, expected: 'accept', downstream: true },
     { status: 'degraded', bodyWords: 1654, expected: 'reject', downstream: false },
-    { status: 'failed', bodyWords: 2800, expected: 'reject', downstream: false, failureReason: 'caller_failed' }
   ]
 
   for (const item of matrix) {
     it(`${item.status} + ${item.bodyWords} words must ${item.expected} and downstream=${item.downstream}`, () => {
       const result = resolveStepArtifactFlow({
-        stepOutput: envelope(item.status, item.bodyWords, item.status === 'degraded' ? ['降级原因'] : []),
+        stepOutput: structuredOutput(item.status, item.bodyWords, item.status === 'degraded' ? ['降级原因'] : []),
         stepIndex: 1,
         contract
       })
@@ -105,11 +144,7 @@ describe('step artifact flow matrix', () => {
       expect(result.continueChain).toBe(item.expected === 'accept')
       expect(Boolean(result.downstreamPayload)).toBe(item.downstream)
       expect(result.traceDetail.callerStatus).toBe(item.status)
-      if (item.status !== 'failed') {
-        expect(result.traceDetail.extractedWordCount).toBe(item.bodyWords)
-      } else {
-        expect(result.traceDetail.extractedWordCount).toBe(0)
-      }
+      expect(result.traceDetail.extractedWordCount).toBe(item.bodyWords)
       expect(result.traceDetail.rawWordCount - result.traceDetail.extractedWordCount)
         .toBeGreaterThanOrEqual(1300)
 
@@ -133,7 +168,7 @@ describe('step artifact flow matrix', () => {
 
   it('keeps the degraded + contract-failure accident reason explicit', () => {
     const result = resolveStepArtifactFlow({
-      stepOutput: envelope('degraded', 1654, ['正文交接缺少NEW_FACT']),
+      stepOutput: structuredOutput('degraded', 1654, ['正文交接缺少NEW_FACT']),
       stepIndex: 1,
       contract
     })

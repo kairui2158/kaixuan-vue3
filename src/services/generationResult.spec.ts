@@ -24,6 +24,19 @@ describe('parseGenerationResult', () => {
     expect(result.metadata.status).toBe('success')
   })
 
+  it('does not authorize the retired step-artifact envelope', () => {
+    const source = JSON.stringify({
+      __shenyiStepArtifact: true,
+      status: 'degraded',
+      output: '正文一句。',
+      errors: ['缺 NEW_FACT']
+    })
+    const result = parseGenerationResult(source)
+
+    expect(result.body).toBe(source)
+    expect(result.rawText).toContain('__shenyiStepArtifact')
+  })
+
   it('removes thinking tags from the body only', () => {
     const result = parseGenerationResult(JSON.stringify({
       body: '开门。<thinking>内部推理</thinking>转身。',

@@ -197,6 +197,26 @@ describe('generateBodyArtifact', () => {
     expect(ids[0]).not.toBe(ids[1])
   })
 
+  it('treats the retired step-artifact envelope as literal prose so it cannot pass validation', async () => {
+    const envelope = JSON.stringify({
+      __shenyiStepArtifact: true,
+      status: 'success',
+      output: '',
+      errors: []
+    })
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async () => envelope
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.body).toBe('')
+    expect(result.attempts[0].status).toBe('too_short')
+    expect(result.attempts[0].body).toContain('__shenyiStepArtifact')
+    expect(result.attempts[0].errors.join(' ')).toContain('正文过短')
+  })
+
   it('does not regress to full-chain wording in targeted repair', async () => {
     const prompts: string[] = []
     const firstDraft = '旧稿唯一标记XYZ'
