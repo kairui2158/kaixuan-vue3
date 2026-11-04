@@ -49,6 +49,7 @@ _audit/tmp/*backup*.json
 
 # local run-trace / audit evidence, retained on disk but not tracked
 _audit/tmp/
+_audit/verification-body-contract-degraded-electron-archive/
 _audit/verification-chapter-batch-contract-live-archive/
 _audit/verification-outline-deletion-gate/client-turn6-trace/
 _audit/verification-deai-stage-guidance-live/
