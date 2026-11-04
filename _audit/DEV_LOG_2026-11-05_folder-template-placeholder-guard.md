@@ -13,6 +13,13 @@
 - 回归测试：`src/services/realSkillExecutor.spec.ts:1667-1690` 新增"模板含未提供变量 → failed + error 诊断 + API 不被调用"用例。
 - 回归测试补齐：`src/services/realSkillExecutor.spec.ts:1692-1717` 新增"调用方完全未传 templateVariables → 同样阻断"负例用例。
 
+## 交付收尾（2026-11-05）
+
+- 版本升级：`3.114.0 → 3.114.1`（package.json + package-lock.json 同步）。
+- 封装构建：`npm run build` → `dist\神意助手-Setup-3.114.1.exe`（首次构建遇 EBUSY 文件锁，等待 5 秒后重试成功）。
+- 封装校验：`npm run verify:packaging` → PASS，`sha256=ec0a43d005bbc541c7e18452e7ffe85abfcee86fbff5739c95f40ff21a832a1f`，`rendererFiles=87`，`electronAPI methods=94`，证据文件 `_audit/verification-packaging-3.114.1/packaging-evidence.json`。
+- Git 提交：`33aecafe fix(executor): block unresolved folder template placeholders before API dispatch`、`e06b9974 chore(release): version 3.114.1 with packaging verification`。
+
 ## 验证
 
 - `npx vitest run src/services/realSkillExecutor.spec.ts --reporter=verbose` → `Tests 70 passed (70)`，其中新用例 `blocks execution when template placeholders are not provided` 通过。
