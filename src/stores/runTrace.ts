@@ -936,6 +936,7 @@ export interface ProcessingReportInput {
 export interface RunMetadataInput {
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
 }
 
@@ -2233,6 +2234,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
     if (!run) return
     if (input.providerId && !run.providerId) run.providerId = input.providerId
     if (input.providerName && !run.providerName) run.providerName = input.providerName
+    if (input.providerSource && !run.providerSource) run.providerSource = input.providerSource
     if (input.model && !run.model) run.model = input.model
   }
 

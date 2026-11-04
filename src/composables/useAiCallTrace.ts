@@ -110,6 +110,7 @@ export function useAiCallTrace(options: UseAiCallTraceOptions): AiCallContext {
       providerId: options.providerId,
       providerName: options.providerName,
       model: options.model,
+      providerSource: options.providerSource,
       skillNames: options.skillNames,
       skillMode: options.skillMode,
       pipelineRunId: options.pipelineRunId,

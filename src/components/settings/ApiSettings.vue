@@ -501,7 +501,8 @@ async function fetchModels() {
     mode: 'provider',
     providerId: editingProvider.value.id,
     providerName: editingProvider.value.name,
-    model: editingProvider.value.selectedModel
+    model: editingProvider.value.selectedModel,
+    providerSource: 'none'
   })
   trace.begin()
   try {
@@ -536,7 +537,8 @@ async function testConnection() {
     mode: 'provider',
     providerId: editingProvider.value.id,
     providerName: editingProvider.value.name,
-    model: editingProvider.value.selectedModel
+    model: editingProvider.value.selectedModel,
+    providerSource: 'none'
   })
   trace.begin()
   try {
@@ -570,7 +572,8 @@ async function testGeneration() {
     mode: 'provider',
     providerId: editingProvider.value.id,
     providerName: editingProvider.value.name,
-    model: editingProvider.value.selectedModel
+    model: editingProvider.value.selectedModel,
+    providerSource: 'none'
   })
   trace.begin()
   try {

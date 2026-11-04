@@ -5,6 +5,7 @@ import { Readable } from 'node:stream'
 import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
+import { expect } from '@playwright/test'
 import defaultPaths from '../electron/defaultPaths.js'
 
 const ROOT = path.resolve(process.cwd())
@@ -531,6 +532,141 @@ async function assertChannelUi(page, { expectedValues, warningLayers = [] }) {
   return visible
 }
 
+async function assertImportUpsertThroughRealUi(page) {
+  await page.click('#btn-settings')
+  await page.waitForSelector('#provider-list-view', { timeout: 20_000 })
+  const countBefore = await page.evaluate(() =>
+    window.__pinia?._s?.get('provider')?.providers?.length ?? null)
+  assert.equal(countBefore, 5, 'provider count is stable before import upsert')
+
+  const config = await page.evaluate(async () => {
+    const raw = await window.electronAPI.storageRead('wa_providers')
+    const settings = raw.providers.find(item => item.id === 'provider-settings')
+    if (!settings) throw new Error('settings channel provider exists for import fixture')
+    return JSON.stringify({
+      providers: [{ ...settings, selectedModel: 'settings-model-imported' }],
+      pipelineLayerProviders: { settings: settings.id },
+    })
+  })
+  const payloadBytes = Buffer.from(config, 'utf8')
+  const fileChooser = page.waitForEvent('filechooser', { timeout: 10_000 })
+  await page.getByRole('button', { name: '导入配置' }).click()
+  const chooser = await fileChooser
+  await chooser.setFiles({
+    name: 'pipeline-provider-import-upsert.json',
+    mimeType: 'application/json',
+    buffer: payloadBytes,
+  })
+  await page.waitForFunction(() => {
+    const store = window.__pinia?._s?.get('provider')
+    const provider = store?.providers?.find(item => item.id === 'provider-settings')
+    return provider?.selectedModel === 'settings-model-imported'
+  }, null, { timeout: 20_000 })
+  await page.waitForFunction(async () => {
+    const persisted = await window.electronAPI.storageRead('wa_providers')
+    const provider = persisted?.providers?.find(item => item.id === 'provider-settings')
+    return persisted?.providers?.length === 5 && provider?.selectedModel === 'settings-model-imported'
+  }, null, { timeout: 20_000 })
+
+  const diagnostics = await page.evaluate(async () => {
+    const store = window.__pinia?._s?.get('provider')
+    const persisted = await window.electronAPI.storageRead('wa_providers')
+    const provider = store?.providers?.find(item => item.id === 'provider-settings')
+    const persistedProvider = persisted?.providers?.find(item => item.id === 'provider-settings')
+    return {
+      count: store?.providers?.length ?? null,
+      selectedModel: provider?.selectedModel || null,
+      persistedRawKeys: Object.keys(persisted || {}),
+      persistedCount: persisted?.providers?.length ?? null,
+      persistedSelectedModel: persistedProvider?.selectedModel || null,
+      layerBinding: persisted?.pipelineLayerProviders?.settings || null,
+    }
+  })
+  assert.equal(diagnostics.count, 5, 'real import upsert does not duplicate provider IDs')
+  assert.equal(diagnostics.selectedModel, 'settings-model-imported',
+    'real import upsert replaces the existing provider in the store')
+  assert.equal(diagnostics.persistedCount, 5, 'real import upsert does not duplicate persisted provider IDs')
+  assert.equal(diagnostics.persistedSelectedModel, 'settings-model-imported',
+    'real import upsert persists the replacement provider')
+  assert.equal(diagnostics.layerBinding, 'provider-settings',
+    'real import preserves the valid settings layer binding')
+  writeRunLog('import-upsert-operation', diagnostics)
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'settings-import-upsert.png'), fullPage: true })
+  await page.click('#btn-close-settings')
+}
+
+async function assertGenerationProbeThroughRealUi(page) {
+  await page.click('#btn-settings')
+  await page.waitForSelector('.provider-card', { timeout: 20_000 })
+  const card = page.locator('.provider-card', { hasText: 'settings通道供应商' })
+  await card.locator('button', { hasText: '编辑' }).click()
+  await page.waitForSelector('#provider-edit-view', { timeout: 10_000 })
+  await page.waitForSelector('#btn-test-generation', { timeout: 10_000 })
+  await page.click('#btn-test-generation')
+  await page.waitForFunction(() => {
+    const text = document.querySelector('.fetch-feedback')?.textContent || ''
+    return text.includes('生成探针通过') || text.includes('生成探针失败')
+  }, null, { timeout: 45_000 })
+  const diagnostics = await page.evaluate(() => ({
+    feedback: document.querySelector('.fetch-feedback')?.textContent?.trim() || '',
+    traceRun: [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+      .findLast(run => run.source === 'infra' && run.stepName === '生成探针') || null,
+  }))
+  assert(diagnostics.feedback.includes('生成探针通过'),
+    `real generation probe succeeds through the mocked supplier; got ${diagnostics.feedback}`)
+  assert.equal(diagnostics.traceRun?.status, 'success',
+    `generation probe records a successful infra trace; got ${diagnostics.traceRun?.status}`)
+  assert.equal(diagnostics.traceRun?.providerId, 'provider-settings',
+    'generation probe trace is attributed to the edited provider')
+  assert.equal(diagnostics.traceRun?.providerSource, 'none',
+    'generation probe is an explicit provider test, not a layer-bound generation')
+  writeRunLog('generation-probe-operation', {
+    feedback: diagnostics.feedback,
+    trace: JSON.parse(JSON.stringify(diagnostics.traceRun)),
+  })
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'provider-generation-probe.png'), fullPage: true })
+  await page.click('#btn-provider-back')
+  await page.waitForSelector('#provider-list-view', { timeout: 10_000 })
+  await page.click('#btn-close-settings')
+}
+
+async function assertRunTraceLayerSourceThroughRealUi(page, traceRunId, pipelineRunId) {
+  await page.click('#btn-pipeline')
+  await page.waitForSelector('#pipeline-panel', { state: 'visible', timeout: 20_000 })
+  await page.click('#btn-run-trace')
+  await page.waitForSelector('[data-modal-id="run-trace-panel"]', { state: 'visible', timeout: 20_000 })
+  await page.locator('.rt-filter button', { hasText: '生成流水线' }).click()
+  await page.locator(`.rt-list [data-run-id="${traceRunId}"]`).click()
+  const detail = page.locator('#run-trace-panel .rt-detail').first()
+  await expect(detail).toContainText('供应商来源：层绑定')
+  const diagnostics = await page.evaluate(wantedRunId => {
+    const store = window.__pinia?._s?.get('runTrace')
+    const selectedRunId = [...(store?.runs || [])]
+      .find(item => document.querySelector(`#run-trace-panel .rt-list [data-run-id="${item.id}"]`)
+        ?.classList.contains('active'))?.id || null
+    const run = [...(store?.runs || [])].find(item => item.id === selectedRunId)
+    return {
+      selectedRunId,
+      wantedTraceRunId: wantedRunId.traceRunId,
+      wantedPipelineRunId: wantedRunId.pipelineRunId,
+      uiPipelineRunId: run?.pipelineRunId || null,
+      uiSource: run?.source || null,
+      uiProviderSource: run?.providerSource || null,
+      uiLayer: run?.stepName || null,
+    }
+  }, { traceRunId, pipelineRunId })
+  assert.equal(diagnostics.selectedRunId, diagnostics.wantedTraceRunId,
+    `trace panel selects the requested pipeline run; got ${JSON.stringify(diagnostics)}`)
+  assert.equal(diagnostics.uiPipelineRunId, diagnostics.wantedPipelineRunId,
+    'trace panel run remains bound to the requested pipeline run')
+  assert.equal(diagnostics.uiProviderSource, 'layer',
+    `real trace UI shows layer provider source; got ${diagnostics.uiProviderSource}`)
+  writeRunLog('run-trace-provider-source-ui', diagnostics)
+  await page.screenshot({ path: path.join(EVIDENCE_ROOT, 'run-trace-provider-source-ui.png'), fullPage: true })
+  await page.locator('[data-modal-id="run-trace-panel"] .modal-close').click()
+  await page.waitForSelector('[data-modal-id="run-trace-panel"]', { state: 'hidden', timeout: 10_000 })
+}
+
 async function operateLayerChannelsThroughRealUi(page) {
   await page.click('#btn-settings')
   await page.waitForSelector('.purpose-toggle-btn', { timeout: 20_000 })
@@ -786,6 +922,9 @@ async function main() {
     await reloadApp(page)
     await assertChannelUi(page, { expectedValues: LAYER_PROVIDERS })
 
+    await assertImportUpsertThroughRealUi(page)
+    await assertGenerationProbeThroughRealUi(page)
+
     await page.click('#btn-pipeline')
     await page.waitForSelector('#pipeline-panel', { timeout: 20_000 })
     await startLayerRun(page, 2, '#btn-pl-gen-volumes')
@@ -795,6 +934,11 @@ async function main() {
     const volumeEvidence = await assertRunProviderChannel(page, 'volumes', 2, providerBridge)
     const chapterEvidence = await assertRunProviderChannel(page, 'chapters', 3, providerBridge)
     const bodyEvidence = await assertRunProviderChannel(page, 'body', 4, providerBridge)
+    await assertRunTraceLayerSourceThroughRealUi(
+      page,
+      bodyEvidence.trace.id,
+      bodyEvidence.run.runId,
+    )
 
     const confirmStepDiagnostics = await page.evaluate(() => ({
       pipelinePanelAttached: Boolean(document.querySelector('#pipeline-panel')),
@@ -805,7 +949,6 @@ async function main() {
     }))
     writeRunLog('confirm-step-diagnostics', confirmStepDiagnostics)
 
-    await page.click('#btn-pipeline')
     await page.waitForSelector('#pipeline-panel', { state: 'visible', timeout: 20_000 })
 
     await selectPipelineStep(page, 4)

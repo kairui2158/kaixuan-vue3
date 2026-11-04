@@ -110,3 +110,17 @@
 - `npm run build` exit 0；NSIS 阶段 `rcedit` 两次 `Unable to commit changes` 后自动重试，最终产物构建成功。
 - `npm run verify:packaging` 输出 `PACKAGING 3.113.0 VERIFICATION PASSED`；安装包 `dist\神意助手-Setup-3.113.0.exe`，字节数 `231664620`，SHA-256 `a1d22e8f7672e8f48701f26f006a7ee6be191bf24c1b0eb63b35b1ac88131aab`；renderer files `87`，electronAPI methods `94`。
 - 已清理 `dist\神意助手-Setup-3.112.0.exe` 与同名 blockmap；`3.110.6` 历史产物按既有边界保留。
+
+### 2026-11-04 回头看缺口闭环
+
+1. 缺口 1 已补：真实 Electron UI 验证新增导入同 ID upsert、生成探针、运行记录层绑定来源三条 DOM 断言。复跑输出 `[PASS] layer provider UI, persistence, warnings, and routing verified; mode=mock-four-layer-providers; requests=6`。
+2. 缺口 2 已闭：旧 report 的 `runtimeFingerprint.appVersion=3.112.0` 登记为构建时序产物；本轮 `build:vue` 后 `_audit/verification-pipeline-provider-channel/body-trace.json:21-23` 已为 `appVersion=3.113.0`，不是功能版本回退。
+3. 缺口 3 维持：`3.110.6` 安装包受 ACL 锁定，按既有边界保留，不作为本轮改动对象。
+4. 顺手修复溯源接缝：`ApiSettings.vue` 三个 infra 测试显式 `providerSource=none`；`useAiCallTrace.begin()` 不再丢弃 options 中的 `providerSource`；`runTrace.startApiCall()` 将通道裁决后的来源安全回填到 run 级。
+5. 全量回归：`npx vue-tsc --noEmit` 与 `npx vitest run` 复跑证据见下一节。
+
+### 2026-11-04 HEAD 回归修因与收口
+
+- `src/services/realS2ProtectedContract.integration.spec.ts:56-74` 的旧候选样本是一整段重复文本；活体 Vivid-SKILL 0.4.1 的 `checkAuthorBaselineCalibration` 会将其判为 `段落中位3500字，高于作者基准P95上限51`，导致 HEAD 既有回归。A/B stash 复跑证明与供应商溯源修复无关。
+- 已把上导游离样本改为 80 段、净字数 3200，候选改为 88 段、净字数 3500；样本使用确定性唯一汉字并保留 40 字中位段长，避免依赖随机语料。原测试目标（重复【正文交接】折叠后受保护契约仍位于提示词末尾）未变。
+- 收口证据：`npx vitest run src/services/realS2ProtectedContract.integration.spec.ts` → `Tests 1 passed`；`npx vitest run` → `Test Files 247 passed (247)`、`Tests 2653 passed (2653)`；`npx vue-tsc --noEmit` exit 0；`npm run build:vue` exit 0。

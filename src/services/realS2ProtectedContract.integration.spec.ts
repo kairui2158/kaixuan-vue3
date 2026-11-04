@@ -53,7 +53,17 @@ const s2Script = readFileSync(
 describe('real kaixuan S2 protected body contract', () => {
   it('keeps the protected contract after S2 folds duplicated handoff blocks', async () => {
     const contractText = bodyGeneratorContractSentence(3500)
-    const body = '正文'.repeat(1600)
+    // Vivid-SKILL 0.4.1 now enforces paragraph medians below 52 CJK chars.
+    // Build deterministic prose with 3200 unique Han characters so the legacy
+    // duplicated-upstream-handoff scenario remains the target under test.
+    const proseSource = Array.from(
+      { length: 3200 },
+      (_, index) => String.fromCharCode(0x4e00 + (index % 20000))
+    ).join('')
+    const body = Array.from(
+      { length: 80 },
+      (_, index) => proseSource.slice(index * 40, (index + 1) * 40)
+    ).join('\n')
     const handoff = [
       '【正文交接】',
       'FACT_LOCK：人物状态：王芳警觉；位置：仓库；伤势：无；持有物：旧钥匙；时间点：深夜；关键数字：账册1本；新增事实：王芳发现旧账册；钩子兑现状态：未兑现。',
@@ -83,8 +93,16 @@ describe('real kaixuan S2 protected body contract', () => {
       folderPackageCache: false
     } satisfies RealSkillLoadResult)
 
+    const candidateProseSource = Array.from(
+      { length: 3500 },
+      (_, index) => String.fromCharCode(0x4e00 + (index % 20000))
+    ).join('')
+    const candidateBody = Array.from(
+      { length: 88 },
+      (_, index) => candidateProseSource.slice(index * 40, (index + 1) * 40)
+    ).join('\n')
     const validOutput = [
-      '正文'.repeat(1750),
+      candidateBody,
       '【正文交接】',
       '章节：第1章',
       'POV：王芳',
