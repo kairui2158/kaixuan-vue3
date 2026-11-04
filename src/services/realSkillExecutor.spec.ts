@@ -1671,6 +1671,59 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(systemPrompt).not.toContain('{{pacingParams}}')
   })
 
+  it('blocks execution when template placeholders are not provided', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({ template: '标题：{{chapterTitle}}；缺失：{{missingVar}}' }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      templateVariables: { chapterTitle: '第一章' }
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.output).toBe('')
+    expect(result.errors[0]).toContain('未解析占位符')
+    expect(result.diagnostics.some(item =>
+      item.type === 'error' &&
+      item.code === 'template-placeholder-unresolved' &&
+      item.message.includes('missingVar')
+    )).toBe(true)
+    expect(callAi).not.toHaveBeenCalled()
+  })
+
+  it('blocks execution when no template variables are provided at all', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({ template: '章节：{{chapterTitle}}' }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.output).toBe('')
+    expect(result.errors[0]).toContain('未解析占位符')
+    expect(result.diagnostics.some(item =>
+      item.type === 'error' &&
+      item.code === 'template-placeholder-unresolved' &&
+      item.message.includes('chapterTitle')
+    )).toBe(true)
+    expect(callAi).not.toHaveBeenCalled()
+  })
+
   it('forwards reasoning delta callbacks to callAi', async () => {
     const onReasoning = vi.fn()
     const callAi = vi.fn(async () => ({ text: '输出' }))

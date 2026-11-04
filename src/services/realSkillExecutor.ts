@@ -637,6 +637,14 @@ function injectResolvedVariables(
       `folder template.md 变量为空，已渲染为“未设置”：${empty.join('、')}`
     ))
   }
+  const unresolved = Array.from(output.matchAll(/\{\{\s*([A-Za-z_$][\w$-]*)\s*\}\}/g), match => match[1])
+  if (unresolved.length > 0) {
+    diagnostics.push(diagnostic(
+      'error',
+      'template-placeholder-unresolved',
+      `folder template.md 存在未被注入的占位符：${[...new Set(unresolved)].join('、')}。已阻止请求发出，请检查调用方是否提供全部模板变量。`
+    ))
+  }
   return output
 }
 
@@ -801,9 +809,18 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const baseTemplate = hasBaseTemplate && !useFolderTemplate
     ? resolvedBaseTemplate
     : pkg.template
-  const variableInjectedTemplate = useFolderTemplate && Object.keys(options.templateVariables || {}).length > 0
+  const variableInjectedTemplate = useFolderTemplate
     ? injectResolvedVariables(pkg.template, options.templateVariables, diagnostics)
     : pkg.template
+  if (diagnostics.some(item => item.code === 'template-placeholder-unresolved')) {
+    return {
+      status: 'failed',
+      output: '',
+      errors: ['folder template.md 存在未解析占位符，已阻止请求发出'],
+      diagnostics,
+      folderPackageCache: loaded.folderPackageCache === true
+    }
+  }
   // preProcess 只改写 input，不改写模板。compose 场景必须保留完整合并模板，
   // 否则多个 SKILL 合并后的 system prompt 会被 folder 自身 template 意外替换。
   let template = normalizeTemplate(

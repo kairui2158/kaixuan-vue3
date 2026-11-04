@@ -91,7 +91,15 @@ export async function runFolderSkillTest(input: FolderSkillTestInput): Promise<F
         budget,
         skillId: input.skillId,
         aiService,
-        stream: false
+        stream: false,
+        templateVariables: {
+          novelTitle: '技能测试',
+          chapterTitle: '技能测试章节',
+          chapterSummary: input.input.slice(0, 200),
+          wordsPerChapter: 3500,
+          styleTags: '',
+          pacingParams: ''
+        }
       }
     )
 

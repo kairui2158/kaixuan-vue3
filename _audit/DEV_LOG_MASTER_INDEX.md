@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-03
+更新日期：2026-11-05
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1739,3 +1739,10 @@
 - 验证：定向五文件 `72 tests` 通过；全量 `247 files / 2655 tests` 通过；type-check 与 `git diff --check` 通过；现役信封构造/解析执行面 0 命中。
 - 边界：真实 folder SKILL、真实供应商、真实 Electron 正文链与 echo/escalation 直入统一验收均 `untested`；本轮不升版、不封装。
 - 盲区补验：真实 Electron 三场景 PASS，A 前拒绝、B 提取后 S3 成功、C 无账本终步阻断且不覆盖旧正文；修复 `closePerRunFeedback` 终态立即清 UI 导致关闭失效。echo/escalation 统一验收仍 `untested`。
+
+# 2026-11-05 folder 模板占位符注入守卫
+
+- 文件：[_audit/DEV_LOG_2026-11-05_folder-template-placeholder-guard.md](_audit/DEV_LOG_2026-11-05_folder-template-placeholder-guard.md)
+- 交付：`injectResolvedVariables` 补反向占位符检查，有残留时 error 诊断并 hard fail 阻止 API 调用（含调用方零变量分支，`useFolderTemplate` 为真时无条件扫描）；五个 SKILL preProcess（kaixuan-s1/s2/s3、l2-s2、l4-s1）把链式输入中字面 `{{var}}` 改写为 `[未替换占位符:var]`；`folderSkillTest` 补齐代表性模板变量；新增 executor spec 覆盖"模板含未提供变量 → failed + error 诊断 + API 不被调用"及"调用方完全未传 templateVariables → 同样阻断"。
+- 验证：executor spec 70 tests 通过（含新用例）；router/workspace/orchestrator 68 tests 通过；全量服务 2266 tests 零回归；`folderSkillTest.spec` 3 tests 通过。
+- 边界：SKILL 磁盘包改动不在应用 git 管理范围内；真实 Electron 四层链实测本轮未执行（服务层与执行器级测试覆盖注入器行为，preProcess 可见标记属纵深防御）。
