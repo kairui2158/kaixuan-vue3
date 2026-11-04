@@ -249,6 +249,7 @@ export type WorkspaceSkillRunMeta = {
   budget?: { used: number; limit: number }
   folderPackageCache?: boolean
   postProcessReport?: RealSkillPostProcessReport
+  blockingGateFailed?: boolean
   artifactAcceptance?: WorkspaceArtifactAcceptanceResult | null
   toolCalls?: Array<{ name: string; input?: unknown }>
   toolResults?: Array<{ call: { id?: string; name: string; input?: unknown; argumentsRaw?: string }; result: unknown }>
@@ -447,11 +448,19 @@ export function resolvePostProcessTerminalStatus(
 function resolveArtifactTerminal(
   artifact: WorkspaceArtifactAcceptanceResult | null,
   postProcess: RealSkillPostProcessReport | undefined,
+  meta?: WorkspaceSkillRunMeta | null,
 ): {
   processingStatus: 'success' | 'warning' | 'failed'
   runStatus: WorkspaceSkillRunResult['terminalStatus']
   eventReason: string
 } {
+  if (getWorkspaceRunBlockingGateFailed(meta)) {
+    return {
+      processingStatus: 'failed',
+      runStatus: 'blocked',
+      eventReason: 'post-process-blocked',
+    }
+  }
   if (artifact) {
     return {
       processingStatus: artifact.decision === 'reject'
@@ -466,6 +475,13 @@ function resolveArtifactTerminal(
     }
   }
   return resolvePostProcessTerminalStatus(postProcess)
+}
+
+function getWorkspaceRunBlockingGateFailed(
+  meta: WorkspaceSkillRunMeta | null | undefined,
+): boolean {
+  return meta?.blockingGateFailed === true ||
+    (meta?.postProcessReport?.issues ?? []).some(issue => issue.severity === 'blocking')
 }
 
 export type WorkspaceContextBlock = {
@@ -1069,6 +1085,7 @@ async function callWorkspaceSkill(
         agentId: agentId || undefined,
         skillId: template.id,
         status: folderResult.status === 'degraded' ? 'degraded' : 'success',
+        blockingGateFailed: folderResult.blockingGateFailed === true,
         responseText: output,
         reasoningText: folderResult.apiMeta?.reasoningText,
         usage: folderResult.apiMeta?.usage,
@@ -1737,6 +1754,7 @@ export async function runWorkspaceSkills(
             degradedErrors: stepMeta?.diagnostics
               ?.filter(diagnostic => diagnostic.type === 'warning' || diagnostic.type === 'error')
               .map(diagnostic => diagnostic.message) || [],
+            blockingGateFailed: stepMeta?.blockingGateFailed === true,
             contract: input.artifactContract,
           })
           callbacks.onArtifactAcceptance?.(artifactAcceptance, index, 'chain')
@@ -1827,10 +1845,12 @@ export async function runWorkspaceSkills(
     terminalStatus: resolveArtifactTerminal(
       artifactAcceptance,
       allMetas[allMetas.length - 1]?.postProcessReport,
+      allMetas[allMetas.length - 1],
     ).runStatus,
     terminalReason: resolveArtifactTerminal(
       artifactAcceptance,
       allMetas[allMetas.length - 1]?.postProcessReport,
+      allMetas[allMetas.length - 1],
     ).eventReason,
     allMetas,
       mode: 'chain',
@@ -1948,6 +1968,7 @@ export async function runWorkspaceSkills(
         degradedErrors: lastRunMeta.get(input)?.diagnostics
           ?.filter(diagnostic => diagnostic.type === 'warning' || diagnostic.type === 'error')
           .map(diagnostic => diagnostic.message) || [],
+        blockingGateFailed: lastRunMeta.get(input)?.blockingGateFailed === true,
         contract: input.artifactContract,
       })
       callbacks.onArtifactAcceptance?.(composeArtifact, 0, 'compose')
@@ -1993,10 +2014,12 @@ export async function runWorkspaceSkills(
     terminalStatus: resolveArtifactTerminal(
       composeArtifact,
       lastRunMeta.get(input)?.postProcessReport,
+      lastRunMeta.get(input),
     ).runStatus,
     terminalReason: resolveArtifactTerminal(
       composeArtifact,
       lastRunMeta.get(input)?.postProcessReport,
+      lastRunMeta.get(input),
     ).eventReason,
     allMetas: [lastRunMeta.get(input)].filter(
       Boolean,

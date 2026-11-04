@@ -1753,3 +1753,11 @@
 - 交付：SKILL postProcess blocking 耗尽后 run 终态固定 `failed`；`blockingGateFailed` 单源传递；step acceptance 二级防线 reject；PipelinePanel 记录 folder gate、传播链式 gate，并把 warning-only 降级 errors 合入事件与步骤日志。
 - 验证：真实 Electron 四场景 PASS——A blocking 耗尽 failed、B warning-only accept + S3 success、C 无账本终步 failed、D 2961 字 blocking 耗尽 failed 且不覆盖旧正文；`npm run type-check` exit 0；`realSkillExecutor.spec.ts` + `stepArtifactAcceptance.spec.ts` 92/92 通过；修复夹具正则 bridge 序列化陷阱与 mock 供应商 reset 队列残留。
 - 边界：夹具 folder SKILL 仅验证门禁语义，不验证真实 kaixuan SKILL 的内容质量；真实供应商 `untested`；本轮不升版、不封装。
+
+# 2026-11-05 工作台 SKILL blocking 终态补修
+
+- 文件：[_audit/DEV_LOG_2026-11-05_workspace-blocking-gate-reconciliation.md](_audit/DEV_LOG_2026-11-05_workspace-blocking-gate-reconciliation.md)
+- 审计：[_audit/CROSS_LAYER_BLOCKING_GATE_AUDIT_2026-11-05.md](_audit/CROSS_LAYER_BLOCKING_GATE_AUDIT_2026-11-05.md)
+- 交付：工作台 run meta 保留 `blockingGateFailed`；chain/compose 透传到 body 产物验收；无契约 folder blocking 终态收敛为 `blocked/post-process-blocked`。跨层审计反转“failed/blocked 静默放行”假设：路由层已抛错，真实缺口是 degraded 证据丢失和 verdict 未透传。
+- 验证：`npm run type-check` exit 0；定向 `workspaceArtifactAcceptance/workspaceSkillEngine/realSkillExecutor/stepArtifactAcceptance` 4 files / 146 tests 全绿；新增工作台 body 契约与 chain 终态负向用例。
+- 边界：工作台 folder blocking 未做真实 Electron live E2E；复合链 `degraded + no_contract` 已拒绝未重复接线；卷纲/章节/设定批次链无 folder blocking 通路，不预建防线。

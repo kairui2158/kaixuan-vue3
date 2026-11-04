@@ -1843,4 +1843,69 @@ describe('workspace skill engine', () => {
     expect(acceptances).toHaveLength(1)
     expect((acceptances[0] as { decision: string }).decision).toBe('reject')
   })
+
+  it('marks a workspace folder chain blocked after SKILL gate exhaustion', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'folder-blocking',
+        name: 'folder-blocking',
+        description: '阻断测试文件夹技能',
+        template: 'folder template',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/folder-blocking',
+      },
+      warnings: [],
+      error: null,
+    })
+    executeRealSkillMock.mockResolvedValueOnce({
+      status: 'degraded',
+      blockingGateFailed: true,
+      output: '降级保留的候选',
+      errors: ['SKILL 施工门禁未通过'],
+      diagnostics: [],
+      folderPackageCache: false,
+      postProcessReport: {
+        applied: true,
+        changedOutput: false,
+        output: '降级保留的候选',
+        issues: [
+          {
+            severity: 'blocking',
+            code: 'body-contract-blocking',
+            message: 'SKILL 施工门禁未通过',
+          },
+        ],
+        durationMs: 1,
+      },
+    })
+
+    const result = await runWorkspaceSkills({
+      requestText: '生成正文',
+      templates: [makeTemplate('folder-blocking', '正文', {
+        intents: ['generate'],
+        skill: {
+          id: 'folder-blocking',
+          format: 'folder',
+          folderPath: 'D:/skills/folder-blocking',
+        },
+      })],
+      mode: 'chain',
+      aiService: makeAiService([]).aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'generate' },
+    })
+
+    expect(result.meta).toMatchObject({
+      status: 'degraded',
+      blockingGateFailed: true,
+    })
+    expect(result.terminalStatus).toBe('blocked')
+    expect(result.terminalReason).toBe('post-process-blocked')
+  })
 })

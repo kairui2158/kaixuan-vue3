@@ -158,6 +158,7 @@ export function acceptWorkspaceArtifact(input: {
   rawOutput: string
   callerStatus?: 'success' | 'degraded' | 'failed' | 'blocked'
   degradedErrors?: string[]
+  blockingGateFailed?: boolean
   contract: WorkspaceArtifactContract | null
 }): WorkspaceArtifactAcceptanceResult {
   const rawOutput = String(input.rawOutput || '')
@@ -211,6 +212,7 @@ export function acceptWorkspaceArtifact(input: {
         rawOutput,
         callerStatus,
         degradedErrors,
+        blockingGateFailed: input.blockingGateFailed === true,
         contract: input.contract.contract,
       }),
       callerStatus,

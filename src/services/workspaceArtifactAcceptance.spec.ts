@@ -160,4 +160,28 @@ describe('acceptWorkspaceArtifact', () => {
       terminalStatus: 'blocked',
     })
   })
+
+  it('rejects a degraded body candidate blocked by the SKILL gate even when the contract passes', () => {
+    const body = '字'.repeat(80)
+    const result = acceptWorkspaceArtifact({
+      rawOutput: `${body}\n\n【正文交接】\nFACT_LOCK:人物状态=安全\n【正文交接结束】`,
+      callerStatus: 'degraded',
+      degradedErrors: ['SKILL postProcess blocking'],
+      blockingGateFailed: true,
+      contract: {
+        kind: 'body',
+        contract: { chapterId: 'chapter-1', targetWords: 100 },
+      },
+    })
+
+    expect(result).toMatchObject({
+      decision: 'reject',
+      reason: 'contract_failed',
+      terminalStatus: 'degraded',
+      terminalReason: 'artifact_degraded_plus_contract_failure',
+      downstreamPayload: null,
+    })
+    expect(result.stepArtifact?.blockingGateFailed).toBe(true)
+    expect(result.errors.join(';')).toContain('SKILL 阻断裁决未通过')
+  })
 })
