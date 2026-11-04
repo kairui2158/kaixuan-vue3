@@ -69,10 +69,16 @@ function metadataEnvelope(body) {
 
 function narrativeMetadataEnvelope(body) {
   return [
-    metadataEnvelope(body),
-    'narrativeStatus：ready',
-    'narrativeReason：状态改变动作达标',
-    'stateChangingScenes：3',
+    [
+      body,
+      '【正文交接】',
+      'narrativeStatus：ready',
+      'narrativeReason：状态改变动作达标',
+      'stateChangingScenes：3',
+      ...Array.from({ length: 240 }, (_, index) =>
+        `交接元数据第${index + 1}条：维持灯芯记录的事实锁，不进入正文。`),
+      '【正文交接结束】',
+    ].join('\n'),
   ].join('\n')
 }
 
@@ -141,8 +147,11 @@ function assertFreshRendererBuild() {
     fs.readFileSync(path.join(ROOT, 'dist-renderer', name), 'utf8')).join('\n')
   assert(bundleText.includes('body-step-acceptance'),
     'renderer bundle contains the body-step-acceptance trace event')
-  assert(bundleText.includes('__shenyiStepArtifact'),
-    'renderer bundle contains the step artifact envelope marker')
+  assert(!bundleText.includes('makeStepArtifactEnvelope') &&
+    !bundleText.includes('parseStepArtifactEnvelope'),
+    'renderer bundle does not retain active step artifact envelope helpers')
+  assert(bundleText.includes('legacy-step-artifact-breakpoint-sanitized'),
+    'renderer bundle retains only the sanctioned legacy breakpoint sanitizer event')
   assert(bundleText.includes('degraded_plus_contract_failure'),
     'renderer bundle contains the degraded-plus-contract rejection reason')
   assert(bundleText.includes(UPSTREAM_METADATA_HEADER),
@@ -178,9 +187,12 @@ function writeSkills() {
       template: '输出本章节正文。',
       script: [
         'exports.postProcess = function (output) {',
-        '  return {',
-        "    issues: [{ severity: 'blocking', code: 'intentional-degraded', message: '正文交接缺少NEW_FACT事实锁' }]",
+        '  if (output.includes("【正文交接】")) {',
+        '    return {',
+        "      issues: [{ severity: 'blocking', code: 'intentional-degraded', message: '正文交接缺少NEW_FACT事实锁' }]",
+        '    }',
         '  }',
+        '  return {}',
         '}',
       ].join('\n'),
     },
@@ -548,6 +560,19 @@ async function runBodyThroughUi(page) {
   await clearBodyBreakpoints(page)
   const previousClose = page.locator('.pl-gen-bar-close')
   if (await previousClose.count()) {
+    const closeDiagnostic = await page.evaluate(() => ({
+      bars: [...document.querySelectorAll('.pl-gen-bar')].map((bar, index) => ({
+        index,
+        text: (bar.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 220),
+        hasClose: Boolean(bar.querySelector('.pl-gen-bar-close')),
+      })),
+      runs: [...(window.__pinia?._s?.get('pipeline')?.runs || [])].map(run => ({
+        runId: run.runId,
+        layer: run.layer,
+        status: run.status,
+      })),
+    }))
+    console.log('[PRE-CLOSE DIAGNOSTIC]', JSON.stringify(closeDiagnostic, null, 2))
     await previousClose.first().click()
     await page.waitForSelector('.pl-gen-bar-close', { state: 'detached', timeout: 10_000 })
   }
@@ -621,15 +646,19 @@ function userText(messages) {
 
 function assertS2SchemaRetryLedger(run, expectedTotalPhysicalCalls) {
   const physicalCalls = (run.apiCalls || []).flatMap(call => call.physicalCalls || [])
+  const expectedPhases = expectedTotalPhysicalCalls === 2
+    ? ['normal', 'normal']
+    : expectedTotalPhysicalCalls === 4
+      ? ['normal', 'normal', 'schema_retry', 'schema_retry']
+      : ['normal', 'normal', 'schema_retry', 'schema_retry', 'normal']
+  const expectedS2CallCount = expectedTotalPhysicalCalls === 2 ? 1 : 3
   assert.equal(physicalCalls.length, expectedTotalPhysicalCalls,
     `run records the expected physical lifecycle, got ${physicalCalls.length}/${expectedTotalPhysicalCalls}`)
   assert.deepEqual(physicalCalls.map(call => call.phase),
-    expectedTotalPhysicalCalls === 4
-      ? ['normal', 'normal', 'schema_retry', 'schema_retry']
-      : ['normal', 'normal', 'schema_retry', 'schema_retry', 'normal'],
+    expectedPhases,
     `S2 physical retries are classified as schema_retry, got ${JSON.stringify(physicalCalls.map(call => call.phase))}`)
   assert.equal(physicalCalls.filter(call => call.phase !== 'normal').length + 1,
-    3, 'S2 contributes three physical requests (one initial + two schema retries)')
+    expectedS2CallCount, `S2 contributes ${expectedS2CallCount} physical requests`)
   assert(!physicalCalls.some(call => call.phase === 'heartbeat_retry'),
     'S2 schema retries are not misclassified as heartbeat retries')
 }
@@ -819,7 +848,7 @@ async function runAcceptScenario(page, provider) {
 }
 
 async function runLedgerMissingScenario(page, provider) {
-  console.log('\n[SCENARIO C] generator without body handoff metadata must terminate at the ledger gate')
+  console.log('\n[SCENARIO C] successful S2 without a body ledger must terminate at the terminal gate')
   provider.reset()
   provider.enqueue({ body: S1_BODY, finishReason: 'stop' })
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -844,7 +873,7 @@ async function runLedgerMissingScenario(page, provider) {
   assert.equal(acceptance.decision, 'accept', 'scenario C validates the prose face before the ledger gate')
   assert.equal(acceptance.extractedWordCount, 2800, 'scenario C meets the 80 percent prose floor')
   assert.deepEqual(acceptance.metadata, {},
-    `scenario C proves the generator produced no metadata ledger: ${JSON.stringify(acceptance.metadata)}`)
+    `scenario C proves the successful generator produced no metadata ledger: ${JSON.stringify(acceptance.metadata)}`)
   assert.equal(ledgerMissingEvents.length, 1,
     `scenario C records the configuration terminal once, got ${ledgerMissingEvents.length}`)
   const ledgerEvent = parseDetail(ledgerMissingEvents[0].detail)
@@ -856,9 +885,9 @@ async function runLedgerMissingScenario(page, provider) {
   assert.ok(attempt.errors.some(error => error.includes('正文生成步账本缺失')),
     `scenario C carries the user-readable root cause: ${JSON.stringify(attempt.errors)}`)
 
-  assert.equal(requests.length, 4,
-    `scenario C uses S1 once and S2 three times; S3 must not run, got ${requests.length}`)
-  assertS2SchemaRetryLedger(run, 4)
+  assert.equal(requests.length, 2,
+    `scenario C uses S1 once and S2 once without schema retries; S3 must not run, got ${requests.length}`)
+  assertS2SchemaRetryLedger(run, 2)
   assert.equal(body, baselineBody,
     'scenario C leaves the chapter body unchanged; a failed ledger-free run must not overwrite the previous artifact')
   assert.equal(run.id === baseline.run?.id, false,

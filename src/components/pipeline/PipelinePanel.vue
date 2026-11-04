@@ -1859,7 +1859,6 @@ function closePerRunFeedback(runId: string | null) {
   if (state) state.feedbackHidden = true
   if (isPipelineRunTerminal(runId)) {
     resetPipelineStepWarningCountsForRun(runId)
-    resetPerRunUi(runId)
   }
 }
 

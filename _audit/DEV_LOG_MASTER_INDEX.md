@@ -1738,3 +1738,4 @@
 - 交付：`__shenyiStepArtifact` 兼容构造/解析执行面退役；caller 状态与错误改为 `StructuredSkillStepOutput` 内存直传；主链/echo/escalation/compose 四调用点迁移；断点旧信封只做显式 trace 的内存净化；测试改为负向断言旧信封不得拆包或携带状态。
 - 验证：定向五文件 `72 tests` 通过；全量 `247 files / 2655 tests` 通过；type-check 与 `git diff --check` 通过；现役信封构造/解析执行面 0 命中。
 - 边界：真实 folder SKILL、真实供应商、真实 Electron 正文链与 echo/escalation 直入统一验收均 `untested`；本轮不升版、不封装。
+- 盲区补验：真实 Electron 三场景 PASS，A 前拒绝、B 提取后 S3 成功、C 无账本终步阻断且不覆盖旧正文；修复 `closePerRunFeedback` 终态立即清 UI 导致关闭失效。echo/escalation 统一验收仍 `untested`。

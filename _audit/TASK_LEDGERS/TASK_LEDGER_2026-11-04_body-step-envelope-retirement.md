@@ -48,6 +48,10 @@
 - 全量验证：`npm run test:services` → `247 files / 2655 tests passed`；`npm run type-check` → exit 0；`git diff --check` → 无 whitespace error。
 - 旧语义扫描：`rg -n "__shenyiStepArtifact|makeStepArtifactEnvelope|parseStepArtifactEnvelope" src electron` → 仅 PipelinePanel 净化常量（`:878/:4279`）与四个 spec 负向断言；生产解析/构造执行面 0 命中。
 - 旁路判定：echo retry 与 escalation 只消费 `.output`，且当前不在 `isGeneratorStep && bodyChainContract` 统一验收入口；这是 handoff 修复旁路，不是旧信封字符串通道。它们在真实正文生成路径是否需要直接纳入统一验收保持 `untested`。
+- 2026-11-04 真实 Electron 盲区补验：`node scripts/verify-body-contract-degraded-electron.mjs` → `===== BODY CONTRACT DEGRADED GATE ELECTRON PASSED =====`。场景 A degraded/1640 字在 S3 前拒绝，4 次物理请求；场景 B degraded/2800 字提取后进入 S3，成功正文 3393 字，5 次物理请求；场景 C S2 success/2800 字但无【正文交接】账本，在终步命中 `body-generator-ledger-missing`，2 次物理请求，S3 未调用，旧正文 3393 字不被覆盖。
+- 补验修复：`PipelinePanel.vue` 的 `closePerRunFeedback` 终态时不再立即 `resetPerRunUi`，只重置警告计数，由终态 watcher 统一回收；否则 `feedbackHidden` 被删除导致关闭按钮失效。
+- 验证器口径修正：夹具 S2 改为带账本输出才 degraded、纯正文成功；场景 C 不再预设 S2 schema retry；断言按新成功路径核对 2 次物理请求与 `['normal','normal']` 阶段。没有放宽任何产品断言。
+- 盲区状态：主链三场景已从 `untested` 转为真实 Electron PASS。echo retry 与 escalation 直入统一验收仍未被本 Electron 脚本覆盖，保持 `untested`。
 
 ## 6. 偏差与作者反证
 - 最大风险：只改链内调用但漏掉旧断点/升级重试/compose 路径。证伪方式：四个调用点逐一追踪和 rg。
@@ -56,4 +60,4 @@
 ## 7. 收尾
 - [x] DEV_LOG 与总索引登记
 - [x] 经验文件检查：v10 现行门禁已覆盖；本轮不改门禁。
-- [x] 提交与工作区干净（本轮显式 staging，提交包含本台账及勾选状态）
+- [x] 提交与工作区干净（A 路线首提交 `70035742`；本轮补验修复与证据随后显式 staging 提交）

@@ -31,6 +31,13 @@
 - echo retry 与 escalation 当前只消费输出文本，不走生成步统一验收；本轮判定为 handoff 修复旁路而非旧信封通道，但其在真实正文路径是否必须直入统一验收保持 `untested`，登记给后续真实链验证。
 - 断点净化中“migrated”会恢复旧产物正文；这是四个裁决点明确允许的内存净化语义，不是新兼容执行协议。
 
+## 4.1 真实 Electron 盲区补验
+
+- 修复 `PipelinePanel.vue` 的 `closePerRunFeedback`：终态时立即删除 per-run UI 会先删掉 `feedbackHidden`，导致关闭按钮看似无效；现在只重置警告计数，终态 run 由既有 watcher 统一回收。
+- Electron 验证器夹具改为真实矩阵：带【正文交接】的 S2 输出才 degraded，纯正文成功；场景 C 改为“S2 success + 2800 字 + 无账本”，在终步命中 `body-generator-ledger-missing`。
+- 三场景 PASS：A degraded/1640 字 S3 前拒绝（4 请求）；B degraded/2800 字提取后进入 S3，成功正文 3393 字（5 请求）；C S3 不运行（2 请求），失败不覆盖旧正文。
+- echo retry 与 escalation 直入统一验收仍保持 `untested`；本轮不升版本、不封装。
+
 ## 5. 收尾
 
 本轮不升版本、不封装安装包；只做提交固化。经验文件 v10 现行 G0.3/G0.10/G0.13/G1.11/G2.9 已覆盖事故语义，无需修订规则。
