@@ -12,6 +12,7 @@ export type PipelineProviderChannelSource = 'agent' | 'layer' | 'global'
 export interface PipelineProviderChannelSnapshot {
   layer: PipelineProviderChannelLayer
   layerProviderId: string | null
+  agentProviderId: string | null
   globalProviderId: string
   providerId: string
   source: PipelineProviderChannelSource
@@ -66,17 +67,6 @@ export function resolvePipelineProviderChannel(
 ): PipelineProviderChannelResolution {
   const exists = input.providerExists || (() => true)
   const canGenerate = input.providerCanGenerate || (() => true)
-  const agentProviderId = (input.agentProviderId || '').trim()
-  if (agentProviderId) {
-    const providerMissing = !exists(agentProviderId)
-    return {
-      providerId: agentProviderId,
-      source: 'agent',
-      providerMissing,
-      providerUnsupported: !providerMissing && !canGenerate(agentProviderId),
-    }
-  }
-
   const layerProviderId = (input.layerProviderId || '').trim()
   if (layerProviderId) {
     const providerMissing = !exists(layerProviderId)
@@ -85,6 +75,17 @@ export function resolvePipelineProviderChannel(
       source: 'layer',
       providerMissing,
       providerUnsupported: !providerMissing && !canGenerate(layerProviderId),
+    }
+  }
+
+  const agentProviderId = (input.agentProviderId || '').trim()
+  if (agentProviderId) {
+    const providerMissing = !exists(agentProviderId)
+    return {
+      providerId: agentProviderId,
+      source: 'agent',
+      providerMissing,
+      providerUnsupported: !providerMissing && !canGenerate(agentProviderId),
     }
   }
 
@@ -170,15 +171,18 @@ export function normalizePipelineLayerProviders(
 export function buildPipelineProviderChannelSnapshot(input: {
   layer: PipelineProviderChannelLayer
   layerProviderId?: string | null
+  agentProviderId?: string | null
   globalProviderId?: string | null
   providerExists?: (providerId: string) => boolean
   providerCanGenerate?: (providerId: string) => boolean
 }): PipelineProviderChannelSnapshot {
   const layerProviderId = normalizeProviderId(input.layerProviderId)
+  const agentProviderId = normalizeProviderId(input.agentProviderId)
   const globalProviderId = normalizeProviderId(input.globalProviderId)
   const resolution = resolvePipelineProviderChannel({
     layer: input.layer,
     layerProviderId,
+    agentProviderId,
     globalProviderId,
     providerExists: input.providerExists,
     providerCanGenerate: input.providerCanGenerate,
@@ -186,6 +190,7 @@ export function buildPipelineProviderChannelSnapshot(input: {
   return {
     layer: input.layer,
     layerProviderId,
+    agentProviderId,
     globalProviderId,
     ...resolution,
   }

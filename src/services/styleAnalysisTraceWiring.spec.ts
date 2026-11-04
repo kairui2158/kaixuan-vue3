@@ -52,8 +52,9 @@ describe('style analysis trace wiring', () => {
     )
     expect(handler).toContain("layer: 'outline'")
     expect(handler).toContain('contextComposition,')
-    expect(handler).toContain('cacheUsageSummary: event.cacheUsageSummary')
-    expect(handler).toContain('contextComposition: event.contextComposition')
+    expect(handler).toContain('projectPhysicalCallEvent(event)')
+    expect(handler).not.toContain('cacheUsageSummary: event.cacheUsageSummary')
+    expect(handler).not.toContain('contextComposition: event.contextComposition')
   })
 
   it('records the outline style-analysis model request in the run trace', () => {

@@ -216,7 +216,11 @@ describe('runTraceDiff', () => {
         responseText: '物理返回 A',
         streamText: '',
         startedAt: 1,
-        durationMs: 10
+        durationMs: 10,
+        statusCode: 401,
+        providerErrorSummary: 'Invalid API key',
+        finalUrl: 'https://api-a.test/v1/chat/completions',
+        transport: 'renderer-fetch'
       }],
       toolCalls: [{
         id: 't-a',
@@ -238,7 +242,11 @@ describe('runTraceDiff', () => {
         responseText: '物理返回 B',
         streamText: '',
         startedAt: 1,
-        durationMs: 20
+        durationMs: 20,
+        statusCode: 429,
+        providerErrorSummary: 'Rate limited',
+        finalUrl: 'https://api-b.test/v1/chat/completions',
+        transport: 'main-process'
       }],
       toolCalls: [{
         id: 't-b',
@@ -267,6 +275,9 @@ describe('runTraceDiff', () => {
     })
     const result = buildRunTraceDiff(a, b)
     expect(result.physicalCalls[0].fields.find(field => field.key === 'phase')?.changed).toBe(true)
+    expect(result.physicalCalls[0].fields.filter(field => field.changed).map(field => field.key)).toEqual(
+      expect.arrayContaining(['statusCode', 'providerErrorSummary', 'finalUrl', 'transport'])
+    )
     expect(result.toolCalls[0].fields.find(field => field.key === 'status')?.changed).toBe(true)
     expect(result.processingReports[0].onlyIn).toBe('B')
     expect(result.processingReports[0].ruleHitsDiff.same).toBe(false)

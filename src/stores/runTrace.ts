@@ -152,6 +152,7 @@ export interface RunTraceApiCall {
   agentName?: string
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
   temperature?: number
   /** null records an undeclared output limit; a number records the effective wire limit. */
@@ -372,6 +373,16 @@ export interface RunTracePhysicalCall {
   lastReasoningAt?: number
   /** How long the stream ran while producing reasoning but no body. */
   bodyAbsentMs?: number
+  /** HTTP status returned by the provider; absent for pure network failures. */
+  statusCode?: number
+  /** Compact provider error body, kept separate from the human-facing error. */
+  providerErrorSummary?: string
+  /** Sanitized endpoint actually used by this request. */
+  finalUrl?: string
+  /** Network bridge that carried this request. */
+  transport?: 'main-process' | 'renderer-fetch'
+  /** Provider channel provenance copied from the request meta for trace projection. */
+  providerSource?: RunTraceProviderSource
   /** Number of older successful read tool results compacted for this physical request. */
   contextCompactedMessageCount?: number
   /** Provider-reported cache usage; absent usage is never treated as a hit. */
@@ -434,6 +445,8 @@ export interface RunTraceStepTimingLedger {
 
 export type RunTraceStepTimingPatch = Partial<Record<RunTraceStepPhase, number>>
 
+export type RunTraceProviderSource = 'agent' | 'layer' | 'global' | 'auxiliary' | 'none'
+
 export interface RunTraceTurn {
   id: string
   seq: number
@@ -477,6 +490,7 @@ export interface RunTrace {
   projectName?: string
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
   skillNames: string[]
   skillMode?: string
@@ -687,6 +701,7 @@ export interface StartRunInput {
   projectName?: string
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
   skillNames?: string[]
   skillMode?: string
@@ -760,6 +775,7 @@ export interface StartApiCallInput {
   agentName?: string
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
   temperature?: number
   /** null records an undeclared output limit; a number records the effective wire limit. */
@@ -853,6 +869,11 @@ export interface PhysicalCallInput {
   lastContentAt?: number
   lastReasoningAt?: number
   bodyAbsentMs?: number
+  statusCode?: number
+  providerErrorSummary?: string
+  finalUrl?: string
+  transport?: RunTracePhysicalCall['transport']
+  providerSource?: RunTraceProviderSource
   heartbeat?: boolean
   contextCompactedMessageCount?: number
   cacheUsageSummary?: RunTracePhysicalCall['cacheUsageSummary']
@@ -918,7 +939,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 20
+const RUN_TRACE_SCHEMA_VERSION = 22
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 const lastFinishedRunEndedAtByStep = new Map<string, number>()
@@ -1285,6 +1306,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       projectName: input.projectName,
       providerId: input.providerId,
       providerName: input.providerName,
+      providerSource: input.providerSource,
       model: input.model,
       skillNames: input.skillNames?.slice() || [],
       skillMode: input.skillMode,
@@ -1697,6 +1719,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       agentName: input.agentName,
       providerId: input.providerId,
       providerName: input.providerName,
+      providerSource: input.providerSource,
       model: input.model,
       temperature: input.temperature,
       maxTokens: input.maxTokens,
@@ -1855,6 +1878,11 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       existing.lastContentAt = input.lastContentAt ?? existing.lastContentAt
       existing.lastReasoningAt = input.lastReasoningAt ?? existing.lastReasoningAt
       existing.bodyAbsentMs = input.bodyAbsentMs ?? existing.bodyAbsentMs
+      existing.statusCode = input.statusCode ?? existing.statusCode
+      existing.providerErrorSummary = input.providerErrorSummary ?? existing.providerErrorSummary
+      existing.finalUrl = input.finalUrl ?? existing.finalUrl
+      existing.transport = input.transport ?? existing.transport
+      existing.providerSource = input.providerSource ?? existing.providerSource
       existing.contextCompactedMessageCount = input.contextCompactedMessageCount ?? existing.contextCompactedMessageCount
       existing.cacheUsageSummary = input.cacheUsageSummary ?? existing.cacheUsageSummary
       existing.contextComposition = input.contextComposition ?? existing.contextComposition
@@ -1863,7 +1891,17 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
         type: 'physical-call',
         level: existing.status === 'success' ? 'info' : existing.status === 'running' ? 'info' : 'error',
         label: `第 ${existing.seq} 次物理请求${existing.status === 'success' ? '完成' : existing.status === 'running' ? '进行中' : '失败'}`,
-        detail: [existing.phase, call.skillName, call.model, existing.finishReason, existing.error].filter(Boolean).join(' / ')
+        detail: [
+          existing.phase,
+          call.skillName,
+          call.model,
+          existing.finishReason,
+          existing.statusCode != null ? `HTTP ${existing.statusCode}` : undefined,
+          existing.providerErrorSummary,
+          existing.finalUrl,
+          existing.transport,
+          existing.error,
+        ].filter(Boolean).join(' / ')
       })
       if (existing.status === 'running') {
         call.lastExecutionActivityAt = Date.now()
@@ -1909,6 +1947,11 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       lastContentAt: input.lastContentAt,
       lastReasoningAt: input.lastReasoningAt,
       bodyAbsentMs: input.bodyAbsentMs,
+      statusCode: input.statusCode,
+      providerErrorSummary: input.providerErrorSummary,
+      finalUrl: input.finalUrl,
+      transport: input.transport,
+      providerSource: input.providerSource,
       contextCompactedMessageCount: input.contextCompactedMessageCount,
       cacheUsageSummary: input.cacheUsageSummary,
       contextComposition: input.contextComposition,
@@ -1924,7 +1967,17 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       type: 'physical-call',
       level: physical.status === 'success' || physical.status === 'running' ? 'info' : 'error',
       label: `第 ${physical.seq} 次物理请求${physical.status === 'success' ? '完成' : physical.status === 'running' ? '进行中' : '失败'}`,
-      detail: [physical.phase, call.skillName, call.model, physical.finishReason, physical.error].filter(Boolean).join(' / ')
+      detail: [
+        physical.phase,
+        call.skillName,
+        call.model,
+        physical.finishReason,
+        physical.statusCode != null ? `HTTP ${physical.statusCode}` : undefined,
+        physical.providerErrorSummary,
+        physical.finalUrl,
+        physical.transport,
+        physical.error,
+      ].filter(Boolean).join(' / ')
     })
     if (physical.status !== 'running') {
       const priorPhysicalResponses = new Set((call.physicalCalls || [])

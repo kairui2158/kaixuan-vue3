@@ -794,6 +794,7 @@ import { useAiCallTrace, type AiCallContext } from "../../composables/useAiCallT
 import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
 import { getAiService, type CallAiParams } from "../../services/aiService"
+import { projectPhysicalCallEvent } from "../../services/physicalCallTraceProjection"
 import {
   buildPipelineProviderChannelSnapshot,
   resolvePipelineRequestProfile,
@@ -2827,6 +2828,7 @@ function buildProviderChannelConfigSnapshot(
   const snapshot = buildPipelineProviderChannelSnapshot({
     layer,
     layerProviderId: providerStore.pipelineLayerProviders[layer] ?? null,
+    agentProviderId: agentStore.getAgent(getStepAgentId(getStepAgentIdForLayer(layer)))?.provider ?? null,
     globalProviderId: providerStore.preferredGenerateProvider?.id ?? null,
     providerExists: id => Boolean(providerStore.getProvider(id)),
     providerCanGenerate: id => {
@@ -2835,6 +2837,16 @@ function buildProviderChannelConfigSnapshot(
     },
   })
   return snapshot
+}
+
+function getStepAgentIdForLayer(layer: PipelineProviderChannelLayer): number {
+  const layerToStep: Record<PipelineProviderChannelLayer, number> = {
+    settings: 1,
+    volumes: 2,
+    chapters: 3,
+    body: 4,
+  }
+  return layerToStep[layer] ?? 0
 }
 
 function providerSupportsGeneratePurpose(provider: { purpose?: Array<string | null> | string | null }): boolean {
@@ -3245,6 +3257,7 @@ async function callValidatedSkill(
           agentName: agentConfig?.name || agentId || undefined,
           providerId: fallbackProviderId || undefined,
           providerName: providerStore.getProvider(fallbackProviderId)?.name,
+          providerSource: requestProfile.source,
           model: requestProfile.model,
           requestMessages: [{ role: 'user', content: prompt }],
           deaiPromptVariant: deaiVariant !== 'off' ? deaiVariant : undefined
@@ -3374,39 +3387,9 @@ async function callValidatedSkill(
           }
         },
         onPhysicalCall: (event) => {
-          if (traceRunId && traceCallId) runTraceStore.appendPhysicalCall(traceRunId, traceCallId, {
-            physicalCallId: event.physicalCallId,
-            phase: event.phase,
-            status: event.status,
-            requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-            responseText: event.responseText || '',
-            streamText: event.streamText || '',
-            reasoningText: event.reasoningText || '',
-            finishReason: event.finishReason,
-            usage: event.usage,
-            durationMs: event.durationMs,
-            error: event.error,
-      toolsEnabled: event.toolsEnabled,
-      toolsDowngraded: event.toolsDowngraded,
-      downgradeReason: event.downgradeReason,
-      retryStrategy: event.retryStrategy,
-      maxTokens: event.maxTokens,
-      providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-      estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-      contextBudgetDecision: event.contextBudget?.decision,
-            contextBudgetReason: event.contextBudget?.reason,
-            usageReconciliation: event.usageReconciliation,
-            interruptionCode: event.interruptionCode,
-            heartbeat: event.heartbeat,
-            firstContentAt: event.firstContentAt,
-            lastContentAt: event.lastContentAt,
-            lastReasoningAt: event.lastReasoningAt,
-            bodyAbsentMs: event.bodyAbsentMs,
-            firstTokenMs: event.firstTokenMs,
-            outputMs: event.outputMs,
-            cacheUsageSummary: event.cacheUsageSummary,
-            contextComposition: event.contextComposition
-          })
+          if (traceRunId && traceCallId) {
+            runTraceStore.appendPhysicalCall(traceRunId, traceCallId, projectPhysicalCallEvent(event))
+          }
         },
       onProviderQueue: event => recordPipelineProviderQueue(traceRunId, traceCallId, event, pipelineRunIdParam),
       })
@@ -3828,32 +3811,10 @@ async function handlePipelineStyleAnalysisRequest(event: Event) {
       contextComposition,
       onPhysicalCall: (event) => {
         if (!traceRunId || !apiCallId) return
-        runTraceStore.appendPhysicalCall(traceRunId, apiCallId, {
-          physicalCallId: event.physicalCallId,
-          phase: event.phase,
-          status: event.status,
-          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-          responseText: event.responseText || '',
-          streamText: event.streamText || '',
-          reasoningText: event.reasoningText || '',
-          finishReason: event.finishReason,
-          usage: event.usage,
-          durationMs: event.durationMs,
-          error: event.error,
-          toolsEnabled: event.toolsEnabled,
-          toolsDowngraded: event.toolsDowngraded,
-          downgradeReason: event.downgradeReason,
-          maxTokens: event.maxTokens,
-          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-          firstTokenMs: event.firstTokenMs,
-          outputMs: event.outputMs,
-          cacheUsageSummary: event.cacheUsageSummary,
-          contextComposition: event.contextComposition
-        })
+        runTraceStore.appendPhysicalCall(traceRunId, apiCallId, projectPhysicalCallEvent(event))
       },
       onProviderQueue: event => recordPipelineProviderQueue(traceRunId, apiCallId, event, undefined),
-      meta: { source: 'PipelinePanel.style-analysis' },
+      meta: { source: 'PipelinePanel.style-analysis', providerSource: 'auxiliary' },
     })
     if (traceRunId && apiCallId) {
       runTraceStore.finishApiCall(traceRunId, apiCallId, {
@@ -4114,6 +4075,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
     agentName: agentId ? (agentStore.getAgent(agentId)?.name || agentId) : undefined,
     providerId: activeProvider?.id,
     providerName: activeProvider?.name,
+    providerSource: requestProfile.source,
     model,
     temperature,
     maxTokens,
@@ -4142,39 +4104,9 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
       appendPipelineDelta(step, 'reasoning', text, runId, pipelineRunIdParam, apiCallId)
     },
     onPhysicalCall: (event) => {
-      if (runId && apiCallId) runTraceStore.appendPhysicalCall(runId, apiCallId, {
-        physicalCallId: event.physicalCallId,
-        phase: event.phase,
-        status: event.status,
-        requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-            responseText: event.responseText || '',
-            streamText: event.streamText || '',
-            reasoningText: event.reasoningText || '',
-        finishReason: event.finishReason,
-        usage: event.usage,
-        durationMs: event.durationMs,
-        error: event.error,
-            toolsEnabled: event.toolsEnabled,
-            toolsDowngraded: event.toolsDowngraded,
-            downgradeReason: event.downgradeReason,
-            retryStrategy: event.retryStrategy,
-            maxTokens: event.maxTokens,
-            providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-            estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-            contextBudgetDecision: event.contextBudget?.decision,
-            contextBudgetReason: event.contextBudget?.reason,
-            usageReconciliation: event.usageReconciliation,
-            interruptionCode: event.interruptionCode,
-            heartbeat: event.heartbeat,
-            firstContentAt: event.firstContentAt,
-            lastContentAt: event.lastContentAt,
-            lastReasoningAt: event.lastReasoningAt,
-            bodyAbsentMs: event.bodyAbsentMs,
-            firstTokenMs: event.firstTokenMs,
-            outputMs: event.outputMs,
-            cacheUsageSummary: event.cacheUsageSummary,
-            contextComposition: event.contextComposition
-          })
+      if (runId && apiCallId) {
+        runTraceStore.appendPhysicalCall(runId, apiCallId, projectPhysicalCallEvent(event))
+      }
         },
     onProviderQueue: event => recordPipelineProviderQueue(runId, apiCallId, event, pipelineRunIdParam),
     signal: signalForPipelineRun(pipelineRunIdParam, signal),
@@ -6710,6 +6642,7 @@ async function runHardSignalRepair(
     skillName: '正文硬信号修复',
     providerId: provider?.id,
     providerName: provider?.name,
+    providerSource: requestProfile.source,
     model,
     requestMessages
   })
@@ -6724,42 +6657,10 @@ async function runHardSignalRepair(
       contextComposition,
       signal: pipelineStore.getGenerationSignal(bodyRunId),
       onPhysicalCall: (event) => {
-        runTraceStore.appendPhysicalCall(traceRunId, callId, {
-          physicalCallId: event.physicalCallId,
-          phase: event.phase,
-          status: event.status,
-          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-          responseText: event.responseText || '',
-          streamText: event.streamText || '',
-          reasoningText: event.reasoningText || '',
-          finishReason: event.finishReason,
-          usage: event.usage,
-          durationMs: event.durationMs,
-          error: event.error,
-          toolsEnabled: event.toolsEnabled,
-          toolsDowngraded: event.toolsDowngraded,
-          downgradeReason: event.downgradeReason,
-          retryStrategy: event.retryStrategy,
-          maxTokens: event.maxTokens,
-          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-          contextBudgetDecision: event.contextBudget?.decision,
-          contextBudgetReason: event.contextBudget?.reason,
-          usageReconciliation: event.usageReconciliation,
-          interruptionCode: event.interruptionCode,
-          heartbeat: event.heartbeat,
-          firstContentAt: event.firstContentAt,
-          lastContentAt: event.lastContentAt,
-          lastReasoningAt: event.lastReasoningAt,
-          bodyAbsentMs: event.bodyAbsentMs,
-          firstTokenMs: event.firstTokenMs,
-          outputMs: event.outputMs,
-          cacheUsageSummary: event.cacheUsageSummary,
-          contextComposition: event.contextComposition
-        })
+        runTraceStore.appendPhysicalCall(traceRunId, callId, projectPhysicalCallEvent(event))
       },
       onProviderQueue: event => recordPipelineProviderQueue(traceRunId, callId, event, bodyRunId),
-      meta: { source: `PipelinePanel.runHardSignalRepair.attempt-${attempt}` }
+      meta: { source: `PipelinePanel.runHardSignalRepair.attempt-${attempt}`, providerSource: requestProfile.source }
     })
     const repairedWindow = (result.text || '').trim()
     const traceStatus = traceStatusFromAiResult(result)
@@ -7008,39 +6909,7 @@ async function callMemoryApi(
         const callId = traceCallIdForMemory()
         if (!runId) return
         if (!callId) return
-        runTraceStore.appendPhysicalCall(runId, callId, {
-          physicalCallId: event.physicalCallId,
-          phase: event.phase,
-          status: event.status,
-          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-          responseText: event.responseText || '',
-          streamText: event.streamText || '',
-          reasoningText: event.reasoningText || '',
-          finishReason: event.finishReason,
-          usage: event.usage,
-          durationMs: event.durationMs,
-          error: event.error,
-          toolsEnabled: event.toolsEnabled,
-          toolsDowngraded: event.toolsDowngraded,
-          downgradeReason: event.downgradeReason,
-          retryStrategy: event.retryStrategy,
-          maxTokens: event.maxTokens,
-          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-          contextBudgetDecision: event.contextBudget?.decision,
-          contextBudgetReason: event.contextBudget?.reason,
-          usageReconciliation: event.usageReconciliation,
-          interruptionCode: event.interruptionCode,
-          heartbeat: event.heartbeat,
-          firstContentAt: event.firstContentAt,
-          lastContentAt: event.lastContentAt,
-          lastReasoningAt: event.lastReasoningAt,
-          bodyAbsentMs: event.bodyAbsentMs,
-          firstTokenMs: event.firstTokenMs,
-          outputMs: event.outputMs,
-          cacheUsageSummary: event.cacheUsageSummary,
-          contextComposition: event.contextComposition
-        })
+        runTraceStore.appendPhysicalCall(runId, callId, projectPhysicalCallEvent(event))
       }
     } : undefined)
   } catch (error) {

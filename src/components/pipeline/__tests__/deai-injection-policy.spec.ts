@@ -29,6 +29,10 @@ const memoryExtractorSource = await import('node:fs')
   .then(fs => fs.readFileSync(new URL('../../../services/memoryExtractor.ts', import.meta.url), 'utf8'))
   .catch(() => '')
 
+const physicalCallProjectionSource = await import('node:fs')
+  .then(fs => fs.readFileSync(new URL('../../../services/physicalCallTraceProjection.ts', import.meta.url), 'utf8'))
+  .catch(() => '')
+
 const settingsSource = await import('node:fs')
   .then(fs => fs.readFileSync(new URL('../../settings/DeAiSettings.vue', import.meta.url), 'utf8'))
   .catch(() => '')
@@ -343,10 +347,12 @@ describe('DEAI injection policy integration contract', () => {
     const directCallSites = pipelineSource.match(/aiService\.callAi\(/g) || []
     const compositionMarkers = pipelineSource.match(/contextComposition[,:]/g) || []
     expect(directCallSites.length).toBeGreaterThan(0)
-    expect(compositionMarkers.length).toBeGreaterThanOrEqual(directCallSites.length + 3)
+    expect(compositionMarkers.length).toBeGreaterThanOrEqual(directCallSites.length)
 
-    const physicalHandlers = pipelineSource.match(/cacheUsageSummary: event\.cacheUsageSummary/g) || []
+    const physicalHandlers = pipelineSource.match(/projectPhysicalCallEvent\(event\)/g) || []
     expect(physicalHandlers).toHaveLength(5)
+    expect(physicalCallProjectionSource).toContain('cacheUsageSummary: event.cacheUsageSummary')
+    expect(physicalCallProjectionSource).toContain('contextComposition: event.contextComposition')
   })
 
   it('keeps contract fallback observable instead of silently failing', () => {

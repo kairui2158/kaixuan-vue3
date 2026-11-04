@@ -412,6 +412,7 @@ import {
   type PhysicalCallEvent,
   type ProviderQueueEvent,
 } from '../../services/aiService'
+import { projectPhysicalCallEvent } from '../../services/physicalCallTraceProjection'
 import { extractJsonCandidates } from '../../services/jsonExtraction'
 import { createIntentLlmFallback } from '../../services/intentLlmFallback'
 import { conversationContextService, resolveEffectiveModelContextWindow } from '../../services/conversationContextService'
@@ -1996,39 +1997,7 @@ function finishOutlineApiCall(callId: string | undefined, result: {
 
 function recordOutlinePhysicalCall(callId: string | undefined, event: PhysicalCallEvent) {
   if (!outlineRunTraceId || !callId) return
-  runTraceStore.appendPhysicalCall(outlineRunTraceId, callId, {
-    physicalCallId: event.physicalCallId,
-    phase: event.phase,
-    status: event.status,
-    requestMessages: event.requestMessages.map((m: { role: string; content?: unknown }) => ({
-      role: m.role,
-      content: String(m.content || '')
-    })),
-    responseText: event.responseText,
-    streamText: event.streamText,
-    reasoningText: event.reasoningText,
-    finishReason: event.finishReason,
-    usage: event.usage,
-    usageUnavailable: event.usageUnavailable,
-    durationMs: event.durationMs,
-    error: event.error,
-    toolsEnabled: event.toolsEnabled,
-    toolsDowngraded: event.toolsDowngraded,
-    downgradeReason: event.downgradeReason,
-    retryStrategy: event.retryStrategy,
-    maxTokens: event.maxTokens,
-    modelCapability: event.modelCapability,
-    providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-    estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-    contextBudgetDecision: event.contextBudget?.decision,
-    contextBudgetReason: event.contextBudget?.reason,
-    usageReconciliation: event.usageReconciliation,
-    interruptionCode: event.interruptionCode,
-    contextCompactedMessageCount: event.contextCompactedMessageCount,
-    heartbeat: event.heartbeat,
-    toolCallCount: event.toolCallCount,
-    toolCallNames: event.toolCallNames,
-  })
+  runTraceStore.appendPhysicalCall(outlineRunTraceId, callId, projectPhysicalCallEvent(event))
   const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
   if (diag && typeof diag.log === 'function') {
     diag.log(event.status === 'running' ? 'info' : event.status === 'success' ? 'info' : 'error',
@@ -2870,27 +2839,7 @@ async function handleStyleAnalysisRequest(event: Event) {
       retry: true,
       onPhysicalCall: (event) => {
         if (!apiCallId) return
-        runTraceStore.appendPhysicalCall(runId, apiCallId, {
-          physicalCallId: event.physicalCallId,
-          phase: event.phase,
-          status: event.status,
-          requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
-          responseText: event.responseText || '',
-          streamText: event.streamText || '',
-          reasoningText: event.reasoningText || '',
-          finishReason: event.finishReason,
-          usage: event.usage,
-          durationMs: event.durationMs,
-          error: event.error,
-          toolsEnabled: event.toolsEnabled,
-          toolsDowngraded: event.toolsDowngraded,
-          downgradeReason: event.downgradeReason,
-          maxTokens: event.maxTokens,
-          providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-          estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-          firstTokenMs: event.firstTokenMs,
-          outputMs: event.outputMs,
-        })
+        runTraceStore.appendPhysicalCall(runId, apiCallId, projectPhysicalCallEvent(event))
       },
       onProviderQueue: event => recordOutlineProviderQueue(apiCallId, event),
       meta: buildOutlineAiMeta('OutlineWorkspace.style-analysis'),

@@ -2,6 +2,7 @@ import { useRunTraceStore } from '../stores/runTrace'
 import type {
   RunTrace,
   RunTraceStatus,
+  RunTraceProviderSource,
   RunTraceSource,
   RunTraceEvent
 } from '../stores/runTrace'
@@ -18,6 +19,7 @@ export interface UseAiCallTraceOptions {
   projectName?: string
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
   skillNames?: string[]
   skillMode?: string
@@ -35,6 +37,7 @@ export interface AiApiCallOptions {
   agentName?: string
   providerId?: string
   providerName?: string
+  providerSource?: RunTraceProviderSource
   model?: string
   temperature?: number
   /** Null means the output limit was intentionally omitted from the request. */
@@ -118,7 +121,10 @@ export function useAiCallTrace(options: UseAiCallTraceOptions): AiCallContext {
 
   function beginApiCall(input: AiApiCallOptions): string {
     const id = requireRunId()
-    const callId = store.startApiCall(id, input)
+    const callId = store.startApiCall(id, {
+      ...input,
+      providerSource: input.providerSource
+    })
     activeCalls.set(callId, Date.now())
     return callId
   }

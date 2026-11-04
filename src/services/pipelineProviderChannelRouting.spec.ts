@@ -58,6 +58,7 @@ describe('pipeline provider channel routing integration', () => {
     const snapshot: PipelineProviderChannelSnapshot = {
       layer: 'volumes',
       layerProviderId: 'provider-layer',
+      agentProviderId: null,
       globalProviderId: 'provider-global',
       providerId: 'provider-layer',
       source: 'layer',
@@ -89,6 +90,7 @@ describe('pipeline provider channel routing integration', () => {
     const snapshot: PipelineProviderChannelSnapshot = {
       layer: 'body',
       layerProviderId: 'provider-deleted',
+      agentProviderId: null,
       globalProviderId: 'provider-global',
       providerId: 'provider-deleted',
       source: 'layer',

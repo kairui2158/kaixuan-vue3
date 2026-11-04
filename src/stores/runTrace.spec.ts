@@ -2217,8 +2217,46 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(20)
-    expect(exported.exportSchemaVersion).toBe(20)
+    expect(exported.schemaVersion).toBe(22)
+    expect(exported.exportSchemaVersion).toBe(22)
+  })
+
+  it('persists provider diagnostics and keeps them when terminal updates omit them', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ stepName: '正文层', mode: 'single', skillNames: [] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成正文' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-1',
+      phase: 'normal',
+      status: 'running',
+      requestMessages: [{ role: 'user', content: '生成正文' }],
+      statusCode: 401,
+      providerErrorSummary: 'Invalid API key',
+      finalUrl: 'https://api.example.com/v1/chat/completions',
+      transport: 'renderer-fetch'
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-1',
+      phase: 'normal',
+      status: 'failed',
+      requestMessages: [{ role: 'user', content: '生成正文' }],
+      error: 'Unauthorized',
+      durationMs: 120
+    })
+
+    const physical = store.getRun(runId)!.apiCalls[0].physicalCalls![0]
+    expect(physical).toMatchObject({
+      status: 'failed',
+      statusCode: 401,
+      providerErrorSummary: 'Invalid API key',
+      finalUrl: 'https://api.example.com/v1/chat/completions',
+      transport: 'renderer-fetch'
+    })
+    expect(store.getRun(runId)!.events.some(event =>
+      event.type === 'physical-call' && event.detail?.includes('HTTP 401')
+    )).toBe(true)
   })
 
   it('exports pipeline artifact validation events for all three stages', () => {
@@ -2245,7 +2283,7 @@ describe('runTrace store', () => {
       expect(exported.events?.some(event => event.type === type)).toBe(true)
       expect(store.exportRunToText(run)).toContain(type)
     })
-    expect(exported.schemaVersion).toBe(20)
+    expect(exported.schemaVersion).toBe(22)
   })
 
   it('keeps a successful final body artifact successful while preserving degraded call evidence', () => {
@@ -3009,7 +3047,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(20)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(22)
   })
 
   it('records the requested and actual tool surface separately', () => {

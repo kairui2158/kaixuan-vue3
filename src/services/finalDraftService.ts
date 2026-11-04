@@ -1362,6 +1362,7 @@ async function requestFinalDraft(
     onUsage: options.onUsage,
     onPhysicalCall: options.onPhysicalCall,
     onProviderQueue: options.onProviderQueue,
+    meta: { source: 'final-draft-service', providerSource: 'auxiliary' },
   })
 }
 

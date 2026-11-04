@@ -174,4 +174,78 @@ describe('provider store pipeline layer channels', () => {
     expect(store.verifyProvider).toBeNull()
     expect(store.detectProvider).toBeNull()
   })
+
+  it('upserts the same provider id instead of creating a duplicate', () => {
+    const store = useProviderStore()
+    store.addProvider({
+      id: 'provider-upsert',
+      name: 'Before',
+      baseUrl: 'https://before.test/v1',
+      apiKey: 'old-key',
+      models: ['old-model'],
+      selectedModel: 'old-model',
+      temperature: 0.7,
+      maxTokens: 0,
+      purpose: ['generate'],
+      providerType: 'openai-compatible',
+    })
+
+    store.upsertProvider({
+      id: 'provider-upsert',
+      name: 'After',
+      baseUrl: 'https://after.test/v1',
+      apiKey: 'new-key',
+      models: ['new-model'],
+      selectedModel: 'new-model',
+      temperature: 0.7,
+      maxTokens: 0,
+      purpose: ['generate'],
+      providerType: 'openai-compatible',
+    })
+
+    expect(store.providers).toHaveLength(1)
+    expect(store.providers[0]).toMatchObject({
+      id: 'provider-upsert',
+      name: 'After',
+      baseUrl: 'https://after.test/v1',
+      apiKey: 'new-key',
+      models: ['new-model'],
+    })
+  })
+
+  it('imports an empty model list without erasing the existing model inventory', () => {
+    const store = useProviderStore()
+    store.addProvider({
+      id: 'provider-models',
+      name: 'Current',
+      baseUrl: 'https://current.test/v1',
+      apiKey: 'old-key',
+      models: ['existing-model'],
+      selectedModel: 'existing-model',
+      temperature: 0.7,
+      maxTokens: 0,
+      purpose: ['generate'],
+      providerType: 'openai-compatible',
+    })
+
+    store.upsertProvider({
+      id: 'provider-models',
+      name: 'Imported',
+      baseUrl: 'https://imported.test/v1',
+      apiKey: 'new-key',
+      models: [],
+      selectedModel: '',
+      temperature: 0.7,
+      maxTokens: 0,
+      purpose: ['generate'],
+      providerType: 'openai-compatible',
+    }, { preserveRuntimeState: true })
+
+    expect(store.providers).toHaveLength(1)
+    expect(store.providers[0]).toMatchObject({
+      name: 'Imported',
+      models: ['existing-model'],
+      selectedModel: '',
+    })
+  })
 })

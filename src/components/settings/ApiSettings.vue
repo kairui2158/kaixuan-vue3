@@ -114,8 +114,12 @@
           <button class="btn-sm btn-test" @click="testConnection" :disabled="testingConn">
             {{ testingConn ? '测试中...' : '测试连接' }}
           </button>
+          <button id="btn-test-generation" class="btn-sm btn-test" @click="testGeneration" :disabled="testingGeneration">
+            {{ testingGeneration ? '生成探针中...' : '测试生成' }}
+          </button>
         </div>
         <div class="fetch-feedback" v-if="fetchMsg" :class="fetchMsgClass">{{ fetchMsg }}</div>
+        <div class="fetch-feedback" v-if="generationStatus" :class="generationStatusClass">{{ generationStatus }}</div>
         <div class="model-select-row" v-if="editingProvider.models && editingProvider.models.length > 0">
           <select v-model="editingProvider.selectedModel" class="input-field">
             <option value="">自动</option>
@@ -225,6 +229,8 @@ const showKey = ref(false)
 const fetchingModels = ref(false)
 const testingConn = ref(false)
 const connStatus = ref('')
+const testingGeneration = ref(false)
+const generationStatus = ref('')
 const fetchMsg = ref('')
 const importMessage = ref('')
 const expandedPipelineProviders = ref(new Set<string>())
@@ -329,6 +335,12 @@ const connStatusClass = computed(() => {
 const fetchMsgClass = computed(() => {
   if (fetchMsg.value.includes('成功') || fetchMsg.value.includes('OK')) return 'fetch-ok'
   if (fetchMsg.value.includes('失败') || fetchMsg.value.includes('error')) return 'fetch-fail'
+  return ''
+})
+
+const generationStatusClass = computed(() => {
+  if (generationStatus.value.includes('通过')) return 'fetch-ok'
+  if (generationStatus.value.includes('失败') || generationStatus.value.includes('error')) return 'fetch-fail'
   return ''
 })
 
@@ -544,6 +556,40 @@ async function testConnection() {
   }
 }
 
+async function testGeneration() {
+  if (!editingProvider.value) return
+  if (!editingProvider.value.baseUrl || !editingProvider.value.apiKey) {
+    generationStatus.value = '生成探针失败: 请先填写接口地址和API密钥'
+    return
+  }
+  testingGeneration.value = true
+  generationStatus.value = ''
+  const trace = useAiCallTrace({
+    source: 'infra',
+    stepName: '生成探针',
+    mode: 'provider',
+    providerId: editingProvider.value.id,
+    providerName: editingProvider.value.name,
+    model: editingProvider.value.selectedModel
+  })
+  trace.begin()
+  try {
+    const service = await getAiService()
+    const result = await service.testGenerationProbe(editingProvider.value)
+    if (result && result.connected) {
+      generationStatus.value = `生成探针通过（${result.durationMs}ms，模型：${result.model}）`
+    } else {
+      generationStatus.value = '生成探针失败: ' + (result?.error || '未知错误')
+    }
+    trace.finish(result?.connected ? 'success' : 'failed', result?.error)
+  } catch (e: any) {
+    generationStatus.value = '生成探针失败: ' + (e?.message || String(e))
+    trace.fail(e)
+  } finally {
+    testingGeneration.value = false
+  }
+}
+
 function exportConfig() {
   const data = JSON.stringify({
     providers: providerStore.providers,
@@ -616,7 +662,7 @@ function importConfig() {
       const data = JSON.parse(text)
       const providers = Array.isArray(data) ? data : data.providers
       if (!Array.isArray(providers)) throw new Error('导入内容不是供应商数组')
-      providers.forEach((p: Provider) => providerStore.addProvider({ ...p, contextWindowTokens: Number(p.contextWindowTokens) > 0 ? Math.floor(Number(p.contextWindowTokens)) : 0 }))
+      providers.forEach((p: Provider) => providerStore.upsertProvider({ ...p, contextWindowTokens: Number(p.contextWindowTokens) > 0 ? Math.floor(Number(p.contextWindowTokens)) : 0 }, { preserveRuntimeState: true }))
       importProviderBindings(data, providers)
     } catch (err) {
       importMessage.value = `导入失败: ${(err as Error)?.message || String(err)}`

@@ -29,7 +29,7 @@ const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_ARTIFACT_CONTRACT_HEARTB
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_ARTIFACT_CONTRACT_STALLED_TIMEOUT_MS || 2 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_ARTIFACT_CONTRACT_DEAD_TIMEOUT_MS || 5 * 60_000)
 const KEEP_PROFILE = process.env.SHENYI_ARTIFACT_CONTRACT_KEEP_PROFILE === '1'
-const RUN_TRACE_SCHEMA_VERSION = 19
+const RUN_TRACE_SCHEMA_VERSION = 21
 const { safeStorage } = require('electron')
 
 function bodyGeneratorContractSentence(targetWords) {

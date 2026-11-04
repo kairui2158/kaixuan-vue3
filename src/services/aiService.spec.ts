@@ -1558,14 +1558,23 @@ describe('createAiService.callAi', () => {
     }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
     const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
     await expect(service.callAi({
       purpose: 'generate', messages: [{ role: 'user', content: '整理大纲' }],
       stream: false, retry: true,
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
     })).rejects.toMatchObject({
       kind: 'auth',
       statusCode: 402,
       message: expect.stringContaining('quota_exhausted'),
       providerErrorSummary: expect.stringContaining('Insufficient balance'),
+    });
+    const terminal = physicalEvents.find(event => event.status === 'failed');
+    expect(terminal).toMatchObject({
+      statusCode: 402,
+      providerErrorSummary: expect.stringContaining('Insufficient balance'),
+      finalUrl: 'https://api.example.com/v1/chat/completions',
+      transport: 'renderer-fetch',
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     vi.unstubAllGlobals();
@@ -1621,6 +1630,7 @@ describe('createAiService.callAi', () => {
       kind: 'auth',
       statusCode: 402,
       message: expect.stringContaining('quota_exhausted'),
+      providerErrorSummary: expect.stringContaining('额度已用完'),
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     vi.unstubAllGlobals();
@@ -2312,6 +2322,216 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('records provider diagnostics on renderer physical calls without inventing network statuses', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        error: { message: 'Invalid API key' },
+      }), { status: 401 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        error: { message: 'Rate limited' },
+      }), { status: 429 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }],
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      retry: false,
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    })).rejects.toMatchObject({ kind: 'auth', statusCode: 401 });
+
+    const authTerminal = physicalEvents.find(event => event.status === 'failed');
+    expect(authTerminal).toMatchObject({
+      statusCode: 401,
+      providerErrorSummary: 'Invalid API key',
+      finalUrl: 'https://api.example.com/v1/chat/completions',
+      transport: 'renderer-fetch',
+    });
+
+    physicalEvents.length = 0;
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      retry: true,
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    })).resolves.toMatchObject({ text: 'ok' });
+
+    const rateLimitedTerminal = physicalEvents.find(event => event.status === 'failed' && event.statusCode === 429);
+    const successTerminal = physicalEvents.find(event => event.status === 'success');
+    expect(rateLimitedTerminal).toMatchObject({
+      statusCode: 429,
+      providerErrorSummary: 'Rate limited',
+    });
+    expect(successTerminal?.statusCode).toBeUndefined();
+    expect(successTerminal?.providerErrorSummary).toBeUndefined();
+    expect(successTerminal?.physicalCallId).not.toBe(rateLimitedTerminal?.physicalCallId);
+
+    physicalEvents.length = 0;
+    fetchMock.mockRejectedValueOnce(new TypeError('network dropped'));
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      retry: false,
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    })).rejects.toMatchObject({ kind: 'network' });
+    const networkTerminal = physicalEvents.find(event => event.status === 'failed');
+    expect(networkTerminal).toMatchObject({
+      finalUrl: 'https://api.example.com/v1/chat/completions',
+      transport: 'renderer-fetch',
+    });
+    expect(networkTerminal?.statusCode).toBeUndefined();
+    expect(networkTerminal?.providerErrorSummary).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps renderer HTTP diagnostics isolated across heartbeat reconnect attempts', async () => {
+    vi.useFakeTimers();
+    const partialSse = 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n';
+    let emittedPartial = false;
+    const initialResponse = new Response(new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (emittedPartial) {
+          controller.error(new TypeError('network dropped'));
+          return;
+        }
+        emittedPartial = true;
+        controller.enqueue(new TextEncoder().encode(partialSse));
+      },
+    }), { status: 200 });
+    const successSse = [
+      'data: {"choices":[{"delta":{"content":"reconnected"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const successResponse = () => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(successSse));
+        controller.close();
+      },
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => Promise.resolve(initialResponse))
+      .mockImplementationOnce(() => Promise.reject(new TypeError('network dropped')))
+      .mockImplementationOnce(() => Promise.reject(new TypeError('network dropped')))
+      .mockImplementationOnce(() => Promise.reject(new TypeError('network dropped')))
+      .mockImplementationOnce(() => Promise.resolve(new Response(JSON.stringify({
+        error: { message: 'Heartbeat key rejected' },
+      }), { status: 401 })))
+      .mockImplementationOnce(() => Promise.resolve(new Response(JSON.stringify({
+        error: { message: 'Heartbeat rate limited' },
+      }), { status: 429 })))
+      .mockImplementationOnce(() => Promise.resolve(successResponse()));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: true,
+      timeoutMs: 120_000,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'reconnected' });
+
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(1_000);
+    await vi.advanceTimersByTimeAsync(2_000);
+    await vi.advanceTimersByTimeAsync(3_000);
+    await vi.advanceTimersByTimeAsync(61_000);
+    await vi.advanceTimersByTimeAsync(61_000);
+    await vi.advanceTimersByTimeAsync(61_000);
+    await vi.advanceTimersByTimeAsync(0);
+    await assertion;
+
+    const normalFailure = physicalEvents.find(event => event.status === 'failed' && event.phase === 'normal');
+    const normalRetry = physicalEvents.find(event => event.status === 'failed' && event.phase === 'retry');
+    const heartbeatFailures = physicalEvents.filter(event =>
+      event.status === 'failed' && event.phase === 'heartbeat_retry'
+    );
+    const heartbeatSuccess = physicalEvents.find(event =>
+      event.status === 'success' && event.phase === 'heartbeat_retry'
+    );
+    expect(normalFailure?.statusCode).toBeUndefined();
+    expect(normalFailure?.providerErrorSummary).toBeUndefined();
+    expect(normalRetry?.statusCode).toBeUndefined();
+    expect(normalRetry?.providerErrorSummary).toBeUndefined();
+    expect(heartbeatFailures.map(event => event.statusCode)).toEqual([401, 429]);
+    expect(heartbeatFailures.map(event => event.providerErrorSummary)).toEqual([
+      'Heartbeat key rejected',
+      'Heartbeat rate limited',
+    ]);
+    expect(new Set(heartbeatFailures.map(event => event.physicalCallId)).size).toBe(2);
+    expect(heartbeatSuccess?.statusCode).toBeUndefined();
+    expect(heartbeatSuccess?.providerErrorSummary).toBeUndefined();
+    expect(heartbeatSuccess?.physicalCallId).not.toBe(heartbeatFailures[0]?.physicalCallId);
+    expect(fetchMock).toHaveBeenCalledTimes(7);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('keeps renderer diagnostics isolated across the network retry floor without heartbeat when retry is disabled', async () => {
+    vi.useFakeTimers();
+    const partialSse = 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n';
+    let emittedPartial = false;
+    const initialResponse = new Response(new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (emittedPartial) {
+          controller.error(new TypeError('network dropped'));
+          return;
+        }
+        emittedPartial = true;
+        controller.enqueue(new TextEncoder().encode(partialSse));
+      },
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => Promise.resolve(initialResponse))
+      .mockImplementationOnce(() => Promise.reject(new TypeError('network dropped')))
+      .mockImplementation(() => { throw new Error('heartbeat must not run'); });
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: 120_000,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    const assertion = expect(request).rejects.toMatchObject({ kind: 'network' });
+
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(1_000);
+    await vi.advanceTimersByTimeAsync(0);
+    await assertion;
+
+    const normalFailure = physicalEvents.find(event => event.status === 'failed' && event.phase === 'normal');
+    const retryFailure = physicalEvents.find(event => event.status === 'failed' && event.phase === 'retry');
+    const heartbeatEvents = physicalEvents.filter(event => event.phase === 'heartbeat_retry');
+    expect(normalFailure?.statusCode).toBeUndefined();
+    expect(normalFailure?.providerErrorSummary).toBeUndefined();
+    expect(normalFailure).toMatchObject({
+      finalUrl: 'https://api.example.com/v1/chat/completions',
+      transport: 'renderer-fetch',
+    });
+    expect(retryFailure?.statusCode).toBeUndefined();
+    expect(retryFailure?.providerErrorSummary).toBeUndefined();
+    expect(retryFailure?.physicalCallId).not.toBe(normalFailure?.physicalCallId);
+    expect(heartbeatEvents).toEqual([]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('measures request composition from the full wire system message', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200 }))
@@ -2525,6 +2745,48 @@ describe('createAiService.callAi', () => {
       { role: 'user', content: 'test' }
     ]);
     vi.unstubAllGlobals();
+  });
+});
+
+describe('createAiService.testGenerationProbe', () => {
+  it('runs a minimal chat completion and reports the effective model', async () => {
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith('/models')) {
+        return new Response(JSON.stringify({ data: [{ id: 'probe-model' }] }), { status: 200 });
+      }
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: 'OK' }, finish_reason: 'stop' }],
+      }), { status: 200 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore({ ...runtimeProvider }));
+
+    const result = await service.testGenerationProbe({ ...runtimeProvider, selectedModel: 'probe-model' });
+
+    expect(result).toMatchObject({ connected: true, model: 'probe-model' });
+    expect(result.durationMs).toBeGreaterThanOrEqual(0);
+    const chatCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes('/chat/completions'));
+    expect(chatCalls).toHaveLength(1);
+    const body = JSON.parse(chatCalls[0][1].body);
+    expect(body.messages).toHaveLength(2);
+    expect(body.messages[1]).toEqual({ role: 'user', content: 'Reply OK' });
+    expect(body.max_tokens).toBe(8);
+  });
+
+  it('fails on generation authorization instead of accepting a model-list success', async () => {
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith('/models')) {
+        return new Response(JSON.stringify({ data: [{ id: 'probe-model' }] }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ error: { message: 'forbidden' } }), { status: 403 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore({ ...runtimeProvider }));
+
+    const result = await service.testGenerationProbe({ ...runtimeProvider, selectedModel: 'probe-model' });
+
+    expect(result.connected).toBe(false);
+    expect(result.error).toContain('生成探针失败');
   });
 });
 

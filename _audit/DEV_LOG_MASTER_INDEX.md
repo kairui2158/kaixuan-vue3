@@ -1698,3 +1698,35 @@
 - 交付：撤回无证据 live 3/3 成功声明并保留五个真实 observational 目录；多 run 报告绑定修复；V6.1 降AI协同、冻结画像观测、诊断/校准/报告链路随 3.112.0 发布。
 - 门禁：`git diff --check`、`type-check`、`test:services`、`build`、`verify:packaging`、敏感扫描、显式 staging、git commit、提交后复查；全部通过后才允许完成声明。
 - 边界：live observational 不证明写作质量；folder SKILL 生产目录不由应用侧修改；发布完成证据以发布台账第 6 节为准。
+
+# 2026-11-03 经验文件 v10.0.0 重整
+
+- 文件：[_audit/DEV_LOG_2026-11-03_experience-v10-rebaseline.md](_audit/DEV_LOG_2026-11-03_experience-v10-rebaseline.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_experience-v10-rebaseline.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_experience-v10-rebaseline.md)
+- 交付：唯一经验文件升级 v10.0.0；新增 G0.13 最小必要性与过度设计禁令；压缩 G1.5、G1.17、G2.9 流水账；修正 G2.13/G2.14 展示顺序；使用路由与 STACK 规则源同步。
+- 验证：54 条门禁全量读证；当前规则源与 STACK 为 v10.0.0，总索引历史标题保留为追溯记录；`git diff --check` 通过。
+- 边界：不改生产代码、不封装、不提交 git；L3 归档保留为追溯材料，不作为执行规则源。
+
+# 2026-11-03 正文层 S1 供应商 401 失败诊断
+
+- 文件：[_audit/DEV_LOG_2026-11-03_body-s1-provider-401-diagnosis.md](_audit/DEV_LOG_2026-11-03_body-s1-provider-401-diagnosis.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-s1-provider-401-diagnosis.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-03_body-s1-provider-401-diagnosis.md)
+- 交付：诊断两次 3.112.0 正文层失败；主根因为供应商 `chat/completions` 401；SKILL 层无责任证据；V6.1 方法论真实注入；登记 run trace 供应商诊断字段观测缺口与最小修复方向。
+- 验证：两份深 trace、渲染日志、请求 payload、源码接线、安装包哈希与构建 manifest 已对账；本轮只读诊断，不改生产代码。
+- 边界：不证明该供应商后续状态或其他供应商可用性；不新增 preflight、自动切换或健康系统；trace 字段修复待用户批准后执行。
+
+# 2026-11-04 物理请求供应商诊断观察闭环
+
+- 文件：[_audit/DEV_LOG_2026-11-04_physical-call-provider-diagnostics.md](_audit/DEV_LOG_2026-11-04_physical-call-provider-diagnostics.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-04_physical-call-provider-diagnostics.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-04_physical-call-provider-diagnostics.md)
+- 交付：`statusCode/providerErrorSummary/finalUrl/transport` 从 `aiService` 穿透共享投影、8 个生产入口、run trace 存储/更新、详情 UI、diff、JSON/text 导出；schema 升级 21；HTTP 200 软错误不再丢诊断，网络失败不伪造 HTTP 状态。
+- 验证：定向 6 files / 324 tests passed；全量 247 files / 2649 tests passed；type-check、build:vue、git diff --check 通过；旧 schema 20 残留 0 匹配。
+- 边界：真实外部供应商错误形态保持 `untested`；不升版、不封装、不提交 git；不做供应商 preflight、健康系统、自动切换或重试策略变更。
+
+# 2026-11-04 生成流水线分层供应商语义修复 3.113.0
+
+- 文件：[_audit/DEV_LOG_2026-11-04_pipeline-layer-provider-semantics-repair.md](_audit/DEV_LOG_2026-11-04_pipeline-layer-provider-semantics-repair.md)
+- 台账：[_audit/TASK_LEDGERS/2026-11-04_PIPELINE_LAYER_PROVIDER_SEMANTICS_REPAIR.md](_audit/TASK_LEDGERS/2026-11-04_PIPELINE_LAYER_PROVIDER_SEMANTICS_REPAIR.md)
+- 交付：流水线层绑定供应商裁决固定为 `layer > agent > global`；Agent 不再覆盖层绑定；辅助记忆外呼声明 `providerSource: auxiliary`；trace、api call、物理请求三面同源；版本升级 3.113.0。
+- 验证：`build:vue` exit 0；真实 Electron 分层通道验证 `[PASS] ... requests=4`；type-check exit 0；全量回归通过；打包核验与安装包哈希见台账执行后补充证据。
+- 边界：真实 UI/Electron 使用 mock 四层供应商；不声明真实供应商内容质量；不做负载均衡、健康切换、自动回退或额外 preflight。

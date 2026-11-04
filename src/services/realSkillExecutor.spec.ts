@@ -171,7 +171,7 @@ describe('realSkillExecutor single pass', () => {
     expect(result.diagnostics.some(item => item.code === 'chapter-narrative-not-ready')).toBe(true)
   })
 
-  it('lets an explicit agent provider override the layer provider', async () => {
+  it('keeps the layer provider ahead of the explicit agent provider', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),
       error: null,
@@ -191,8 +191,8 @@ describe('realSkillExecutor single pass', () => {
 
     expect(result.status).toBe('success')
     expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
-      providerId: 'provider-agent',
-      meta: expect.objectContaining({ providerSource: 'agent' })
+      providerId: 'provider-layer',
+      meta: expect.objectContaining({ providerSource: 'layer' })
     }))
   })
 
@@ -472,7 +472,7 @@ describe('realSkillExecutor single pass', () => {
     expect(result.status).toBe('failed')
   })
 
-  it('routes folder calls through the explicit agent provider without silent fallback', async () => {
+  it('routes folder calls through the layer provider even when an agent binding exists', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),
       error: null,
@@ -495,7 +495,7 @@ describe('realSkillExecutor single pass', () => {
 
     expect(result.status).toBe('success')
     expect(callAi).toHaveBeenCalledWith(expect.objectContaining({
-      providerId: 'provider-agent',
+      providerId: 'provider-layer',
     }))
   })
 

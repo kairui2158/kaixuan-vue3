@@ -1,6 +1,6 @@
 import type { RunTrace } from '../stores/runTrace'
 
-export const RUN_TRACE_EXPORT_SCHEMA_VERSION = 20
+export const RUN_TRACE_EXPORT_SCHEMA_VERSION = 22
 
 export type RunTraceExportRequest =
   | { type: 'export-json'; run: RunTrace; id: string }
@@ -73,6 +73,7 @@ export function exportRunTraceToText(run: RunTrace): string {
     `耗时：${snapshot.durationMs ?? 0}ms`,
     `项目：${snapshot.projectName || snapshot.projectId || '-'}`,
     `供应商：${snapshot.providerName || snapshot.providerId || '-'}`,
+    `供应商来源：${snapshot.providerSource || '-'}`,
     `模型：${snapshot.model || '-'}`,
     `技能：${snapshot.skillNames.join('、') || '-'}`,
     `技能模式：${snapshot.skillMode || '-'}`,
@@ -97,6 +98,7 @@ export function exportRunTraceToText(run: RunTrace): string {
       `技能：${call.skillName || call.skillId || '-'}`,
       `智能体：${call.agentName || call.agentId || '-'}`,
       `供应商：${call.providerName || call.providerId || '-'}`,
+      `供应商来源：${call.providerSource || '-'}`,
       `模型：${call.model || '-'}`,
       `temperature：${call.temperature ?? '-'}`,
       `max_tokens：${call.maxTokens ?? '-'}`,
@@ -119,7 +121,12 @@ export function exportRunTraceToText(run: RunTrace): string {
           `--- physical-${physical.seq} (${physical.phase}) ---`,
           `状态：${physical.status}`,
           `耗时：${physical.durationMs ?? 0}ms`,
-          `finish_reason：${physical.finishReason || '-'}`
+          `finish_reason：${physical.finishReason || '-'}`,
+          `HTTP状态：${physical.statusCode ?? '-'}`,
+          `供应商错误：${physical.providerErrorSummary ? maskRunTraceSensitiveText(physical.providerErrorSummary) : '-'}`,
+          `供应商来源：${physical.providerSource || '-'}`,
+          `最终URL：${physical.finalUrl ? maskRunTraceSensitiveText(physical.finalUrl) : '-'}`,
+          `传输通道：${physical.transport || '-'}`
         )
         if (physical.cacheUsageSummary) {
           const cache = physical.cacheUsageSummary as {

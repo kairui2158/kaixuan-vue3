@@ -290,7 +290,16 @@ async function startLocalProviders() {
       }
       requests.push(record)
       writeRunLog('provider-request', record)
-      const reply = layer === 'volumes'
+      const userContent = String(parsed?.messages?.find?.(message => message?.role === 'user')?.content || '')
+      const reply = /请从下面第/.test(userContent)
+        ? JSON.stringify({
+          entities: [],
+          relations: [],
+          events: [],
+          world: [],
+          foreshadowing: [],
+        })
+        : layer === 'volumes'
         ? JSON.stringify([{
           name: '第二卷 航线',
           outline: '王芳确认航线与纸条之间的关系。',
@@ -410,6 +419,7 @@ async function seedApplication(page, providers) {
   await page.evaluate(async ({ providers, projectId, volumeId, chapterId }) => {
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', providers)
+    await window.electronAPI.storageWrite('wa_settings', { autoExtractMemory: true })
     await window.electronAPI.storageWrite(`wa_project_${projectId}`, {
       schemaVersion: 3,
       projectName: '层通道真实UI验证',
@@ -626,6 +636,13 @@ async function assertRunProviderChannel(page, layer, step, providerBridge) {
     .flatMap(call => call.physicalCalls || [])
     .filter(physical => physical.requestMessages?.length > 0))
   assert(physicalRequests.length > 0, `${layer} trace records physical request bodies`)
+  const tracedSources = [
+    ...trace.apiCalls.map(call => call.providerSource),
+    ...physicalRequests.map(physical => physical.providerSource),
+  ]
+  assert(tracedSources.length > 0, `${layer} trace records providerSource provenance`)
+  assert(tracedSources.every(source => source === 'layer'),
+    `${layer} trace providerSource stays layer-bound, got ${JSON.stringify(tracedSources)}`)
   const modelBoundLayers = ['volumes', 'chapters', 'body']
   if (modelBoundLayers.includes(layer)) {
     const providerRequests = providerBridge.requests()
@@ -779,6 +796,49 @@ async function main() {
     const chapterEvidence = await assertRunProviderChannel(page, 'chapters', 3, providerBridge)
     const bodyEvidence = await assertRunProviderChannel(page, 'body', 4, providerBridge)
 
+    const confirmStepDiagnostics = await page.evaluate(() => ({
+      pipelinePanelAttached: Boolean(document.querySelector('#pipeline-panel')),
+      stepCount: document.querySelectorAll('#pl-steps .pl-step').length,
+      bodyPanelVisible: Boolean(document.querySelector('#pl-step-5-content')?.checkVisibility?.()),
+      currentStep: window.__pinia?._s?.get('pipeline')?.currentStep ?? null,
+      activeStepText: document.querySelector('#pl-steps .pl-step.active')?.textContent || '',
+    }))
+    writeRunLog('confirm-step-diagnostics', confirmStepDiagnostics)
+
+    await page.click('#btn-pipeline')
+    await page.waitForSelector('#pipeline-panel', { state: 'visible', timeout: 20_000 })
+
+    await selectPipelineStep(page, 4)
+    await page.locator('#btn-pl-confirm-body').click()
+    await page.waitForSelector('[data-modal-id="pl-memory-preview"]', { timeout: 30_000 })
+    await page.waitForFunction(() => {
+      const loading = document.querySelector('[data-modal-id="pl-memory-preview"] .pl-memory-preview-footer button')?.textContent || ''
+      return !loading.includes('写入中...')
+    }, null, { timeout: 60_000 })
+    await sleep(200)
+    await page.screenshot({
+      path: path.join(EVIDENCE_ROOT, 'auxiliary-memory-preview.png'),
+      fullPage: true,
+    })
+    const auxiliaryMemoryTrace = await page.evaluate(() => {
+      const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+        .find(item => item.source === 'pipeline' && item.stepName === '记忆抽取')
+      return run ? JSON.parse(JSON.stringify(run)) : null
+    })
+    assert(auxiliaryMemoryTrace, 'real confirm-body UI starts the auxiliary memory extraction trace run')
+    assert.equal(auxiliaryMemoryTrace.status, 'success',
+      `auxiliary memory extraction succeeds through the real UI; got status=${auxiliaryMemoryTrace.status}, error=${auxiliaryMemoryTrace.error || ''}`)
+    assert(auxiliaryMemoryTrace.apiCalls?.length > 0, 'auxiliary memory trace records an API call')
+    assert(auxiliaryMemoryTrace.apiCalls.every(call => call.providerSource === 'auxiliary'),
+      `auxiliary memory providerSource is auxiliary, got ${JSON.stringify(auxiliaryMemoryTrace.apiCalls?.map(call => call.providerSource))}`)
+    const auxiliaryPhysicalSources = (auxiliaryMemoryTrace.apiCalls || [])
+      .flatMap(call => call.physicalCalls || [])
+      .filter(physical => physical.requestMessages?.length > 0)
+      .map(physical => physical.providerSource)
+    assert(auxiliaryPhysicalSources.length > 0, 'auxiliary memory trace records physical provenance')
+    assert(auxiliaryPhysicalSources.every(source => source === 'auxiliary'),
+      `auxiliary memory physical providerSource is auxiliary, got ${JSON.stringify(auxiliaryPhysicalSources)}`)
+
     const requests = LIVE_MODE ? liveProxy.requests() : providers.requests()
     assert(requests.length > 0, 'providers observed real application requests')
     if (LIVE_MODE) {
@@ -809,6 +869,7 @@ async function main() {
         chapters: chapterEvidence.run,
         body: bodyEvidence.run,
       },
+      auxiliaryMemory: auxiliaryMemoryTrace,
       modelAssertions: {
         volumes: volumeEvidence.expectedModel,
         chapters: chapterEvidence.expectedModel,

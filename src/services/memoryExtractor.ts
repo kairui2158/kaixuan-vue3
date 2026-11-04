@@ -1,5 +1,6 @@
 import { getAiService, type CallAiParams, type PhysicalCallEvent } from './aiService'
 import { extractJsonObject } from './jsonExtraction'
+import type { RunTraceProviderSource } from '../stores/runTrace'
 import type {
   Foreshadowing,
   MemoryEntity,
@@ -38,6 +39,7 @@ export interface UnifiedMemoryAiCallTrace {
     providerId?: string
     providerName?: string
     model?: string
+    providerSource?: RunTraceProviderSource
     requestMessages: Array<{ role: string; content: string }>
   }): string
   finishApiCall(callId: string, patch: {
@@ -62,6 +64,7 @@ export async function unifiedMemoryAiCall(
 ): Promise<string | null> {
   const service = await getAiService()
   const callId = trace?.beginApiCall({
+    providerSource: 'auxiliary',
     requestMessages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt }
@@ -75,7 +78,7 @@ export async function unifiedMemoryAiCall(
     retry: false,
     timeoutMs: 300_000,
     contextComposition: trace?.contextComposition,
-    meta: { source: 'memory-extraction.unified' },
+    meta: { source: 'memory-extraction.unified', providerSource: 'auxiliary' },
     onPhysicalCall: (event: MemoryPhysicalCallEvent) => trace?.onPhysicalCall?.(event)
   })
   try {

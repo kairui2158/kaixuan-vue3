@@ -8,6 +8,7 @@ type StorageMap = Map<string, unknown>
 const storageSnapshot: PipelineProviderChannelSnapshot = {
   layer: 'volumes',
   layerProviderId: 'provider-a',
+  agentProviderId: null,
   globalProviderId: 'provider-global',
   providerId: 'provider-a',
   source: 'layer',

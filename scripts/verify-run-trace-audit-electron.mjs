@@ -593,8 +593,8 @@ function findExportedRunDirectory(expectedRunId) {
     `exported trace belongs to the current run, got ${exportedRun.id}`)
   assert.equal(exportedRun.status, 'success',
     `exported trace is the current success run, got ${exportedRun.status}`)
-  assert.equal(Number(exportedRun.exportSchemaVersion), 20,
-    'exported trace carries exportSchemaVersion=20')
+  assert.equal(Number(exportedRun.exportSchemaVersion), 21,
+    'exported trace carries exportSchemaVersion=21')
   return matched
 }
 
@@ -662,7 +662,7 @@ async function main() {
       },
       exported,
       assertions: [
-        'trace export schemaVersion=20',
+        'trace export schemaVersion=21',
         'deep export run.id matches the live current run',
         'runtimeFingerprint four fields',
         'S2 retainedCandidateIndex>0',

@@ -41,8 +41,8 @@ describe('run trace export service', () => {
     const exported = exportRunTraceToJson(run)
     const serialized = JSON.stringify(exported)
 
-    expect(exported.schemaVersion).toBe(20)
-    expect(exported.exportSchemaVersion).toBe(20)
+    expect(exported.schemaVersion).toBe(22)
+    expect(exported.exportSchemaVersion).toBe(22)
     expect((exported as Record<string, unknown>).currentTurnId).toBeUndefined()
     expect((exported as Record<string, unknown>).dirName).toBeUndefined()
     expect(serialized).not.toContain('sk-123456789012345678')
@@ -112,5 +112,50 @@ describe('run trace export service', () => {
     const text = exportRunTraceToText(run)
     expect(text).toContain('缓存命中：80 input tokens (80%)')
     expect(text).toContain('上下文组成：stable=0.714 family=openai-compatible:provider-a:model-a:chapter:step-3')
+  })
+
+  it('keeps provider diagnostics in JSON and text exports with masking', () => {
+    const run = makeRun({
+      apiCalls: [{
+        id: 'call-1',
+        seq: 1,
+        status: 'failed',
+        requestMessages: [{ role: 'user', content: '生成正文' }],
+        responseText: '',
+        streamText: '',
+        reasoningText: '',
+        physicalCalls: [{
+          id: 'physical-1',
+          seq: 1,
+          phase: 'normal',
+          status: 'failed',
+          requestMessages: [{ role: 'user', content: '生成正文' }],
+          responseText: '',
+          streamText: '',
+          reasoningText: '',
+          statusCode: 401,
+          providerErrorSummary: 'Invalid API key sk-123456789012345678',
+          finalUrl: 'https://api.example.com/v1/chat/completions?key=sk-123456789012345678',
+          transport: 'renderer-fetch'
+        } as RunTracePhysicalCall]
+      } as RunTrace['apiCalls'][number]]
+    })
+
+    const json = exportRunTraceToJson(run)
+    const serialized = JSON.stringify(json)
+    const physical = (json.apiCalls as unknown as RunTrace['apiCalls'])[0]?.physicalCalls?.[0]
+    const text = exportRunTraceToText(run)
+
+    expect(physical).toMatchObject({
+      statusCode: 401,
+      providerErrorSummary: 'Invalid API key ***MASKED***',
+      finalUrl: 'https://api.example.com/v1/chat/completions?key=***MASKED***',
+      transport: 'renderer-fetch'
+    })
+    expect(serialized).not.toContain('sk-123456789012345678')
+    expect(text).toContain('HTTP状态：401')
+    expect(text).toContain('供应商错误：Invalid API key ***MASKED***')
+    expect(text).toContain('最终URL：https://api.example.com/v1/chat/completions?key=***MASKED***')
+    expect(text).toContain('传输通道：renderer-fetch')
   })
 })

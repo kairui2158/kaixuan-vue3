@@ -268,8 +268,8 @@ export interface CallAiParams {
     /** Eval case id for with/baseline grading runs. */
     caseId?: string
     ctxTurns?: number
-    /** Single-source pipeline provider channel provenance for diagnostics. */
-    providerSource?: 'agent' | 'layer' | 'global'
+    /** Single-source provider channel provenance for diagnostics. */
+    providerSource?: 'agent' | 'layer' | 'global' | 'auxiliary' | 'none'
     /** Model provenance for pipeline requests resolved by the caller. */
     modelSource?: string
   }
@@ -315,6 +315,8 @@ export interface PhysicalCallEvent {
   toolsEnabled: boolean
   toolsDowngraded: boolean
   downgradeReason?: string
+  /** Provider channel provenance copied from the request meta for trace projection. */
+  providerSource?: NonNullable<CallAiParams['meta']>['providerSource']
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
   /** Effective max_tokens after overrides or a 400 downgrade; null means intentionally omitted. */
   maxTokens?: number | null
@@ -350,6 +352,14 @@ export interface PhysicalCallEvent {
   lastReasoningAt?: number
   /** How long the stream ran while producing reasoning but no body. */
   bodyAbsentMs?: number
+  /** HTTP status returned by the provider; absent for pure network failures. */
+  statusCode?: number
+  /** Compact provider error body, kept separate from the human-facing error. */
+  providerErrorSummary?: string
+  /** Sanitized endpoint actually used by this request. */
+  finalUrl?: string
+  /** Network bridge that carried this request. */
+  transport?: 'main-process' | 'renderer-fetch'
 }
 
 export interface CallAiResult {
@@ -402,6 +412,7 @@ export interface AiService {
   fetchModelsForProvider(provider: ProviderLike): Promise<string[]>
   testConnection(providerId: string): Promise<{ connected: boolean; error?: string; note?: string }>
   testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string; note?: string }>
+  testGenerationProbe(provider: ProviderLike): Promise<{ connected: boolean; error?: string; model?: string; durationMs?: number }>
 }
 
 // ── Constants ──────────────────────────────────────────────────────
@@ -1623,7 +1634,7 @@ export interface DiagnosticLogLike {
     /** null records an undeclared output limit; a number records the effective wire limit. */
     maxTokens?: number | null
     /** Pipeline provider channel provenance: agent | layer | global. */
-    providerSource?: 'agent' | 'layer' | 'global'
+    providerSource?: 'agent' | 'layer' | 'global' | 'auxiliary' | 'none'
   }): void
 }
 
@@ -1653,7 +1664,7 @@ function logRequest(
     /** null records an undeclared output limit; a number records the effective wire limit. */
     maxTokens?: number | null
     /** Pipeline provider channel provenance: agent | layer | global. */
-    providerSource?: 'agent' | 'layer' | 'global'
+    providerSource?: 'agent' | 'layer' | 'global' | 'auxiliary' | 'none'
   }
 ) {
   if (logger) {
@@ -3770,7 +3781,11 @@ export function createAiService(
     const effectiveMaxTokens = () => resolveMaxTokens(provider, params.maxTokens ?? provider.maxTokens)
     const reasoningControl = getProviderReasoningControl(providerType)
     let reasoningOnlyDirectRetryApplied = false
-    const physicalCallIds = new Map<number, string>()
+    const physicalCallIds = new Map<string, string>()
+    let physicalDiagnostics: {
+      statusCode?: number
+      providerErrorSummary?: string
+    } = {}
     let physicalFirstTokenAt: number | null = null
     let physicalStartedAt: number | null = null
     let physicalHeartbeatTimer: ReturnType<typeof setInterval> | null = null
@@ -3817,10 +3832,12 @@ export function createAiService(
             usageReconciliation: reconciliation
           })
         }
-        let physicalCallId = physicalCallIds.get(attempt)
+        const physicalScope = overridePhase === 'heartbeat_retry' ? 'heartbeat' : 'normal'
+        const physicalCallKey = `${physicalScope}:${attempt}`
+        let physicalCallId = physicalCallIds.get(physicalCallKey)
         if (!physicalCallId) {
-          physicalCallId = `physical-${startTime}-${attempt}`
-          physicalCallIds.set(attempt, physicalCallId)
+          physicalCallId = `physical-${startTime}-${physicalScope}-${attempt}`
+          physicalCallIds.set(physicalCallKey, physicalCallId)
         }
         const physicalToolCalls = requestedTools
           ? extractProviderToolCallsFromResponse(providerType, {
@@ -3844,6 +3861,7 @@ export function createAiService(
           error,
           toolsEnabled: requestedTools,
           toolsDowngraded: Boolean(params.toolPolicy === undefined && requestedTools),
+          providerSource: params.meta?.providerSource,
           downgradeReason: overridePhase?.startsWith('downgrade') ? undefined : undefined,
           retryStrategy: params.retryStrategy,
           maxTokens: result?.maxTokens ?? effectiveMaxTokens(),
@@ -3864,6 +3882,10 @@ export function createAiService(
           outputMs: physicalFirstTokenAt === null
             ? undefined
             : Date.now() - physicalFirstTokenAt,
+          statusCode: physicalDiagnostics.statusCode,
+          providerErrorSummary: physicalDiagnostics.providerErrorSummary,
+          finalUrl,
+          transport,
           ...interruption,
         })
       } catch { /* trace must never break the AI request */ }
@@ -3871,12 +3893,19 @@ export function createAiService(
     const promptPreview = params.messages.map(m => m.content).join(' ').slice(0, 200)
     let maxTokensDowngrade: { from: number | null; to: number; reason: string } | null = null
     let currentPhysicalAttempt = 0
+    let currentPhysicalScope: 'normal' | 'heartbeat' = 'normal'
     const throwCanceled = (): never => {
       const durationMs = Date.now() - startTime
       stopPhysicalHeartbeat()
       // Closing the same running physical record prevents a canceled request
       // from leaving a perpetual running physical call in the trace.
-      reportPhysical(currentPhysicalAttempt, 'canceled')
+      reportPhysical(
+        currentPhysicalAttempt,
+        'canceled',
+        undefined,
+        undefined,
+        currentPhysicalScope === 'heartbeat' ? 'heartbeat_retry' : undefined,
+      )
       logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl, providerSource: params.meta?.providerSource })
       throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
     }
@@ -3936,6 +3965,8 @@ export function createAiService(
         physicalFirstTokenAt = null
         physicalStartedAt = Date.now()
           currentPhysicalAttempt = attempt
+          currentPhysicalScope = 'normal'
+          physicalDiagnostics = {}
           reportPhysical(attempt, 'running')
           physicalHeartbeatTimer = setInterval(() => {
             if (params.signal?.aborted) {
@@ -4097,6 +4128,12 @@ export function createAiService(
         if (e?.kind === 'timeout' || e?.kind === 'auth') {
           lastErr = e
           stopPhysicalHeartbeat()
+          physicalDiagnostics = {
+            statusCode: Number.isFinite(Number(e?.statusCode)) ? Number(e.statusCode) : undefined,
+            providerErrorSummary: typeof e?.providerErrorSummary === 'string' && e.providerErrorSummary
+              ? e.providerErrorSummary
+              : undefined,
+          }
           reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
           break
         }
@@ -4105,6 +4142,12 @@ export function createAiService(
         if ((e as any)?.softError === true) {
           lastErr = e as AiServiceErrorImpl
           stopPhysicalHeartbeat()
+          physicalDiagnostics = {
+            statusCode: Number.isFinite(Number(e?.statusCode)) ? Number(e.statusCode) : undefined,
+            providerErrorSummary: typeof e?.providerErrorSummary === 'string' && e.providerErrorSummary
+              ? e.providerErrorSummary
+              : undefined,
+          }
           reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
           break
         }
@@ -4158,6 +4201,10 @@ export function createAiService(
             break
           }
           const providerMessage = await httpError.providerSummary
+          physicalDiagnostics = {
+            statusCode: Number.isFinite(Number(status)) ? Number(status) : undefined,
+            providerErrorSummary: providerMessage || undefined,
+          }
           if ((e as any)?.softError === true) {
             lastErr = e as AiServiceErrorImpl
             stopPhysicalHeartbeat()
@@ -4230,7 +4277,14 @@ export function createAiService(
             break
           }
           if (status === 401 || status === 403) {
-            throw new AiServiceErrorImpl({ kind: 'auth', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
+            throw new AiServiceErrorImpl({
+              kind: 'auth',
+              message: httpErrorMessage(status, providerMessage),
+              providerId,
+              purpose: params.purpose,
+              statusCode: status,
+              providerErrorSummary: providerMessage,
+            })
           }
           lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
           if (doRetry && attempt < maxRetries) {
@@ -4291,6 +4345,9 @@ export function createAiService(
           streamBuffer = ''
           reasoningBuffer = ''
           currentPhysicalAttempt = hbAttempt
+          currentPhysicalScope = 'heartbeat'
+          physicalDiagnostics = {}
+          reportPhysical(hbAttempt, 'running', undefined, undefined, 'heartbeat_retry')
           const result = await _rawCall(provider, hbParams, timeoutMs, toolRunBudget)
           let finalText = filterThinkingTags(result.text)
           if (params.jsonMode) {
@@ -4320,6 +4377,23 @@ export function createAiService(
         } catch (hbErr: any) {
           if (params.signal?.aborted) {
             return throwCanceled()
+          }
+          let hbStatus = Number.isFinite(Number(hbErr?.statusCode)) ? Number(hbErr.statusCode) : undefined
+          let hbProviderMessage = typeof hbErr?.providerErrorSummary === 'string' && hbErr.providerErrorSummary
+            ? hbErr.providerErrorSummary
+            : undefined
+          if (hbErr instanceof Response) {
+            hbStatus = hbErr.status
+            const hbErrorText = await hbErr.clone().text()
+            try {
+              hbProviderMessage = extractProviderErrorSummary(JSON.parse(hbErrorText))
+            } catch {
+              hbProviderMessage = String(hbErrorText || '').slice(0, 500)
+            }
+          }
+          physicalDiagnostics = {
+            statusCode: hbStatus,
+            providerErrorSummary: hbProviderMessage || undefined,
           }
           reportPhysical(hbAttempt, 'failed', undefined, hbErr?.message || String(hbErr), 'heartbeat_retry')
           console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + ((hbErr && (hbErr.message || String(hbErr))) || 'unknown'))
@@ -4468,12 +4542,52 @@ export function createAiService(
     }
   }
 
+  async function testGenerationProbe(provider: ProviderLike): Promise<{
+    connected: boolean
+    error?: string
+    model?: string
+    durationMs?: number
+  }> {
+    const startedAt = Date.now()
+    try {
+      await fetchModelsForProvider(provider)
+    } catch (e: any) {
+      const status = e?.statusCode
+      if (status !== 404 && status !== 405) {
+        return { connected: false, error: e?.message || '连接失败', durationMs: Date.now() - startedAt }
+      }
+    }
+    const probeStartedAt = Date.now()
+    try {
+      await _rawCall(provider, {
+        purpose: 'generate',
+        messages: [{ role: 'user', content: 'Reply OK' }],
+        stream: false,
+        retry: false,
+        timeoutMs: 30_000,
+        maxTokens: 8,
+      }, 30_000)
+      return {
+        connected: true,
+        model: resolveModel(provider),
+        durationMs: Date.now() - probeStartedAt,
+      }
+    } catch (e: any) {
+      const status = e?.statusCode
+      const error = status === 401 || status === 403 || status === 404 || status === 429
+        ? `生成探针失败（HTTP ${status}）：${e?.message || '供应商拒绝生成请求'}`
+        : (e?.message || '生成探针失败')
+      return { connected: false, error, durationMs: Date.now() - probeStartedAt }
+    }
+  }
+
   const service = {
     callAi,
     fetchModels,
     fetchModelsForProvider,
     testConnection,
     testConnectionForProvider,
+    testGenerationProbe,
     providerScheduler,
     externalSchedulerSnapshotEnabled,
     _stopExternalSchedulerSnapshot: () => {

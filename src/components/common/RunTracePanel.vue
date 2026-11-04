@@ -95,6 +95,7 @@
             <span>层级：{{ selectedRun.stepName || '-' }}</span>
             <span>项目：{{ selectedRun.projectName || selectedRun.projectId || '未命名' }}</span>
             <span>供应商：{{ selectedRun.providerName || selectedRun.providerId || '未记录' }}</span>
+            <span>供应商来源：{{ providerSourceText(selectedRun.providerSource) }}</span>
             <span>模型：{{ selectedRun.model || '未记录' }}</span>
             <span>技能：{{ selectedRun.skillNames.join('、') || '未使用' }}</span>
             <span>技能模式：{{ selectedRun.skillMode || '直接生成' }}</span>
@@ -151,6 +152,7 @@
                     <strong>第 {{ call.seq }} 次调用</strong>
                     <span :class="'is-' + call.status">{{ statusText(call.status) }}</span>
                     <span>{{ call.skillName || call.skillId || '无技能' }}</span>
+                    <span>供应商来源：{{ providerSourceText(call.providerSource) }}</span>
                     <span>{{ call.model || '未记录模型' }}</span>
                     <span>{{ call.durationMs ? call.durationMs + 'ms' : '未记录耗时' }}</span>
                   </div>
@@ -201,6 +203,11 @@ usage 对账：{{ renderText(JSON.stringify(call.usageReconciliation || {}, null
                       <span :class="'is-' + physical.status">{{ statusText(physical.status) }}</span>
                       <span>{{ physical.durationMs ? physical.durationMs + 'ms' : '未记录耗时' }}</span>
                       <span>工具调用 {{ physical.toolCallCount ?? 0 }} 次{{ physical.toolCallNames?.length ? '：' + physical.toolCallNames.join('、') : '' }}</span>
+                      <pre>HTTP状态：{{ physical.statusCode ?? '未记录' }}
+供应商错误：{{ physical.providerErrorSummary || '未记录' }}
+供应商来源：{{ providerSourceText(physical.providerSource) }}
+最终URL：{{ physical.finalUrl || '未记录' }}
+传输通道：{{ physical.transport || '未记录' }}</pre>
                       <pre v-for="(message, index) in physical.requestMessages" :key="index">[{{ message.role }}]
 {{ renderText(message.content) }}</pre>
                       <pre>{{ renderText(physical.responseText || '本次没有返回内容。') }}</pre>
@@ -425,6 +432,17 @@ function statusText(status: string) {
   if (status === 'blocked') return '已阻断，等待恢复'
   if (status === 'canceled') return '已取消'
   return '失败'
+}
+
+function providerSourceText(source?: string) {
+  switch (source) {
+    case 'layer': return '层绑定'
+    case 'agent': return '智能体'
+    case 'global': return '全局'
+    case 'auxiliary': return '辅助'
+    case 'none': return '未声明'
+    default: return '未记录'
+  }
 }
 
 function contextBudgetDecisionText(decision?: string) {

@@ -18,6 +18,7 @@ describe('direct write production wiring', () => {
   it('short-circuits deterministic local transforms before skill and agent paths in both workspaces', () => {
     const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
     const home = readComponentSource('src/components/chat/ChatPanel.vue')
+    const physicalCallProjection = readComponentSource('src/services/physicalCallTraceProjection.ts')
 
     for (const source of [outline, home]) {
       expect(source).toContain("plan.mode !== 'local-transform'")
@@ -27,8 +28,9 @@ describe('direct write production wiring', () => {
       expect(source).toContain("type: 'local-transform-executed'")
       expect(source).toContain("'local_transform_complete'")
       expect(source).toContain('activeExecutionTaskStore.complete')
-      expect(source).toContain('contextCompactedMessageCount')
+      expect(source).toContain('projectPhysicalCallEvent(event)')
     }
+    expect(physicalCallProjection).toContain('contextCompactedMessageCount: event.contextCompactedMessageCount')
     expect(outline).toContain('const localTransform = await runOutlineLocalTransformIfReady({')
     expect(outline).toContain('if (localTransform) return')
     expect(outline).toContain('const plainLocalTransform = await runOutlineLocalTransformIfReady({')

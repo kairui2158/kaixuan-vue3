@@ -430,7 +430,11 @@ function buildPhysicalCallDiffs(pairs: ApiCallDiff[]): PhysicalCallDiff[] {
           fieldDiff('toolsEnabled', a?.toolsEnabled, b?.toolsEnabled),
           fieldDiff('toolsDowngraded', a?.toolsDowngraded, b?.toolsDowngraded),
           fieldDiff('downgradeReason', a?.downgradeReason, b?.downgradeReason),
-          fieldDiff('error', a?.error, b?.error)
+          fieldDiff('error', a?.error, b?.error),
+          fieldDiff('statusCode', a?.statusCode, b?.statusCode),
+          fieldDiff('providerErrorSummary', a?.providerErrorSummary, b?.providerErrorSummary),
+          fieldDiff('finalUrl', a?.finalUrl, b?.finalUrl),
+          fieldDiff('transport', a?.transport, b?.transport)
         ],
         requestDiff: buildTextDiff(
           (a?.requestMessages || []).map(item => `[${item.role}]\n${item.content}`).join('\n\n'),

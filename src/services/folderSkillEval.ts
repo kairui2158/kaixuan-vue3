@@ -392,7 +392,7 @@ export async function runFolderSkillEval(input: FolderSkillEvalInput): Promise<F
         ],
         stream: false,
         retry: true,
-        meta: { source: 'folderSkillEval.baseline', skillId: input.skillId, caseId: caseItem.id }
+        meta: { source: 'folderSkillEval.baseline', providerSource: 'auxiliary', skillId: input.skillId, caseId: caseItem.id }
       })
       baselineOutput = baselineResult.text || ''
       const baselineValidity = classifyGenerationValidity({

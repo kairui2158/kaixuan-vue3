@@ -25,7 +25,7 @@ const providerById: Record<string, { selectedModel?: string; models?: string[]; 
 const getProvider = (id: string) => providerById[id]
 
 describe('pipelineProviderChannels', () => {
-  it('prefers an explicit agent provider binding', () => {
+  it('prefers the layer binding over the agent and global providers', () => {
     expect(resolvePipelineProviderChannel({
       layer: 'volumes',
       layerProviderId: 'provider-layer',
@@ -33,23 +33,23 @@ describe('pipelineProviderChannels', () => {
       globalProviderId: 'provider-global',
       providerExists,
     })).toEqual({
-      providerId: 'provider-agent',
-      source: 'agent',
+      providerId: 'provider-layer',
+      source: 'layer',
       providerMissing: false,
       providerUnsupported: false,
     })
   })
 
-  it('uses the layer binding when the agent has no provider', () => {
+  it('uses the agent binding only when the layer binding is absent', () => {
     expect(resolvePipelineProviderChannel({
       layer: 'chapters',
-      layerProviderId: 'provider-layer',
-      agentProviderId: '',
+      layerProviderId: null,
+      agentProviderId: 'provider-agent',
       globalProviderId: 'provider-global',
       providerExists,
     })).toEqual({
-      providerId: 'provider-layer',
-      source: 'layer',
+      providerId: 'provider-agent',
+      source: 'agent',
       providerMissing: false,
       providerUnsupported: false,
     })
@@ -70,10 +70,10 @@ describe('pipelineProviderChannels', () => {
     })
   })
 
-  it('marks a configured agent provider missing instead of silently falling back', () => {
+  it('marks a configured agent provider missing instead of silently falling back when the layer binding is absent', () => {
     expect(resolvePipelineProviderChannel({
       layer: 'settings',
-      layerProviderId: 'provider-layer',
+      layerProviderId: null,
       agentProviderId: 'deleted-provider',
       globalProviderId: 'provider-global',
       providerExists,
@@ -179,11 +179,13 @@ describe('pipelineProviderChannels', () => {
     expect(buildPipelineProviderChannelSnapshot({
       layer: 'chapters',
       layerProviderId: ' provider-layer ',
+      agentProviderId: null,
       globalProviderId: ' provider-global ',
       providerExists,
     })).toEqual({
       layer: 'chapters',
       layerProviderId: 'provider-layer',
+      agentProviderId: '',
       globalProviderId: 'provider-global',
       providerId: 'provider-layer',
       source: 'layer',
@@ -195,7 +197,7 @@ describe('pipelineProviderChannels', () => {
   it('uses the agent model only when the agent explicitly binds the provider', () => {
     expect(resolvePipelineRequestProfile({
       layer: 'volumes',
-      layerProviderId: 'provider-layer',
+      layerProviderId: null,
       globalProviderId: 'provider-global',
       agent: { providerId: 'provider-agent', model: 'agent-model' },
       getProvider,
@@ -234,10 +236,10 @@ describe('pipelineProviderChannels', () => {
     })
   })
 
-  it('marks an explicit model unsupported when the provider declares a model list', () => {
+  it('marks an agent model unsupported when the agent provider resolves the channel', () => {
     expect(resolvePipelineRequestProfile({
       layer: 'body',
-      layerProviderId: 'provider-layer',
+      layerProviderId: null,
       globalProviderId: 'provider-global',
       agent: { providerId: 'provider-agent', model: 'unknown-model' },
       getProvider,

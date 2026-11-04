@@ -177,6 +177,7 @@ import {
   type PhysicalCallEvent,
   type ProviderQueueEvent,
 } from '../../services/aiService'
+import { projectPhysicalCallEvent } from '../../services/physicalCallTraceProjection'
 import { extractJsonCandidates } from '../../services/jsonExtraction'
 import { createIntentLlmFallback } from '../../services/intentLlmFallback'
 import {
@@ -928,36 +929,7 @@ function closeActiveHomeApiCall(status: RunTraceStatus, error?: string) {
 
 function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallEvent) {
   if (!homeRunTraceId || !callId) return
-  runTraceStore.appendPhysicalCall(homeRunTraceId, callId, {
-    physicalCallId: event.physicalCallId,
-    phase: event.phase,
-    status: event.status,
-    requestMessages: event.requestMessages.map(m => ({ role: m.role, content: String(m.content || '') })),
-    responseText: event.responseText,
-    streamText: event.streamText,
-    reasoningText: event.reasoningText,
-    finishReason: event.finishReason,
-    usage: event.usage,
-    usageUnavailable: event.usageUnavailable,
-    durationMs: event.durationMs,
-    error: event.error,
-    toolsEnabled: event.toolsEnabled,
-    toolsDowngraded: event.toolsDowngraded,
-    downgradeReason: event.downgradeReason,
-    retryStrategy: event.retryStrategy,
-    maxTokens: event.maxTokens,
-    modelCapability: event.modelCapability,
-    providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
-    estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
-    contextBudgetDecision: event.contextBudget?.decision,
-    contextBudgetReason: event.contextBudget?.reason,
-    usageReconciliation: event.usageReconciliation,
-    interruptionCode: event.interruptionCode,
-    contextCompactedMessageCount: event.contextCompactedMessageCount,
-    heartbeat: event.heartbeat,
-    toolCallCount: event.toolCallCount,
-    toolCallNames: event.toolCallNames,
-  })
+  runTraceStore.appendPhysicalCall(homeRunTraceId, callId, projectPhysicalCallEvent(event))
 }
 
 function recordHomeProviderQueue(callId: string | undefined, event: ProviderQueueEvent) {

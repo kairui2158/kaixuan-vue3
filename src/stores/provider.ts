@@ -153,6 +153,28 @@ async function saveProviders() {
     saveProviders()
   }
 
+  function upsertProvider(provider: Provider, options: { preserveRuntimeState?: boolean } = {}) {
+    const imported = { ...provider }
+    normalizeContextWindow(imported)
+    const idx = providers.value.findIndex(p => p.id === imported.id)
+    if (idx >= 0) {
+      const current = providers.value[idx]
+      const replacement = options.preserveRuntimeState
+        ? {
+          ...current,
+          ...imported,
+          models: imported.models && imported.models.length > 0
+            ? [...imported.models]
+            : [...(current.models || [])],
+        }
+        : imported
+      providers.value[idx] = replacement
+    } else {
+      providers.value.push(imported)
+    }
+    saveProviders()
+  }
+
   function updateProvider(id: string, data: Partial<Provider>) {
     const idx = providers.value.findIndex(p => p.id === id)
     if (idx >= 0) {
@@ -254,7 +276,7 @@ function getActiveProviders(): Provider[] {
   return {
     providers, generateProvider, verifyProvider, detectProvider, pipelineLayerProviders,
     activeGenerateProvider, activeVerifyProvider, activeDetectProvider,
-    loadProviders, saveProviders, addProvider, updateProvider,
+    loadProviders, saveProviders, addProvider, upsertProvider, updateProvider,
     removeProvider, setGenerateProvider, setVerifyProvider, setDetectProvider,
     setPipelineLayerProvider, clearPipelineLayersForProvider, fetchModels,
     testConnection, getProvider, preferredGenerateProvider,

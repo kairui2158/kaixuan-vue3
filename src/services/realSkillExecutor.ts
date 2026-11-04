@@ -1042,7 +1042,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           }
           return (await aiService.callAi({
             purpose: options.purpose || 'rewrite',
-            providerId: agent?.providerId || options.providerId || undefined,
+            providerId: options.providerId || agent?.providerId || undefined,
             messages,
             // Keep the caller's stream contract. Leaving undefined lets
             // aiService apply its purpose-based generate/rewrite default.
@@ -1071,9 +1071,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           model: resolvedProviderModel,
           contextComposition: options.contextLayer
             ? {
-              layer: options.contextLayer,
+            layer: options.contextLayer,
               step: passIndex,
-              providerId: agent?.providerId || options.providerId || undefined,
+              providerId: options.providerId || agent?.providerId || undefined,
               model: resolvedProviderModel,
               // Phase 0 observes composition only. System prompts are
               // known-stable candidates; user prompts stay fully variable.
@@ -1098,7 +1098,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             skillId: pkg.id,
             agentId: agent?.id,
             step: attempt,
-            providerSource: agent?.providerId ? 'agent' : options.providerSource,
+            providerSource: options.providerId
+              ? options.providerSource
+              : (agent?.providerId ? 'agent' : undefined),
             modelSource: options.providerModelSource
           },
             ...(options.tools?.length
