@@ -2,7 +2,7 @@
 
 ## 目标
 
-用户核心要求是让生成流水线四层绑定供应商与全局能力同等真实：`settings / volumes / chapters / body` 任一层绑定后，该层全部生成请求必须由层绑定支配，Agent 只能在无层绑定时作为次级来源，最后才允许全局生成供应商；失效时不静默回退。本次已按 `PROPOSAL_2026-11-04_PIPELINE_LAYER_PROVIDER_SEMANTICS_REPAIR.md` 完成实施与验证，版本升级 3.113.0。
+用户核心要求是让生成流水线四层绑定供应商与全局能力同等真实：`settings / volumes / chapters / body` 任一层绑定后，该层全部生成请求必须由层绑定支配，Agent 只能在无层绑定时作为次级来源，最后才允许全局生成供应商；失效时不静默回退。本次已按 `PROPOSAL_2026-11-04_PIPELINE_LAYER_PROVIDER_SEMANTICS_REPAIR.md` 完成实施与验证，版本升级 3.114.0。
 
 ## 交付
 
@@ -36,6 +36,16 @@
 - 本轮 Electron 证据为真实 UI 与 mock 四层供应商请求，不声明真实供应商内容质量。
 - 不做负载均衡、健康切换、自动回退或额外 preflight。
 - 经验文件无需本轮变更：type-check 先于 build 已由 v10 G1.4 覆盖。
+
+## 3.114.0 升版封装（2026-11-04 收口）
+
+3.113.0 安装包构建于 11:53:01，早于最终收口验证，未包含三条溯源修复与测试适配。为避免发布产物滞后于功能状态，本轮仅同步版本号与文档，不改功能代码；功能面仍为 HEAD `943b903e` 的分层供应商溯源修复与 HEAD 回归修因。
+
+- 版本同步：`package.json:3`、`package-lock.json:3` 与 `package-lock.json:9` 均为 `3.114.0`。
+- 防御性检查：`node --check electron/preload.js` 通过；本轮未修改 preload 与 IPC。
+- 验证矩阵：`npx vue-tsc --noEmit` exit 0；`npx vitest run` `Test Files 247 passed (247)`、`Tests 2653 passed (2653)`；`npm run build` exit 0。
+- 产物核验：`npm run verify:packaging` 输出 `PACKAGING 3.114.0 VERIFICATION PASSED`；安装包 `dist/神意助手-Setup-3.114.0.exe`，字节数 `231662990`，SHA-256 `f73c6a0c9a9483ab398eec8d50fd8c63cfa3bf96a3edff89e7401b081d1abf7b`，renderer files `87`，electronAPI methods `94`。
+- 旧产物清理：删除早于收口的 `dist/神意助手-Setup-3.113.0.exe` 与同名 blockmap，复核后仅保留本次 3.114.0 与 ACL 锁定的 3.110.6 历史产物。
 
 ## 回归修因（2026-11-04 收口）
 

@@ -111,6 +111,19 @@
 - `npm run verify:packaging` 输出 `PACKAGING 3.113.0 VERIFICATION PASSED`；安装包 `dist\神意助手-Setup-3.113.0.exe`，字节数 `231664620`，SHA-256 `a1d22e8f7672e8f48701f26f006a7ee6be191bf24c1b0eb63b35b1ac88131aab`；renderer files `87`，electronAPI methods `94`。
 - 已清理 `dist\神意助手-Setup-3.112.0.exe` 与同名 blockmap；`3.110.6` 历史产物按既有边界保留。
 
+### 2026-11-04 3.114.0 最终封装与产物核验
+
+3.113.0 包早于 HEAD 回归修因与三条 UI 溯源补强，按最终交付口径重新升版封装。
+
+- `package.json:3` 与 `package-lock.json:3,9` 同步 `3.114.0`。
+- `node --check electron/preload.js` exit 0。
+- `npx vue-tsc --noEmit` exit 0。
+- `npx vitest run` → `Test Files 247 passed (247)`，`Tests 2653 passed (2653)`。
+- `npm run build` exit 0。
+- `npm run verify:packaging` → `PACKAGING 3.114.0 VERIFICATION PASSED`；产物路径、字节数、SHA-256 与 asar version 见后续哈希行。
+- 产物：`dist\神意助手-Setup-3.114.0.exe`，字节数 `231662990`，SHA-256 `f73c6a0c9a9483ab398eec8d50fd8c63cfa3bf96a3edff89e7401b081d1abf7b`；renderer files `87`，electronAPI methods `94`；证据 `_audit/verification-packaging-3.114.0/packaging-evidence.json`。
+- 清理：`dist\神意助手-Setup-3.113.0.exe` 与 `dist\神意助手-Setup-3.113.0.exe.blockmap` 已删除；ACL 锁定的 `3.110.6` 按既有边界保留。
+
 ### 2026-11-04 回头看缺口闭环
 
 1. 缺口 1 已补：真实 Electron UI 验证新增导入同 ID upsert、生成探针、运行记录层绑定来源三条 DOM 断言。复跑输出 `[PASS] layer provider UI, persistence, warnings, and routing verified; mode=mock-four-layer-providers; requests=6`。

@@ -1723,10 +1723,10 @@
 - 验证：定向 6 files / 324 tests passed；全量 247 files / 2649 tests passed；type-check、build:vue、git diff --check 通过；旧 schema 20 残留 0 匹配。
 - 边界：真实外部供应商错误形态保持 `untested`；不升版、不封装、不提交 git；不做供应商 preflight、健康系统、自动切换或重试策略变更。
 
-# 2026-11-04 生成流水线分层供应商语义修复 3.113.0
+# 2026-11-04 生成流水线分层供应商语义修复 3.114.0
 
 - 文件：[_audit/DEV_LOG_2026-11-04_pipeline-layer-provider-semantics-repair.md](_audit/DEV_LOG_2026-11-04_pipeline-layer-provider-semantics-repair.md)
 - 台账：[_audit/TASK_LEDGERS/2026-11-04_PIPELINE_LAYER_PROVIDER_SEMANTICS_REPAIR.md](_audit/TASK_LEDGERS/2026-11-04_PIPELINE_LAYER_PROVIDER_SEMANTICS_REPAIR.md)
-- 交付：流水线层绑定供应商裁决固定为 `layer > agent > global`；Agent 不再覆盖层绑定；辅助记忆外呼声明 `providerSource: auxiliary`；trace、api call、物理请求三面同源；版本升级 3.113.0。
-- 验证：`build:vue` exit 0；真实 Electron 分层通道验证 `[PASS] ... requests=4`；type-check exit 0；全量回归通过；打包核验与安装包哈希见台账执行后补充证据。
+- 交付：流水线层绑定供应商裁决固定为 `layer > agent > global`；Agent 不再覆盖层绑定；辅助记忆外呼声明 `providerSource: auxiliary`；trace、api call、物理请求三面同源；HEAD 回归修因与三条真实 UI 溯源断言后版本升级 3.114.0。
+- 验证：`build:vue` exit 0；真实 Electron 分层通道验证 `[PASS] ... requests=6`；type-check exit 0；全量回归 `247 files / 2653 tests` 通过；`verify:packaging` 与安装包哈希见台账 3.114.0 封装章节。
 - 边界：真实 UI/Electron 使用 mock 四层供应商；不声明真实供应商内容质量；不做负载均衡、健康切换、自动回退或额外 preflight。
