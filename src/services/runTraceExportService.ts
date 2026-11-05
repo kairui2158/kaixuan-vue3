@@ -186,6 +186,9 @@ export function exportRunTraceToText(run: RunTrace): string {
         `--- ${promptSnapshot.id} ---`,
         `技能：${promptSnapshot.skillName || promptSnapshot.skillId || '-'}`,
         `模式：${promptSnapshot.mode || '-'}`,
+        `目录指纹：${promptSnapshot.folderFingerprint?.length
+          ? promptSnapshot.folderFingerprint.map(item => `${item.file}:${item.hash}`).join(', ')
+          : '-'}`,
         `构建时间：${formatRunTraceTime(promptSnapshot.builtAt)}`
       )
       promptSnapshot.finalMessages.forEach(message => {

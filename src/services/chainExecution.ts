@@ -160,7 +160,7 @@ function formatFinalStepLedger(entries: Array<[string, unknown]>): string {
     let text: string
     if (key === 'extractedMeta' && Array.isArray(value)) {
       text = value.map(item => sanitizeFinalStepLedgerText(item)).filter(Boolean)
-        .map((item, index) => `- extractedMeta[${index}]: ${item}`)
+        .map((item, index) => `extractedMeta[${index}]: ${item}`)
         .join('\n')
     } else {
       text = `- ${key}: ${sanitizeFinalStepLedgerText(value)}`
@@ -181,7 +181,7 @@ function formatFinalStepLedger(entries: Array<[string, unknown]>): string {
     total += text.length
   }
   const suffix = truncatedSections
-    ? `\n- ledger_limit: truncated=true,truncatedSections=${truncatedSections},truncatedChars=${truncatedChars}`
+    ? `\nledger_limit: truncated=true,truncatedSections=${truncatedSections},truncatedChars=${truncatedChars}`
     : ''
   return lines.join('\n') + suffix
 }
@@ -421,5 +421,65 @@ export function resolveFinalStepRole(input: {
     }
   }
   return { role: null, mode: 'summary', reason: 'unresolved', generatorStepIndex: distinctGeneratorIndexes.length === 1 ? distinctGeneratorIndexes[0] : null }
+}
+
+export type ResolvedBodyGeneratorStep = {
+  index: number | null
+  role: 'generator' | null
+  source: 'meta' | 'fallback' | 'compose' | 'previous_state' | 'unresolved'
+}
+
+type BodyGeneratorTemplateLike = {
+  id?: string
+  skill?: { meta?: unknown } | null
+  meta?: unknown
+}
+
+/**
+ * Single source for "which chain step owns the body contract". Folder meta
+ * declaration wins; otherwise the deterministic penultimate-step selector from
+ * the legacy 3-skill chain applies. Chains with 2 or fewer steps have no
+ * safe inference and stay unresolved so callers can surface a configuration
+ * error instead of guessing.
+ */
+export function resolveBodyGeneratorStepIndex(
+  templates: BodyGeneratorTemplateLike[]
+): ResolvedBodyGeneratorStep {
+  const totalSteps = templates.length
+  const declaredIndex = templates.findIndex(template => {
+    const skillMeta = template.skill?.meta
+    const meta = (skillMeta && typeof skillMeta === 'object' ? skillMeta : null)
+      || (template.meta && typeof template.meta === 'object' ? template.meta : null)
+    const role = (meta as { chainHandoff?: { role?: unknown } } | null)?.chainHandoff?.role
+    return role === 'generator'
+  })
+  if (declaredIndex > 0) {
+    return { index: declaredIndex, role: 'generator', source: 'meta' }
+  }
+  if (totalSteps > 2) {
+    return { index: totalSteps - 2, role: 'generator', source: 'fallback' }
+  }
+  return { index: null, role: null, source: 'unresolved' }
+}
+
+/**
+ * Restores the per-run generator index at every attempt start. The per-attempt
+ * state clear must never erase the chain-level fact; the previous value is
+ * trusted only when it still matches the resolved chain truth.
+ */
+export function resolveAttemptStartGeneratorIndex(input: {
+  chainTotalSteps: number
+  composeArtifactActive: boolean
+  previousState: number | null
+}): ResolvedBodyGeneratorStep {
+  if (input.composeArtifactActive) {
+    return { index: 0, role: 'generator', source: 'compose' }
+  }
+  const templates = Array.from({ length: Math.max(0, input.chainTotalSteps) }, (_, i) => ({ id: `step-${i}` }))
+  const resolved = resolveBodyGeneratorStepIndex(templates)
+  if (resolved.index !== null && input.previousState !== null && input.previousState === resolved.index) {
+    return { ...resolved, source: 'previous_state' }
+  }
+  return resolved
 }
 import { resolveProseWordContract } from './proseWordContract'

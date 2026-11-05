@@ -13,7 +13,7 @@ const acceptanceSource = readFileSync(
 
 describe('final step metadata fidelity wiring', () => {
   it('resolves the final step from a single chain-level rule', () => {
-    expect(source).toContain('import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepEchoRole, resolveFinalStepRole }')
+    expect(source).toContain('import { bodyGeneratorContractSentence, isBodyContractStep, resolveAttemptStartGeneratorIndex, resolveBodyGeneratorStepIndex, resolveFinalStepEchoRole, resolveFinalStepRole }')
     expect(source).toContain('const finalStepRole = bodyStepContext')
     expect(source).toContain('resolveFinalStepRole({')
     expect(source).toContain("const finalStepMetadataMode = finalStepRole?.mode === 'final_step_ledger'")

@@ -44,9 +44,15 @@ describe('owner breakpoint lifecycle closure wiring', () => {
   })
 
   it('passes the orchestrator execution plan into every body API call', () => {
-    expect(source).toContain('const generatorStep = resolveBodyGeneratorStepIndex()')
+    expect(source).toContain('const generatorStep = resolveBodyGeneratorStepIndex(getStepSkillTemplates(4))')
     expect(source).toContain('totalSteps: getStepSkillTemplates(4).length')
     expect(source).toContain('context.executionPlan')
+  })
+
+  it('restores the generator index at every attempt start instead of clearing it to null', () => {
+    expect(source).toContain('resolveAttemptStartGeneratorIndex({')
+    expect(source).toContain('chainTotalSteps: bodyChainTotalSteps')
+    expect(source).not.toContain('acceptanceState.bodyGeneratorStepIndex = null')
   })
 
   it('keeps successful body step outputs alive for targeted repair attempts', () => {

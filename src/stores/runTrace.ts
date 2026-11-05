@@ -1022,6 +1022,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   'deai-change-rate',
   'deai-style-drift',
   'deai-quality-gate-degraded',
+  'body-generator-step-resume-restored',
   'runtime-fingerprint-missing',
 ])
   // Bounded renderer memory for a single run. requestMessages are already

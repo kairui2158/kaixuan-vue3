@@ -8,6 +8,8 @@ import {
   formatMemoryPrompt,
   getChainEchoWarningLevel,
   isBodyContractStep,
+  resolveAttemptStartGeneratorIndex,
+  resolveBodyGeneratorStepIndex,
   resolveFinalStepEchoRole,
   resolveFinalStepRole,
   bodyGeneratorContractSentence,
@@ -148,7 +150,8 @@ describe("body chain execution contract", () => {
     })
 
     expect(finalPrompt).toContain("truncated=true")
-    expect(finalPrompt).toMatch(/- extractedMeta\[\d+\]:/)
+    expect(finalPrompt).toMatch(/extractedMeta\[\d+\]:/)
+    expect(finalPrompt).not.toMatch(/^- extractedMeta/m)
     expect(finalPrompt.length).toBeLessThan(16000)
   })
 
@@ -302,6 +305,42 @@ describe("body chain execution contract", () => {
       totalSteps: 2,
       declaredRole: 'analysis'
     })).toBe(false)
+  })
+
+  it("resolves the body generator step index from declared meta, then falls back to the penultimate step", () => {
+    const declared = resolveBodyGeneratorStepIndex([
+      { id: "s1" },
+      { id: "s2", meta: { chainHandoff: { role: "generator" } } },
+      { id: "s3", meta: { chainHandoff: { role: "polish" } } }
+    ])
+    expect(declared).toEqual({ index: 1, role: "generator", source: "meta" })
+
+    const fallback = resolveBodyGeneratorStepIndex([{ id: "s1" }, { id: "s2" }, { id: "s3" }])
+    expect(fallback).toEqual({ index: 1, role: "generator", source: "fallback" })
+
+    const tooShort = resolveBodyGeneratorStepIndex([{ id: "only" }])
+    expect(tooShort).toEqual({ index: null, role: null, source: "unresolved" })
+    expect(resolveBodyGeneratorStepIndex([]).index).toBeNull()
+  })
+
+  it("restores the attempt-start generator index for every run-state entry point", () => {
+    // Breakpoint resume at S3: the per-attempt clear must not erase the
+    // single-generator fact that the folder meta already declares.
+    expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 3, composeArtifactActive: false, previousState: null }))
+      .toEqual({ index: 1, role: "generator", source: "fallback" })
+    expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 3, composeArtifactActive: false, previousState: 1 }))
+      .toEqual({ index: 1, role: "generator", source: "previous_state" })
+    expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 3, composeArtifactActive: false, previousState: 2 }))
+      .toEqual({ index: 1, role: "generator", source: "fallback" })
+    // Compose single-call path keeps the first-class index 0 semantics.
+    expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 1, composeArtifactActive: true, previousState: null }))
+      .toEqual({ index: 0, role: "generator", source: "compose" })
+    // Two-step chain without meta stays unresolved: the caller surfaces the
+    // existing explicit generator_not_identified error instead of guessing.
+    expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 2, composeArtifactActive: false, previousState: null }))
+      .toEqual({ index: null, role: null, source: "unresolved" })
+    expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 1, composeArtifactActive: false, previousState: null }))
+      .toEqual({ index: null, role: null, source: "unresolved" })
   })
 
   it("renders one deterministic body contract sentence without a body-only directive", () => {

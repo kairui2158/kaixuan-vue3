@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { exportRunTraceToJson, exportRunTraceToText } from './runTraceExportService'
 import type { RunTrace, RunTracePhysicalCall } from '../stores/runTrace'
+import type { RunTracePromptSnapshot } from '../stores/runTrace'
 
 function makeRun(overrides: Partial<RunTrace> = {}): RunTrace {
   return {
@@ -157,5 +158,27 @@ describe('run trace export service', () => {
     expect(text).toContain('供应商错误：Invalid API key ***MASKED***')
     expect(text).toContain('最终URL：https://api.example.com/v1/chat/completions?key=***MASKED***')
     expect(text).toContain('传输通道：renderer-fetch')
+  })
+
+  it('exports folder fingerprint in prompt snapshot text output', () => {
+    const run = makeRun({
+      promptSnapshots: [{
+        id: 'snapshot-1',
+        apiCallId: 'call-1',
+        skillId: 'kaixuan-s2',
+        skillName: '正文 S2',
+        mode: 'folder-fingerprint',
+        builtAt: 1,
+        folderFingerprint: [{ file: 'kaixuan-s2/script.js', hash: 'abc123', mtime: 1, bytes: 128 }],
+        contextBlocks: [],
+        finalMessages: [{ role: 'user', content: '生成正文' }]
+      } as unknown as RunTracePromptSnapshot]
+    })
+
+    const text = exportRunTraceToText(run)
+
+    expect(text).toContain('===== 提示词快照 =====')
+    expect(text).toContain('模式：folder-fingerprint')
+    expect(text).toContain('目录指纹：kaixuan-s2/script.js:abc123')
   })
 })

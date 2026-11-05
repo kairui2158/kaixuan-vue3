@@ -837,7 +837,7 @@ import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateO
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import type { ChainBreakpointStepOutput } from "../../services/chainBreakpoint"
-import { bodyGeneratorContractSentence, isBodyContractStep, resolveFinalStepEchoRole, resolveFinalStepRole } from "../../services/chainExecution"
+import { bodyGeneratorContractSentence, isBodyContractStep, resolveAttemptStartGeneratorIndex, resolveBodyGeneratorStepIndex, resolveFinalStepEchoRole, resolveFinalStepRole } from "../../services/chainExecution"
 import type { ProtectedBodyContract } from "../../services/protectedSkillContract"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
@@ -1413,10 +1413,6 @@ function rememberBodyStepAcceptance(
 
 function bodyStepAcceptanceForRun(runId: string | null | undefined): StepArtifactAcceptanceResult[] {
   return perRunUi(runId)?.bodyStepAcceptance || []
-}
-
-function resetPerRunUi(runId: string | null | undefined) {
-  if (runId) perRunGenerationUi.delete(runId)
 }
 
 function isPipelineRunTerminal(runId: string): boolean {
@@ -3263,6 +3259,17 @@ async function callValidatedSkill(
           deaiPromptVariant: deaiVariant !== 'off' ? deaiVariant : undefined
         })
         : ''
+      if (probe.package.fingerprint?.length && traceRunId && traceCallId) {
+        runTraceStore.attachPromptSnapshot(traceRunId, {
+          apiCallId: traceCallId,
+          skillId: template.id,
+          skillName: template.name,
+          mode: 'folder-fingerprint',
+          folderFingerprint: probe.package.fingerprint,
+          contextBlocks: [],
+          finalMessages: [{ role: 'user', content: prompt }]
+        })
+      }
       logDeaiVariant()
       if (traceRunId) {
         runTraceStore.addEvent(traceRunId, {
@@ -4434,7 +4441,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     }
     let authoritativeGeneratorMetadata: Record<string, unknown> | null = null
     if (step === 4) {
-      const persistedGeneratorIndex = resolveBodyGeneratorStepIndex().index
+      const persistedGeneratorIndex = resolveBodyGeneratorStepIndex(templates).index
       authoritativeGeneratorMetadata = persistedGeneratorIndex === null
         ? null
         : completedStepOutputs.find(output => output.skillIndex === persistedGeneratorIndex)?.metadata || null
@@ -5671,21 +5678,6 @@ async function genSettings() {
   }
 }
 
-function resolveBodyGeneratorStepIndex(): { index: number | null; role: 'generator' | null } {
-  const templates = getStepSkillTemplates(4)
-  const totalSteps = templates.length
-  const generatorIndex = templates.findIndex(template => {
-    const meta = readChainHandoffMeta(template.skill) ||
-      ((template as HydratedFolderMeta).meta && typeof (template as HydratedFolderMeta).meta === 'object'
-        ? (template as HydratedFolderMeta).meta as ChainHandoffTemplateMeta
-        : null)
-    return meta?.chainHandoff?.role === 'generator'
-  })
-  if (generatorIndex > 0) return { index: generatorIndex, role: 'generator' }
-  if (totalSteps > 2) return { index: totalSteps - 2, role: 'generator' }
-  return { index: null, role: null }
-}
-
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
   // 新项目会从大纲自动生成占位卷；占位卷没有纲要/摘要，不能作为上一卷记忆。
@@ -6372,7 +6364,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       targetWords: _bodyWordsPerChapter
     }
     perRunUi(bodyRunId)!.bodyChainContract = bodyChainContract
-    const generatorStep = resolveBodyGeneratorStepIndex()
+    const generatorStep = resolveBodyGeneratorStepIndex(getStepSkillTemplates(4))
     let previousBodyStepOutputs: ChainBreakpointStepOutput[] = []
     const bodyAttemptMetadataState = {
       authoritativeGeneratorMetadata: null as Record<string, unknown> | null,
@@ -6402,6 +6394,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           const bodyApiStarted = pipelineBodyRunId ? runTraceStore.getRun(trace.runId!) : null
           const bodyApiCallsAtStart = bodyApiStarted?.apiCalls.length ?? 0
           const bodyApiEventsAtStart = bodyApiStarted?.events.length ?? 0
+          const bodyChainTotalSteps = getStepSkillTemplates(4).length
           if (context.chapterId !== generationTargetSnapshot.chapterId) {
             return Promise.reject(new Error('正文目标已变化，本次生成终止'))
           }
@@ -6410,8 +6403,28 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           if (acceptanceState) {
             acceptanceState.bodyStepAcceptance = []
             acceptanceState.bodyFinalStepMetadata = null
-            acceptanceState.bodyGeneratorStepIndex = null
+            const previousGeneratorIndex = acceptanceState.bodyGeneratorStepIndex ?? null
+            const attemptStartIndex = resolveAttemptStartGeneratorIndex({
+              chainTotalSteps: bodyChainTotalSteps,
+              composeArtifactActive: false,
+              previousState: previousGeneratorIndex
+            })
+            acceptanceState.bodyGeneratorStepIndex = attemptStartIndex.index
+            if (trace.runId && attemptStartIndex.index !== null && previousGeneratorIndex === null) {
+              runTraceStore.addEvent(trace.runId, {
+                type: 'body-generator-step-resume-restored',
+                level: 'info',
+                label: '正文生成步索引已恢复',
+                detail: JSON.stringify({
+                  index: attemptStartIndex.index,
+                  source: attemptStartIndex.source,
+                  chainTotalSteps: bodyChainTotalSteps
+                })
+              })
+            }
             acceptanceState.deaiStageDiagnosis = null
+            acceptanceState.deaiSkillReport = null
+            acceptanceState.deaiSkillReportExporting = false
           }
           const executionPlan = {
           ...context.executionPlan,
@@ -6430,7 +6443,6 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         }
         bodyAttemptMetadataState.authoritativeGeneratorMetadata = null
         bodyAttemptMetadataState.finalStepFlow = null
-        const bodyChainTotalSteps = getStepSkillTemplates(4).length
         if (bodyChainTotalSteps > 1 && !bodyChainContract) {
           throw new Error('正文链缺少契约：多步正文链必须在生成前提供正文契约')
         }
@@ -6735,6 +6747,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     trace.addEvent({ type: "failed", level: "error", label: "正文运行失败", detail: e.message || "未知错误" })
   } finally {
     const outcome = traceOutcomeFromRun(trace.runId!, bodyArtifactDelivered)
+    hardSignalUnresolvedRuns.delete(trace.runId!)
     if (bodyArtifactDelivered && outcome.recoveredFromDegraded) {
       trace.addEvent({
         type: "body-artifact-recovered",

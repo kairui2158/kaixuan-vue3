@@ -1761,3 +1761,11 @@
 - 交付：工作台 run meta 保留 `blockingGateFailed`；chain/compose 透传到 body 产物验收；无契约 folder blocking 终态收敛为 `blocked/post-process-blocked`。跨层审计反转“failed/blocked 静默放行”假设：路由层已抛错，真实缺口是 degraded 证据丢失和 verdict 未透传。
 - 验证：`npm run type-check` exit 0；定向 `workspaceArtifactAcceptance/workspaceSkillEngine/realSkillExecutor/stepArtifactAcceptance` 4 files / 146 tests 全绿；新增工作台 body 契约与 chain 终态负向用例。
 - 边界：工作台 folder blocking 未做真实 Electron live E2E；复合链 `degraded + no_contract` 已拒绝未重复接线；卷纲/章节/设定批次链无 folder blocking 通路，不预建防线。
+
+# 2026-11-06 正文层断点状态机 V2
+
+- 文件：[_audit/DEV_LOG_2026-11-06_body-breakpoint-state-v2.md](_audit/DEV_LOG_2026-11-06_body-breakpoint-state-v2.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-06_body-breakpoint-state-v2.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-06_body-breakpoint-state-v2.md)
+- 交付：attempt 起点恢复 bodyGeneratorStepIndex；三入口迁入 chainExecution 单源；终态清理 hard signal；删除死代码；wiring 测试升级为行为矩阵并禁止旧清空语义；S3 直跑拒绝已完结链检查点。
+- 验证：定向 4 files / 173 tests passed；全量 247 files / 2665 tests passed；type-check、build:vue 与 Electron 回归 exit 0；Electron 关键证据 completedCheckpointRejected=true、targetedGeneratorStep=true、attempt 0 失败转 attempt 1 targeted complete。
+- 边界：真实外部供应商不重复调用，不声明内容质量；3.114.3 发布证据由封装台账接续。

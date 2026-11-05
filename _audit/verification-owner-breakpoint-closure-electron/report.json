@@ -1,9 +1,9 @@
 {
   "schema": "shenyi.owner-breakpoint-closure.electron",
   "version": 1,
-  "generatedAt": "2026-10-26T18:56:48.534Z",
+  "generatedAt": "2026-11-05T22:20:42.983Z",
   "script": "verify-owner-breakpoint-closure-electron.mjs",
-  "runId": "run-1793041007075-1",
+  "runId": "run-1793917241497-1",
   "status": "success",
   "requestCount": 5,
   "targetedRequestCount": 2,
@@ -29,12 +29,13 @@
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "8c5a3038b296",
-    "buildTime": "2026-10-26T18:54:26.923Z"
+    "commit": "3c55cecc63f9",
+    "buildTime": "2026-11-05T22:19:54.146Z",
+    "appVersion": "3.114.2"
   },
   "generationStepFingerprint": {
     "physicalRequests": 5
   },
-  "heartbeatFrames": 4,
-  "heartbeatDurationMs": 3513
+  "heartbeatFrames": 3,
+  "heartbeatDurationMs": 2631
 }

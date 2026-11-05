@@ -1,4 +1,3 @@
-{"at":"2026-10-26T18:56:44.744Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":42932,"frame":1}
-{"at":"2026-10-26T18:56:45.771Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":42932,"frame":2}
-{"at":"2026-10-26T18:56:46.826Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":42932,"frame":3}
-{"at":"2026-10-26T18:56:47.861Z","runId":"run-1793041007075-1","runStatus":"success","lastEventType":"state-transition","progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":42932,"frame":4}
+{"at":"2026-11-05T22:20:39.996Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":60696,"frame":1}
+{"at":"2026-11-05T22:20:41.006Z","runId":null,"runStatus":null,"lastEventType":null,"progress":null,"status":null,"pipelineRunStatus":null,"isGenerating":false,"electronPid":60696,"frame":2}
+{"at":"2026-11-05T22:20:42.038Z","runId":"run-1793917241497-1","runStatus":"running","lastEventType":"chain-handoff","progress":20,"status":"已获得供应商槽位，正在请求供应商","pipelineRunStatus":"running","isGenerating":true,"electronPid":60696,"frame":3}
