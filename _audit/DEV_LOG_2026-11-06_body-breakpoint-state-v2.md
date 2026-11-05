@@ -28,3 +28,14 @@
 - Electron 回归使用内置 mock 供应商，不声明真实外部供应商内容质量。
 - PowerShell 控制台显示 trace 中文存在 GBK 观测失真；UTF-8 字节与 JSON 结构正常。
 - 3.114.3 封装与发布证据见封装台账。
+
+## 迭代收尾（2026-11-06）
+
+- 台账 6.4 补齐 3.114.3 封装证据（SHA256 2923a6...ea96、verdict pass），7 节闭环为"本轮无登记缺口"。
+- dist 旧产物清理：3.114.2 系列与构建元数据移入 `_audit/retired-installers/`（已加入 .gitignore）；`3.110.6.exe` 文件系统锁死无法删除，历史会话证实 10-28 构建当日即 Access denied，登记为遗留边界。
+- Electron 回归路由状态修正：G1.13 从"未激活"更新为"已激活"，与 report.json `completedCheckpointRejected=true` 对齐。
+- 事故发现与修复：`DEV_LOG_MASTER_INDEX.md` 被覆盖写入删掉约 1390 行历史索引，从 git HEAD 恢复后追加本轮条目（1765-1773 行）。
+- 经验文件升级 v10.1.0：
+  - G1.12 新增产物锁定证据链与 Move 隔离 .gitignore 门禁。
+  - G1.27 新增长期累积文件追加写门禁（禁止 Set-Content 覆盖、写入后行数对比、P0 观测断层定级）。
+- 提交：d594d7a7 fix(pipeline): restore body generator step index on attempt start（23 files, +1699/-585）。
