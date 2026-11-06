@@ -2,8 +2,8 @@ $ErrorActionPreference = 'Stop'
 $workspace = (Resolve-Path -LiteralPath '.').Path
 $dist = Join-Path $workspace 'dist'
 $obsolete = @(
-  (Join-Path $dist '神意助手-Setup-3.108.1.exe'),
-  (Join-Path $dist '神意助手-Setup-3.108.1.exe.blockmap')
+  (Join-Path $dist '神意助手-Setup-3.114.3.exe'),
+  (Join-Path $dist '神意助手-Setup-3.114.3.exe.blockmap')
 )
 
 foreach ($target in $obsolete) {

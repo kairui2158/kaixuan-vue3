@@ -1,5 +1,5 @@
 {
-  "id": "run-1793771162088-30",
+  "id": "run-1793955594441-30",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 3,
@@ -13,36 +13,36 @@
   "model": "chapters-model",
   "skillNames": [],
   "skillMode": "compose",
-  "pipelineRunId": "pipeline-run-1793771162073-2",
+  "pipelineRunId": "pipeline-run-1793955594428-2",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "21e7f227352d",
-    "buildTime": "2026-11-04T04:57:29.425Z",
-    "appVersion": "3.113.0"
+    "commit": "8743ef9b753b",
+    "buildTime": "2026-11-06T08:58:28.543Z",
+    "appVersion": "3.114.3"
   },
-  "startedAt": 1793771162088,
+  "startedAt": 1793955594441,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "chapters_generation_complete",
-      "recordedAt": 1793771162233
+      "recordedAt": 1793955594628
     }
   ],
   "events": [
     {
-      "id": "event-1793771162088-31",
-      "ts": 1793771162088,
+      "id": "event-1793955594441-31",
+      "ts": 1793955594441,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 章节层运行"
     },
     {
-      "id": "event-1793771162145-32",
-      "ts": 1793771162145,
+      "id": "event-1793955594498-32",
+      "ts": 1793955594498,
       "seq": 2,
       "type": "prompt-built",
       "level": "info",
@@ -50,8 +50,8 @@
       "detail": "{\"volume\":\"第一卷 层通道\",\"totalChapters\":2,\"wordsPerChapter\":3500,\"resumeCount\":1}"
     },
     {
-      "id": "event-1793771162146-33",
-      "ts": 1793771162146,
+      "id": "event-1793955594498-33",
+      "ts": 1793955594498,
       "seq": 3,
       "type": "chapter-count-arbitration",
       "level": "info",
@@ -59,8 +59,8 @@
       "detail": "{\"totalChapters\":2,\"source\":\"configured_chapter_count\",\"configuredChapterCount\":2,\"wordEstimatedCount\":4,\"declaredChapterCount\":0,\"conflict\":false,\"message\":\"卷「第一卷 层通道」未声明章数，按应用配置2章执行\"}"
     },
     {
-      "id": "event-1793771162146-34",
-      "ts": 1793771162146,
+      "id": "event-1793955594499-34",
+      "ts": 1793955594499,
       "seq": 4,
       "type": "style-semantics-merged",
       "level": "info",
@@ -68,8 +68,8 @@
       "detail": "{\"layer\":\"chapter\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1793771162147-35",
-      "ts": 1793771162147,
+      "id": "event-1793955594500-35",
+      "ts": 1793955594500,
       "seq": 5,
       "type": "settings-projection-composed",
       "level": "info",
@@ -77,8 +77,8 @@
       "detail": "{\"layer\":\"chapter\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1793771162156-36",
-      "ts": 1793771162156,
+      "id": "event-1793955594514-36",
+      "ts": 1793955594514,
       "seq": 6,
       "type": "pipeline-request-profile-resolved",
       "level": "info",
@@ -86,8 +86,8 @@
       "detail": "{\"providerId\":\"provider-chapters\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"chapters-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"chapters\",\"step\":3}"
     },
     {
-      "id": "event-1793771162156-37",
-      "ts": 1793771162156,
+      "id": "event-1793955594514-37",
+      "ts": 1793955594514,
       "seq": 7,
       "type": "deai-injection-policy",
       "level": "info",
@@ -95,8 +95,8 @@
       "detail": "{\"step\":3,\"source\":\"app-default-no-skill-meta\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
     },
     {
-      "id": "event-1793771162156-38",
-      "ts": 1793771162156,
+      "id": "event-1793955594514-38",
+      "ts": 1793955594514,
       "seq": 8,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
@@ -104,8 +104,8 @@
       "detail": "{\"providerId\":\"provider-chapters\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"chapters-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"chapters\",\"step\":3}"
     },
     {
-      "id": "event-1793771162156-40",
-      "ts": 1793771162156,
+      "id": "event-1793955594514-40",
+      "ts": 1793955594514,
       "seq": 9,
       "type": "api-start",
       "level": "info",
@@ -113,8 +113,8 @@
       "detail": "{\"skillName\":\"compose\",\"model\":\"chapters-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1793771162157-42",
-      "ts": 1793771162157,
+      "id": "event-1793955594515-42",
+      "ts": 1793955594515,
       "seq": 10,
       "type": "run-activity",
       "level": "info",
@@ -126,50 +126,50 @@
       }
     },
     {
-      "id": "event-1793771162157-43",
-      "ts": 1793771162157,
+      "id": "event-1793955594515-43",
+      "ts": 1793955594515,
       "seq": 11,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1793771162156-41",
+        "physicalCallId": "physical-1793955594514-41",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1793771162157-44",
-      "ts": 1793771162157,
+      "id": "event-1793955594515-44",
+      "ts": 1793955594515,
       "seq": 12,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
-      "detail": "normal / compose / chapters-model / http://127.0.0.1:11705/v1/chat/completions / main-process"
+      "detail": "normal / compose / chapters-model / http://127.0.0.1:10592/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1793771162165-45",
-      "ts": 1793771162165,
+      "id": "event-1793955594524-45",
+      "ts": 1793955594524,
       "seq": 13,
-      "turnId": "api-1793771162156-39",
+      "turnId": "api-1793955594514-39",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"provider-chapters\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1793771162187-46",
-      "ts": 1793771162187,
+      "id": "event-1793955594550-46",
+      "ts": 1793955594550,
       "seq": 14,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
-      "detail": "normal / compose / chapters-model / stop / http://127.0.0.1:11705/v1/chat/completions / main-process"
+      "detail": "normal / compose / chapters-model / stop / http://127.0.0.1:10592/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1793771162187-47",
-      "ts": 1793771162187,
+      "id": "event-1793955594551-47",
+      "ts": 1793955594551,
       "seq": 15,
       "type": "run-activity",
       "level": "info",
@@ -181,8 +181,8 @@
       }
     },
     {
-      "id": "event-1793771162188-48",
-      "ts": 1793771162188,
+      "id": "event-1793955594551-48",
+      "ts": 1793955594551,
       "seq": 16,
       "type": "run-activity",
       "level": "info",
@@ -194,17 +194,17 @@
       }
     },
     {
-      "id": "event-1793771162189-49",
-      "ts": 1793771162189,
+      "id": "event-1793955594552-49",
+      "ts": 1793955594552,
       "seq": 17,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1793771162156-39 seq=1"
+      "detail": "apiCall=api-1793955594514-39 seq=1"
     },
     {
-      "id": "event-1793771162189-50",
-      "ts": 1793771162189,
+      "id": "event-1793955594552-50",
+      "ts": 1793955594552,
       "seq": 18,
       "type": "api-success",
       "level": "info",
@@ -212,8 +212,8 @@
       "detail": "compose / chapters-model"
     },
     {
-      "id": "event-1793771162198-51",
-      "ts": 1793771162198,
+      "id": "event-1793955594561-51",
+      "ts": 1793955594561,
       "seq": 19,
       "type": "chapter-batch-attempt",
       "level": "info",
@@ -221,8 +221,8 @@
       "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":1,\"errors\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1793771162218-52",
-      "ts": 1793771162218,
+      "id": "event-1793955594608-52",
+      "ts": 1793955594608,
       "seq": 20,
       "type": "chapter-batch-validated",
       "level": "info",
@@ -230,8 +230,8 @@
       "detail": "{\"batchIndex\":1,\"expectedStart\":2,\"expectedEnd\":2,\"requestedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
     },
     {
-      "id": "event-1793771162232-53",
-      "ts": 1793771162232,
+      "id": "event-1793955594628-53",
+      "ts": 1793955594628,
       "seq": 21,
       "type": "finished",
       "level": "info",
@@ -239,18 +239,18 @@
       "detail": "chapters_generation_complete"
     },
     {
-      "id": "event-1793771162233-54",
-      "ts": 1793771162233,
+      "id": "event-1793955594628-54",
+      "ts": 1793955594628,
       "seq": 22,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "chapters_generation_complete / run=run-1793771162088-30"
+      "detail": "chapters_generation_complete / run=run-1793955594441-30"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1793771162156-39",
+      "id": "api-1793955594514-39",
       "seq": 1,
       "step": 3,
       "skillId": "compose",
@@ -275,11 +275,11 @@
       "streamText": "[{\"title\":\"第2章 航线\",\"plot\":\"王芳确认纸条。\",\"summary\":\"确认纸条。\"}]",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1793771162156,
+      "startedAt": 1793955594514,
       "physicalCalls": [
         {
-          "id": "physical-1793771162156-41",
-          "physicalCallId": "physical-1793771162156-normal-0",
+          "id": "physical-1793955594514-41",
+          "physicalCallId": "physical-1793955594514-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -303,11 +303,11 @@
             "totalTokens": 15
           },
           "usageUnavailable": false,
-          "startedAt": 1793771162156,
-          "durationMs": 30,
-          "firstTokenMs": 27,
-          "outputMs": 3,
-          "endedAt": 1793771162187,
+          "startedAt": 1793955594514,
+          "durationMs": 36,
+          "firstTokenMs": 32,
+          "outputMs": 4,
+          "endedAt": 1793955594550,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "toolCallCount": 0,
@@ -332,9 +332,9 @@
             "driftRatio": -0.9122807017543859,
             "correctedRatio": 0.08771929824561403
           },
-          "firstContentAt": 1793771162183,
-          "lastContentAt": 1793771162183,
-          "finalUrl": "http://127.0.0.1:11705/v1/chat/completions",
+          "firstContentAt": 1793955594546,
+          "lastContentAt": 1793955594546,
+          "finalUrl": "http://127.0.0.1:10592/v1/chat/completions",
           "transport": "main-process",
           "providerSource": "layer",
           "cacheUsageSummary": {
@@ -359,20 +359,20 @@
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1793771162187,
+      "lastExecutionActivityAt": 1793955594551,
       "streamTotalChars": 55,
-      "lastStreamActivityAt": 1793771162187,
+      "lastStreamActivityAt": 1793955594551,
       "finishReason": "stop",
-      "durationMs": 29,
+      "durationMs": 34,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 30,
-        "firstTokenSumMs": 27,
-        "outputSumMs": 3,
-        "minFirstTokenMs": 27,
-        "maxFirstTokenMs": 27,
-        "localOverheadMs": -1
+        "physicalDurationSumMs": 36,
+        "firstTokenSumMs": 32,
+        "outputSumMs": 4,
+        "minFirstTokenMs": 32,
+        "maxFirstTokenMs": 32,
+        "localOverheadMs": -2
       },
       "usage": {
         "inputTokens": 10,
@@ -380,9 +380,9 @@
         "totalTokens": 15
       },
       "usageUnavailable": false,
-      "endedAt": 1793771162189,
+      "endedAt": 1793955594552,
       "semantic": {
-        "conversationId": "run-1793771162088-30",
+        "conversationId": "run-1793955594441-30",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 5,
@@ -403,17 +403,16 @@
   },
   "stepPhaseTiming": {
     "validation": 1,
-    "persistence": 19
+    "persistence": 45
   },
-  "dirName": "run-trace-章节层-20261104-134602",
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 30,
-    "firstTokenSumMs": 27,
-    "outputSumMs": 3,
-    "localOverheadSumMs": -1,
+    "physicalDurationSumMs": 36,
+    "firstTokenSumMs": 32,
+    "outputSumMs": 4,
+    "localOverheadSumMs": -2,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
@@ -426,15 +425,16 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 27,
-    "outputSumMs": 3,
+    "firstTokenSumMs": 32,
+    "outputSumMs": 4,
     "validationSumMs": 1,
-    "persistenceSumMs": 19,
+    "persistenceSumMs": 45,
     "repeatedPromptBlocks": {},
     "contextChars": 256,
     "outputChars": 55,
-    "physicalDurationSumMs": 30
+    "physicalDurationSumMs": 36
   },
-  "endedAt": 1793771162232,
-  "durationMs": 144
+  "endedAt": 1793955594628,
+  "durationMs": 187,
+  "dirName": "run-trace-章节层-20261106-165954"
 }

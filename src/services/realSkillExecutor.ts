@@ -603,31 +603,44 @@ function injectResolvedVariables(
   variables: Record<string, unknown> | undefined,
   diagnostics: RealSkillDiagnostic[]
 ): string {
+  const ignoredSpans: Array<{ start: number; end: number }> = []
+  const fencePattern = /(?:```|~~~)[\s\S]*?(?:```|~~~|$)/g
+  for (const match of folderTemplate.matchAll(fencePattern)) {
+    ignoredSpans.push({ start: match.index, end: match.index + match[0].length })
+  }
+  const inlinePattern = /`[^`\n]*`/g
+  for (const match of folderTemplate.matchAll(inlinePattern)) {
+    const start = match.index
+    const end = start + match[0].length
+    if (!ignoredSpans.some(span => start >= span.start && end <= span.end)) {
+      ignoredSpans.push({ start, end })
+  }
+  }
+  const isIgnoredLiteral = (index: number) => ignoredSpans.some(
+    span => index >= span.start && index < span.end
+  )
   const entries = Object.entries(variables || {})
     .map(([name, value]) => [name, value == null ? '' : String(value)] as const)
-  let output = folderTemplate
   const missing: string[] = []
   const empty: string[] = []
-  const placeholders = new Set(Array.from(output.matchAll(/\{\{\s*([A-Za-z_$][\w$-]*)\s*\}\}/g), match => match[1]))
+  const placeholderPattern = /\{\{\s*([A-Za-z_$][\w$-]*)\s*\}\}/g
+  const placeholders = new Set(Array.from(folderTemplate.matchAll(placeholderPattern), match => ({
+    name: match[1],
+    offset: match.index
+  })).filter(({ offset }) => !isIgnoredLiteral(offset)).map(({ name }) => name))
   for (const [name, value] of entries) {
     if (!placeholders.has(name)) {
       missing.push(name)
       continue
     }
-    if (!value.trim()) {
-      empty.push(name)
-      output = output.replace(new RegExp(`\\{\\{\\s*${name.replace(/[$]/g, '\\$')}\\s*\\}\\}`, 'g'), '未设置')
-      continue
-    }
-    const pattern = new RegExp(`\\{\\{\\s*${name.replace(/[$]/g, '\\$')}\\s*\\}\\}`, 'g')
-    if (!pattern.test(output)) {
-      pattern.lastIndex = 0
-      missing.push(name)
-      continue
-    }
-    pattern.lastIndex = 0
-    output = output.replace(pattern, () => value)
+    if (!value.trim()) empty.push(name)
   }
+  const output = folderTemplate.replace(placeholderPattern, (placeholder, name: string, offset: number) => {
+    if (isIgnoredLiteral(offset)) return placeholder
+    const entry = entries.find(([entryName]) => entryName === name)
+    if (!entry) return placeholder
+    return entry[1].trim() ? entry[1] : '未设置'
+  })
   if (missing.length > 0) {
     diagnostics.push(diagnostic(
       'info',
@@ -642,7 +655,7 @@ function injectResolvedVariables(
       `folder template.md 变量为空，已渲染为“未设置”：${empty.join('、')}`
     ))
   }
-  const unresolved = Array.from(output.matchAll(/\{\{\s*([A-Za-z_$][\w$-]*)\s*\}\}/g), match => match[1])
+  const unresolved = Array.from(placeholders).filter(name => !entries.some(([entryName]) => entryName === name))
   if (unresolved.length > 0) {
     diagnostics.push(diagnostic(
       'error',

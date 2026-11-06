@@ -8,6 +8,7 @@ function parseArgs(argv) {
     const value = argv[index]
     if (value === '--config') args.config = argv[index + 1]
     if (value === '--name') args.name = argv[index + 1]
+    if (value === '--id') args.id = argv[index + 1]
     if (value === '--user-data') args.userData = argv[index + 1]
     if (value === '--decrypt') args.decrypt = true
     if (value === '--encrypted') args.encrypted = argv[index + 1]
@@ -21,8 +22,8 @@ function fail(message) {
 }
 
 const args = parseArgs(process.argv.slice(1))
-if (!args.userData || (!args.config && !args.encrypted) || (!args.name && !args.config)) {
-  app.whenReady().then(() => fail('required arguments: --config/--name or --encrypted, plus --user-data'))
+if (!args.userData || (!args.config && !args.encrypted) || (!args.name && !args.id && !args.config)) {
+  app.whenReady().then(() => fail('required arguments: --config/--name/--id or --encrypted, plus --user-data'))
 } else {
   const configPath = args.config ? path.resolve(args.config) : ''
   const userDataDir = path.resolve(args.userData)
@@ -36,8 +37,10 @@ if (!args.userData || (!args.config && !args.encrypted) || (!args.name && !args.
       } else {
         if (!fs.existsSync(configPath)) fail(`provider config not found: ${configPath}`)
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-        const selected = (config.providers || []).find(item => item && item.name === args.name)
-        if (!selected) fail(`provider not found: ${args.name}`)
+        const selected = args.id
+          ? (config.providers || []).find(item => item && item.id === args.id)
+          : (config.providers || []).find(item => item && item.name === args.name)
+        if (!selected) fail(`provider not found: ${args.id || args.name}`)
         encrypted = String(selected.apiKey || '')
       }
 

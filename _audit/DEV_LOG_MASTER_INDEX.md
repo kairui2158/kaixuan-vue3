@@ -1787,3 +1787,12 @@
 - 验证：定向收口 specs 123/123 passed；全量服务测试 248 files / 2671 passed；type-check exit 0；残留检索生产路径 0 命中，测试残留均为负向守护，scripts 与手动降AI链路为活消费豁免。
 - 审计证据：12 组 file:line；三个 spec 信封断言语义核实为负向守护；`DeAiProcessor` executor 死 import 确认；10-31 漏检事故登记来源。
 - 边界：不写 SKILL 目录；不新增机制/配置/状态/报告；V1 commit 与封装延后不耦合。
+
+# 2026-11-06 正文层主链终态收口
+
+- 文件：[_audit/DEV_LOG_2026-11-06_body-mainchain-terminal-v1.md](_audit/DEV_LOG_2026-11-06_body-mainchain-terminal-v1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-06_body-mainchain-terminal-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-06_body-mainchain-terminal-v1.md)
+- 交付：Markdown 代码字面量占位符修复；live 供应商 id 选择、models fixture、POST 断言分流与辅助记忆边界；`--id` 解密；3.115.0 重建封装与旧安装清理。
+- 验证：全量服务 248 files / 2672 tests passed；type-check exit 0；真实 Electron live 供应商 `[PASS] ... requests=5`；封装 `verdict: pass`，安装包 SHA-256=`433d1c29c42c69d4bec635bf9bfc0c9d0300d58a87d60c94162d6a0b6abdc36b`。
+- 边界：live 章节 800 字仅为验证通道；live 关闭辅助记忆抽取并显式写入报告；降AI校准继续 `calibration-not-ready`；第三次 live 读竞态未复现，登记为观测项。
+- 安全：未提交 mock 证据中的 2 条加密 API key 已脱敏，`git log --all -S` 确认未入历史。

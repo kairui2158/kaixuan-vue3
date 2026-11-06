@@ -1828,6 +1828,41 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(callAi).not.toHaveBeenCalled()
   })
 
+  it('treats placeholders inside markdown code as documentation literals', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        template: [
+          '标题：{{chapterTitle}}',
+          '',
+          '文档说明：输入变量未替换（保留 `{{xxx}}` 占位符原文）时…',
+          '',
+          '```',
+          '变量格式：{{yyy}}',
+          '```'
+        ].join('\n')
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      templateVariables: { chapterTitle: '第一章' }
+    })
+
+    expect(result.status).toBe('success')
+    expect(result.diagnostics.some(item => item.code === 'template-placeholder-unresolved')).toBe(false)
+    const params = (callAi.mock.calls[0] as unknown as Array<CallAiParams>)[0]
+    const systemPrompt = params.messages.find(message => message.role === 'system')?.content || ''
+    expect(systemPrompt).toContain('标题：第一章')
+    expect(systemPrompt).toContain('保留 `{{xxx}}` 占位符原文')
+    expect(systemPrompt).toContain('变量格式：{{yyy}}')
+  })
+
   it('blocks execution when no template variables are provided at all', async () => {
     const callAi = vi.fn(async () => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValueOnce({ callAi } as any)

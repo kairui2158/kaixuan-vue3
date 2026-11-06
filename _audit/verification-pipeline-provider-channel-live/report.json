@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-10-28T01:11:51.762Z",
+  "at": "2026-11-06T11:16:16.700Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1793149828536-1",
+      "runId": "pipeline-run-1793963686007-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -48,6 +48,7 @@
         "pipelineProviderChannel": {
           "layer": "volumes",
           "layerProviderId": "provider-volumes",
+          "agentProviderId": "",
           "globalProviderId": "provider-settings",
           "providerId": "provider-volumes",
           "source": "layer",
@@ -58,6 +59,7 @@
           "volumes": {
             "layer": "volumes",
             "layerProviderId": "provider-volumes",
+            "agentProviderId": "",
             "globalProviderId": "provider-settings",
             "providerId": "provider-volumes",
             "source": "layer",
@@ -70,12 +72,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793149828536,
+      "startedAt": 1793963686008,
       "progressPhase": "terminal",
-      "endedAt": 1793149863920
+      "endedAt": 1793963695932
     },
     "chapters": {
-      "runId": "pipeline-run-1793149828991-2",
+      "runId": "pipeline-run-1793963686511-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -105,6 +107,7 @@
         "pipelineProviderChannel": {
           "layer": "chapters",
           "layerProviderId": "provider-chapters",
+          "agentProviderId": "",
           "globalProviderId": "provider-settings",
           "providerId": "provider-chapters",
           "source": "layer",
@@ -115,6 +118,7 @@
           "chapters": {
             "layer": "chapters",
             "layerProviderId": "provider-chapters",
+            "agentProviderId": "",
             "globalProviderId": "provider-settings",
             "providerId": "provider-chapters",
             "source": "layer",
@@ -127,12 +131,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793149828991,
+      "startedAt": 1793963686511,
       "progressPhase": "terminal",
-      "endedAt": 1793149849970
+      "endedAt": 1793963696678
     },
     "body": {
-      "runId": "pipeline-run-1793149829432-3",
+      "runId": "pipeline-run-1793963687049-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -162,6 +166,7 @@
         "pipelineProviderChannel": {
           "layer": "body",
           "layerProviderId": "provider-body",
+          "agentProviderId": "",
           "globalProviderId": "provider-settings",
           "providerId": "provider-body",
           "source": "layer",
@@ -172,6 +177,7 @@
           "body": {
             "layer": "body",
             "layerProviderId": "provider-body",
+            "agentProviderId": "",
             "globalProviderId": "provider-settings",
             "providerId": "provider-body",
             "source": "layer",
@@ -184,29 +190,32 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793149829433,
+      "startedAt": 1793963687049,
       "progressPhase": "terminal",
-      "endedAt": 1793149911534
+      "endedAt": 1793963775413
     }
   },
+  "auxiliaryMemory": {
+    "enabled": false
+  },
   "modelAssertions": {
-    "volumes": "deepseek-v4-pro",
-    "chapters": "deepseek-v4-pro",
-    "body": "deepseek-v4-pro",
+    "volumes": "glm-5.3",
+    "chapters": "glm-5.3",
+    "body": "glm-5.3",
     "surfaces": [
       "trace-event",
       "apiCall",
       "provider-request"
     ]
   },
-  "requestCount": 3,
+  "requestCount": 5,
   "mode": "live-single-supplier",
   "live": {
     "credentialSource": "D:\\神意助手数据\\wa_providers.json",
     "sourceKeyState": "encrypted",
     "keyLength": 51,
-    "proxyBaseUrl": "http://127.0.0.1:4131/v1",
-    "model": "deepseek-v4-pro",
-    "successfulRequests": 3
+    "proxyBaseUrl": "http://127.0.0.1:8037/v1",
+    "model": "glm-5.3",
+    "successfulRequests": 5
   }
 }

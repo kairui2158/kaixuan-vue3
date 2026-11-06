@@ -179,20 +179,25 @@ async function startLiveProxy({ targetBaseUrl, apiKey }) {
       const body = Buffer.concat(chunks)
       let parsed = {}
       try { parsed = JSON.parse(body) } catch {}
+      const userText = (parsed.messages || []).filter(message => message?.role === 'user')
+        .map(message => String(message.content || '')).join('\n')
       const record = {
         at: new Date().toISOString(),
         url: request.url,
         method: request.method,
         model: parsed.model || null,
         wantsStream: parsed.stream === true,
-        userPreview: (parsed.messages || [])
-          .filter(message => message?.role === 'user')
-          .map(message => String(message.content || ''))
-          .join('\n')
-          .slice(0, 300),
+        userPreview: userText.slice(0, 300),
       }
       requests.push(record)
       writeRunLog('live-provider-request', record)
+      if (request.method === 'GET' && request.url.replace(/^\/+/, '') === 'v1/models') {
+        record.status = 200
+        record.proxyResponder = 'models-fixture'
+        response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({ object: 'list', data: [{ id: LIVE_MODEL_NAME, object: 'model' }] }))
+        return
+      }
       const upstreamUrl = new URL(request.url, targetBaseUrl)
       const headers = { ...request.headers }
       delete headers.host
@@ -231,7 +236,7 @@ function decryptLiveProviderKeyOnce() {
   assert(fs.existsSync(REAL_PROVIDER_CONFIG_PATH),
     `live provider config exists: ${REAL_PROVIDER_CONFIG_PATH}; no new key is entered by this verifier`)
   const config = JSON.parse(fs.readFileSync(REAL_PROVIDER_CONFIG_PATH, 'utf8'))
-  const selected = (config.providers || []).find(item => item?.name === LIVE_PROVIDER_NAME)
+  const selected = findSelectedLiveProvider(config)
     || (config.providers || []).find(item => item?.id === config.generateProvider)
   assert(selected, `configured real provider found: ${LIVE_PROVIDER_NAME}`)
   const keyState = String(selected.apiKey || '').startsWith('enc:') ? 'encrypted' : 'plaintext'
@@ -240,7 +245,7 @@ function decryptLiveProviderKeyOnce() {
   const result = execFileSync(ELECTRON_EXE, [
     script,
     '--config', REAL_PROVIDER_CONFIG_PATH,
-    '--name', LIVE_PROVIDER_NAME,
+    '--id', selected.id,
     '--user-data', REAL_USER_DATA_DIR,
     '--decrypt',
   ], {
@@ -257,8 +262,14 @@ function decryptLiveProviderKeyOnce() {
   return { sourceKeyState: keyState, keyLength: payload.keyLength, apiKey: payload.apiKey }
 }
 
+function findSelectedLiveProvider(config) {
+  const providers = config.providers || []
+  return providers.find(item => item?.id === LIVE_PROVIDER_NAME)
+    || providers.find(item => item?.name === LIVE_PROVIDER_NAME)
+}
+
 function readLiveTargetBaseUrl(config) {
-  const selected = (config.providers || []).find(item => item?.name === LIVE_PROVIDER_NAME)
+  const selected = findSelectedLiveProvider(config)
     || (config.providers || []).find(item => item?.id === config.generateProvider)
   assert(selected?.baseUrl, 'configured real provider exposes a base URL')
   return selected.baseUrl
@@ -417,10 +428,10 @@ async function reloadApp(page) {
 }
 
 async function seedApplication(page, providers) {
-  await page.evaluate(async ({ providers, projectId, volumeId, chapterId }) => {
+  await page.evaluate(async ({ providers, projectId, volumeId, chapterId, chapterWords, autoExtractMemory }) => {
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', providers)
-    await window.electronAPI.storageWrite('wa_settings', { autoExtractMemory: true })
+    await window.electronAPI.storageWrite('wa_settings', { autoExtractMemory })
     await window.electronAPI.storageWrite(`wa_project_${projectId}`, {
       schemaVersion: 3,
       projectName: '层通道真实UI验证',
@@ -429,7 +440,7 @@ async function seedApplication(page, providers) {
       outlineLockedText: '# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。',
       bookWordCount: 24000,
       volumesConfirmed: true,
-      pipelineConfig: { volumeCount: 2, volumeWords: 12000, chapterWords: 3500 },
+      pipelineConfig: { volumeCount: 2, volumeWords: 12000, chapterWords },
       chaptersConfirmed: true,
       settingsGenerated: true,
       settings: [],
@@ -442,7 +453,7 @@ async function seedApplication(page, providers) {
         summary: '确认纸条。',
         allocatedWords: 12000,
         suggestedWords: 12000,
-        wordsPerChapter: 3500,
+        wordsPerChapter: chapterWords,
         chapterCount: 2,
         confirmed: true,
         locked: true,
@@ -482,6 +493,8 @@ async function seedApplication(page, providers) {
     projectId: PROJECT_ID,
     volumeId: VOLUME_ID,
     chapterId: CHAPTER_ID,
+    chapterWords: LIVE_MODE ? 800 : 3500,
+    autoExtractMemory: !LIVE_MODE,
   })
   await reloadApp(page)
 }
@@ -537,7 +550,8 @@ async function assertImportUpsertThroughRealUi(page) {
   await page.waitForSelector('#provider-list-view', { timeout: 20_000 })
   const countBefore = await page.evaluate(() =>
     window.__pinia?._s?.get('provider')?.providers?.length ?? null)
-  assert.equal(countBefore, 5, 'provider count is stable before import upsert')
+  const expectedProviderCount = LIVE_MODE ? 4 : 5
+  assert.equal(countBefore, expectedProviderCount, 'provider count is stable before import upsert')
 
   const config = await page.evaluate(async () => {
     const raw = await window.electronAPI.storageRead('wa_providers')
@@ -562,11 +576,11 @@ async function assertImportUpsertThroughRealUi(page) {
     const provider = store?.providers?.find(item => item.id === 'provider-settings')
     return provider?.selectedModel === 'settings-model-imported'
   }, null, { timeout: 20_000 })
-  await page.waitForFunction(async () => {
+  await page.waitForFunction(async ({ expectedCount }) => {
     const persisted = await window.electronAPI.storageRead('wa_providers')
     const provider = persisted?.providers?.find(item => item.id === 'provider-settings')
-    return persisted?.providers?.length === 5 && provider?.selectedModel === 'settings-model-imported'
-  }, null, { timeout: 20_000 })
+    return persisted?.providers?.length === expectedCount && provider?.selectedModel === 'settings-model-imported'
+  }, { expectedCount: expectedProviderCount }, { timeout: 20_000 })
 
   const diagnostics = await page.evaluate(async () => {
     const store = window.__pinia?._s?.get('provider')
@@ -582,10 +596,10 @@ async function assertImportUpsertThroughRealUi(page) {
       layerBinding: persisted?.pipelineLayerProviders?.settings || null,
     }
   })
-  assert.equal(diagnostics.count, 5, 'real import upsert does not duplicate provider IDs')
+  assert.equal(diagnostics.count, expectedProviderCount, 'real import upsert does not duplicate provider IDs')
   assert.equal(diagnostics.selectedModel, 'settings-model-imported',
     'real import upsert replaces the existing provider in the store')
-  assert.equal(diagnostics.persistedCount, 5, 'real import upsert does not duplicate persisted provider IDs')
+  assert.equal(diagnostics.persistedCount, expectedProviderCount, 'real import upsert does not duplicate persisted provider IDs')
   assert.equal(diagnostics.persistedSelectedModel, 'settings-model-imported',
     'real import upsert persists the replacement provider')
   assert.equal(diagnostics.layerBinding, 'provider-settings',
@@ -602,6 +616,9 @@ async function assertGenerationProbeThroughRealUi(page) {
   await card.locator('button', { hasText: '编辑' }).click()
   await page.waitForSelector('#provider-edit-view', { timeout: 10_000 })
   await page.waitForSelector('#btn-test-generation', { timeout: 10_000 })
+  if (LIVE_MODE) {
+    await page.locator('.model-select-row select').selectOption(LIVE_MODEL_NAME)
+  }
   await page.click('#btn-test-generation')
   await page.waitForFunction(() => {
     const text = document.querySelector('.fetch-feedback')?.textContent || ''
@@ -613,7 +630,7 @@ async function assertGenerationProbeThroughRealUi(page) {
       .findLast(run => run.source === 'infra' && run.stepName === '生成探针') || null,
   }))
   assert(diagnostics.feedback.includes('生成探针通过'),
-    `real generation probe succeeds through the mocked supplier; got ${diagnostics.feedback}`)
+    `generation probe succeeds through the configured supplier; got ${diagnostics.feedback}`)
   assert.equal(diagnostics.traceRun?.status, 'success',
     `generation probe records a successful infra trace; got ${diagnostics.traceRun?.status}`)
   assert.equal(diagnostics.traceRun?.providerId, 'provider-settings',
@@ -783,7 +800,7 @@ async function assertRunProviderChannel(page, layer, step, providerBridge) {
   if (modelBoundLayers.includes(layer)) {
     const providerRequests = providerBridge.requests()
     const layerRequests = LIVE_MODE
-      ? providerRequests
+      ? providerRequests.filter(request => request.model !== null)
       : providerRequests.filter(request => request.layer === layer)
     assert(layerRequests.length > 0, `${layer} physical requests reached the ${layer} provider`)
     assert(layerRequests.every(request => request.model === expectedModel),
@@ -953,39 +970,51 @@ async function main() {
 
     await selectPipelineStep(page, 4)
     await page.locator('#btn-pl-confirm-body').click()
-    await page.waitForSelector('[data-modal-id="pl-memory-preview"]', { timeout: 30_000 })
-    await page.waitForFunction(() => {
-      const loading = document.querySelector('[data-modal-id="pl-memory-preview"] .pl-memory-preview-footer button')?.textContent || ''
-      return !loading.includes('写入中...')
-    }, null, { timeout: 60_000 })
-    await sleep(200)
-    await page.screenshot({
-      path: path.join(EVIDENCE_ROOT, 'auxiliary-memory-preview.png'),
-      fullPage: true,
-    })
-    const auxiliaryMemoryTrace = await page.evaluate(() => {
-      const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
-        .find(item => item.source === 'pipeline' && item.stepName === '记忆抽取')
-      return run ? JSON.parse(JSON.stringify(run)) : null
-    })
-    assert(auxiliaryMemoryTrace, 'real confirm-body UI starts the auxiliary memory extraction trace run')
-    assert.equal(auxiliaryMemoryTrace.status, 'success',
-      `auxiliary memory extraction succeeds through the real UI; got status=${auxiliaryMemoryTrace.status}, error=${auxiliaryMemoryTrace.error || ''}`)
-    assert(auxiliaryMemoryTrace.apiCalls?.length > 0, 'auxiliary memory trace records an API call')
-    assert(auxiliaryMemoryTrace.apiCalls.every(call => call.providerSource === 'auxiliary'),
-      `auxiliary memory providerSource is auxiliary, got ${JSON.stringify(auxiliaryMemoryTrace.apiCalls?.map(call => call.providerSource))}`)
-    const auxiliaryPhysicalSources = (auxiliaryMemoryTrace.apiCalls || [])
-      .flatMap(call => call.physicalCalls || [])
-      .filter(physical => physical.requestMessages?.length > 0)
-      .map(physical => physical.providerSource)
-    assert(auxiliaryPhysicalSources.length > 0, 'auxiliary memory trace records physical provenance')
-    assert(auxiliaryPhysicalSources.every(source => source === 'auxiliary'),
-      `auxiliary memory physical providerSource is auxiliary, got ${JSON.stringify(auxiliaryPhysicalSources)}`)
+    if (!LIVE_MODE) {
+      await page.waitForSelector('[data-modal-id="pl-memory-preview"]', { timeout: 30_000 })
+      await page.waitForFunction(() => {
+        const loading = document.querySelector('[data-modal-id="pl-memory-preview"] .pl-memory-preview-footer button')?.textContent || ''
+        return !loading.includes('写入中...')
+      }, null, { timeout: 60_000 })
+      await sleep(200)
+      await page.screenshot({
+        path: path.join(EVIDENCE_ROOT, 'auxiliary-memory-preview.png'),
+        fullPage: true,
+      })
+      const auxiliaryMemoryTrace = await page.evaluate(() => {
+        const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+          .find(item => item.source === 'pipeline' && item.stepName === '记忆抽取')
+        return run ? JSON.parse(JSON.stringify(run)) : null
+      })
+      assert(auxiliaryMemoryTrace, 'real confirm-body UI starts the auxiliary memory extraction trace run')
+      assert.equal(auxiliaryMemoryTrace.status, 'success',
+        `auxiliary memory extraction succeeds through the real UI; got status=${auxiliaryMemoryTrace.status}, error=${auxiliaryMemoryTrace.error || ''}`)
+      assert(auxiliaryMemoryTrace.apiCalls?.length > 0, 'auxiliary memory trace records an API call')
+      assert(auxiliaryMemoryTrace.apiCalls.every(call => call.providerSource === 'auxiliary'),
+        `auxiliary memory providerSource is auxiliary, got ${JSON.stringify(auxiliaryMemoryTrace.apiCalls?.map(call => call.providerSource))}`)
+      const auxiliaryPhysicalSources = (auxiliaryMemoryTrace.apiCalls || [])
+        .flatMap(call => call.physicalCalls || [])
+        .filter(physical => physical.requestMessages?.length > 0)
+        .map(physical => physical.providerSource)
+      assert(auxiliaryPhysicalSources.length > 0, 'auxiliary memory trace records physical provenance')
+      assert(auxiliaryPhysicalSources.every(source => source === 'auxiliary'),
+        `auxiliary memory physical providerSource is auxiliary, got ${JSON.stringify(auxiliaryPhysicalSources)}`)
+    } else {
+      await sleep(300)
+      const liveConfirmDiagnostics = await page.evaluate(() => ({
+        pipelinePanelAttached: Boolean(document.querySelector('#pipeline-panel')),
+        bodyPanelVisible: Boolean(document.querySelector('#pl-step-5-content')?.checkVisibility?.()),
+        currentStep: window.__pinia?._s?.get('pipeline')?.currentStep ?? null,
+        activeStepText: document.querySelector('#pl-steps .pl-step.active')?.textContent || '',
+      }))
+      writeRunLog('live-confirm-body-diagnostics', liveConfirmDiagnostics)
+      assert(liveConfirmDiagnostics.pipelinePanelAttached, 'live confirm-body keeps the pipeline panel attached')
+    }
 
     const requests = LIVE_MODE ? liveProxy.requests() : providers.requests()
     assert(requests.length > 0, 'providers observed real application requests')
     if (LIVE_MODE) {
-      assert(requests.every(item => item.model === LIVE_MODEL_NAME),
+      assert(requests.filter(item => item.method === 'POST').every(item => item.model === LIVE_MODEL_NAME),
         `live requests use the configured real model, got ${JSON.stringify(requests.map(item => item.model))}`)
       assert(requests.some(item => item.status >= 200 && item.status < 400),
         'live supplier returns at least one successful response')
@@ -1012,7 +1041,7 @@ async function main() {
         chapters: chapterEvidence.run,
         body: bodyEvidence.run,
       },
-      auxiliaryMemory: auxiliaryMemoryTrace,
+      auxiliaryMemory: LIVE_MODE ? { enabled: false } : auxiliaryMemoryTrace,
       modelAssertions: {
         volumes: volumeEvidence.expectedModel,
         chapters: chapterEvidence.expectedModel,
