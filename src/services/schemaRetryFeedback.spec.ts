@@ -2,6 +2,45 @@ import { describe, expect, it } from 'vitest'
 import { buildSchemaRetryFeedback } from './schemaRetryFeedback'
 
 describe('buildSchemaRetryFeedback', () => {
+  it('keeps the complete failed candidate for structural body failures', () => {
+    const candidate = [
+      '第一段'.repeat(120),
+      '中间状态',
+      '最后一段'.repeat(120),
+      '【正文交接】',
+      'FACT_LOCK：示例事实',
+      '【正文交接结束】'
+    ].join('\n')
+    const result = buildSchemaRetryFeedback({
+      errors: ['场景类型：场景2 不匹配，期望为动作，实际为核对'],
+      previousOutput: candidate,
+      protectedContract: {
+        kind: 'body',
+        targetWords: 3500
+      }
+    })
+
+    expect(result.strategy).toBe('candidate-anchored')
+    expect(result.scaffoldSource).toBe('candidate')
+    expect(result.suppressedCandidateChars).toBe(0)
+    expect(result.scaffoldChars).toBe(candidate.length)
+    expect(result.feedback).toContain('【正文交接】')
+      expect(result.feedback).toContain('1. 场景类型：场景2 不匹配，期望为动作，实际为核对')
+    expect(result.feedback).toContain('上一版完整候选')
+    expect(result.feedback).toContain('不要逐字复述整篇')
+  })
+
+  it('keeps bounded-summary for body quality failures even when a candidate exists', () => {
+    const result = buildSchemaRetryFeedback({
+      errors: ['复述上一步内容过多'],
+      previousOutput: '上一版候选正文'.repeat(200)
+    })
+
+    expect(result.strategy).toBe('bounded-summary')
+    expect(result.feedback).not.toContain('上一版完整候选')
+    expect(result.suppressedCandidateChars).toBeGreaterThan(0)
+  })
+
   it('suppresses the full candidate and reports the bounded feedback', () => {
     const candidate = [
       '第一段'.repeat(200),

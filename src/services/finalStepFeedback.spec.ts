@@ -50,6 +50,8 @@ describe('buildFinalStepFeedback', () => {
     expect(result.feedback).toContain('锚点三')
     expect(result.feedback).not.toContain('锚点四')
     expect(result.feedback).not.toContain('上一版候选输出')
+    expect(result.feedback).not.toContain('不携带候选输出全文。')
+    expect(result.feedback).toContain('终步职责例外')
     expect(result.feedback).not.toContain('必须以它为基底')
     expect(result.feedback).not.toContain('只修正上述错误')
     expect(result.feedback).not.toContain('保留其余内容')

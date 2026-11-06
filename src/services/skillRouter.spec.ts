@@ -123,7 +123,7 @@ describe('skillRouter composite mapping', () => {
     })
   })
 
-  it('throws with folderResult when the density gate returns blocked', async () => {
+  it('throws with folderResult when a SKILL verdict gate returns blocked', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: {
         id: 'folder',
@@ -141,12 +141,12 @@ describe('skillRouter composite mapping', () => {
     })
     executeRealSkillMock.mockResolvedValueOnce({
       status: 'blocked',
-      output: 'NOT-READY：章级事件密度不足，需上游补剧情点',
-      errors: ['章级事件密度不足，需上游补剧情点；上游剧情材料不足：请回到章节规划/剧情层补足事件点。'],
+      output: '【正文交接】\nnarrativeStatus: not_ready\nnarrativeReason：上游剧情材料不足，需补足事件点',
+      errors: ['上游剧情材料不足，需补足事件点；SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点，正文层不重试、不改写。'],
       diagnostics: [{
         type: 'error',
-        code: 'chapter-event-density-not-ready',
-        message: '章级事件密度不足',
+        code: 'chapter-narrative-not-ready',
+        message: 'SKILL narrative verdict not_ready',
         at: '2026-10-31T00:00:00.000Z'
       }],
       folderPackageCache: false
@@ -156,11 +156,11 @@ describe('skillRouter composite mapping', () => {
       { id: 'folder', format: 'folder', folderPath: 'D:/skills/folder' },
       { input: '输入', budget: budget() }
     )).rejects.toMatchObject({
-      message: '章级事件密度不足，需上游补剧情点；上游剧情材料不足：请回到章节规划/剧情层补足事件点。',
+      message: '上游剧情材料不足，需补足事件点；SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点，正文层不重试、不改写。',
       folderResult: {
         status: 'blocked',
         diagnostics: [{
-          code: 'chapter-event-density-not-ready'
+          code: 'chapter-narrative-not-ready'
         }]
       }
     })
@@ -330,6 +330,44 @@ describe('skillRouter composite mapping', () => {
     expect(executeRealSkillMock).toHaveBeenCalledWith(expect.objectContaining({
       finalStepRetry
     }))
+  })
+
+  it('forwards the run pin to the folder executor and strips it for composite children', async () => {
+    loadRealSkillMock.mockReset()
+    executeCompositeSkillMock.mockReset()
+    loadRealSkillMock.mockResolvedValue({
+      package: {
+        id: 'parent',
+        name: 'parent',
+        description: '',
+        template: '',
+        meta: { executionMode: 'composite' },
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/parent'
+      } as any,
+      error: null,
+      folderPackageCache: false
+    })
+    executeCompositeSkillMock.mockResolvedValueOnce(compositeResult('DONE'))
+    const pin = [{ file: 'template.md', hash: 'pin', mtime: 1, bytes: 10 }]
+    const onSkillVersionMismatch = vi.fn()
+
+    await routeSkill(
+      { id: 'parent', format: 'folder', folderPath: 'D:/skills/parent' },
+      {
+        input: '输入',
+        budget: budget(),
+        pinnedFingerprint: pin,
+        onSkillVersionMismatch
+      }
+    )
+
+    expect(executeCompositeSkillMock).toHaveBeenCalledTimes(1)
+    const compositeOptions = executeCompositeSkillMock.mock.calls[0][0] as unknown as Record<string, unknown>
+    expect(Object.hasOwn(compositeOptions, 'pinnedFingerprint')).toBe(false)
+    expect(Object.hasOwn(compositeOptions, 'onSkillVersionMismatch')).toBe(false)
   })
 
   it('forwards the final-step retry contract to the composite executor', async () => {

@@ -1,8 +1,5 @@
-export const CHAPTER_EVENT_DENSITY_NOT_READY_CODE = 'chapter-event-density-not-ready'
 export const CHAPTER_NARRATIVE_NOT_READY_CODE = 'chapter-narrative-not-ready'
 
-const NOT_READY_PATTERN = /(?:^|\n)\s*\[?NOT-READY\]?\s*[：:]?\s*(.+)/i
-const DENSITY_GAP_PATTERN = /章级事件密度不足/
 const NARRATIVE_STATUS_PATTERN = /(?:^|\n)\s*(?:【)?\s*narrativeStatus\s*(?:】)?\s*[：:]\s*(ready|not_ready)\s*/i
 const NARRATIVE_REASON_PATTERN = /(?:^|\n)\s*(?:【)?\s*narrativeReason\s*(?:】)?\s*[：:]\s*(.+)/i
 const STATE_CHANGING_SCENES_PATTERN = /(?:^|\n)\s*(?:【)?\s*stateChangingScenes\s*(?:】)?\s*[：:]\s*(.+)/i
@@ -24,37 +21,11 @@ export interface ChapterNarrativeVerdict {
   message: string
 }
 
-export interface ChapterEventDensityResult {
-  detected: boolean
-  reason: 'upstream_material_gap'
-  code: typeof CHAPTER_EVENT_DENSITY_NOT_READY_CODE
-  gap: string | null
-  guidance: string
-  rawOutput: string
-}
-
 export interface ChapterNarrativeBlock {
-  code: typeof CHAPTER_EVENT_DENSITY_NOT_READY_CODE | typeof CHAPTER_NARRATIVE_NOT_READY_CODE
+  code: typeof CHAPTER_NARRATIVE_NOT_READY_CODE
   gap: string
   guidance: string
   retryableInBodyLayer: false
-}
-
-export function detectChapterEventDensityNotReady(text: string): ChapterEventDensityResult {
-  const rawOutput = String(text || '')
-  const match = NOT_READY_PATTERN.exec(rawOutput)
-  const gap = match?.[1]?.trim() || null
-  const detected = Boolean(match && DENSITY_GAP_PATTERN.test(match[1]))
-  return {
-    detected,
-    reason: 'upstream_material_gap',
-    code: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
-    gap: detected ? (gap || '章级事件密度不足，需上游补剧情点') : null,
-    guidance: detected
-      ? '上游剧情材料不足：请回到章节规划/剧情层补足事件点，正文层不重试。'
-      : '',
-    rawOutput
-  }
 }
 
 export function findChapterEventIncrementValue(text: string): string | null {
@@ -125,15 +96,7 @@ export function evaluateChapterEventIncrement(
 }
 
 export function resolveChapterNarrativeBlock(text: string): ChapterNarrativeBlock | null {
-  const density = detectChapterEventDensityNotReady(text)
-  if (density.detected) {
-    return {
-      code: CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
-      gap: density.gap || '章级事件密度不足，需上游补剧情点',
-      guidance: density.guidance,
-      retryableInBodyLayer: false
-    }
-  }
+  // Single-referee rule: the app consumes only an explicit SKILL narrative verdict.
   const verdict = detectChapterNarrativeVerdict(text)
   if (verdict.status === 'declared_not_ready' || verdict.status === 'unreadable_because_missing_handoff') {
     return {
@@ -151,5 +114,5 @@ export function resolveChapterNarrativeBlock(text: string): ChapterNarrativeBloc
 }
 
 export function isChapterNarrativeBlockDiagnosticCode(code: string): boolean {
-  return code === CHAPTER_EVENT_DENSITY_NOT_READY_CODE || code === CHAPTER_NARRATIVE_NOT_READY_CODE
+  return code === CHAPTER_NARRATIVE_NOT_READY_CODE
 }

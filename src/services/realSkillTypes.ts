@@ -124,6 +124,12 @@ export interface RealSkillLoadWarning {
 export interface RealSkillLoadResult {
   package: RealSkillPackage | null
   error: string | null
+  /** Structured detail for pin mismatches; present when error is skill_version_mismatch. */
+  pinMismatch?: {
+    folderPath: string
+    expected: RealSkillFileFingerprint[]
+    actual: RealSkillFileFingerprint[]
+  }
   /** Structured load failure with enough context for UI, trace, and repair guidance. */
   failure?: {
     code: string
@@ -230,6 +236,17 @@ export interface RealSkillProviderModelFallback {
 export interface RealSkillExecuteOptions {
   folderPath: string
   input: string
+  /**
+   * Run-level SKILL package pin. When present, the executor reloads the
+   * package from disk for every attempt and fails closed on any drift,
+   * instead of silently adopting a mid-run SKILL file swap.
+   */
+  pinnedFingerprint?: RealSkillFileFingerprint[]
+  onSkillVersionMismatch?: (detail: {
+    folderPath: string
+    expected: RealSkillFileFingerprint[]
+    actual: RealSkillFileFingerprint[]
+  }) => void
   /** Explicit trace ownership for observability events; never resolved from global current pointers. */
   traceRunId?: string | null
   /** Current API call identity for pass-input measurements; set by the pipeline caller. */

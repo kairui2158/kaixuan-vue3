@@ -380,6 +380,26 @@ describe('acceptStepArtifact', () => {
     expect(bodyDivergence.warnings.map(w => w.code)).toContain('body-final-step-fact-divergence')
   })
 
+  it('backfills a conflicting FACT_LOCK entry without creating duplicate rows', () => {
+    const flow = resolveFinalStepMetadataFlow({
+      finalMetadata: {
+        status: 'success',
+        extractedMeta: ['FACT_LOCK:人物状态=完好']
+      },
+      authoritativeGeneratorMetadata: {
+        extractedMeta: ['FACT_LOCK:人物状态=受伤\nFACT_LOCK:位置=仓库']
+      },
+      finalBody: '他捂住伤口，靠在仓库墙上，左臂受伤。'
+    })
+
+    const joined = (flow.metadata.extractedMeta || []).join('\n')
+    expect(flow.decision).toBe('backfilled')
+    expect(joined.match(/FACT_LOCK:人物状态=/g)).toHaveLength(1)
+    expect(joined).toContain('FACT_LOCK:人物状态=受伤')
+    expect(joined).not.toContain('FACT_LOCK:人物状态=完好')
+    expect(joined).toContain('FACT_LOCK:位置=仓库')
+  })
+
   it('backfills only FACT_LOCK entries and preserves other final metadata', () => {
     const flow = resolveFinalStepMetadataFlow({
       finalMetadata: {

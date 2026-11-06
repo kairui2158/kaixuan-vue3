@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   CHAPTER_NARRATIVE_NOT_READY_CODE,
-  detectChapterEventDensityNotReady,
   detectChapterNarrativeVerdict,
   evaluateChapterEventIncrement,
   findChapterEventIncrementValue,
@@ -9,35 +8,9 @@ import {
   resolveChapterNarrativeBlock
 } from './chapterEventDensity'
 
-describe('detectChapterEventDensityNotReady', () => {
-  it('detects the upstream material gap', () => {
-    const result = detectChapterEventDensityNotReady(
-      'NOT-READY：章级事件密度不足，需上游补剧情点'
-    )
-
-    expect(result).toMatchObject({
-      detected: true,
-      reason: 'upstream_material_gap',
-      code: 'chapter-event-density-not-ready'
-    })
-    expect(result.gap).toContain('章级事件密度不足')
-    expect(result.guidance).toContain('章节规划/剧情层')
-  })
-
-  it('does not treat an unrelated NOT-READY as a density gap', () => {
-    const result = detectChapterEventDensityNotReady('NOT-READY：模型额度不足')
-
-    expect(result.detected).toBe(false)
-    expect(result.gap).toBeNull()
-    expect(result.guidance).toBe('')
-  })
-
-  it('does not match density wording embedded in ordinary prose without NOT-READY', () => {
-    const result = detectChapterEventDensityNotReady(
-      '本章避免章级事件密度不足的问题，继续推进剧情。'
-    )
-
-    expect(result.detected).toBe(false)
+describe('legacy density word-table retirement', () => {
+  it('no longer parses or routes the legacy word-table format', () => {
+    expect(resolveChapterNarrativeBlock('NOT-READY：章级事件密度不足，需上游补剧情点')).toBeNull()
   })
 })
 
@@ -133,17 +106,6 @@ describe('detectChapterNarrativeVerdict', () => {
 })
 
 describe('resolveChapterNarrativeBlock', () => {
-  it('keeps the density NOT_READY upstream route', () => {
-    const result = resolveChapterNarrativeBlock(
-      'NOT-READY：章级事件密度不足，需上游补剧情点'
-    )
-
-    expect(result).toMatchObject({
-      code: 'chapter-event-density-not-ready',
-      retryableInBodyLayer: false
-    })
-  })
-
   it('routes an explicit not_ready verdict to the upstream block route', () => {
     const result = resolveChapterNarrativeBlock(
       '【正文交接】\nnarrativeStatus: not_ready\nnarrativeReason：状态改变动作场景数为 1'
@@ -162,8 +124,8 @@ describe('resolveChapterNarrativeBlock', () => {
     expect(result).toBeNull()
   })
 
-  it('recognizes both narrative block diagnostic codes', () => {
-    expect(isChapterNarrativeBlockDiagnosticCode('chapter-event-density-not-ready')).toBe(true)
+  it('recognizes only the SKILL verdict diagnostic code', () => {
+    expect(isChapterNarrativeBlockDiagnosticCode('chapter-event-density-not-ready')).toBe(false)
     expect(isChapterNarrativeBlockDiagnosticCode(CHAPTER_NARRATIVE_NOT_READY_CODE)).toBe(true)
     expect(isChapterNarrativeBlockDiagnosticCode('api-failed')).toBe(false)
   })

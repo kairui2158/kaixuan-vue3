@@ -7,7 +7,7 @@ import {
 import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
 import { resolveChapterNarrativeBlock } from './chapterEventDensity'
-import { collectDeaiFindingsWithObservability, DeAiProcessor } from './de-ai'
+import { collectDeaiFindingsWithObservability } from './de-ai'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
@@ -120,6 +120,11 @@ function diagnostic(
   message: string
 ): RealSkillDiagnostic {
   return { type, code, message, at: new Date().toISOString() }
+}
+
+function describeFingerprintList(list: Array<{ file: string; hash: string; mtime: number; bytes: number }>): string {
+  if (!list.length) return '(空)'
+  return list.map(item => `${item.file}@${item.hash.slice(0, 8)}:${item.mtime}:${item.bytes}`).join(', ')
 }
 
 /**
@@ -723,8 +728,23 @@ function dispatchToolSurfaceDeclarationAudit(audit: {
 export async function executeRealSkill(options: RealSkillExecuteOptions): Promise<RealSkillExecutionResult> {
   const diagnostics: RealSkillDiagnostic[] = []
   const errors: string[] = []
-  const loaded = await loadRealSkill(options.folderPath)
+  const loaded = await loadRealSkill(options.folderPath, {
+    pinnedFingerprint: options.pinnedFingerprint
+  })
   if (!loaded.package) {
+    if (loaded.error === 'skill_version_mismatch' && loaded.pinMismatch) {
+      options.onSkillVersionMismatch?.(loaded.pinMismatch)
+      const detail = `运行基准 ${describeFingerprintList(loaded.pinMismatch.expected)}；磁盘现状 ${describeFingerprintList(loaded.pinMismatch.actual)}`
+      errors.push(`SKILL 目录内容与运行基准不一致，已阻止本次调用：${detail}`)
+      diagnostics.push(diagnostic('error', 'skill_version_mismatch', detail))
+      return {
+        status: 'failed',
+        output: '',
+        errors,
+        diagnostics,
+        folderPackageCache: false
+      }
+    }
     const failure = loaded.failure || {
       code: loaded.error || 'skill-load-failed',
       message: 'SKILL 文件夹加载失败',
@@ -742,6 +762,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   }
 
   const pkg = loaded.package
+  const pinnedFingerprint = options.pinnedFingerprint
   for (const warning of loaded.warnings || pkg.warnings || []) {
     diagnostics.push(diagnostic('warning', `folder-package:${warning.code}`, warning.message))
   }
@@ -922,6 +943,29 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     let schemaRetryFeedback: string | undefined
 
     for (let attempt = 1; attempt <= RETRY_LIMIT; attempt += 1) {
+      if (pinnedFingerprint) {
+        const pinCheck = await loadRealSkill(options.folderPath, { pinnedFingerprint })
+        if (!pinCheck.package) {
+          const mismatch = pinCheck.pinMismatch
+          const detail = mismatch
+            ? `运行基准 ${describeFingerprintList(mismatch.expected)}；磁盘现状 ${describeFingerprintList(mismatch.actual)}`
+            : String(pinCheck.failure?.message || pinCheck.error || 'SKILL 校验失败')
+          options.onSkillVersionMismatch?.(mismatch || {
+            folderPath: options.folderPath,
+            expected: pinnedFingerprint,
+            actual: []
+          })
+          errors.push(`SKILL 目录内容与运行基准不一致，已阻止第 ${attempt} 次调用：${detail}`)
+          diagnostics.push(diagnostic('error', 'skill_version_mismatch', detail))
+          return {
+            status: 'failed',
+            output: '',
+            errors,
+            diagnostics,
+            folderPackageCache: false
+          }
+        }
+      }
       const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
       const budget = options.budget.tryConsume(budgetStep, pkg.meta.apiCallLimit ?? null)
       if (budget.status === 'blocked') {

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { executeRealSkill } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
 import { getAiService } from './aiService'
@@ -51,6 +51,11 @@ const s2Script = readFileSync(
 )
 
 describe('real kaixuan S2 protected body contract', () => {
+  beforeEach(() => {
+    loadRealSkillMock.mockReset()
+    getAiServiceMock.mockReset()
+  })
+
   it('keeps the protected contract after S2 folds duplicated handoff blocks', async () => {
     const contractText = bodyGeneratorContractSentence(3500)
     // Vivid-SKILL 0.4.1 now enforces paragraph medians below 52 CJK chars.
@@ -66,6 +71,7 @@ describe('real kaixuan S2 protected body contract', () => {
     ).join('\n')
     const handoff = [
       '【正文交接】',
+      '章节：第1章',
       'FACT_LOCK：人物状态：王芳警觉；位置：仓库；伤势：无；持有物：旧钥匙；时间点：深夜；关键数字：账册1本；新增事实：王芳发现旧账册；钩子兑现状态：未兑现。',
       'NEXT_HOOK：账册指向北仓。'
     ].join('\n')
@@ -124,8 +130,7 @@ describe('real kaixuan S2 protected body contract', () => {
       '场景总数：4',
       'FACT_LOCK：',
       '人物状态：王芳警觉；位置：仓库；伤势：无；持有物：旧钥匙；时间点：深夜；关键数字：账册1本；新增事实：王芳发现旧账册；钩子兑现状态：未兑现。',
-      'NEW_FACT：',
-      '发现旧账册。',
+      'NEW_FACT：发现旧账册。',
       'NEXT_HOOK：账册指向北仓。'
     ].join('\n')
     const callAi = vi.fn(async (_params: CallAiParams) => ({ text: validOutput }))

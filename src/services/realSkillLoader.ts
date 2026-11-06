@@ -64,11 +64,33 @@ function bridge(): {
   return (window as any).electronAPI
 }
 
+function fingerprintsMatch(
+  expected: RealSkillFileFingerprint[],
+  actual: RealSkillFileFingerprint[]
+): boolean {
+  if (expected.length !== actual.length) return false
+  const actualByFile = new Map(actual.map(item => [item.file, item]))
+  return expected.every(item => {
+    const counterpart = actualByFile.get(item.file)
+    if (!counterpart) return false
+    return item.hash === counterpart.hash
+      && item.mtime === counterpart.mtime
+      && item.bytes === counterpart.bytes
+  })
+}
+
 /**
  * Loads a folder SKILL through the Electron IPC bridge.
  * Returns null instead of throwing: callers decide whether to fall back to the text path.
  */
-export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadResult> {
+export async function loadRealSkill(
+  folderPath: string,
+  options: {
+    pinnedFingerprint?: RealSkillFileFingerprint[]
+    /** Used only to establish a run baseline; avoids adopting a stale TTL entry. */
+    forceRefresh?: boolean
+  } = {}
+): Promise<RealSkillLoadResult> {
   const api = bridge()
   if (!folderPath || !api?.skillLoadFolder) {
     return {
@@ -83,13 +105,18 @@ export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadRe
     }
   }
 
-  const cached = cache.get(folderPath)
-  if (cached && cached.expiresAt > Date.now()) {
-    return {
-      package: cached.package,
-      error: null,
-      folderPackageCache: true,
-      warnings: cached.package.warnings || []
+  const pinnedFingerprint = options.pinnedFingerprint
+  // Pin verification bypasses the TTL cache: a cached package predates the
+  // pin and cannot prove the current disk state matches the run baseline.
+  if (!pinnedFingerprint && !options.forceRefresh) {
+    const cached = cache.get(folderPath)
+    if (cached && cached.expiresAt > Date.now()) {
+      return {
+        package: cached.package,
+        error: null,
+        folderPackageCache: true,
+        warnings: cached.package.warnings || []
+      }
     }
   }
 
@@ -114,6 +141,24 @@ export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadRe
 
     const skill = response.skill
     const warnings = normalizeWarnings(response.skill?.warnings)
+    const fingerprint = normalizeFingerprint(skill.fingerprint)
+    if (pinnedFingerprint && (!fingerprint || !fingerprintsMatch(pinnedFingerprint, fingerprint))) {
+      return {
+        package: null,
+        error: 'skill_version_mismatch',
+        pinMismatch: {
+          folderPath,
+          expected: pinnedFingerprint,
+          actual: fingerprint || []
+        },
+        failure: {
+          code: 'skill_version_mismatch',
+          message: 'SKILL 目录内容与运行基准不一致，禁止中途换闸',
+          folderPath,
+          action: '请结束本次运行后重新启动，或将 SKILL 目录恢复到运行开始时的内容'
+        }
+      }
+    }
     const pkg: RealSkillPackage = {
       id: String(skill.id || ''),
       name: String(skill.name || skill.id || ''),
@@ -127,10 +172,12 @@ export async function loadRealSkill(folderPath: string): Promise<RealSkillLoadRe
       evals: (skill.evals && typeof skill.evals === 'object' && !Array.isArray(skill.evals)) ? skill.evals : null,
       folderPath: String(response.folderPath || folderPath),
       resources: normalizeResources(skill.resources),
-      fingerprint: normalizeFingerprint(skill.fingerprint),
+      fingerprint,
       warnings
     }
-    cache.set(folderPath, { package: pkg, expiresAt: Date.now() + CACHE_TTL_MS })
+    if (!pinnedFingerprint) {
+      cache.set(folderPath, { package: pkg, expiresAt: Date.now() + CACHE_TTL_MS })
+    }
     return { package: pkg, error: null, folderPackageCache: false, warnings }
   } catch (error: any) {
     const code = String(error?.code || 'skill-load-exception')

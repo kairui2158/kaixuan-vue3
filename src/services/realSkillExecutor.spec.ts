@@ -70,6 +70,129 @@ function createPackage(overrides: Record<string, unknown> = {}) {
 }
 
 describe('realSkillExecutor single pass', () => {
+  beforeEach(() => {
+    loadRealSkillMock.mockReset()
+    getAiServiceMock.mockReset()
+    skillExecuteScriptMock.mockReset()
+    skillExecuteScriptMock.mockImplementation(async (script: string, payload: { hook: string }) => {
+      const module = { exports: {} as Record<string, unknown> }
+      const run = new Function('module', 'exports', 'payload', 'api', script)
+      run(module, module.exports, payload, { setTemplate: vi.fn() })
+      const availableHooks = Object.keys(module.exports).filter(key => typeof module.exports[key] === 'function')
+      return {
+        ok: true,
+        availableHooks,
+        exports: {},
+        results: {},
+        templateOverride: '',
+        logs: []
+      }
+    })
+  })
+
+  it('fails closed on the pinned package before making a physical API call', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: null,
+      error: 'skill_version_mismatch',
+      pinMismatch: {
+        folderPath: 'D:/skill',
+        expected: [{ file: 'template.md', hash: 'expected', mtime: 1, bytes: 10 }],
+        actual: [{ file: 'template.md', hash: 'actual', mtime: 2, bytes: 20 }]
+      },
+      failure: {
+        code: 'skill_version_mismatch',
+        message: 'SKILL 目录内容与运行基准不一致，禁止中途换闸',
+        folderPath: 'D:/skill',
+        action: '请结束本次运行后重新启动'
+      },
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '不该发生' }))
+    const onSkillVersionMismatch = vi.fn()
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      pinnedFingerprint: [{ file: 'template.md', hash: 'expected', mtime: 1, bytes: 10 }],
+      onSkillVersionMismatch
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.output).toBe('')
+    expect(result.diagnostics[0]?.code).toBe('skill_version_mismatch')
+    expect(result.errors[0]).toContain('运行基准')
+    expect(result.errors[0]).toContain('磁盘现状')
+    expect(result.diagnostics).toEqual([expect.objectContaining({ code: 'skill_version_mismatch' })])
+    expect(onSkillVersionMismatch).toHaveBeenCalledWith(expect.objectContaining({
+      folderPath: 'D:/skill',
+      expected: [{ file: 'template.md', hash: 'expected', mtime: 1, bytes: 10 }]
+    }))
+    expect(callAi).not.toHaveBeenCalled()
+    expect(loadRealSkillMock).toHaveBeenCalledWith('D:/skill', {
+      pinnedFingerprint: [{ file: 'template.md', hash: 'expected', mtime: 1, bytes: 10 }]
+    })
+  })
+
+  it('rechecks the pin at the start of every retry attempt and blocks a mid-run swap', async () => {
+    const expectedPin = [{ file: 'template.md', hash: 'expected', mtime: 1, bytes: 10 }]
+    const makeAttemptPackage = () => createPackage({
+      schema: {
+        type: 'object',
+        required: ['output', 'expected'],
+        properties: { output: { type: 'string' }, expected: { type: 'string' } }
+      }
+    })
+    loadRealSkillMock
+      .mockResolvedValueOnce({
+        package: makeAttemptPackage(),
+        error: null,
+        folderPackageCache: false
+      })
+      .mockResolvedValueOnce({
+        package: makeAttemptPackage(),
+        error: null,
+        folderPackageCache: false
+      })
+      .mockResolvedValueOnce({
+        package: null,
+        error: 'skill_version_mismatch',
+        pinMismatch: {
+          folderPath: 'D:/skill',
+          expected: expectedPin,
+          actual: [{ file: 'template.md', hash: 'swapped', mtime: 3, bytes: 30 }]
+        },
+        failure: {
+          code: 'skill_version_mismatch',
+          message: 'SKILL 目录内容与运行基准不一致，禁止中途换闸',
+          folderPath: 'D:/skill',
+          action: '请结束本次运行后重新启动'
+        },
+        folderPackageCache: false
+      })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: JSON.stringify({ output: '第 1 次输出' }) }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    const onSkillVersionMismatch = vi.fn()
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      pinnedFingerprint: expectedPin,
+      onSkillVersionMismatch,
+    })
+
+    expect(result.status).toBe('failed')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(loadRealSkillMock).toHaveBeenCalledTimes(3)
+    expect(loadRealSkillMock).toHaveBeenNthCalledWith(3, 'D:/skill', { pinnedFingerprint: expectedPin })
+    expect(onSkillVersionMismatch).toHaveBeenCalledWith(expect.objectContaining({
+      expected: expectedPin,
+      actual: [{ file: 'template.md', hash: 'swapped', mtime: 3, bytes: 30 }]
+    }))
+  })
+
   it('routes the layer provider and records its source in call metadata', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),
@@ -124,7 +247,7 @@ describe('realSkillExecutor single pass', () => {
     }))
   })
 
-  it('blocks chapter event density NOT-READY without retrying', async () => {
+  it('does not block or retry the retired legacy density word-table', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),
       error: null,
@@ -141,10 +264,10 @@ describe('realSkillExecutor single pass', () => {
       budget: createBudget()
     })
 
-    expect(result.status).toBe('blocked')
+    expect(result.status).toBe('success')
     expect(callAi).toHaveBeenCalledTimes(1)
-    expect(result.errors[0]).toContain('章级事件密度不足')
-    expect(result.diagnostics.some(item => item.code === 'chapter-event-density-not-ready')).toBe(true)
+    expect(result.errors.filter((error: string) => error.includes('章级事件密度不足'))).toEqual([])
+    expect(result.diagnostics.some(item => item.code === 'chapter-event-density-not-ready')).toBe(false)
   })
 
   it('blocks an explicit SKILL narrative not_ready verdict without retrying', async () => {

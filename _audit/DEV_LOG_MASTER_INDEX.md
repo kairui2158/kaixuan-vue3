@@ -1769,3 +1769,21 @@
 - 交付：attempt 起点恢复 bodyGeneratorStepIndex；三入口迁入 chainExecution 单源；终态清理 hard signal；删除死代码；wiring 测试升级为行为矩阵并禁止旧清空语义；S3 直跑拒绝已完结链检查点。
 - 验证：定向 4 files / 173 tests passed；全量 247 files / 2665 tests passed；type-check、build:vue 与 Electron 回归 exit 0；Electron 关键证据 completedCheckpointRejected=true、targetedGeneratorStep=true、attempt 0 失败转 attempt 1 targeted complete。
 - 边界：真实外部供应商不重复调用，不声明内容质量；3.114.3 发布证据由封装台账接续。
+
+# 2026-11-06 SKILL 运行级钉死与结构化重试反馈
+
+- 文件：[_audit/DEV_LOG_2026-11-06_skill-run-pinning-retry-feedback.md](_audit/DEV_LOG_2026-11-06_skill-run-pinning-retry-feedback.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-06_skill-run-pinning-retry-feedback.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-06_skill-run-pinning-retry-feedback.md)
+- 交付：folder SKILL 运行级指纹钉死（probe → per-run state → executor 初始/attempt 复查 → mismatch fail 0 物理调用）；正文链结构/格式/字数类失败 candidate-anchored 全文候选反馈；SKILL agent.md 脱钩报告。
+- 验证：定向 4 files / 104 tests passed；全量 247 files / 2672 passed（1 既有失败）；type-check exit 0；git diff --check exit 0。
+- 边界：Electron 真实负向验证 untested；trace 事件存储/导出自动测试 untested；跨 run 版本库存档不做；agent.md 合同归 SKILL 层。
+- 经验：G2.9 candidate-anchored 语义收窄 + SKILL 运行基准钉死新条目；版本 v10.3.0。
+
+# 2026-11-06 单一裁判收口方案 V1（已执行完成）
+
+- 文件：[_audit/PROPOSAL_2026-11-06_SINGLE_REFEREE_CONVERGENCE_V1.md](_audit/PROPOSAL_2026-11-06_SINGLE_REFEREE_CONVERGENCE_V1.md)
+- 交付：方案文档（未写码）。退役清单：叙事旧词表双裁判（`chapterEventDensity.ts` / `realSkillExecutor.ts:1284` / `PipelinePanel.vue:3449-3474`）同批迁移；字数合同单 owner 两点位定性（不删，反推否决）；终步禁全文措辞修订；FACT_LOCK 回填去重；retry 四策略映射表登记；信封负向测试保留。
+- 执行：P0-A 叙事旧语义双裁判退役；P0-B 字数合同两点位登记；P1-C 终步反馈措辞修订；P3-D FACT_LOCK 回填同键去重；P4-F retry 四策略映射登记；P5-G executor 死 import 清理；realS2ProtectedContract 既有夹具按 SKILL 真实交接协议修正。
+- 验证：定向收口 specs 123/123 passed；全量服务测试 248 files / 2671 passed；type-check exit 0；残留检索生产路径 0 命中，测试残留均为负向守护，scripts 与手动降AI链路为活消费豁免。
+- 审计证据：12 组 file:line；三个 spec 信封断言语义核实为负向守护；`DeAiProcessor` executor 死 import 确认；10-31 漏检事故登记来源。
+- 边界：不写 SKILL 目录；不新增机制/配置/状态/报告；V1 commit 与封装延后不耦合。

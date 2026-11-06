@@ -884,9 +884,7 @@ import {
   type StepArtifactAcceptanceResult
 } from "../../services/stepArtifactAcceptance"
 import {
-  CHAPTER_EVENT_DENSITY_NOT_READY_CODE,
   CHAPTER_NARRATIVE_NOT_READY_CODE,
-  detectChapterEventDensityNotReady,
   isChapterNarrativeBlockDiagnosticCode
 } from "../../services/chapterEventDensity"
 import { hashEditorContent } from "../../services/editorTarget"
@@ -3217,7 +3215,7 @@ async function callValidatedSkill(
   let route: Awaited<ReturnType<typeof routeSkill>>
   const bodyFeedbackAudit = createBodyFeedbackAuditState()
     try {
-      const probe = await loadRealSkill(template.skill.folderPath)
+      const probe = await loadRealSkill(template.skill.folderPath, { forceRefresh: true })
       if (!probe.package) {
         const fallback = probe.failure
           ? {
@@ -3259,6 +3257,16 @@ async function callValidatedSkill(
           deaiPromptVariant: deaiVariant !== 'off' ? deaiVariant : undefined
         })
         : ''
+      // The pin is established once per run+folder at first encounter. Reusing
+      // the live probe result on later attempts would let a mid-run disk swap
+      // redefine the baseline, defeating the pin.
+      const perRunState = perRunUi(pipelineRunIdParam)
+      const storedPin = perRunState?.skillFingerprintPins?.[template.skill.folderPath]
+      const pinnedFingerprint = storedPin || probe.package.fingerprint
+      if (!storedPin && pinnedFingerprint?.length && perRunState) {
+        perRunState.skillFingerprintPins = perRunState.skillFingerprintPins || {}
+        perRunState.skillFingerprintPins[template.skill.folderPath] = pinnedFingerprint
+      }
       if (probe.package.fingerprint?.length && traceRunId && traceCallId) {
         runTraceStore.attachPromptSnapshot(traceRunId, {
           apiCallId: traceCallId,
@@ -3281,6 +3289,22 @@ async function callValidatedSkill(
       }
       route = await routeSkill(template.skill, {
         input: prompt,
+        pinnedFingerprint,
+        onSkillVersionMismatch: (detail) => {
+          if (!traceRunId) return
+          runTraceStore.addEvent(traceRunId, {
+            type: 'folder-skill-version-mismatch',
+            level: 'error',
+            label: `SKILL「${template.name || template.id}」目录内容与运行基准不一致`,
+            detail: JSON.stringify({
+              step,
+              skillId: template.id,
+              folderPath: detail.folderPath,
+              expectedFingerprint: detail.expected,
+              actualFingerprint: detail.actual
+            })
+          })
+        },
         agent: agentConfig ? {
           id: agentId,
           model: agentConfig.model,
@@ -3422,17 +3446,9 @@ async function callValidatedSkill(
           folderResult.status === 'blocked' &&
           folderResult.diagnostics.some(item => isChapterNarrativeBlockDiagnosticCode(item.code))
         ) {
-          const density = detectChapterEventDensityNotReady(folderResult.output)
-          const narrativeBlocked = folderResult.diagnostics.some(
-            item => item.code === CHAPTER_NARRATIVE_NOT_READY_CODE
-          )
-          const blockCode = narrativeBlocked
-            ? CHAPTER_NARRATIVE_NOT_READY_CODE
-            : CHAPTER_EVENT_DENSITY_NOT_READY_CODE
-          const blockGap = density.detected ? density.gap : folderResult.errors[0]
-          const blockGuidance = density.detected
-            ? density.guidance
-            : 'SKILL 叙事裁决 NOT_READY：请回到章节规划/剧情层补足事件点。'
+          const blockCode = CHAPTER_NARRATIVE_NOT_READY_CODE
+          const blockGap = folderResult.errors[0] || folderResult.output
+          const blockGuidance = 'SKILL 叙事裁决 NOT_READY：需要上游补剧情点。'
           const detail = JSON.stringify({
             code: blockCode,
             gap: blockGap,
@@ -3443,9 +3459,7 @@ async function callValidatedSkill(
             runTraceStore.addEvent(traceRunId, {
               type: blockCode,
               level: 'error',
-              label: narrativeBlocked
-                ? 'SKILL 叙事裁决 NOT_READY：需要上游补剧情点'
-                : '章级事件密度不足：需要上游补剧情点',
+              label: 'SKILL 叙事裁决 NOT_READY：需要上游补剧情点',
               detail
             })
           }

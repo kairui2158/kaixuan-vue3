@@ -5,6 +5,7 @@ import type {
   RealSkillPackage,
   RealSkillAgentContext,
   RealSkillExecuteOptions,
+  RealSkillFileFingerprint,
   RealSkillExecutionResult
 } from './realSkillTypes'
 
@@ -18,6 +19,9 @@ export interface RoutedSkill {
 
 export interface SkillRouteOptions {
   input: string
+  /** Run-level SKILL package pin; threaded through to the folder executor. */
+  pinnedFingerprint?: RealSkillFileFingerprint[]
+  onSkillVersionMismatch?: RealSkillExecuteOptions['onSkillVersionMismatch']
   traceRunId?: string | null
   traceCallId?: string | null
   chainUpstreamContext?: string
@@ -173,6 +177,8 @@ export async function routeSkill(
   const executeOptions = {
     folderPath: skill.folderPath,
     input: options.input,
+    ...(options.pinnedFingerprint ? { pinnedFingerprint: options.pinnedFingerprint } : {}),
+    ...(options.onSkillVersionMismatch ? { onSkillVersionMismatch: options.onSkillVersionMismatch } : {}),
     traceRunId: options.traceRunId,
     traceCallId: options.traceCallId,
     chainUpstreamContext: options.chainUpstreamContext,
@@ -218,7 +224,9 @@ export async function routeSkill(
   }
 
   if (probe.package.meta.executionMode === 'composite') {
-    const compositeResult = await executeCompositeSkill(executeOptions)
+    // Child folders have their own fingerprints; a parent pin must not fail them.
+    const { pinnedFingerprint: _pinned, onSkillVersionMismatch: _onMismatch, ...compositeOptions } = executeOptions
+    const compositeResult = await executeCompositeSkill(compositeOptions)
     const folderResult = compositeToExecutionResult(compositeResult)
     if (folderResult.status === 'failed' || folderResult.status === 'blocked') {
       const error = new Error(folderResult.errors[0] || 'composite SKILL 执行失败')

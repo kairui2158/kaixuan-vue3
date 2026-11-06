@@ -16,7 +16,7 @@ export interface SchemaRetryFeedbackInput {
 
 export interface SchemaRetryFeedbackResult {
   feedback: string
-  strategy: 'bounded-summary' | 'word-gap' | 'handoff-repair'
+  strategy: 'bounded-summary' | 'word-gap' | 'handoff-repair' | 'candidate-anchored'
   scaffoldSource: 'candidate' | 'upstream' | 'none'
   candidateChars: number
   feedbackChars: number
@@ -53,6 +53,21 @@ const HANDOFF_FAILURE_PATTERNS = [
   /【正文交接】.{0,20}(?:缺失|缺少|为空|没有输出)/,
   /事件增量.{0,8}(?:缺失|缺少|为空|没有输出)/,
 ] as const
+
+const STRUCTURE_OR_FORMAT_FAILURE_PATTERNS = [
+  /正文过短|正文过长/,
+  /正文交接.{0,12}(?:缺失|缺少|为空|没有输出)/,
+  /缺少【正文交接】/,
+  /【正文交接】.{0,20}(?:缺失|缺少|为空|没有输出)/,
+  /(?:缺少|缺失|missing).{0,12}(?:场景|施工卡|FACT_LOCK|NEW_FACT|交接字段)/i,
+  /(?:字段|标签).{0,10}(?:缺失|缺少|label_drift|drift)/i,
+  /场景(?:类型|结构|预算).{0,16}(?:不匹配|不符|invalid|mismatch)/i,
+  /施工卡.{0,16}(?:不匹配|不符|invalid|mismatch)/i
+] as const
+
+function isStructureOrFormatFailure(errors: string[]): boolean {
+  return errors.some(error => STRUCTURE_OR_FORMAT_FAILURE_PATTERNS.some(pattern => pattern.test(String(error))))
+}
 
 interface WordGapScaffold {
   text: string
@@ -353,6 +368,40 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
       previewChars: 0,
       scaffoldChars: scaffold.text.length,
       scaffoldFieldCount: scaffold.fieldCount,
+      suppressedCandidateChars: 0
+    }
+  }
+
+  const isStructureFailure = Boolean(
+    contract?.kind === 'body' &&
+    candidate &&
+    isStructureOrFormatFailure(errors)
+  )
+
+  if (isStructureFailure) {
+    const lines = [
+      '【结构化重试反馈】',
+      '上一版候选因结构或格式问题未通过验收。以下是上一版完整候选，仅作为定点修复基础：保留其中已通过的部分，只修复下列失败项；不要逐字复述整篇，不要输出解释，不要输出与本修复无关的内容。',
+      '',
+      '一、校验失败项',
+      ...buildErrorLines(errors, maxErrors),
+      '',
+      '二、上一版完整候选（定点修复基础）',
+      candidate,
+      '',
+      '输出要求：基于上一版候选输出修复后的完整结果；正文本体后必须保留【正文交接】区块；不要复述本反馈。'
+    ]
+    const feedback = lines.join('\n')
+    return {
+      feedback,
+      strategy: 'candidate-anchored',
+      scaffoldSource: 'candidate',
+      candidateChars: candidate.length,
+      feedbackChars: feedback.length,
+      anchorCount: 0,
+      previewChars: 0,
+      scaffoldChars: candidate.length,
+      scaffoldFieldCount: 0,
       suppressedCandidateChars: 0
     }
   }

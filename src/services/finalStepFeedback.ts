@@ -49,7 +49,7 @@ export function buildFinalStepFeedback(input: FinalStepFeedbackInput): FinalStep
 
   const lines: string[] = [
     '【终步重试协议】',
-    '本反馈只描述失败事实，不携带候选输出全文。元数据与事实账本由应用维护，你不需要自行补写账本。',
+    '本反馈只描述失败事实，不携带候选输出全文（终步职责例外：与重试层 candidate-anchored 协议不同）；结构修复基于上游完整输出，表达打磨基于失败事实与锚点。元数据与事实账本由应用维护，你不需要自行补写账本。',
   ]
 
   lines.push('一、事实与账本约束')

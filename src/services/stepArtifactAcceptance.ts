@@ -377,7 +377,15 @@ export function resolveFinalStepMetadataFlow(
     }
     for (const [key, value] of authoritative) {
       const entry = `FACT_LOCK:${key}=${value}`
-      if (!repairedSections.includes(entry)) repairedSections.push(entry)
+      const keyPattern = new RegExp(`^FACT_LOCK:${key}=(.*)$`, 'm')
+      let replaced = false
+      repairedSections.forEach((section, index) => {
+        if (keyPattern.test(section)) {
+          repairedSections[index] = section.replace(keyPattern, entry)
+          replaced = true
+        }
+      })
+      if (!replaced && !repairedSections.includes(entry)) repairedSections.push(entry)
     }
     metadata = {
       ...finalMetadata,
