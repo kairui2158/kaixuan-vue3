@@ -161,6 +161,9 @@ describe('DEAI V2 deep-fix change-rate gate', () => {
     ].join('')
     const chapter = Array.from({ length: 250 }, (_, index) => `${paragraph}${index + 1}。`).join('')
     const edited = chapter.replace('他把伞骨压低', '他压低伞骨')
+    // 预热同一负载，消除 JIT/GC 冷启动噪声；预算考核的是长驻进程稳态。
+    DeAiProcessor.detectBody(chapter, {})
+    DeAiProcessor.evaluateDeepFixEdit(chapter, edited, 0)
     const startedAt = performance.now()
     const report = DeAiProcessor.detectBody(chapter, {})
     const gate = DeAiProcessor.evaluateDeepFixEdit(chapter, edited, 0)

@@ -482,18 +482,19 @@ function longestCommonSentenceSequence(a, b) {
   var left = a.map(normalizeSentenceForChangeRate);
   var right = b.map(normalizeSentenceForChangeRate);
   if (left.length === 0 || right.length === 0) return 0;
-  var rows = new Array(left.length + 1);
-  for (var i = 0; i <= left.length; i++) {
-    rows[i] = new Array(right.length + 1).fill(0);
-  }
+  var prev = new Array(right.length + 1).fill(0);
+  var curr = new Array(right.length + 1).fill(0);
   for (var i = left.length - 1; i >= 0; i--) {
     for (var j = right.length - 1; j >= 0; j--) {
-      rows[i][j] = left[i] === right[j]
-        ? rows[i + 1][j + 1] + 1
-        : Math.max(rows[i + 1][j], rows[i][j + 1]);
+      curr[j] = left[i] === right[j]
+        ? prev[j + 1] + 1
+        : Math.max(prev[j], curr[j + 1]);
     }
+    var swap = prev;
+    prev = curr;
+    curr = swap;
   }
-  return rows[0][0];
+  return prev[0];
 }
 
 function evaluateDeepFixEdit(originalText, editedText, blockingFindingCount) {

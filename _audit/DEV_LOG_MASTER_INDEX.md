@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-05
+更新日期：2026-11-07
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1796,3 +1796,10 @@
 - 验证：全量服务 248 files / 2672 tests passed；type-check exit 0；真实 Electron live 供应商 `[PASS] ... requests=5`；封装 `verdict: pass`，安装包 SHA-256=`433d1c29c42c69d4bec635bf9bfc0c9d0300d58a87d60c94162d6a0b6abdc36b`。
 - 边界：live 章节 800 字仅为验证通道；live 关闭辅助记忆抽取并显式写入报告；降AI校准继续 `calibration-not-ready`；第三次 live 读竞态未复现，登记为观测项。
 - 安全：未提交 mock 证据中的 2 条加密 API key 已脱敏，`git log --all -S` 确认未入历史。
+
+# 2026-11-07 降AI V2 长文检测性能预算修复
+
+- 文件：[_audit/DEV_LOG_2026-11-07-deai-v2-performance-budget.md](_audit/DEV_LOG_2026-11-07-deai-v2-performance-budget.md)
+- 交付：`longestCommonSentenceSequence` 由 O(n×m) 二维矩阵改为滚动数组（O(m) 空间），消除 20k 字符长文的 150 万格矩阵分配与 GC 压力；性能测试补同负载预热，考核长驻进程稳态而非冷启动噪声；STACK.md 规则源版本同步 v10.3.0；DEV_LOG_MASTER_INDEX 更新日期同步。
+- 验证：探针 before `gateMs 40.81-75.31ms`，after 多数 run 降至 `17.86-26.58ms`；定向 `de-ai-v2.spec.ts` 三连 14/14 passed；全量服务测试 248 files / 2672 tests passed；`vue-tsc --noEmit` exit 0。
+- 边界：探针偶发 GC 尖刺仍可能出现在极端冷启动场景，但稳态预算 300ms 保留充足余量；`evaluateDeepFixEdit` 仍为 O(n×m) 时间复杂度，20k 字符场景实测充分，更长文本需重新标定。
