@@ -889,7 +889,8 @@ import {
 } from "../../services/stepArtifactAcceptance"
 import {
   CHAPTER_NARRATIVE_NOT_READY_CODE,
-  isChapterNarrativeBlockDiagnosticCode
+  isChapterNarrativeBlockDiagnosticCode,
+  resolveChapterNarrativeBlock
 } from "../../services/chapterEventDensity"
 import { hashEditorContent } from "../../services/editorTarget"
 import { scanProseHardSignals, type ProseHardSignalScan } from "../../services/proseHardSignalNet"
@@ -3453,11 +3454,34 @@ async function callValidatedSkill(
           const blockCode = CHAPTER_NARRATIVE_NOT_READY_CODE
           const blockGap = folderResult.errors[0] || folderResult.output
           const blockGuidance = 'SKILL 叙事裁决 NOT_READY：需要上游补剧情点。'
+          const resolvedNarrativeBlock = resolveChapterNarrativeBlock(folderResult.output)
+          if (resolvedNarrativeBlock?.retryableInBodyLayer) {
+            if (traceRunId) {
+              runTraceStore.addEvent(traceRunId, {
+                type: blockCode,
+                level: 'warn',
+                label: 'SKILL 交接输入不可恢复：路由到生成步 targeted 修复',
+                detail: JSON.stringify(resolvedNarrativeBlock)
+              })
+            }
+            appendStepLogForRun(
+              pipelineRunIdParam,
+              step,
+              `${resolvedNarrativeBlock.gap}；${resolvedNarrativeBlock.guidance}`
+            )
+            return {
+              output: folderResult.output,
+              callerStatus: 'blocked',
+              blockingGateFailed: folderResult.blockingGateFailed === true,
+              errors: folderResult.errors,
+              stepCandidateAudit: stepArtifactCandidateAudit(folderResult.apiMeta)
+            }
+          }
           const detail = JSON.stringify({
             code: blockCode,
             gap: blockGap,
             guidance: blockGuidance,
-            retryableInBodyLayer: false
+            retryableInBodyLayer: resolveChapterNarrativeBlock(folderResult.output)?.retryableInBodyLayer === true
           })
           if (traceRunId) {
             runTraceStore.addEvent(traceRunId, {
@@ -4996,6 +5020,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
                 })
               })
             }
+            if (
+              stepResult.callerStatus === 'blocked' &&
+              resolveChapterNarrativeBlock(stepResult.output)?.retryableInBodyLayer === true
+            ) {
+              return stepResult
+            }
             throw new Error(artifactFlow.failure?.message || '正文生成步骤验收失败')
           }
           stepOutput = artifactFlow.downstreamPayload || ''
@@ -5508,13 +5538,19 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           type: 'body-generator-step-rejected',
           level: 'error',
           label: `正文生成步骤 1/${Math.max(1, templates.length)} 拒绝流转`,
-          detail: JSON.stringify({
-            reason: artifactFlow.failure?.reason,
-            errors: acceptance.errors
+            detail: JSON.stringify({
+              reason: artifactFlow.failure?.reason,
+              errors: acceptance.errors
+            })
           })
-        })
-      }
-      // Compose has no downstream chain step. Returning the raw output lets
+        }
+        if (
+          composeStepResult.callerStatus === 'blocked' &&
+          resolveChapterNarrativeBlock(composeStepResult.output)?.retryableInBodyLayer === true
+        ) {
+          return composeStepResult
+        }
+        // Compose has no downstream chain step. Returning the raw output lets
       // generateBodyArtifact own repair attempts; throwing here would turn a
       // repairable short draft into an immediate terminal API error.
       return result
