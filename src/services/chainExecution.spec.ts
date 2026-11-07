@@ -128,8 +128,30 @@ describe("body chain execution contract", () => {
     expect(finalPrompt).toContain("--- 上一步结构化交接（终步账本） ---")
     expect(finalPrompt).toContain("FACT_LOCK:人物状态=受伤")
     expect(finalPrompt).toContain("H1-01,H1-02")
-    expect(finalPrompt).not.toContain("【正文交接】")
+    expect(finalPrompt).toContain("【正文交接】\nextractedMeta[0]\n")
+    expect(finalPrompt).toContain("【正文交接结束】")
     expect(finalPrompt).not.toContain("--- 上一步结构化交接 ---\n- status")
+  })
+
+  it("preserves final-step ledger line structure for downstream field parsing", () => {
+    const finalPrompt = buildChainSkillPrompt({
+      initialPrompt: "原始章节执行包",
+      previousOutput: "S2完整输出",
+      isFirst: false,
+      delivery: "inline_block",
+      upstreamMetadata: {
+        extractedMeta: [
+          "【正文交接】\nFACT_LOCK:人物状态=受伤\r\n\r\n风险:伤势未愈\n【正文交接结束】"
+        ]
+      },
+      metadataMode: "final_step_ledger"
+    })
+
+    expect(finalPrompt).toContain(
+      "【正文交接】\nextractedMeta[0]\nFACT_LOCK:人物状态=受伤\n风险:伤势未愈\n【正文交接结束】"
+    )
+    expect(finalPrompt).not.toContain("\r")
+    expect(finalPrompt).not.toContain("FACT_LOCK:人物状态=受伤 风险:伤势未愈")
   })
 
   it("bounds the final-step ledger and records deterministic truncation", () => {
@@ -150,7 +172,7 @@ describe("body chain execution contract", () => {
     })
 
     expect(finalPrompt).toContain("truncated=true")
-    expect(finalPrompt).toMatch(/extractedMeta\[\d+\]:/)
+    expect(finalPrompt).toMatch(/extractedMeta\[\d+\]/)
     expect(finalPrompt).not.toMatch(/^- extractedMeta/m)
     expect(finalPrompt.length).toBeLessThan(16000)
   })

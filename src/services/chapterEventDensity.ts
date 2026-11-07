@@ -25,8 +25,10 @@ export interface ChapterNarrativeBlock {
   code: typeof CHAPTER_NARRATIVE_NOT_READY_CODE
   gap: string
   guidance: string
-  retryableInBodyLayer: false
+  retryableInBodyLayer: boolean
 }
+
+const HANDOFF_NOT_READY_PATTERN = /(?:^|\n)\s*\[(?:NOT-READY|BLOCK)\]\s*(.+)/i
 
 export function findChapterEventIncrementValue(text: string): string | null {
   const raw = String(text || '')
@@ -97,6 +99,15 @@ export function evaluateChapterEventIncrement(
 
 export function resolveChapterNarrativeBlock(text: string): ChapterNarrativeBlock | null {
   // Single-referee rule: the app consumes only an explicit SKILL narrative verdict.
+  const handoffNotReadyMatch = HANDOFF_NOT_READY_PATTERN.exec(String(text || ''))
+  if (handoffNotReadyMatch?.[1]) {
+    return {
+      code: CHAPTER_NARRATIVE_NOT_READY_CODE,
+      gap: handoffNotReadyMatch[1].split(/\r?\n/)[0].trim(),
+      guidance: 'SKILL 交接输入不可恢复：路由到生成步 targeted 修复。',
+      retryableInBodyLayer: true
+    }
+  }
   const verdict = detectChapterNarrativeVerdict(text)
   if (verdict.status === 'declared_not_ready' || verdict.status === 'unreadable_because_missing_handoff') {
     return {

@@ -106,6 +106,28 @@ describe('detectChapterNarrativeVerdict', () => {
 })
 
 describe('resolveChapterNarrativeBlock', () => {
+  it('routes a bare handoff not-ready envelope to generator repair', () => {
+    const result = resolveChapterNarrativeBlock(
+      '[NOT-READY] 交接输入不可恢复：归一化后仍缺字段：场景分段、场景字数、场景施工卡'
+    )
+
+    expect(result).toMatchObject({
+      code: CHAPTER_NARRATIVE_NOT_READY_CODE,
+      gap: '交接输入不可恢复：归一化后仍缺字段：场景分段、场景字数、场景施工卡',
+      retryableInBodyLayer: true
+    })
+  })
+
+  it('routes a bare BLOCK envelope to generator repair', () => {
+    const result = resolveChapterNarrativeBlock('[BLOCK] 交接输入不可恢复')
+
+    expect(result).toMatchObject({
+      code: CHAPTER_NARRATIVE_NOT_READY_CODE,
+      gap: '交接输入不可恢复',
+      retryableInBodyLayer: true
+    })
+  })
+
   it('routes an explicit not_ready verdict to the upstream block route', () => {
     const result = resolveChapterNarrativeBlock(
       '【正文交接】\nnarrativeStatus: not_ready\nnarrativeReason：状态改变动作场景数为 1'

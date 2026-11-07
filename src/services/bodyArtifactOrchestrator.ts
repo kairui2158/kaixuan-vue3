@@ -1,5 +1,6 @@
 import { parseGenerationResult } from './generationResult'
 import type { StructuredSkillStepOutput } from './stepArtifactAcceptance'
+import { resolveChapterNarrativeBlock } from './chapterEventDensity'
 import {
   isBodyArtifactContractInput,
   validateBodyArtifact,
@@ -76,12 +77,33 @@ export interface BodyArtifactRequestFingerprint {
   resumedFromBreakpoint: boolean
 }
 
+export interface BodyArtifactStructuredFailure {
+  callerStatus: 'success' | 'degraded' | 'failed' | 'blocked'
+  blockingGateFailed: boolean
+  handoffNotReady: boolean
+}
+
+export function resolveBodyStructuredFailure(input: {
+  output: string
+  callerStatus: 'success' | 'degraded' | 'failed' | 'blocked'
+  blockingGateFailed?: boolean
+}): BodyArtifactStructuredFailure {
+  return {
+    callerStatus: input.callerStatus,
+    blockingGateFailed: input.blockingGateFailed === true,
+    handoffNotReady: input.callerStatus === 'blocked' &&
+      resolveChapterNarrativeBlock(input.output)?.retryableInBodyLayer === true
+  }
+}
+
 export type BodyArtifactCallResult = string | {
   text: string
   fingerprint: BodyArtifactRequestFingerprint
+  structuredFailure?: BodyArtifactStructuredFailure
 } | (StructuredSkillStepOutput & {
   text?: string
   fingerprint?: BodyArtifactRequestFingerprint
+  structuredFailure?: BodyArtifactStructuredFailure
 })
 
 export interface GenerateBodyArtifactInput {
@@ -204,6 +226,7 @@ function buildPrompt(input: {
   previousBody: string
   previousWordCount: number
   targetWords: number
+  handoffNotReady?: boolean
   errors?: string[]
 }): string {
   if (input.repair === 'none') return input.basePrompt
@@ -212,7 +235,9 @@ function buildPrompt(input: {
       input.basePrompt,
       '',
       '上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。',
-      `上一版正文字数：${input.previousWordCount}，目标字数：${input.targetWords}；旧稿全文不进入本次请求。`,
+      input.handoffNotReady
+        ? `上一版结果是 SKILL 交接阻断消息，不是可用正文；目标字数：${input.targetWords}；旧稿全文不进入本次请求。`
+        : `上一版正文字数：${input.previousWordCount}，目标字数：${input.targetWords}；旧稿全文不进入本次请求。`,
       '错误如下：',
       ...(input.errors || []).map(error => `- ${error}`),
       '',
@@ -298,11 +323,16 @@ export async function generateBodyArtifact(
       }
     }
 
-    const lastAttempt = attempts[attempts.length - 1]
-    const previousBody = lastAttempt?.body ?? ''
-    const repairScope: BodyArtifactRepairScope = repairAttempt === 0
-      ? 'none'
-      : previousBody.trim().length === 0 || targetedRepairFailed
+  const lastAttempt = attempts[attempts.length - 1]
+  const structuredFailure = lastAttempt?.metadata?.structuredFailure as
+    | BodyArtifactStructuredFailure
+    | undefined
+  const previousBody = lastAttempt?.body ?? ''
+  const repairScope: BodyArtifactRepairScope = repairAttempt === 0
+    ? 'none'
+      : structuredFailure?.handoffNotReady
+        ? 'targeted'
+        : previousBody.trim().length === 0 || targetedRepairFailed
         ? 'full_chain'
         : 'targeted'
     const attemptId = createAttemptId(input.contract.chapterId, repairAttempt)
@@ -330,20 +360,27 @@ export async function generateBodyArtifact(
       previousBody: context.previousBody,
       previousWordCount: context.previousWordCount,
       targetWords: input.contract.targetWords,
+      handoffNotReady: structuredFailure?.handoffNotReady,
       errors: context.errors
     })
 
-    let raw: string
+    let raw: string = ''
     let fingerprint: BodyArtifactRequestFingerprint | undefined
     let callerErrors: string[] = []
+    let callStructuredFailure: BodyArtifactStructuredFailure | undefined
     try {
       const callResult = await input.callBodyApi(prompt, context)
       if (typeof callResult === 'string') {
         raw = callResult
-      } else if ('output' in callResult && typeof callResult.output === 'string') {
-        raw = callResult.output
+      } else if ('output' in callResult) {
+        raw = typeof callResult.output === 'string' ? callResult.output : String(callResult.output ?? '')
         callerErrors = (callResult.errors || []).filter(Boolean)
         fingerprint = callResult.fingerprint
+        callStructuredFailure = callResult.structuredFailure ||
+          resolveBodyStructuredFailure(callResult)
+      } else if ('structuredFailure' in callResult && callResult.structuredFailure) {
+        callStructuredFailure = callResult.structuredFailure
+        raw = String(callResult.text ?? '')
       } else {
         raw = String(callResult.text ?? '')
         if ('errors' in callResult && Array.isArray(callResult.errors)) {
@@ -427,7 +464,12 @@ export async function generateBodyArtifact(
         previousBody,
         degradationReason: validation.valid ? 'none' : validation.errors[0] || 'unknown'
       }),
-      ...(fingerprint ? { metadata: { requestFingerprint: fingerprint } } : {})
+      ...((fingerprint || callStructuredFailure) ? {
+        metadata: {
+          ...(fingerprint ? { requestFingerprint: fingerprint } : {}),
+          ...(callStructuredFailure ? { structuredFailure: callStructuredFailure } : {})
+        }
+      } : {})
     }
     attempts.push(attempt)
     input.onAttempt?.(attempt)

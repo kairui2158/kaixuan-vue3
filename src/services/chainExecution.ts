@@ -160,7 +160,7 @@ function formatFinalStepLedger(entries: Array<[string, unknown]>): string {
     let text: string
     if (key === 'extractedMeta' && Array.isArray(value)) {
       text = value.map(item => sanitizeFinalStepLedgerText(item)).filter(Boolean)
-        .map((item, index) => `extractedMeta[${index}]: ${item}`)
+        .map((item, index) => formatFinalStepExtractedMeta(item, index))
         .join('\n')
     } else {
       text = `- ${key}: ${sanitizeFinalStepLedgerText(value)}`
@@ -186,10 +186,23 @@ function formatFinalStepLedger(entries: Array<[string, unknown]>): string {
   return lines.join('\n') + suffix
 }
 
+function formatFinalStepExtractedMeta(item: string, index: number): string {
+  const body = /(?:^|\n)\s*【正文交接】\s*(?:\n|$)/.test(item)
+    ? item
+      .replace(/(?:^|\n)\s*【正文交接】\s*(?=\n)/, '\n')
+      .replace(/\n\s*【正文交接结束】\s*(?:\n|$)/, '\n')
+      .trim()
+    : item.trim()
+  return `【正文交接】\nextractedMeta[${index}]\n${body}\n【正文交接结束】`
+}
+
 function sanitizeFinalStepLedgerText(value: unknown): string {
   return String(value ?? '')
-    .replace(UPSTREAM_METADATA_MARKER, '[metadata-section]')
-    .replace(/\s+/g, ' ')
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map(line => line.trim())
+    .join('\n')
+    .replace(/\n{2,}/g, '\n')
     .trim()
 }
 

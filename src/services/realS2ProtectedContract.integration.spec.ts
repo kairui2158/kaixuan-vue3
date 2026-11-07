@@ -105,7 +105,8 @@ describe('real kaixuan S2 protected body contract', () => {
     ).join('')
     const candidateBody = Array.from(
       { length: 88 },
-      (_, index) => candidateProseSource.slice(index * 40, (index + 1) * 40)
+      (_, index) => candidateProseSource.slice(index * 40, index * 40 + 38) +
+        (index % 2 === 0 ? '手' : '眼') + '。'
     ).join('\n')
     const validOutput = [
       candidateBody,
@@ -118,6 +119,9 @@ describe('real kaixuan S2 protected body contract', () => {
       '已完成场景：场景1、场景2、场景3、场景4',
       '未完成场景：无',
       '来源覆盖状态：全部场景已覆盖',
+      '场景分段：场景1：入场发现；场景2：核对账册；场景3：追踪北仓；场景4：锁门收束',
+      '场景字数：场景1：880；场景2：880；场景3：880；场景4：860',
+      '场景施工卡：场景1：完整；场景2：完整；场景3：完整；场景4：完整',
       '角色状态变化：王芳找到账册',
       '章末状态：王芳准备去北仓',
       '下一章必须使用：旧账册线索',

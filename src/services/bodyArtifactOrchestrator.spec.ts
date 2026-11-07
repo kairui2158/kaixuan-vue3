@@ -235,6 +235,58 @@ describe('generateBodyArtifact', () => {
     expect(prompts[1]).toContain('只输出修复后的完整正文')
   })
 
+  it('routes a bare handoff block to generator repair and preserves its blocking message', async () => {
+    const blockedMessage =
+      '[NOT-READY] 交接输入不可恢复：归一化后仍缺字段：场景分段、场景字数、场景施工卡'
+    const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (prompt, context) => {
+        calls.push({ prompt, context })
+        return calls.length === 1
+          ? {
+              output: blockedMessage,
+              callerStatus: 'blocked',
+              blockingGateFailed: true,
+              errors: [blockedMessage]
+            } as any
+          : '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls[1].context?.repairScope).toBe('targeted')
+    expect(calls[1].prompt).toContain(blockedMessage)
+    expect(calls[1].prompt).not.toContain('上一版正文字数：')
+    expect(calls[1].prompt).toContain('上一版结果是 SKILL 交接阻断消息')
+    expect(calls[1].prompt).not.toContain('【上一版正文】')
+    expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
+      callerStatus: 'blocked',
+      blockingGateFailed: true,
+      handoffNotReady: true
+    })
+  })
+
+  it('uses structured-step output as the body while retaining structured failure metadata', async () => {
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async () => ({
+        output: '这是一段合格的正文。',
+        callerStatus: 'success',
+        errors: []
+      })
+    })
+
+    expect(result.status).toBe('complete')
+    expect(result.body).toBe('这是一段合格的正文。')
+    expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
+      callerStatus: 'success',
+      handoffNotReady: false
+    })
+  })
+
   it('marks an attempt execution_invalid when its fingerprint proves zero physical requests', async () => {
     const result = await generateBodyArtifact({
       contract,

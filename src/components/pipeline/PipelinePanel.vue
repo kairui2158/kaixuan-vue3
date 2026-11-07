@@ -871,7 +871,11 @@ import {
   contextConflictScopeForLayer,
   detectContextConflicts
 } from "../../services/contextConflictDetector"
-import { generateBodyArtifact, recordBodyArtifactPostProcess } from "../../services/bodyArtifactOrchestrator"
+import {
+  generateBodyArtifact,
+  recordBodyArtifactPostProcess,
+  resolveBodyStructuredFailure
+} from "../../services/bodyArtifactOrchestrator"
 import type { BodyArtifactExecutionPlan } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords, validateBodyArtifact } from "../../services/bodyArtifactContract"
 import type { BodyArtifactContract } from "../../services/bodyArtifactContract"
@@ -4329,7 +4333,9 @@ type RunStepSkillsExecutionPlan = {
   }
 }
 
-async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined, pipelineRunId: string | null | undefined = undefined) {
+async function runStepSkills(step: 1 | 2 | 3, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan, traceRunId?: string | null | undefined, pipelineRunId?: string | null | undefined): Promise<string>;
+async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan, traceRunId?: string | null | undefined, pipelineRunId?: string | null | undefined): Promise<string | StructuredSkillStepOutput>;
+async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined, pipelineRunId: string | null | undefined = undefined): Promise<string | StructuredSkillStepOutput> {
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
@@ -4346,8 +4352,9 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   const mode = getStepSkillMode(step)
   const skillNames = templates.map((t) => t.name).filter(Boolean);
   try {
-    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates, executionPlan, traceRunId, pipelineRunId);
-    execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(result||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
+    const result: string | StructuredSkillStepOutput = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates, executionPlan, traceRunId, pipelineRunId);
+    const resultText = typeof result === 'string' ? result : result.output;
+    execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(resultText||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
     return result;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
@@ -4383,7 +4390,7 @@ function sanitizeLegacyEnvelopeArtifact(text: string): {
   }
 }
 
-async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan, traceRunId: string | null | undefined = undefined, pipelineRunId: string | null | undefined = undefined) {
+async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan, traceRunId?: string | null | undefined, pipelineRunId?: string | null | undefined): Promise<string | StructuredSkillStepOutput> {
   const templates = hydratedTemplates
   const runId = traceRunId || null
   const mode = getStepSkillMode(step)
@@ -6468,7 +6475,11 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           executionPlan,
           trace.runId,
           pipelineBodyRunId
-        ).then(text => {
+        ).then(stepResultRaw => {
+          const stepResult = typeof stepResultRaw === 'string'
+            ? { output: stepResultRaw, callerStatus: 'success' as const, errors: [] as string[] }
+            : stepResultRaw
+          const structuredFailure = resolveBodyStructuredFailure(stepResult)
           if (bodyChainContractForRun(pipelineBodyRunId) && bodyGeneratorStepIndexForRun(pipelineBodyRunId) === null) {
             if (trace.runId) {
               runTraceStore.addEvent(trace.runId, {
@@ -6491,11 +6502,12 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
           const resumedFromBreakpoint = (runAfter?.events.slice(bodyApiEventsAtStart) || [])
             .some(event => event.type === 'chain-handoff-resume')
           return {
-            text,
+            text: stepResult.output,
+            structuredFailure,
             fingerprint: {
               physicalRequests,
               promptHash: hashEditorContent(requestPrompt),
-              outputHash: hashEditorContent(text),
+              outputHash: hashEditorContent(stepResult.output),
               resumedFromBreakpoint
             }
           }
