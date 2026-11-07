@@ -56,6 +56,7 @@ export default defineConfig(({ mode }) => {
     base: './',
     define: {
       __SHENYI_BUILD_MANIFEST__: JSON.stringify(buildManifest),
+      'import.meta.env.VITE_ENABLE_TEST_HOOKS': mode === 'test' ? JSON.stringify('1') : 'undefined',
     },
     resolve: {
       alias: {

@@ -19,6 +19,7 @@ describe('chat store saveSessions coalescing', () => {
   it('coalesces rapid final-draft message updates into one storageWrite', async () => {
     const store = useChatStore()
     store.loadSessions('test-coalesce')
+    expect(store.currentProjectId).toBe('test-coalesce')
     store.ensureSession('tab-1', 'chapter-1', '第一章', 'test-coalesce')
     const message = store.addMessage({ role: 'assistant', content: '准备中', tabId: 'tab-1' }, 'test-coalesce')
     expect(message).toBeTruthy()

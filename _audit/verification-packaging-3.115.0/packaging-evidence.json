@@ -1,23 +1,23 @@
 {
   "schemaVersion": "packaging-3.115.0-v1",
-  "generatedAt": "2026-11-06T11:31:23.102Z",
+  "generatedAt": "2026-11-07T05:08:23.579Z",
   "version": "3.115.0",
   "main": "electron/main.js",
   "installer": "dist\\神意助手-Setup-3.115.0.exe",
-  "installerBytes": 231667438,
-  "installerSha256": "433d1c29c42c69d4bec635bf9bfc0c9d0300d58a87d60c94162d6a0b6abdc36b",
+  "installerBytes": 231667697,
+  "installerSha256": "6bf98cf9cc31958760d7603b883edcdc2e57e22642d1deedc5e4462a9ea92873",
   "nsis": {
     "source": "package.json",
     "oneClick": false,
     "allowToChangeInstallationDirectory": true
   },
   "asarFile": "dist\\win-unpacked\\resources\\app.asar",
-  "asarMtime": "2026-11-06T11:27:48.841Z",
+  "asarMtime": "2026-11-07T05:06:25.109Z",
   "latestSourceFile": {
-    "file": "src\\services\\realSkillExecutor.spec.ts",
-    "mtime": 1793960114569.127
+    "file": "src\\services\\directWriteWiring.spec.ts",
+    "mtime": 1794026581335.09
   },
-  "latestSourceMtime": "2026-11-06T10:15:14.569Z",
+  "latestSourceMtime": "2026-11-07T04:43:01.335Z",
   "rendererFileCount": 87,
   "deaiContractValidationPackaged": true,
   "electronApiKeyCount": 94,

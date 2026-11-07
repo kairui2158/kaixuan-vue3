@@ -1025,10 +1025,9 @@ let homeFailedWriteBatch: {
 let lastToolCallSummary: string | null = null
 const messagesContainer = ref<HTMLElement | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
-const homeInputUnlockedByAgent = ref(false)
 const homeSendStarting = ref(false)
 const homeInputBlocked = computed(() =>
-  (isStreaming.value || homeSendStarting.value) && !homeInputUnlockedByAgent.value
+  isStreaming.value || homeSendStarting.value
 )
 const generationStatus = computed(() => chatStore.generationStatus)
 const generationMessage = computed(() => chatStore.generationMessage)
@@ -2411,7 +2410,7 @@ async function runHomeCoCreationSkills(
   terminalReason?: string
 }> {
   if (coCreationMode.value !== 'chain') {
-    throw new Error('compose SKILL 路径必须走统一 Agent 执行底座')
+    throw new Error('当前 SKILL 链路仅支持 chain 模式；compose 模式应走统一 Agent 执行底座')
   }
   const provider = providerStore.activeGenerateProvider
   const model = provider?.selectedModel || provider?.models?.[0] || ''
@@ -2960,7 +2959,6 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   }
   activeAbortController?.abort()
   activeAbortController = new AbortController()
-  homeInputUnlockedByAgent.value = false
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
   lastToolCallSummary = null
@@ -3970,7 +3968,6 @@ async function callApi(
       && status !== 'failed' && status !== 'canceled' && status !== 'completed') return
     if (activeAbortController !== inputLockController) return
     if (homeInputBlocked.value) {
-      homeInputUnlockedByAgent.value = true
       addHomeTraceEvent({
         type: 'input-unlocked-terminal-state',
         level: status === 'completed' ? 'info' : 'warn',
@@ -3978,17 +3975,6 @@ async function callApi(
         detail: `agent_status:${status}`,
       })
     }
-  }
-  const releaseInputOnInteractiveResponse = () => {
-    if (activeAbortController !== inputLockController) return
-    if (!homeInputBlocked.value) return
-    homeInputUnlockedByAgent.value = true
-    addHomeTraceEvent({
-      type: 'input-unlocked-interactive-response',
-      level: 'info',
-      label: '模型已给出正文，输入已解锁',
-      detail: 'agent_interactive_response',
-    })
   }
   const tracePipelineMetadata = buildContextPack(requestTarget, undefined, {
     provider,
@@ -4102,9 +4088,6 @@ async function callApi(
               })
             }
           }
-        }
-        if (event.type === 'interactive_response') {
-          releaseInputOnInteractiveResponse()
         }
         addHomeTraceEvent({
           type: `agent-${event.type}`,

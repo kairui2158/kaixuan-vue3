@@ -367,7 +367,7 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   return {
-    sessions, activeSessionId, activeSession, activeMessages, currentContext,
+    sessions, activeSessionId, activeSession, activeMessages, currentProjectId, currentContext,
     generationStatus, generationMessage, generationStartedAt,
     loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateLastMessageSkillDiagnostics, updateMessageContent, updateMessageRoutingState, replaceMessagePair, setGenerationState,
     clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch,

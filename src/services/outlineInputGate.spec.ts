@@ -53,16 +53,29 @@ describe('resolveOutlineInputGate', () => {
     }
   })
 
-  it('keeps agent replies usable while the orchestrator waits for the user', () => {
+  it('retires agent-reply early unlocking while a physical request is running', () => {
     expect(resolveOutlineInputGate({
       isGenerating: true,
       awaitingUser: false,
       runId: 'run-1',
-      interactiveResponseActive: true,
     })).toMatchObject({
-      mode: 'agent_reply',
-      canSend: true,
-      sendTarget: 'agent_reply',
+      mode: 'free',
+      canSend: false,
+      disabledReason: 'generation_running',
+    })
+  })
+
+  it('does not treat a running-request free gate as a resumable send target', () => {
+    const gate = resolveOutlineInputGate({
+      isGenerating: true,
+      awaitingUser: false,
+      runId: 'run-1',
+    })
+
+    expect(gate).toMatchObject({ mode: 'free', canSend: false, sendTarget: 'new_run' })
+    expect(resolveOutlineEntryDecision('send', gate)).toMatchObject({
+      allowed: false,
+      expectedSendTarget: 'new_run',
     })
   })
 

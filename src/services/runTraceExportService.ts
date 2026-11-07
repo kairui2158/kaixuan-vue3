@@ -1,6 +1,6 @@
 import type { RunTrace } from '../stores/runTrace'
 
-export const RUN_TRACE_EXPORT_SCHEMA_VERSION = 22
+export const RUN_TRACE_EXPORT_SCHEMA_VERSION = 23
 
 export type RunTraceExportRequest =
   | { type: 'export-json'; run: RunTrace; id: string }

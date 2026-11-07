@@ -1366,6 +1366,29 @@ describe('runTrace store', () => {
     expect(JSON.stringify(exported)).toContain('retainedCandidateIndex')
   })
 
+  it('bounds prompt snapshot final messages and records truncation evidence', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ stepName: '大纲共创', mode: 'direct', skillNames: [] })
+    const overflowChars = 250_000
+    const promptId = store.attachPromptSnapshot(runId, {
+      contextBlocks: [],
+      finalMessages: [
+        { role: 'system', content: 's'.repeat(60_000) },
+        { role: 'user', content: 'u'.repeat(190_001) },
+        { role: 'assistant', content: 'kept' },
+      ],
+    })
+    const snapshot = store.getRun(runId)?.promptSnapshots?.find(item => item.id === promptId)
+    expect(snapshot?.finalMessagesTruncated).toBe(true)
+    expect(snapshot?.finalMessagesTruncatedChars).toBe(60_000)
+    expect(snapshot?.finalMessages.map(message => message.content).join('').length)
+      .toBe(190_005)
+    expect(snapshot?.finalMessages[0].content).toBe('u'.repeat(190_001))
+    expect(snapshot?.finalMessages[1].content).toBe('kept')
+    expect(store.exportRunToJson(store.getRun(runId)!))
+      .toMatchObject({ schemaVersion: 23, exportSchemaVersion: 23 })
+  })
+
   it('keeps the retained candidate index on the API call even when the aggregate response is empty', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'body', skillNames: ['正文技能'] })
@@ -2217,8 +2240,8 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(22)
-    expect(exported.exportSchemaVersion).toBe(22)
+    expect(exported.schemaVersion).toBe(23)
+    expect(exported.exportSchemaVersion).toBe(23)
   })
 
   it('persists provider diagnostics and keeps them when terminal updates omit them', () => {
@@ -2283,7 +2306,7 @@ describe('runTrace store', () => {
       expect(exported.events?.some(event => event.type === type)).toBe(true)
       expect(store.exportRunToText(run)).toContain(type)
     })
-    expect(exported.schemaVersion).toBe(22)
+    expect(exported.schemaVersion).toBe(23)
   })
 
   it('keeps a successful final body artifact successful while preserving degraded call evidence', () => {
@@ -3047,7 +3070,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(22)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(23)
   })
 
   it('records the requested and actual tool surface separately', () => {

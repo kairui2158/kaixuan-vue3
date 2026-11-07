@@ -112,8 +112,14 @@
                 <button type="button" @click="sourceContaminationNotice = ''">知道了</button>
               </div>
             </div>
-            <div v-if="compatibilityNotice" id="ow-compatibility-notice" class="ow-msg assistant">
-              <div class="ow-msg-bubble">{{ compatibilityNotice }}</div>
+            <div v-if="resetCompatibilityNotice" id="ow-compatibility-notice" class="ow-msg assistant">
+              <div class="ow-msg-bubble">{{ resetCompatibilityNotice }}</div>
+            </div>
+            <div v-if="toolCompatibilityNotice" id="ow-tool-compatibility-notice" class="ow-msg assistant">
+              <div class="ow-msg-bubble">{{ toolCompatibilityNotice }}</div>
+            </div>
+            <div v-if="restoreCompatibilityNotice" id="ow-restore-compatibility-notice" class="ow-msg assistant">
+              <div class="ow-msg-bubble">{{ restoreCompatibilityNotice }}</div>
             </div>
             <DynamicScroller
               v-if="messageVirtualizationEnabled"
@@ -487,10 +493,10 @@ import {
 import type { ContextMessage } from '../../types/context'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { extractJsonArray } from '../../services/jsonExtraction'
+import { createEditorTargetSnapshot } from '../../services/editorTarget'
 import {
   createOutlineInputGateFlags,
   resolveOutlineEntryDecision,
-  resolveOutlineExecutionLocked,
   resolveOutlineInputGate,
   type OutlineEntryDecision,
   type OutlineInputEntryKind,
@@ -681,7 +687,9 @@ const isFullscreen = ref(false)
 const saveFeedback = ref('')
 const lastUserRequest = ref('')
 const currentRoutingIntent = ref<PlainDialogueIntent>('discuss')
-const compatibilityNotice = ref('')
+const toolCompatibilityNotice = ref('')
+const resetCompatibilityNotice = ref('')
+const restoreCompatibilityNotice = ref('')
 const sourceContaminationNotice = ref('')
 const showRunTrace = ref(false)
 
@@ -1248,7 +1256,6 @@ async function runOutlineFinalDraftTurn(options: {
   const releaseRunTracking = beginActiveOutlineRunTracking()
   try {
     isGenerating.value = true
-    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在生成终稿...'
     addOutlineTraceEvent({
       type: 'final-draft-mode-selected',
@@ -1384,7 +1391,6 @@ async function continueOutlineFinalDraft(index: number) {
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
-    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在继续生成终稿...'
     projectStore.updateOutlineChatAt(index, { content: '正在继续生成终稿...' })
     const aiService = await getAiService()
@@ -1524,7 +1530,6 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
-    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在重试当前终稿分段...'
     projectStore.updateOutlineChatAt(index, { content: '正在重试当前终稿分段...' })
     const aiService = await getAiService()
@@ -1626,12 +1631,15 @@ async function resumeOutlineFinalDraft(index: number) {
   const abortController = new AbortController()
   const activeCancelController = new AbortController()
   const releaseRunTracking = beginActiveOutlineRunTracking()
+  startOutlineRun('resume-final-draft', '恢复终稿生成', [], {
+    intent: 'generate',
+    longDocument: true,
+  })
   generationController = abortController
   cancelController = activeCancelController
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
-    outlineInputGateFlags.interactiveResponseActive = false
     generationStatus.value = '正在恢复终稿检查点...'
     projectStore.updateOutlineChatAt(index, { content: '正在恢复终稿检查点...' })
     const aiService = await getAiService()
@@ -1816,7 +1824,12 @@ function recordOutlineFinalDraftTaskEvent(task: FinalDraftTask, event: FinalDraf
 }
 
 function outlineDocumentVersion() {
-  return editorStore.listUndoContentsForTab('outline').length > 0 ? 1 : 0
+  return createEditorTargetSnapshot({
+    workspace: 'outline',
+    targetId: 'outline',
+    label: '大纲',
+    content: projectStore.outlineText || '',
+  }).contentVersion
 }
 
 function isOutlineFinalDraftRequest(
@@ -3103,7 +3116,6 @@ const outlineInputGate = computed(() => resolveOutlineInputGate({
   ),
   runId: outlineRunTraceId,
   resumeToken: outlineLatestAwaitResumeToken.value,
-  interactiveResponseActive: outlineInputGateFlags.interactiveResponseActive,
   sendStarting: outlineInputGateFlags.sendStarting,
   runLease: outlineInputGateFlags.runLease,
 }))
@@ -3204,22 +3216,17 @@ function discardOutlineStreamRecovery() {
     })
   })
 }
-// The send-starting flag only suppresses duplicate UI submits. askAi is part
-// of that same send flow, so execution gating must use the generation state.
-const outlineExecutionLocked = computed(() =>
-  resolveOutlineExecutionLocked({
-    isGenerating: isGenerating.value,
-    interactiveResponseActive: outlineInputGateFlags.interactiveResponseActive,
-  })
-)
 const generationStatus = ref('')
 const streamingContent = ref('')
 // Test-only hook for Electron CDP verification of the live API status surface.
-;(window as any).__shenyiOutlineStatusTestHook = {
-  set(active: boolean, message: string) {
-    isGenerating.value = active
-    generationStatus.value = message
-  },
+const enableOutlineTestHooks = import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_HOOKS === '1'
+if (enableOutlineTestHooks) {
+  ;(window as any).__shenyiOutlineStatusTestHook = {
+    set(active: boolean, message: string) {
+      isGenerating.value = active
+      generationStatus.value = message
+    },
+  }
 }
 const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => ({
   active: isGenerating.value,
@@ -3573,7 +3580,7 @@ function createWorkspaceSkillAdapter(
           }))
           },
           onCompatibilityMode: () => {
-            compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
+            toolCompatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
           }
         } : undefined
       }
@@ -4967,7 +4974,7 @@ async function sendMessage() {
     outlineInputGateFlags.sendStarting = false
     if (outlineShouldPreserveAwaitingRunLease(outlineRunTraceId)) {
       outlineInputGateFlags.runLease = 'same_run'
-    } else if (inputGate.mode !== 'agent_reply') {
+    } else {
       outlineInputGateFlags.runLease = 'none'
     }
   }
@@ -5104,7 +5111,7 @@ function addOutlineRoutingDiagnostics(
 }
 
 async function askAi(requestText: string, routingDecision: OutlineRoutingDecision = {}) {
-  if (outlineExecutionLocked.value) {
+  if (isGenerating.value || streamingContent.value) {
     const activeOutlineTraceId = outlineRunTraceId
       ? runTraceStore.getRun(outlineRunTraceId)
       : null
@@ -5288,7 +5295,6 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   })
   generationController = new AbortController()
   isGenerating.value = true
-  outlineInputGateFlags.interactiveResponseActive = false
   generationStatus.value = '正在连接 API...'
   streamingContent.value = ''
   pendingOutlineDirectWrite.value = null
@@ -5308,7 +5314,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   try {
     const aiService = await getAiService()
     if (workspaceSkillMode.value !== 'chain') {
-      throw new Error('compose SKILL 路径必须走统一 Agent 执行底座')
+      throw new Error('当前 SKILL 链路仅支持 chain 模式；compose 模式应走统一 Agent 执行底座')
     }
     let responseText = ''
     // Resume keeps the exhausted run's used count and user-approved extension.
@@ -5474,7 +5480,17 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
       },
       onRoutingEvent: event => recordOutlineRoutingEvent(event),
       onArtifactAcceptance: (acceptance, stepIndex, mode) => {
-        if (acceptance.reason === 'no_contract') return
+        if (acceptance.reason === 'no_contract') {
+          addOutlineTraceEvent({
+            type: 'workspace-artifact-no-contract',
+            level: 'info',
+            label: '大纲产物无契约，按普通文本通过',
+            detail: `mode=${mode}; step=${stepIndex}; reason=${acceptance.terminalReason}`,
+            payload: acceptance.traceDetail,
+            turnId: outlineRunTurnId,
+          })
+          return
+        }
         outlineSkillTerminalStatus = acceptance.terminalStatus
         outlineSkillTerminalReason = acceptance.terminalReason
         addOutlineTraceEvent({
@@ -6005,7 +6021,6 @@ async function askPlainAi(
   pendingOutlineDirectWrite.value = null
     outlineFailedWriteBatch = null
     isGenerating.value = true
-  outlineInputGateFlags.interactiveResponseActive = false
   const startedAt = performance.now()
   const requestStartedAt = Date.now()
   let firstChunkSeen = false
@@ -6203,15 +6218,6 @@ async function askPlainAi(
             }
           }
         }
-        if (event.type === 'interactive_response' && outlineInputBlocked.value) {
-          outlineInputGateFlags.interactiveResponseActive = true
-          addOutlineTraceEvent({
-            type: 'input-unlocked-interactive-response',
-            level: 'info',
-            label: '模型已给出正文，输入已解锁',
-            detail: 'agent_interactive_response',
-          })
-        }
         addOutlineTraceEvent({
           type: `agent-${event.type}`,
           level: event.level === 'warning' ? 'warn' : event.level,
@@ -6376,7 +6382,7 @@ async function askPlainAi(
           })
         },
         onCompatibilityMode: () => {
-          compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
+          toolCompatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
         }
       } : undefined,
       callAi: withOutlineAiMeta(aiService!, 'OutlineWorkspace.askAi').callAi,
@@ -6460,7 +6466,7 @@ async function askPlainAi(
         label: '兼容模式完成大纲直写',
         detail: 'compatibility_write=true'
       })
-      compatibilityNotice.value = '兼容模式直写：本次大纲写入已执行，但模型定位可靠性较低'
+      toolCompatibilityNotice.value = '兼容模式直写：本次大纲写入已执行，但模型定位可靠性较低'
     }
     if (result.toolCalls?.length) {
       addOutlineTraceEvent({
@@ -6568,8 +6574,9 @@ async function askPlainAi(
           firstChunkSeen = false
           directStreamText = ''
           streamingContent.value = ''
+          let retryTraceApiCallId: string | undefined
           try {
-            const retryTraceApiCallId = startOutlineApiCall({
+            retryTraceApiCallId = startOutlineApiCall({
               skillName: '直接对话·停滞重试',
               requestMessages: requestMessages.map(message => ({
                 role: String(message.role || ''),
@@ -6767,19 +6774,13 @@ async function askPlainAi(
               plainAiTurnSucceeded = true
             }
           } catch (retryError: any) {
-            const activeTrace = (runTraceStore as any).activeTraces?.outline
-            const openRetryCall = activeTrace?.apiCalls?.find((call: any) =>
-              call.skillName === '直接对话·停滞重试' && call.status === 'running'
-            )
-            if (openRetryCall) {
-              finishOutlineApiCall(openRetryCall.id, {
-                status: 'failed',
-                responseText: '',
-                finishReason: toolRunSupervisor.reason || 'edit_retry_failed',
-                durationMs: Date.now() - requestStartedAt,
-                error: retryError?.message || String(retryError),
-              })
-            }
+            finishOutlineApiCall(retryTraceApiCallId, {
+              status: 'failed',
+              responseText: '',
+              finishReason: toolRunSupervisor.reason || 'edit_retry_failed',
+              durationMs: Date.now() - requestStartedAt,
+              error: retryError?.message || String(retryError),
+            })
             const retryReadable = toolRunSupervisor.reason
               ? '模型未响应（非权限问题）：重试请求仍停滞，请稍后重试或换用模型。'
               : readableToolLoopError(retryError, plainAiResult?.finishReason)
@@ -6866,8 +6867,8 @@ async function askPlainAi(
           completion: outlineCompletion,
         })
       }
-      reportOutlineEditTaskCompletion(outlineEditTaskSession.completionReport())
       const completionReport = outlineEditTaskSession.completionReport()
+      reportOutlineEditTaskCompletion(completionReport)
       const finalOutlineEditTask = finishedOutlineEditTask || outlineEditTaskSession.activeTask()
       if (outlineAgentTerminal) {
         const mergedOutlineTerminal = mergeEditTaskTerminal({
@@ -6929,7 +6930,6 @@ async function continueOutlineMessage(index: number) {
     detail: `已生成 ${snapshot.accumulatedText.length} 字，finish_reason=${snapshot.finishReason}，第 ${snapshot.continuationCount + 1} 次续生成`
   })
   isGenerating.value = true
-  outlineInputGateFlags.interactiveResponseActive = false
   generationStatus.value = '正在续生成…'
   streamingContent.value = snapshot.accumulatedText
   generationController = new AbortController()
@@ -7056,10 +7056,10 @@ async function resetConversation() {
       purpose: 'generate'
     })
     inputText.value = ''
-    compatibilityNotice.value = '上下文已重置，API 将从当前大纲重新开始。'
+    resetCompatibilityNotice.value = '上下文已重置，API 将从当前大纲重新开始。'
   } catch (error) {
     console.error('[outline] reset conversation failed:', error)
-    compatibilityNotice.value = '重置对话失败：' + (error instanceof Error ? error.message : String(error))
+    resetCompatibilityNotice.value = '重置对话失败：' + (error instanceof Error ? error.message : String(error))
   }
 }
 
@@ -7077,12 +7077,12 @@ async function restoreLegacyConversation() {
     await removeContinuation(outlineProjectId(), OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
     const result = await projectStore.restoreOutlineLegacyJournal()
     if (!result.ok) throw new Error(result.error || 'outline_legacy_restore_failed')
-    compatibilityNotice.value = `已恢复备份对话 ${result.restoredCount || 0} 条。`
+    restoreCompatibilityNotice.value = `已恢复备份对话 ${result.restoredCount || 0} 条。`
     await nextTick()
     await scrollToBottom()
   } catch (error) {
     console.error('[outline] restore legacy conversation failed:', error)
-    compatibilityNotice.value = '恢复备份对话失败：' + (error instanceof Error ? error.message : String(error))
+    restoreCompatibilityNotice.value = '恢复备份对话失败：' + (error instanceof Error ? error.message : String(error))
   }
 }
 

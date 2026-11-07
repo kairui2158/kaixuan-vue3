@@ -595,6 +595,8 @@ export interface RunTracePromptSnapshot {
   systemPrompt?: string
   userPrompt?: string
   finalMessages: RunTraceMessage[]
+  finalMessagesTruncated?: boolean
+  finalMessagesTruncatedChars?: number
 }
 
 export interface RunTraceProcessingReport {
@@ -915,6 +917,8 @@ export interface PromptSnapshotInput {
   userPrompt?: string
   finalMessages: RunTraceMessage[]
 }
+
+const runTracePromptMessageMemoryChars = 200_000
 
 export interface ProcessingReportInput {
   apiCallId?: string
@@ -2103,6 +2107,16 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
     const run = getRun(runId)
     if (!run) return ''
     run.promptSnapshots = run.promptSnapshots || []
+    const finalMessages = input.finalMessages.map(m => ({ role: m.role, content: m.content }))
+    let finalMessagesChars = finalMessages.reduce((total, message) => total + message.content.length, 0)
+    let finalMessagesTruncated = false
+    let finalMessagesTruncatedChars = 0
+    while (finalMessagesChars > runTracePromptMessageMemoryChars && finalMessages.length) {
+      const removed = finalMessages.shift()!
+      finalMessagesTruncated = true
+      finalMessagesTruncatedChars += removed.content.length
+      finalMessagesChars -= removed.content.length
+    }
     const snapshot: RunTracePromptSnapshot = {
       id: nextId('prompt'),
       apiCallId: input.apiCallId,
@@ -2118,7 +2132,11 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       folderFingerprint: input.folderFingerprint,
       systemPrompt: input.systemPrompt,
       userPrompt: input.userPrompt,
-      finalMessages: input.finalMessages.map(m => ({ role: m.role, content: m.content }))
+      finalMessages,
+      ...(finalMessagesTruncated ? {
+        finalMessagesTruncated,
+        finalMessagesTruncatedChars,
+      } : {}),
     }
     run.promptSnapshots.push(snapshot)
     if (input.apiCallId) {

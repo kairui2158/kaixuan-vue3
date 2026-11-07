@@ -1,9 +1,9 @@
-export type OutlineInputGateMode = 'new_run' | 'resume_run' | 'agent_reply' | 'free'
+export type OutlineInputGateMode = 'new_run' | 'resume_run' | 'free'
 
 export type OutlineInputGateState = {
   mode: OutlineInputGateMode
   canSend: boolean
-  sendTarget: 'new_run' | 'resume_run' | 'agent_reply'
+  sendTarget: 'new_run' | 'resume_run'
   disabledReason: string | null
   runId: string | null
   resumeToken: string | null
@@ -14,13 +14,11 @@ export type OutlineInputGateInput = {
   awaitingUser: boolean
   runId?: string | null
   resumeToken?: string | null
-  interactiveResponseActive?: boolean
   sendStarting?: boolean
   runLease?: 'same_run' | 'new_run' | 'expired' | 'none'
 }
 
 export type OutlineInputGateFlags = {
-  interactiveResponseActive: boolean
   sendStarting: boolean
   runLease: 'same_run' | 'new_run' | 'expired' | 'none'
 }
@@ -40,16 +38,9 @@ export type OutlineEntryDecision = {
 
 export function createOutlineInputGateFlags(): OutlineInputGateFlags {
   return {
-    interactiveResponseActive: false,
     sendStarting: false,
     runLease: 'none',
   }
-}
-
-export function resolveOutlineExecutionLocked(
-  input: Pick<OutlineInputGateInput, 'isGenerating' | 'interactiveResponseActive'>,
-): boolean {
-  return input.isGenerating && !input.interactiveResponseActive
 }
 
 export function resolveOutlineInputGate(input: OutlineInputGateInput): OutlineInputGateState {
@@ -59,17 +50,6 @@ export function resolveOutlineInputGate(input: OutlineInputGateInput): OutlineIn
       canSend: false,
       sendTarget: 'new_run',
       disabledReason: 'send_starting',
-      runId: input.runId || null,
-      resumeToken: input.resumeToken || null,
-    }
-  }
-
-  if (input.interactiveResponseActive) {
-    return {
-      mode: 'agent_reply',
-      canSend: true,
-      sendTarget: 'agent_reply',
-      disabledReason: null,
       runId: input.runId || null,
       resumeToken: input.resumeToken || null,
     }
@@ -122,6 +102,8 @@ export function resolveOutlineEntryDecision(
   entry: OutlineInputEntryKind,
   gate: OutlineInputGateState,
 ): OutlineEntryDecision {
+  // 'free' only marks a physical request already in flight; it can never be
+  // its own send target, so it resolves to the run lease instead.
   if (!gate.canSend) {
     return {
       allowed: false,
@@ -143,8 +125,6 @@ export function resolveOutlineEntryDecision(
   return {
     allowed: true,
     deferReason: null,
-    expectedSendTarget: gate.mode === 'agent_reply' && entry === 'send'
-      ? 'agent_reply'
-      : 'new_run',
+    expectedSendTarget: 'new_run',
   }
 }

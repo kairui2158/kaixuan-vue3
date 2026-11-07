@@ -1803,3 +1803,11 @@
 - 交付：`longestCommonSentenceSequence` 由 O(n×m) 二维矩阵改为滚动数组（O(m) 空间），消除 20k 字符长文的 150 万格矩阵分配与 GC 压力；性能测试补同负载预热，考核长驻进程稳态而非冷启动噪声；STACK.md 规则源版本同步 v10.3.0；DEV_LOG_MASTER_INDEX 更新日期同步。
 - 验证：探针 before `gateMs 40.81-75.31ms`，after 多数 run 降至 `17.86-26.58ms`；定向 `de-ai-v2.spec.ts` 三连 14/14 passed；全量服务测试 248 files / 2672 tests passed；`vue-tsc --noEmit` exit 0。
 - 边界：探针偶发 GC 尖刺仍可能出现在极端冷启动场景，但稳态预算 300ms 保留充足余量；`evaluateDeepFixEdit` 仍为 O(n×m) 时间复杂度，20k 字符场景实测充分，更长文本需重新标定。
+
+# 2026-11-07 大纲编辑器 V1.2 Phase 5 收尾
+
+- 文件：[_audit/DEV_LOG_2026-11-07-outline-editor-v1.2-phase5-closeout.md](_audit/DEV_LOG_2026-11-07-outline-editor-v1.2-phase5-closeout.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_outline-editor-deep-repair_V1.2.md](_audit/TASK_LEDGERS/TASK_LEDGER_outline-editor-deep-repair_V1.2.md)
+- 交付：完成大纲共创编辑器 V1.2 六阶段闭环；补 chat store `currentProjectId` 状态暴露与行为断言，跨平台 test 构建，修正 legacy 恢复 E2E 数据面断言，完成 3.116.0 封装。
+- 验证：type-check exit 0；全量服务 249 files / 2679 tests（2678 passed，1 个 SKILL 侧外部缺陷失败）；build 与 verify:packaging exit 0；Electron legacy 恢复 E2E exit 0，76/76 条恢复且备份保留。
+- 边界：realS2ProtectedContract 外部缺陷如实登记；旧 3.110.6 安装包系统删除被拒，登记为清理残留。

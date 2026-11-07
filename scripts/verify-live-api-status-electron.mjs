@@ -62,7 +62,7 @@ function startElectron() {
       SHENYI_DATA_DIR: path.join(PROFILE, 'documents-data'),
       SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'),
     },
-    windowsHide: false,
+      windowsHide: false,
   })
   console.log(`[VISIBLE ELECTRON] pid=${child.pid}`)
   child.stdout.on('data', chunk => {
