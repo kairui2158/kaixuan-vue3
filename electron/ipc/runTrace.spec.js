@@ -62,6 +62,74 @@ describe('run trace payload deduplication', () => {
     expect(built.payloads.find(item => item.kind === 'request').artifactRole).toBe('final')
   })
 
+  it('records first seen attempt ownership without reordering payload ids', () => {
+    const sharedRequest = [{ role: 'user', content: 'S1 重试请求' }]
+    const run = {
+      status: 'success',
+      apiCalls: [
+        {
+          id: 'api-001',
+          seq: 1,
+          requestMessages: [{ role: 'user', content: 'S1 请求' }],
+          responseText: 'S1 输出',
+          physicalCalls: [
+            {
+              id: 'physical-001',
+              physicalCallId: 'physical-attempt-1',
+              seq: 1,
+              requestMessages: sharedRequest,
+              responseText: '第一次尝试输出'
+            },
+            {
+              id: 'physical-002',
+              physicalCallId: 'physical-attempt-2',
+              seq: 2,
+              requestMessages: sharedRequest,
+              responseText: '最终尝试输出'
+            }
+          ]
+        },
+        {
+          id: 'api-002',
+          seq: 2,
+          requestMessages: [{ role: 'user', content: 'S2 请求' }],
+          responseText: 'S2 输出'
+        }
+      ],
+      promptSnapshots: [{ id: 'prompt-001', apiCallId: 'api-001', systemPrompt: 'S1' }],
+      processingReports: [{ id: 'report-001', inputPreview: '处理输入', outputPreview: '处理输出' }],
+      folderDiagnostics: [{ status: 'success', output: 'S2 输出' }]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    const requestRef = built.refs.find(ref => ref.kind === 'request' && ref.sha256 ===
+      built.refs.find(item => item.kind === 'request' && item.firstSeen?.physicalCallId === 'physical-attempt-1')?.sha256)
+
+    expect(built.refs.filter(ref => ref.kind === 'request')).toHaveLength(3)
+    expect(requestRef.duplicateCount).toBe(2)
+    expect(requestRef.id).toBe('payload-003')
+    expect(requestRef.firstSeen).toEqual({
+      apiCallId: 'api-001',
+      apiCallSeq: 1,
+      physicalCallId: 'physical-attempt-1',
+      physicalCallSeq: 1
+    })
+
+    const indexByRef = new Map(built.run.payloadToAttemptIndex.map(entry => [entry.payloadRef, entry]))
+    expect(indexByRef.get('payload-003')).toEqual({
+      payloadRef: 'payload-003',
+      apiCallId: 'api-001',
+      apiCallSeq: 1,
+      physicalCallId: 'physical-attempt-1',
+      physicalCallSeq: 1
+    })
+    expect(indexByRef.get('payload-001').firstSeenSource).toBeUndefined()
+    expect(indexByRef.get('payload-008').firstSeenSource).toBe('promptSnapshots')
+    expect(indexByRef.get('payload-009').firstSeenSource).toBe('processingReports')
+    expect(indexByRef.get('payload-010').firstSeenSource).toBe('processingReports')
+    expect(indexByRef.get('payload-011').firstSeenSource).toBe('folderDiagnostics')
+  })
+
   it('keeps running chain requests intermediate even when diagnostics repeat the last request', () => {
     const request = [
       { role: 'system', content: 'S'.repeat(1200) },
@@ -312,6 +380,11 @@ describe('run trace payload deduplication', () => {
     expect(indexEntry.reasoning.ref).toBeTruthy()
     expect(indexEntry.physicalCalls[0].physicalCallId).toBe('physical-call-001')
     expect(indexEntry.physicalCalls[0].response.ref).toBe(built.run.apiCalls[0].physicalCalls[0].responseTextPayloadRef)
+
+    const ownerByRef = new Map(built.run.payloadToAttemptIndex.map(entry => [entry.payloadRef, entry]))
+    const streamOwner = ownerByRef.get(indexEntry.stream.ref)
+    expect(streamOwner.apiCallId).toBe(indexEntry.apiCallId)
+    expect(streamOwner.apiCallSeq).toBe(indexEntry.seq)
 
     const responseRef = built.refs.find(ref => ref.id === indexEntry.response.ref)
     const responsePayload = built.payloads.find(item => item.kind === 'response').value

@@ -513,6 +513,7 @@ export interface RunTrace {
   processingReports?: RunTraceProcessingReport[]
   payloads?: RunTracePayloadRef[]
   apiResponseIndex?: RunTraceApiResponseIndexEntry[]
+  payloadToAttemptIndex?: RunTracePayloadToAttemptIndexEntry[]
   payloadIntegrityWarnings?: string[]
   /** Exact event accounting for compacted runs; events are a bounded recent window. */
   eventLedger?: {
@@ -520,6 +521,7 @@ export interface RunTrace {
     droppedInfoEvents: number
     droppedWarnEvents: number
     droppedErrorEvents: number
+    droppedInfoEventsByType?: Record<string, number>
   }
   dirName?: string
   currentTurnId?: string
@@ -639,6 +641,13 @@ export interface RunTracePayloadRef {
   sha256: string
   createdAt: number
   artifactRole?: 'final' | 'intermediate'
+  firstSeen?: {
+    apiCallId?: string
+    apiCallSeq?: number
+    physicalCallId?: string
+    physicalCallSeq?: number
+    firstSeenSource?: string
+  }
 }
 
 export interface RunTraceApiResponseRef {
@@ -648,6 +657,15 @@ export interface RunTraceApiResponseRef {
   bytes: number
   chars: number
   preview?: string
+}
+
+export interface RunTracePayloadToAttemptIndexEntry {
+  payloadRef: string
+  apiCallId?: string
+  apiCallSeq?: number
+  physicalCallId?: string
+  physicalCallSeq?: number
+  firstSeenSource?: string
 }
 
 export interface RunTraceApiResponseIndexEntry {
@@ -1028,6 +1046,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   'deai-quality-gate-degraded',
   'schema-retry-feedback-composed',
   'final-step-feedback-composed',
+  'body-feedback-audit',
   'body-generator-step-resume-restored',
   'runtime-fingerprint-missing',
 ])
@@ -1636,13 +1655,46 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
     )
     if (evictInfoCount <= 0) return
     const ledger = ensureEventLedger(run)
+    const seenCountByType = new Map<string, number>()
+    const duplicateBudgetByType = new Map<string, number>()
+    for (const event of run.events) {
+      const eventType = String(event.type || 'unknown')
+      const seenCount = seenCountByType.get(eventType) || 0
+      seenCountByType.set(eventType, seenCount + 1)
+      if (seenCount > 0) {
+        duplicateBudgetByType.set(eventType, (duplicateBudgetByType.get(eventType) || 0) + 1)
+      }
+    }
+
+    // Preserve the first occurrence of each diagnostic event type. Later
+    // duplicates are compacted first so historical audit evidence survives
+    // bursts of repeated heartbeat or status events.
+    const remainingByType = new Map(seenCountByType)
     let remainingEvictions = evictInfoCount
-    run.events = run.events.filter(event => {
-      if (remainingEvictions <= 0 || isProtected(event)) return true
-      remainingEvictions -= 1
-      ledger.droppedInfoEvents += 1
-      return false
-    })
+    const compactEvents = (sourceEvents: RunTraceEvent[], duplicatePhase: boolean) =>
+      sourceEvents.filter(event => {
+        if (isProtected(event) || remainingEvictions <= 0) return true
+        const eventType = String(event.type || 'unknown')
+        const budget = duplicatePhase
+          ? duplicateBudgetByType.get(eventType) || 0
+          : remainingByType.get(eventType) || 0
+        if (budget <= 0 || (remainingByType.get(eventType) || 0) <= 0) return true
+        remainingByType.set(eventType, (remainingByType.get(eventType) || 0) - 1)
+        if (duplicatePhase) {
+          duplicateBudgetByType.set(eventType, budget - 1)
+        }
+        ledger.droppedInfoEvents += 1
+        ledger.droppedInfoEventsByType = ledger.droppedInfoEventsByType || {}
+        ledger.droppedInfoEventsByType[eventType] =
+          (ledger.droppedInfoEventsByType[eventType] || 0) + 1
+        remainingEvictions -= 1
+        return false
+      })
+
+    run.events = compactEvents(run.events, true)
+    if (remainingEvictions > 0) {
+      run.events = compactEvents(run.events, false)
+    }
   }
 
   function reportEventCompactionOnce(run: RunTrace, droppedInfoEvents: number) {

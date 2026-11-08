@@ -172,27 +172,43 @@ function promptIdentityContent(prompt) {
   return content
 }
 
+function payloadOriginFromApiCall(call, physical) {
+  return {
+    apiCallId: call && call.id,
+    apiCallSeq: call && typeof call.seq === 'number' ? call.seq : undefined,
+    physicalCallId: physical ? (physical.physicalCallId || physical.id) : undefined,
+    physicalCallSeq: physical && typeof physical.seq === 'number' ? physical.seq : undefined
+  }
+}
+
 function collectPayloads(run) {
   var payloads = []
-  var add = function(kind, value, artifactRole) {
+  var add = function(kind, value, artifactRole, firstSeen) {
     if (value === undefined || value === null || value === '') return
-    payloads.push({ kind: kind, value: value, artifactRole: artifactRole || inferArtifactRole(kind) })
+    payloads.push({
+      kind: kind,
+      value: value,
+      artifactRole: artifactRole || inferArtifactRole(kind),
+      firstSeen: firstSeen
+    })
   }
   ;(run.apiCalls || []).forEach(function(call) {
     // Chain and batch traces have many valid calls. Only calls explicitly
     // marked final (typically the completed chain's last logical call) own the
     // final role; every other request remains an intermediate chain artifact.
     var isFinalCall = isFinalApiCall(call, run)
-    add('request', call.requestMessages, isFinalCall ? 'final' : 'intermediate')
-    add('tool-delta', call.toolRequestDeltas, 'intermediate')
-    add('response', call.responseText, isFinalCall ? 'final' : 'intermediate')
-    add('stream', call.streamText, isFinalCall ? 'final' : 'intermediate')
-    add('reasoning', call.reasoningText, 'intermediate')
+    var callOrigin = payloadOriginFromApiCall(call)
+    add('request', call.requestMessages, isFinalCall ? 'final' : 'intermediate', callOrigin)
+    add('tool-delta', call.toolRequestDeltas, 'intermediate', callOrigin)
+    add('response', call.responseText, isFinalCall ? 'final' : 'intermediate', callOrigin)
+    add('stream', call.streamText, isFinalCall ? 'final' : 'intermediate', callOrigin)
+    add('reasoning', call.reasoningText, 'intermediate', callOrigin)
     ;(call.physicalCalls || []).forEach(function(physical) {
-      add('request', physical.requestMessages, isFinalCall ? 'final' : 'intermediate')
-      add('response', physical.responseText, isFinalCall ? 'final' : 'intermediate')
-      add('stream', physical.streamText, isFinalCall ? 'final' : 'intermediate')
-      add('reasoning', physical.reasoningText, 'intermediate')
+      var physicalOrigin = payloadOriginFromApiCall(call, physical)
+      add('request', physical.requestMessages, isFinalCall ? 'final' : 'intermediate', physicalOrigin)
+      add('response', physical.responseText, isFinalCall ? 'final' : 'intermediate', physicalOrigin)
+      add('stream', physical.streamText, isFinalCall ? 'final' : 'intermediate', physicalOrigin)
+      add('reasoning', physical.reasoningText, 'intermediate', physicalOrigin)
     })
     ;(call.toolCalls || []).forEach(function(tool) {
       add('tool-input', tool.input)
@@ -200,18 +216,25 @@ function collectPayloads(run) {
     })
   })
   ;(run.promptSnapshots || []).forEach(function(snapshot, index) {
-    add('prompt', snapshot, index === (run.promptSnapshots || []).length - 1 ? 'final' : 'intermediate')
+    add('prompt', snapshot, index === (run.promptSnapshots || []).length - 1 ? 'final' : 'intermediate', {
+      apiCallId: snapshot && snapshot.apiCallId,
+      firstSeenSource: 'promptSnapshots'
+    })
   })
   ;(run.processingReports || []).forEach(function(report) {
-    add('processing-input', report.inputPreview)
-    add('processing-output', report.outputPreview)
-    if (report && report.output) add('processing-output', report.output)
+    add('processing-input', report.inputPreview, undefined, { firstSeenSource: 'processingReports' })
+    add('processing-output', report.outputPreview, undefined, { firstSeenSource: 'processingReports' })
+    if (report && report.output) {
+      add('processing-output', report.output, undefined, { firstSeenSource: 'processingReports' })
+    }
   })
   ;(run.folderDiagnostics || []).forEach(function(item) {
-    add('folder-output', item && item.output)
-    if (item && item.apiMeta) add('request', item.apiMeta.requestMessages)
+    add('folder-output', item && item.output, undefined, { firstSeenSource: 'folderDiagnostics' })
+    if (item && item.apiMeta) {
+      add('request', item.apiMeta.requestMessages, undefined, { firstSeenSource: 'folderDiagnostics' })
+    }
     if (item && item.postProcessReport && item.postProcessReport.output) {
-      add('processing-output', item.postProcessReport.output)
+      add('processing-output', item.postProcessReport.output, undefined, { firstSeenSource: 'folderDiagnostics' })
     }
   })
   ;(run.events || []).forEach(function(event) {
@@ -405,12 +428,18 @@ function buildRunWithPayloadRefs(run) {
       sha256: payloadIdentity(item.kind, item.value),
       duplicateCount: item.duplicateCount,
       artifactRole: item.artifactRole || inferArtifactRole(item.kind),
+      firstSeen: item.firstSeen,
       createdAt: Date.now()
     }
   })
   var builtRun = replacePayloadFields(normalizedRun, deduplicated.byIdentity)
   builtRun.payloads = refs
   builtRun.apiResponseIndex = buildApiResponseIndex(normalizedRun, deduplicated, refs)
+  builtRun.payloadToAttemptIndex = refs
+    .filter(function(ref) { return ref.firstSeen })
+    .map(function(ref) {
+      return Object.assign({ payloadRef: ref.id }, ref.firstSeen)
+    })
   return {
     run: builtRun,
     payloads: deduplicated.unique.map(function(item) {

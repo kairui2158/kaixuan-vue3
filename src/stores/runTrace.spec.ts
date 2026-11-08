@@ -2678,6 +2678,50 @@ describe('runTrace store', () => {
       expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThan(0)
       store.setMemoryLimits(previous)
     })
+
+    it('keeps body feedback audit events when compacting info events', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ maxEvents: 10 })
+      const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'single', skillNames: [] })
+
+      store.addEvent(runId, {
+        type: 'body-feedback-audit',
+        level: 'info',
+        label: '正文反馈账本审计',
+        detail: '{"schema":{"candidateChars":2961,"suppressedCandidateChars":2961}}'
+      })
+      for (let i = 0; i < 30; i++) {
+        store.addEvent(runId, { type: 'noise-' + i, level: 'info', label: '噪声' + i })
+      }
+
+      const run = store.getRun(runId)!
+      expect(run.events.some(event => event.type === 'body-feedback-audit')).toBe(true)
+      expect(JSON.stringify(store.exportRunToJson(run))).toContain('body-feedback-audit')
+      expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThan(0)
+      store.setMemoryLimits(previous)
+    })
+
+    it('compacts duplicate info events before unique types and records eviction categories', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ maxEvents: 10 })
+      const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
+
+      store.addEvent(runId, { type: 'progress', level: 'info', label: '首次进度' })
+      for (let i = 2; i <= 8; i++) {
+        store.addEvent(runId, { type: 'progress', level: 'info', label: `第${i}次进度` })
+      }
+      store.addEvent(runId, { type: 'unique-audit', level: 'info', label: '唯一诊断' })
+      store.addEvent(runId, { type: 'terminal', level: 'error', label: '终态错误' })
+
+      const run = store.getRun(runId)!
+      expect(run.events.some(event => event.type === 'progress')).toBe(true)
+      expect(run.events.some(event => event.type === 'unique-audit')).toBe(true)
+      expect(run.events.some(event => event.type === 'terminal')).toBe(true)
+      expect(run.events.length).toBe(9)
+      expect(run.eventLedger?.droppedInfoEvents).toBe(4)
+      expect(run.eventLedger?.droppedInfoEventsByType).toEqual({ progress: 4 })
+      store.setMemoryLimits(previous)
+    })
   })
   it('throttles stream activity events while preserving the full stream response', () => {
     vi.useFakeTimers()
