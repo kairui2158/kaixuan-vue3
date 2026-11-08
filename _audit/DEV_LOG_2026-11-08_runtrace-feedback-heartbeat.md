@@ -17,5 +17,5 @@
 
 - 本轮是记录器观测修复，不改生成链路、不裁决 SKILL/模型层失败根因。
 - 未做 Electron GUI 真实供应商重测；历史 schema 22 trace 仍保留为旧版产物。
-- 封装：`verify:packaging` 通过，安装包 `dist/神意助手-Setup-3.118.0.exe`，SHA-256=`0876ff18cae5ed2d787d9c765b90b20767e4bb0ad173938fcbf8ae6eec633ae4`；3.116.0 / 3.117.0 已清理。
+- 封装：`verify:packaging` 通过，安装包 `dist/神意助手-Setup-3.118.0.exe`，SHA-256=`e8a45400f9a6687d0653c8e4c7d70d2beeec85e7cc20cbeb2bb616010ad1532f`；3.116.0 / 3.117.0 已清理。
 - 残留：旧 3.110.6 安装包移动、takeown、icacls 均被系统拒绝，按门禁登记为历史锁定残留，不强删。

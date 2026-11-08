@@ -1,23 +1,23 @@
 {
   "schemaVersion": "packaging-3.118.0-v1",
-  "generatedAt": "2026-11-08T02:51:15.707Z",
+  "generatedAt": "2026-11-08T09:54:37.975Z",
   "version": "3.118.0",
   "main": "electron/main.js",
   "installer": "dist\\神意助手-Setup-3.118.0.exe",
-  "installerBytes": 231667355,
-  "installerSha256": "0876ff18cae5ed2d787d9c765b90b20767e4bb0ad173938fcbf8ae6eec633ae4",
+  "installerBytes": 231668224,
+  "installerSha256": "e8a45400f9a6687d0653c8e4c7d70d2beeec85e7cc20cbeb2bb616010ad1532f",
   "nsis": {
     "source": "package.json",
     "oneClick": false,
     "allowToChangeInstallationDirectory": true
   },
   "asarFile": "dist\\win-unpacked\\resources\\app.asar",
-  "asarMtime": "2026-11-08T02:48:45.288Z",
+  "asarMtime": "2026-11-08T09:51:54.289Z",
   "latestSourceFile": {
-    "file": "package-lock.json",
-    "mtime": 1794106085632.712
+    "file": "src\\stores\\runTrace.ts",
+    "mtime": 1794130262950.4746
   },
-  "latestSourceMtime": "2026-11-08T02:48:05.632Z",
+  "latestSourceMtime": "2026-11-08T09:31:02.950Z",
   "rendererFileCount": 87,
   "deaiContractValidationPackaged": true,
   "electronApiKeyCount": 94,

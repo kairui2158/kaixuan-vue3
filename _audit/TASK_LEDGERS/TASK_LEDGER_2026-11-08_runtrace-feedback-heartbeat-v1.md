@@ -44,7 +44,7 @@
 
 ## 7. 收尾
 
-- 升版 3.118.0，构建 NSIS 安装包；`npm run verify:packaging` 输出 `PACKAGING 3.118.0 VERIFICATION PASSED`，安装包 SHA-256=`0876ff18cae5ed2d787d9c765b90b20767e4bb0ad173938fcbf8ae6eec633ae4`，electronAPI methods=94。
+- 升版 3.118.0，构建 NSIS 安装包；`npm run verify:packaging` 输出 `PACKAGING 3.118.0 VERIFICATION PASSED`，安装包 SHA-256=`e8a45400f9a6687d0653c8e4c7d70d2beeec85e7cc20cbeb2bb616010ad1532f`，electronAPI methods=94。
 - 清理 `dist` 旧交付物：3.116.0 / 3.117.0 安装包及 blockmap 已删除。
 - 清理残留：`dist/神意助手-Setup-3.110.6.exe` 移动到 retired-installers 返回 Access denied；`takeown` / `icacls` 同样被系统拒绝。按既有门禁不强删、不改权限强行处理，登记为历史锁定残留。
 - 提交本任务相关文件，不回退用户脏文件。
