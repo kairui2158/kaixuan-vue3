@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-07
+更新日期：2026-11-08
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1811,3 +1811,12 @@
 - 交付：完成大纲共创编辑器 V1.2 六阶段闭环；补 chat store `currentProjectId` 状态暴露与行为断言，跨平台 test 构建，修正 legacy 恢复 E2E 数据面断言，完成 3.116.0 封装。
 - 验证：type-check exit 0；全量服务 249 files / 2679 tests（2678 passed，1 个 SKILL 侧外部缺陷失败）；build 与 verify:packaging exit 0；Electron legacy 恢复 E2E exit 0，76/76 条恢复且备份保留。
 - 边界：realS2ProtectedContract 外部缺陷如实登记；旧 3.110.6 安装包系统删除被拒，登记为清理残留。
+
+# 2026-11-08 runTrace 反馈保留与心跳事件抑制
+
+- 文件：[_audit/DEV_LOG_2026-11-08_runtrace-feedback-heartbeat.md](_audit/DEV_LOG_2026-11-08_runtrace-feedback-heartbeat.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-08_runtrace-feedback-heartbeat-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-08_runtrace-feedback-heartbeat-v1.md)
+- 开发功能：保留正文层 schema/终步反馈审计事件；抑制已存在物理调用 running 心跳的事件洪水；runTrace schema 升至 23。
+- 应用用途：失败 trace 不再因 128 条事件上限丢反馈证据，长请求心跳不再淹没裁决事件，同时保留 watchdog 活性与物理心跳字段。
+- 验证：runTrace 定向 120/120 passed；全量服务 249 files / 2686 tests passed；type-check exit 0；packaging 3.118.0 passed。
+- 边界：旧 3.110.6 安装包为历史锁定残留；3.116.0 / 3.117.0 已清理。

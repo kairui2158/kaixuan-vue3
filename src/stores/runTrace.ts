@@ -944,7 +944,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 22
+const RUN_TRACE_SCHEMA_VERSION = 23
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 const lastFinishedRunEndedAtByStep = new Map<string, number>()
@@ -1026,6 +1026,8 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
   'deai-change-rate',
   'deai-style-drift',
   'deai-quality-gate-degraded',
+  'schema-retry-feedback-composed',
+  'final-step-feedback-composed',
   'body-generator-step-resume-restored',
   'runtime-fingerprint-missing',
 ])
@@ -1893,25 +1895,32 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       existing.cacheUsageSummary = input.cacheUsageSummary ?? existing.cacheUsageSummary
       existing.contextComposition = input.contextComposition ?? existing.contextComposition
       if (input.heartbeat) existing.heartbeat = true
-      addEvent(runId, {
-        type: 'physical-call',
-        level: existing.status === 'success' ? 'info' : existing.status === 'running' ? 'info' : 'error',
-        label: `第 ${existing.seq} 次物理请求${existing.status === 'success' ? '完成' : existing.status === 'running' ? '进行中' : '失败'}`,
-        detail: [
-          existing.phase,
-          call.skillName,
-          call.model,
-          existing.finishReason,
-          existing.statusCode != null ? `HTTP ${existing.statusCode}` : undefined,
-          existing.providerErrorSummary,
-          existing.finalUrl,
-          existing.transport,
-          existing.error,
-        ].filter(Boolean).join(' / ')
-      })
+      const isHeartbeatProgress = input.heartbeat && existing.status === 'running'
+      if (!isHeartbeatProgress) {
+        addEvent(runId, {
+          type: 'physical-call',
+          level: existing.status === 'success' ? 'info' : existing.status === 'running' ? 'info' : 'error',
+          label: `第 ${existing.seq} 次物理请求${existing.status === 'success' ? '完成' : existing.status === 'running' ? '进行中' : '失败'}`,
+          detail: [
+            existing.phase,
+            call.skillName,
+            call.model,
+            existing.finishReason,
+            existing.statusCode != null ? `HTTP ${existing.statusCode}` : undefined,
+            existing.providerErrorSummary,
+            existing.finalUrl,
+            existing.transport,
+            existing.error,
+          ].filter(Boolean).join(' / ')
+        })
+      }
       if (existing.status === 'running') {
         call.lastExecutionActivityAt = Date.now()
-        reportRunActivity(runId, input.heartbeat ? 'physical_call_heartbeat' : 'physical_call_running', `${existing.seq}/${call.skillName || call.id}`)
+        if (isHeartbeatProgress) {
+          stateWatchdogByRunId.get(runId)?.reportProgress()
+        } else {
+          reportRunActivity(runId, 'physical_call_running', `${existing.seq}/${call.skillName || call.id}`)
+        }
         reportLongRequestInProgress(runId, existing)
       }
       return existing.id

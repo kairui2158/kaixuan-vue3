@@ -2650,6 +2650,34 @@ describe('runTrace store', () => {
       expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThan(0)
       store.setMemoryLimits(previous)
     })
+
+    it('keeps retry and final-step feedback audit events when compacting info events', () => {
+      const store = useRunTraceStore()
+      const previous = store.setMemoryLimits({ maxEvents: 10 })
+      const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'single', skillNames: [] })
+
+      store.addEvent(runId, {
+        type: 'schema-retry-feedback-composed',
+        level: 'info',
+        label: 'schema 重试反馈',
+        detail: '{"source":"scaffold","anchorCount":3}'
+      })
+      store.addEvent(runId, {
+        type: 'final-step-feedback-composed',
+        level: 'info',
+        label: '终步反馈',
+        detail: '{"sourceCounts":{"previousAttempt":1}}'
+      })
+      for (let i = 0; i < 30; i++) {
+        store.addEvent(runId, { type: 'noise-' + i, level: 'info', label: '噪声' + i })
+      }
+
+      const run = store.getRun(runId)!
+      expect(run.events.some(event => event.type === 'schema-retry-feedback-composed')).toBe(true)
+      expect(run.events.some(event => event.type === 'final-step-feedback-composed')).toBe(true)
+      expect(run.eventLedger?.droppedInfoEvents).toBeGreaterThan(0)
+      store.setMemoryLimits(previous)
+    })
   })
   it('throttles stream activity events while preserving the full stream response', () => {
     vi.useFakeTimers()
@@ -3028,6 +3056,53 @@ describe('runTrace store', () => {
     expect(violation?.detail).toContain('before=2')
     expect(violation?.detail).toContain('after=2')
     store.finishRun(runId, 'success')
+  })
+
+  it('suppresses heartbeat event flood while preserving activity and terminal evidence', () => {
+      vi.useFakeTimers()
+      const store = useRunTraceStore()
+      const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'single', skillNames: [] })
+      const callId = store.startApiCall(runId, {
+        requestMessages: [{ role: 'user', content: '生成正文' }]
+      })
+
+      store.appendPhysicalCall(runId, callId, {
+        physicalCallId: 'physical-1',
+        phase: 'normal',
+        status: 'running',
+        requestMessages: [{ role: 'user', content: '生成正文' }]
+      })
+      const initialActivityAt = store.getRun(runId)!.apiCalls
+        .find(item => item.id === callId)!.lastExecutionActivityAt
+      vi.advanceTimersByTime(15_000)
+      store.appendPhysicalCall(runId, callId, {
+        physicalCallId: 'physical-1',
+        phase: 'normal',
+        status: 'running',
+        heartbeat: true,
+        requestMessages: [{ role: 'user', content: '生成正文' }]
+      })
+      store.appendPhysicalCall(runId, callId, {
+        physicalCallId: 'physical-1',
+        phase: 'normal',
+        status: 'success',
+        requestMessages: [{ role: 'user', content: '生成正文' }],
+        responseText: '正文返回'
+      })
+
+      const run = store.getRun(runId)!
+      const call = run.apiCalls.find(item => item.id === callId)!
+      expect(call.physicalCalls?.[0].heartbeat).toBe(true)
+      expect(call.lastExecutionActivityAt).toBeGreaterThan(initialActivityAt ?? 0)
+      expect(run.events.filter(event => event.type === 'physical-call').map(event => event.label)).toEqual([
+        '第 1 次物理请求进行中',
+        '第 1 次物理请求完成',
+      ])
+      expect(run.events.filter(event =>
+        event.type === 'run-activity'
+        && String((event.payload as { source?: string } | undefined)?.source || '').startsWith('physical_call_')
+      )).toHaveLength(1)
+    vi.useRealTimers()
   })
 
   it('keeps logical initial requests separate from tool-round deltas', () => {
