@@ -9,6 +9,7 @@ import { DeAiSamples } from './deai-samples.js'
 import { resolveChapterNarrativeBlock } from './chapterEventDensity'
 import { collectDeaiFindingsWithObservability } from './de-ai'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
+import { isContinuationSelfCheckText } from './continuationSelfCheck'
 import { getProviderReasoningControl } from './providerProtocols'
 import { loadRealSkill } from './realSkillLoader'
 import { formatSkillFallback } from './skillRouter'
@@ -359,13 +360,6 @@ function mergeContinuationText(previous: string, continuation: string): string {
     }
   }
   return `${left}\n${right}`
-}
-
-function isContinuationSelfCheckText(text: string): boolean {
-  const normalized = text.trim()
-  if (!normalized) return false
-  return normalized.includes('【续写检查：') ||
-    (normalized.includes('已到达协议终点') && normalized.includes('无待续写内容'))
 }
 
 function buildContinuationMessages(

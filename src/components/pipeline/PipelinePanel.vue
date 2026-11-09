@@ -829,6 +829,7 @@ import { conversationContextService } from "../../services/conversationContextSe
 import { retrieveContext } from "../../services/memoryRetriever"
 import { classifyGenerationValidity, classifyRunOutcome, type RunOutcomeStatus } from "../../services/generationValidity"
 import { mergeContinuationText } from "../../services/continuation"
+import { isContinuationSelfCheckText } from "../../services/continuationSelfCheck"
 import { extractJsonArray, extractJsonObject } from "../../services/jsonExtraction"
 import type { RunTraceStatus } from "../../stores/runTrace"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
@@ -4282,21 +4283,43 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
         usage: continuation.usage,
         maxTokens: continuation.maxTokens ?? maxTokens
       })
-      const mergedText = continuationValidity.usable
-        ? mergeContinuationText(result.text || '', continuation.text || '')
-        : result.text || ''
+      const continuationSelfCheck = isContinuationSelfCheckText(continuation.text || '')
+      const mergedText = continuationSelfCheck
+        ? result.text || ''
+        : continuationValidity.usable
+          ? mergeContinuationText(result.text || '', continuation.text || '')
+          : result.text || ''
       effectiveResult = {
         ...result,
         text: mergedText,
         reasoning: continuation.reasoning || result.reasoning,
         usage: continuation.usage || result.usage,
-        // A completed continuation can clear truncation; a second length
-        // result must stay visible to the terminal hard-signal gate.
-        finishReason: continuationValidity.usable && continuationValidity.kind === 'usable'
-          ? continuation.finishReason
-          : result.finishReason
+        // A self-check annotation means the provider reached the protocol end;
+        // the original candidate is the only usable body.
+        finishReason: continuationSelfCheck
+          ? 'stop'
+          : continuationValidity.usable && continuationValidity.kind === 'usable'
+            ? continuation.finishReason
+            : result.finishReason
       }
-      if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
+      if (continuationSelfCheck) {
+        if (runId) {
+          runTraceStore.addEvent(runId, {
+            type: 'continuation-self-check-skipped',
+            level: 'warn',
+            label: '续写调用返回自检注释，已保留原候选输出',
+            detail: JSON.stringify({
+              originalTextLength: (result.text || '').length,
+              continuationTextLength: (continuation.text || '').length
+            })
+          })
+        }
+        appendStepLogForRun(
+          pipelineRunIdParam,
+          step,
+          '续写调用返回自检注释：已按协议终点处理，保留原候选输出'
+        )
+      } else if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
         if (runId) {
           runTraceStore.addEvent(runId, {
             type: 'generation-truncated-after-continuation',

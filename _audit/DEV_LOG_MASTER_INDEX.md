@@ -1828,3 +1828,11 @@
 - 交付：续写自检注释不合并进卷纲候选；SKILL 协议终点保留原候选并恢复 success；direct-retry 预算单源；A4 usage/_perf 回归确认。
 - 验证：realSkillExecutor 78/78 passed；folderSkillTest 3/3 passed；type-check exit 0。
 - 边界：真实 Electron UI 与外部供应商 untested；SKILL 层不修改。
+
+# 2026-11-09 续写守卫统一与流水线兜底
+
+- 文件：[_audit/DEV_LOG_2026-11-09_continuation-guard-fallback.md](_audit/DEV_LOG_2026-11-09_continuation-guard-fallback.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-09_continuation-guard-fallback-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-09_continuation-guard-fallback-v1.md)
+- 交付：共享 `continuationSelfCheck` 判定；执行器去重复实现；流水线兜底命中协议终点不合并，保留原候选并写跳过事件。
+- 验证：定向 92 tests passed；type-check exit 0；全量与封装核验以台账补记为准。
+- 边界：不改 folder SKILL；不触碰无关脏文件。
