@@ -39,7 +39,7 @@ export type { RealSkillDiagnostic } from './realSkillTypes'
 
 
 const ALLOWED_PRE_FIELDS = new Set(['input', 'template', 'samples'])
-const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues', 'warnings'])
+const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues', 'warnings', '_perf'])
 const TEMPLATE_LIMIT = 20000
 const RETRY_LIMIT = 3
 const SMART_SAMPLE_CHAR_LIMIT = 4000
@@ -1329,7 +1329,10 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         const postStartedAt = Date.now()
         const postInput = candidateOutput
-        const postResult = await executeHook(pkg.script, 'postProcess', candidateOutput, diagnostics)
+        const postResult = await executeHook(pkg.script, 'postProcess', {
+          output: candidateOutput,
+          usage: result.usage
+        }, diagnostics)
         if (typeof postResult.fields.output === 'string' && postResult.fields.output.length > 0) {
           candidateOutput = postResult.fields.output
         }
@@ -1344,6 +1347,14 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             severity: 'blocking'
           })
         }
+        const rawPerf = postResult.fields._perf
+        const perf = isPlainObject(rawPerf)
+          && typeof rawPerf.warning === 'string'
+          && rawPerf.warning.length > 0
+          && Number.isFinite(rawPerf.ratio)
+          && rawPerf.blocking === false
+          ? { warning: rawPerf.warning, ratio: rawPerf.ratio as number, blocking: false as const }
+          : undefined
         postProcessReport = {
           applied: true,
           changedOutput: candidateOutput !== postInput,
@@ -1354,7 +1365,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             message: issue.message
           })),
           durationMs: Date.now() - postStartedAt,
-          ruleFingerprint: fnv1a32(pkg.script)
+          ruleFingerprint: fnv1a32(pkg.script),
+          perf
         }
         timingLedger.postProcessMs += Date.now() - postStartedAt
         for (const issue of postIssues) {

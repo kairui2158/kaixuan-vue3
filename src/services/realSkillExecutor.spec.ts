@@ -1117,7 +1117,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { if (output === '输出') return { output, valid: false, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }, { code: 'minor-warning', severity: 'non-blocking', message: '存在轻微问题' }] }; return { output, valid: true } } }`,
+        script: `module.exports = { postProcess({ output }) { if (output === '输出') return { output, valid: false, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }, { code: 'minor-warning', severity: 'non-blocking', message: '存在轻微问题' }] }; return { output, valid: true } } }`,
         resources: []
       }),
       error: null,
@@ -1159,7 +1159,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }] } } }`,
+        script: `module.exports = { postProcess({ output }) { return { output, valid: false, issues: [{ code: 'lost-section', severity: 'blocking', message: '缺少核心章节' }] } } }`,
         resources: []
       }),
       error: null,
@@ -1196,7 +1196,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 'body-too-short', severity: 'blocking', message: '正文过短' }] } } }`,
+        script: `module.exports = { postProcess({ output }) { return { output, valid: false, issues: [{ code: 'body-too-short', severity: 'blocking', message: '正文过短' }] } } }`,
         resources: []
       }),
       error: null,
@@ -1234,7 +1234,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 'body-too-short', severity: 'blocking', message: '正文过短' }] } } }`,
+        script: `module.exports = { postProcess({ output }) { return { output, valid: false, issues: [{ code: 'body-too-short', severity: 'blocking', message: '正文过短' }] } } }`,
         resources: []
       }),
       error: null,
@@ -1286,7 +1286,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: false, issues: [{ code: 's1-narrative-invalid', severity: 'blocking', message: '场景一未推进' }] } } }`,
+        script: `module.exports = { postProcess({ output }) { return { output, valid: false, issues: [{ code: 's1-narrative-invalid', severity: 'blocking', message: '场景一未推进' }] } } }`,
         resources: []
       }),
       error: null,
@@ -1342,7 +1342,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { const issues = output.includes('【正文交接】') ? [{ code: 'issue-a', severity: 'blocking', message: '失败一' }, { code: 'issue-b', severity: 'blocking', message: '失败二' }] : [{ code: 'protected-body-contract', severity: 'blocking', message: '正文过短' }]; return { output, valid: false, issues } } }`,
+        script: `module.exports = { postProcess({ output }) { const issues = output.includes('【正文交接】') ? [{ code: 'issue-a', severity: 'blocking', message: '失败一' }, { code: 'issue-b', severity: 'blocking', message: '失败二' }] : [{ code: 'protected-body-contract', severity: 'blocking', message: '正文过短' }]; return { output, valid: false, issues } } }`,
         resources: []
       }),
       error: null,
@@ -1425,7 +1425,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: true, issues: [] } } }`,
+        script: `module.exports = { postProcess({ output }) { return { output, valid: true, issues: [] } } }`,
         resources: []
       }),
       error: null,
@@ -1476,7 +1476,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: true, issues: [], warnings: ['文风建议：保留事实，仅轻微调整节奏'] } } }`,
+        script: `module.exports = { postProcess({ output }) { return { output, valid: true, issues: [], warnings: ['文风建议：保留事实，仅轻微调整节奏'] } } }`,
         resources: []
       }),
       error: null,
@@ -1495,12 +1495,57 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(result.diagnostics.some(item => item.type === 'warning' && item.code.startsWith('post-process'))).toBe(false)
   })
 
+  it('passes postProcess usage through and retains only a valid advisory perf observation', async () => {
+    const callAi = vi.fn(async () => ({
+      text: '输出',
+      usage: { inputTokens: 100, outputTokens: 10, reasoningOutputTokens: 8 }
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess(payload) { const { output, usage } = payload; const ratio = usage?.reasoningOutputTokens / usage?.outputTokens; return { output, valid: true, issues: [], _perf: ratio > 0.7 ? { warning: 'reasoning-output-ratio-high', ratio: 0.8, blocking: false } : undefined } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.postProcessReport?.perf).toEqual({
+      warning: 'reasoning-output-ratio-high',
+      ratio: 0.8,
+      blocking: false
+    })
+    expect(result.postProcessReport?.issues).toEqual([])
+  })
+
+  it('drops malformed postProcess perf observations without affecting the output', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess({ output }) { return { output, valid: true, issues: [], _perf: { warning: '', ratio: Number.NaN, blocking: true } } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.postProcessReport?.perf).toBeUndefined()
+    expect(result.postProcessReport?.issues).toEqual([])
+  })
+
   it('downgrades structural postProcess warnings but keeps prose taste warnings successful', async () => {
     const callAi = vi.fn(async () => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { return { output, valid: true, issues: [
+        script: `module.exports = { postProcess({ output }) { return { output, valid: true, issues: [
           { code: 'missing-marker', severity: 'non-blocking', message: '缺少标记区块' },
           { code: 'minor-warning', severity: 'non-blocking', message: '文风轻微偏软' }
         ] } } }`,
@@ -2348,7 +2393,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
-        script: `module.exports = { postProcess(output) { if (output.includes('wrong')) return { output, valid: false, errors: ['缺少 output 字段'] }; return { output, valid: true } } }`
+        script: `module.exports = { postProcess({ output }) { if (output.includes('wrong')) return { output, valid: false, errors: ['缺少 output 字段'] }; return { output, valid: true } } }`
       }),
       error: null,
       folderPackageCache: false
