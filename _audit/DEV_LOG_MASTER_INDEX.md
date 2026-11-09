@@ -1820,3 +1820,11 @@
 - 应用用途：失败 trace 不再因 128 条事件上限丢反馈证据，长请求心跳不再淹没裁决事件，同时保留 watchdog 活性与物理心跳字段。
 - 验证：runTrace 定向 120/120 passed；全量服务 249 files / 2686 tests passed；type-check exit 0；packaging 3.118.0 passed。
 - 边界：旧 3.110.6 安装包为历史锁定残留；3.116.0 / 3.117.0 已清理。
+
+# 2026-11-09 卷纲层续写自检守卫与预算单源
+
+- 文件：[_audit/DEV_LOG_2026-11-09_continuation-guard-budget.md](_audit/DEV_LOG_2026-11-09_continuation-guard-budget.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-09_continuation-guard-budget-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-09_continuation-guard-budget-v1.md)
+- 交付：续写自检注释不合并进卷纲候选；SKILL 协议终点保留原候选并恢复 success；direct-retry 预算单源；A4 usage/_perf 回归确认。
+- 验证：realSkillExecutor 78/78 passed；folderSkillTest 3/3 passed；type-check exit 0。
+- 边界：真实 Electron UI 与外部供应商 untested；SKILL 层不修改。

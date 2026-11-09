@@ -361,6 +361,13 @@ function mergeContinuationText(previous: string, continuation: string): string {
   return `${left}\n${right}`
 }
 
+function isContinuationSelfCheckText(text: string): boolean {
+  const normalized = text.trim()
+  if (!normalized) return false
+  return normalized.includes('【续写检查：') ||
+    (normalized.includes('已到达协议终点') && normalized.includes('无待续写内容'))
+}
+
 function buildContinuationMessages(
   requestMessages: Array<{ role: string; content: string }>,
   output: string
@@ -1107,14 +1114,6 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
               { requestProfileBlocked: true }
             )
           }
-          const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
-          const callBudget = options.budget.tryConsume(
-            `${budgetStep}${promptSuffix ? ':direct-retry' : ''}`,
-            pkg.meta.apiCallLimit ?? null
-          )
-          if (callBudget.status === 'blocked') {
-            throw Object.assign(new Error(callBudget.reason || 'API 调用预算已耗尽'), { budgetBlocked: true })
-          }
           return (await aiService.callAi({
             purpose: options.purpose || 'rewrite',
             providerId: options.providerId || agent?.providerId || undefined,
@@ -1275,18 +1274,37 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             usage: continuation.usage,
             maxTokens: agent?.maxTokens
           })
-          result = {
-            ...result,
-            text: continuationValidity.usable
-              ? mergeContinuationText(result.text, continuation.text)
-              : result.text,
-            reasoning: continuation.reasoning || result.reasoning,
-            usage: continuation.usage || result.usage,
-            // Only a completed continuation clears the provider truncation signal;
-            // a second length result means the run is still physically truncated.
-            finishReason: continuationValidity.usable && continuationValidity.kind === 'usable'
-              ? continuation.finishReason
-              : result.finishReason
+          if (isContinuationSelfCheckText(continuation.text)) {
+            result = {
+              ...result,
+              reasoning: continuation.reasoning || result.reasoning,
+              usage: continuation.usage || result.usage,
+              finishReason: 'stop'
+            }
+            diagnostics.push(diagnostic(
+              'warning',
+              'continuation-self-check-skipped',
+              '续写调用返回自检注释，已按协议终点处理并保留原候选正文'
+            ))
+            const truncatedIndex = diagnostics.findIndex(item =>
+              item.code === 'generation-truncated' ||
+              item.code === 'generation-truncated-after-continuation'
+            )
+            if (truncatedIndex !== -1) diagnostics.splice(truncatedIndex, 1)
+          } else {
+            result = {
+              ...result,
+              text: continuationValidity.usable
+                ? mergeContinuationText(result.text, continuation.text)
+                : result.text,
+              reasoning: continuation.reasoning || result.reasoning,
+              usage: continuation.usage || result.usage,
+              // Only a completed continuation clears the provider truncation signal;
+              // a second length result means the run is still physically truncated.
+              finishReason: continuationValidity.usable && continuationValidity.kind === 'usable'
+                ? continuation.finishReason
+                : result.finishReason
+            }
           }
           if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
             diagnostics.push(diagnostic('warning', 'generation-truncated-after-continuation', '续写后输出仍不完整，已保留可用正文'))

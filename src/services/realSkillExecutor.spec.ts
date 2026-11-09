@@ -885,6 +885,78 @@ describe('realSkillExecutor single pass', () => {
     expect(result.output).toBe(firstOutput + '\n续写结尾')
   })
 
+  it('skips a continuation self-check annotation and keeps the original candidate', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const firstOutput = '卷纲开头，主体抵达北境。'
+    const callAi = vi.fn(async (_params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) {
+        return { text: firstOutput, finishReason: 'length' }
+      }
+      return {
+        text: '【续写检查：当前卷任务包已到达协议终点，无待续写内容。】',
+        finishReason: 'stop'
+      }
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(result.status).toBe('success')
+    expect(result.output).toBe(firstOutput)
+    expect(result.output).not.toContain('【续写检查：')
+    expect(result.apiMeta?.finishReason).toBe('stop')
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'continuation-self-check-skipped',
+      type: 'warning'
+    }))
+  })
+
+  it('counts a direct-output retry as one physical call without consuming budget twice', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const budget = {
+      tryConsume: vi.fn((step: string) => step.includes(':direct-retry')
+        ? { status: 'blocked' as const, used: 1, limit: 1, reason: 'API 调用预算已耗尽' }
+        : { status: 'allowed' as const, used: 1, limit: 1 })
+    }
+    const callAi = vi.fn(async (_params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) {
+        return {
+          text: '',
+          reasoning: '模型思考',
+          finishReason: 'length',
+          usage: { completion_tokens: 1000 }
+        }
+      }
+      return { text: '直出正文', finishReason: 'stop', usage: { completion_tokens: 20 } }
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget,
+      agent: { id: 'agent-1', maxTokens: 1000 }
+    } as any)
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(budget.tryConsume).toHaveBeenCalledTimes(1)
+    expect(result.output).toBe('直出正文')
+  })
+
   it('injects agent prompt before skill template and passes agent parameters', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),
