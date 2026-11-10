@@ -7442,7 +7442,9 @@ async function confirmMemoryPreview() {
       volumeCount.value = projectStore.pipelineConfig.volumeCount || volumeCount.value
       volumeWords.value = projectStore.pipelineConfig.volumeWords || volumeWords.value
       chapterWords.value = projectStore.pipelineConfig.chapterWords || chapterWords.value
-      chapterBatchSize.value = normalizeChapterBatchSize(projectStore.pipelineConfig.chapterBatchSize || chapterBatchSize.value)
+      chapterBatchSize.value = normalizeChapterBatchSize(
+        projectStore.pipelineConfig.chapterBatchSize ?? chapterBatchSize.value
+      )
     }
   }
    if (projectStore.bookWordCountChars > 0 && bookWordCount.value <= 0) {
@@ -7474,7 +7476,9 @@ watch(() => projectStore.currentProjectId, (newId, oldId) => {
       volumeCount.value = projectStore.pipelineConfig.volumeCount || volumeCount.value
       volumeWords.value = projectStore.pipelineConfig.volumeWords || volumeWords.value
       chapterWords.value = projectStore.pipelineConfig.chapterWords || chapterWords.value
-      chapterBatchSize.value = normalizeChapterBatchSize(projectStore.pipelineConfig.chapterBatchSize || chapterBatchSize.value)
+      chapterBatchSize.value = normalizeChapterBatchSize(
+        projectStore.pipelineConfig.chapterBatchSize ?? chapterBatchSize.value
+      )
     }
     if (projectStore.bookWordCountChars > 0) {
       bookWordCount.value = Math.round(projectStore.bookWordCountChars / 10000)

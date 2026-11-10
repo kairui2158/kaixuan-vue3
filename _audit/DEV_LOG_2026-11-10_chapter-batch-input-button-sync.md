@@ -18,6 +18,7 @@
   - 全量：`npx vitest run`，250 files / 2715 tests passed。
   - 类型：`npx vue-tsc --noEmit`，exit 0。
   - 旧语义：`selectedVolumeChapterLocked` 与 `生成本批章节` 生产源码 0 命中。
+  - Electron GUI 烟测：展开进度条日志后 `triggerState` 记录 `runStatuses=["failed"]`、`progressStatus="failed"`、`visibleLogCount=5`、`hasProviderErrorLog=true`；该烟测走无供应商失败路径，未执行真实供应商 API 调用。
 - 边界：
   - 不修改卷纲层、正文层或设定层。
   - 不新增预算系统、自动调度、重试策略或新 UI 组件。

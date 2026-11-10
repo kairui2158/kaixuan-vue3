@@ -1852,3 +1852,11 @@
 - 交付：批量章节数 1-20 单源归一化，空值回默认 5；项目级与流水线级双写持久化；按钮改用绑定卷/章数/运行态真实就绪闸；文案迁移为“按设定章节数生成”。
 - 验证：定向 18 tests passed；全量服务 250 files / 2715 tests passed；type-check exit 0；旧假闸与旧文案生产源码 0 命中。
 - 边界：不改卷纲层/正文层/设定层；不新增预算系统、自动调度或新 UI；Electron GUI 手工烟测未执行。
+
+# 2026-11-10 3.123.0 章节层批量输入正式交付
+
+- 文件：[_audit/DEV_LOG_2026-11-10-packaging-3.123.0.md](_audit/DEV_LOG_2026-11-10-packaging-3.123.0.md)
+- 范围：恢复配置时批量章节数 `0` 改用 `??` 进入单源归一化；补记 Electron GUI 烟测；升版并完成完整 NSIS 交付。
+- 验证：全量服务 250 files / 2715 tests passed；type-check exit 0；完整构建 exit 0；打包级真实启动核验 passed，rendererFiles=87、electronAPI methods=94。
+- 安装包：`dist/神意助手-Setup-3.123.0.exe`，231,670,853 bytes，SHA256 `9d6215705d5dfa59a5e4615a94cca3b4872529e6af0d8db4f81d7496d0e7ae84`。
+- 边界：GUI 烟测为无供应商失败路径，未执行真实供应商 API 调用；不新增预算系统、自动调度或新 UI。

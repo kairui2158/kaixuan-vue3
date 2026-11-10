@@ -1,0 +1,26 @@
+# DEV_LOG_2026-11-10-packaging-3.123.0
+
+- 主题：章节层批量输入修复正式交付 3.123.0
+- 交付目的：将章节层批量章节数归一化、项目级持久化、真实就绪闸与“按设定章节数生成”文案交付为客户安装包；消除持久化 `0` 被静默回退的恢复路径缺陷。
+- 应用改动：
+  - `src/components/pipeline/PipelinePanel.vue:7445` 与 `:7479` 恢复配置时将 `||` 改为 `??`，持久化 `chapterBatchSize:0` 不再绕过 `normalizeChapterBatchSize()` 的单源钳制。
+  - 交付日志补记 Electron GUI 烟测结果与无真实供应商调用边界。
+  - `package.json` / `package-lock.json` 升版 `3.123.0`。
+- 验证：
+  - 全量服务回归：`npm run test:services`，250 files / 2715 tests passed。
+  - 类型检查：`npm run type-check`，exit 0。
+  - 完整构建：`npm run build`，exit 0。
+  - 打包级真实启动核验：`npm run verify:packaging`，`PACKAGING 3.123.0 VERIFICATION PASSED`；rendererFiles=87，electronAPI methods=94。
+  - GUI 烟测证据：`_audit/tmp/chapter-batch-ui-live/ui-evidence.json` 的 `triggerState` 为 `inputValue=20`、`projectBatchSize=20`、`runStatuses=["failed"]`、`progressStatus="failed"`、`visibleLogCount=5`、`hasProviderErrorLog=true`；供应商失败进入展开后的可见生成日志。
+- 安装包：
+  - 路径：`dist\神意助手-Setup-3.123.0.exe`
+  - 大小：231,670,853 bytes
+  - SHA256：`9d6215705d5dfa59a5e4615a94cca3b4872529e6af0d8db4f81d7496d0e7ae84`
+  - 证据：`_audit/verification-packaging-3.123.0/packaging-evidence.json`
+- 客户重点复验：
+  - 批量输入 0 / 小数 / 超上限后保存并重启，输入与按钮行为一致。
+  - 使用“按设定章节数生成”，确认生成数量、失败提示和进度条日志可见性。
+- 边界：
+  - 不新增预算系统、自动调度或新 UI。
+  - GUI 烟测为无供应商失败路径，未执行真实供应商 API 调用。
+  - 不触碰无关用户脏文件。
