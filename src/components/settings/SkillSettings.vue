@@ -286,10 +286,13 @@
          <div v-if="folderImportPreview" class="skill-import-summary">
            {{ folderImportPreview.name }} 将{{ folderImportPreview.action === 'add' ? '新增到技能库' : folderImportPreview.action === 'overwrite' ? '覆盖已有文件夹技能' : '按策略跳过' }}
          </div>
-         <div v-if="folderImportPreview" class="skill-import-summary">
-           资源 {{ folderImportPreview.resourceCount || 0 }} 个 / 警告 {{ folderImportPreview.warnings?.length || 0 }} 条
-         </div>
-         <div v-if="folderImportPreview" class="skill-import-plan">
+        <div v-if="folderImportPreview" class="skill-import-summary">
+          资源 {{ folderImportPreview.resourceCount || 0 }} 个 / 警告 {{ folderImportPreview.warnings?.length || 0 }} 条
+        </div>
+        <p v-if="folderImportPreview?.action === 'overwrite'" class="skill-import-note">
+          覆盖导入只替换技能记录并指向新路径；旧磁盘目录不删除。
+        </p>
+        <div v-if="folderImportPreview" class="skill-import-plan">
            <div class="skill-import-plan-item">
              <span>{{ folderImportPreview.name }}</span>
              <span class="skill-import-id">{{ folderImportPreview.id }}</span>
@@ -1523,6 +1526,7 @@ function refreshPreview() {
 .skill-import-unknown { margin-bottom: 12px; padding: var(--space-4) var(--space-5); border: 1px solid var(--warning); border-radius: var(--radius-sm); color: var(--warning); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
 .skill-import-issues { display: grid; gap: var(--space-3); margin-bottom: 12px; padding: var(--space-4) var(--space-5); border: 1px solid var(--danger); border-radius: var(--radius-sm); background: var(--diagnostic-error-bg); }
 .skill-import-summary { margin-bottom: 8px; color: var(--text-secondary); font-size: var(--font-size-md); }
+.skill-import-note { margin: 0; padding: var(--space-3) var(--space-4); border-left: 3px solid var(--warning); background: var(--bg-tertiary); color: var(--text-secondary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
 .skill-import-plan { display: grid; gap: var(--space-3); max-height: 260px; overflow-y: auto; padding: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); }
 .skill-import-plan-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, auto); align-items: center; gap: var(--space-4); min-width: 0; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-color); }
 .skill-import-plan-item:last-child { border-bottom: 0; }
