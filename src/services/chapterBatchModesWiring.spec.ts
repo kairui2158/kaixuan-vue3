@@ -35,4 +35,10 @@ describe('chapter batch mode wiring', () => {
   it('disables continue when generation is running or all chapters exist', () => {
     expect(countMatches(/canContinueChapters/g)).toBeGreaterThanOrEqual(2)
   })
+
+  it('keeps supplement ownership at the outer batch loop and surfaces output risk', () => {
+    expect(countMatches(/maxRepairAttempts:\s*0/g)).toBe(1)
+    expect(countMatches(/chapter-batch-partial/g)).toBe(1)
+    expect(countMatches(/chapter-batch-output-risk/g)).toBe(1)
+  })
 })

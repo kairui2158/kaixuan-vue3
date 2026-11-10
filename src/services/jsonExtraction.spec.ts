@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   dedupeJsonCandidates,
   extractJsonArray,
+  extractJsonArrayWithDiagnostics,
   extractJsonCandidates,
   extractJsonObject,
   extractJsonValue,
@@ -30,6 +31,45 @@ describe('jsonExtraction', () => {
 
   it('returns an empty array when no valid array exists', () => {
     expect(extractJsonArray('这不是 JSON：[broken')).toEqual([])
+  })
+
+  it('reports successful JSON array extraction', () => {
+    const result = extractJsonArrayWithDiagnostics('[{"title":"第一章"}]')
+    expect(result.value).toEqual([{ title: '第一章' }])
+    expect(result.diagnostics).toMatchObject({
+      kind: 'success',
+      rawLength: 17,
+      candidateCount: 1,
+    })
+    expect(result.diagnostics.tailPreview).toBeUndefined()
+  })
+
+  it('reports empty output without inventing a parse failure', () => {
+    const result = extractJsonArrayWithDiagnostics('   \n\t ')
+    expect(result.value).toEqual([])
+    expect(result.diagnostics).toMatchObject({ kind: 'none', rawLength: 6, candidateCount: 0 })
+  })
+
+  it('reports a JSON-shaped parse failure when balanced input is invalid', () => {
+    const result = extractJsonArrayWithDiagnostics('[模型只返回了说明文字]')
+    expect(result.value).toEqual([])
+    expect(result.diagnostics.kind).toBe('parse_failed')
+    expect(result.diagnostics.rawLength).toBe(12)
+  })
+
+  it('reports truncated JSON when brackets remain unclosed', () => {
+    const result = extractJsonArrayWithDiagnostics('[{"title":"第一章","plot":"剧情')
+    expect(result.value).toEqual([])
+    expect(result.diagnostics.kind).toBe('truncated')
+    expect(result.diagnostics.rawLength).toBeGreaterThan(0)
+    expect(result.diagnostics.tailPreview).toContain('剧情')
+  })
+
+  it('reports parse failure for balanced but invalid JSON', () => {
+    const result = extractJsonArrayWithDiagnostics('[{"title":"第一章",}]')
+    expect(result.value).toEqual([])
+    expect(result.diagnostics.kind).toBe('parse_failed')
+    expect(result.diagnostics.tailPreview).toContain('第一章')
   })
 
   it('returns the first value for generic repair', () => {

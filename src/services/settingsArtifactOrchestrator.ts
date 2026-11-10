@@ -1,4 +1,4 @@
-import { extractJsonArray } from './jsonExtraction'
+import { extractJsonArrayWithDiagnostics } from './jsonExtraction'
 import {
   validateSettingsArtifact,
   type SettingsExistingItem
@@ -29,6 +29,16 @@ export interface SettingsArtifactResult {
   rejected: any[]
   attempts: SettingsArtifactAttempt[]
   errors: string[]
+}
+
+function appendJsonDiagnostics(errors: string[], raw: string): void {
+  const { diagnostics } = extractJsonArrayWithDiagnostics(raw)
+  if (diagnostics.kind === 'success') return
+  errors.push([
+    `输出JSON解析失败：${diagnostics.kind}`,
+    `原始输出 ${diagnostics.rawLength} 字符`,
+    diagnostics.tailPreview ? `尾部：${diagnostics.tailPreview}` : null
+  ].filter(Boolean).join('；'))
 }
 
 function buildPrompt(input: {
@@ -86,7 +96,9 @@ export async function generateSettingsArtifact(
       throw error
     }
 
-    const parsed = extractJsonArray(raw) as any[]
+    const { value: parsed } = extractJsonArrayWithDiagnostics(raw)
+    const jsonDiagnosticsErrors: string[] = []
+    appendJsonDiagnostics(jsonDiagnosticsErrors, raw)
     const validationStartedAt = Date.now()
     const validation = validateSettingsArtifact(parsed, input.existing)
     const validationMs = Math.max(0, Date.now() - validationStartedAt)
@@ -97,6 +109,7 @@ export async function generateSettingsArtifact(
       rejectedCount: validation.rejected.length,
       validationMs,
       errors: [
+        ...jsonDiagnosticsErrors,
         ...validation.rejected.map(item => item.reason),
         ...validation.errors
       ]

@@ -103,6 +103,82 @@ export function extractJsonArray(text: string): unknown[] {
   return []
 }
 
+export type JsonArrayDiagnosticsKind =
+  | 'success'
+  | 'none'
+  | 'no_json'
+  | 'parse_failed'
+  | 'truncated'
+
+export interface JsonArrayDiagnostics {
+  kind: JsonArrayDiagnosticsKind
+  rawLength: number
+  candidateCount: number
+  /** Bounded preview for terminal audit only; never sent back as replacement text. */
+  tailPreview?: string
+}
+
+export function extractJsonArrayWithDiagnostics(
+  text: string
+): { value: unknown[]; diagnostics: JsonArrayDiagnostics } {
+  const safeText = typeof text === 'string' ? text : ''
+  const value = extractJsonArray(safeText)
+  const candidateCount = extractJsonCandidates(safeText).length
+  const rawLength = safeText.length
+  if (value.length > 0) {
+    return {
+      value,
+      diagnostics: { kind: 'success', rawLength, candidateCount }
+    }
+  }
+  if (safeText.trim().length === 0) {
+    return { value: [], diagnostics: { kind: 'none', rawLength, candidateCount } }
+  }
+
+  const stack: Array<'[' | '{'> = []
+  let sawOpening = false
+  let inString = false
+  let escaped = false
+  for (let index = 0; index < safeText.length; index += 1) {
+    const char = safeText[index]
+    if (inString) {
+      if (escaped) escaped = false
+      else if (char === '\\') escaped = true
+      else if (char === '"') inString = false
+      continue
+    }
+    if (char === '"') {
+      inString = true
+      escaped = false
+      continue
+    }
+    if (char === '[' || char === '{') {
+      sawOpening = true
+      stack.push(char)
+    }
+    else if ((char === ']' || char === '}') && stack.length > 0) {
+      const opening = stack[stack.length - 1]
+      const isPair = (opening === '[' && char === ']') || (opening === '{' && char === '}')
+      if (isPair) stack.pop()
+    }
+  }
+
+  const kind: JsonArrayDiagnosticsKind = stack.length > 0
+    ? 'truncated'
+    : sawOpening || candidateCount > 0
+      ? 'parse_failed'
+      : 'no_json'
+  return {
+    value: [],
+    diagnostics: {
+      kind,
+      rawLength,
+      candidateCount,
+      tailPreview: safeText.slice(-80)
+    }
+  }
+}
+
 export function extractJsonValue(text: string): unknown {
   const candidates = extractJsonCandidates(text)
   return candidates.length > 0 ? candidates[0].value : null

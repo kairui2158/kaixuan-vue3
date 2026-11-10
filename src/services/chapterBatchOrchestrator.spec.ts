@@ -167,7 +167,7 @@ describe('generateChapterBatch', () => {
     expect(result.attempts[0].errors).toContain('章节标题与历史重复：「第一章」')
   })
 
-  it('returns incomplete without partial chapters after repairs are exhausted', async () => {
+  it('returns accepted partial chapters after repairs are exhausted', async () => {
     const result = await generateChapterBatch({
       contract,
       historyTitles: new Set<string>(),
@@ -177,10 +177,48 @@ describe('generateChapterBatch', () => {
     })
 
     expect(result.status).toBe('incomplete')
-    expect(result.chapters).toEqual([])
+    expect(result.chapters).toEqual(chapters(['第一章', '第二章', '第三章', '第四章']))
     expect(result.attempts).toHaveLength(4)
     expect(result.errors.some(item => item.includes('批次未能补齐'))).toBe(true)
     expect(result.errors.some(item => item.includes('期望第1章到第5章，共5章；最终只有4章'))).toBe(true)
+  })
+
+  it('does not run internal repairs when maxRepairAttempts is zero', async () => {
+    const calls: string[] = []
+    const result = await generateChapterBatch({
+      contract,
+      historyTitles: new Set<string>(),
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n暂无已生成章节',
+      maxRepairAttempts: 0,
+      callChapterApi: async (prompt) => {
+        calls.push(prompt)
+        return json(['第一章', '第二章', '第三章', '第四章'])
+      }
+    })
+
+    expect(result.status).toBe('incomplete')
+    expect(result.chapters).toEqual(chapters(['第一章', '第二章', '第三章', '第四章']))
+    expect(calls).toHaveLength(1)
+    expect(result.attempts).toHaveLength(1)
+    expect(result.attempts[0].repairAttempt).toBe(0)
+    expect(result.errors.some(item => item.includes('批次未能补齐'))).toBe(true)
+  })
+
+  it('exposes JSON diagnostics instead of silently dropping malformed output', async () => {
+    const result = await generateChapterBatch({
+      contract,
+      historyTitles: new Set<string>(),
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n暂无已生成章节',
+      maxRepairAttempts: 0,
+      callChapterApi: async () => '[{"title":"第一章","plot":"剧情'
+    })
+
+    expect(result.status).toBe('incomplete')
+    expect(result.chapters).toEqual([])
+    expect(result.errors.some(item => item.includes('输出JSON解析失败：truncated'))).toBe(true)
+    expect(result.errors.some(item => item.includes('原始输出 26 字符'))).toBe(true)
   })
 
   it('does not swallow API errors and records them as attempts', async () => {

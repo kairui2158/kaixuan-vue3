@@ -6107,6 +6107,18 @@ async function genChapters(mode: ChapterGenerationMode) {
     const settingsTextForChapters = withoutSettingsStyleText(settingsProjectionForChapters)
     trace.addEvent(buildSettingsProjectionTraceEvent('chapter', settingsProjectionForChapters))
   const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
+  const chaptersProvider = providerStore.getProvider(chaptersProviderChannel.providerId) as any
+  const providerMaxTokens = Number(chaptersProvider?.maxTokens) || 0
+  const estimatedBatchTokens = batch * wordsPerChapter * 2
+  if (providerMaxTokens > 0 && estimatedBatchTokens > providerMaxTokens * 0.8) {
+    trace.addEvent({
+      type: "chapter-batch-output-risk",
+      level: "warn",
+      label: "批次输出接近上限风险",
+      detail: JSON.stringify({ batch, wordsPerChapter, estimatedBatchTokens, providerMaxTokens })
+    })
+    appendStepLogForRun(chaptersRunId, 3, "预警：批次输出可能接近供应商上限，失败后请减少批量后重试")
+  }
   try {
     const planned = planChapterGeneration({ mode, generatedCount: collected.length, totalChapters, batchSize: batch })
     plan = planned
@@ -6158,6 +6170,7 @@ async function genChapters(mode: ChapterGenerationMode) {
         historyContext,
         callChapterApi: (requestPrompt) => callChapterApi(requestPrompt, trace.runId, chaptersRunId),
         shouldContinue: () => !pipelineStore.isGenerationCanceled(chaptersRunId),
+        maxRepairAttempts: 0,
         onAttempt: (attempt) => {
           trace.recordStepObservation('validation', attempt.validationMs)
           trace.addEvent({
@@ -6177,8 +6190,22 @@ async function genChapters(mode: ChapterGenerationMode) {
         }
       })
       if (batchResult.status !== 'complete') {
-        await saveChapterBreakpoint('batch-incomplete')
-        throw new Error(batchResult.errors.join("; ") || `批次未能补齐：第${contract.expectedStart}章到第${contract.expectedEnd}章`)
+        const added = batchResult.chapters
+        if (added.length === 0) {
+          await saveChapterBreakpoint('batch-incomplete')
+          throw new Error(batchResult.errors.join("; ") || `批次未能补齐：第${contract.expectedStart}章到第${contract.expectedEnd}章`)
+        }
+        trace.addEvent({
+          type: "chapter-batch-partial",
+          level: "warn",
+          label: "章节批次部分完成",
+          detail: JSON.stringify({
+            accepted: added.length,
+            requested: contract.requestedCount,
+            errors: batchResult.errors
+          })
+        })
+        appendStepLogForRun(chaptersRunId, 3, `批次部分完成：已保留 ${added.length}/${contract.requestedCount} 章，缺失区间将在下一轮补充`)
       }
       const added = batchResult.chapters
       added.forEach((c: any, idx: number) => {

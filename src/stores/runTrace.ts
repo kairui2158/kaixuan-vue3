@@ -969,6 +969,7 @@ export interface RunMetadataInput {
 
 const RUN_TRACE_SCHEMA_VERSION = 23
 const reportedLongRequestPhysicalIds = new Set<string>()
+const reportedThinkingDisabledObservationPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 const lastFinishedRunEndedAtByStep = new Map<string, number>()
 
@@ -1875,6 +1876,20 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
     return true
   }
 
+  function maybeReportThinkingDisabledReasoning(runId: string, physical: RunTracePhysicalCall) {
+    if (physical.retryStrategy !== 'thinking_disabled') return
+    if (reportedThinkingDisabledObservationPhysicalIds.has(physical.id)) return
+    const reasoningOutputTokens = normalizeTraceUsage(undefined, physical.usage)?.reasoningOutputTokens
+    if (!reasoningOutputTokens || reasoningOutputTokens <= 0) return
+    reportedThinkingDisabledObservationPhysicalIds.add(physical.id)
+    addEvent(runId, {
+      type: 'thinking-disabled-reasoning-consumed',
+      level: 'warn',
+      label: '禁推理参数未生效，仍产生推理输出',
+      detail: `seq=${physical.seq} reasoningOutputTokens=${reasoningOutputTokens}`,
+    })
+  }
+
   function appendPhysicalCall(runId: string, callId: string, input: PhysicalCallInput): string {
     const call = getRun(runId)?.apiCalls.find(item => item.id === callId)
     if (!call) return ''
@@ -1952,6 +1967,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       existing.cacheUsageSummary = input.cacheUsageSummary ?? existing.cacheUsageSummary
       existing.contextComposition = input.contextComposition ?? existing.contextComposition
       if (input.heartbeat) existing.heartbeat = true
+      maybeReportThinkingDisabledReasoning(runId, existing)
       const isHeartbeatProgress = input.heartbeat && existing.status === 'running'
       if (!isHeartbeatProgress) {
         addEvent(runId, {
@@ -2030,6 +2046,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       heartbeat: input.heartbeat,
     }
     call.physicalCalls.push(physical)
+    maybeReportThinkingDisabledReasoning(runId, physical)
     if (physical.status === 'running') {
       call.lastExecutionActivityAt = Date.now()
       reportRunActivity(runId, physical.heartbeat ? 'physical_call_heartbeat' : 'physical_call_running', `${physical.seq}/${call.skillName || call.id}`)

@@ -1,4 +1,4 @@
-import { extractJsonArray } from './jsonExtraction'
+import { extractJsonArrayWithDiagnostics } from './jsonExtraction'
 import {
   isValidChapterBatchContractInput,
   validateChapterBatch,
@@ -34,6 +34,20 @@ export interface ChapterBatchResult {
   chapters: any[]
   attempts: ChapterBatchAttempt[]
   errors: string[]
+}
+
+function appendJsonDiagnostics(
+  errors: string[],
+  raw: string,
+  parsedCount: number
+): void {
+  const { diagnostics } = extractJsonArrayWithDiagnostics(raw)
+  if (diagnostics.kind === 'success') return
+  errors.push([
+    `输出JSON解析失败：${diagnostics.kind}`,
+    `原始输出 ${diagnostics.rawLength} 字符`,
+    diagnostics.tailPreview ? `尾部：${diagnostics.tailPreview}` : null
+  ].filter(Boolean).join('；'))
 }
 
 export function buildChapterBatchPrompt(input: {
@@ -149,10 +163,11 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
       throw error
     }
 
-    const parsed = extractJsonArray(raw) as any[]
+    const { value: parsed } = extractJsonArrayWithDiagnostics(raw)
     const candidates = []
     const batchSeen = new Set<string>()
     const validationErrors: string[] = []
+    appendJsonDiagnostics(validationErrors, raw, parsed.length)
     for (const chapter of parsed) {
       const title = normalizedTitle(chapter?.title)
       const plot = normalizedTitle(chapter?.plot) || normalizedTitle(chapter?.summary)
@@ -217,5 +232,5 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
       ...attempts.flatMap(attempt => attempt.errors)
     ])
   ]
-  return { status: 'incomplete', chapters: [], attempts, errors }
+  return { status: 'incomplete', chapters: accepted, attempts, errors }
 }

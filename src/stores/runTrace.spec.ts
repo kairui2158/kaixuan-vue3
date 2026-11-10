@@ -422,6 +422,48 @@ describe('runTrace store', () => {
     expect(JSON.stringify(physical?.contextComposition)).not.toContain('生成章节')
   })
 
+  it('observes reasoning usage when thinking_disabled retry still consumed reasoning tokens', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 3, stepName: '章节层', mode: 'single', skillNames: ['章节技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成章节' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'thinking-disabled-1',
+      phase: 'retry',
+      requestMessages: [{ role: 'user', content: '生成章节' }],
+      retryStrategy: 'thinking_disabled',
+      usage: { outputTokens: 64000, reasoningOutputTokens: 41387 }
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'thinking-disabled-1',
+      requestMessages: [{ role: 'user', content: '生成章节' }],
+      responseText: '终端响应'
+    })
+
+    const events = store.getRun(runId)?.events.filter(event => event.type === 'thinking-disabled-reasoning-consumed') || []
+    expect(events).toHaveLength(1)
+    expect(events[0].level).toBe('warn')
+    expect(events[0].detail).toBe('seq=1 reasoningOutputTokens=41387')
+  })
+
+  it('does not report thinking_disabled observation when reasoning tokens are absent', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 3, stepName: '章节层', mode: 'single', skillNames: ['章节技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成章节' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'thinking-disabled-empty-1',
+      phase: 'retry',
+      requestMessages: [{ role: 'user', content: '生成章节' }],
+      retryStrategy: 'thinking_disabled',
+      usage: { outputTokens: 100 }
+    })
+
+    expect(store.getRun(runId)?.events.some(event => event.type === 'thinking-disabled-reasoning-consumed')).toBe(false)
+  })
+
   it('stores physical timing segments and computes api call timing ledger', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })

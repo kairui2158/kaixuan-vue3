@@ -1,4 +1,4 @@
-import { extractJsonArray } from './jsonExtraction'
+import { extractJsonArrayWithDiagnostics } from './jsonExtraction'
 import {
   clampGeneratedVolumes,
   type ExistingVolumeRef,
@@ -49,6 +49,16 @@ export interface VolumeBatchResult {
   volumes: any[]
   attempts: VolumeBatchAttempt[]
   errors: string[]
+}
+
+function appendJsonDiagnostics(errors: string[], raw: string): void {
+  const { diagnostics } = extractJsonArrayWithDiagnostics(raw)
+  if (diagnostics.kind === 'success') return
+  errors.push([
+    `输出JSON解析失败：${diagnostics.kind}`,
+    `原始输出 ${diagnostics.rawLength} 字符`,
+    diagnostics.tailPreview ? `尾部：${diagnostics.tailPreview}` : null
+  ].filter(Boolean).join('；'))
 }
 
 const VOLUME_OUTPUT_PROTOCOL = [
@@ -272,7 +282,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
       throw error
     }
 
-    const parsed = extractJsonArray(raw) as any[]
+    const { value: parsed } = extractJsonArrayWithDiagnostics(raw)
     const clamped = clampGeneratedVolumes(
       input.contract.mode as VolumeGenerateMode,
       parsed,
@@ -280,6 +290,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
       input.contract.expectedCount
     )
     const validationErrors: string[] = []
+    appendJsonDiagnostics(validationErrors, raw)
     if (clamped.truncated) {
       validationErrors.push(`${input.contract.mode} 模式返回 ${parsed.length} 卷，已截取 ${clamped.volumes.length} 卷`)
     }
