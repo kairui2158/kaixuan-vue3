@@ -17,11 +17,18 @@ export interface PlanChapterGenerationInput {
   batchSize: number
 }
 
+export function normalizeChapterBatchSize(value: unknown): number {
+  if (value === '' || value === null || value === undefined) return 5
+  const parsed = Math.floor(Number(value))
+  if (!Number.isFinite(parsed)) return 5
+  return Math.max(1, Math.min(parsed, 20))
+}
+
 export function planChapterGeneration(input: PlanChapterGenerationInput): ChapterGenerationPlan {
   const mode = input.mode
   const total = Math.max(0, Math.floor(Number(input.totalChapters) || 0))
   const generated = Math.max(0, Math.min(Math.floor(Number(input.generatedCount) || 0), total))
-  const safeBatchSize = Math.max(1, Math.min(Math.floor(Number(input.batchSize) || 1), 20))
+  const safeBatchSize = normalizeChapterBatchSize(input.batchSize)
 
   if (!['batch', 'continue', 'auto'].includes(mode)) {
     throw new Error('未知章节生成模式')

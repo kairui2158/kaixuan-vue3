@@ -48,7 +48,7 @@ describe('pipeline progress readers', () => {
 
   it('chapter continuation is blocked only by the active chapter run for that volume', () => {
     expect(pipelineSource).not.toContain('if (pipelineStore.isGenerating || !selectedVolumeChapterLocked.value) return false')
-    expect(pipelineSource).toContain("if (pipelineStore.isTargetGenerating('chapters', selectedChapterTarget.value) || !selectedVolumeChapterLocked.value) return false")
+    expect(pipelineSource).toContain("if (!canStartChapters.value) return false")
   })
 
   it('pipeline status is derived from run registry instead of a mutable global scalar', () => {

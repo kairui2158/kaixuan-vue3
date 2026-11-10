@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  normalizeChapterBatchSize,
   planChapterGeneration,
   type ChapterGenerationMode
 } from './chapterBatchPlanning'
@@ -21,6 +22,22 @@ function contract(overrides: Partial<ChapterBatchContract> = {}): ChapterBatchCo
 }
 
 describe('planChapterGeneration', () => {
+  it('normalizes chapter batch size for UI, runtime and persistence', () => {
+    expect(normalizeChapterBatchSize(0)).toBe(1)
+    expect(normalizeChapterBatchSize(-3)).toBe(1)
+    expect(normalizeChapterBatchSize(2.8)).toBe(2)
+    expect(normalizeChapterBatchSize(21)).toBe(20)
+    expect(normalizeChapterBatchSize(100)).toBe(20)
+    expect(normalizeChapterBatchSize('')).toBe(5)
+    expect(normalizeChapterBatchSize(undefined)).toBe(5)
+    expect(planChapterGeneration({
+      mode: 'batch',
+      generatedCount: 0,
+      totalChapters: 6,
+      batchSize: 21
+    }).requestedCount).toBe(6)
+  })
+
   it('plans one configured batch from the resume position in batch mode', () => {
     const plan = planChapterGeneration({
       mode: 'batch',

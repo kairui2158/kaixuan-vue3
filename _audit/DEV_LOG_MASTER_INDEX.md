@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-08
+更新日期：2026-11-10
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1844,3 +1844,11 @@
 - 交付：输出有效性扣减 reasoning 并豁免明确非长度终点；续写提示禁止协议标记；物理 retry/heartbeat/direct/continuation 共享预算单源计费；budget blocked 独立返回；流水线默认预算 24。
 - 验证：定向 124 tests passed；type-check exit 0；全量服务 250 files / 2703 tests passed；构建 3.121.0 并通过 packaging 核验，installer SHA-256 `8f61af6f4409721acb801dfe54de8415fe1a30b9b4ddb393565bc167dd314174`。
 - 边界：不改 folder SKILL；不新增自动调度、独立预算系统或 UI；不触碰无关脏文件。
+
+# 2026-11-10 章节层批量输入与生成按钮同步
+
+- 文件：[_audit/DEV_LOG_2026-11-10_chapter-batch-input-button-sync.md](_audit/DEV_LOG_2026-11-10_chapter-batch-input-button-sync.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-10_chapter-batch-input-button-sync-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-10_chapter-batch-input-button-sync-v1.md)
+- 交付：批量章节数 1-20 单源归一化，空值回默认 5；项目级与流水线级双写持久化；按钮改用绑定卷/章数/运行态真实就绪闸；文案迁移为“按设定章节数生成”。
+- 验证：定向 18 tests passed；全量服务 250 files / 2715 tests passed；type-check exit 0；旧假闸与旧文案生产源码 0 命中。
+- 边界：不改卷纲层/正文层/设定层；不新增预算系统、自动调度或新 UI；Electron GUI 手工烟测未执行。

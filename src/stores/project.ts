@@ -29,6 +29,7 @@ import {
 } from '../services/trackingStateService'
 import type { ExtractedMemoryData } from '../services/memoryExtractor'
 import type { EditorBookmark } from '../services/editorBookmarks'
+import { normalizeChapterBatchSize } from '../services/chapterBatchPlanning'
 import { useEditorStore } from './editor'
 
 const toPlain = toCloneableSnapshot
@@ -543,7 +544,7 @@ export const useProjectStore = defineStore('project', () => {
  const projectList = ref<any[]>([])
  const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
  const schemaVersion = ref(CURRENT_SCHEMA_VERSION)
-  const pipelineConfig = ref<{ volumeCount: number; volumeWords: number; chapterWords: number }>({ volumeCount: 3, volumeWords: 100000, chapterWords: 3500 })
+  const pipelineConfig = ref<{ volumeCount: number; volumeWords: number; chapterWords: number; chapterBatchSize?: number }>({ volumeCount: 3, volumeWords: 100000, chapterWords: 3500, chapterBatchSize: 5 })
  const memories = ref<MemoryData>(createDefaultMemories())
  const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
  const outlineChat = ref<any[]>([])
@@ -736,7 +737,8 @@ export const useProjectStore = defineStore('project', () => {
       pipelineConfig.value = {
         volumeCount: Number(data.pipelineConfig.volumeCount) || 3,
         volumeWords: Number(data.pipelineConfig.volumeWords) || 100000,
-        chapterWords: Number(data.pipelineConfig.chapterWords) || 3500
+        chapterWords: Number(data.pipelineConfig.chapterWords) || 3500,
+        chapterBatchSize: normalizeChapterBatchSize(data.pipelineConfig.chapterBatchSize)
       }
     }
      chaptersConfirmed.value = data.chaptersConfirmed || false
@@ -1704,7 +1706,7 @@ export const useProjectStore = defineStore('project', () => {
     chapters.value = {}
     settingsCollection.value = { categories: [], items: {} }
     schemaVersion.value = CURRENT_SCHEMA_VERSION
-    pipelineConfig.value = { volumeCount: 3, volumeWords: 100000, chapterWords: 3500 }
+    pipelineConfig.value = { volumeCount: 3, volumeWords: 100000, chapterWords: 3500, chapterBatchSize: 5 }
     memories.value = createDefaultMemories()
     memoryBlacklist.value = []
     aiNaming.value = createDefaultAiNamingData()

@@ -131,7 +131,7 @@ describe('DEAI stage guidance integration contract', () => {
   })
 
   it('keeps upstream stage diagnosis alive for the final report', () => {
-    const diagnosisBlockStart = pipelineSource.indexOf('if (\n          isBodyLayer &&')
+    const diagnosisBlockStart = pipelineSource.indexOf('if (\r\n          isBodyLayer &&')
     const diagnosisBlockEnd = pipelineSource.indexOf('if (si < templates.length - 1 && runId)', diagnosisBlockStart)
     const diagnosisBlock = pipelineSource.slice(diagnosisBlockStart, diagnosisBlockEnd)
     const elseBlock = diagnosisBlock.slice(diagnosisBlock.indexOf('} else {'))
@@ -166,7 +166,7 @@ describe('DEAI stage guidance integration contract', () => {
     expect(callSite).toContain('resolveDeaiModelProfileGuidanceForRun(')
     expect(callSite).not.toContain('step === 4')
     expect(callSite).not.toContain('true,')
-    expect(pipelineSource).toContain('if (\n          isBodyLayer &&\n          si < templates.length - 1 &&')
+    expect(pipelineSource).toContain('if (\r\n          isBodyLayer &&\r\n          si < templates.length - 1 &&')
     expect(pipelineSource).not.toContain('if (\n          step === 4 &&\n          si < templates.length - 1 &&')
     expect(pipelineSource).not.toContain('if (step !== 4) return { guidance: \'\', traceEvent: null, warning: null }')
   })

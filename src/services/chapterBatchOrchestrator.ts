@@ -164,13 +164,14 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
     }
 
     const { value: parsed } = extractJsonArrayWithDiagnostics(raw)
-    const candidates = []
+    const candidates: Array<{ title?: unknown; plot?: unknown; summary?: unknown }> = []
     const batchSeen = new Set<string>()
     const validationErrors: string[] = []
     appendJsonDiagnostics(validationErrors, raw, parsed.length)
-    for (const chapter of parsed) {
-      const title = normalizedTitle(chapter?.title)
-      const plot = normalizedTitle(chapter?.plot) || normalizedTitle(chapter?.summary)
+    for (const chapterValue of parsed) {
+      const chapter = (chapterValue || {}) as { title?: unknown; plot?: unknown; summary?: unknown }
+      const title = normalizedTitle(chapter.title)
+      const plot = normalizedTitle(chapter.plot) || normalizedTitle(chapter.summary)
       if (!title || !plot) continue
       if (existingTitles.has(title)) {
         validationErrors.push(`章节标题与历史重复：「${title}」`)

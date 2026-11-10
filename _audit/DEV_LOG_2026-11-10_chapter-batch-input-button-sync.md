@@ -1,0 +1,26 @@
+# DEV_LOG_2026-11-10_chapter-batch-input-button-sync
+
+- 主题：章节层批量输入与生成按钮同步修复 V1.1
+- 背景：
+  - “每次生成（章节数）”此前只靠浏览器 `min/max` 展示，非法状态可能进入持久化和运行入口。
+  - 批量配置没有项目级/流水线级双写，切换项目或重开应用后容易漂移。
+  - 按钮就绪态使用恒真 `selectedVolumeChapterLocked`，只反映生成中锁，不反映真实可用条件。
+  - “生成本批章节”语义让用户无法直接看出按钮消费的是上方配置。
+- 改动：
+  - 新增 `normalizeChapterBatchSize()` 作为 1-20 单源归一化；空值/缺失/null 回默认 5。
+  - `saveChapterBatchSize()` 归一化输入；`saveVolumeConfig()` 双写 `projectStore.pipelineConfig` 与 `pipelineStore.writeStepConfig`。
+  - mounted 与项目切换 watch 恢复批量配置；章节生成入口复用同一函数。
+  - 删除恒真假闸，新增 `canStartChapters`：绑定卷、目标章数大于 0、当前卷无章节生成任务。
+  - 批量按钮文案迁移为“按设定章节数生成”；全量生成继续使用真实就绪态。
+  - 迁移过时源码锁断言；最小修复 `chapterBatchOrchestrator.ts` 既有局部类型错误。
+- 验证：
+  - 定向：`chapterBatchPlanning.spec.ts` + `chapterBatchModesWiring.spec.ts`，18 tests passed。
+  - 全量：`npx vitest run`，250 files / 2715 tests passed。
+  - 类型：`npx vue-tsc --noEmit`，exit 0。
+  - 旧语义：`selectedVolumeChapterLocked` 与 `生成本批章节` 生产源码 0 命中。
+- 边界：
+  - 不修改卷纲层、正文层或设定层。
+  - 不新增预算系统、自动调度、重试策略或新 UI 组件。
+  - 不做 Electron GUI 手工烟测；该边界登记在任务台账。
+- 结论：
+  - 章节层配置输入、生成按钮、运行入口与持久化链路同步闭环，进入封装前检查。

@@ -436,7 +436,7 @@
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
               <label>每次生成</label>
-              <input id="pl-chapter-batch-size" type="number" class="input-w-80" v-model.number="chapterBatchSize" min="1" max="20" step="1" />
+              <input id="pl-chapter-batch-size" type="number" class="input-w-80" v-model.number="chapterBatchSize" min="1" max="20" step="1" @change="saveChapterBatchSize" />
             </div>
             <EmptyState
               v-if="boundVolumes.length === 0"
@@ -488,8 +488,8 @@
               </div>
            </div>
            <div class="pl-actions">
-              <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters('batch')" :disabled="pipelineStore.isTargetGenerating('chapters', selectedChapterTarget) || !selectedVolumeChapterLocked">生成本批章节</button>
-              <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters('auto')" :disabled="pipelineStore.isTargetGenerating('chapters', selectedChapterTarget) || !selectedVolumeChapterLocked">全量生成章节</button>
+              <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters('batch')" :disabled="!canStartChapters">按设定章节数生成</button>
+              <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters('auto')" :disabled="!canStartChapters">全量生成章节</button>
               <button id="btn-pl-continue-chapters" class="btn-secondary" @click="genChapters('continue')" :disabled="!canContinueChapters">续生成</button>
              <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
            </div>
@@ -850,7 +850,7 @@ import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 import { buildChapterHistoryFacts, renderChapterHistoryContext, resolveChapterCountContract, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
 import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
-import { planChapterGeneration, type ChapterGenerationMode } from "../../services/chapterBatchPlanning"
+import { normalizeChapterBatchSize, planChapterGeneration, type ChapterGenerationMode } from "../../services/chapterBatchPlanning"
 import { buildVolumeHistoryFacts, extractVolumeContractSemantics, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
 import { observeVolumeContractMentions } from "../../services/contractReview"
 import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
@@ -2483,8 +2483,6 @@ const selectedVolumeChapterWords = computed({
     }
   }
 })
-const selectedVolumeChapterLocked = computed(() => true)
-
 const steps = ref([
   { name: "大纲", completed: false },
   { name: "设定", completed: false },
@@ -2507,6 +2505,16 @@ const estimatedChapters = computed(() => {
   const words = vol.allocatedWords || vol.suggestedWords || volumeWords.value
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   return Math.ceil(words / wordsPerChapter)
+})
+
+const canStartChapters = computed(() => {
+  const vol = selectedVolume.value
+  const estimatedChapterCount = Number(vol?.chapterCount) || estimatedChapters.value
+  return Boolean(
+    vol
+    && vol.isBound
+    && estimatedChapterCount > 0,
+  ) && !pipelineStore.isTargetGenerating('chapters', selectedChapterTarget.value)
 })
 
 const currentSettings = computed(() => {
@@ -2542,7 +2550,7 @@ const currentVolumeChapters = computed(() => {
 })
 
 const canContinueChapters = computed(() => {
-  if (pipelineStore.isTargetGenerating('chapters', selectedChapterTarget.value) || !selectedVolumeChapterLocked.value) return false
+  if (!canStartChapters.value) return false
   const vol = selectedVolume.value
   if (!vol) return false
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
@@ -2673,17 +2681,26 @@ async function saveBookWordCount() {
 }
 
 async function saveVolumeConfig() {
+  const chapterBatchSizeNormalized = normalizeChapterBatchSize(chapterBatchSize.value)
+  chapterBatchSize.value = chapterBatchSizeNormalized
   projectStore.pipelineConfig = {
     volumeCount: Number(volumeCount.value) || 3,
     volumeWords: Number(volumeWords.value) || 100000,
-    chapterWords: Number(selectedVolume.value?.wordsPerChapter || chapterWords.value) || 3500
+    chapterWords: Number(selectedVolume.value?.wordsPerChapter || chapterWords.value) || 3500,
+    chapterBatchSize: chapterBatchSizeNormalized
   }
   projectStore.saveProject()
   await pipelineStore.writeStepConfig({
     volumeWords: Number(volumeWords.value) || 0,
     volumeCount: Number(volumeCount.value) || 0,
-    chapterWords: Number(selectedVolume.value?.wordsPerChapter || chapterWords.value) || 0
+    chapterWords: Number(selectedVolume.value?.wordsPerChapter || chapterWords.value) || 0,
+    chapterBatchSize: chapterBatchSizeNormalized
   })
+}
+
+function saveChapterBatchSize() {
+  chapterBatchSize.value = normalizeChapterBatchSize(chapterBatchSize.value)
+  saveChapterConfig()
 }
 
 function saveChapterConfig() {
@@ -6106,7 +6123,7 @@ async function genChapters(mode: ChapterGenerationMode) {
     const settingsProjectionForChapters = getLockedSettingsForLayer('chapter', scForChapters)
     const settingsTextForChapters = withoutSettingsStyleText(settingsProjectionForChapters)
     trace.addEvent(buildSettingsProjectionTraceEvent('chapter', settingsProjectionForChapters))
-  const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
+  const batch = normalizeChapterBatchSize(chapterBatchSize.value)
   const chaptersProvider = providerStore.getProvider(chaptersProviderChannel.providerId) as any
   const providerMaxTokens = Number(chaptersProvider?.maxTokens) || 0
   const estimatedBatchTokens = batch * wordsPerChapter * 2
@@ -7425,6 +7442,7 @@ async function confirmMemoryPreview() {
       volumeCount.value = projectStore.pipelineConfig.volumeCount || volumeCount.value
       volumeWords.value = projectStore.pipelineConfig.volumeWords || volumeWords.value
       chapterWords.value = projectStore.pipelineConfig.chapterWords || chapterWords.value
+      chapterBatchSize.value = normalizeChapterBatchSize(projectStore.pipelineConfig.chapterBatchSize || chapterBatchSize.value)
     }
   }
    if (projectStore.bookWordCountChars > 0 && bookWordCount.value <= 0) {
@@ -7456,6 +7474,7 @@ watch(() => projectStore.currentProjectId, (newId, oldId) => {
       volumeCount.value = projectStore.pipelineConfig.volumeCount || volumeCount.value
       volumeWords.value = projectStore.pipelineConfig.volumeWords || volumeWords.value
       chapterWords.value = projectStore.pipelineConfig.chapterWords || chapterWords.value
+      chapterBatchSize.value = normalizeChapterBatchSize(projectStore.pipelineConfig.chapterBatchSize || chapterBatchSize.value)
     }
     if (projectStore.bookWordCountChars > 0) {
       bookWordCount.value = Math.round(projectStore.bookWordCountChars / 10000)
