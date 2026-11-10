@@ -60,7 +60,9 @@ const activeAgent = computed(() => agents.value.find(a => a.id === selectedAgent
       const existingAgent = existing.get(a.id)
       if (existingAgent) {
         if (strategy === 'overwrite') {
-          Object.assign(existingAgent, a, { updatedAt: now })
+          const incoming: Agent = { ...a }
+          if (!incoming.createdAt) incoming.createdAt = existingAgent.createdAt
+          Object.assign(existingAgent, incoming, { updatedAt: now })
           updated++
         } else {
           skipped++

@@ -73,4 +73,80 @@ describe('agent store configuration exchange', () => {
     expect(payload.version).toBe(1)
     expect(payload.agents).toEqual([expect.objectContaining({ id: 'export-agent' })])
   })
+
+  it('overwrite replaces optional fields and clears missing optional fields', async () => {
+    const store = useAgentStore()
+    store.agents.push({
+      ...makeAgent('opt-agent', 'existing'),
+      description: 'old description',
+      provider: 'old-provider',
+      tools: ['old-tool'],
+    })
+
+    const result = await store.importAgents([
+      {
+        id: 'opt-agent',
+        name: 'incoming',
+        model: 'incoming-model',
+        temperature: 0.5,
+        maxTokens: 8192,
+        systemPrompt: 'incoming-prompt',
+        description: undefined,
+        provider: undefined,
+        tools: undefined,
+        createdAt: undefined,
+        updatedAt: undefined,
+      },
+    ], 'overwrite')
+
+    expect(result).toEqual({ added: 0, updated: 1, skipped: 0 })
+    expect(store.getAgent('opt-agent')?.systemPrompt).toBe('incoming-prompt')
+    expect(store.getAgent('opt-agent')?.description).toBeUndefined()
+    expect(store.getAgent('opt-agent')?.provider).toBeUndefined()
+    expect(store.getAgent('opt-agent')?.tools).toBeUndefined()
+  })
+
+  it('overwrite preserves createdAt when incoming record omits it', async () => {
+    const store = useAgentStore()
+    store.agents.push({
+      ...makeAgent('ts-agent', 'existing'),
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+
+    await store.importAgents([
+      {
+        id: 'ts-agent',
+        name: 'incoming',
+        model: 'incoming-model',
+        temperature: 0.5,
+        maxTokens: 8192,
+        systemPrompt: 'incoming-prompt',
+        description: undefined,
+        provider: undefined,
+        tools: undefined,
+        createdAt: undefined,
+        updatedAt: undefined,
+      },
+    ], 'overwrite')
+
+    expect(store.getAgent('ts-agent')?.createdAt).toBe('2026-01-01T00:00:00.000Z')
+  })
+
+  it('overwrite refreshes systemPrompt when incoming supplies it', async () => {
+    const store = useAgentStore()
+    store.agents.push(makeAgent('prompt-agent', 'existing'))
+
+    await store.importAgents([
+      {
+        id: 'prompt-agent',
+        name: 'incoming',
+        model: 'incoming-model',
+        temperature: 0.5,
+        maxTokens: 8192,
+        systemPrompt: 'incoming-prompt',
+      },
+    ], 'overwrite')
+
+    expect(store.getAgent('prompt-agent')?.systemPrompt).toBe('incoming-prompt')
+  })
 })
