@@ -486,4 +486,53 @@ describe('import planning', () => {
       { id: 'folder:KAI-S3', name: '未声明格式', action: 'add', reason: '新增' },
     ])
   })
+
+  it('reports systemPrompt diff when existingPrompts map is provided', () => {
+    const existingPrompts = new Map([['existing-a', 'local']])
+    const plan = buildImportPlan(
+      ['existing-a'],
+      [{ id: 'existing-a', name: 'A', systemPrompt: 'incoming' }],
+      'overwrite',
+      undefined,
+      existingPrompts,
+    )
+    expect(plan[0].currentSystemPromptChars).toBe(5)
+    expect(plan[0].incomingSystemPromptChars).toBe(8)
+    expect(plan[0].currentSystemPromptHash).not.toBe(plan[0].incomingSystemPromptHash)
+    expect(plan[0].incomingSystemPromptMissing).toBe(false)
+
+    const skipPlan = buildImportPlan(
+      ['existing-a'],
+      [{ id: 'existing-a', name: 'A', systemPrompt: 'incoming' }],
+      'skip',
+      undefined,
+      existingPrompts,
+    )
+    expect(skipPlan[0].currentSystemPromptChars).toBe(5)
+    expect(skipPlan[0].incomingSystemPromptChars).toBe(8)
+  })
+
+  it('flags missing incoming systemPrompt for overwrite diff', () => {
+    const existingPrompts = new Map([['existing-a', 'local-prompt']])
+    const plan = buildImportPlan(
+      ['existing-a'],
+      [{ id: 'existing-a', name: 'A' }],
+      'overwrite',
+      undefined,
+      existingPrompts,
+    )
+    expect(plan[0].incomingSystemPromptMissing).toBe(true)
+  })
+
+  it('keeps prompt diff fields undefined when existingPrompts is not provided', () => {
+    const plan = buildImportPlan(
+      ['existing-a'],
+      [{ id: 'existing-a', name: 'A', systemPrompt: 'incoming' }],
+      'overwrite',
+    )
+    expect(plan[0].currentSystemPromptChars).toBeUndefined()
+    expect(plan[0].incomingSystemPromptChars).toBeUndefined()
+    expect(plan[0].currentSystemPromptHash).toBeUndefined()
+    expect(plan[0].incomingSystemPromptHash).toBeUndefined()
+  })
 })

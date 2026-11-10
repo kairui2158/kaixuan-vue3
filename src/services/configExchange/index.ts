@@ -8,6 +8,7 @@ import type {
 } from './types'
 import { normalizeAgentItem, normalizeSkillItem } from './validation'
 import { normalizeContextPolicy, normalizeSkillId } from '../skillIdentity'
+import { fnv1a32Hash } from '../settingsProjection'
 
 export * from './types'
 export * from './json'
@@ -159,23 +160,40 @@ export function fromSkillRecord(record: SkillRecord): Skill {
 
 export function buildImportPlan(
   existingIds: string[],
-  incoming: Array<{ id: string; name?: string; format?: 'text' | 'folder' }>,
+  incoming: Array<{ id: string; name?: string; format?: 'text' | 'folder'; systemPrompt?: string }>,
   strategy: ImportStrategy = 'skip',
   format?: 'text' | 'folder',
+  existingPrompts?: Map<string, string>,
 ): ImportPlanItem[] {
   const known = new Set(existingIds)
   const folderKnown = new Set(existingIds.filter(id => id.startsWith('folder:')))
   return incoming.map(item => {
     const incomingId = normalizeSkillId(item.id, item.format || format)
     const incomingFolderId = incomingId.startsWith('folder:') ? incomingId : `folder:${incomingId}`
+    const promptDiff = (() => {
+      if (!existingPrompts) return {}
+      const currentPrompt = existingPrompts.get(item.id) ?? existingPrompts.get(incomingId) ?? ''
+      const incomingPrompt = item.systemPrompt ?? ''
+      const currentChars = currentPrompt.length
+      const currentHash = currentPrompt ? fnv1a32Hash(currentPrompt) : ''
+      const incomingChars = incomingPrompt.length
+      const incomingHash = incomingPrompt ? fnv1a32Hash(incomingPrompt) : ''
+      return {
+        currentSystemPromptChars: currentChars,
+        currentSystemPromptHash: currentHash || undefined,
+        incomingSystemPromptChars: incomingChars,
+        incomingSystemPromptHash: incomingHash || undefined,
+        incomingSystemPromptMissing: item.systemPrompt === undefined || item.systemPrompt === null,
+      }
+    })()
     if (!known.has(incomingId) && !folderKnown.has(incomingFolderId)) {
       known.add(item.id)
       folderKnown.add(incomingFolderId)
-      return { id: incomingId, name: item.name || incomingId, action: 'add', reason: '新增' }
+      return { id: incomingId, name: item.name || incomingId, action: 'add', reason: '新增', ...promptDiff }
     }
     if (strategy === 'overwrite') {
-      return { id: incomingId, name: item.name || incomingId, action: 'update', reason: '覆盖已有配置' }
+      return { id: incomingId, name: item.name || incomingId, action: 'update', reason: '覆盖已有配置', ...promptDiff }
     }
-    return { id: incomingId, name: item.name || incomingId, action: 'skip', reason: '已存在相同 id' }
+    return { id: incomingId, name: item.name || incomingId, action: 'skip', reason: '已存在相同 id', ...promptDiff }
   })
 }

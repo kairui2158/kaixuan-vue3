@@ -170,4 +170,9 @@ export interface ImportPlanItem {
   name: string
   action: 'add' | 'update' | 'skip'
   reason: string
+  currentSystemPromptChars?: number
+  currentSystemPromptHash?: string
+  incomingSystemPromptChars?: number
+  incomingSystemPromptHash?: string
+  incomingSystemPromptMissing?: boolean
 }

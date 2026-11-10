@@ -144,7 +144,8 @@ export function useConfigExchange() {
         return { ok: false, issues, diagnostics: [], fieldTrace: [], unknownFields: [], plan: [], records: [], source: file.path }
       }
       const agentStore = useAgentStore()
-      const plan = buildImportPlan(agentStore.agents.map(a => a.id), records)
+      const prompts = new Map(agentStore.agents.map(a => [a.id, a.systemPrompt]))
+      const plan = buildImportPlan(agentStore.agents.map(a => a.id), records, 'skip', undefined, prompts)
       return { ok: true, issues, diagnostics, fieldTrace, sourceInfo, unknownFields, plan, records, source: file.path }
     } catch (e: any) {
       exchangeError.value = e?.message || '导入异常'

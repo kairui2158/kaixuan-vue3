@@ -24,6 +24,7 @@
         </div>
         <div v-if="editingId !== a.id" class="agent-card-summary">
           <span class="agent-card-meta">温度: {{ a.temperature }}</span>
+          <span class="agent-card-meta">提示词: {{ a.systemPrompt.length }} chars · {{ a.systemPrompt ? fnv1a32Hash(a.systemPrompt) : 'empty' }}</span>
         </div>
         <div v-if="editingId === a.id" id="agent-form" class="agent-card-body">
           <h4 id="agent-form-title">智能体设置</h4>
@@ -43,6 +44,7 @@
             <input type="range" id="af-temperature" min="0" max="2" step="0.1" v-model.number="a.temperature" class="range-full" @change="agentStore.saveAgents()" />
             <label>系统提示词</label>
             <textarea id="af-prompt" v-model="a.systemPrompt" class="textarea-field full-width" rows="6" placeholder="设定AI的角色、行为、语气..." @change="agentStore.saveAgents()"></textarea>
+            <button id="af-clear-prompt" class="btn-sm btn-secondary" type="button" @click="clearPrompt(a)">清除提示词</button>
           </div>
           <div class="form-actions">
           <button id="btn-secondary-agent" class="btn-secondary" @click="cancelEdit">取消</button>
@@ -99,6 +101,9 @@
               <span class="agent-import-name">{{ item.name }}</span>
               <span class="agent-import-id">{{ item.id }}</span>
               <span class="agent-import-action" :class="'is-' + item.action">{{ item.reason }}</span>
+              <span v-if="item.currentSystemPromptChars !== undefined" class="agent-import-prompt-diff">
+                当前 {{ item.currentSystemPromptChars }}/{{ item.currentSystemPromptHash || 'empty' }} → 导入 {{ item.incomingSystemPromptMissing ? '缺失' : item.incomingSystemPromptChars + '/' + (item.incomingSystemPromptHash || 'empty') }}
+              </span>
             </div>
             <p v-if="importPlan.length === 0" class="agent-import-empty">没有可导入的有效配置。</p>
           </div>
@@ -109,6 +114,7 @@
               <option value="overwrite">覆盖已有配置</option>
             </select>
           </label>
+          <p class="agent-import-overwrite-hint">覆盖导入按当前界面字段执行全字段替换；缺失字段按空/默认语义刷新。</p>
         </div>
         <div class="agent-import-actions">
           <button class="btn-secondary" type="button" @click="cancelImport">取消</button>
@@ -126,6 +132,7 @@ import { useProviderStore } from '../../stores/provider'
 import { useConfigExchange } from '../../composables/useConfigExchange'
 import type { Agent } from '../../stores/agent'
 import { buildImportPlan } from '../../services/configExchange'
+import { fnv1a32Hash } from '../../services/settingsProjection'
 import type { ConfigDiagnostic, ConfigFieldTrace, ConfigIssue, ConfigSourceInfo, ImportPlanItem, ImportStrategy } from '../../services/configExchange'
 import { useModalQueue } from '../../composables/useModalQueue'
 
@@ -251,7 +258,8 @@ function formatDiagnosticLevel(level: ConfigDiagnostic['level']) {
 }
 
 function refreshImportPlan() {
-  importPlan.value = buildImportPlan(agentStore.agents.map(a => a.id), pendingAgentRecords.value, importStrategy.value)
+  const prompts = new Map(agentStore.agents.map(a => [a.id, a.systemPrompt]))
+  importPlan.value = buildImportPlan(agentStore.agents.map(a => a.id), pendingAgentRecords.value, importStrategy.value, undefined, prompts)
 }
 
 async function exportAgentsJson() {
@@ -275,6 +283,11 @@ function cancelEdit() {
 function saveAgent(id: string) {
   agentStore.saveAgents()
   editingId.value = ''
+}
+
+function clearPrompt(a: Agent) {
+  a.systemPrompt = ''
+  agentStore.saveAgents()
 }
 
 function addAgent() {
