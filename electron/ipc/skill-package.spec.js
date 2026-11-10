@@ -1,17 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import crypto from 'node:crypto'
-
-vi.mock('./skill-loader', async () => {
-  const actual = await vi.importActual('./skill-loader')
-  return {
-    loadSkillFolder: vi.fn(actual.loadSkillFolder),
-  }
-})
-
-const { loadSkillFolder } = await import('./skill-loader')
 const {
   readPackagePreview,
   copyZipToSkillLibrary,
@@ -84,10 +75,6 @@ describe('skill package install/export equivalence', () => {
     expect(exported.version).toBe('1.0.0')
     expect(exported.fileCount).toBe(6)
 
-    fs.rmSync(path.join(root, 'skill-library', 'roundtrip'), {
-      recursive: true,
-      force: true,
-    })
     const reinstalled = await copyZipToSkillLibrary(exportZip, 'roundtrip', '1.0.0')
     expect(reinstalled.ok).toBe(true)
     expect(reinstalled.skill.id).toBe('roundtrip')
@@ -126,5 +113,58 @@ describe('skill package install/export equivalence', () => {
     const latest = resolveSkillLibraryVersion('roundtrip', '')
     expect(latest.ok).toBe(true)
     expect(latest.version).toBe('1.1.0')
+  })
+
+  it('replaces same-version install atomically without leaving stale files', async () => {
+    const firstZip = path.join(root, 'first.zip')
+    fs.writeFileSync(firstZip, createZipBuffer({
+      'SKILL.md': '---\nid: stalecheck\nname: Stale Check\n---\n\n首版',
+      'template.md': '首版模板',
+      'assets/keep.bin': binary,
+    }))
+    const first = await copyZipToSkillLibrary(firstZip, 'stalecheck', '1.0.0')
+    expect(first.ok).toBe(true)
+
+    const stalePath = path.join(root, 'skill-library', 'stalecheck', '1.0.0', 'assets', 'keep.bin')
+    expect(fs.existsSync(stalePath)).toBe(true)
+
+    const secondZip = path.join(root, 'second.zip')
+    fs.writeFileSync(secondZip, createZipBuffer({
+      'SKILL.md': '---\nid: stalecheck\nname: Stale Check\n---\n\n次版',
+      'template.md': '次版模板内容不同',
+    }))
+    const second = await copyZipToSkillLibrary(secondZip, 'stalecheck', '1.0.0')
+    expect(second.ok).toBe(true)
+    expect(second.skill.template).toBe('次版模板内容不同')
+
+    expect(fs.existsSync(stalePath)).toBe(false)
+    const templatePath = path.join(root, 'skill-library', 'stalecheck', '1.0.0', 'template.md')
+    expect(fs.readFileSync(templatePath, 'utf8')).toBe('次版模板内容不同')
+  })
+
+  it('keeps the prior installed version and cleans temporary files when validation fails', async () => {
+    const firstZip = path.join(root, 'good.zip')
+    fs.writeFileSync(firstZip, createZipBuffer({
+      'SKILL.md': '---\nid: rollback\nname: Rollback Skill\n---\n\n好版本',
+      'template.md': '好模板',
+    }))
+    const installed = await copyZipToSkillLibrary(firstZip, 'rollback', '1.0.0')
+    expect(installed.ok).toBe(true)
+    const installRoot = path.join(root, 'skill-library', 'rollback', '1.0.0')
+    expect(fs.readFileSync(path.join(installRoot, 'template.md'), 'utf8')).toBe('好模板')
+
+    const brokenZip = path.join(root, 'broken.zip')
+    fs.writeFileSync(brokenZip, createZipBuffer({
+      'SKILL.md': '---\nid: rollback\nname: Rollback Skill\n---\n\n坏版本',
+      'template.md': '坏模板',
+      'template.md/nested.md': '路径冲突',
+    }))
+    const rejected = await copyZipToSkillLibrary(brokenZip, 'rollback', '1.0.0')
+    expect(rejected).toMatchObject({ ok: false, code: 'install-failed' })
+    expect(fs.readFileSync(path.join(installRoot, 'template.md'), 'utf8')).toBe('好模板')
+
+    const leftovers = fs.readdirSync(path.join(root, 'skill-library', 'rollback'), { withFileTypes: true })
+      .filter(entry => entry.isDirectory() && entry.name !== '1.0.0')
+    expect(leftovers).toEqual([])
   })
 })

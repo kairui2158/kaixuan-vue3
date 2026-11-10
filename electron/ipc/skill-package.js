@@ -408,24 +408,53 @@ function copyZipToSkillLibrary(zipPath, skillId, version) {
     return readZipEntries(zipPath, wanted).then(function(read) {
       if (!read.ok) return read
       const libraryRoot = skillLibraryBase()
-      const installRoot = path.join(libraryRoot, safeId, safeVersion)
-      if (!installRoot.startsWith(path.join(libraryRoot, safeId))) {
+      const skillParent = path.join(libraryRoot, safeId)
+      const installRoot = path.join(skillParent, safeVersion)
+      if (!installRoot.startsWith(skillParent)) {
         return fail('invalid-install-target', '安装路径非法')
       }
-      fs.mkdirSync(installRoot, { recursive: true })
-      for (const rawPath of wanted) {
-        const content = read.files[rawPath]
-        if (content === undefined) continue
-        const relative = safeRelativePath(rawPath.slice(root ? root.length + 1 : 0))
-        if (!relative) continue
-        const target = path.join(installRoot, relative)
-        if (!target.startsWith(installRoot)) continue
-        fs.mkdirSync(path.dirname(target), { recursive: true })
-        fs.writeFileSync(target, content)
+      const tempRoot = path.join(
+        skillParent,
+        '.' + safeVersion + '.tmp-' + process.pid + '-' + Date.now()
+      )
+      let backupRoot = null
+      try {
+        fs.mkdirSync(tempRoot, { recursive: true })
+        for (const rawPath of wanted) {
+          const content = read.files[rawPath]
+          if (content === undefined) continue
+          const relative = safeRelativePath(rawPath.slice(root ? root.length + 1 : 0))
+          if (!relative) continue
+          const target = path.join(tempRoot, relative)
+          if (!target.startsWith(tempRoot)) continue
+          fs.mkdirSync(path.dirname(target), { recursive: true })
+          fs.writeFileSync(target, content)
+        }
+        const loaded = loadSkillFolder(tempRoot)
+        if (!loaded.ok) return loaded
+        if (fs.existsSync(installRoot)) {
+          backupRoot = tempRoot + '.backup-' + process.pid + '-' + Date.now()
+          fs.renameSync(installRoot, backupRoot)
+        }
+        try {
+          fs.renameSync(tempRoot, installRoot)
+        } catch (swapError) {
+          if (backupRoot && fs.existsSync(backupRoot) && !fs.existsSync(installRoot)) {
+            fs.renameSync(backupRoot, installRoot)
+          }
+          throw swapError
+        }
+        if (backupRoot && fs.existsSync(backupRoot)) {
+          fs.rmSync(backupRoot, { recursive: true, force: true })
+        }
+        return ok({ installedPath: installRoot, skill: loaded.skill })
+      } catch (installError) {
+        return fail('install-failed', installError.message || '技能包安装失败')
+      } finally {
+        if (fs.existsSync(tempRoot)) {
+          fs.rmSync(tempRoot, { recursive: true, force: true })
+        }
       }
-      const loaded = loadSkillFolder(installRoot)
-      if (!loaded.ok) return loaded
-      return ok({ installedPath: installRoot, skill: loaded.skill })
     })
   })
 }
