@@ -1860,3 +1860,11 @@
 - 验证：全量服务 250 files / 2715 tests passed；type-check exit 0；完整构建 exit 0；打包级真实启动核验 passed，rendererFiles=87、electronAPI methods=94。
 - 安装包：`dist/神意助手-Setup-3.123.0.exe`，231,670,853 bytes，SHA256 `9d6215705d5dfa59a5e4615a94cca3b4872529e6af0d8db4f81d7496d0e7ae84`。
 - 边界：GUI 烟测为无供应商失败路径，未执行真实供应商 API 调用；不新增预算系统、自动调度或新 UI。
+
+# 2026-11-11 3.124.0 导入覆盖/Agent快照正式交付
+
+- 文件：[_audit/DEV_LOG_2026-11-11-import-overwrite-agent-snapshot.md](_audit/DEV_LOG_2026-11-11-import-overwrite-agent-snapshot.md)
+- 交付：Agent 覆盖导入全字段刷新 + createdAt 保留；systemPrompt len/hash 对账与查看/清除控件；同版本 ZIP 原子替换防残留；folder 指针语义文案；确认 SKILL JSON 内嵌旧提示词。
+- 验证：定向 41 tests passed；全量服务 250 files / 2715 tests passed；type-check、build、verify:packaging 全通过；真实供应商 glm-5.2 live 5 requests PASS。
+- 安装包：`dist/神意助手-Setup-3.124.0.exe`，231,670,788 bytes，SHA256 `2065C8262A2B2BA1053317C9ABC96C9AF7D710B12C61A9D78925CA3141A6C2E1`。
+- 边界：不新增快照缓存、自动同步器、批量重建工具或第二导入协议；.agent.md 与 SKILL JSON 仍是两套事实源。

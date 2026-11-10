@@ -1,0 +1,32 @@
+# DEV_LOG_2026-11-11-import-overwrite-agent-snapshot
+
+- 主题：导入覆盖/Agent 快照根治交付 3.124.0
+- 交付目的：修复 Agent 覆盖导入全字段刷新语义，提供 systemPrompt len/hash 对账入口；根治 ZIP 同版本覆盖残留，并确认导入包确实内嵌旧 Agent 提示词。
+- 应用改动：
+  - `src/stores/agent.ts`：incoming `createdAt` 缺失时保留本地值；incoming 存在时按覆盖语义刷新。
+  - `src/services/configExchange`：导入计划增加当前/导入 systemPrompt 的 `len` 与 `hash` 四元组，hash 单源复用 `src/services/settingsProjection.ts:59` 的 `fnv1a32Hash`。
+  - `src/components/settings/AgentSettings.vue`：导入预览显示 prompt diff，新增查看/清除对账控件；覆盖后卡片显示新值。
+  - `electron/ipc/skill-package.js`：同版本 ZIP 改为临时目录解压 + 目录替换 + 失败回滚，旧文件不再残留。
+  - `src/components/settings/SkillSettings.vue`：folder 覆盖文案明确为指针语义，不删除旧磁盘目录。
+- 对账结论：
+  - `_audit/AGENT_PROMPT_IMPORT_RECONCILIATION_2026-11-11.md` 对账 20 条 Agent；0 条三方可比；人工抽查 3 条确认 SKILL 配置 JSON 内嵌旧提示词。
+  - 无自动同步器；修复路径为 SKILL 重新导出 JSON 或用 Agent 设置 UI 对账覆盖。
+- 验证：
+  - 定向回归：`npx vitest run src/stores/agent.spec.ts src/services/configExchange.spec.ts electron/ipc/skill-package.spec.js`，41 tests passed。
+  - 全量服务回归：250 files / 2715 tests passed。
+  - `npm run type-check` exit 0。
+  - `npm run build` exit 0。
+  - `npm run verify:packaging` PASSED；rendererFiles=87，electronAPI methods=94。
+  - 真实供应商链路：`$env:SHENYI_PROVIDER_CHANNEL_LIVE='1'; node scripts/verify-pipeline-provider-channel-electron.mjs` exit 0；glm-5.2，5 requests，mode=live-single-supplier；证据 `_audit/verification-pipeline-provider-channel-live-20261111-import-overwrite/`。
+- 安装包：
+  - 路径：`dist/神意助手-Setup-3.124.0.exe`
+  - 大小：231,670,788 bytes
+  - SHA256：`2065C8262A2B2BA1053317C9ABC96C9AF7D710B12C61A9D78925CA3141A6C2E1`
+- 客户重点复验：
+  - 用旧 Agent JSON 覆盖导入后，卡片 len/hash 更新且无旧字段残留。
+  - 清空 prompt 后刷新设置页确认持久化生效。
+  - 用同版本 ZIP 重装技能包后确认旧文件不残留；folder 覆盖只替换指针，不删除磁盘目录。
+- 边界：
+  - 不新增快照缓存、自动同步器、批量重建工具或第二导入协议。
+  - .agent.md 与 SKILL JSON 仍是两套事实源；本轮不做自动检测器。
+  - createdAt 本地丢失无法反向找回，仅保证覆盖导入不再继续丢失。
