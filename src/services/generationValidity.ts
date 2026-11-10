@@ -41,14 +41,42 @@ function readCompletionTokens(usage?: Record<string, unknown> | null): number | 
   return Number.isFinite(value) ? value : undefined
 }
 
+function readReasoningOutputTokens(usage?: Record<string, unknown> | null): number | undefined {
+  if (!usage) return undefined
+  const raw = usage.reasoningOutputTokens ?? usage.reasoning_output_tokens
+    ?? usage.reasoningTokens ?? usage.reasoning_tokens
+    ?? usage.thoughtsTokenCount
+    ?? (usage.completionTokensDetails as Record<string, unknown> | undefined)?.reasoning_tokens
+    ?? (usage.completion_tokens_details as Record<string, unknown> | undefined)?.reasoning_tokens
+  const value = Number(raw)
+  return Number.isFinite(value) ? value : undefined
+}
+
 function consumedOutputBudget(input: GenerationValidityInput): boolean {
   const completionTokens = readCompletionTokens(input.usage)
+  const reasoningTokens = readReasoningOutputTokens(input.usage) ?? 0
+  const bodyTokens = completionTokens != null && reasoningTokens > 0
+    ? Math.max(0, completionTokens - reasoningTokens)
+    : completionTokens
   const maxTokens = Number(input.maxTokens)
-  return completionTokens != null
-    && completionTokens > 0
+  return bodyTokens != null
+    && bodyTokens > 0
     && Number.isFinite(maxTokens)
     && maxTokens > 0
-    && completionTokens >= maxTokens
+    && bodyTokens >= maxTokens
+}
+
+const DEFINITIVE_NON_LENGTH_FINISH = new Set([
+  'stop',
+  'end_turn',
+  'tool_calls',
+  'tool_use',
+  'content_filter',
+])
+
+function isDefinitiveNonLengthFinish(input: GenerationValidityInput): boolean {
+  const reason = normalizeFinishReason(input.finishReason)
+  return reason != null && DEFINITIVE_NON_LENGTH_FINISH.has(reason)
 }
 
 function isLengthFinish(input: GenerationValidityInput): boolean {
@@ -81,7 +109,7 @@ export function classifyGenerationValidity(input: GenerationValidityInput): Gene
   }
 
   if (text.trim().length > 0) {
-    if (lengthFinish || consumedOutputBudget(input)) {
+    if (lengthFinish || (!isDefinitiveNonLengthFinish(input) && consumedOutputBudget(input))) {
       return {
         kind: 'truncated',
         usable: true,

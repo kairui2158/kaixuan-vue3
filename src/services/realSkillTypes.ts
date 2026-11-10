@@ -299,7 +299,10 @@ export interface RealSkillExecuteOptions {
   contextLayer?: 'settings' | 'volumes' | 'chapters' | 'body'
   /** Source of the effective provider binding; kept for request-level diagnostics. */
   providerSource?: 'agent' | 'layer' | 'global'
-  budget: { tryConsume: (step: string, skillLimit?: number | null) => ApiBudgetDecisionLike }
+  budget: {
+    tryConsume: (step: string, skillLimit?: number | null) => ApiBudgetDecisionLike
+    consumePhysicalRetry?: (step: string) => ApiBudgetDecisionLike
+  }
   skillId?: string
   aiService?: {
     callAi: (params: any) => Promise<{ text: string; finishReason?: string; providerId?: string; usage?: Record<string, unknown> }>

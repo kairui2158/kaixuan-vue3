@@ -1,0 +1,27 @@
+# DEV_LOG_2026-11-10_volume-outline-terminal-fixes
+
+- 版本：3.121.0
+- 主题：卷纲层输出有效性终态、续写协议禁令与物理调用预算单源
+- 背景：
+  - 卷纲层完整输出被 reasoning/output token 预算误判 truncated。
+  - 协议终点确认文本可能被续写兜底合并。
+  - 续写提示缺少协议标记禁令。
+  - 逻辑重试会触发多次物理调用，旧预算只按 attempt 计数，默认 8 提前耗尽。
+- 改动：
+  - `generationValidity.ts` 扣减 reasoning output tokens；`stop` 等明确非长度终点豁免 token 推断。
+  - `apiCallBudget.ts` 新增 `consumePhysicalRetry()`，与 attempt 计费共享账本。
+  - `realSkillExecutor.ts` 通过 `onPhysicalCall` 对 retry、heartbeat_retry、direct_retry、continuation 计费，并按 `physicalCallId` 去重。
+  - budget blocked 独立返回，不降级为普通生成失败；协议终点续写成功后清除旧 truncated 诊断。
+  - continuation 提示禁止输出协议标记；流水线默认预算调整为 24。
+- 验证：
+  - 定向：4 个相关 spec，124 tests passed。
+  - `npm run type-check` exit 0。
+  - `npm run test:services`：250 files / 2703 tests passed。
+  - `npm run build`：生成 `dist/神意助手-Setup-3.121.0.exe`。
+  - `npm run verify:packaging`：PACKAGING 3.121.0 VERIFICATION PASSED；installer SHA-256 `8f61af6f4409721acb801dfe54de8415fe1a30b9b4ddb393565bc167dd314174`。
+- 边界：
+  - 不修改 folder SKILL。
+  - 不新增自动调度、独立预算系统或 UI。
+  - 不触碰用户无关脏文件。
+- 结论：
+  - 卷纲层 4 项应用侧待办按终态语义闭环，预算从逻辑 attempt 假设切换到真实物理调用单源。

@@ -30,4 +30,31 @@ describe('apiCallBudget', () => {
       ],
     })
   })
+
+  it('charges physical retries against the same ledger and blocks at the shared limit', () => {
+    const budget = createApiCallBudget(2)
+
+    expect(budget.tryConsume('chain-step-0')).toMatchObject({ status: 'allowed', used: 1, limit: 2 })
+    expect(budget.consumePhysicalRetry('chain-step-0:physical')).toMatchObject({
+      status: 'allowed',
+      used: 2,
+      limit: 2
+    })
+    expect(budget.consumePhysicalRetry('chain-step-0:physical')).toMatchObject({
+      status: 'blocked',
+      used: 2,
+      limit: 2
+    })
+    expect(budget.tryConsume('chain-step-1')).toMatchObject({ status: 'blocked', used: 2, limit: 2 })
+    expect(budget.snapshot()).toMatchObject({
+      used: 2,
+      limit: 2,
+      entries: [
+        { step: 'chain-step-0', used: 1, limit: 2 },
+        { step: 'chain-step-0:physical', used: 2, limit: 2 },
+        { step: 'chain-step-0:physical', used: 2, limit: 2 },
+        { step: 'chain-step-1', used: 2, limit: 2 },
+      ],
+    })
+  })
 })

@@ -1836,3 +1836,11 @@
 - 交付：共享 `continuationSelfCheck` 判定；执行器去重复实现；流水线兜底命中协议终点不合并，保留原候选并写跳过事件。
 - 验证：定向 92 tests passed；type-check exit 0；全量与封装核验以台账补记为准。
 - 边界：不改 folder SKILL；不触碰无关脏文件。
+
+# 2026-11-10 卷纲层终态修复与物理预算单源
+
+- 文件：[_audit/DEV_LOG_2026-11-10_volume-outline-terminal-fixes.md](_audit/DEV_LOG_2026-11-10_volume-outline-terminal-fixes.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-10_volume-outline-terminal-fixes-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-10_volume-outline-terminal-fixes-v1.md)
+- 交付：输出有效性扣减 reasoning 并豁免明确非长度终点；续写提示禁止协议标记；物理 retry/heartbeat/direct/continuation 共享预算单源计费；budget blocked 独立返回；流水线默认预算 24。
+- 验证：定向 124 tests passed；type-check exit 0；全量服务 250 files / 2703 tests passed；构建 3.121.0 并通过 packaging 核验，installer SHA-256 `8f61af6f4409721acb801dfe54de8415fe1a30b9b4ddb393565bc167dd314174`。
+- 边界：不改 folder SKILL；不新增自动调度、独立预算系统或 UI；不触碰无关脏文件。

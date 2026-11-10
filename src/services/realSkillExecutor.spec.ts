@@ -772,7 +772,8 @@ describe('realSkillExecutor single pass', () => {
     expect(result.output).toContain('随后敌军压境。')
     expect(result.output).not.toContain('主角进入北境。主角进入北境。')
     expect(result.apiMeta?.reasoningText).toBe('续写调用思考')
-    expect(result.diagnostics.some(item => item.code === 'generation-truncated')).toBe(true)
+    expect(result.status).toBe('success')
+    expect(result.diagnostics.some(item => item.code === 'generation-truncated')).toBe(false)
   })
 
   it('stops after one truncated continuation and keeps the usable output', async () => {
@@ -955,6 +956,152 @@ describe('realSkillExecutor single pass', () => {
     expect(callAi).toHaveBeenCalledTimes(2)
     expect(budget.tryConsume).toHaveBeenCalledTimes(1)
     expect(result.output).toBe('直出正文')
+  })
+
+  it('bans protocol markers in the continuation prompt', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) {
+        return { text: '卷纲开头，主角进入北境。', finishReason: 'length' }
+      }
+      return { text: '随后敌军压境。', finishReason: 'stop' }
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: {
+        tryConsume: () => ({ status: 'allowed', used: 1, limit: 24 }),
+        consumePhysicalRetry: () => ({ status: 'allowed', used: 2, limit: 24 })
+      }
+    } as any)
+
+    expect(result.status).toBe('success')
+    const continuationMessage = callAi.mock.calls[1]![0].messages.at(-1)!
+    expect(continuationMessage.role).toBe('user')
+    expect(continuationMessage.content).toContain('也不要输出任何【续写检查】等协议标记')
+  })
+
+  it('deduplicates physical call events and charges the physical retry budget once', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const consumePhysicalRetry = vi.fn(() => ({
+      status: 'allowed' as const,
+      used: 2,
+      limit: 24,
+      step: 'physical'
+    }))
+    const tryConsume = vi.fn(() => ({ status: 'allowed' as const, used: 1, limit: 24 }))
+    const onPhysicalCall = vi.fn()
+    const emit = (params: CallAiParams) => {
+      params.onPhysicalCall?.({
+        physicalCallId: 'physical-continuation-1',
+        phase: 'continuation',
+        status: 'running',
+        attempt: 1,
+        durationMs: 0,
+        requestMessages: params.messages,
+        responseText: '',
+        streamText: '',
+        reasoningText: '',
+        toolsEnabled: false,
+        toolsDowngraded: false
+      } as any)
+      params.onPhysicalCall?.({
+        physicalCallId: 'physical-continuation-1',
+        phase: 'continuation',
+        status: 'success',
+        attempt: 1,
+        durationMs: 20,
+        requestMessages: params.messages,
+        responseText: '随后敌军压境。',
+        streamText: '随后敌军压境。',
+        reasoningText: '',
+        toolsEnabled: false,
+        toolsDowngraded: false
+      } as any)
+    }
+    const callAi = vi.fn(async (params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) {
+        return { text: '卷纲开头，主角进入北境。', finishReason: 'length' }
+      }
+      emit(params)
+      return { text: '随后敌军压境。', finishReason: 'stop' }
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: { tryConsume, consumePhysicalRetry },
+      onPhysicalCall
+    } as any)
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(consumePhysicalRetry).toHaveBeenCalledTimes(1)
+    expect(consumePhysicalRetry).toHaveBeenCalledWith(expect.stringContaining('attempt-1:physical'))
+    expect(onPhysicalCall).toHaveBeenCalledTimes(2)
+  })
+
+  it('returns blocked when a physical retry exhausts the budget', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const budgetReason = 'API 物理重试预算已耗尽（已用 24/24），阻断位置：physical'
+    const budget = {
+      tryConsume: vi.fn(() => ({ status: 'allowed' as const, used: 1, limit: 24 })),
+      consumePhysicalRetry: vi.fn(() => ({
+        status: 'blocked' as const,
+        used: 24,
+        limit: 24,
+        reason: budgetReason,
+        step: 'physical'
+      }))
+    }
+    const callAi = vi.fn(async (params: CallAiParams) => {
+      params.onPhysicalCall?.({
+        physicalCallId: 'physical-retry-1',
+        phase: 'retry',
+        status: 'failed',
+        attempt: 1,
+        durationMs: 0,
+        requestMessages: params.messages,
+        responseText: '',
+        streamText: '',
+        reasoningText: '',
+        toolsEnabled: false,
+        toolsDowngraded: false,
+        error: 'network unavailable'
+      } as any)
+      throw new Error('network unavailable')
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget
+    } as any)
+
+    expect(result.status).toBe('blocked')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(budget.consumePhysicalRetry).toHaveBeenCalledTimes(1)
+    expect(result.errors).toContain(budgetReason)
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'api-budget-blocked',
+      type: 'error'
+    }))
   })
 
   it('injects agent prompt before skill template and passes agent parameters', async () => {

@@ -5,6 +5,14 @@ export interface ApiBudgetEntry {
   limit: number | null
 }
 
+export interface ApiPhysicalBudgetConsumeResult {
+  status: 'allowed' | 'blocked'
+  used: number
+  limit: number
+  reason?: string
+  step?: string
+}
+
 export interface ApiBudgetDecision {
   status: 'allowed' | 'blocked'
   used: number
@@ -15,6 +23,7 @@ export interface ApiBudgetDecision {
 
 export interface ApiCallBudget {
   tryConsume(step: string, skillLimit?: number | null): ApiBudgetDecision
+  consumePhysicalRetry(step: string): ApiPhysicalBudgetConsumeResult
   extend(additional: number): { used: number; limit: number; extensions: number }
   snapshot(): { used: number; limit: number; entries: ApiBudgetEntry[] }
 }
@@ -28,6 +37,13 @@ export function createApiCallBudget(totalLimit = 8): ApiCallBudget {
         used: 0,
         limit: 0,
         reason: 'API 调用预算已耗尽（已用 0/0），阻断位置：测试专用预算',
+        step: 'test-budget-zero'
+      }),
+      consumePhysicalRetry: () => ({
+        status: 'blocked' as const,
+        used: 0,
+        limit: 0,
+        reason: 'API 物理重试预算已耗尽（已用 0/0），阻断位置：测试专用预算',
         step: 'test-budget-zero'
       }),
       extend: () => ({ used: 0, limit: 0, extensions: 0 }),
@@ -68,8 +84,21 @@ export function createApiCallBudget(totalLimit = 8): ApiCallBudget {
     return { status: 'allowed', used, limit: effectiveLimit, step }
   }
 
+  function consumePhysicalRetry(step: string): ApiPhysicalBudgetConsumeResult {
+    if (used >= limit) {
+      const reason = `API 物理重试预算已耗尽（已用 ${used}/${limit}），阻断位置：${step}`
+      entries.push({ step, at: new Date().toISOString(), used, limit })
+      return { status: 'blocked', used, limit, reason, step }
+    }
+
+    used += 1
+    entries.push({ step, at: new Date().toISOString(), used, limit })
+    return { status: 'allowed', used, limit, step }
+  }
+
   return {
     tryConsume,
+    consumePhysicalRetry,
     extend: extendBudget,
     snapshot: () => ({ used, limit, entries: entries.slice() })
   }

@@ -24,6 +24,35 @@ describe('classifyGenerationValidity', () => {
     })).toMatchObject({ kind: 'truncated', usable: true })
   })
 
+  it('exempts a definitive stop finish from usage-at-limit truncation', () => {
+    expect(classifyGenerationValidity({
+      text: '完整正文。',
+      finishReason: 'stop',
+      usage: { completion_tokens: 1000 },
+      maxTokens: 1000
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
+  it('subtracts reasoning tokens before comparing output usage to the limit', () => {
+    expect(classifyGenerationValidity({
+      text: '正文很完整。',
+      finishReason: 'stop',
+      usage: {
+        completion_tokens: 1200,
+        reasoningOutputTokens: 200
+      },
+      maxTokens: 1000
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
+  it('still infers truncation from usage-at-limit when the finish reason is unavailable', () => {
+    expect(classifyGenerationValidity({
+      text: '部分正文',
+      usage: { completion_tokens: 1000 },
+      maxTokens: 1000
+    })).toMatchObject({ kind: 'truncated', usable: true })
+  })
+
   it('marks reasoning-only length output as reasoning exhausted', () => {
     expect(classifyGenerationValidity({
       text: '',

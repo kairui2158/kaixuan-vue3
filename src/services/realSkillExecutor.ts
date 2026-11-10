@@ -115,6 +115,21 @@ type CallAiToolResultLike = {
   textOrigin?: 'application' | 'model'
 }
 
+function consumeBudgetPhysicalRetry(
+  budget: RealSkillExecuteOptions['budget'],
+  step: string,
+): void {
+  const consume = budget.consumePhysicalRetry
+  if (!consume) return
+  const decision = consume(step)
+  if (decision.status === 'blocked') {
+    throw Object.assign(
+      new Error(decision.reason || 'API 调用预算已耗尽'),
+      { budgetBlocked: true }
+    )
+  }
+}
+
 function diagnostic(
   type: RealSkillDiagnostic['type'],
   code: string,
@@ -374,7 +389,7 @@ function buildContinuationMessages(
     ...continuationContext,
     {
       role: 'user',
-      content: `以下是未完成输出的最后部分，请从中断处自然续写，不要重复已有内容，也不要重新输出开头：\n${tail}`
+      content: `以下是未完成输出的最后部分，请从中断处自然续写，不要重复已有内容，也不要重新输出开头，也不要输出任何【续写检查】等协议标记：\n${tail}`
     }
   ]
 }
@@ -1108,6 +1123,24 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
               { requestProfileBlocked: true }
             )
           }
+          const physicalRetryStep = `${options.skillId || pkg.id}:${passIndex + 1}:attempt-${attempt}:physical`
+          const reportedPhysicalCallIds = new Set<string>()
+          const onPhysicalCall = (event: import('./aiService').PhysicalCallEvent) => {
+            const physicalCallId = event.physicalCallId ||
+              `${event.phase}:${event.attempt}:${event.status === 'running' ? 'start' : 'finish'}`
+            if (!reportedPhysicalCallIds.has(physicalCallId)) {
+              reportedPhysicalCallIds.add(physicalCallId)
+              if (
+                event.phase === 'retry' ||
+                event.phase === 'heartbeat_retry' ||
+                event.phase === 'direct_retry' ||
+                event.phase === 'continuation'
+              ) {
+                consumeBudgetPhysicalRetry(options.budget, physicalRetryStep)
+              }
+            }
+            options.onPhysicalCall?.(event)
+          }
           return (await aiService.callAi({
             purpose: options.purpose || 'rewrite',
             providerId: options.providerId || agent?.providerId || undefined,
@@ -1133,7 +1166,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             }
           },
           onReasoning: options.onReasoning,
-          onPhysicalCall: options.onPhysicalCall as any,
+          onPhysicalCall,
           onProviderQueue: options.onProviderQueue,
           retry: true,
           model: resolvedProviderModel,
@@ -1285,7 +1318,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
               item.code === 'generation-truncated-after-continuation'
             )
             if (truncatedIndex !== -1) diagnostics.splice(truncatedIndex, 1)
-          } else {
+        } else {
             result = {
               ...result,
               text: continuationValidity.usable
@@ -1299,6 +1332,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
                 ? continuation.finishReason
                 : result.finishReason
             }
+            const truncatedIndex = diagnostics.findIndex(item =>
+              item.code === 'generation-truncated' ||
+              item.code === 'generation-truncated-after-continuation'
+            )
+            if (truncatedIndex !== -1) diagnostics.splice(truncatedIndex, 1)
           }
           if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
             diagnostics.push(diagnostic('warning', 'generation-truncated-after-continuation', '续写后输出仍不完整，已保留可用正文'))
@@ -1575,6 +1613,41 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           traceRunId: options.traceRunId
         })
       } catch (error: any) {
+        if (error?.budgetBlocked === true) {
+          if (isMultiPass) {
+            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
+          } else {
+            dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'failed', attempts: attempt, traceRunId: options.traceRunId })
+          }
+          errors.push(error?.message || 'API 调用预算已耗尽')
+          diagnostics.push(diagnostic('error', 'api-budget-blocked', error?.message || ''))
+          return {
+            status: 'blocked',
+            output: '',
+            errors,
+            diagnostics,
+            folderPackageCache: loaded.folderPackageCache === true,
+            postProcessReport,
+            apiMeta: {
+              finishReason: finishReason || 'error',
+              providerId,
+              usage,
+              maxTokens: finalMaxTokens,
+              reasoningText: finalReasoningText || '',
+              contextBudget: finalContextBudget,
+              usageReconciliation: finalUsageReconciliation,
+              textOrigin: finalTextOrigin,
+              requestMessages: capturedRequestMessages,
+              attemptRequestMessages: capturedAttemptRequestMessages,
+              toolCalls,
+              toolResults,
+              toolRequestDeltas,
+              toolAudit,
+              timingLedger: { ...timingLedger },
+              candidateLedger: candidateAuditLedger
+            }
+          }
+        }
         if (isMultiPass) {
           dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
         } else {

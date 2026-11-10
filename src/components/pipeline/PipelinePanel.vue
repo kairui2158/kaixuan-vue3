@@ -3335,7 +3335,7 @@ async function callValidatedSkill(
           ? prompt.slice(prompt.indexOf('【终步重试协议】'))
           : undefined,
         protectedContract: protectedBodyContract,
-        budget: createApiCallBudget(8),
+        budget: createApiCallBudget(24),
         providerId: fallbackProviderId || undefined,
         providerSource: requestProfile.source,
         contextLayer: pipelineLayerForStep(step) || undefined,
@@ -4247,7 +4247,7 @@ async function callApiWithAgentVariantOwned(step: number, skillTemplate: string,
       ...requestMessages.filter(message => message.role !== 'user'),
       {
         role: 'user',
-        content: `以下是未完成输出的最后部分，请从中断处自然续写，不要重复已有内容，也不要重新输出开头：\n${tail}`
+        content: `以下是未完成输出的最后部分，请从中断处自然续写，不要重复已有内容，也不要重新输出开头，也不要输出任何【续写检查】等协议标记：\n${tail}`
       }
     ]
   }

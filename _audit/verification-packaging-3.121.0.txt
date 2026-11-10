@@ -1,0 +1,16 @@
+
+> shenyi-assistant@3.121.0 verify:packaging
+> node scripts/verify-packaging.mjs
+
+[stage] launching packaged app
+[stage] waiting for first window
+[stage] checking electronAPI
+[app:stdout] 08:36:21.822 > [intent-embedding] local model loaded {
+  model: 'Xenova/bge-small-zh-v1.5',
+  dir: 'D:\\codex\\novel-workshop-vue3\\dist\\win-unpacked\\resources\\models\\bge-small-zh-v1.5'
+}
+[stage] checking rendered shell
+===== PACKAGING 3.121.0 VERIFICATION PASSED =====
+installer=dist\神意助手-Setup-3.121.0.exe; sha256=8f61af6f4409721acb801dfe54de8415fe1a30b9b4ddb393565bc167dd314174; rendererFiles=87; electronAPI methods=94; evidence=_audit\verification-packaging-3.121.0\packaging-evidence.json
+[app:stderr] Debugger ending on ws://127.0.0.1:9217/a497286c-6d31-4fcd-8c9b-151f8316fab8
+For help, see: https://nodejs.org/en/docs/inspector
