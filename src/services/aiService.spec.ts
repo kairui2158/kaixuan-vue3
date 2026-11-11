@@ -2477,6 +2477,119 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   }, 30_000);
 
+  it('uses a 10-second wait for 503 heartbeat recovery after fast retries are exhausted', async () => {
+    vi.useFakeTimers();
+    const partialSse = 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n';
+    let emittedPartial = false;
+    const initialResponse = new Response(new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (emittedPartial) {
+          controller.error(new TypeError('network dropped'));
+          return;
+        }
+        emittedPartial = true;
+        controller.enqueue(new TextEncoder().encode(partialSse));
+      },
+    }), { status: 200 });
+    const successSse = [
+      'data: {"choices":[{"delta":{"content":"reconnected"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const successResponse = () => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(successSse));
+        controller.close();
+      },
+    }), { status: 200 });
+    const providerOverloaded = () => Promise.resolve(new Response(JSON.stringify({
+      error: { message: 'provider overloaded' },
+    }), { status: 503 }));
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => Promise.resolve(initialResponse))
+      .mockImplementationOnce(providerOverloaded)
+      .mockImplementationOnce(providerOverloaded)
+      .mockImplementationOnce(providerOverloaded)
+      .mockImplementationOnce(() => Promise.resolve(successResponse()));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: true,
+      timeoutMs: 600_000,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'reconnected' });
+
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(10_000);
+    await vi.advanceTimersByTimeAsync(10_000);
+    await assertion;
+
+    const heartbeatSuccess = physicalEvents.find(event =>
+      event.status === 'success' && event.phase === 'heartbeat_retry'
+    );
+    expect(heartbeatSuccess).toMatchObject({ retryStrategy: 'heartbeat_recovery' });
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('uses a 20-second wait for network heartbeat recovery', async () => {
+    vi.useFakeTimers();
+    const partialSse = 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n';
+    let emittedPartial = false;
+    const initialResponse = new Response(new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (emittedPartial) {
+          controller.error(new TypeError('network dropped'));
+          return;
+        }
+        emittedPartial = true;
+        controller.enqueue(new TextEncoder().encode(partialSse));
+      },
+    }), { status: 200 });
+    const successSse = [
+      'data: {"choices":[{"delta":{"content":"reconnected"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => Promise.resolve(initialResponse))
+      .mockImplementationOnce(() => Promise.reject(new TypeError('network dropped')))
+      .mockImplementationOnce(() => Promise.resolve(new Response(new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(successSse));
+          controller.close();
+        },
+      }), { status: 200 })));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: true,
+      timeoutMs: 600_000,
+      onChunk: () => {},
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'reconnected' });
+
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(1_000);
+    await vi.advanceTimersByTimeAsync(2_000);
+    await vi.advanceTimersByTimeAsync(3_000);
+    await vi.advanceTimersByTimeAsync(20_000);
+    await vi.advanceTimersByTimeAsync(20_000);
+    await assertion;
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('keeps renderer diagnostics isolated across the network retry floor without heartbeat when retry is disabled', async () => {
     vi.useFakeTimers();
     const partialSse = 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n';

@@ -163,7 +163,7 @@ export interface CallAiParams {
     mode: 'off'
   }
   /** Marks a request as a deliberate validity retry; recorded in diagnostics and run traces. */
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   jsonMode?: boolean
   stream?: boolean
   signal?: AbortSignal
@@ -317,7 +317,7 @@ export interface PhysicalCallEvent {
   downgradeReason?: string
   /** Provider channel provenance copied from the request meta for trace projection. */
   providerSource?: NonNullable<CallAiParams['meta']>['providerSource']
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** Effective max_tokens after overrides or a 400 downgrade; null means intentionally omitted. */
   maxTokens?: number | null
   /** Resolved capability provenance; unknown stays unknown instead of becoming a fake cap. */
@@ -397,7 +397,7 @@ export interface CallAiResult {
   usageReconciliation?: UsageReconciliation
   /** Total older successful read tool results compacted during native tool rounds. */
   contextCompactedMessageCount?: number
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** Effective max_tokens after overrides, provider defaults, or a 400 downgrade. */
   maxTokens?: number | null
   /** Resolved capability provenance; unknown stays unknown instead of becoming a fake cap. */
@@ -423,9 +423,16 @@ const RETRY_DELAYS = [1000, 2000, 3000]
 const MAX_RETRIES = 3
 const IDLE_THRESHOLD = 15_000
 const IDLE_THRESHOLD_LOW = 10_000
-const HEARTBEAT_INTERVAL = 60_000
 const MAX_HEARTBEAT_ATTEMPTS = 3
+const HEARTBEAT_PROBE_TIMEOUT_MS = 180_000
 const PHYSICAL_HEARTBEAT_INTERVAL_MS = 15_000
+
+function heartbeatWaitMs(lastErr: any): number {
+  const status = Number(lastErr?.statusCode)
+  if (status === 429 || status === 502 || status === 503) return 10_000
+  if (lastErr?.kind === 'network') return 20_000
+  return 30_000
+}
 // A disabled semantic retry still owns one physical reconnect. The main
 // process can report a transient stream drop as a failed IPC result; without
 // this floor, direct tool rounds turn that transport error into a terminal
@@ -1630,7 +1637,7 @@ export interface DiagnosticLogLike {
     toolCapability?: 'native_tools' | 'json_protocol'
     rejectionCategory?: ToolRejectionCategory
     downgradeReason?: string
-    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
     /** null records an undeclared output limit; a number records the effective wire limit. */
     maxTokens?: number | null
     /** Pipeline provider channel provenance: agent | layer | global. */
@@ -1660,7 +1667,7 @@ function logRequest(
     providerErrorSummary?: string
     toolCapability?: 'native_tools' | 'json_protocol'
     downgradeReason?: string
-    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
     /** null records an undeclared output limit; a number records the effective wire limit. */
     maxTokens?: number | null
     /** Pipeline provider channel provenance: agent | layer | global. */
@@ -3863,7 +3870,9 @@ export function createAiService(
           toolsDowngraded: Boolean(params.toolPolicy === undefined && requestedTools),
           providerSource: params.meta?.providerSource,
           downgradeReason: overridePhase?.startsWith('downgrade') ? undefined : undefined,
-          retryStrategy: params.retryStrategy,
+          retryStrategy: overridePhase === 'heartbeat_retry'
+            ? 'heartbeat_recovery' as const
+            : params.retryStrategy,
           maxTokens: result?.maxTokens ?? effectiveMaxTokens(),
           modelCapability,
           contextBudget,
@@ -4333,7 +4342,7 @@ export function createAiService(
       while (hbAttempt < MAX_HEARTBEAT_ATTEMPTS) {
         hbAttempt++
         try {
-          await waitWithSignal(HEARTBEAT_INTERVAL, params.signal)
+          await waitWithSignal(heartbeatWaitMs(lastErr), params.signal)
         } catch (e: any) {
           if (params.signal?.aborted || e.name === 'AbortError') {
             return throwCanceled()
@@ -4341,14 +4350,15 @@ export function createAiService(
           throw e
         }
         try {
-          const hbParams = { ...params }
+          const hbParams = { ...params, reasoning: { mode: 'off' as const }, retryStrategy: 'heartbeat_recovery' as const }
           streamBuffer = ''
           reasoningBuffer = ''
           currentPhysicalAttempt = hbAttempt
           currentPhysicalScope = 'heartbeat'
           physicalDiagnostics = {}
           reportPhysical(hbAttempt, 'running', undefined, undefined, 'heartbeat_retry')
-          const result = await _rawCall(provider, hbParams, timeoutMs, toolRunBudget)
+          const probeTimeoutMs = Math.min(timeoutMs ?? HEARTBEAT_PROBE_TIMEOUT_MS, HEARTBEAT_PROBE_TIMEOUT_MS)
+          const result = await _rawCall(provider, hbParams, probeTimeoutMs, toolRunBudget)
           let finalText = filterThinkingTags(result.text)
           if (params.jsonMode) {
             finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs, toolRunBudget).then(r => r.text))

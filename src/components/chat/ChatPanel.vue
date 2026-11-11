@@ -903,7 +903,7 @@ function finishHomeApiCall(callId: string | undefined, result: {
   compatibilityWrite?: boolean
   toolsDowngraded?: boolean | 'json-protocol'
   downgradeReason?: string
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
     maxTokens?: number | null
   providerContextWindowTokens?: number
   estimatedInputTokens?: number

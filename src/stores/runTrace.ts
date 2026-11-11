@@ -238,7 +238,7 @@ export interface RunTraceApiCall {
   compatibilityWrite?: boolean
   toolsDowngraded?: boolean | 'json-protocol'
   downgradeReason?: string
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   startedAt: number
   endedAt?: number
   semantic?: RunTraceSemantic
@@ -345,7 +345,7 @@ export interface RunTracePhysicalCall {
   /** Native tool calls parsed from this physical response; distinguishes parse loss from trace loss. */
   toolCallCount?: number
   toolCallNames?: string[]
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
   /** Capability provenance so traces distinguish unknown limits from app-imposed caps. */
@@ -829,7 +829,7 @@ export interface FinishApiCallInput {
   compatibilityWrite?: boolean
   toolsDowngraded?: boolean | 'json-protocol'
   downgradeReason?: string
-  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
   providerContextWindowTokens?: number

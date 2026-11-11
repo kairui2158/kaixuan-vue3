@@ -1991,7 +1991,7 @@ function finishOutlineApiCall(callId: string | undefined, result: {
   usageUnavailable?: boolean
   durationMs?: number
     error?: string
-    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
     maxTokens?: number | null
     providerContextWindowTokens?: number
     estimatedInputTokens?: number

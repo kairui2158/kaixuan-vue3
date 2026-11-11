@@ -1876,3 +1876,12 @@
 - 交付：folder SKILL 章节批量请求不再注入 JSON 输出协议，替换为任务边界声明；direct-json 旧路径显式保留；trace 校验器迁移 v23。
 - 验证：定向 16 tests passed；全量服务 2726 tests passed；type-check、build:vue 通过；glm-5.3-flashx 真实供应商 12 章 5/5/2 全部 success；离线导出 forbiddenCount=0、boundaryCount=12。
 - 边界：SKILL 模板协议声明归 SKILL 层；heartbeat 重试间隔为独立遗留面；不新增预算系统、自动调度或 UI。
+
+# 2026-11-11 心跳重试恢复V2
+
+- 文件：[_audit/DEV_LOG_2026-11-11_heartbeat-retry-recovery-v2.md](_audit/DEV_LOG_2026-11-11_heartbeat-retry-recovery-v2.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-11_heartbeat-retry-recovery-v2.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-11_heartbeat-retry-recovery-v2.md)
+- 交付：心跳探针错误感知等待（429/502/503=10s、network=20s、其他=30s），探针 180s 独立超时并显式标记 `heartbeat_recovery`；下游 trace 类型同批收口。
+- 验证：aiService 189/189 passed；realSkillExecutor 81/81 passed；全量服务 250 files / 2728 tests passed；vue-tsc exit 0；glm-5.3-flashx 真实供应商 SSE 直连 HTTP 200。
+- 边界：不改 realSkillExecutor、编排器、预算系统、自动调度或 UI；第三方网关不可诱导真实故障，如实登记并以真实错误序列单测覆盖。
+- 经验：`神意开发经验总结_v9.md` 升级 v10.4.1；G1.19 增补心跳探针等待、超时与 trace 标记规则。
