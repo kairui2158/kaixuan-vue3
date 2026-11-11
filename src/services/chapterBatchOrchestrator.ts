@@ -25,6 +25,7 @@ export interface GenerateChapterBatchInput {
   shouldContinue?: () => boolean
   basePrompt: string
   historyContext: string
+  outputProtocol?: 'folder-chain' | 'direct-json'
   maxRepairAttempts?: number
   onAttempt?: (attempt: ChapterBatchAttempt) => void
 }
@@ -35,6 +36,9 @@ export interface ChapterBatchResult {
   attempts: ChapterBatchAttempt[]
   errors: string[]
 }
+
+const CHAPTER_FOLDER_CHAIN_TASK_BOUNDARY_NOTE =
+  '本步骤只处理当前章节任务；输出协议由当前 SKILL 模板决定，本段内容仅提供任务边界与事实约束。'
 
 function appendJsonDiagnostics(
   errors: string[],
@@ -57,6 +61,7 @@ export function buildChapterBatchPrompt(input: {
   missingCount?: number
   basePrompt: string
   historyContext: string
+  outputProtocol?: 'folder-chain' | 'direct-json'
   repairErrors?: string[]
   forbiddenTitles?: string[]
 }): string {
@@ -71,7 +76,9 @@ export function buildChapterBatchPrompt(input: {
       input.historyContext,
       '',
       `补充生成第${missingStart}章到第${missingEnd}章，共${missingCount}章。只输出缺失章节，不要重复任何已有标题。`,
-      '输出JSON数组，每项含title/plot字段。数组长度必须为' + missingCount + '。'
+      ...(input.outputProtocol === 'folder-chain'
+        ? [CHAPTER_FOLDER_CHAIN_TASK_BOUNDARY_NOTE]
+        : ['输出JSON数组，每项含title/plot字段。数组长度必须为' + missingCount + '。'])
     ].concat(input.repairErrors?.length ? [
       '',
       '【上一次验收失败原因】',
@@ -88,7 +95,9 @@ export function buildChapterBatchPrompt(input: {
     input.historyContext,
     '',
     `生成第${contract.expectedStart}章到第${contract.expectedEnd}章，共${contract.requestedCount}章。不要重复任何已有标题。`,
-    '输出JSON数组，每项含title/plot字段。数组长度必须为' + contract.requestedCount + '。'
+    ...(input.outputProtocol === 'folder-chain'
+      ? [CHAPTER_FOLDER_CHAIN_TASK_BOUNDARY_NOTE]
+      : ['输出JSON数组，每项含title/plot字段。数组长度必须为' + contract.requestedCount + '。'])
   ].join('\n')
 }
 
@@ -141,6 +150,7 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
       missingCount,
       basePrompt: input.basePrompt,
       historyContext: input.historyContext,
+      outputProtocol: input.outputProtocol,
       repairErrors: previousErrors,
       forbiddenTitles
     })

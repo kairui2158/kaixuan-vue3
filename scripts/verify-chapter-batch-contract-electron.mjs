@@ -537,7 +537,7 @@ function collectPayloadStrings(value, output = []) {
 }
 
 function assertExportedRun({ run, payloads }) {
-  assert.equal(run.schemaVersion, 19, 'exported run uses the current runTrace schema v19')
+  assert.equal(run.schemaVersion, 23, 'exported run uses the current runTrace schema v23')
   assert.equal(run.status, 'success', 'chapter-layer run ends in success')
   assert.equal(run.step, 3, 'run is the chapter-layer pipeline run')
   const validated = (run.events || []).filter(event => event.type === 'chapter-batch-validated')

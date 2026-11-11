@@ -1,0 +1,617 @@
+Let me analyze the task. I need to generate the 章节施工稿 (chapter construction drafts) for chapters 11 and 12, based on the skeleton outputs from the previous step (S2), following the SKILL template.
+
+Key inputs:
+- 全书大纲: 男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形
+- 卷纲: 风暴起点
+- 本卷总章数: 12
+- 单章字数: 1000
+- Previous chapters 1-10 titles
+- 上一章事实: 第10章 details
+- 上一步 SKILL 完整输出: 批次节奏登记, 章节总览, 全书资产继承, 当前卷继承, 标题状态, 剧情点进度继承, 第11章骨架, 第12章骨架
+
+I need to output:
+【全书资产继承】
+【标题状态】
+【批次节奏登记】
+【第11章施工稿】
+【第12章施工稿结束】
+
+The style reference shows what a good 场景执行包 looks like — detailed, structured fields, no prose, no finished literary sentences.
+
+Key constraints:
+- First character must be 【, last character must be 】
+- No analysis/planning output
+- Each chapter construction draft must have: 标题, 章首承接, 章节形态, 推进策略, 缺口处理, 场景执行包 (per scene with all fields), 叙事引导意图, 可自由演绎, 禁, 目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态
+
+Let me carefully extract details from the skeletons.
+
+**第11章骨架:**
+- 标题: 旧信指的方向
+- 章首承接: 第10章陈述留白钩子——南方比首信号清楚得多、清楚的那部分说不出它为什么在那里；男主批次末收势完毕、面向南方最后视野，显式承压状态与悬置清单在手。本章从该静止收势中起步，把承压转为动身。
+- 章节形态: 主角章
+- 推进策略: 常规写法是留在观测位继续向南推一轮观测；本章改用"回身合读"路径
+- 缺口处理: 上报待补——卷末段逐场景任务分解与专属微场景锚点上游未提供；剧情内缺口保留为悬念
+- 章节核心事件: 男主带着旧信从南方观测位回到灯塔，在信标线维护参照下用第9章可再读线索对照南方显形阶段结果，建立对应——旧信升为在用线索，含义层全额悬置
+- 因果链计划: 动机（把悬置变成可操作的求证对象）、触发（含义层的唯一可再读入口是旧信）、决策（回灯塔合读而非观测位等待）、后果（对应成立）、兑现（交给第12章）
+- 场景划分:
+  - 场景1: 回身——从观测位到灯塔的移动
+  - 场景2: 合读——旧信线索在信标参照与南方阶段结果下的对读，对应成立
+- 伏笔操作: 旧信（推进）、南方航线（推进）、风暴信标（推进）、异常信号（维持）
+- 章末钩子: 关系改写型
+
+**第12章骨架:**
+- 标题: 南方欠着一个答案
+- 章首承接: 第11章关系改写钩子
+- 章节形态: 主角章
+- 推进策略: 常规写法是用一个高潮事件给卷末收势；本章改用"登记即落点"路径
+- 缺口处理: 上报待补——卷级钩子具体形态与下卷衔接信号上游未提供；剧情内缺口保留为悬念并随卷转移
+- 场景划分:
+  - 场景1: 落点登记——三动力合流的冲突收束成型
+  - 场景2: 库存清点与跨卷移交
+- 伏笔操作: 四项
+- 章末钩子: 陈述留白型
+
+Now I need to flesh out each scene with:
+- 场景目标
+- POV角色
+- 视角切换说明 (implied — the template lists it, but for single POV no switch; the template says "视角切换说明：本场景是否从主角POV切到..." — I should include it. Actually looking at the output format template in the SKILL, the 场景执行包 lists: 场景目标、POV角色、场景起点、人物位置、关键物体位置、动作链、信息来源、阻力或转折、初始判断、新证据、判断修正、修正行动、结果与残留、下一场景承接位置. 视角切换说明 is in the 填充职责 section as a field but not in the output format template explicitly. Hmm, let me re-check.
+
+The output format template:
+```
+场景1执行包：
+场景目标：...
+POV角色：...
+场景起点：...
+人物位置：...
+关键物体位置：...
+动作链：...
+信息来源：...
+阻力或转折：...
+初始判断：...
+新证据：...
+判断修正：...
+修正行动：...
+结果与残留：空间结果、代价、旁人认知修正、可消费痕迹或状态。
+下一场景承接位置：...
+```
+
+视角切换说明 is in the 填充职责 list but not the output template. I could include it as an additional field since the 填充职责 says "对每一章，把骨架编织为完整施工稿... 对每一章，把骨架编织为完整施工稿。骨架中的因果链计划... - 视角切换说明：..." — it's listed as a field to fill for each scene. To be safe and complete, I'll include 视角切换说明 after POV角色. Actually the style reference "好" example doesn't include it, but it does include 对话指纹 which is mentioned in the 目标情绪与功能 line. The style example includes "对话指纹：陈暮独处时以短句自语..." — but our chapters are 全章无对白承载, so 对话指纹 would be "无对白承载" or just noted in 目标情绪与功能.
+
+Given the chapters are 单人无对白, I'll note 全章无对白承载 and no dialogue fingerprint needed. The 上一章事实 for 第10章 says "全章无对白承载" and mentions "输入提供对话指纹时一并传递" — no dialogue fingerprint provided, so I'll just note 无对白.
+
+I'll include 视角切换说明 as a field since 填充职责 lists it — it says "每个场景的叙事引导意图" separately though. Let me re-read:
+
+"### 2. 逐场景执行包
+
+骨架中的每个场景，填充以下字段：
+
+- 场景目标：这个场景要完成什么。
+- POV角色：本场景从谁的视角展开。
+- 视角切换说明：本场景是否从主角POV切到对手、配角、第三方或事件/环境视角；写明切换目的、信息补充和回切承接，不规定写法。群像章可在场景间轮转视角；无固定视角章仍必须为每个场景写明感知锚点（谁或什么在感知）。"
+
+So 视角切换说明 should be included in the scene execution package. For our chapters, no switch — "不切换，POV男主，感知锚点为..." I'll include it.
+
+Also: "多人场景在人物位置后补一句空间关系" — not applicable, single person. "群像场景另写立场三角" — not applicable.
+
+Then:
+"### 3. 叙事引导意图" — 对白意图、对白张力来源、旁白意图、沉默意图、群像意图 + 可自由演绎范围 at end of each scene.
+
+Hmm wait — "每个场景末尾写'可自由演绎'范围". So 可自由演绎 is per-scene? Let me re-read: "以上内容只描述意图和边界... 每个场景末尾写"可自由演绎"范围：哪些过渡、次要人物反应、环境细节或表达方式可由正文层自行决定。只圈范围，不替正文层写内容。"
+
+But the output format template shows:
+```
+叙事引导意图：...
+可自由演绎：...
+禁：本场景不得提前释放或改写的单元信息
+目标情绪与功能：...
+具体增量：...
+卷级承接：...
+关系变化：...
+画面锚点：...
+情感show提示：...
+章末状态：...
+```
+
+These appear once per chapter after all scenes. But the 填充职责 says 可自由演绎 is per-scene ("每个场景末尾"). Hmm, conflict. The skeleton itself has "放：" per scene. The output format template lists them once per chapter. I think I can do both: put 叙事引导意图 with per-scene breakdown (matching the skeleton's structure which had per-scene 叙事引导), and include 可自由演绎 per scene plus/or a chapter-level one. To satisfy both, I could structure:
+
+叙事引导意图：（分场景写：场景1...场景2...对白意图/旁白意图/沉默意图/张力来源）
+可自由演绎：（场景1...；场景2...）
+禁：...
+目标情绪与功能：...
+具体增量：...
+卷级承接：...
+关系变化：...
+画面锚点：...
+情感show提示：...
+章末状态：...
+
+That follows the output template. I'll fold per-scene 可自由演绎 into the single 可自由演绎 field with scene-by-scene listing. That satisfies both constraints reasonably.
+
+For 张力来源: 第10章's skeleton said 张力登记为信息差类. For chapter 11, the skeleton's 叙事引导 mentions 信息不对称加内心矛盾 as resistance types. The 叙事引导意图 field requires: "对白张力来源：从信息差、利益差、情感差中选择一类登记" — but no dialogue, so 对白意图 = 无对白承载，单人章无交流对象. I'll register 张力来源 as 信息差类 (matching previous chapter's approach) and note no 人际张力.
+
+Chapter 12's skeleton says 阻力类型为内心矛盾加信息不对称 for scene 1 and 内心矛盾 for scene 2. Tension: 信息差类 again — "方向已证、内容未读" — reader and protagonist same layer. Actually for ch12 the tension is more 内心/信息. I'll register 信息差类 consistently (matches 第10章 precedent).
+
+Now, per the style reference, the good example is very detailed with specific spatial details, action chains, etc. I need to write detailed execution packages but without inventing new settings beyond what's given. The world: 灯塔与旧航道, 南方视野观测位, 风暴信标, 南方航线信号显形分步, 旧信, 异常信号. I need to be careful not to invent new settings/characters/objects. The allowed filling: "用输入已有材料补充人物位置、物体位置、动作链" — I can detail movements within the established locations (灯塔, 旧航道, 南方视野观测位) and established objects (旧信, 信标维护参照, 南方观测登记, 显形第二步与第三步登记项, 异常未解项, 悬置清单).
+
+I should be careful: can I invent physical details like "灯塔顶层" or "石墙裂缝"? The style example invented details like "倒塌建筑的一层，废墟入口在东侧" — that's from a different example though. For our task, the 边界 says "新增卷纲没有的设定、角色、物件" is forbidden. Positions within established locations (e.g., 灯塔内可同时触及信标参照与南方视野的位置 — the skeleton itself says this) are execution details, not new settings. I'll keep spatial details generic to the established elements: 灯塔, 旧航道, 观测位, 信标维护参照的位置, 旧信, 登记项. I can use directional details (南方视野方向, 旧航道走向) that are already established.
+
+Let me draft the chapters.
+
+---
+
+**【全书资产继承】** — copy from the previous output's 全书资产继承 (it's already formatted). I should pass it through with concrete content. The template says it must match upstream content; I can reproduce it largely as-is since it's required to be transmitted. It says "禁止输出省略号、占位说明或'同上一步'" — so I must write it out fully. I'll adapt it: for 角色状态, update to reflect end state through ch12? Actually the 全书资产继承 is meant to be the state inherited — I should pass through what the previous step gave, possibly noting the state as of chapter 10 end plus what this batch adds. The previous output's version says "本批次第11-12章的增量变化见各章骨架的'具体增量'与'关系变化'" — I'll keep similar. Actually as the S3 step consuming the skeleton, I could update to final states, but safer to pass through the inheritance as provided, since the 下游 (凯旋) needs the entry state plus pointers. I'll keep it essentially the same with minor adjustments.
+
+**【标题状态】**: pass through upstream titles and this batch's titles.
+
+**【批次节奏登记】**: pass through the previous output's registration.
+
+---
+
+**第11章施工稿**
+
+标题：旧信指的方向
+章首承接：第10章陈述留白钩子——南方比首信号清楚得多、清楚的那部分说不出它为什么在那里；男主批次末收势完毕、面向南方最后视野，显式承压状态与悬置清单在手。本章从该静止收势中起步，把承压转为动身。
+章节形态：主角章（全卷单POV男主，无其他角色入镜，上游提供，照继承）
+推进策略：常规写法是留在观测位继续向南推一轮观测；本章改用"回身合读"路径——把推进从新观测换成旧线索在阶段结果下的重读，因为合流位要求三动力同框，单线观测永远只推进南方一线，回身才能让信标参照与旧信线索进入同一个动作。
+缺口处理：上报待补——卷末段逐场景任务分解与专属微场景锚点上游未提供，本章以"合流位入场"为任务边界执行；剧情内缺口（信号含义、旧信未解主体、异常成因、冲突主体与轮廓内容）保留为悬念，本章推进对应关系但不触碰任何含义层。
+
+场景1执行包：
+场景目标：完成合流位的物理入场——男主从南方观测位回到灯塔，让"回身"本身成为承压的动作化。
+POV角色：男主。
+视角切换说明：不切换，延续全卷单POV男主；感知锚点为回身动作与旧航道的接近，南方视野的离开感由感知锚点承载。
+场景起点：承接第10章末——批次末收势完毕、面向南方最后视野；时间进入批次收束后的第一个行动时段；地点从南方视野观测位出发，经旧航道一线，移向灯塔。
+人物位置：男主单人，从观测位起身，沿旧航道方向移动，终点为灯塔；南方视野在身后。
+关键物体位置：旧信随身（含第9章可再读线索）；异常未解项随身；显形第二步与第三步登记项随身（比对基线）；信标维护状态随灯塔所在；南方观测登记（阶段结果与第5章首信号基线）随身；悬置清单随身。
+动作链：男主收拢观测位现场的随身物件，确认南方基线登记可查（观测有基线可依、变化不致丢失），转身背对南方视野；沿旧航道一线向灯塔移动；移动中核对悬置清单里指向含义层的各项——确认第9章可再读线索是含义层唯一可再读入口；接近灯塔时确认信标维护状态；抵达灯塔，进入可同时触及信标参照与南方视野的位置。
+信息来源：随身登记项的清点（目视与手头核对）；旧航道接近过程中的既有地形认知；信标维护状态的现场确认。
+阻力或转折：离开南方视野的机会成本——转身意味着这一时段不看南方；收束姿态与承压动力之间的内心矛盾——重新动身要推翻自己刚完成的收势；类型为内心矛盾加信息不对称（离开期间的南方状态只有基线可依）。
+初始判断：批次末收势是终点姿态，压力应该背着静置。
+新证据：第10章阶段坐标里"还差什么"一栏全部指向含义层，而含义层的唯一可再读入口是旧信——线索在手不去合读，等于主动卸压；观测有基线可查，离开不致丢失变化。
+判断修正：收势不是终点而是蓄力完成，压力换了一个用法——回身即承压的执行方式。
+修正行动：完成回身移动，抵达灯塔合流位，准备合读。
+结果与残留：空间结果是男主抵达灯塔、南方单线视野换为三动力可同框位置；代价是离开南方视野的机会成本与重新动身推翻收势的心理消耗；旁人认知修正无（无人在场）；可消费痕迹是移动路线上留下的出发与抵达状态（观测位收拢后的现场、灯塔入口处的到位状态）。
+下一场景承接位置：灯塔内、可同时触及信标参照与南方视野的位置，旧信在手。
+
+叙事引导意图：（第11章整体）
+对白意图：全章无对白承载，单人章无交流对象，不设任何对白任务。
+对白张力来源：不适用（无对白）；章内张力登记为信息差类——可观测层可见、含义层缺席，读者与男主同层，双方都不知道对应为什么成立；无利益差与情感差类人际张力。
+旁白意图：场景1旁白承载承压转身的动作化——收势与动身之间的内心矛盾、离开南方视野的机会成本、"收势是蓄力完成"的判断修正由叙述承载；场景2旁白承载信息压力——三条线互相印证的同时没有任何一条说出它们为什么一致，对读操作与对应成立由叙述承载，含义缺席不解释。
+沉默意图：场景1转身背对南方时的静默承载机会成本与承压的决心；场景2对应成立后的静默承载"对得上的说不清为什么对得上"的凝重，沉默维持含义层缺席的张力。
+群像意图：不适用，全章单人无多人场景，无群像。
+
+可自由演绎：场景1——回身途中旧航道环境细节、移动节奏、随身物件携带状态、出发与抵达的过渡；场景2——对读的具体动作顺序、参照比对的操作细节、线索呈现的现象级形态（在现象级边界内）、灯塔内环境细节。只圈范围，不替正文层写内容。
+禁：本章不得提前释放的单元信息——不解释旧信线索内容、不解读对应为何成立、不涉及异常成因、不登记冲突主体与轮廓内容、不虚构航线上的人或船、不预支第12章卷末收束内容。
+目标情绪与功能：前状态是批次末收势后的沉着与悬置并持、面向南方的静立→后状态是对应成立后的凝重确认感——线索没有解释什么，但它和南方站在了同一边 | 高压推进；执行边界：对应只到可观测层，含义层任何表述不入镜；全章无对白承载；对话指纹：未提供（无对白）。
+具体增量：信息——第9章可再读线索与南方显形阶段结果之间建立可观测的对应（一致性可对读，含义仍不可读）；认知——旧信从"随身暗线、关联待证"变为"合流位在用线索"；处境——男主从观测位回到灯塔，三动力首次同框。
+卷级承接：第一卷卷末段合流位入场——兑现"旧信、灯塔与南方航线共同推动第一卷冲突"的合流启动；承接第10章三项收束产物（信标线落定、南方求证阶段结果、冲突推进位），主导增量向三动力合流转移；定价变化为延续，无新增；不处于收束产物落点区间。
+关系变化：无新增人际；认知关系上，男主与旧信的关系从"随身携带、待证其关联"变为"在用对读、对应成立"；与灯塔的关系从"已完成信标线的维护对象"变为"合流位的参照原点"；对南方求证从单线推进变为三线互证的进程。变化由场景2对读事件触发。
+画面锚点：
+一为回身途中背对南方、旧航道在前的移动画面——事实含义是承压从静立转为动作化、单线视野让位给合流位；可承载机会成本、承压的决心、方向的调转。
+二为灯塔内三线同框的对读画面——旧信、信标维护参照、南方观测登记在同一视线范围内——事实含义是三动力首次同框、对应成立但含义缺席；可承载凝重确认感、互证与沉默并存、悬置收拢。
+（只登记供给，不写成品比喻。）
+情感show提示：情感峰值为对应成立后的凝重确认感（场景2后段）。候选承载方向只写方向：对读动作在对齐成立那一刻的停顿；旧信在手中位置的改动（从随身收拢状态到摊开在用状态）；视线在三条参照之间的往返频次变化。禁止成品句。
+章末状态：
+空间状态：男主在灯塔内合流位，对读收束，旧信以在用线索方式改登记为合流位常驻项。
+关系状态：无新增人际；旧信升为在用线索，灯塔成为参照原点，南方求证进入三线互证进程。
+信息状态：男主知道对应在可观测层成立且含义缺席；不知道对应为什么成立、线索内容含义；悬置清单（信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因）一项未减但指向收拢到同一处；读者与男主同层，无人误判。
+伏笔状态：旧信（战略级）推进——线索对应成立、升为在用线索，未解主体悬置维持，读者可见度中高；南方航线（战略级）推进——阶段结果获可观测层互证，走向与含义悬置维持，读者可见度中高；风暴信标（战役级）推进——信标线以维护状态充当合流参照原点，机制未示悬置维持，读者可见度中；异常信号（战役级）维持——并置观察延续，不并入三动力合流，读者可见度低。
+情感债务：无新增人际债务；男主对含义层的债加重——对应成立后，含义缺席从背景性缺席变为聚焦性缺席，求证期待上调。
+目标情绪与功能：见上。
+钩子类型与内容：关系改写型——本章的决定同时完成情绪收束（旧信之谜被承认而非搁置）与局面推进（它进入求证主线），与第10章的陈述留白错开节奏。内容只写压力方向与来源细节：对读结束，旧信的登记身份从"不拆不决的旧物"改写为"在用线索、合流位常驻项"——收信的动作轻、改写的分量重，三条线从此互相知道彼此在场；来源为本章对应成立事件加第1章旧信起点与第9章可再读线索的既有脉络，无新增危机，不写成品收束句。
+下一章入口：第12章从对应成立、旧信改登记为在用线索的合流位状态进入卷末收束。
+卷级承接：见上。
+
+Hmm, wait — the output template puts 卷级承接 once. I have it listed twice in my draft (once mid-template per the template order). Let me check the template order again:
+
+```
+叙事引导意图：...
+可自由演绎：...
+禁：本场景不得提前释放或改写的单元信息
+目标情绪与功能：前状态→后状态 | 功能标签 | 禁止提前释放边界
+具体增量：信息/关系/规则/资源/认知/承诺/处境中至少一类的前后变化
+卷级承接：本章兑现或延续的卷型功能
+关系变化：有人际时写当事人与前后状态；无新增人际时写认知关系前后变化
+画面锚点：...
+情感show提示：...
+章末状态：...
+【第1章施工稿结束】
+```
+
+So order: 叙事引导意图, 可自由演绎, 禁, 目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态. 章末状态 includes 空间状态、关系状态、信息状态、伏笔状态、情感债务、目标情绪与功能、钩子类型与内容、下一章入口、卷级承接 (per the 填充职责 section 6). Hmm, section 6 章末状态 includes 目标情绪与功能 and 卷级承接 again. To avoid redundancy, the 章末状态 can reference or briefly restate. Looking at the 上一步 skeleton for ch10, the "章末状态与钩子" section included spatial, relation, info, hook type, next chapter entry. The template says 章末状态 has these sub-items:
+- 空间状态
+- 关系状态
+- 信息状态
+- 伏笔状态
+- 情感债务
+- 目标情绪与功能
+- 钩子类型与内容
+- 下一章入口
+- 卷级承接
+
+I'll include all sub-items in 章末状态, with brief restatement where they repeat chapter-level fields (that's what the template demands — it lists 目标情绪与功能 and 卷级承接 both as chapter fields AND as 章末状态 sub-items; I'll include short versions in 章末状态 to comply).
+
+Actually wait, looking more carefully at section 6:
+
+"### 6. 章末状态
+- 空间状态：人物在哪里。
+- 关系状态：关键关系到达什么状态。
+- 信息状态：谁知道什么、谁不知道什么。
+- 伏笔状态：本章操作后伏笔的状态（含等级标注）。
+- 情感债务：谁欠谁什么。
+- 目标情绪与功能：本章情绪前状态→后状态；功能标签及执行边界；输入提供对话指纹时一并传递。
+- 钩子类型与内容：继承 S2 登记的钩子类型...
+- 钩子内容只写压力方向与来源细节...
+- 下一章入口：下一章从什么压力或威胁开始。
+- 卷级承接：本章兑现或延续的卷型功能，以及是否处于定价变化或收束产物落点区间；不处于时写"延续，无新增"。"
+
+So yes, 章末状态 contains 目标情绪与功能 and 卷级承接 as sub-items. The chapter-level fields earlier (after 禁) also have 目标情绪与功能, 具体增量, 卷级承接, 关系变化. This is the template's structure — some redundancy is by design. I'll comply with both: chapter-level fields with full detail, and 章末状态 sub-items including them (can be slightly more compact or reference-consistent).
+
+Hmm, actually, to reduce excessive redundancy, in 章末状态 I could write them compactly. But compliance matters more than elegance. Let me include them.
+
+Now for the scenes — the template shows 场景1执行包 and 场景2执行包, then chapter-level fields. The 叙事引导意图 is chapter-level in the template but per-scene in 填充职责 section 3 ("每个场景的叙事引导意图"). The previous S2 output structured 叙事引导方向 per chapter with scene breakdowns inside. I'll do: 叙事引导意图 with per-scene breakdown (场景1：...；场景2：...), covering 对白意图/张力来源/旁白意图/沉默意图, then 群像意图 note. And 可自由演绎 with per-scene ranges.
+
+Also the 禁 line: "禁：本场景不得提前释放或改写的单元信息" — singular "本场景" suggests per-scene, but in template it's chapter-level after all scenes. The skeletons have per-scene 禁 lines. I could put 禁 as chapter-level listing all boundaries (as the skeleton's 功能标签与执行边界 does), and possibly per-scene notes within scene packages. To be thorough, I'll add a brief 禁 line within each scene package too (the skeleton has them per-scene), plus the chapter-level 禁 line in the template position. Hmm, that might bloat. Let me think about what's cleanest while compliant.
+
+The template order per chapter:
+- 标题
+- 章首承接
+- 章节形态
+- 推进策略
+- 缺口处理
+- 场景1执行包（fields）
+- 场景2执行包（fields）
+- 叙事引导意图
+- 可自由演绎
+- 禁
+- 目标情绪与功能
+- 具体增量
+- 卷级承接
+- 关系变化
+- 画面锚点
+- 情感show提示
+- 章末状态
+
+I'll follow exactly this. The per-scene packages can include a trailing "禁（本场景）" line — actually the style reference good example doesn't include 禁 in the scene package. The 禁 is at chapter level in the template. I'll keep 禁 only at chapter level, and since the skeleton has per-scene prohibitions, I can fold scene-specific prohibitions into the chapter-level 禁 line organized by scene, or just keep the unified boundary list. I'll write the 禁 line covering both scenes' prohibitions clearly. Actually, to be safe and faithful, I'll write per-scene 禁 inside each scene package (matching skeleton granularity) AND the chapter-level 禁. Hmm — the chapter-level 禁 in the template says "本场景" which is odd wording but it's the template. Let me just do: chapter-level 禁 line that enumerates per-scene boundaries. That's clean.
+
+Wait, actually, re-reading the template: "禁：本场景不得提前释放或改写的单元信息" appears once per chapter in the template. I'll write it once per chapter, enumerating both scenes' prohibitions. Fine.
+
+Now, dialogue fingerprint: "输入提供对话指纹时一并传递" — no dialogue fingerprint provided, and 全章无对白承载. I'll note "对话指纹：未提供；全章无对白承载" in 目标情绪与功能 fields.
+
+Let me now write out detailed scene packages following the style reference quality — concrete positions, action chains, info sources, etc., using only established materials.
+
+**第11章 场景1：回身**
+
+The skeleton gives: 起点（承接第10章末痕迹——批次末收势完毕、面向南方最后视野；时间接续批次收束后的第一个行动时段，地点从南方视野观测位移向灯塔与旧航道一线）。人物位置：男主单人，携旧信、异常未解项、显形第二步与第三步登记项，信标维护状态在身。阻力：离开南方视野的机会成本...；收束姿态与承压动力之间的内心矛盾...。场景结果：男主到达灯塔...。
+
+I need to add: 关键物体位置, 动作链, 信息来源, 初始判断, 新证据, 判断修正, 修正行动, 结果与残留, 下一场景承接位置. The skeleton gives most of these in the 因果链计划 and 场景划分. Let me flesh:
+
+关键物体位置：旧信随身（含第9章可再读线索）；异常未解项随身；显形第二步与第三步登记项随身作比对基线；南方观测登记（阶段结果与第5章首信号基线）随身；南方视野在身后方向；信标维护参照随灯塔在前方。
+
+动作链：①收拢观测位现场——把摊开的观测登记收拢随身，确认第5章首信号基线与显形第二步、第三步登记项可查；②核对第10章阶段坐标的"还差什么"一栏——确认悬置各项均指向含义层；③确认含义层唯一可再读入口是旧信（第9章可再读线索在手）；④确认南方观测有基线可依、离开期间变化不致丢失；⑤转身背对南方视野，沿旧航道一线向灯塔移动；⑥移动途中以随身登记核对合读所需三项（旧信线索、信标维护参照的位置、南方阶段结果基线）；⑦接近并抵达灯塔，确认信标维护状态，进入灯塔内可同时触及信标参照与南方视野的位置。
+
+信息来源：随身登记项的手头核对（目视）；第10章阶段坐标与悬置清单的既有登记（记忆内省）；旧航道一线的既有地形认知；信标维护状态的现场目视确认。
+
+That's a good action chain reflecting 触发 (核对"还差什么"指向含义层→旧信是唯一入口) and 决策 (回灯塔合读).
+
+阻力或转折：离开南方视野的机会成本——转身意味着这一时段不看南方；收束姿态与承压动力之间的内心矛盾——重新动身要推翻自己刚完成的收势；类型为内心矛盾加信息不对称（离开期间的南方状态只有基线可依）。
+
+初始判断：批次末收势是终点姿态，悬置应背着静置，等待下一轮显形即可。
+
+新证据：第10章阶段坐标"还差什么"一栏全部指向含义层，含义层的唯一可再读入口是旧信——线索在手不去合读等于主动卸压；南方观测有基线可查，离开不致丢失变化。
+
+判断修正：收势不是终点而是蓄力完成；等待只推进南方单线，合读是唯一可能让旧信、信标参照与南方结果互证的动作；"回身"是承压的执行方式。
+
+修正行动：完成回身移动抵达灯塔；就地重读被排除（缺信标参照基线），选择在灯塔内合读。
+
+结果与残留：空间结果——男主抵达灯塔内可同时触及信标参照与南方视野的位置，南方单线视野换为三动力可同框位置；代价——离开南方视野的机会成本、推翻刚完成的收势重新动身的消耗；旁人认知修正——无（无人在场，全章无其他角色）；可消费痕迹——观测位收拢后的现场状态、沿途移动的到达状态、灯塔内就位状态；下一场景从灯塔处旧信在手开始。
+
+下一场景承接位置：灯塔内，男主就位于可同时触及信标参照与南方视野的位置，旧信与全部登记项在手。
+
+**第11章 场景2：合读**
+
+Skeleton: 目标：释放本章核心信息——对应成立；把旧信提为在用线索，完成三动力同框。起点：承接场景1，男主在灯塔，信标线维护参照在手，南方阶段结果与第5章首信号基线可查，第9章可再读线索随身。人物位置：男主单人在灯塔内可同时触及信标参照与南方视野的位置。关键物体：旧信（含可再读线索）、信标维护参照、南方观测登记（阶段结果与首信号基线）、显形第二步与第三步登记项。阻力：对读的两难...。场景结果：对应成立...。
+
+ Flesh out:
+
+场景目标：释放本章核心信息——第9章可再读线索与南方显形阶段结果的对应在可观测层成立；把旧信从随身暗线提为在用线索，完成三动力同框。
+
+POV角色：男主。
+视角切换说明：不切换，POV男主；感知锚点为对读动作与三条线的同框。
+
+场景起点：承接场景1，男主在灯塔内就位；信标线维护参照在手边，南方阶段结果与第5章首信号基线登记可查，第9章可再读线索随身；时间接续场景1抵达后的合读时段。
+
+人物位置：男主单人在灯塔内可同时触及信标参照与南方视野的位置；旧信在手，登记项摊开在可对照范围内；南方视野方向在可及视野内。
+
+关键物体位置：旧信（含第9章可再读线索）在男主手中、从随身收拢状态转为摊开在用状态；信标维护参照在灯塔内男主手边可及处；南方观测登记（阶段结果与第5章首信号基线）与显形第二步、第三步登记项摊开在对照位；南方视野方向通向可观测的南方。
+
+动作链：①把旧信从随身状态取出，摊开至在用位置；②先核对信标维护参照，确立参照原点基线；③再调出南方观测登记——阶段结果与第5章首信号基线、显形第二步与第三步；④用第9章可再读线索逐一对照南方显形阶段结果与信标参照，做可观测层比对；⑤比对成立——线索与南方航向在灯塔参照下可对读；⑥回头核对第9章"关联待证"的证伪可能——确认对应在可观测层立得住；⑦核对含义层——看懂还是没懂，没懂；⑧完成登记改写——旧信从随身暗线改登记为在用线索、合流位常驻项。
+
+信息来源：旧信线索与南方登记、信标参照的三方目视比对；第9章可再读线索的既有登记（重读）；比对结果的内省判断。
+
+阻力或转折：对读的两难——对应若成立，含义层就离得更近也更够不到（对得上的说不清为什么对得上）；以及第9章"关联待证"本身包含证伪可能；类型为信息不对称（可观测层可见、含义层缺席）加内心矛盾（想证成又怕证成之后照样读不懂）。
+
+初始判断：旧信线索与南方航向的关联只是待证的猜测，对读可能落空。
+
+新证据：在信标参照原点下，线索与南方显形阶段结果逐项可对读，对应在可观测层成立——一致性可对读。
+
+判断修正：对应成立但含义缺席——旧信升为在用线索；悬置一项未减，但信号含义与旧信未解主体被证明共处同一可观测框架，指向收拢到同一处。
+
+修正行动：完成登记改写——旧信改为在用线索、合流位常驻项；把收拢后的指向登记为向第12章交接的合流位状态。
+
+结果与残留：空间结果——对读收束，旧信以在用方式留在灯塔合流位、登记改写完成；代价——对照消耗的观测投入与"证成之后照样读不懂"确认带来的凝重；旁人认知修正——无（无人在场）；可消费痕迹——对应成立的登记（合流位第一产物，第12章直接消费）、旧信的在用线索登记状态、三动力同框的现场状态。
+
+下一场景承接位置：第12章从对应成立、旧信改登记为在用线索的合流位状态进入卷末收束。
+
+Good. Now chapter 12.
+
+**第12章 场景1：落点登记**
+
+Skeleton: 目标：把合流位从入场状态登记为落点状态，完成第一卷冲突的卷末成型。起点：承接第11章末痕迹——旧信已改登记为在用线索、对应成立、三动力同框；地点在灯塔与南方视野的合流位，时间进入卷末收束时段。人物位置：男主单人，携全部登记项（信标维护参照、南方观测登记、旧信在用线索、异常未解项）。阻力：落点登记的两难——登记越准确，"未读"的分量越重；以及收卷冲动...。场景结果：冲突落点登记完成...。
+
+场景目标：把合流位从入场状态登记为落点状态——三动力合流的冲突以"方向已证、内容未读"收束成型，完成第一卷冲突的卷末成型。
+
+POV角色：男主。
+视角切换说明：不切换，POV男主；感知锚点为三线同框的核对动作。
+
+场景起点：承接第11章末——旧信已改登记为在用线索、对应成立、三动力同框互知在场；时间进入卷末收束时段；地点在灯塔与南方视野的合流位。
+
+人物位置：男主单人在灯塔合流位，处于可同时触及信标参照、旧信与南方视野的位置。
+
+关键物体位置：信标维护参照在灯塔内手边（参照原点）；旧信以在用线索状态摊开在用位（指向来源）；南方观测登记（阶段结果与首信号基线）与显形第二步、第三步登记项在对照位（那条方向已证的线）；异常未解项随身（并置观察，不入合流登记）；悬置清单随身。
+
+动作链：①按三动力分工核对合流位现状——信标线提供参照原点、旧信提供指向、南方航线提供那条方向已证而内容未读的线；②逐线确认各自状态——信标线已完成且维护中、旧信对应成立且含义缺席、南方阶段结果成立且走向悬置；③核对异常未解项——确认其维持并置观察、不并入三动力合流；④把三动力的合流关系登记为卷末落点状态——方向已证、内容未读、主体不入镜；⑤核对含义层入口——确认本卷没有任何一项有合法收束入口，逐项排除顺手收掉的可能；⑥落点登记完成，转入库存清点。
+
+信息来源：第11章对应成立登记与三条线各自登记的核对（目视与手头）；异常未解项的并置观察状态确认；卷末清点需要的全部既有登记（内省）。
+
+阻力或转折：落点登记的两难——登记越准确，"未读"的分量越重；收卷冲动——想把某一项顺手收掉让卷尾好看，但每一项都没有本卷入口；类型为内心矛盾（收卷的整洁冲动与诚实登记的纪律）加信息不对称（可观测层已证、含义层缺席）。
+
+初始判断：合流位既已成形，卷末落点是把三动力合在一起再推进一步。
+
+新证据：逐项核对显示每一项悬置（信号含义、旧信未解主体、异常成因、冲突主体与轮廓内容）在本卷都没有合法入口——可观测层能证的已证，含义层无入口可入。
+
+判断修正：本卷的完成不是知道了什么，而是把不知道的摆到了准确的位置上；落点就是登记本身，制造推进等于虚构。
+
+修正行动：把三动力合流的冲突登记为"方向已证、内容未读"的落点状态，不做任何本卷内的硬推。
+
+结果与残留：空间结果——合流位成为卷末落点坐标，落点登记完成；代价——"未读"分量随登记准确度加重的心理负担；旁人认知修正——无（无人在场）；可消费痕迹——第一卷冲突落点登记（卷末落点坐标，场景2清点与跨卷移交的直接基础）。
+
+下一场景承接位置：同一合流位，从落点成立转入库存清点。
+
+**第12章 场景2：库存清点与跨卷移交**
+
+Skeleton: 目标：完成悬念显式库存与下卷衔接信号，兑现收束承诺。起点：承接场景1落点登记完成，地点不变，时间接续。人物位置：男主单人。关键物体：悬置清单（六项）、旧信、南方最后视野。阻力：移交的重量...。场景结果：库存清点完成、六项显式在册移交...。
+
+场景目标：完成六项悬置的显式库存清点与跨卷移交——南方含义之债以转移而非兑现的方式由卷级钩子承载，移交第二卷。
+
+POV角色：男主。
+视角切换说明：不切换，POV男主；感知锚点为清点收势与南方最后视野。
+
+场景起点：承接场景1落点登记完成；地点不变（灯塔与南方视野的合流位），时间接续进入卷末收束的末段。
+
+人物位置：男主单人在合流位，面向登记项与南方视野两个方向。
+
+关键物体位置：悬置清单随身（信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因、信标机制——六项，信标机制在本章并入卷末清点）；旧信以在用线索状态随登记移交；南方视野为最后视野方向；信标维护参照留在参照原点位置。
+
+动作链：①逐项清点悬置库存——把五项随身悬置加信标机制并为六项，逐项登记未解状态与所属线索的移交身份；②核对信标机制并入——确认风暴信标以参照原点身份完成卷末功能、机制未示悬置在册；③做关键选择——把南方含义之债登记为跨卷转移而非本卷内再推：再推只能靠虚构，转移承认本卷的债到此为止、把压力完整交给第二卷；④完成移交登记——六项显式在册、随卷移交；⑤边做收束动作（整理、收拢等现场动作由正文演绎，不写静态盘点）边完成卷末收势；⑥面向南方留下第一卷最后视野，收势交接。
+
+信息来源：悬置清单与全部既有登记（第5章首信号、第10章阶段结果、第11章对应成立）的逐项核对；转移决策的内省权衡。
+
+阻力或转折：移交的重量——清点每诚实一分，第二卷的起点压力就多一分，收束的完成感与债务的未清感并持；类型为内心矛盾。
+
+初始判断：卷末收束应给一个完结感，把债压进卷尾的完成感里。
+
+新证据：单主动线与既有边界下的体认——含义层在本卷没有合法入口，债只有记账和赖账两种登记方式，赖账等于虚构。
+
+判断修正：收束应当沉重而诚实——债要记账，不能假装还了，也不能假装没欠；转移既兑现"悬置即动力"又给第二卷留出合法入口。
+
+修正行动：完成六项库存的显式移交登记，以跨卷转移承载南方含义之债，收势交接。
+
+结果与残留：空间结果——卷末收势完成，男主面向南方最后视野；代价——显式移交的心理重量（沉着与欠账感并持）；旁人认知修正——无（无人在场）；可消费痕迹——卷末交接状态（六项悬置库存显式在册、南方含义之债跨卷转移，第二卷直接消费）、下卷衔接信号（只从既有悬置清单显式转出）。
+
+下一场景承接位置：第二卷从移交状态进入；下卷衔接内容上游未提供/待补信息，本章只登记债的转移、不虚构下卷。
+
+Good. Now chapter-level fields for ch12:
+
+叙事引导意图：
+对白意图：全章无对白承载，单人结算章无交流对象，不设任何对白任务。
+对白张力来源：不适用（无对白）；章内张力登记为信息差类——方向已证、内容未读，读者与男主同层、双方都不知道含义之债的答案在哪一头；场景2兼有内心矛盾的重量（收束完成感与债务未清感并持）；无利益差与情感差类人际张力。
+旁白意图：场景1旁白承载落点登记的坐标感——三动力各提供什么、合流成什么形态、"本卷的完成是把不知道的摆到准确位置上"的判断修正由叙述承载；场景2旁白承载情绪张力——沉着与欠账感并置，清点的坐标感与移交的重量由叙述承载，收在动作收束、债务在册的留白里。
+沉默意图：场景1逐项排除顺手收掉时的静默承载诚实登记的纪律；场景2最后视野的静默承载卷末交接的留白与债务在册的欠账感。
+群像意图：不适用，全章单人无多人场景；冲突主体与轮廓内容不入镜。
+
+可自由演绎：场景1——核对动作的具体顺序、合流位环境、登记形态的现象级呈现；场景2——清点动作的节奏、收束动作（整理、收拢等现场动作）、最后视野的静立时长、移交登记的形态。只圈范围，不替正文层写内容。
+
+禁：本章不得提前释放的单元信息——不收束任何悬置项：不收束信号含义、不解释异常成因与旧信未解主体、不登记冲突主体与轮廓内容、不虚构航线上的人或船、不虚构下卷内容、不给出任何悬置项的答案或倾向、不把转移写成兑现；下卷衔接信号只从既有悬置清单显式承压转出。
+
+目标情绪与功能：前状态是对应成立后的凝重确认感→后状态是卷末的沉着与明确的欠账感并持——本卷能做的已做完，做不到的被清点得很诚实 | 信息整理；执行边界：登记落点与库存，不收束任何悬置项；收束方式沿用第5章与第10章已确立的沉重诚实基调；全章无对白承载；对话指纹：未提供（无对白）。
+
+具体增量：处境——三动力合流的冲突以"方向已证、内容未读"收束成型，第一卷落点成立；承诺——南方含义之债显式登记为跨卷转移（转移而非兑现）；认知——悬置清单从随身携带的五项变为登记在册、随卷移交的六项库存（信标机制并入卷末清点）。
+
+卷级承接：第一卷《风暴起点》收束产物落点——旧信、灯塔与南方航线共同推动的冲突在合流位收束成型，收束产物为三动力合流的卷末状态与下卷衔接信号（显式登记的跨卷债务）；承接第11章对应成立状态；本章处于收束产物落点区间——卷末收束章；定价变化为延续，无新增。
+
+关系变化：无新增人际；认知关系上，男主与悬置清单的关系从"随身携带的压力"变为"登记在册、随卷移交的库存"，变化由场景2清点事件触发；与第一卷求证进程的关系从"推进中"变为"落点成立、债已记账"；与旧信、灯塔、南方航线三条线的认知关系随落点登记各归其位——参照原点、指向来源、方向已证而内容未读的那条线。
+
+画面锚点：
+一为三线同框的核对画面——信标参照原点、旧信指向、南方方向已证而内容未读的线在同一合流位内各归其位，事实含义是第一卷冲突落点成型的物化——方向已证、内容未读、主体不入镜；可承载合流的完成感、未读的分量、落点坐标。
+二为卷末收势后面向南方的最后视野与在册的移交登记并置，事实含义是债随卷移交的交接状态物化——动作已收束、债务在册；可承载沉着、欠账感、跨卷留白。
+
+情感show提示：情感峰值为卷末的沉着与欠账感并持（场景2收势）。候选承载方向只写方向：清点动作由逐项展开转为收拢的节奏变化；移交登记完成后旧信从摊开状态收回随身的收置动作；最后视野里收势站定的时长。禁止成品句。
+
+章末状态：
+空间状态：男主在灯塔与南方视野的合流位，卷末收势完成，面向南方留下第一卷最后视野。
+关系状态：无新增人际；男主与悬置清单处于"登记在册、随卷移交的库存"关系；与第一卷求证进程处于"落点成立、债已记账"关系；三条线各归其位——信标参照原点、旧信指向来源、南方那条方向已证而内容未读的线。
+信息状态：男主知道全部登记内容（落点状态、六项悬置及其移交身份）与六项悬置的未解状态，不知道六项中任何一项的答案；读者与男主同层完成卷末结算，无其他角色、无误判；冲突主体与轮廓内容继续不可读，第一卷内不给出任何接近答案的暗示。
+伏笔状态：南方航线（战略级）推进加转移——含义之债以跨卷转移方式由卷级钩子承载移交第二卷，方向与含义悬置维持，读者可见度中高；旧信（战略级）推进加转移——在用线索状态随卷移交，未解主体悬置维持，读者可见度中；异常信号（战役级）维持加转移——待解释、并置观察状态显式在册移交，读者可见度低；风暴信标（战役级）维持加转移——完成维护中，以参照原点身份完成卷末功能，机制未示悬置在册移交，读者可见度低。上游无明确回收安排，本章不执行回收操作，回收安排待补信息。
+情感债务：无新增人际债务；南方含义之债全额在册——转移而非兑现，债务进入第二卷，清点每诚实一分第二卷起点压力多一分。
+目标情绪与功能：前状态是对应成立后的凝重确认感→后状态是卷末的沉着与明确的欠账感并持 | 信息整理 | 禁止提前释放边界：不收束任何悬置项、不虚构下卷、不把转移写成兑现、全章无对白承载；对话指纹未提供（无对白）。
+钩子类型与内容：陈述留白型——沿用第5章、第10章已确立的沉重诚实收束惯例，与本卷收束气质一致。内容只写压力方向与来源细节：卷末收势完成，方向已证、内容未读，那笔含义之债记在册上、随卷移交，本卷没有为它写答案；动作已收束、债务悬置移交第二卷；来源为本章落点登记与库存清点加第5章首信号、第10章阶段结果、第11章对应成立的既有脉络，无新增危机，不写成品收束句。
+下一章入口：第二卷从这笔显式登记的债进入——含义层的缺席是移交清单上最重的一项；下卷衔接内容上游未提供/待补信息，本章只登记债的转移、不虚构下卷。
+卷级承接：第一卷《风暴起点》收束产物落点章——三动力合流的卷末状态与下卷衔接信号落定；定价变化为延续，无新增。
+
+Similarly for ch11 chapter-level fields:
+
+叙事引导意图：
+对白意图：全章无对白承载，单人章无交流对象，不设任何对白任务。
+对白张力来源：不适用（无对白）；章内张力登记为信息差类——可观测层可见、含义层缺席，读者与男主同层、双方都不知道对应为什么成立；场景1兼有内心矛盾的张力（收束姿态与承压动力相抵、离开南方视野的机会成本）；无利益差与情感差类人际张力。
+旁白意图：场景1旁白承载承压转身的动作化——收势与动身之间的内心矛盾、离开南方视野的机会成本、"收势是蓄力完成"的判断修正由叙述承载；场景2旁白承载信息压力——三条线互相印证的同时没有任何一条说出它们为什么一致，对读操作与对应成立由叙述承载，含义缺席不解释。
+沉默意图：场景1转身背对南方时的静默承载机会成本与承压的决心；场景2对应成立后的静默承载"对得上的说不清为什么对得上"的凝重，沉默维持含义层缺席的张力。
+群像意图：不适用，全章单人无多人场景；冲突主体与轮廓内容不入镜。
+
+可自由演绎：场景1——回身途中旧航道环境细节、移动节奏、随身物件携带状态、出发与抵达的过渡；场景2——对读的具体动作顺序、参照比对的操作细节、线索呈现的现象级形态（在现象级边界内）、灯塔内环境细节。只圈范围，不替正文层写内容。
+
+禁：本章不得提前释放的单元信息——不解释旧信线索内容、不解读对应为何成立、不涉及异常成因、不登记冲突主体与轮廓内容、不虚构航线上的人或船、不预支第12章卷末收束内容；对应只到可观测层，含义层任何表述不入镜。
+
+目标情绪与功能：前状态是批次末收势后的沉着与悬置并持、面向南方的静立→后状态是对应成立后的凝重确认感——线索没有解释什么，但它和南方站在了同一边 | 高压推进；执行边界：对应只到可观测层，其具体呈现形态由正文在现象级边界内演绎；全章无对白承载；对话指纹：未提供（无对白）。
+
+具体增量：信息——第9章可再读线索与南方显形阶段结果之间建立可观测的对应（一致性可对读，含义仍不可读）；认知——旧信从"随身暗线、关联待证"变为"合流位在用线索"；处境——男主从观测位回到灯塔，三动力首次同框，悬置指向收拢。
+
+卷级承接：第一卷卷末段合流位入场——兑现"旧信、灯塔与南方航线共同推动第一卷冲突"的合流启动；承接第10章三项收束产物（信标线落定、南方求证阶段结果、冲突推进位），主导增量向三动力合流转移；不处于收束产物落点区间（落点区间在第12章）；定价变化为延续，无新增。
+
+关系变化：无新增人际；认知关系上，男主与旧信的关系从"随身携带、待证其关联"变为"在用对读、对应成立"，变化由场景2对读事件触发；与灯塔的关系从"已完成信标线的维护对象"变为"合流位的参照原点"；对南方求证从单线推进变为三线互证的进程。
+
+画面锚点： as drafted.
+
+情感show提示： as drafted.
+
+章末状态 (ch11):
+空间状态：男主在灯塔内合流位，对读收束，旧信以在用线索方式改登记为合流位常驻项。
+关系状态：无新增人际；男主与旧信处于"在用对读、对应成立"关系，与灯塔处于"合流位参照原点"关系，与南方求证处于"三线互证进程"关系。
+信息状态：男主知道对应在可观测层成立且含义缺席；不知道对应为什么成立与线索内容含义；悬置清单（信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因）一项未减、指向收拢到同一处；读者与男主同层，无人误判；航线上的人或船继续未被虚构。
+伏笔状态：as drafted (4 items).
+情感债务：无新增人际债务；含义层的债加重——对应成立后含义缺席从背景性变为聚焦性，读者求证期待上调。
+目标情绪与功能：见上（前沉着悬置并持→后凝重确认感 | 高压推进 | 对应只到可观测层、全章无对白承载；对话指纹未提供）。
+钩子类型与内容：关系改写型——... as drafted.
+下一章入口：第12章从对应成立、旧信改登记为在用线索的合流位状态进入卷末收束——对应既成立，含义层的缺席不再是分散的无知而是集中在同一点上的无知。
+卷级承接：第一卷卷末段合流位入场章；定价变化为延续，无新增；不处于收束产物落点区间（落点在第12章）。
+
+Now the 全书资产继承 — pass through from previous output. I'll reproduce it, maybe slightly adjusted. The instructions: "【全书资产继承】必须传递具体内容，缺失项写'未提供/待补信息'。" I'll pass the previous output's version nearly verbatim (it's already the inheritance). Should I update 角色状态 to reflect the batch? The previous version already says "本批次第11-12章的增量变化见各章骨架..." — but as S3, the 下游 is 凯旋正文层 per-chapter. Keeping the inheritance as of ch10 end with pointer is right, since the construction drafts themselves carry the increments. I'll keep it.
+
+标题状态 — pass through.
+
+批次节奏登记 — pass through from previous output.
+
+One more check on the output format: the header lines use 【第1章施工稿】 with "第N章" — for our batch, chapters are 11 and 12, so 【第11章施工稿】 and 【第12章施工稿】. End markers 【第11章施工稿结束】 etc.
+
+Also note the template says "场景1执行包：... 场景2执行包：..." — I'll label them 场景1执行包 and 场景2执行包.
+
+First character must be 【 — yes, starts with 【全书资产继承】. Last character must be 】 — ends with 【第12章施工稿结束】. Good.
+
+No tables needed — the instructions say if tables needed use GFM; not needed here. Actually, could I use a table for 批次节奏登记? The previous output used a table. I could keep the table format. The instruction says if I show a table it must be GFM. The 批次节奏登记 format in the template is "第N章｜章节形态｜功能标签｜钩子类型｜与前章关系" — line format. Previous step used GFM table. I'll use the line format per the SKILL template to be safe, or the table. Either works; I'll use the line format with ｜ separators as the template shows, since the template is authoritative for output format. Hmm, but "继承上游登记" — the upstream used a table. Either way conveys the same. I'll use the template's line format to strictly follow the current SKILL output spec.
+
+Wait — one consideration: the instruction at the end says "如果本次回答需要展示表格，必须使用 GFM 标准表格... 如果没有表格内容，不要输出空表或伪造表格。" So tables are optional. I'll use line format.
+
+Length: two chapters with detailed packages. That's fine, maybe ~3500-4500 words total. Let me be detailed per the style reference but not bloated.
+
+Also for 第11章's 视角切换说明 — the template field exists; I'll include it in each scene package after POV角色. The style reference good example doesn't include it but the SKILL 填充职责 lists it. Including it is safer.
+
+Also, "多人场景在人物位置后补一句空间关系" — single-person, skip. Could add "空间关系：单人场景，无他者在场" — optional. I might add a brief note in 人物位置 like "（单人场景，无他者在场）" to be explicit. That's fine.
+
+Let me also double check 章首承接 for ch11: "前章压力如何进入本章" — done.
+
+推进策略 must follow skeleton's: "常规写法是留在观测位继续向南推一轮观测；本章改用'回身合读'路径——...因为..." Keep verbatim-ish.
+
+缺口处理: keep as skeleton.
+
+One thing: the skeleton for ch11 mentions "选项代价差：等待保住南方视野但零合流可能，合读付出离开南方视野的机会成本，他接受代价，因为观测有基线可查、变化不致丢失" — I've woven this into scene 1's 新证据/判断修正. Good.
+
+Ch12 skeleton: "视角目标与关键选择：...关键选择是把南方含义之债登记为'跨卷转移'而非'本卷内再推一把'；选项代价差：再推一步可让卷尾更好看但只能靠虚构，转移承认本卷的债到此为止、把压力完整交给第二卷；他选转移，因为观测推进已兑现、含义层在本卷没有合法入口" — woven into scene 2. Good.
+
+Also for ch12 场景1, the skeleton says 起点地点在"灯塔与南方视野的合流位" — fine.
+
+The 定稿锁名 requirement: "卷级承接、具体增量、关系变化、章节形态四项在S2骨架中的原样表达；S3不得改写成近义词。" So I must keep these four items' phrasing as in the S2 skeleton. Let me make sure:
+
+Ch11:
+- 章节形态：主角章 — keep.
+- 具体增量：skeleton says "信息——旧信线索与南方航向的对应在可观测层成立（含义缺席）；认知——男主对旧信从'关联待证的随身暗线'变为'对应成立的在用线索'；处境——三动力首次同框，悬置指向收拢。" I should use this exact phrasing. Note the 章节总览 says "旧信从随身暗线升为在用线索" — but the skeleton's 具体增量 uses "男主对旧信从'关联待证的随身暗线'变为'对应成立的在用线索'". I'll use the skeleton's 具体增量 verbatim.
+- 关系变化：skeleton: "无新增人际；认知关系上，男主与旧信的关系从'随身携带、待证其关联'变为'在用对读、对应成立'，变化由场景2的对读事件触发；与灯塔的关系从'已完成信标线的维护对象'变为'合流位的参照原点'；对南方求证从单线推进变为三线互证的进程。" Verbatim.
+- 卷级承接：skeleton: "第一卷卷末段合流位入场——本章兑现'旧信、灯塔与南方航线共同推动第一卷冲突'的合流启动；承接第10章三项收束产物（信标线落定、南方求证阶段结果、冲突推进位），主导增量向三动力合流转移；定价变化为延续，无新增。" Verbatim + add the 落点区间 note? The template says 卷级承接 should note whether in 定价变化或收束产物落点区间. The skeleton already includes "定价变化为延续，无新增". I can append "不处于收束产物落点区间" — is that adding? It's a truthful check, consistent with skeleton (落点在第12章). The S2 ch10 output had "本章处于收束产物落点区间——收束产物二、三落定章；定价变化为延续，无新增。" For ch11, not in that interval. Adding this clarifying status is part of the S3 章末状态/卷级承接 duty ("是否处于定价变化或收束产物落点区间；不处于时写'延续，无新增'"). Hmm, the S3 template says: "卷级承接：本章兑现或延续的卷型功能，以及是否处于定价变化或收束产物落点区间；不处于时写'延续，无新增'。" So I should state it. I'll append "不处于收束产物落点区间（落点区间在第12章）；定价变化为延续，无新增。"
+
+Ch12:
+- 章节形态：主角章。
+- 具体增量：skeleton: "处境——三动力合流的冲突以'方向已证、内容未读'收束成型，第一卷落点成立；承诺——南方含义之债显式登记为跨卷转移（转移而非兑现）；认知——悬置清单从随身携带的五项变为登记在册、随卷移交的六项库存。" Verbatim.
+- 关系变化：skeleton: "无新增人际；认知关系上，男主与悬置清单的关系从'随身携带的压力'变为'登记在册、随卷移交的库存'，变化由场景2的清点事件触发；与第一卷求证进程的关系从'推进中'变为'落点成立、债已记账'。" Verbatim.
+- 卷级承接：skeleton: "第一卷《风暴起点》收束产物落点——旧信、灯塔与南方航线共同推动的冲突在合流位收束成型，收束产物为三动力合流的卷末状态与下卷衔接信号（显式登记的跨卷债务）；承接第11章对应成立状态；定价变化为延续，无新增。" Verbatim + note 处于收束产物落点区间.
+
+Also keep 章首承接, 推进策略, 缺口处理, 目标情绪 phrasing close to skeleton.
+
+For 目标情绪 ch11: skeleton: "前状态是批次末收势后的沉着与悬置并持、面向南方的静立；后状态是对应成立后的凝重确认感——线索没有解释什么，但它和南方站在了同一边。" Verbatim.
+
+Ch12: "前状态是对应成立后的凝重确认感；后状态是卷末的沉着与明确的欠账感并持——本卷能做的已做完，做不到的被清点得很诚实。" Verbatim.
+
+章末状态 details for ch11 — the skeleton's 章末钩子: "类型：关系改写型——本章的决定同时完成情绪收束（旧信之谜被承认而非搁置）与局面推进（它进入求证主线），与第10章的陈述留白错开节奏。内容：对读结束，男主把旧信按在用线索的方式改登记为合流位常驻项——不再是不拆不决的旧物；收信的动作很轻，改写的分量很重：三条线从此互相知道彼此在场。钩子来源：本章对应成立事件加第1章旧信起点与第9章可再读线索的既有脉络，无新增危机。"
+
+Note: "钩子内容只写压力方向与来源细节...不写成品收束句" — the skeleton's hook content has a somewhat literary line "收信的动作很轻，改写的分量很重：三条线从此互相知道彼此在场." That's from S2; I can pass the pressure direction and source without reproducing the finished-sounding line. I'll register: 压力方向——旧信登记身份改写为在用线索、合流位常驻项，不再是不拆不决的旧物，三条线互相知道彼此在场；来源——本章对应成立事件加第1章旧信起点与第9章可再读线索的既有脉络；无新增危机；不写成品收束句。
+
+Ch12 hook: "类型：陈述留白型...内容：卷末收势完成——男主在合流位面向南方留下第一卷最后视野，登记收拢；平静陈述留下的缺口是：方向已证、内容未读，那笔含义之债记在册上、随卷移交，本卷没有为它写答案；动作已收束，债务悬置移交第二卷，不写成品收束句。钩子来源：本章落点登记与库存清点加第5章首信号、第10章阶段结果、第11章对应成立的既有脉络，无新增危机。" Pass pressure direction & source.
+
+Also check "章节形态：...（主角章/配角章/群像章/无固定视角章）" — with 依据. Good.
+
+The 下一场景承接位置 for ch11 scene2 points to ch12 (next chapter) — that's fine since scene 2 is the last scene.
+
+Now also the 视角切换说明 per scene — write: "不切换，延续全卷单POV男主；感知锚点为……" Good.
+
+Also: "输入提供对话指纹时一并传递" — 第10章's 上一章事实 didn't provide dialogue fingerprints for ch11-12 and chapters are 无对白, so note "对话指纹：未提供（本章全章无对白承载）".
+
+Let me also make sure I don't invent new objects: things like "登记项摊开" — 登记项/观测登记 are established. "信标维护参照" established in skeleton. OK.
+
+One more subtlety: ch11 scene1 动作链 step "确认南方基线登记可查" — from skeleton's 关键选择 rationale. Fine.
+
+Also ch11 章首承接 should mention it starts from 第10章's static ending. Good.
+
+Now let me also handle 【批次节奏登记】 — "继承上游登记". I'll reproduce:
+
+第11章｜主角章｜高压推进｜关系改写型｜与第10章（信息整理、陈述留白）换挡：卷末段入场由静转动，意图是把显式承压转为行动
+第12章｜主角章｜信息整理｜陈述留白型｜与第11章换挡：卷末收束由动转结；连续同形态（主角章）为全卷单POV不可逆状态的既定意图；钩子沿用第5、10章已确立的收束惯例
+
+【标题状态】:
+上游历史标题：第1章《未拆的旧信》、... 第10章《第10章《更清楚的南方》》（第6-10章嵌套书名号格式异常，按输入原样登记）
+本批次标题：
+第11章｜旧信指的方向
+第12章｜南方欠着一个答案
+
+【全书资产继承】: I'll pass through the previous one with all fields.
+
+Let me now also double-check the 剧情点进度继承 — the template for S3 output doesn't include a 剧情点进度继承 block. The S3 output format is: 全书资产继承, 标题状态, 批次节奏登记, 第N章施工稿. The previous step output included 剧情点进度继承 but that was S2's format. S3's template doesn't list it, so I'll skip it (its content is embedded in chapters). Correct.
+
+Now, word choice for 画面锚点 — "只登记供给，不写成品句... 禁止写成'像……一样'的成品比喻或完整文学句子。" My draft anchor descriptions avoid similes. Good.
+
+情感show提示 — "禁止写出可被正文直接照抄的完整动作成品句." My candidates are direction-only. Good.
+
+Let me write the final output now. I'll aim for completeness and detail per the style reference.
+
+One more check on the ch11 scene 2 信息释放节奏 — the skeleton has 信息释放节奏 section. The S3 template doesn't explicitly have a 信息释放节奏 field, but 章末状态's 信息状态 covers who knows what. I've covered it. Could also fold key release info into scene packages (信息来源 etc.) — done.
+
+Also the ch11 skeleton mentions "冲突推进链" — S3's 冲突推进 isn't a required field either, but 章末状态 and scene packages reflect it. The 下一章入口 covers "下一步威胁". Good.
+
+Length management: this will be long but that's expected for 施工稿. Let me write it.
+
+Also need "空间关系" line for 多人场景 — N/A. I'll add "（单人场景，无他者在场）" in 人物位置 for clarity.
+
+Final structure check for each 施工稿:
+
+【第11章施工稿】
+标题：旧信指的方向
+章首承接：...
+章节形态：主角章（全卷单POV男主...依据...）
+推进策略：...
+缺口处理：...
+场景1执行包：
+  场景目标 / POV角色 / 视角切换说明 / 场景起点 / 人物位置 / 关键物体位置 / 动作链 / 信息来源 / 阻力或转折 / 初始判断 / 新证据 / 判断修正 / 修正行动 / 结果与残留 / 下一场景承接位置
+场景2执行包：（同）
+叙事引导意图：...
+可自由演绎：...
+禁：...
+目标情绪与功能：...
+具体增量：...
+卷级承接：...
+关系变化：...
+画面锚点：...
+情感show提示：...
+章末状态：空间状态/关系状态/信息状态/伏笔状态/情感债务/目标情绪与功能/钩子类型与内容/下一章入口/卷级承接
+【第11章施工稿结束】
+
+Same for ch12.
+
+Within 章末状态 I'll use labeled sub-lines. The template just says "章末状态：..." — I'll do 章末状态： followed by sub-items on separate lines with labels, that's consistent with 填充职责 section 6.
+
+Let me write it all out now carefully.

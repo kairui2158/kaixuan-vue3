@@ -1,0 +1,794 @@
+Let me understand the task. I'm the S3 step skill: "把章级骨架编织为完整的章节施工稿" — weave chapter skeletons into complete chapter construction drafts (施工稿).
+
+Input: The previous step output (S2 skeleton) provides:
+- 批次节奏登记 (batch rhythm registration)
+- 章节总览 (chapter overview with titles)
+- 全书资产继承 (global assets)
+- 当前卷继承 (current volume inheritance)
+- 标题状态 (title status)
+- 剧情点进度继承 (plot point progress)
+- 第1-5章骨架 (detailed skeletons for chapters 1-5)
+
+My output must be the complete chapter construction drafts (施工稿) for chapters 1-5, following the exact output format specified in my system prompt:
+
+【全书资产继承】
+【标题状态】
+【批次节奏登记】
+【第1章施工稿】...【第1章施工稿结束】
+【第2章施工稿】...【第2章施工稿结束】
+... etc.
+
+Output rules:
+- First character must be 【, last character must be 】
+- No analysis, no process, only the construction drafts
+- Each construction draft must include: 标题, 章首承接, 章节形态, 推进策略, 缺口处理, 场景执行包 (with all fields: 场景目标, POV角色, 场景起点, 人物位置, 关键物体位置, 动作链, 信息来源, 阻力或转折, 初始判断, 新证据, 判断修正, 修正行动, 结果与残留, 下一场景承接位置), 叙事引导意图, 可自由演绎, 禁, 目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态
+- Also 视角切换说明 for each scene (per the filling responsibility section)
+- Multi-person scenes need 空间关系 sentence — but here it's all single-person (男主 only), so no need
+- 群像 scenes need 立场三角 — not applicable here
+- 叙事引导意图 per scene: 对白意图, 对白张力来源, 旁白意图, 沉默意图, 群像意图 — wait, looking at the format more carefully:
+
+The format template shows:
+```
+场景1执行包：
+场景目标：...
+POV角色：...
+场景起点：...
+人物位置：...
+关键物体位置：...
+动作链：...
+信息来源：...
+阻力或转折：...
+初始判断：...
+新证据：...
+判断修正：...
+修正行动：...
+结果与残留：空间结果、代价、旁人认知修正、可消费痕迹或状态。
+下一场景承接位置：...
+
+场景2执行包：
+...（同上结构）
+
+叙事引导意图：...
+可自由演绎：...
+禁：本场景不得提前释放或改写的单元信息
+目标情绪与功能：前状态→后状态 | 功能标签 | 禁止提前释放边界
+具体增量：...
+卷级承接：...
+关系变化：...
+画面锚点：...
+情感show提示：...
+章末状态：...
+```
+
+Hmm, the template puts 叙事引导意图 after all scenes (seems to be per-chapter, but the responsibility section says "每个场景的叙事引导意图"). Looking at the template again:
+
+```
+【第1章施工稿】
+标题：...
+章首承接：...
+章节形态：...
+推进策略：...
+缺口处理：...
+场景1执行包：
+...
+场景2执行包：
+...（同上结构）
+
+叙事引导意图：...
+可自由演绎：...
+禁：本场景不得提前释放或改写的单元信息
+目标情绪与功能：...
+具体增量：...
+卷级承接：...
+关系变化：...
+画面锚点：...
+情感show提示：...
+章末状态：...
+【第1章施工稿结束】
+```
+
+The template shows 叙事引导意图 etc. as chapter-level after scenes. But the filling responsibility says "对每一章...叙事引导意图" section 3: "每个场景的叙事引导意图，只给方向，不给成品". Hmm, there's tension. The template format literally shows one 叙事引导意图 block after both scenes. But section 3 says each scene has narrative guidance intent including "每个场景末尾写'可自由演绎'范围".
+
+So there's a conflict: template shows chapter-level, responsibility says scene-level ("每个场景末尾写'可自由演绎'范围").
+
+Given the format template is the explicit output format and it's the strictest rule, I should follow it but can enrich: I could write 叙事引导意图 per scene within each scene package, or write it chapter-level covering each scene. Actually, the safest approach: follow the template exactly — put 叙事引导意图/可自由演绎/禁/目标情绪与功能/具体增量/卷级承接/关系变化/画面锚点/情感show提示/章末状态 at chapter level after the scenes. But within each scene, I can include the scene's narrative intent.
+
+Hmm wait. Let me re-read the template:
+
+```
+场景1执行包：
+场景目标：...
+POV角色：...
+场景起点：...
+人物位置：...
+关键物体位置：...
+动作链：...
+信息来源：...
+阻力或转折：...
+初始判断：...
+新证据：...
+判断修正：...
+修正行动：...
+结果与残留：空间结果、代价、旁人认知修正、可消费痕迹或状态。
+下一场景承接位置：...
+
+场景2执行包：
+...（同上结构）
+
+叙事引导意图：...
+可自由演绎：...
+禁：本场景不得提前释放或改写的单元信息
+目标情绪与功能：前状态→后状态 | 功能标签 | 禁止提前释放边界
+```
+
+Hmm, but also the 禁 and 目标情绪与功能 per the skeleton are per-chapter (功能标签与执行边界 is chapter-level in skeletons). And the responsibility says scene-level narrative intent.
+
+Also the style reference example shows:
+"场景执行包——目标情绪：前状态是侥幸，后状态是警觉；功能标签：高压推进；执行边界：只确认水源与环境，不解释菌膜来源。场景目标：...POV角色：陈暮；对话指纹：..."
+
+The good example includes 对话指纹 in the scene package. Interesting — "输入提供对话指纹时一并传递" is mentioned in 章末状态 section. The example includes it in the scene.
+
+OK so I have flexibility in how detailed to make it, as long as I include all required fields. Given the template, I'll structure:
+
+Per chapter:
+- 标题
+- 章首承接
+- 章节形态
+- 推进策略
+- 缺口处理
+- 场景1执行包 (all fields + 视角切换说明 + 叙事引导意图 for that scene + 可自由演绎 + 禁 for that scene)
+- 场景2执行包 (same)
+- 场景3执行包 (same)
+- 目标情绪与功能 (chapter-level)
+- 具体增量
+- 卷级承接
+- 关系变化
+- 画面锚点
+- 情感show提示
+- 章末状态 (with subsections: 空间状态, 关系状态, 信息状态, 伏笔状态, 情感债务, 目标情绪与功能, 钩子类型与内容, 下一章入口, 卷级承接)
+
+Wait, the 章末状态 in the template is just "章末状态：..." — one line. But the filling responsibility section 6 lists detailed sub-items for 章末状态. The style reference doesn't show a detailed 章末状态 example. I'll write 章末状态 with structured sub-items to satisfy the responsibility, keeping it as a block with labeled lines. That's safer for a downstream consumer.
+
+Actually, let me reconsider: the template literally says:
+
+```
+章末状态：...
+【第1章施工稿结束】
+```
+
+I'll write it as a multi-line block starting with "章末状态：" and indented sub-lines. That should be acceptable and more useful.
+
+Also per responsibility, each scene should have 视角切换说明. The template doesn't list it in the scene fields, but the responsibility section requires it: "视角切换说明：本场景是否从主角POV切到对手、配角、第三方或事件/环境视角；写明切换目的...". Since all chapters are 主角章 with no POV switch (single character), I'll include 视角切换说明：无切换（主角章，全章男主单POV）with the anchor point noted. For 无固定视角章 we'd need 感知锚点 — not applicable here since all are 主角章.
+
+Also dialogue fingerprint: the responsibility says "输入提供对话指纹时一并传递" (in 章末状态 section: "目标情绪与功能：本章情绪前状态→后状态；功能标签及执行边界；输入提供对话指纹时一并传递"). The input doesn't provide dialogue fingerprints. The style reference example includes 对话指纹 in scene package ("陈暮独处时以短句自语，先数据后结论，不写成长独白"). Since input doesn't provide it, I shouldn't invent detailed fingerprints... Hmm, but the style reference is a quality guide. The skeleton doesn't provide 对话指纹. The single character is mostly alone, so "对话" is minimal. I could note 对白意图 in 叙事引导意图 as "无对话对象" or minimal. Actually since it's a single-character chapter, 对白意图 should note that there's no dialogue partner — the narrative intent will be mostly 旁白意图 and 沉默意图. I can note "本场景无对话对象（单人场景），如正文使用自语，仅作判断外化" — that gives direction without prescribing.
+
+Wait — the responsibility says 对白意图: "哪些角色之间的交流承载本场景的戏剧任务...". In single-character scenes, there are no character-to-character dialogues. I should register that honestly: "无对白承载（单人场景）；如需自语仅作思维外化，不承载信息释放任务". That's reasonable.
+
+Now the narrative intent per scene: 旁白意图 (POV needs to perceive/judge/correct what), 沉默意图 (whose silence has dramatic meaning — for a single character, his silence/non-action), 群像意图 (not applicable — no multi-person).
+
+Let me now draft each chapter's construction draft.
+
+Key constraints:
+- 章节字数 1000 per chapter (单章字数：1000) — I don't need to state word count, but scenes should be proportioned for ~1000 characters. Three scenes per chapter in 1000 characters means each scene ~300 chars. I might note pacing briefly in scenes? The skeletons have 3 scenes each. I'll keep the action chains compact. Maybe I can note in the chapter a pacing hint... Actually I shouldn't add fields not in template, but I can mention within 场景目标 or 叙事引导. Hmm, keep it simple; maybe mention in 章首承接 or omit. I'll not add explicit word counts, but keep scene packages lean so they're feasible in ~1000 characters. Actually, I could add a brief note in each scene's 叙事引导意图 about weight distribution... that risks "规定旁白比例" which is prohibited ("不规定...旁白篇幅比例"). So no proportions. Just keep content tight.
+
+Let me now write each chapter.
+
+---
+
+**第1章施工稿：未拆的旧信**
+
+From skeleton:
+- 章首承接: 首章无前章钩子；开场压力取自灯塔与旧航道之间活动场域的风暴气象压力（环境常态）。
+- 章节形态: 主角章
+- 推进策略: 中切开场——男主已在活动场域内行动，动机与来历按待补信息处理；发现事件承担开卷引力。
+- 缺口处理: 男主姓名/身份/动机=上报待补+保留为悬念（在场行动呈现，不做来历说明）；旧信内容=保留为悬念（未拆读）；发现现场地点细节=上报待补（过渡地带内取点自由）。
+- 3 scenes.
+
+Scene 1: 建立空间基线
+- 场景目标: 建立灯塔与旧航道之间的空间基线和男主初始在场状态。
+- POV角色: 男主
+- 场景起点: 首章开场，活动场域内的移动路线上，男主处于例行活动节奏中。
+- 人物位置: 男主沿灯塔—旧航道之间的动线移动；灯塔在一侧、旧航道在另一端（具体方位未提供/待补信息，正文可在两端之间自由取点）。Hmm — skeleton says 发现现场地点细节待补，场景在过渡地带内留出取点自由。I should reflect that: 灯塔与旧航道为场域两端锚点，过渡地带内的具体取点由正文决定。
+- 关键物体位置: 男主随身携带的例行活动用具（细节待补信息，由正文按活动方式合理配置）；无其他既定物体。Hmm — I shouldn't invent objects. The skeleton doesn't specify objects. I can write "未提供/待补信息；男主随身物品以维持例行活动所需为限，正文可自定". That respects the boundary.
+- 动作链: 男主按例行节奏沿动线移动，途中应对气象压力（避风、加快或放缓节奏等动作由正文演绎），向发现现场方向推进。Careful not to invent specific actions beyond direction. The skeleton says 承接：男主沿动线向发现现场方向移动. So action chain: 例行移动→气象压力下的节奏调整→接近过渡地带。I can give the sequence: 男主沿活动路线行进；风暴季气象（风、天色等环境常态，细节待补）持续施压；男主在压力下调整节奏继续推进；进入灯塔与旧航道之间的过渡地带。
+- 信息来源: 现场观测——气象状态、场域两端锚点的可见状态。
+- 阻力或转折: 风暴季气象压力对活动节奏的持续限制。
+- 初始判断: 今日为例行节奏，场域状态如常。
+- 新证据: 无异常（本章场景1不出现异常；异常在场景2）。Hmm, the field structure expects 新证据 challenging initial judgment. In scene 1 there's no new evidence — the "证据" is that场域如常。I can write "无新证据；场景1维持'如常'基线，异常证据留给场景2". Actually to fill the field: "新证据：无（本场景不出现挑战初始判断的证据；'如常'本身是后续异常的对照基线）".
+- 判断修正: 无修正；维持例行判断。
+- 修正行动: 无修正行动；继续沿动线移动。Hmm, "修正行动" — none needed. I'll write "无需修正行动，延续例行动线"。
+- 结果与残留: 空间结果——男主进入灯塔与旧航道之间的过渡地带，空间基线立起；代价——活动节奏被气象压力拖慢（时间与体力消耗，程度待补/由正文演绎）；旁人认知修正——无（无他人在场）；可消费痕迹——男主在动线上的例行痕迹（如惯例标记，细节待补信息、不虚构具体形式）。Hmm, careful: 惯例标记 might be inventing. I'll write 可消费痕迹：无新增既定痕迹；气象状态可作为后续章节的环境延续消费。Actually the residual should be things downstream can consume: 空间基线（灯塔—旧航道—过渡地带）、气象常态。I'll write that.
+- 下一场景承接位置: 男主在过渡地带内继续移动，即将进入发现现场。
+- 叙事引导意图 (scene 1): 旁白意图——建立被灯塔、旧航道与风暴气象支配的空间秩序感；男主对场域的例行掌握感由感知细节承载，不塞进对白。对白意图——单人场景无对话承载，如需自语仅作状态外化。沉默意图——男主的沉默（无交流对象）本身即秩序感的注脚。群像意图——不适用（单人）。可自由演绎——灯塔与旧航道的外观、气象细节、男主活动方式与动线细节、过渡地带取点。
+- 禁: 旧信内容、信标机制、南方航线。
+
+Scene 2: 发现旧信
+- 场景目标: 完成旧信的发现。
+- POV角色: 男主
+- 场景起点: 承接场景1，过渡地带内的发现现场（具体位置正文在过渡地带内自由取点）。
+- 人物位置: 男主在发现现场；无人他者。
+- 关键物体位置: 旧信——位于不该出现的位置（具体藏置点由正文在过渡地带内取点， skeleton says 不该出现的位置；细节自由）。信件处于封存状态、有年代感可见细节。男主随身用具在身。
+- 动作链: 男主在例行移动中发现异常——注意到不该出现在此的物件；接近、确认非自然物；取得旧信；检视外观（封存状态、年代感细节，不出现文字内容）；把信收起带走。
+- 信息来源: 现场观测——物件的存在位置、外观状态；推断——它不该出现在这里（位置异常+外观非自然）。
+- 阻力或转折: 信件出现方式的异常性构成信息不对称——无从判断来历。
+- 初始判断: 过渡地带无人为遗留物（承接场景1的如常判断）。
+- 新证据: 旧信本体——封存状态与年代感的可见细节证明其为人为物件且来历不明。
+- 判断修正: 场域内存在来历不明的人为痕迹，"如常"判断被推翻。
+- 修正行动: 把旧信带走，纳入自身掌握。
+- 结果与残留: 空间结果——男主持信离开发现现场、信进入持有状态；代价——为处置异常中断例行节奏、暴露于气象压力的时间增加；旁人认知修正——无（无人在场）；可消费痕迹——发现现场的人为痕迹疑点（留待后续消费）、旧信外观（封存、年代感）作为后续解读场景的可消费细节。
+- 下一场景承接位置: 男主在退出动线上，信在身、未拆。
+- 叙事引导意图: 旁白意图——信息压力：一件来历不明的物证进入掌握，空间秩序感被打破；异常感要由观测细节承载。对白意图——无对话承载。沉默意图——发现之后的停顿（动作上的静）承载异常重量。可自由演绎——发现动作过程、信件外观细节（封存、年代感）、发现现场的藏置点。禁——不展示信的内容、不揭示来历、不出现文字内容。
+- 禁: 信件内容与文字、来历、信标机制、南方航线。
+
+Scene 3: 持信未读收束
+- 场景目标: 把发现收束为"持信未读"的悬置状态。
+- POV角色: 男主
+- 场景起点: 承接场景2，退出动线上。
+- 人物位置: 男主在退出动线上向安全侧移动。
+- 关键物体位置: 旧信——在男主手中/随身（具体收放位置由正文演绎），封存未拆。
+- 动作链: 男主移动中反复面对手中之信；拆与不拆的犹豫（内心矛盾，以动作迟疑与停顿呈现）；最终不拆，把信收好；恢复移动，退出发现现场。
+- 信息来源: 内省与触觉观测——信的物理存在感、封存状态的触感细节（不涉及文字）。
+- 阻力或转折: 是否当场拆读的犹豫——拆读意味着承认异常物对自身的支配。
+- 初始判断: 到手即掌握了异常物。
+- 新证据: 无外部新证据；内心的重量感——到手的东西比到手之前更重。
+- 判断修正: 持有不等于掌握；未解之物进入持有状态反而是负担的开始。
+- 修正行动: 不当场拆读，收好信件，把解读留待下一步（第2章灯塔处）。
+- 结果与残留: 空间结果——男主退出发现现场区域，信被收好随身；代价——无实质消耗，但注意力被信占住；旁人认知修正——无；可消费痕迹——"信仍未拆"的状态本身（第2章直接消费）。
+- 下一场景承接位置: 章末，男主持未拆之信处于场域内（第2章从转向灯塔的动线切入）。
+- 叙事引导意图: 旁白意图——情绪张力：到手的东西比到手之前更重，安静动作里压着未解的重量。沉默意图——男主不拆信的静默承载全部张力：不拆是本章最后的动作选择。对白意图——无对话承载。可自由演绎——持信状态的感官细节、收束动作、退出动线细节。禁——不拆信、不读信。
+- 禁: 拆信、信件内容、信标机制、南方航线。
+
+Chapter-level fields:
+- 目标情绪与功能: 前状态——风暴季例行节奏下的平稳在场感→后状态——旧信到手后被未知牵住的不安与专注 | 普通推进 | 执行边界——只完成发现，不释放旧信内容、不解释信标机制、不出现南方航线信息、不引入新角色。无对话指纹输入。
+- 具体增量: 信息——旧信存在且位于该场域（从无到有）；处境——从无信物到持有一封来历不明的信；认知——确认场域存在来历不明人为痕迹。
+- 卷级承接: 兑现"风暴起点"开卷入场与剧情点1开启段；定价变化=延续，无新增。
+- 关系变化: 无新增人际；认知关系——男主对场域的认知从"只有灯塔、旧航道与风暴气象的空间"变为"存在来历不明人为痕迹的空间"；对旧信从"不存在"变为"在手但未解"。
+- 画面锚点: 旧信本体（封存状态、年代感的可见细节）——事实含义：来历不明的人为物证首次进入场域；可承载表达方向：未知、牵引、负担。（Only supply, no finished metaphor.）
+  Also maybe second anchor: 风暴气象——事实含义：场域的环境常态与压力来源；表达方向：支配、限制、背景秩序。
+- 情感show提示: 情感峰值——发现旧信后被未知牵住的不安。对应物类别——动作与物件。候选承载方向（最多三个）：①发现后的停顿动作（身体先于判断的反应）；②收信的收纳动作（收得比例行物件更仔细/更紧——方向性描述，不写成品）；③退出动线上回头看发现现场的次数或姿态（方向性）。Careful not to write complete finished action sentences. I'll phrase as directions.
+- 章末状态:
+  - 空间状态: 男主在灯塔与旧航道之间的场域内、退出动线末端；信随身收好。
+  - 关系状态: 无新增人际；男主与旧信处于"持有但未解"的关系。
+  - 信息状态: 男主知道场域内出现旧信且已持有；不知道信的内容与来历；无其他角色。
+  - 伏笔状态: 旧信——战略级——已埋设（未拆读状态，读者可见度高：物证在手、内容未示、异常感明确）。
+  - 情感债务: 男主对旧信欠一个"解释"——持有行为本身构成对未知的一次承诺（无人际债务）。Hmm, 情感债务 is "谁欠谁什么" — with no characters, it's the character's debt to the unknown/the letter. I'll phrase: 男主欠自己一个交代——把来历不明之物纳入持有，即欠下"弄清它"的债务。
+  - 目标情绪与功能: 平稳在场感→不安与专注 | 普通推进 | 边界如前。
+  - 钩子类型与内容: 陈述留白型——以平静陈述收在"信仍未拆"状态；压力方向：含义悬置（信里是什么、为何在这里）；来源：本章已完成的发现与未拆读状态，无新危机。不写成品收束句。
+  - 下一章入口: 第2章从持信状态切入，转向灯塔的动线开始。
+  - 卷级承接: 兑现剧情点1开启；定价变化=延续，无新增。
+
+---
+
+**第2章施工稿：信里的灯塔**
+
+Skeleton:
+- 章首承接: 承接"信仍未拆"——从持信状态切入，不复述发现过程。
+- 形态: 主角章
+- 推进策略: 错位信息路径——只释放"指向灯塔信标"，理据与措辞悬置。
+- 缺口处理: 信件具体内容=保留为悬念（残损受限部分解读）；指向理据与信件原文措辞=上报待补（正文不得自行具体化信件全文）；灯塔内部细节=上报待补（可用灯塔，不虚构内部结构设定）。
+- 3 scenes.
+
+Scene 1: 抵达灯塔
+- 场景目标: 把男主从持信状态带到灯塔，建立"信与灯塔即将对照"的物理前提。
+- POV角色: 男主
+- 视角切换说明: 无切换；感知锚点为男主的现场观测。
+- 场景起点: 承接第1章章末，男主持未拆之信在场域内，转向灯塔的动线开始。
+- 人物位置: 男主沿场域内向灯塔移动；灯塔为移动终点。
+- 关键物体位置: 旧信——随身未拆；灯塔——移动终点、既定锚点（内部结构未提供/待补信息，正文不虚构，用可进入的使用方式处理）。Hmm, skeleton says 灯塔的可进入性与气象压力 as resistance, "灯塔内外部空间的使用方式、动线细节" are free. So the lighthouse is enterable but details free. I'll say: 灯塔——场域一端锚点，可进入（内外部空间使用方式由正文演绎，不虚构结构设定）。
+- 动作链: 男主收起未拆之信向灯塔移动；气象压力下调整节奏；抵达灯塔、建立物理接触（进入可停留/可拆读的位置）。
+- 信息来源: 现场观测——灯塔的可见状态与可进入性；气象状态。
+- 阻力或转折: 灯塔的可进入性与气象压力。
+- 初始判断: 灯塔只是活动场域的环境要素。
+- 新证据: 无外部新证据；信在身与灯塔在前的并存，让"对照可能"显形（这是处境层面的新事实）。Hmm — need something for 新证据. Actually in scene 1 the key change is spatial: 男主与灯塔建立物理接触. The "new evidence" could be: 灯塔就在眼前——信中未知与实物对照的可能近在咫尺（来自处境，非信息）。I'll phrase: 新证据：非信息性新事实——灯塔实体进入可达范围，"现场核验"从不可能变为可能。
+- 判断修正: 灯塔从背景要素变为"可能的对照对象"。
+- 修正行动: 进入灯塔内可停留位置，准备拆读。
+- 结果与残留: 空间结果——男主在灯塔内可拆读位置，信在手；代价——移动的时间与体力消耗、气象暴露；旁人认知修正——无；可消费痕迹——灯塔处的进入动线（第3章从灯塔侧出发可复用）。
+- 下一场景承接位置: 灯塔内，信在手、拆读开始。
+- 叙事引导意图: 旁白意图——空间压力：信中的未知与眼前的灯塔开始产生引力；移动途中悬置不安的延续由感知承载。对白意图——无对话承载。沉默意图——接近灯塔途中不拆信的克制，维持"对照现场才拆"的隐性逻辑。可自由演绎——灯塔内外空间使用方式、动线细节、气象细节。禁——不提前释放信件内容、不解释信标机制、不引入南方航线。
+
+Scene 2: 拆读与指向释放
+- 场景目标: 完成关键信息释放——线索指向灯塔信标。
+- POV角色: 男主
+- 场景起点: 承接场景1，灯塔内、信在手、拆读开始。
+- 人物位置: 男主在灯塔内可拆读位置。
+- 关键物体位置: 旧信——在男主手中，拆开；信文残损（残损位置与程度由正文演绎，不具体化全文）；灯塔信标——作为信中点名对象（实体形态未提供/待补信息，本章只进入线索链，不展示机制与形态）。
+- 动作链: 男主拆信；展开信文，遇到残损——大部分内容不可解或已不可辨；逐段辨识，仅一条指向完整走通——指向灯塔信标；对照眼前的灯塔实物（初步的、非核对性的）；登记未解部分。
+- 信息来源: 拆读所得——信文残存部分；目视——眼前灯塔实物的存在。
+- 阻力或转折: 信件年代感与残损造成的解读障碍——大部分内容不可解，指向是唯一完整走通的信息。
+- 初始判断: 这是一件来历不明的物证（承接第1章判断）。
+- 新证据: 信文中唯一可辨的指向——"灯塔信标"被点名。
+- 判断修正: 信的性质从异常物证升级为可信线索——它有明确的指向性。
+- 修正行动: 采纳"只认指向"——以指向为行动依据，未解部分随身携带。
+- 结果与残留: 空间结果——男主在灯塔内，拆开之信在手；代价——解读消耗时间，且未解部分成为持续负担；旁人认知修正——无；可消费痕迹——拆开的信（状态变化：从未拆到已拆，第3章可消费）、"指向灯塔信标"的线索（全卷线索链第二环）。
+- 下一场景承接位置: 灯塔内，指向已明，男主开始把指向与灯塔实物对照。
+- 叙事引导意图: 旁白意图——信息压力与判断修正：从"来历不明的物证"到"指向信标的线索"，判断翻转在这一拍完成；残损带来的解读受挫由过程细节承载。对白意图——无对话承载。沉默意图——辨识受阻时的静默承载"部分可知比完全未知更磨人"的张力。可自由演绎——解读过程、残损与年代感呈现方式、辨识动作细节。禁——不出现信件全文、不虚构作者身份、不解释指向理据。
+- 禁: 信件全文与原文措辞、作者身份、指向理据、信标机制、南方航线。
+
+Scene 3: 决意核对
+- 场景目标: 把线索压力转化为核对意图，完成向第3章交接。
+- POV角色: 男主
+- 场景起点: 承接场景2，解读完成后的灯塔内。
+- 人物位置: 男主在灯塔内（或灯塔处收束位置，由正文演绎）。
+- 关键物体位置: 旧信——已拆、未解部分随身；灯塔信标——被点名的对象，与男主同处灯塔（实体形态未示）。
+- 动作链: 男主面对"按信行事"的内心权衡；确认备选路径均不可行（搁置无解、废弃断线索）；形成核对决意——把指向与灯塔实物做对位核对；收束动作（收信、准备动线）。
+- 信息来源: 内省——对自身处境与备选项的权衡；既有信息——场景2的指向。
+- 阻力或转折: 采纳线索的内心代价——按信行事意味着承认来历不明的信对自身的支配权。
+- 初始判断: 有了指向就可以解释这封信。
+- 新证据: 指向无法自行证明自身——理据悬置，指向只是方向不是答案。
+- 判断修正: 指向需要核对才能成立；采信是主动选择而非被动接受。
+- 修正行动: 决定核对信标——行动目标从"持有信"切换为"核对信标"。
+- 结果与残留: 空间结果——男主在灯塔处完成收束，核对动线待启；代价——采信本身的心理投入（承认被一封来历不明的信支配）；旁人认知修正——无；可消费痕迹——"指向已明、对照未做"的压力状态（第3章直接消费）。
+- 下一场景承接位置: 章末，男主在灯塔处，核对意图已成；第3章从灯塔侧对照动作切入。
+- 叙事引导意图: 旁白意图——判断修正：从被动持信到主动求证，主动性立起来；内心代价由权衡过程承载。对白意图——无对话承载。沉默意图——决意形成前的静默承载"承认被支配"的心理成本。可自由演绎——决意形成过程、男主与灯塔的最后一组互动细节、收束动作。禁——不展开核对动作（属第3章）、不预支核对结果。
+
+Chapter-level:
+- 目标情绪与功能: 持信未读的悬置不安→指向揭晓后的方向感与更深的被牵引感 | 信息整理 | 执行边界——只释放"指向灯塔信标"，不释放信件全文、不解释信标机制、不引入南方航线、不虚构作者、不新增角色。
+- 具体增量: 信息——旧信线索指向灯塔信标；认知——信件性质从异常物证升级为可信线索；处境——行动目标从持有转为核对。
+- 卷级承接: 延续卷纲主线，兑现剧情点1解读推进段；定价变化=延续，无新增。
+- 关系变化: 无新增人际；男主对旧信的认知从"来历不明的物证"变为"指向信标的线索"；对灯塔从"环境要素"变为"线索对照对象与核对目的地"。
+- 画面锚点: ①拆开的旧信与残损信文——事实含义：唯一走通的指向与其余不可解内容并存；表达方向：残缺的信息、悬置的来历。②灯塔（实物）与信中点名并置——事实含义：线索与对象首次同处一个空间；表达方向：对照、引力、即将验证。Only directions, no finished metaphors.
+- 情感show提示: 情感峰值——指向揭晓瞬间"被牵引感加深"。对应物类别——动作、物件。候选方向：①辨识受阻与走通之间的动作节奏差（受阻时的停顿/重复，走通后的静止）；②信纸残损处的持握方式（避开残损处、或对可辨处的注意力方向）；③视线在信文与灯塔实物之间移动的轨迹方向。
+- 章末状态:
+  - 空间状态: 男主在灯塔处，信已拆、未解部分随身收好。
+  - 关系状态: 无新增人际；男主与旧信从"持有"进入"采信"关系；与灯塔进入"对照对象"关系。
+  - 信息状态: 男主知道信指向灯塔信标；不知道作者、来历、指向理据、信标机制；无其他角色。
+  - 伏笔状态: 旧信——战略级——推进（指向已释放、解释仍悬置）；风暴信标——战役级——埋设（名字进入线索，机制与形态未示，可见度中高）。
+  - 情感债务: 男主对旧信的债务升级——从"弄清它"到"核对它"；采信行为欠下一份"指向必须兑现"的债。
+  - 目标情绪与功能: 悬置不安→方向感与被牵引感 | 信息整理 | 边界如前。
+  - 钩子类型与内容: 未尽之力型——指向已明而对照未做，一件已知要做、还没做的事压向第3章；压力来源：场景2的指向与场景3的核对意图。不写成品收束句。
+  - 下一章入口: 第3章从灯塔侧的对照动作切入，男主持信与指向出发。
+  - 卷级承接: 剧情点1解读推进段；定价变化=延续，无新增。
+
+---
+
+**第3章施工稿：对不上的两点**
+
+Skeleton:
+- 章首承接: 承接"指向已明、对照未做"——从灯塔侧出发，开篇即进入核对动线。
+- 形态: 主角章
+- 推进策略: 延迟冲突路径——确认拆成两次定位，本章只走完第一轮对位并卡在条件缺口。
+- 缺口处理: 信标确认的具体依据与障碍=上报待补（不定义工作原理与确认标准，核对以"对位"过程性动作呈现）；本章过程性障碍（观察条件不足）=保留为悬念（真障碍还是暂时条件问题留待后续）。
+- 3 scenes.
+
+Scene 1: 灯塔侧第一次对照
+- 场景目标: 完成灯塔侧的第一次对照，让线索与实物开始咬合但不闭合。
+- POV角色: 男主
+- 场景起点: 承接第2章章末，男主持信与指向在灯塔处，本章从对照动作切入。
+- 人物位置: 男主在灯塔侧对照位置（灯塔内外部取点由正文演绎）。
+- 关键物体位置: 旧信——随身、指向在手；灯塔信标——被对照对象（实体形态未示，形态呈现方式由正文在"不展示机制"边界内处理）。
+- 动作链: 男主以指向为依据观察灯塔侧实物；做对位判断——方向咬合；尝试闭合确认——依据不足，确认不能；登记缺口。
+- 信息来源: 目视观测——灯塔侧可见实物与指向的比对；信中指向（既有）。
+- 阻力或转折: 对照的信息不对称——指向表述与可见实物之间需要对位判断，判断依据不足。
+- 初始判断: 按指向对照即可完成确认。
+- 新证据: 方向咬合但确认不能——信与实物之间出现第一道对不上的缝。
+- 判断修正: 单点对照撑不起确认——需要第二个参照点。
+- 修正行动: 决定转赴旧航道侧求第二次定位。
+- 结果与残留: 空间结果——男主在灯塔侧登记缺口后转向；代价——对照消耗时间，确认未得；旁人认知修正——无；可消费痕迹——"方向咬合、确认不能"的初步结果（后续章节对位基础）。
+- 下一场景承接位置: 灯塔侧对照位收束，转向旧航道侧的移动开始。
+- 叙事引导意图: 旁白意图——判断修正：信上说的事与场上见的事之间出现第一道缝隙，求证感立起。对白意图——无对话承载。沉默意图——确认不能时的静默承载"第一道缝"的重量。可自由演绎——对照的具体观察方式、灯塔侧空间使用。禁——不释放信标机制、不提前完成对位、不引入南方航线。
+
+Scene 2: 转赴旧航道侧
+- 场景目标: 把核对动线延伸到旧航道侧，环境压力升级。
+- POV角色: 男主
+- 场景起点: 承接场景1，男主从灯塔侧向旧航道侧移动。
+- 人物位置: 男主在场域内两点间移动，终点为旧航道侧观察位（既定锚点；取点细节由正文演绎）。
+- 关键物体位置: 旧信——随身；旧航道——场域另一端锚点、对位核对的必要参照点（航道具体设施未提供/待补信息，不虚构新设施新痕迹）。
+- 动作链: 男主横穿场域向旧航道侧移动；风暴季气象压力在途中收紧，移动代价上升；抵达旧航道侧观察位；第二次定位尝试开始。
+- 信息来源: 现场观测——途中气象状态变化、旧航道侧观察位的可见条件。
+- 阻力或转折: 气象压力在移动途中与旧航道侧观察位上收紧（环境阻力升级）。
+- 初始判断: 换个位置即可补齐对位。
+- 新证据: 旧航道侧观察位的观测条件同样受限——环境本身在给求证加价。Hmm, skeleton scene 3 covers 条件缺口; scene 2 ends with 抵达观察位、第二次定位尝试开始。The new evidence in scene 2: 途中与观察位的气象压力收紧——求证的代价从时间上升到暴露。I'll phrase: 新证据：非信息性新事实——气象压力升级使求证成本显形（暴露风险）。
+- 判断修正: 第二次定位不是轻松补齐，而是把自身暴露给环境的代价行动。
+- 修正行动: 仍选择在旧航道侧展开第二次定位（坚持求证）。
+- 结果与残留: 空间结果——男主抵达旧航道侧观察位，第二次定位开始；代价——穿越场域的时间、体力与暴露程度上升；旁人认知修正——无；可消费痕迹——两点对位动线（第4章再对位可复用）。
+- 下一场景承接位置: 旧航道侧观察位，第二次定位进行中。
+- 叙事引导意图: 旁白意图——情绪张力：移动本身是把求证暴露给环境的代价，阻力感加压。对白意图——无对话承载。沉默意图——移动途中无交流的独行状态，承载"单人求证"的孤立感。可自由演绎——移动过程、旧航道侧观察位取点、气象呈现方式。禁——不虚构旧航道侧新设施或新痕迹、不引入新角色。
+
+Scene 3: 对位卡在缺口
+- 场景目标: 让对位卡在条件缺口上，完成"差一步"的章末状态。
+- POV角色: 男主
+- 场景起点: 承接场景2，旧航道侧观察位、第二次定位进行中。
+- 人物位置: 男主在旧航道侧观察位。
+- 关键物体位置: 旧信——随身（章末收回动作的物件）；灯塔与旧航道——两个参照点分居场域两端，缺口在两点之间。
+- 动作链: 男主在旧航道侧完成第二次定位观察；两点对位——方向存在、确认不能；缺口显形——两个参照点之间差着无法当场补齐的一环；男主收束——把旧信收回，收束动作落地。
+- 信息来源: 目视观测——两次定位的比对结果；推断——缺口的存在。
+- 阻力或转折: 观察条件不足以闭合对位（条件缺口性质保留为悬念）。
+- 初始判断: 旧航道侧补位即可闭合对位。
+- 新证据: 缺口在两点对位后仍然存在——差一环，且当场无法补齐。
+- 判断修正: 缺口不是换位置能解决的——"差一步"被明确登记为当前求证状态。
+- 修正行动: 不强行补、不放弃——把缺口登记为下一章起点，收束本章动作。
+- 结果与残留: 空间结果——男主在旧航道侧观察位收束，旧信收回；代价——两轮定位的时间与暴露投入，确认仍未得；旁人认知修正——无；可消费痕迹——"方向存在、确认不能"的缺口状态（第4章直接消费）。
+- 下一场景承接位置: 章末，男主在旧航道侧观察位、持信未收心；第4章从缺口的重新处理切入。
+- 叙事引导意图: 旁白意图——信息压力：差一步的悬置比彻底失败更压迫，滞涩感收在这一拍。对白意图——无对话承载。沉默意图——受阻后不放弃的静默，承载"不肯撒手的坚持"。可自由演绎——受阻的具体呈现、男主的收束动作。禁——不解释缺口成因、不预支第4章关键节点、不释放确认结果。
+
+Chapter-level:
+- 目标情绪与功能: 定向感与求证冲动→对位受挫后的滞涩与不肯撒手的坚持 | 普通推进 | 执行边界——只推进核对进程至条件缺口，不完成确认、不释放信标机制、不解释南方航线、不引入新角色或新势力痕迹。
+- 具体增量: 认知——从"按指向走即可"到"单一线索撑不起一次对位"；信息——两点对照初步结果进入持有（方向咬合、确认不能）；处境——核对升级为两点对位并卡在条件缺口。
+- 卷级承接: 兑现剧情点1收束并入剧情点2前置——旧信线索经核对进入信标确认进程；定价变化=延续，无新增。
+- 关系变化: 无新增人际；男主对旧航道从"场域另一端"变为"对位核对的必要参照点"；对自身判断从"按指向行动即可"变为"我的采信正在经受场的检验"。
+- 画面锚点: ①场域两端——灯塔与旧航道分立、缺口悬在其间——事实含义：两点对位结构成立而中间差一环；表达方向：距离、未闭合、被卡住的进程。②被收回的旧信——事实含义：受阻后仍不放弃采信；表达方向：坚持、随身负担。
+- 情感show提示: 情感峰值——对位受挫后的滞涩与坚持。对应物类别——动作、环境反应。候选方向：①第二次定位失败后的重复确认动作（方向性的再看一眼，不写成品）；②气象压力下身体姿态的变化（迎风收身之类的方向）；③收回旧信的动作力度与位置（收得柔但不散的方向）。
+- 章末状态:
+  - 空间状态: 男主在旧航道侧观察位，旧信收回随身。
+  - 关系状态: 无新增人际；男主与线索链处于"受阻但未撤回采信"的关系。
+  - 信息状态: 男主知道两点对位方向成立、知道缺口存在；不知道缺口成因、信标机制；无其他角色。
+  - 伏笔状态: 旧信——战略级——推进（"信上说"开始向"场上如此"转化，未解部分随身）；风暴信标——战役级——推进（进入两点对位的实体参照，形态与机制未示）。
+  - 情感债务: 男主对第2章采信欠下"必须核对成立"的债——受阻使债务利息增长（投入加深）。
+  - 目标情绪与功能: 求证冲动→滞涩与坚持 | 普通推进 | 边界如前。
+  - 钩子类型与内容: 情绪余韵型——把求证受挫的滞涩压进一个安静的动作里（收回旧信、目光仍停在差一环的对位上）；无新危机，只有不肯散场的坚持。不写成品收束句。
+  - 下一章入口: 第4章从缺口的重新处理切入，男主在旧航道侧观察位。
+  - 卷级承接: 剧情点1收束并入剧情点2前置；定价变化=延续，无新增。
+
+---
+
+**第4章施工稿：只出现一次的应答**
+
+Skeleton:
+- 章首承接: 承接"对位卡在差一环的缺口"——从缺口的重新处理切入。
+- 形态: 主角章
+- 推进策略: 代价前置路径——补缺口过程先付暴露与不确定代价，异常信号在确认将成未成处出现。
+- 缺口处理: 异常信号性质与信标机制=上报待补（异常按素材授权设计为过程性事件，机理不自行定义）；异常成因=保留为悬念（只登记现象：出现一次、不可复现）；确认依据具体标准=上报待补。
+- 3 scenes.
+
+Scene 1: 重新处理缺口
+- 场景目标: 重新处理对位缺口，让确认进程重新动起来。
+- POV角色: 男主
+- 场景起点: 承接第3章章末，男主在旧航道侧观察位、缺口在手。
+- 人物位置: 男主在旧航道侧观察位起步，随后在两点之间动。
+- 关键物体位置: 旧信——随身、指向仍为依据；灯塔与旧航道——两个参照点（缺口在两点之间）。
+- 动作链: 男主复盘缺口——判断差的一环该从哪侧补；确定处理路径——以两点之间的再对位补环；动起来，确认进程重启。
+- 信息来源: 复盘推断——既有两次定位结果的比对；现场观测——两点间动线条件。
+- 阻力或转折: 缺口成因不明——不知道差的一环该从灯塔侧还是旧航道侧补。
+- 初始判断: 缺口可能封死确认之路。
+- 新证据: 复盘发现两点对位结构本身留有再处理空间——缺口可通过再对位逼近。
+- 判断修正: 缺口不是终点而是可推进的进程——确认重新可行。
+- 修正行动: 以两点之间的再对位补环，重启确认进程。
+- 结果与残留: 空间结果——男主离开静止的观察位，进入再对位动线；代价——重启进程的时间投入，且路径选择带有赌性；旁人认知修正——无；可消费痕迹——"再对位补环"的处理路径（本章后续与第5章推进的方式基础）。
+- 下一场景承接位置: 再对位展开中，确认接近关键节点。
+- 叙事引导意图: 旁白意图——判断修正：从受阻的静止重新转入行动，推进感恢复。对白意图——无对话承载。沉默意图——复盘时的静默承载"不认输"的判断密度。可自由演绎——缺口处理的具体方式、两点间动线安排。禁——不解释缺口成因、不释放信标机制、不引入南方航线。
+
+Scene 2: 异常信号出现
+- 场景目标: 异常信号出现，本章核心事件落地。
+- POV角色: 男主
+- 场景起点: 承接场景1，再对位进程中、确认接近关键节点。
+- 人物位置: 男主在两点之间再对位的观测位置（具体取点由正文演绎）。
+- 关键物体位置: 旧信——随身；异常信号——现象级存在（出现位置与形态由正文在"现象级呈现、不给机理"边界内处理）。
+- 动作链: 男主推进再对位、确认将成未成；异常信号出现一次——被观测到；男主试图当场复现——信号随即沉默、不可复现；男主处置——登记现象、决定继续推进。
+- 信息来源: 现场观测——信号现象（出现与消失）；复现尝试的失败结果。
+- 阻力或转折: 异常的不可复现性——出现一次、随即沉默，无法当场验证。
+- 初始判断: 再对位推进中信号只是干扰候选。
+- 新证据: 信号现象本体——在确认将成未成处出现一次、随即沉默。
+- 判断修正: 异常不是干扰而是必须登记的线索变量——"异常即线索"的行动逻辑延续。
+- 修正行动: 放弃当场复现的执念，把异常登记为待解释现象，继续推进确认。
+- 结果与残留: 空间结果——男主仍在观测位、进程被打断后续行；代价——复现尝试消耗窗口时间；旁人认知修正——无；可消费痕迹——"一次不可复现的信号"（第5章与后续并行的未解项）。
+- 下一场景承接位置: 异常已登记，进程续行，向关键节点推进。
+- 叙事引导意图: 旁白意图——信息压力：越接近确认越出现解释不了的东西，警觉感拉起；信号的呈现由现象级观测细节承载，不给机理。对白意图——无对话承载。沉默意图——信号消失后的沉默（环境的与人物的）承载异常的重量。可自由演绎——信号现象级呈现方式（出现与消失的观测细节）。禁——不解释信号成因、不虚构信号来源者、不把异常写成确定的事实结论。
+
+Scene 3: 推到关键节点
+- 场景目标: 把确认推进到关键节点收尾，完成向第5章交接。
+- POV角色: 男主
+- 场景起点: 承接场景2，异常已登记、进程续行。
+- 人物位置: 男主在观测/推进位置（两点之间，具体由正文演绎）。
+- 关键物体位置: 旧信——随身；异常信号——已登记、现象沉默；信标确认——临门状态（最后缺口交第5章）。
+- 动作链: 男主带着双线注意力续行确认——确认与异常哪个都不能放；推进至关键节点；确认停住——停在临门位置；收束本章动作。
+- 信息来源: 现场观测——确认进程的推进状态；内省——双线权衡。
+- 阻力或转折: 双线注意力的内心矛盾——确认与异常同时压在判断上。
+- 初始判断: 推进确认可暂搁异常。
+- 新证据: 关键节点处确认自身停住——临门而不入，最后缺口仍在。
+- 判断修正: 确认与异常无法拆开处理——只能双线并持前行。
+- 修正行动: 接受双线状态，把临门的最后缺口登记为第5章起点。
+- 结果与残留: 空间结果——男主在推进位置收束，确认停在临门；代价——双线专注的精神消耗；旁人认知修正——无；可消费痕迹——"临门+异常未解"的双压状态（第5章直接消费）。
+- 下一场景承接位置: 章末，确认临门、异常沉默；第5章从临门一环的推进切入。
+- 叙事引导意图: 旁白意图——情绪张力：临门而不入的悬置感，蓄力感收在这一拍。对白意图——无对话承载。沉默意图——异常沉默后的静默与确认停住形成双静，承载"越近越不明"。可自由演绎——关键节点呈现方式、男主收束时状态细节。禁——不完成确认、不预支实质进展、不预支航线信号。
+
+Chapter-level:
+- 目标情绪与功能: 滞涩坚持→异常信号掠过后的警觉与高度专注 | 高压推进 | 执行边界——只推进到关键节点，不完成确认、不解释异常成因、不释放南方航线信息、不虚构信标内部构造。
+- 具体增量: 信息——异常信号现象进入持有（出现一次、不可复现、成因未明）；认知——异常定位从"待观察"升为"必须登记的线索变量"；处境——确认从缺口推进到关键节点临门，注意力双线并持。
+- 卷级承接: 兑现剧情点2推进段——确认推进至关键节点；定价变化=延续，无新增。
+- 关系变化: 无新增人际；男主对异常信号从"干扰候选"变为"已登记的线索变量"；对自身判断从"求证应可闭合"变为"求证允许携带未解项前行"。
+- 画面锚点: ①一次即逝的异常信号——事实含义：确认将成未成处的不可复现现象；表达方向：越近越不明、警觉、不可控变量。②临门的确认——事实含义：进程停在最后缺口前；表达方向：蓄力、悬置、双压。
+- 情感show提示: 情感峰值——异常信号掠过后的警觉与高度专注。对应物类别——动作、环境反应。候选方向：①信号出现瞬间的身体反应（定住、转向之类方向）；②复现失败后的注意力分配（在信号方向与确认对象之间来回）；③异常沉默后动作节奏的变化（更轻、更慢的方向）。
+- 章末状态:
+  - 空间状态: 男主在两点之间的推进位置收束，确认停在临门。
+  - 关系状态: 无新增人际；男主与确认进程、异常信号形成双线并持关系。
+  - 信息状态: 男主知道异常出现过一次、知道确认到达关键节点；不知道异常成因与信标机制；无其他角色。
+  - 伏笔状态: 风暴信标——战役级——推进（确认到关键节点临门，形态机制未示）；异常信号——战役级——埋设（一次不可复现的现象，可见度中，机理与归属全悬置）。
+  - 情感债务: 男主对异常欠一个"解释"——登记即承诺不弃；对确认欠"推过去"的最后一步。
+  - 目标情绪与功能: 滞涩坚持→警觉与高度专注 | 高压推进 | 边界如前。
+  - 钩子类型与内容: 未尽之力型——异常沉默后确认停在临门位置，差的一环有被推开的可能而异常压在上面；下一步压力是"把对位推过去"。不写成品收束句。
+  - 下一章入口: 第5章从临门一环的推进切入，男主携双线状态。
+  - 卷级承接: 剧情点2推进段；定价变化=延续，无新增。
+
+---
+
+**第5章施工稿：南方的第一个信号**
+
+Skeleton:
+- 章首承接: 承接"临门的确认+未解的异常"——开篇从临门一环的推进切入。
+- 形态: 主角章
+- 推进策略: 反预期回应路径——确认刚过半、松一口气的预期刚起时，南方信号在同一观测视野进来，松与拉同拍。
+- 缺口处理: 确认的具体结果与航线信号形态=上报待补（确认推进登记为状态变化"过半"，不定义技术细节）；航线信号=保留为悬念（只释放"进入视野、指向南方"，形态含义与走向悬置）；第6章只做状态交接，不做收束。
+- 3 scenes.
+
+Scene 1: 推过临门
+- 场景目标: 推进临门一环，让确认取得实质进展。
+- POV角色: 男主
+- 场景起点: 承接第4章章末，男主处于确认临门+异常未解的双线状态。
+- 人物位置: 男主在临门一环的推进位置（两点之间，具体由正文演绎）。
+- 关键物体位置: 旧信——随身、指向支撑确认；异常信号——已登记未解、随身携带。
+- 动作链: 男主面对机理不明下落定的权衡；抓推进窗口、推过临门一环；确认取得实质进展——进程登记为过半；落定动作。
+- 信息来源: 现场观测——推进窗口与确认状态变化；内省——在未解中落定的权衡。
+- 阻力或转折: 异常未解带来的判断负担——推过去意味着接受在机理不明的情况下落定。
+- 初始判断: 临门一环可能因异常而推不动。
+- 新证据: 推进窗口出现——进程到了必须收束的节点，临门一环可被推开。
+- 判断修正: 机理不明不妨碍状态落定——确认可以带着未解项过半。
+- 修正行动: 推过关键节点，把确认落到过半。
+- 结果与残留: 空间结果——男主在确认落定位置，进程过半；代价——在未解中落定的心理投入；旁人认知修正——无；可消费痕迹——"确认过半"状态（后续批次信标线的基准）与仍随身的异常未解项。
+- 下一场景承接位置: 确认过半，男主转入观测位。
+- 叙事引导意图: 旁白意图——判断修正：在未解中落定的决心，踏实感在这一拍给出。对白意图——无对话承载。沉默意图——落定瞬间的静止承载"松一口气"的预期起点。可自由演绎——临门一环推进方式、确认落定的呈现。禁——不完成全部确认、不解释异常、不解释确认技术细节。
+
+Scene 2: 南方信号进入视野
+- 场景目标: 南方航线首个显形信号进入视野，第二核心事件落地。
+- POV角色: 男主
+- 场景起点: 承接场景1，确认过半，男主转入观测位（素材既定观察位：旧航道望向南方航线的观察位，细节待补、正文自由取点）。
+- 人物位置: 男主在旧航道侧望向南方的观测位。
+- 关键物体位置: 南方航线——观测方向上的既定主线对象（信号形态由正文在现象级边界内处理）；旧信与异常——随身未解项。
+- 动作链: 男主在观测位安顿确认过半的状态；观测视野内南方方向出现信号——南方航线显形的首个信号进入视野；男主观测并登记信号。
+- 信息来源: 目视观测——视野内南方方向的信号现象。
+- 阻力或转折: 信号的未知性——它是什么、意味着什么，均无解释渠道。
+- 初始判断: 确认过半后行动视野以信标为终点。
+- 新证据: 南方方向出现可观测信号——信标之外存在显形对象。
+- 判断修正: 行动视野从"以信标为终点"扩展为"信标之外有向南延伸的求证方向"。
+- 修正行动: 登记南方信号，把行动目标调整为并行结构。
+- 结果与残留: 空间结果——男主在观测位、南方信号在视野；代价——注意力被新的未知重新占据；旁人认知修正——无；可消费痕迹——"南方首个信号"（第6章与剧情点3的起点）。
+- 下一场景承接位置: 信号已登记，男主仍在观测位，进入目标偏移的状态登记。
+- 叙事引导意图: 旁白意图——信息压力：刚落定的踏实被新的未知重新拉开，眺望感立起；信号以现象级观测细节承载。对白意图——无对话承载。沉默意图——观测信号时的静默承载"眺望"的张力。可自由演绎——信号现象级呈现方式（进入视野的方式、可观测细节）、观测位取点。禁——不解释信号来源与含义、不虚构航线上的人船设施、不给出航线完整走向。
+
+Scene 3: 目标偏移登记
+- 场景目标: 完成目标偏移的状态登记，做好向第6章的状态交接。
+- POV角色: 男主
+- 场景起点: 承接场景2，信号已登记，男主仍在观测位。
+- 人物位置: 男主在观测位收束（最后视野由正文演绎）。
+- 关键物体位置: 旧信——随身（三物同框：旧信—信标—航线的首次并置）；确认余留问题——随身未解；南方信号——已登记。
+- 动作链: 男主权衡双目标——确认余留与南方信号哪个先行；登记并行偏移——确认余留随身、南方列为新求证方向；收束动作与最后视野。
+- 信息来源: 内省——双目标权衡；既有信息——确认过半状态与南方信号。
+- 阻力或转折: 双目标的内心权衡——两条线都不能放。
+- 初始判断: 确认即本章终点。
+- 新证据: 无外部新证据；结构层新事实——批次内的求证对象从"一个点"变为"一个点+一条线的方向"。
+- 判断修正: 目标不是先后替代而是并行偏移——确认过半的余留随身，南方信号列为新方向。
+- 修正行动: 完成目标偏移的状态登记，把双线交接给第6章。
+- 结果与残留: 空间结果——男主在观测位完成收束，视线仍在南方；代价——双线并持的注意力负担延续；旁人认知修正——无；可消费痕迹——"确认过半+南方信号"的双开状态（第6章直接消费）。
+- 下一场景承接位置: 章末，南方信号在视野、目标偏移已定；第6章承接双线。
+- 叙事引导意图: 旁白意图——情绪张力：批次终了而悬念双开，余行感收在这一拍。对白意图——无对话承载。沉默意图——最后视野里的静默承载"无人解释"的悬置。可自由演绎——男主收束动作、观测位最后视野。禁——不做本批次收束、不预支第6章及剧情点3事件、不解释信号。
+
+Chapter-level:
+- 目标情绪与功能: 蓄力专注→实质进展落定后的踏实与被南方信号重新拉开的眺望感 | 高压推进 | 执行边界——释放确认过半状态与航线首信号，不完成信标全部确认、不解释信号来源含义、不虚构航线上人船、不承担本批次收束。
+- 具体增量: 信息——南方航线首个显形信号进入观测；处境——确认过半落定、行动目标向南方偏移为并行结构；认知——行动视野从"以信标为终点"扩展为"信标之外存在向南延伸的求证方向"。
+- 卷级承接: 兑现剧情点2关键推进段并为剧情点3备好起点；南方航线显形属卷纲既定主线方向，非定价变化，定价变化=延续，无新增。
+- 关系变化: 无新增人际；男主对南方从"场域之外的方向"变为"有信号进入视野的求证方向"；对自身任务从"确认信标即终点"变为"确认过半、方向向南延伸"。
+- 画面锚点: ①南方方向视野中的首个信号——事实含义：航线从名词变为可观测对象；表达方向：眺望、新未知、线的方向。②旧信—信标—航线三物首次同框——事实含义：卷纲两条主线在男主持有与视野中并置；表达方向：线索链的合流、并行的重量。
+- 情感show提示: 情感峰值——确认落定的踏实与被南方信号重新拉开的眺望感（同拍）。对应物类别——动作、视线方向、环境反应。候选方向：①落定后的身体松弛与信号出现后的重新绷紧（方向性的松→紧）；②视线从确认对象移向南方的轨迹；③登记信号时的随身动作（把信与记录收拢之类的方向）。
+- 章末状态:
+  - 空间状态: 男主在旧航道侧望向南方的观测位，收束完毕。
+  - 关系状态: 无新增人际；男主与确认、异常、南方信号处于"一线落定、两线随身"的并行关系。
+  - 信息状态: 男主知道确认过半、知道南方有信号；不知道信号含义、航线走向与冲突对象、异常成因、旧信未解部分；无其他角色。
+  - 伏笔状态: 旧信——战略级——推进（指向支撑确认过半，三物首次同框，未解部分并置）；风暴信标——战役级——推进（进程过半，最终完成留待后续）；南方航线——战略级——埋设（首个显形信号进入视野，可见度中高）；异常信号——战役级——推进（未解随确认过半携带）。
+  - 情感债务: 男主对南方信号欠"弄清那条线"的新债；对确认余留与异常各欠一份未清的解释。
+  - 目标情绪与功能: 蓄力专注→踏实与眺望感 | 高压推进 | 边界如前。
+  - 钩子类型与内容: 陈述留白型——平静陈述收在南方信号上：信号在视野里，是什么、通向哪里无人解释；确认过半的踏实与南方悬置并置；作为批次末章钩子交接状态给第6章，不收束不解答。不写成品收束句。
+  - 下一章入口: 第6章从"确认余留+南方信号"的双线压力开始，剧情点3的冲突主体将从航线方向进入。
+  - 卷级承接: 剧情点2关键推进段+剧情点3起点备好；定价变化=延续，无新增。
+
+---
+
+Now the header blocks:
+
+【全书资产继承】 must be passed with concrete content:
+- 故事梗概：男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形。
+- 角色状态：男主——姓名、身份、动机、能力细节未提供/待补信息，本批次全部以"男主"指代，不虚构姓名；其余角色未提供/待补信息，本批次不调度任何第二角色。
+- 世界规则：逐条硬规则未提供/待补信息；仅锁定要素名词——灯塔、旧航道、风暴信标、南方航线、旧信；"风暴"作为卷纲自带气象要素可作环境常态使用；不新增世界规则。
+- 伏笔索引：旧信——已埋/待解释，战略级，第1章埋设、第2-5章推进（状态随施工稿更新：指向已释放、支撑确认过半，未解部分随身）；风暴信标——战役级，第2章埋设、第3-5章推进（确认进程过半，机制未示）；异常信号——战役级，第4章埋设、第5章推进（一次不可复现，成因悬置）；南方航线——战略级，第5章埋设（首个显形信号，含义与走向悬置）。
+
+Wait — the 伏笔索引 in the 全书资产继承 block should be the inherited state. The S2 input's 全书资产继承 listed: 旧信——已埋/待解释（待回收...）；已埋设其余项=无；已回收=无. But now that I'm producing the construction drafts for chapters 1-5, should the 伏笔索引 reflect post-batch state or inherited state? The format says "伏笔索引：逐条编号，状态与等级". Since this block is "全书资产继承" and I'm passing it forward to the next step (凯旋正文层), it makes sense to pass the inherited state — but the construction drafts will operate the foreshadowing. Hmm. The S2 output passed the asset block as-is from S1 (since no chapters generated yet). As S3, I'm producing construction drafts for 5 chapters; the foreshadowing operations are described per chapter. For the asset block, I think it's most useful to pass the inheritance plus note the operations planned in this batch. To be safe and consistent: I'll pass the inherited baseline and append the batch's planned operations briefly, marking them as "本批次施工操作" so the state isn't confused with already-generated text. Actually, simplest and safest: pass the inherited state exactly, and add a short note that本批次各章伏笔操作以各章施工稿为准. But "禁止输出省略号、占位说明或'同上一步'" — I must give concrete content. I can give concrete content: the inherited index with the operations this batch will perform. That's concrete and useful. I'll list:
+
+伏笔索引：
+1. 旧信——战略级——继承状态：已埋/待解释（来历与内容待解释）；本批次操作：第1章埋设（未拆读）、第2章推进（指向灯塔信标释放）、第3-5章推进（支撑核对与确认过半，未解部分随身）。
+2. 风暴信标——战役级——继承状态：未埋设；本批次操作：第2章埋设（被信点名）、第3-4章推进（进入两点对位、关键节点临门）、第5章推进（确认进程过半，机制与形态未示）。
+3. 异常信号——战役级——继承状态：未埋设；本批次操作：第4章埋设（一次不可复现）、第5章推进（未解随身，处置安排待补）。
+4. 南方航线——战略级——继承状态：未埋设；本批次操作：第5章埋设（首个显形信号进入视野，含义与走向悬置）。
+已回收：无（尚无已生成正文）。
+
+That's concrete and forward-useful. Good.
+
+- 术语规范：灯塔、旧航道、风暴信标、南方航线、旧信——逐条按输入锁定，不扩展定义；"风暴"作气象要素环境常态使用。
+- 读者承诺：确认风暴信标；南方航线逐步显形；旧信、灯塔与南方航线共同推动第一卷冲突的兑现方向。
+- 开放悬念：南方航线的完整形态与走向；旧信的来历与指向；第一卷冲突的具体对象（待补信息，不自行具体化）；（可加：异常信号成因、信标机制、信件未解部分——these emerged from skeletons; including them helps downstream. But careful: 开放悬念 in inheritance should reflect the story-level open items. The S2 version listed three. Since my batch adds sub-suspensions (异常信号成因, 信件全文, 信标机制, 确认标准), I could append them as batch-level suspense items. I'll add them marked as本批次新增悬置. That's concrete and within material (they come from skeletons).）
+
+【标题状态】:
+- 上游历史标题：未提供/待补信息（输入注明"暂无已生成章节"，本批次为首批生成）。
+- 本批次标题：第1章｜未拆的旧信 ... etc. (copy from S2, must preserve exactly)
+
+【批次节奏登记】: inherit the S2 table. The template format is:
+```
+第N章｜章节形态｜功能标签｜钩子类型｜与前章关系
+```
+But S2 gave a GFM table. The instruction says if I show a table, use GFM. I can either use the pipe format per template or GFM table. The S2 used GFM table; my template shows "第N章｜章节形态｜功能标签｜钩子类型｜与前章关系" lines. I'll use GFM table to inherit exactly (input was a table, inheriting it as a table is faithful). Actually the template literally writes lines with ｜. Either is fine; GFM table is allowed when needed. I'll use GFM table matching S2 content exactly (including the 与前章关系 notes).
+
+Now — one more check: the format for each 施工稿 in the template:
+
+```
+【第1章施工稿】
+标题：...
+章首承接：前章压力如何进入本章；首章写开场压力来源
+章节形态：...（主角章/配角章/群像章/无固定视角章）
+推进策略：常规写法...本章改用...因为...
+缺口处理：...
+场景1执行包：
+...
+```
+
+The scene packages need the fields listed. Also per responsibility: "多人场景在人物位置后补一句空间关系" — not applicable (single person). "群像场景另写立场三角" — not applicable.
+
+"视角切换说明" — required per scene per responsibility. I'll add it in each scene package.
+
+Also "叙事引导意图" per scene with 对白意图/对白张力来源/旁白意图/沉默意图/群像意图. 对白张力来源: "从信息差、利益差、情感差中选择一类登记，只写来源，不写台词" — for scenes with no dialogue, I should still register? The requirement says dialogue intent describes which exchanges carry drama tasks. With no dialogue, I can write "无对白承载（单人场景），对白张力来源：不适用" or register the dominant tension type as it applies to the scene's internal conflict. Hmm — the internal conflict is information-gap driven; even without dialogue, the scene tension comes from 信息差. I'll note: 对白张力来源：不适用（无对白承载）；场景主张力为信息差（角色与未知之间）。That registers a type without writing lines. Actually to be faithful: "对白张力来源：信息差（男主与来历不明之物/未解现象之间的信息不对称）". That's fine.
+
+Then after scenes: 叙事引导意图 (chapter-level?), 可自由演绎, 禁, 目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态.
+
+Given the template puts these after scenes at chapter level, but responsibility says per scene... I'll do both minimally: within each scene package, include a "叙事引导意图：" line (covering 对白意图/张力来源/旁白意图/沉默意图) and "可自由演绎：" and "禁：" lines for that scene. Then at chapter level, include the chapter-level fields (目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态). This satisfies both the template ordering (chapter-level fields after scenes) and the per-scene requirements. The template's "叙事引导意图：..." after scenes can be interpreted as per-scene intent embedded or a chapter summary — having per-scene intent inside packages covers it; I won't duplicate a chapter-level one (or I could add a brief chapter-level summary... no, avoid redundancy; the template's listing is satisfied by per-scene blocks? Hmm, the template literally has "叙事引导意图：" as a distinct line after scene 2. To be safe with format compliance, maybe I should follow template strictly: scenes contain only the execution fields, then chapter-level 叙事引导意图 which covers all scenes (with per-scene sub-bullets). That would match the template exactly.
+
+Let me think about which is better for the downstream consumer (凯旋). Per-scene narrative intent inside the scene package is more usable. But strict format compliance matters ("输出铁律"). The template shows:
+
+```
+场景1执行包：
+场景目标：...
+POV角色：...
+场景起点：...
+人物位置：...
+关键物体位置：...
+动作链：...
+信息来源：...
+阻力或转折：...
+初始判断：...
+新证据：...
+判断修正：...
+修正行动：...
+结果与残留：...
+下一场景承接位置：...
+
+场景2执行包：
+...（同上结构）
+
+叙事引导意图：...
+可自由演绎：...
+禁：本场景不得提前释放或改写的单元信息
+目标情绪与功能：...
+具体增量：...
+卷级承接：...
+关系变化：...
+画面锚点：...
+情感show提示：...
+章末状态：...
+```
+
+Note "禁：本场景不得提前释放或改写的单元信息" says 本场景 — but it's placed at chapter level in the template. Confusing. The responsibility section says "每个场景末尾写'可自由演绎'范围". So 可自由演绎 is per-scene per responsibility. And 叙事引导意图 per responsibility is per-scene too.
+
+Resolution: I'll include per-scene 叙事引导意图 + 可自由演绎 + 禁 inside each scene package (satisfying responsibility), and keep chapter-level fields (目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态) after the scenes (satisfying template's chapter-level listing). The chapter-level "叙事引导意图" from template gets covered by per-scene ones; I might add a one-line chapter-level 叙事引导意图 summarizing... Actually no — adding a chapter-level line too would be belt-and-suspenders but could look redundant. Hmm. The template's structure with 叙事引导意图/可自由演绎/禁 at chapter level, followed by 目标情绪与功能 etc. — I think the template intends 叙事引导意图/可自由演绎/禁 possibly as per-chapter aggregations. To minimize risk, I'll do per-scene blocks AND a compact chapter-level "叙事引导意图（全章）" line? That might be over-engineering.
+
+Decision: follow responsibility (per-scene), because the responsibility section is explicit: "### 3. 叙事引导意图 每个场景的叙事引导意图" and "每个场景末尾写'可自由演绎'范围". The template's flat listing is a schematic. I'll put per-scene 叙事引导意图/可自由演绎/禁 inside scene packages, and chapter-level fields after. For the chapter-level, I'll include all remaining template fields. I think that's the best reading.
+
+Hmm, but wait — actually, let me reconsider once more. The output format is called "输出格式" and is a hard spec. The template for 【第N章施工稿】 lists fields in order. If I add fields inside scene packages (视角切换说明, 叙事引导意图, 可自由演绎, 禁), I'm extending the scene package beyond its listed fields. Is that "conflict"? The runtime responsibility says scene execution packages must include 视角切换说明 (it's in the 填充职责 as one of the fields: "视角切换说明：本场景是否从主角POV切到..."). Yes! In section 2, the scene package fields list includes 视角切换说明. So scene packages definitely include 视角切换说明 even though the template schematic omits it. Therefore the template schematic is not exhaustive, and adding per-scene narrative intent fields is consistent. Good — I'll include per-scene: 视角切换说明, and at scene end: 叙事引导意图, 可自由演绎, 禁. Then chapter-level: 目标情绪与功能, 具体增量, 卷级承接, 关系变化, 画面锚点, 情感show提示, 章末状态.
+
+Also the 章末状态 needs the detailed sub-items from responsibility section 6. I'll format:
+
+章末状态：
+- 空间状态：...
+- 关系状态：...
+- 信息状态：...
+- 伏笔状态：...
+- 情感债务：...
+- 目标情绪与功能：...（含对话指纹传递——input has none; I'll note "对话指纹：未提供" or omit. The responsibility says "输入提供对话指纹时一并传递" — input doesn't provide, so omit or state 未提供. I'll write "对话指纹：未提供（单人场景，无对白承载）" in the chapter-level 目标情绪与功能 or in 章末状态's 目标情绪与功能. I'll put it in chapter-level 目标情绪与功能 line.)
+- 钩子类型与内容：...
+- 下一章入口：...
+- 卷级承接：...
+
+Also the chapter-level 目标情绪与功能 line per template: "目标情绪与功能：前状态→后状态 | 功能标签 | 禁止提前释放边界". I'll follow that with the pipe separators.
+
+Length control: This will be a long output. Five chapters × 3 scenes each with ~15 fields per scene. Let me keep each field concise but complete. The style reference "good" example shows reasonably detailed prose per field. I'll aim for compact but informative.
+
+Also: since all scenes are single-person, 人物位置 for others = 无其他人物. I'll note "无其他人物（其余角色待补信息，不调度）" once or per scene briefly.
+
+Let me also double check the "动作链" must reflect the causal chain plan: 触发/动机/决策/后果/兑现 across scenes. I've woven that: e.g., Ch1 scene 2 trigger = letter in wrong place; decision = take it; consequence = holding state; 兑现 = ch2 reading. I'll make sure the fields 初始判断/新证据/判断修正/修正行动 map to the decision points.
+
+Also "信息来源" field — who gets info from where. Fine.
+
+One more requirement: "多人场景在人物位置后补一句空间关系：谁和谁相邻..." — N/A. "群像场景另写立场三角" — N/A.
+
+"无固定视角章仍必须为每个场景写明感知锚点" — we have 主角章, but I'll still note 感知锚点 via 视角切换说明 ("无切换；感知锚点为男主的现场观测").
+
+Now, about the header 【全书资产继承结束】 marker — template shows 【全书资产继承结束】. Yes.
+
+Let me also make sure: first char 【, last char 】. The output ends with 【第5章施工稿结束】 — ends with 】. Good.
+
+Now write it all out. I'll be careful with formatting consistency.
+
+Let me draft the final output.
+
+For 推进策略 field, template: "推进策略：常规写法...本章改用...因为..." — I'll follow that structure.
+
+For 缺口处理: list the gaps and their handling (保留为悬念/POV遮蔽/旁支侧证/上报待补).
+
+Let me write each chapter now in full, watching for banned content: no finished dialogue lines, no literary sentences, no metaphor成品, no proportions.
+
+For 画面锚点: "只登记供给，不写成品句" — list: 物件或意象 / 事实含义 / 可承载表达方向. I'll format each anchor with these three parts.
+
+For 情感show提示: 峰值 + 对应物类别 + 最多三个候选承载方式（只写方向）.
+
+Let me now also decide scene 1 of ch1's 关键物体位置: I must not invent objects. I'll write: "未提供/待补信息——本场景无既定关键物体；男主随身物品以维持例行活动所需为限，具体由正文按活动方式自定，不得新增设定物件。" Good.
+
+Ch1 scene 1 动作链: "男主沿灯塔—旧航道之间的活动动线例行移动；风暴季气象压力持续，男主动作节奏受其约束（避风、择路等具体方式由正文演绎）；男主动线推进至过渡地带边缘。" That's fine — gives sequence without inventing specifics beyond what's allowed (气象细节 free per skeleton 放).
+
+Ch1 scene1 结果与残留: 空间结果——男主进入灯塔与旧航道之间的过渡地带，空间基线（两端锚点+过渡地带+气象常态）立起；代价——例行节奏被气象拖慢的时间与体力消耗（程度由正文把握）；旁人认知修正——无（无人在场）；可消费痕迹——场域基线本身（两端锚点与气象常态）供本章及后续章节持续消费。
+
+Now writing chapter 2 scene 2 动作链 carefully — must not define letter content. "男主拆开封存；展开信文，残损导致大部分内容不可辨；逐段辨识中仅一条指向完整走通——指向灯塔信标；以该指向对眼前的灯塔实物做初步对视（非核对性）；将不可解部分原样收存。" OK.
+
+Careful: "灯塔信标" as term — the letter points to 灯塔信标. The 信标 presumably is at/on the lighthouse. The skeleton says the letter's clue points to 灯塔信标 and the lighthouse is the 对照对象. I'll keep it as: 信中点名对象为"灯塔信标"，其与灯塔实物的具体关系未提供/待补信息，正文不虚构信标形态与位置细节. Good — that's honest.
+
+Ch2 scene1 关键物体位置: "旧信——随身未拆；灯塔——场域一端锚点，可进入（内部结构未提供/待补信息，使用方式由正文演绎，不虚构结构设定）；灯塔信标——尚未以实体形态呈现，本章不展示。"
+
+Ch3 scene1 动作链: "男主以信中指向为依据观察灯塔侧实物；对位判断——方向与指向咬合；尝试闭合确认——判断依据不足，确认不能；登记缺口，收束灯塔侧动作。" Good.
+
+Ch3 scene2: 动作链 "男主持指向离开灯塔侧，横穿场域向旧航道侧移动；途中气象压力收紧，移动节奏与暴露程度上升（具体呈现由正文演绎）；抵达旧航道侧观察位（既定锚点，取点由正文自由取点）；第二次定位观察开始。"
+
+Ch4 scene2 动作链: "男主推进再对位，确认将成未成；异常信号在观测中出现一次——被男主捕获；男主即时尝试复现——信号随即归于沉默、不可复现；男主处置：登记为待解释现象，决定继续推进。" Good.
+
+Ch4 scene1 初始判断/新证据 etc. fine.
+
+Ch5 scene1: "男主权衡机理不明下落定的代价；推进窗口内推过临门一环；确认取得实质进展——进程登记为过半；落定动作完成。" Good.
+
+Ch5 scene2: "男主转入旧航道侧望向南方的观测位；南方方向出现首个显形信号——进入观测视野；男主观测、确认其存在并登记。" Good.
+
+Ch5 scene3: "男主权衡确认余留与南方信号的先后；登记并行偏移——确认余留随身、南方信号列为新求证方向；完成收束动作与最后视野。" Good.
+
+Now chapter-level 章末状态 for each — as drafted above.
+
+For 章末状态·钩子内容 — must "只写压力方向与来源细节...不写成品收束句". My drafts comply.
+
+For 目标情绪与功能 chapter-level: "前状态→后状态 | 功能标签 | 禁止提前释放边界；对话指纹：未提供". Format per template: "目标情绪与功能：前状态→后状态 | 功能标签 | 禁止提前释放边界". I'll append "；对话指纹：未提供（单人场景，无对白承载）" — hmm, maybe cleaner to add a separate note. The responsibility: "输入提供对话指纹时一并传递" — since not provided, I can skip. But to be explicit I'll note "对话指纹：未提供". Keep it.
+
+关系变化 chapter-level: as drafted.
+
+Also "具体增量" chapter-level: as drafted.
+
+Also each chapter needs 卷级承接 chapter-level: drafted.
+
+Now, the header sections.
+
+【全书资产继承】 — concrete, as planned.
+
+【标题状态】 — as planned, copy titles exactly: 第1章｜未拆的旧信, etc.
+
+【批次节奏登记】 — GFM table inheriting S2 exactly.
+
+Then five chapter blocks.
+
+Length: this will be long but necessary. Let me write it.
+
+One thing: the template shows chapter-level "叙事引导意图：" line. I decided per-scene. To hedge, I could name the per-scene field "叙事引导意图：" inside each scene package — that covers both. And skip a chapter-level aggregate. Fine.
+
+Also note "禁：本场景不得提前释放或改写的单元信息" — I'll write per-scene 禁 lines listing the forbidden unit-info items.
+
+Also the chapter template includes "章首承接" — done. "章节形态" — done. "推进策略" — done. "缺口处理" — done.
+
+Writing now. I'll aim for consistent, tight phrasing. Given 5 chapters, output will be quite long — that's expected and required (完整标记结构, no short summaries).
+
+Double-check style reference guidance:
+- Not 正文 — keep structured fields. ✓
+- Scene packages detailed like the good example. ✓
+- 画面锚点 not just a label — provide object/fact-meaning/expression-direction. ✓
+
+Also must not output JSON. ✓ Use the 【】 markers.
+
+Final check on 伏笔等级 annotations: 旧信=战略级, 风暴信标=战役级, 异常信号=战役级, 南方航线=战略级. ✓
+
+Write the final answer now.

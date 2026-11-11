@@ -1,0 +1,472 @@
+Let me analyze this task carefully.
+
+I'm the S3 skill (chapter deepening structure skeleton generator). I need to generate chapter skeletons for chapters 11-12 of a 12-chapter first volume.
+
+Input facts:
+- The story: male protagonist (男主) at a lighthouse and old waterway, confirming storm beacon, southern route gradually manifesting
+- Single POV male protagonist, no other characters on screen, no dialogue throughout
+- Chapter 10 ended: male protagonist at southern visual field observation position, batch-end wrap-up complete, facing south for last view; established stage coordinates (where he's at, what's still missing); explicitly carrying pressure — suspension list (signal meaning, route direction, conflict subject and outline content, old letter unresolved subject, anomaly cause), doesn't know any answer; reader and protagonist at same layer
+- Suspensions confirmed as motivation source, must not be unloaded/archived
+- Chapter 11: Volume-end segment entry chapter — must enter the confluence position (合流位) where old letter, lighthouse, and southern route jointly drive volume 1 conflict; starting point is chapter 10's handover state
+- Chapter 12: Volume-end closure chapter — three dynamics confluence conflict landing point, explicit suspense inventory, volume-level hook, next-volume transition signal
+- Word count: 1000 per chapter
+- Constraints: don't close signal meaning, don't register conflict subject/outline content, don't fabricate people or ships on the route, don't explain anomaly cause or old letter unresolved subject, single POV, conflict subject never on screen, no dialogue
+- Volume 1 name: 风暴起点 (Storm Starting Point)
+- Total 12 chapters, this batch generates 11-12
+
+Historical titles (must not repeat):
+第1章《未拆的旧信》
+第2章《信里的灯塔》
+第3章《对不上的两点》
+第4章《只出现一次的应答》
+第5章《南方的第一个信号》
+第6章《航线上多出的东西》
+第7章《第二次显形》
+第8章《余留清零》
+第9章《读第二遍的旧信》
+第10章《更清楚的南方》
+
+New titles for 11-12 must not duplicate these. Must be specific to core event/turn/image.
+
+Let me think about what chapters 11-12 should do within the boundaries.
+
+Chapter 11 (卷末段 entry):
+- Task: enter confluence position — old letter, lighthouse, southern route jointly push volume 1 conflict
+- Must convert explicit pressure into action/observation advance at the confluence position
+- Cannot unload pressure
+- Available anchors: southern visual field observation position (chapter 10 end position, can directly continue), lighthouse and old waterway (book outline layer material, can be confluence scene candidates), old letter carried (with chapter 9 re-readable clue)
+
+So chapter 11: the male protagonist moves from observation position back toward the lighthouse/old waterway while carrying the old letter — this physically brings the three dynamics into one frame. The confluence: he uses the old letter's re-readable clue (from ch9) in the context of the now-clear southern signal — the letter's clue and the southern manifestation and the lighthouse/beacon line come into one alignment attempt. But boundaries: cannot explain old letter unresolved subject, cannot close signal meaning, cannot register conflict subject.
+
+What can concretely happen in chapter 11?
+- He returns to the lighthouse (bringing lighthouse back into frame — it's been the beacon line, completed and under maintenance)
+- He takes the old letter out at the lighthouse, and against the backdrop of the southern signal being clearer, the re-readable clue reads differently — a structural correspondence emerges: e.g., the letter's clue corresponds to a positional relationship between the lighthouse and the southern signal — the line the letter points to passes through the old waterway toward the south. This is an observable structural fact, not an explanation of meaning — so it's within bounds.
+- The three dynamics converge: lighthouse (beacon line, maintenance state), old letter (re-readable clue), southern route (stage result, clearer than first signal).
+- Result: the three lines' reference frames align into one observable structure — e.g., the old letter's clue corresponds to a bearing that, taken from the lighthouse, passes along the old waterway into the southern field. The old letter shifts from "carried dark line" to "active participant in the main line" — the association from ch9's "关联待证" gets upgraded from "to be verified" to "correspondence confirmed at structural level" (but meaning still unread).
+
+Wait — is that "deepening" allowed? The ch9 fact: "未解部分在完成参照下出现一处可再读线索，由此把行动重构为南方唯一主动线加旧信随身暗线，关联待证" — so the association is pending verification. Chapter 11 can advance this: the association is verified at the observable/structural level (the clue corresponds to the direction/geometry), without explaining the meaning or the unresolved subject. That's a legitimate deepening within facts: the pending association (关联待证) moves to correspondence established (对应成立) — but what it corresponds to *in meaning* stays suspended. That's advancing, not new fact creation — it's the natural next step of the existing thread.
+
+Also, the conflict: 第一卷冲突沿航线显出轮廓而内容不可读 (ch9). The conflict push position landed in ch10. In chapter 11, the conflict at the confluence position should push forward — but without registering the conflict subject. What can "conflict advances" look like? The pressure of the unknown: as the three lines align, the suspension list compresses — e.g., the suspensions stop being five separate items and become one linked question (the signal, the route, the letter, the anomaly all pointing the same way / sharing the same south), which is an intensification of pressure, not a resolution. That's a good confluence move: the five suspensions don't get answered, but they get *linked* — which raises stakes without closing anything.
+
+Hmm, but careful — linking the anomaly (异常信号) into the same direction might overreach. Let me be conservative: the old letter's clue and the southern route signal and the lighthouse beacon reference frame align geometrically; the anomaly remains in parallel observation. Actually, the materials say "三动力将在卷末交汇" — three dynamics: old letter, lighthouse, southern route. The anomaly is a fourth maintained item but not necessarily part of the three-dynamic confluence. So chapter 11 should confluence the three: letter + lighthouse + route.
+
+Chapter 11 structure (1000 words, so probably 2-3 scenes):
+
+Scene 1: He leaves the southern observation position and moves toward the lighthouse along the old waterway — carrying the letter. Purpose: physically bring the three dynamics into one frame. The momentum: ch10's explicit pressure must convert to action ("不得卸压、不得把悬置归档延后" — the pressure becomes the reason to move). The hook from ch10 was "clearer but can't say why it's there" — his response: go back to where the lines can be cross-read, i.e., the lighthouse, the fixed reference point of the beacon line.
+
+Scene 2: At the lighthouse, he takes out the old letter and reads the ch9 re-readable clue against the southern view from the lighthouse — the correspondence establishes: the clue's placement/wording corresponds to the bearing of the southern signal as seen from the lighthouse (or: the letter's clue aligns with the line the beacon maintenance stroke covers — the geometry matches). The old letter upgrades from carried dark line to active line. The three dynamics now co-present in one observable frame.
+
+Scene 3 (or merge into 2): The consequence — the five suspensions compress into one linked question; the conflict pressure at the confluence position takes shape as "the lines agree with each other, but the agreement itself is the new unknown" — he registers this, pressure deepens, hook to ch12.
+
+Chapter end hook for 11: should push toward 12's closure. Type options: 未尽之力型 (specific next-step pressure) or 陈述留白型. Given ch10 used 陈述留白型 and ch5, ch7 also — the skill says don't force same types; for ch11, an 未尽之力型 could work: the correspondence established means there's one specific observable check remaining that he can do at the next window — a concrete next step. Or 关系改写型 — but that's for interpersonal stance changes; no interpersonal here. Actually "关系改写型" is about irreversible stance change — could apply to his relationship with the letter (the letter ceases to be a keepsake/dark line and becomes an active instrument) — hmm, that's a relationship-to-object change, not interpersonal. The hook types: 情绪余韵、轻喜回钩、关系改写（立场不可逆改变，一个决定同时完成情绪收束和局面推进）、未尽之力、陈述留白、引语悬置. 
+
+For ch11, 关系改写型 could actually fit if interpreted as the protagonist's irreversible shift in stance toward the old letter (from carrying it as unresolved past to using it as an active line of the present) — "一个决定同时完成情绪收束和局面推进". The letter was the volume's opening object (ch1《未拆的旧信》) — nice bookend resonance. At the confluence, he makes a decision that rewrites his relationship with the letter: it's no longer a thing he carries and rereads; it becomes part of the working frame. That completes emotional closure (the letter's mystery acknowledged) and pushes the situation (it's now an instrument). That's a good fit and gives the batch rhythm variety (ch10 was 陈述留白型).
+
+Alternatively 未尽之力型: after correspondence established, one concrete next pressure — e.g., the correspondence predicts something checkable at a specific position/time, and he must decide to check. Hmm, but that risks inventing a new check/fact. The letter-relationship rewrite is safer and derived from existing material (ch9's 关联待证 → ch11 correspondence established).
+
+Let me go with 关系改写型 for ch11: content — he re-folds the old letter not as before (carried as an unsolved thing) but as a working registration item placed alongside the beacon and signal logs; the act is small but the stance is irreversible — the letter enters the present tense. Hook source: the correspondence established this chapter + ch1/ch9 letter history. Good.
+
+For ch12 (volume-end closure):
+- Task: three-dynamic confluence conflict landing point; explicit suspense inventory; volume-level hook; next-volume transition signal (only from existing suspension list, explicitly carried out, no fabrication)
+- Boundaries: don't close signal meaning, don't fabricate people/ships, don't explain anomaly cause or letter unresolved subject; heavy and honest closure like ch5/ch10, suspensions explicitly carried
+- Anchors: southern visual field observation position and lighthouse/old waterway confluence scene
+
+Chapter 12 structure:
+Scene 1: With the correspondence established (ch11), he does the confluence-position registration — the three dynamics now form one working frame: beacon line (complete, maintaining, providing the reference), southern route (stage result, clearer), old letter (active line). He does a final consolidation at the lighthouse — the conflict landing point: the volume's conflict (the unknown pressing in from the south, the letter's unresolved subject, the anomaly) arrives at a settled shape — not resolved, but *shaped*: the conflict now has a confirmed geometry (the lines converge toward the south / toward one direction) even though its subject and meaning remain unread. The "落点" is: the conflict is now located — it's out there, in the direction the three lines agree on — rather than diffuse.
+
+Wait, careful: "不登记冲突主体与轮廓内容" — I must not register the conflict subject or outline content. Saying "the conflict is located in the south" — is that registering? Ch9 said "第一卷冲突沿航线显出轮廓而内容不可读" — conflict showed an outline along the route, content unreadable. So the conflict being *along the route / toward the south* is already established fact. Chapter 12's landing: the conflict, whose outline showed along the route and whose content is unreadable, now sits at the end of the three aligned lines — this is consistent with established facts, not new registration of subject. The landing is: the waiting/pressure is now anchored — he knows where the pressure comes from (the direction), not what it is.
+
+Scene 2: Suspense inventory — he explicitly registers the suspension list for carry-over: signal meaning, route direction, conflict subject/outline content, letter unresolved subject, anomaly cause, beacon mechanism. Each item registered as carried, not archived. This is the "悬念显式库存" task. Also the expectation debt: the meaning debt of the southern line transfers to volume 2 (transfer not redemption) — carried by the volume hook.
+
+Scene 3: Volume-level hook + next-volume transition. The transition signal can only come from existing suspensions explicitly carried out. Best candidate: the southern line — the debt transfer. The volume hook: something like — with everything registered and the frame built, the southern signal holds its stage state; the direction is fixed, the meaning is owed. A closing image: he stands where the three lines cross (lighthouse, letter in hand, facing south), the work of the volume done, the answer not owed to him yet.
+
+Hook type for ch12: The materials say "收束参照第5章与第10章已确立的收束方式，沉重而诚实，悬置显式携带" — ch5 and ch10 both used 陈述留白型. So ch12 following the established convention: 陈述留白型. That's justified by the skill's allowance: "若本作已确立问句收束、留白收束或其他收束方式，可沿用该惯例." Good — ch12 uses 陈述留白型, matching the batch-end convention, and it's a volume-end so it should carry the debt transfer.
+
+Content for ch12 hook: a calm statement leaving an unexplained fact gap — e.g., the three lines' agreement is now a fixed registration; the south holds; what the agreement means is not in this volume. Something like: 信、灯、航线在同一场几何里对齐了，而对齐意味着什么，登记项里没有这一栏。Hmm — need to write it as content description, not the actual prose line. The skeleton describes hook content direction: he closes the registration; the alignment stands as recorded fact; nothing in the frame says why — the volume ends with the alignment itself as the open statement. Don't write a finished closure sentence (不写成品收束句 per ch10's discipline — that was ch10's rule; for ch12, closing the volume, a final statement is fine, but I should still describe direction not prose).
+
+Now, POV and form: 全卷单POV男主 — both chapters are 主角章 (protagonist chapters). The skill says form choice by narrative need, no quota; here single-POV constraint makes both 主角章. Fine — "连续同形态…在'与前章关系'写明这是本段意图" — I'll note continuity is mandated by the immutable single-POV state.
+
+Function tags: ch10 was 信息整理. Ch11: this is movement + correspondence establishment — 高压推进? It's the confluence entry, converting pressure to action, establishing correspondence — I'd say 高压推进 fits (the confluence raises stakes) — or 普通推进. Let me think: 高压推进 for ch11 (pressure conversion to action, correspondence lands, stakes compress) and ch12... 信息整理? No — ch12 is closure: 三动力合流的冲突落点 + 悬念显式库存. Hmm, the tag menu: 高压推进、普通推进、关系回收、信息整理、生活呼吸. 
+
+Ch12 is a volume-end registration/closure chapter — closest to 信息整理 (inventory, registration) but with the weight of closure. Actually "关系回收" — no interpersonal relations to harvest. For ch11, if I use 高压推进 and ch12 信息整理 — ch10 was 信息整理 and ch12 would repeat it but with ch11 between, so not consecutive. That's fine.
+
+Alternatively ch11 = 高压推进, ch12 = 高压推进? No — ch12 is a settling chapter, not high pressure. Let me do:
+- Ch11: 高压推进 — the confluence compresses five suspensions into one linked frame; pressure-to-action conversion.
+- Ch12: 信息整理 — explicit suspense inventory, volume-end registration, debt transfer. Execution boundary: register only, don't close anything.
+
+Hmm wait — but ch12 is the volume climax-adjacent landing ("冲突落点"). Is 信息整理 right? The conflict landing is the alignment becoming fixed — the registration IS the landing in a single-POV observation story. Yes, 信息整理 with the boundary "登记落点与库存，不收束任何悬置项". Good.
+
+推进策略 (one sentence each): 
+- Ch11: 常规写法 would be to continue observing south from the same position for another round of advance; ch11 instead uses 代价前置/中切... hmm. Let me think what fits. The regular way: stay put, keep observing (like ch5-10). Chapter 11 changes path: 前置结果→回身 — he turns back to the lighthouse, making the advance come from re-reading the old lines rather than new observation — a "回到起点重读" path (回身求证). Because the confluence requires the three dynamics in one frame, and staying at the observation position can only advance the southern line alone. That's a legitimate structural choice serving the confluence task. I can call it "延迟冲突" — no... The menu: 前置结果、中切开场、错位信息、反预期回应、延迟冲突、代价前置, others allowed. I'll describe: 常规写法是在观测位继续向南推观测；本章改用"回身合读"路径——把推进从新观测换成旧线索在新结果下的重读，因为合流位要求三动力同框，单线观测无法完成合流。
+
+- Ch12: 常规写法 would be a climactic new event to close the volume; ch12 instead uses "登记即落点" — the landing is the alignment becoming a fixed registration, because the volume's conflict type is information-pressure (the unknown), and closing honestly means registering the debt, not manufacturing an answer. Path name: 结算即合流/登记收束. Good.
+
+缺口处理:
+- Ch11: 卷末段逐场景任务分解未提供 → 旁支侧证? The gap is task decomposition. Options: 保留为悬念 / POV遮蔽 / 旁支侧证 / 上报待补. The missing scene-level decomposition isn't a story fact gap that readers see — it's an upstream material gap. Handling: 上报待补 for the decomposition? Hmm, but I'm the deepening step — I execute within boundaries. The 缺口处理 field is about how the chapter handles information gaps. The known gaps: 卷末段任务细化未提供/待补信息. I should write: 缺口处理：上报待补——卷末段逐场景任务分解与专属锚点上游未提供，本章以合流位入场为任务边界执行，分解缺口上报；同时剧情内缺口（信号含义、旧信未解主体等）全部保留为悬念。That's honest: distinguishing upstream material gaps (上报待补) from in-story suspensions (保留为悬念).
+- Ch12: 卷级钩子具体形态与下卷衔接信号未提供 → 上报待补 for those; in-story: the meaning debt 保留为悬念 and transferred. Also note: 下卷衔接信号 only from existing suspension list — I'll construct the transfer from the existing list (explicitly allowed: "只能从既有悬置清单…显式承压转出").
+
+Now the four locked names (定稿锁名) must appear verbatim in each chapter skeleton: 卷级承接：、具体增量：、关系变化：、章节形态：. Wait — looking at the output format template, the chapter skeleton includes fields: 章节核心事件、视角目标与关键选择、章节形态、功能标签与执行边界、因果链计划、场景划分, then 具体增量、卷级承接, then 冲突推进链、信息释放节奏、角色弧光变化、伏笔操作、章末钩子. Hmm, the template lists:
+
+【第1章骨架】
+章首承接：...
+存在理由：...
+目标情绪：...
+推进策略：...
+缺口处理：...
+章节核心事件：...
+视角目标与关键选择：...
+章节形态：...
+功能标签与执行边界：...
+因果链计划：...
+场景划分：...
+具体增量：...
+卷级承接：...
+冲突推进链：...
+信息释放节奏：...
+角色弧光变化：...
+伏笔操作：...
+章末钩子：...
+
+But the skill's 推演职责 section says: "在骨架中显式保留四条定稿锁名，措辞固定为：卷级承接：、具体增量：、关系变化：、章节形态：" — so I must also include 关系变化： somewhere. The template doesn't explicitly list it, but the lock-name rule requires it. The ch10 example from input has 关系变化 as its own field. I'll add 关系变化： after 具体增量 or near it. Since the 6a rule says every chapter must register relationship change, and the lock name must appear verbatim, I'll include a 关系变化： line. I'll place it after 具体增量 and before 卷级承接, or after 卷级承接. Order isn't rigidly fixed for that one; I'll put: 具体增量：... / 关系变化：... / 卷级承接：... — keeps the four locks visible.
+
+Also note: 具体增量 must cover at least one of 信息/关系/规则/资源/认知/承诺/处境 with before→after change.
+
+Now let me draft the content in detail.
+
+=== Chapter 11 ===
+
+Title candidates: must be specific, not duplicate. Ideas:
+- 《三条线同框》— hmm, "同框" is a bit modern/casual
+- 《旧信对上南方》— describes the correspondence
+- 《灯下的合读》
+- 《一封信的方向》
+- 《从灯塔回望》
+- 《线索落在航向上》
+- 《旧信与新南》
+- 《重读出的方向》
+- 《对齐的一晚》— hmm "对齐" fine
+- 《线索对上南方》
+- 《旧信指的方向》— good: specific to the correspondence event (the letter's clue now points a direction that matches). Does it duplicate? No. It captures core event: the letter gets a direction, matching the south.
+- 《旧信落进合流位》— jargon-y
+- 《灯与信与南》— list-y
+
+Let me pick 《旧信指的方向》 — concrete: this chapter the old letter acquires a direction (correspondence with the southern bearing from the lighthouse). Wait — but does that risk over-claiming? The correspondence is geometric/structural: the ch9 re-readable clue, read from the lighthouse, matches the southern signal's bearing along the old waterway. The letter "pointing" is the observed correspondence. It doesn't explain meaning. OK.
+
+Alternative: 《在灯塔合上三条线》. Hmm. Or 《三条线的交点》— evokes confluence. "交点" might over-specify geometry (implies exact intersection). 《同一条方向》? Let me go with 《旧信指的方向》 — it directly encodes the chapter's core turn: the letter, previously directionless/unsolved, now demonstrably points somewhere — and that somewhere is where everything else points. Chilling without explaining. Good.
+
+Ch12 title candidates:
+- 《登记到卷末》— jargon
+- 《对齐之后》— vague-ish but specific to post-alignment landing... 
+- 《悬而未决的清单》— describes suspense inventory
+- 《带走的悬置》
+- 《南方欠着一个答案》— strong: captures the debt transfer; "欠" echoes "债" language used throughout (那条线的债). Specific to the volume hook: the meaning debt transferred to next volume. Not duplicating anything. I like 《南方欠着一个答案》— wait, does it over-promise? The debt: 观测推进已兑现，含义部分全额悬置. "南方欠着一个答案" frames it as the south owing an answer — matches "那条线的债" framing. Good.
+- Alternatively 《三条线对齐了》for 11 and... let me keep 11 = 《旧信指的方向》, 12 = 《南方欠着一个答案》.
+
+Both are specific, event/turn/image-bound. Check duplicates against history: no overlap.
+
+=== Chapter 11 full draft ===
+
+章首承接：第10章陈述留白钩子——南方比首信号清楚得多、清楚的那部分说不出它为什么在那里；男主批次末收势完毕、面向南方最后视野；显式承压状态与悬置清单在手。本章从该静止收势中起步，把承压转为动身。
+
+存在理由：卷末段必须完成旧信、灯塔与南方航线三动力的合流入场；第10章止于南方单线，若本章不把男主带回灯塔、把旧信从随身暗线提为在用线索，三动力合流只停留在登记层面而无声可依——删掉本章，卷末合流位没有物理同框，第12章的卷末落点将悬空。具体增量：信息——第9章可再读线索与南方显形阶段结果之间建立可观测的方位对应（几何对应成立，含义仍不可读）；认知——旧信从"随身暗线、关联待证"变为"合流位在用线索"；处境——男主从观测位回到灯塔，三动力首次同框。
+
+目标情绪：前状态——批次末收势后的沉着与悬置并持、面向南方的静立；后状态——对应成立后的凝重确认感：线索没有解释什么，但它和南方站在同一边。
+
+推进策略：常规写法是留在观测位继续向南推一轮观测；本章改用"回身合读"路径——把推进从新观测换成旧线索在阶段结果下的重读，因为合流位要求三动力同框，单线观测永远只推进南方一线，回身才能让灯塔参照与旧信线索进入同一个动作。
+
+缺口处理：上报待补——卷末段逐场景任务分解与专属微场景锚点上游未提供，本章以"合流位入场"为任务边界执行，该缺口上报待补；剧情内缺口（信号含义、旧信未解主体、异常成因、冲突主体与轮廓内容）全部保留为悬念，本章推进对应关系但不触碰任何含义层。
+
+章节核心事件：男主带着旧信从南方观测位回到灯塔，在信标线维护参照下用第9章可再读线索对照南方显形阶段结果，建立起旧信线索与南方航向之间可观测的方位对应——旧信从随身暗线变为合流位在用线索，含义层全额悬置。
+
+视角目标与关键选择：男主想把显式承压的势转成可执行的动作——悬置清单不能归档，就得找到一条能让五项悬置同时被"用起来"的线；关键选择是回灯塔合读旧信，而不是在观测位等下一轮显形——等是延续，合读才可能让已知互证；代价是离开南方视野可能错过新变化，他接受这个代价，因为观测记录已登记、变化有基线可查；结果是对应成立，五项悬置没有减少任何一项，但它们第一次指向可写进同一行登记的方向。
+
+章节形态：主角章。依据：全卷单POV男主为不可逆状态，无其他角色入镜、无对手视角切入安排，卷末段入场视角必须延续主角线。
+
+功能标签与执行边界：高压推进；执行边界——本章不得提前释放信号含义、不得解释旧信未解主体与异常成因、不得登记冲突主体与轮廓内容、不得虚构航线上的人或船；对应关系只到方位几何层，含义层任何表述不得入镜；第12章的卷末收束内容不预支；全章无对白承载。
+
+因果链计划：
+动机：把悬置清单从"显式承认的动力"变成"可操作的求证对象"——承压不能只是背着。
+触发：第10章登记的阶段坐标里"还差什么"一栏全部指向含义层，而含义层的唯一可再读入口是旧信——线索在手，不去合读等于主动卸压。
+决策：回灯塔合读而非观测位等待，因为等待只推进南方单线，合读是唯一可能让旧信、信标参照与南方结果互证的动作；不选"就地重读"是因为缺信标维护参照的几何基线。
+后果：对应成立——旧信线索与南方航向在灯塔参照下可对读；五项悬置未减，但指向收拢。
+兑现：对应成立作为合流位第一产物交给第12章，成为卷末落点登记的核心项。
+
+场景划分：
+
+场景1：回身——从观测位到灯塔的移动，把承压转为动身，途中携带三动力向同框靠拢。目标：完成合流位的物理入场，让"回身"本身成为承压的动作化。起点：承接第10章末——批次末收势完毕、面向南方最后视野；时间接续批次收束后的第一个行动时段，地点从南方视野观测位移向灯塔与旧航道一线。人物位置：男主单人，携旧信、异常未解项、显形第二步与第三步登记项，信标维护状态在身。阻力：离开南方视野的机会成本——转身就意味着这一时段不看南方，可能错过变化；以及承压转化为行动时惯性的抵抗——收势是结束姿态，重新动身要推翻自己的收束。冲突或阻力类型：内心矛盾（收束姿态与承压动力的矛盾）+信息不对称（南方视野离开期间的状态只有基线可依）。场景结果：男主到达灯塔，空间从南方单线切换到三动力可同框的位置；认知结果是"回身"被确认为承压的执行方式。叙事引导：判断修正——收势不是终点而是蓄力完成，压力换了个用法。禁：本章不得提前释放的单元信息——不解释旧信内容、不涉及异常成因。放：正文层可自由演绎回身途中的旧航道环境细节、移动节奏与随身物件的携带状态。视角调度：不切换，POV男主，感知锚点为回身动作与旧航道的接近。承接：下一场景从灯塔处、旧信在手开始。
+
+场景2：合读——旧信线索在信标参照与南方阶段结果下的对读，对应成立。目标：释放本章核心信息——方位对应成立；把旧信提为在用线索，完成三动力同框。起点：承接场景1，男主在灯塔，信标线维护参照在手，南方显形阶段结果与第5章首信号基线可查，第9章可再读线索随身。人物位置：男主单人在灯塔内可同时触及信标参照与南方视野的位置。关键物体：旧信（含可再读线索）、信标维护参照、南方观测登记（阶段结果与首信号基线）、显形第二步与第三步登记项。阻力：对读的两难——线索与航向的对应若成立，含义层就离得更近也更够不到（几何能对上、意思对不上）；以及对应可能不成立的风险——第9章的"关联待证"本身包含证伪可能。冲突或阻力类型：信息不对称（几何层可见、含义层缺席）+内心矛盾（想证成又怕证成之后照样读不懂）。场景结果：对应成立——旧信线索的方位指向与南方航向在灯塔参照下可对读，几何层登记完成；旧信状态从随身暗线改为在用线索；含义层确认全额缺席。信息来源：目视对照、既有登记基线（第5章首信号、第9章线索、信标参照）、内省。初始判断与新证据与判断修正：初始判断——线索只是可再读，未必与航线有关；新证据——在灯塔参照下方位对应可重复对读；判断修正——第9章"关联待证"证成为几何层对应，含义层悬置加深。叙事引导：信息压力——三条线互相印证的同时，没有任何一条说出它们为什么一致。禁：不解释对应为什么成立、不解读线索内容含义、不登记冲突主体。放：正文层可自由演绎对读的具体动作、参照比对的操作细节与线索呈现的现象级形态。视角调度：不切换，感知锚点为对读动作与三条线的同框。承接：下一场景从对应成立的登记开始。
+
+（Two scenes might be enough for 1000 words, but the registration/closure of ch11 could be folded into scene 2's ending or a short scene 3. The ch10 example had 2 scenes. For ch11 I'll do 2 scenes with the registration folded into scene 2's result, and the hook at the end of scene 2. Actually let me add a brief scene 3 for the decision/rewrite moment that powers the hook — hmm, 1000 words is short. Ch10 had 2 scenes for 1000 words. I'll keep 2 scenes but make scene 2's result include the stance rewrite. Actually — the hook is 关系改写型: "一个决定同时完成情绪收束和局面推进". The decision: he re-registers the old letter as a working line — from "随身暗线" to "在用线索" — that IS the relationship rewrite. It can be the closing beat of scene 2. Good, 2 scenes.）
+
+Wait — actually, should scene 1 be a full scene or could the chapter start in medias res at the lighthouse? 中切开场 is an available path but I chose 回身合读. The movement scene gives the pressure-to-action conversion its due and provides spatial grounding for the confluence. 2 scenes total. Fine.
+
+具体增量：信息——旧信线索与南方航向的方位对应成立（几何层，含义缺席）；认知——男主对旧信的关系从"关联待证的随身暗线"变为"对应成立的在用线索"；处境——三动力首次同框，五项悬置指向收拢。
+
+关系变化：无新增人际；认知关系上，男主与旧信的关系从"随身携带、待证其关联"变为"在用对读、对应成立"——变化由场景2的对读事件触发；与灯塔的关系从"已完成信标线的维护对象"变为"合流位的参照原点"；对南方求证从单线推进变为三线互证的进程。
+
+卷级承接：第一卷卷末段合流位入场——本章兑现"旧信、灯塔与南方航线共同推动第一卷冲突"的合流启动；承接第10章三项收束产物（信标线落定、南方求证阶段结果、冲突推进位），主导增量向三动力合流转移；定价变化为延续，无新增。
+
+冲突推进链：初始状态——冲突推进位已落定但悬置清单五项各自为战，冲突压力显式在背而无合力方向；场景1——压力转为动身，冲突随男主移动到合流位，离开南方视野的代价让压力具体化；场景2——对应成立使五项悬置中至少信号含义、旧信未解主体两项被证明共处同一几何，冲突从分散悬置收拢为"同指一处的未知"，压力升级为结构性的；章末状态——冲突在合流位成形为"方向已证、内容未读"的合围势，冲突主体仍未登记；下一步威胁——对应既成立，含义层的缺席不再是分散的无知而是集中在同一点上的无知，第12章必须面对这个收拢后的未知做卷末落点。
+
+信息释放节奏：本章释放——方位对应成立（场景2释放）：谁知道——男主知道几何层对应成立且含义缺席，读者与男主同层；谁不知道——对应为什么成立、线索内容含义，男主与读者均不知道；无误判（无人可误判，单视角）。继续隐瞒——信号含义、旧信未解主体、异常成因、冲突主体与轮廓内容、信标机制：隐瞒代价——对应成立后，含义缺席从背景性的缺席变为聚焦的缺席，读者的求证期待随对应成立上调，债务加重。读者与角色信息差：无差——单POV同层结构延续，读者知道男主知道的一切，不知道男主不知道的一切。
+
+角色弧光变化：开始状态——批次末收势后的沉着与悬置并持，静立于观测位；触发——场景1的回身决定（把承压转为动身）与场景2的对应成立；结束状态——从"背着悬置的观测者"变为"用悬置求证的合读者"：悬置第一次被当作工具而非负担使用；变化性质——推进（从显式承压到承压转化为方法），非逆转、非简单加深。
+
+伏笔操作：
+1. 旧信（战略级）：推进——第9章可再读线索与南方航向的方位对应成立，旧信从随身暗线升为在用线索；未解主体悬置维持；读者可见度：中高（对应动作在明、线索内容不显）。
+2. 南方航线（战略级）：推进——阶段结果获得旧信线索的几何互证，航线走向悬置维持、含义悬置维持；读者可见度：中高。
+3. 风暴信标（战役级）：推进——信标线以维护状态充当合流参照原点，"已完成"转为主线功能；机制未示悬置维持；读者可见度：中。
+4. 异常信号（战役级）：维持——并置观察延续，本章不并入三动力合流，未解部分随身；读者可见度：低。
+
+章末钩子：
+类型：关系改写型——本章的决定（旧信改登记为在用线索）同时完成情绪收束（旧信之谜被承认而非搁置）与局面推进（它进入求证主线），与第10章的陈述留白错开节奏。
+内容：对读结束，男主把旧信按在用线索的方式收进登记处随身位——不再是不拆不决的旧物，而是合流位的常驻项；收信的动作很轻，改写的分量很重：三条线从此互相知道彼此在场。
+钩子来源：本章对应成立事件+第1章旧信起点与第9章可再读线索的既有脉络，无新增危机。
+
+Hmm wait — "收进登记处随身位" — is there a 登记处? I've been using "登记" as a motif (the protagonist registers things). The ch10 material mentions "登记项在手" "登记阶段结果" — registration is an established practice. So "改登记" is consistent. Good.
+
+=== Chapter 12 full draft ===
+
+章首承接：第11章关系改写钩子——旧信改登记为在用线索、三动力同框互知在场；对应成立、五项悬置指向收拢的状态在身。本章从合流位的对应成立状态进入卷末收束。
+
+存在理由：第一卷必须在第12章完成卷末落点——三动力合流的冲突收束成型、悬念显式库存、南方含义之债向第二卷转移；若删去本章，合流位只入场不落点，卷末钩子与下卷衔接信号无处安放，读者承诺"旧信、灯塔与南方航线共同推动第一卷冲突"只兑现一半。具体增量：处境——三动力合流的冲突在"方向已证、内容未读"的形态上收束成型，第一卷落点成立；承诺——南方含义之债显式登记为跨卷债务，转移而非兑现；认知——男主对悬置清单完成卷末清点，从"随身携带的五项"变为"登记在册、随卷移交的库存"。
+
+目标情绪：前状态——对应成立后的凝重确认感；后状态——卷末的沉着与明确的欠账感并持：本卷能做的已做完，做不到的被清点得很诚实。
+
+推进策略：常规写法是用一个高潮事件给卷末收势；本章改用"登记即落点"路径——合流的落点就是登记本身，因为本卷冲突的类型是信息压力（方向可见、内容不可读），制造一个假高潮等于虚构答案；诚实收束只能是把能证的和不能证的分开登记清楚。
+
+缺口处理：上报待补——卷级钩子具体形态与下卷衔接信号上游未提供，本章按边界只能从既有悬置清单显式转出，该缺口上报待补；剧情内缺口（信号含义、旧信未解主体、异常成因、冲突主体与轮廓内容）保留为悬念并随卷转移，不兑现。
+
+章节核心事件：男主在合流位完成第一卷卷末收束——把对应成立的三动力登记为卷末落点状态，清点悬置库存（信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因、信标机制六项显式在册），南方含义之债以转移而非兑现的方式由卷级钩子承载移交第二卷。
+
+视角目标与关键选择：男主想把第一卷做到诚实收尾——合流位既已成形，卷末该回答"这一卷走到了哪"；关键选择是把南方含义之债登记为"跨卷转移"而非"本卷内再推一把"——再推就要预支第二卷的答案，转移则承认本卷的债到此为止；他选转移，因为观测推进已兑现、含义层无本卷入口，硬推只能靠虚构；结果是卷末落点成立，库存清白移交。
+
+章节形态：主角章。依据：全卷单POV男主不可逆状态，卷末收束的结算视角必须与全卷视角一致，无对手视角与群像安排。
+
+功能标签与执行边界：信息整理；执行边界——本章登记落点与库存，不收束任何悬置项：不收束信号含义、不解释异常成因与旧信未解主体、不登记冲突主体与轮廓内容、不虚构航线上的人或船、不虚构下卷内容；下卷衔接信号只从既有悬置清单显式承压转出；收束方式沿用第5章与第10章已确立的沉重诚实基调；全章无对白承载。
+
+因果链计划：
+动机：把第一卷收在诚实的位置——债要记账，不能假装还了或假装没欠。
+触发：对应成立使合流位完整成形，卷末落点的登记条件首次齐备——再不落点，合流就停在半途。
+决策：登记为跨卷转移而非本卷内硬推，因为含义层在本卷没有合法入口（既有边界：含义不可读），硬推等于虚构；转移既兑现"悬置即动力"的承诺又给第二卷留出合法入口。
+后果：第一卷落点成立——三动力合流的冲突以"方向已证、内容未读"成型；六项悬置显式在册移交。
+兑现：移交状态即下卷衔接信号——第二卷从这笔显式登记的债进入。
+
+场景划分：
+
+场景1：落点登记——三动力合流的冲突收束成型。目标：把合流位从入场状态登记为落点状态，完成第一卷冲突的卷末成型。起点：承接第11章末——旧信已改登记为在用线索、对应成立、三动力同框；地点在灯塔与南方视野的合流位，时间进入卷末收束时段。人物位置：男主单人，携全部登记项（信标维护参照、南方观测登记、旧信在用线索、异常未解项）。关键物体：三动力同框的全部登记物。动作链：男主做卷末核对——以信标参照为原点，核对南方航向与旧信线索的对应在卷末时刻仍成立；登记冲突落点——方向已证、内容未读，冲突主体不入镜；确认本卷三动力各自贡献了什么（信标给了参照、旧信给了指向、航线给了去处）。阻力：落点登记的两难——登记越准确，"未读"的分量越重；以及收卷冲动——想把某一项顺手收掉让卷尾好看，但每一项都没有本卷入口。冲突或阻力类型：内心矛盾（收卷的整洁冲动与诚实登记的纪律）+信息不对称（几何层已证、含义层缺席）。场景结果：冲突落点登记完成——三动力合流的冲突以可登记的形态成型，第一卷落点成立；空间结果是合流位成为卷末落点坐标。叙事引导：判断修正——本卷的完成不是知道了什么，而是把不知道的摆到了准确的位置上。禁：不收束任何悬置项、不解读线索内容、不预支第二卷。放：正文层可自由演绎核对动作、合流位环境与登记形态的现象级呈现。视角调度：不切换，感知锚点为三线同框的核对动作。承接：下一场景从落点成立转入库存清点。
+
+场景2：库存清点与跨卷移交——悬念显式在册，南方含义之债转移承载于卷级钩子。目标：完成悬念显式库存与下卷衔接信号，兑现收束承诺。起点：承接场景1落点登记完成，地点不变，时间接续。人物位置：男主单人。关键物体：悬置清单（信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因、信标机制）、旧信、南方最后视野。动作链：男主逐项清点悬置库存——每项登记"在册、未解、随卷移交"；执行关键选择——南方那条线的含义之债登记为跨卷转移而非兑现，由卷级钩子承载；做卷末收势——面向南方留下第一卷最后视野，移交状态成形。信息来源：场景1落点登记与全卷既有登记、内省。阻力：移交的重量——清点每多诚实一分，第二卷的起点压力就多一分；收势与欠账并持。冲突或阻力类型：内心矛盾（收束的完成感与债务的未清感）。场景结果：库存清点完成、六项显式在册移交；卷末交接状态成立——第一卷收束，第二卷从显式登记的债进入。叙事引导：情绪张力——沉着与欠账感并置，收在动作收束、债务在册的留白里。禁：不虚构下卷内容、不给出任何悬置项的答案或倾向。放：正文层可自由演绎清点动作的节奏、最后视野的静立与移交登记的形态。视角调度：不切换，感知锚点为清点收势与南方最后视野。承接：第二卷从移交状态进入；下卷衔接内容上游未提供、待补信息，本章只登记债的转移、不虚构下卷。
+
+具体增量：处境——三动力合流的冲突以"方向已证、内容未读"收束成型，第一卷落点成立；承诺——南方含义之债显式登记为跨卷转移（转移而非兑现）；认知——悬置清单从随身携带的五项变为登记在册、随卷移交的六项库存（信标机制并入卷末清点）。
+
+Hmm wait — the suspension list in ch10 was five items (信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因), and 风暴信标机制 was listed as a separate maintained suspension in the assets ("机制未示悬置延续"). In ch12's inventory I can include it as the sixth item — the assets say "开放悬念：信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因、风暴信标机制" — yes, six items in 开放悬念. Good, inventory of six is faithful.
+
+关系变化：无新增人际；认知关系上，男主与悬置清单的关系从"随身携带的压力"变为"登记在册、随卷移交的库存"——变化由场景2的清点事件触发；与第一卷求证进程的关系从"推进中"变为"落点成立、债已记账"。
+
+卷级承接：第一卷《风暴起点》收束产物落点——旧信、灯塔与南方航线共同推动的冲突在合流位收束成型，收束产物为三动力合流的卷末状态与下卷衔接信号（显式登记的跨卷债务）；承接第11章对应成立状态；定价变化为延续，无新增。
+
+冲突推进链：初始状态——对应成立后，冲突以"同指一处的未知"聚在合流位；场景1——核对与登记使冲突落点成型：方向已证、内容未读、主体不入镜，冲突从进行态转为成型态；场景2——库存清点把冲突的未知面显式移交，冲突压力随卷转移而非消散；章末状态——第一卷冲突以"债在册、方向在望"收卷，压力完好；下一步威胁——第二卷从这笔显式登记的债进入，含义层的缺席是移交清单上最重的一项。
+
+信息释放节奏：本章释放——卷末落点状态与悬置库存的显式登记（场景1释放落点、场景2释放库存）：谁知道——男主知道全部登记内容与六项悬置的未解状态，读者与男主同层；谁不知道——六项悬置的任何答案，男主与读者均不知道；无误判（单视角无人可误判）。继续隐瞒——全部六项：隐瞒代价——转移而非兑现意味着债务全额进入第二卷，读者的期待债以登记形式加压；冲突主体与轮廓内容继续不可读，第一卷内不给出任何接近答案的暗示。读者与角色信息差：无差——单POV同层结构贯穿全卷。
+
+角色弧光变化：开始状态——对应成立后的凝重确认感，合读者姿态；触发——场景1的落点核对与场景2的转移决策；结束状态——从"用悬置求证的合读者"变为"为债记账的收卷人"：第一卷的弧线从茫然（若按标题推断的开篇旧信）走到诚实清点，本卷末他对未知的姿态是纪律化的——不假装知道，不假装没欠；变化性质——推进（承压→用压→记账的第三步），非逆转。
+
+Hmm — careful: 弧光起点 in ch12 is ch11's end state. The "全卷弧线" reference is fine as context but the field asks 本章开始→结束. Let me keep it chapter-local with a light volume note.
+
+伏笔操作：
+1. 南方航线（战略级）：推进+转移——含义之债以跨卷转移方式由卷级钩子承载移交第二卷，方向与含义悬置维持；读者可见度：中高。
+2. 旧信（战略级）：推进+转移——在用线索状态随卷移交，未解主体悬置维持；读者可见度：中。
+3. 异常信号（战役级）：维持+转移——待解释、并置观察状态显式在册移交；读者可见度：低。
+4. 风暴信标（战役级）：维持+转移——完成维护中、以参照原点身份完成卷末功能，机制未示悬置在册移交；读者可见度：低。
+（上游无明确回收安排，本章不执行回收操作——登记此边界。）
+
+章末钩子：
+类型：陈述留白型——沿用第5章、第10章批次末与卷末已确立的收束惯例（沉重诚实、悬置显式携带），与本卷收束气质一致。
+内容：卷末收势完成——男主在合流位面向南方留下第一卷最后视野，登记收拢；平静陈述留下的缺口是：方向已证、内容未读，那笔含义之债记在册上、随卷移交，本卷没有为它写答案；动作已收束，债务悬置移交第二卷，不写成品收束句。
+钩子来源：本章落点登记与库存清点+第5章首信号、第10章阶段结果、第11章对应成立的既有脉络，无新增危机。
+
+Hmm, the source says "不写成品收束句" was ch10's discipline. For ch12 as the final chapter of the volume, the ending statement IS the volume hook. I'll describe direction, not prose. Fine.
+
+=== Batch tables ===
+
+【批次节奏登记】
+| 章 | 章节形态 | 功能标签 | 钩子类型 | 与前章关系 |
+| 11 | 主角章 | 高压推进 | 关系改写型 | 与第10章（信息整理、陈述留白）换挡：卷末段入场由静转动，节奏意图为把承压转为行动 |
+| 12 | 主角章 | 信息整理 | 陈述留白型 | 与第11章换挡：卷末收束由动转结，沿用第5/10章已确立的陈述留白惯例；连续同形态（主角章）为全卷单POV不可逆状态的既定意图 |
+
+【章节总览】
+| 章 | 标题 | POV | 字数 | 一句话摘要 |
+| 11 | 旧信指的方向 | 男主 | 1000 | 男主带着旧信回到灯塔，用第9章可再读线索对照南方显形阶段结果，对应在几何层成立——旧信升为在用线索，三动力同框，含义层全额悬置。 |
+| 12 | 南方欠着一个答案 | 男主 | 1000 | 男主在合流位完成第一卷卷末收束：三动力合流的冲突以"方向已证、内容未读"落点成型，六项悬置显式在册，南方含义之债跨卷转移移交第二卷。 |
+
+【全书资产继承】 — must pass concrete content, no ellipsis, no "同上一步". I need to reproduce the assets in condensed but concrete form.
+
+故事梗概：男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形；第一卷"风暴起点"的冲突由旧信、灯塔与南方航线共同推动。
+
+角色状态：男主（全卷单POV，无其他角色入镜，全章无对白承载）；截至第11章末状态会由本章推演确定 — wait, the 继承 block should reflect what's inherited from input, i.e., as of chapter 10 (the input state), since chapters 11-12 are being generated. Actually the 全书资产继承 in the output — should it be the input state or post-batch state? The template says 【全书资产继承】故事梗概/角色状态/世界规则/伏笔索引/术语规范/读者承诺/开放悬念. Since this is what the next step consumes along with the skeletons, the most useful version is input state (as of ch10) — the skeletons themselves carry the batch's changes. The input 全书资产 said "截至第10章末". I'll carry it as-of-ch10 with that label, which is faithful. Hmm, or should I update to include ch11-12 outcomes? The skeleton output itself details the changes; the inheritance block passing the input state with the as-of marker is the faithful approach. Actually — thinking about downstream consumption: the next step (S4) reads both the inheritance and the skeletons. Passing as-of-10 state is accurate and the skeletons supply deltas. But there's a risk of the next step treating inheritance as final. The input's own asset block said "截至第10章末" — I'll do the same: "角色状态：…（截至第10章末，本批次第11-12章变化见各章骨架的关系变化与具体增量）" — hmm, that parenthetical is fine and honest. Actually simpler: keep as input state, labeled. Let me do that.
+
+Actually, let me reconsider: to minimize ambiguity I'll write 角色状态 as of 第10章末 exactly as inherited, and add a short bracket noting batch deltas live in the skeletons. That's concrete and not ellipsis.
+
+世界规则：灯塔、旧航道、风暴信标（已完成、维护中、机制未示）；南方航线信号显形分步（外显、轮廓、显形第二步与第三步）；旧信（随身、第9章可再读线索）；异常信号（待解释、并置观察）；其余世界规则细节未提供/待补信息。
+
+伏笔索引：南方航线（战略级，推进中：第5章首信号→第10章阶段结果落定，含义与走向悬置）；旧信（战略级，维持：随身、第9章可再读线索、未解主体悬置）；异常信号（战役级，维持：待解释、并置观察）；风暴信标（战役级，完成线：第8章信标线落定、维护中、机制未示）。已回收：未提供/待补信息。
+
+术语规范：风暴信标（已完成、维护中、机制未示）；南方航线信号显形分步（外显、轮廓、显形第二步与第三步）；旧信（含可再读线索）；异常信号（待解释、并置观察）；信标线、南方求证、冲突推进位、合流位（第11章起用，指旧信、灯塔与南方航线三动力同框的卷末段位置）。
+
+Hmm — "合流位" is used by upstream material already ("卷末段合流位"), so it's an inherited term. Good.
+
+读者承诺：第一卷冲突由旧信、灯塔与南方航线共同推动——卷末段三动力合流必须兑现；南方那条线的债——观测推进已兑现、含义部分显式悬置，悬置即动力，不得卸压归档；沉重诚实的收束方式（第5章、第10章已确立）。其余承诺未提供/待补信息。
+
+开放悬念：信号含义、航线走向、冲突主体与轮廓内容、旧信未解主体、异常成因、风暴信标机制——均为需维持的开放项；边界已成立：航线上的人或船未被虚构、冲突主体未登记。
+
+【当前卷继承】
+卷名：风暴起点
+主题：男主发现旧信，确认灯塔信标，并沿南方航线推进第一卷冲突
+卷段位置：第11-12章为卷末段（合流位与卷末收束），本批次覆盖全卷末段
+卷级承接：承接三项收束产物已落定的卷状态（信标线落定、南方求证阶段结果、冲突推进位）；卷型、卷使命、主导增量、定价变化区间、对手动作意图上游未提供/待补信息——已知主导增量为三动力合流转移、定价变化写延续无新增、对手不入镜（冲突主体不登记，其存在只以既有悬置压在主角线上）；第12章收束产物为三动力合流的卷末状态与下卷衔接信号。
+
+【标题状态】
+上游历史标题：第1章《未拆的旧信》、第2章《信里的灯塔》、第3章《对不上的两点》、第4章《只出现一次的应答》、第5章《南方的第一个信号》、第6章《第6章《航线上多出的东西》》、第7章《第7章《第二次显形》》、第8章《第8章《余留清零》》、第9章《第9章《读第二遍的旧信》》、第10章《第10章《更清楚的南方》》（第6-10章嵌套书名号格式异常按输入原样登记）
+
+本批次标题：
+第11章｜旧信指的方向
+第12章｜南方欠着一个答案
+
+Wait — the format in the template: "第N章｜标题". So "第11章｜旧信指的方向" and "第12章｜南方欠着一个答案". Good — and note the historical entries had nested book-title marks; I register them as-is per input. My new ones use the plain format per template.
+
+【剧情点进度继承】
+已消费剧情点：发现旧信（第1章）、确认灯塔信标（第2-8章，信标线第8章落定）、沿南方航线推进第一卷冲突（第5章首信号至第10章阶段结果与冲突推进位落定）。
+当前剧情点：第一卷冲突合流——旧信、灯塔与南方航线共同推动；第11章完成合流位入场与几何对应成立，第12章完成合流落点与卷末收束；卷末段细化上游未提供、待补信息，本批次以合流位入场与卷末收束为任务边界执行。
+后续剧情点：第二卷从显式登记的跨卷债务进入（南方含义之债转移移交）；下卷剧情点与衔接内容未提供/待补信息。
+
+Hmm wait — "当前剧情点" should reflect what this batch consumes: the confluence. And "后续" = volume 2. But careful: I shouldn't fabricate volume 2 content — saying "第二卷从显式登记的跨卷债务进入" is the transfer registration from ch12's own material ("由卷级钩子承载该转移"), which is sanctioned. OK.
+
+Now — the 输出铁律: first character must be 【, last must be 】. My output ends with 【第12章骨架结束】— ends with 】, good. Starts with 【批次节奏登记】. Good.
+
+No JSON, no code fences. Tables in GFM.
+
+Let me double-check boundaries for each chapter:
+
+Ch11:
+- Does the "方位对应成立" violate anything? Boundaries: 不收束信号含义（no — correspondence is geometric, meaning untouched）；不登记冲突主体与轮廓内容（no）；不虚构航线上的人或船（no）；不解释异常成因与旧信未解主体（no — the letter's clue gains a direction, not an author/explanation）。Is correspondence a "new event"? It's the advancement of ch9's "关联待证" thread — a verification step of an existing pending item, executed via deepening (演绎可追溯：ch9 线索 + ch10 阶段结果 + 灯塔参照 = 对应可对读). I think this is legitimate deepening: "把一句话素材推演成有戏剧意图的场景结构" and it doesn't change locked facts. The letter pointing south-ish — hmm, does it change "航线走向悬置"? The route direction is suspended as a question of where the route goes / what the line means; a bearing correspondence between letter and southern view doesn't reveal the route's destination or meaning. It says: the letter's clue and the southern bearing align in the observable frame. The route's actual走向 (where it leads, what's at the end) remains unknown. Fine.
+
+One more check: "第9章可再读线索" — I don't know the clue's content. I must not specify it. I'll keep it at "第9章可再读线索" without describing content, and in 放 give the prose layer freedom for the phenomenon-level presentation. Good.
+
+- 场景1 movement: is moving to the lighthouse "new"? The lighthouse is established (全书大纲层, beacon line), and ch11 material explicitly lists 灯塔与旧航道 as 合流推进的场景候选. Sanctioned.
+
+Ch12:
+- "信标给了参照、旧信给了指向、航线给了去处" — hmm, "航线给了去处" might overstate (we don't know the destination). Rephrase: 信标给了参照、旧信给了指向、航线给了去向的可见部分（方向已证、终点未读）. Better: 信标给了参照、旧信给了指向、航线给了方向——终点与含义未读。Actually "方向已证、内容未读" is my formula; let me make the three contributions: 信标线提供参照原点、旧信提供指向、南方航线提供方向已证而内容未读的那条线。OK.
+
+- 六项悬置: signal meaning, route direction, conflict subject & outline content, letter unresolved subject, anomaly cause, beacon mechanism. The ch10 list had five; assets list six (including beacon mechanism). Consistent.
+
+- The "登记即落点" path: fine.
+
+Rhythm table "与前章关系" for ch11: previous chapter (ch10, batch history) had 信息整理 + 陈述留白型. My note: 换挡 from 信息整理 to 高压推进, from 陈述留白 to 关系改写. For ch12: 与前章(11)关系 — form continuous (both 主角章, mandated), function 换挡 back to 信息整理 (mirrors ch10's settlement but as volume-end; not consecutive with ch10), hook returns to 陈述留白 per established convention (ch5/ch10 precedent, not consecutive with... well ch11 breaks the adjacency). Good.
+
+Also the note about 连续同形态: "连续同形态、同功能或同钩子时，在'与前章关系'写明这是本段意图" — ch11 and ch12 are both 主角章 consecutively → I must state this is intentional/mandated. Done in ch12's row.
+
+Scene count and 承接 fields: each scene ends with 承接. Chapter skeletons have the fields; last scene's 承接 points to next chapter (as ch10's did).
+
+Let me also double check the 章首承接 for ch11 references the ch10 hook properly. Yes.
+
+Also "目标情绪：前状态→后状态" — done, with event-triggered change.
+
+Also 存在理由 must name increment categories concretely — done.
+
+Also each scene needs 场景目标、场景起点、冲突或阻力、场景结果、叙事引导、视角调度、承接 — I have 目标/起点/阻力/结果/叙事引导/视角调度/承接 for each. I should also include 禁/放 per scene (the template shows 禁：...放：... inside scene lines). Ch10's example included 禁止 in scenes. The template: "场景1：目标...起点（...）...阻力...结果...叙事引导...禁：本章不得提前释放的单元信息...放：正文层可自由演绎的范围...承接..." — yes include both per scene. Done above; let me make sure each scene has both 禁 and 放.
+
+Scene1 ch11: 禁 — 不解释旧信线索内容、不涉及异常成因、不预支对应结果（the correspondence should land in scene 2, so scene 1 must not pre-release it）— good addition. 放 — 回身途中旧航道环境细节、移动节奏、随身物件携带状态。
+
+Scene2 ch11: 禁 — 不解释对应为何成立、不解读线索内容含义、不登记冲突主体与轮廓内容、不虚构航线上的人或船。放 — 对读操作细节、参照比对的现场动作、线索呈现的现象级形态。
+
+Ch12 scene1: 禁 — 不收束悬置项、不解读线索内容、不预支第二卷、不虚构航线上的人或船。放 — 核对动作、合流位环境、登记形态现象级呈现。
+Ch12 scene2: 禁 — 不虚构下卷内容、不给出任何悬置项答案或倾向、不收束含义之债（转移不兑现）。放 — 清点节奏、最后视野静立、移交登记形态。
+
+Also, per info release rhythm: "信息释放后登记谁知道、谁不知道、谁误判" — single POV, no other characters → 谁误判：无（无人可误判）. Done.
+
+One more consideration — 术语规范 in 全书资产继承: input didn't have a 术语规范 section explicitly; assets had 世界规则与术语. I'll list the locked terms as above. That's faithful extraction.
+
+Also — the input for ch11 mentions "异常未解项随身" — my ch11 keeps 异常 in parallel, not merged. Consistent with 伏笔操作 #4.
+
+Also the ch11 卷级承接 must state the locked phrase "卷级承接：" — yes it's a labeled field.
+
+Let me also verify title uniqueness within batch: 《旧信指的方向》 vs 《南方欠着一个答案》 — different. vs history: no overlaps. Ch1 was 《未拆的旧信》 — mine 《旧信指的方向》 shares "旧信" but is a different title; rule is titles must not be identical. Fine. Ch10 《更清楚的南方》 vs 《南方欠着一个答案》 — different. OK.
+
+Hmm, one concern: 《旧信指的方向》 — does "指" imply the letter actively points, i.e., the clue contains a directional element? Ch9: "未解部分在完成参照下出现一处可再读线索" — the clue is a re-readable element in the unfinished part. For the correspondence to be geometric, the clue must have some positional/orientational quality... I'm asserting the correspondence is "方位对应" — that the clue, read against the lighthouse reference, matches the southern bearing. Is that inventing a property of the clue (that it has directional content)? Hmm. This is the deepening judgment call. The alternative: correspondence of placement/structure — e.g., the clue corresponds to the southern signal in the sense that when read at the lighthouse with the stage result, the clue's re-readable aspect aligns with the route's visible geometry. Since I can't know the clue's content, I should phrase it carefully: "线索与南方航向之间的对应" at the observable level, without asserting the clue literally contains a compass bearing. Let me soften: 对应成立的形式由正文在现象级边界内演绎（线索的方位性指向不预设为其字面内容）— hmm, getting convoluted. 
+
+Simpler framing: the correspondence is between the re-readable clue and the southern line as co-observable structure — the clue and the route's bearing "对得上" in the same frame; what exactly in the clue corresponds stays at phenomenon level for prose. And the title 《旧信指的方向》 then reads as the poetic registration: after this chapter, the letter has a direction in the working frame — "指的方向" = the direction it's now registered against (the south). This is defensible: the chapter's event is the correspondence; the title names its meaning without asserting letter content. Also note the title is a title, not a fact claim — titles like 《南方的第一个信号》 similarly compress. OK, proceed.
+
+Also for the correspondence: I keep saying "方位对应/几何对应" — let me define once: 对应指线索与南方航向在同框参照下可对读的一致性，其具体呈现形态由正文在现象级边界内演绎，含义层不入镜. That covers it.
+
+Also — check "不得为数量目标补写伏笔或冲突" — my conflicts derive from existing suspensions. Good.
+
+Now, about 字数: 单章字数1000 — each chapter skeleton notes 1000 in overview. Two scenes per chapter is right for 1000 words.
+
+Let me also handle "视角调度" for each scene: 不切换，POV男主，感知锚点为… (ch10 used 感知锚点 language). Include.
+
+Also "多人场景" rules N/A.
+
+Now assemble final output. Format check:
+
+【批次节奏登记】
+table
+【批次节奏登记结束】
+
+【章节总览】
+table
+【章节总览结束】
+
+【全书资产继承】
+...
+【全书资产继承结束】
+
+【当前卷继承】
+...
+【当前卷继承结束】
+
+【标题状态】
+上游历史标题：...
+本批次标题：
+第11章｜...
+第12章｜...
+【标题状态结束】
+
+【剧情点进度继承】
+...
+【剧情点进度继承结束】
+
+【第11章骨架】
+...
+【第11章骨架结束】
+
+【第12章骨架】
+...
+【第12章骨架结束】
+
+The tables: GFM with proper separator rows. Cell content no line breaks.
+
+For the 上游历史标题 in 标题状态 — list all ten as provided, verbatim including the nested anomalies, noted as registered as-is.
+
+Let me now also make sure the 锁名 appear verbatim: "卷级承接："、'具体增量："、"关系变化："、"章节形态：" — all present as field labels in both chapter skeletons. Yes.
+
+Also the 因果链计划 five questions each one line. Yes.
+
+Also 冲突推进链 four bullets: 初始状态/场景升级/章末状态/下一步威胁 — I'll write as flowing lines labeled.
+
+Also 信息释放节奏 needs: what released & where; what withheld & cost; reader-character info gap; who knows/doesn't/misjudges. Done.
+
+Also 角色弧光变化: start state / trigger scene-event / end state / nature (推进/逆转/加深). Done.
+
+Write it out now, being complete but not bloated. Ensure first char 【 and last char 】, no trailing content.
+
+One more detail: the 章首承接 for ch12 — the ch11 hook. And ch12's 场景起点 references ch11's end state ("承接第11章末——旧信已改登记为在用线索…"). Good — and the ch12 material said "不虚构第11章未落定的细节" — since I'm generating both, ch12 references ch11 as generated here. Fine.
+
+Also should ch11 include the "异常未解项" being carried? Yes, carried but not merged — registered in 伏笔操作 and scene 起点.
+
+Final check on the "与前章关系" for row 11: previous chapter is ch10 from batch history. Also row 12 vs row 11. Include both.
+
+Also in 批次节奏登记, columns: 章 | 章节形态 | 功能标签 | 钩子类型 | 与前章关系. Rows for 11 and 12.
+
+Let me write the final answer.

@@ -1,0 +1,523 @@
+Let me analyze this task carefully.
+
+I'm playing the role of a "章节深化任务包构建" (Chapter Deepening Task Package Builder) skill. My job is to parse the upstream volume outline and book outline, lock in the batch chapter range, and build chapter deepening task packages.
+
+Key rules:
+1. I only output the parsed product, no analysis/thinking/planning
+2. First character must be 【, last character must be 。 or 】
+3. NO JSON output
+4. Output format is strictly defined with markers
+
+Let me parse the input:
+
+**Application parameters:**
+- 全书大纲: The book outline describes a lighthouse/storm beacon/southern route story with 8 sections, all saying "男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形" and 第一卷 风暴起点.
+- 当前卷概要: 风暴起点 - 男主发现旧信，确认灯塔信标，并沿南方航线推进第一卷冲突。
+- 本卷总章数: 12
+- 单章字数: 1000
+- 已生成章节标题清单: 第1章《未拆的旧信》, 第2章《信里的灯塔》, 第3章《对不上的两点》, 第4章《只出现一次的应答》, 第5章《南方的第一个信号》
+- 上一章事实: Chapter 5 details (extensive)
+- Task: 生成第6章到第10章，共5章。不要重复任何已有标题。
+
+So this is a **补充生成** (supplementary generation) task:
+- Already generated: Chapters 1-5
+- This batch: Chapters 6-10 (5 chapters)
+- Total chapters: 12 (per 本卷总章数)
+
+Wait, there's a discrepancy: 预计章节数 in the template parameters isn't explicitly given, but 本卷总章数 says 12. The input says "生成第6章到第10章，共5章". So the batch range is 6-10.
+
+**Story content understanding:**
+
+全书大纲:
+- 第1-8节 all repeat: 男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形
+- 第一卷 风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突。
+
+卷纲: 风暴起点 - 男主发现旧信，确认灯塔信标，并沿南方航线推进第一卷冲突。
+
+So the plot points can be inferred as roughly:
+1. 剧情点1: 发现旧信 (from chapter 1-2 titles: 未拆的旧信, 信里的灯塔)
+2. 剧情点2: 确认灯塔信标 (chapters 2-5: 对不上的两点, 只出现一次的应答, 南方的第一个信号 - the previous chapter facts mention 兑现剧情点2关键推进段)
+3. 剧情点3: 沿南方航线推进第一卷冲突 (starts from chapter 6)
+
+The 上一章事实 explicitly says: "为剧情点3沿南方航线推进第一卷冲突备好起点" and "第6章从确认余留加南方信号的双线压力开始，剧情点3的冲突主体将从航线方向进入。"
+
+So 剧情点进度:
+- 已消费剧情点: 剧情点1（旧信发现）、剧情点2（信标确认——进程过半，最终完成留待后续，异常未解）
+- Wait, actually 剧情点2's 关键推进段 was fulfilled in chapter 5, but the confirmation is only "过半" (halfway). So 剧情点2 is partially consumed — 确认过半 but 余留 remains.
+- 当前剧情点: 剧情点3 沿南方航线推进第一卷冲突, starting from 确认余留+南方信号双线状态
+
+Let me structure the output:
+
+【全书资产】
+1. 故事梗概: 男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形；旧信、灯塔与南方航线共同推动第一卷冲突。
+2. 主题命题: Not explicitly provided. The outline doesn't state a theme explicitly. I should note what's available — maybe "未提供/待补信息" for explicit theme, or extract from what's there. The outline is sparse. I should be careful not to fabricate. The available facts: 风暴、信标、旧信、南方航线。I can note the narrative stages as 第1-8节主线推进（信标确认→南方航线显形）。
+3. 核心角色: 男主 only. No name given. 状态：确认进程过半，南方信号进入视野，双线并持。
+4. 世界规则、势力格局、术语规范: Not provided → "未提供/待补信息"。Terms available: 灯塔、旧航道、风暴信标、南方航线、旧信、异常信号。I can list these as 术语 but note the details 待补. Actually these are proper nouns from the outline, so I can register them as 术语规范 known so far.
+5. 全书伏笔索引: Based on chapter 5 facts:
+   - 旧信（战略级，推进中，未解部分与异常、信号并置，三物首次同框）
+   - 风暴信标（战役级，推进中，确认过半，最终完成留待后续，机制未示）
+   - 南方航线（战略级，埋设于第5章，首个显形信号进入视野，含义与走向全悬置）
+   - 异常信号（战役级，推进中，未解状态随身携带，处置安排待补）
+   - 已埋设/已回收/待回收: none confirmed recycled. So 待回收: 旧信未解部分、异常成因、信号含义与走向、信标机制。
+6. 读者承诺: Based on outline — 信标确认必须完成？南方航线显形、第一卷冲突由旧信/灯塔/南方航线推动。I should register direction-level promises: 风暴信标确认线要走到完成、南方航线要从显形走向推进冲突、旧信要解释其作用。Careful not to overpromise. These are direction-level from the outline.
+7. 开放悬念: 异常信号成因、南方航线信号含义与走向、旧信未解部分、信标机制。
+8. 对话指纹: 未提供/待补信息. Note: chapter 5 says 全章无对白承载, and it's 单POV男主, no other characters. So no dialogue fingerprint data.
+
+【当前卷信息】
+1. 卷名: 风暴起点; 主题: not explicitly stated → extract direction: 旧信、灯塔与南方航线共同推动第一卷冲突; 核心叙事驱动问题: 风暴信标确认 + 南方航线显形背后的冲突 (could register: 信标确认能否完成、南方航线通向什么冲突). Careful: derive from given material.
+2. 四段结构: 卷纲 doesn't explicitly give four segments. The outline has 8 sections of the book (第1节-第8节) plus 第一卷 note. The volume outline is one line. So four-段 structure: 未提供/待补信息 in detail, but I can map by progress: 开篇=发现旧信（第1-2章已生成）, 中段=确认信标（第3-5章已生成, 过半）, 后段=确认余留+南方求证并行, 卷末=冲突主体进入. Hmm, actually I should be careful — the 卷纲 only says "男主发现旧信，确认灯塔信标，并沿南方航线推进第一卷冲突". This gives three movements. I can register the four-段 as inferred mapping but mark it as 按剧情点顺序映射, or write 未提供/待补信息 for explicit four-段. The instructions say: "索引缺失时按剧情点顺序与四段结构分配，并把缺失项记入信息缺口，不虚构进度。" So I should note the missing parts in 信息缺口.
+
+3. 剧情点:
+   - 剧情点1: 发现旧信（第1章起，已消费）
+   - 剧情点2: 确认灯塔信标（第2-5章推进，确认过半，余留随身，最终完成留待后续批次）
+   - 剧情点3: 沿南方航线推进第一卷冲突（第6章起，冲突主体将从航线方向进入）
+   - Also possibly 剧情点4 for 卷末冲突? The 卷纲 says "沿南方航线推进第一卷冲突" — that's the third movement. The four-section structure isn't explicit.
+
+4. 微场景锚点: From 上一章事实: 临门一环的推进位置（两点之间）、旧航道侧望向南方的观测位、观测位收束。Also earlier: 灯塔、旧航道、两点对位 (from chapter titles 对不上的两点). Register: 灯塔与旧航道之间的对位点、旧航道侧观测位、南方方向视野。Specific details 由正文演绎.
+
+5. 角色弧光方向: 男主从以信标为终点 → 信标之外有向南延伸的求证方向; 对南方信号欠下弄清那条线的新债。核心冲突层次: 男主与信息差（信号含义、异常成因、旧信未解）之间的张力 + 第一卷冲突主体将从航线方向进入。
+
+6. 伏笔操作: as listed above.
+
+7. 卷末状态: 未提供 explicitly (卷纲 doesn't describe 卷末状态). From 上章 facts: 第6章 will receive 双线 (确认余留+南方信号). 卷末 (chapter 12) status: 未提供/待补信息, but 第一卷 conflict is being pushed along southern route. I'll mark 未提供/待补信息 where missing.
+
+8. 章节进度索引: 卷纲 doesn't provide explicit per-chapter index. 本卷总章数12. Chapters 1-5 consumed 剧情点1、剧情点2(主体). Chapters 6-10: 剧情点3 推进 (沿南方航线推进第一卷冲突), with 确认余留并行. Chapters 11-12 presumably 卷末收束 (未提供). I'll map accordingly and note gaps.
+
+9. 剧情单元与期待债: Not explicitly provided in 卷纲. From chapter facts: 第5章 ended with 陈述留白钩子, 期待债: 男主对南方信号欠下"弄清那条线"的新债. I can register: 期待债入口——南方信号的含义与走向（第5章制造/加深）, plus 异常成因、旧信未解部分、信标最终完成. These are the debts to carry. 资源状态/账本: 未提供.
+
+10. 结构段与信息区: 未提供/待补信息. 信息短章区: previous chapter mentioned "信息短章区用途" in style reference but for this story not provided. Actually the style reference is a generic example (陈暮 example), not this story. So for this story: 未提供.
+
+11. 卷型与卷使命: 第5章 facts say "南方航线显形属卷纲既定主线方向，非卷型定价变化，定价变化为延续，无新增". 卷型: 未明确提供; 卷使命: 第一卷 风暴起点——旧信、灯塔与南方航线共同推动第一卷冲突. 主导增量: 未提供/待补信息; 对手动作意图: 未提供（第5章无新增危机，冲突主体将从航线方向进入）; 收束产物: 未提供.
+
+【本批次范围】
+补充生成：已生成第1-5章，本批次第6章到第10章
+总章数：12
+本批次章节数：5
+
+【批次历史状态】
+已生成章节数：5
+最后已生成章节：第5章《南方的第一个信号》
+历史标题：第1章《未拆的旧信》、第2章《信里的灯塔》、第3章《对不上的两点》、第4章《只出现一次的应答》、第5章《南方的第一个信号》
+不可逆状态：
+- 确认进程过半落定（带着异常未解项收束）
+- 南方航线首个显形信号进入观测视野、已登记
+- 异常信号出现一次即归于沉默、无法复现，登记为待解释线索而非干扰
+- 旧信、信标、航线三物首次同框；旧信随身
+- 男主行动目标为并行偏移结构：确认余留随身 + 南方信号列为新求证方向
+- 男主对南方欠下弄清那条线的新债；一线落定、两线随身
+- 无新增人际角色；单POV男主
+- 钩子：陈述留白型，含义悬置交接给第6章，不收束不解答
+
+【剧情点进度】
+已消费剧情点：剧情点1发现旧信（第1-2章）、剧情点2确认灯塔信标的关键推进段（第3-5章，确认进程过半，最终完成留待后续批次，异常未解随身）
+当前剧情点：剧情点3——沿南方航线推进第一卷冲突；第6章必须承接确认余留加南方信号的双线压力，冲突主体从航线方向进入
+后续剧情点：剧情点3在第6-10章逐章推进（南方求证与确认余留并行），信标最终确认与第一卷冲突的正面展开留待第11-12章及后续（卷纲未提供更细进度）
+
+【章节素材第6章】 through 【章节素材第10章】
+
+Now I need to distribute material for 5 chapters. The available material:
+- 剧情点3: 沿南方航线推进第一卷冲突 (from chapter 6, conflict entity enters from route direction)
+- 双线: 确认余留 (信标确认未完成部分) + 南方信号求证
+- 伏笔: 旧信（推进）、风暴信标（推进至最终完成）、南方航线（推进）、异常信号（推进/处置）
+- Constraints from chapter 5 facts: 不虚构航线上的人或船、不给出航线完整走向、不解释信号含义 — wait, those were 第5章's execution boundaries, not necessarily global. But they were marked as "执行边界" for chapter 5. For chapter 6+, the 卷纲 says 冲突主体将从航线方向进入 — so conflict entities may appear in later chapters. I should be careful: 卷纲 provides very little detail about what the conflict is. I shouldn't fabricate specific conflict content. 
+
+Hmm, this is tricky. The 卷纲 is extremely sparse: "风暴起点 - 男主发现旧信，确认灯塔信标，并沿南方航线推进第一卷冲突。" The 全书大纲 has 8 identical sections. So there's very little material to distribute.
+
+Per my rules:
+- "发现素材不足时标记'待补信息'，不凭空创造剧情。"
+- But each chapter must have all 10 fields with executable density; only truly missing fields get 待补信息.
+- The style reference warns against all-待补信息 chapters. I must extract as much as possible from: 全书大纲, 卷纲, 已生成章节事实, 上一章事实.
+
+So the distribution strategy: 剧情点3 spans chapters 6-10 (5 chapters). Each chapter takes one step of the southern route progression + 确认余留 parallel line. I need to be careful not to invent specific events (like specific characters, ships, etc.). But I can distribute at the level of: 求证方向的推进、信号的进一步观测、冲突主体进入的方向、异常与旧信的推进节点。
+
+Actually, wait. Let me re-read the instruction: "卷纲为每章提供的剧情素材是深化的起点，不是章纲本身。本步骤要把这些素材连同上下文、角色状态和继承信息完整分配到每一章，供下一步深化。" So the 下游 (章纲 deepening) will do the actual scene design. My job is to allocate materials. Since 卷纲 lacks per-chapter material for 6-10, I allocate what's available and mark 待补信息 for the missing specifics. But I shouldn't invent events. However, I can give each chapter a distinct task slice based on the natural progression that IS in the material:
+
+Chapter 5 facts give the trajectory: "第6章从确认余留加南方信号的双线压力开始，剧情点3的冲突主体将从航线方向进入。" And "沿南方航线推进第一卷冲突" is the plot point. Also 全书大纲 says "南方航线逐步显形" — "逐步" implies gradual revelation, which can be distributed across chapters 6-10 as successive steps of 显形.
+
+So I can distribute:
+- 第6章: 双线交接落地——确认余留与南方信号并行结构运转，南方求证正式启动，冲突主体的第一批征兆从航线方向进入（具体冲突内容待补信息——卷纲未提供冲突主体细节）。Hmm, "冲突主体将从航线方向进入" is given, so 第6章 can register "冲突主体的征兆/压力从航线方向进入主角线" without specifying what it is. But wait — should chapter 6 immediately bring the conflict, or should there be a transition? The facts say 第6章 starts from 双线压力 and 冲突主体 will enter from route direction. It's ambiguous whether 冲突主体 enters in chapter 6 or later. I'll allocate: 第6章承接双线并开启南方求证；冲突主体进入的信号/征兆从航线方向显出（作为剧情点3的开端），具体冲突内容卷纲未提供，标记待补。
+
+Actually, let me think about how to slice 5 chapters of 剧情点3 with minimal fabrication:
+
+Given material threads:
+1. 南方航线显形进程（逐步显形 — 全书大纲; 首个信号已现 — 第5章）
+2. 风暴信标确认余留（过半，最终完成留待后续批次）
+3. 异常信号待解释线索（未解，处置安排待补）
+4. 旧信未解部分（随身，指向支撑）
+5. 第一卷冲突主体从航线方向进入（第6章起）
+
+A reasonable non-fabricating slice per chapter (position/task-level, not event-level):
+
+第6章: 剧情点3开启章。承接双线压力，南方求证从观测位转入行动起点；冲突主体的第一波外显从航线方向进入主角线（以征兆/后果/物证形态，具体形态待补信息）。信标余留随身待办。伏笔: 南方航线推进、信标余留、异常、旧信均推进中。
+
+第7章: 南方求证推进一拍——航线显形度提升（逐步显形的第二步）；冲突压力加深；确认余留的推进窗口出现与否由章纲定。Hmm, I'm being too vague. Let me think about what each chapter needs: 位置（四段结构）、剧情点、微场景锚点、角色状态入口、伏笔状态入口、上下游衔接、字数边界、章节进度任务、单元位置与承接、卷级承接。
+
+四段结构 for the volume: 卷纲未提供明确四段。本卷12章。已知第1-2章=发现旧信（开篇段），第3-5章=确认信标（中段主体），第6章起=沿南方航线推进冲突（后段）。So for chapters 6-10: they're in the 后段 of the volume. 第11-12章 would be 卷末收束. I can position chapters 6-10 as "卷的后段，剧情点3区间". For chapter 12 not in this batch.
+
+Actually, position: I could say 第6章 = 后段进入点 (剧情点3起点), 第7-9章 = 后段推进, 第10章 = 后段后程/向卷末收束过渡 (batch 末章). Since 卷纲 lacks explicit 四段, I'll note this mapping is 按剧情点顺序映射 and mark the explicit 四段 as 待补 in gaps.
+
+微场景锚点 available: 灯塔（对位点）、旧航道、观测位、南方方向视野、随身旧信。For chapters 6-10, the scenes will move toward the southern direction as 求证推进, but the 卷纲 doesn't give new scene materials. I can carry forward the existing anchors (旧航道侧观测位、两点之间的对位、南方方向视野) and mark new scene materials as 待补信息. The instruction says 微场景锚点: "卷纲提供的场景级素材" — for these chapters, 卷纲 provides nothing specific, so I carry forward the inherited anchors from 第5章 (which are usable) and note 待补 for new ones. Actually the 上一章事实 provides 场景 anchors that carry forward: 观测位、南方方向视野、旧信随身。These are legitimate inherited materials.
+
+角色状态入口: quite rich from 第5章 章末状态. For each chapter I can specify the entry state and expected exit state (as task). But careful: I'm allocating entry states; exit states are what the chapter should deliver — but since 卷纲 doesn't give per-chapter events, I should frame tasks as "推进任务" at direction level with 待补 for specifics.
+
+Hmm wait, but the output must have executable density. Let me look at the style reference "好" example again: it writes specific content like "陈暮刚苏醒，记忆模糊，身体有菌膜残留". For my case, I have specific states from 第5章. I'll write those concretely.
+
+Let me now design each chapter's slice more concretely while staying within given facts:
+
+Thread states entering chapter 6:
+- 男主位置: 旧航道侧望向南方的观测位, 收束完毕
+- 确认: 过半, 余留随身 (最终完成留待后续)
+- 异常: 未解随身, 无法复现, 登记为待解释线索
+- 旧信: 随身, 未解部分与异常、信号并置
+- 南方: 首个信号在视野, 已登记, 含义/走向/冲突对象未知
+- 目标: 并行偏移结构 — 确认余留 + 南方求证
+- 债: 弄清那条线的新债
+- 钩子: 陈述留白, 无人解释的悬置
+
+Volume: 12 chapters total. Chapters 11-12 not in this batch (reserved for 卷末收束 presumably). Chapters 6-10 = 5 chapters of 剧情点3.
+
+Per-chapter allocation (direction-level, using only given facts + natural reading of "逐步显形" and "推进第一卷冲突"):
+
+第6章:
+- 位置: 卷的后段起点, 剧情点3区间开启章, 叙事弧线从信标确认主轴转向南方求证主轴的过渡位
+- 剧情点: 剧情点3（沿南方航线推进第一卷冲突）开启; 承接第5章双开状态
+- 微场景锚点: 承接第5章观测位与南方方向视野（旧航道侧）; 新增场景素材待补信息
+- 角色状态入口: 男主在观测位收束完毕，确认过半余留随身、异常未解随身、旧信随身（三物已同框）、南方信号在视野已登记；双线并持的注意力负担延续；对南方欠下弄清那条线的新债
+- 伏笔状态入口: 旧信推进中（未解部分与异常、信号并置）；风暴信标推进中（过半，余留待完成）；南方航线埋设后首章承接（信号可见、含义悬置）；异常信号推进中（待解释线索、无法复现）
+- 上下游衔接: 承接第5章陈述留白钩子——信号在视野、无人解释；本章需把双线压力转为行动起点，向第7章传递南方求证的第一步结果状态
+- 字数边界: 1000字
+- 章节进度任务: 进入任务=承接双线压力、把并行偏移结构落成行动；推进任务=南方求证启动、剧情点3冲突主体从航线方向进入主角线的第一波外显（形态待补）；不收束信号含义、不解释异常成因
+- 单元位置与承接: 未提供/待补信息（卷纲未划分剧情单元）；期待债承接=弄清那条线的新债开始计息，确认余留待办随身
+- 卷级承接: 延续卷纲既定主线方向（南方航线显形），非定价变化，无新增；冲突主体进入是卷纲既定的剧情点3方向
+
+第7章:
+- 位置: 卷的后段, 剧情点3推进位
+- 剧情点: 剧情点3推进——南方航线逐步显形的第二步；信标余留与求证并行
+- 微场景锚点: 承接观测位与南方视野；具体推进场景待补信息
+- 角色状态入口: 承接第6章出口（南方求证已启动、冲突压力外显的第一波已被男主接收）；具体状态以第6章正文落定为准，章纲深化时按第6章出口状态校准
+- Hmm, this is a problem: chapters 7-10 don't have concrete entry states because the upstream facts only describe chapter 5. I can't know what chapter 6's exit will be. The instruction says 角色状态入口: "本章开始时各关键角色的状态、关系、信息持有量。" For chapters after the first in the batch, entry = previous chapter's expected exit as allocated by me. Since I'm allocating tasks, I can define the expected exit of each chapter as part of its 推进任务, then chapter N+1's entry references that. But I shouldn't over-specify events. 
+
+Alternative approach: allocate the 5 chapters by function beats that ARE derivable:
+- The only hard event-direction for 6-10: 冲突主体从航线方向进入 + 南方航线逐步显形 + 信标余留最终完成"留待后续批次"(so within 6-10 the 信标线 may complete? "最终完成留待后续批次" — ambiguous whether 后续批次 includes this batch. 第5章 says "确认进程到达过半，最终完成留待后续批次" — 本批次 is a 后续批次, so the final completion COULD happen in this batch or later. The 卷纲 says "确认灯塔信标，并沿南方航线推进第一卷冲突" — both movements are volume-level. The 信标确认 completion is a natural candidate for one of chapters 6-10, since the 剧情点3 conflicts push alongside. Hmm, but I shouldn't force it. Actually — wait. Let me reconsider.
+
+The 卷纲 movement 2 is "确认灯塔信标" — chapter 5 fulfilled its 关键推进段 but confirmation is 过半, not complete. If 剧情点2 is "确认灯塔信标", then the completion of confirmation is still an outstanding task of the volume. Chapters 6-10 (5 chapters) and 11-12 (2 chapters) remain. The 冲突主体 entering from the route is 剧情点3. A sensible allocation: during the southern-line chapters, the 信标余留 gets resolved (either completed or transformed), because carrying an unfinished confirmation for 7 more chapters without progress would violate pacing. But the facts say "最终完成留待后续批次" — this batch IS a subsequent batch. I'll allocate the 信标余留's completion (or decisive progress) to a specific chapter in this batch, while noting the alternative. Hmm, but is that fabrication? The instruction: "分配时保留剧情点的完整细节，完整传达上游信息" and "不虚构进度". The facts explicitly say the confirmation final completion is left for subsequent batches — this is a subsequent batch, so allocating it here is consistent. But which chapter? Without more info, I could place it as a parallel beat. Let me think about what's most defensible.
+
+Actually, re-reading: "推进风暴信标，战役级，确认进程到达过半，最终完成留待后续批次" — this strongly suggests the confirmation completes in a later batch. This batch (6-10) is a later batch. So I can allocate the completion within 6-10. The natural placement: mid-batch, e.g., chapter 8 — completing the 信标 line while the southern line advances, creating the 并行结构 payoff. But I must be careful: allocating "确认完成" is an allocation decision consistent with "留待后续批次", not fabrication of new plot. I'll do that, and mark details as 待补信息 where specifics are missing.
+
+Hmm, wait. Let me reconsider. Is it safer to keep 信标余留 unresolved through 6-10 and leave completion for 11-12? The 上一章事实 says "不完成信标全部确认" was chapter 5's boundary, and "最终完成留待后续批次". Since 6-10 is a 后续批次, and 11-12 is also 后续 — either is defensible. But pacing-wise, 12-chapter volume: 1-2 旧信, 2-5 确认推进, 6-10 南方线+余留, 11-12 卷末收束 (first volume conflict climax). The conflict climax at 11-12 would benefit from 信标完成 beforehand (信标 is one of the three 推动力量: 旧信、灯塔、南方航线). So completing 信标 in 6-10 makes sense. I'll allocate: 信标余留的最终确认落定分配在第8章 (mid-batch), with detail 待补. Actually hmm — let me think about "确认余留" — the 余留 is the remaining half of confirmation. The 异常信号 was registered "在确认将成未成处出现一次即归于沉默". Completing confirmation might relate to the anomaly. The facts say the anomaly is a 待解释线索. Whether completion explains the anomaly — unknown, 待补.
+
+Actually, you know, let me be more conservative. The template says: "优先按章节进度索引分配素材；索引缺失时按剧情点顺序与四段结构分配，并把缺失项记入信息缺口，不虚构进度。" So with a missing index, I allocate by plot point order. The remaining volume material: 剧情点3 (沿南方航线推进第一卷冲突) + outstanding 信标确认完成 + 旧信推进 + 异常处置. The 卷纲 gives no per-chapter breakdown, so I distribute by order and mark specifics as 待补信息. I think allocating a decisive 信标 step in this batch is reasonable and I'll flag it as an allocation with details 待补. Alternatively, I can frame it as "信标余留的处置节点" without asserting completion. Hmm.
+
+Let me settle: I'll allocate the 信标余留收束（最终确认完成或决定性推进，具体待补） to 第8章, as the 并行结构的中点兑现 — this keeps the double-line structure honest (if 信标 stays untouched for 5 chapters, that's a pacing hole). And 异常信号处置: allocate a 推进节点 in 第7章 or 第9章. 旧信: 推进节点 in 第9章 or so. These are direction-level allocations consistent with "伏笔操作区间" logic. I'll note in 信息缺口 that 卷纲未提供第6-10章的具体事件素材，本包按剧情点方向与双线并行结构分配推进位，具体事件待章纲深化时补足。
+
+Wait, but actually, I want to reconsider whether inventing "第8章信标完成" over-steps. The rule: "发现素材不足时标记'待补信息'，不凭空创造剧情。" Creating a specific event like "第8章信标确认完成" without 卷纲 support is borderline. But the template also demands 每章素材必须具备可执行密度 and warns against all-待补. The resolution: allocate at the level of *tasks* derived from existing facts (确认余留随身 must be carried; 南方求证 must advance; conflict enters from route), and mark event specifics as 待补信息. For the 信标余留, I can write: "推进任务=信标余留在本批次内的处置节点之一（第5章已声明最终完成留待后续批次，本批次为其一）；具体落定形态待补信息". Hmm, but each chapter needs concrete tasks.
+
+Let me look at how the 章节进度任务 field is defined: "本章承接的进入任务、推进任务、发酵任务、退出任务或收束任务". These are task types, not events. So I can assign tasks like "推进任务=南方求证的下一步（信号显形度提升的具体形态待补）".
+
+OK here's my plan for the 5 chapters — each carries the two main lines plus a subordinate thread, distributed so every chapter has a distinct slice:
+
+第6章 — 双线运转开启：
+- 剧情点3开启；南方求证从"登记"转入"行动"
+- 冲突主体从航线方向进入主角线的第一波外显（征兆/后果形态，具体待补）
+- 信标余留随身待办；异常、旧信随身
+- 承接第5章陈述留白钩子
+
+第7章 — 南方显形推进 + 异常处置节点：
+- 南方航线逐步显形第二步（观测推进，具体形态待补）
+- 冲突压力加深
+- 异常信号的处置节点：待解释线索与新观测的碰撞（是否与南方信号关联——卷纲未提供，待补）
+- 信标余留随身
+
+第8章 — 信标余留收束节点（批次中点）：
+- 信标余留的决定性推进或完成（第5章已声明最终完成留待后续批次，本批次为其候选位；具体形态待补）
+- 南方求证并行推进
+- 三线（旧信、信标、航线）并置的合流推进
+- 承接冲突主体进入后的压力
+
+第9章 — 南方航线显形深推 + 旧信推进：
+- 旧信未解部分的推进节点（旧信指向支撑已起作用；新节点具体待补）
+- 冲突主体与南方航线的关联显出轮廓（第一卷冲突推进，具体待补）
+- 信标线完成后的状态重构
+
+第10章 — 批次末章，向第11章交接：
+- 南方求证取得批次内阶段性结果（显形度较第5章显著推进，具体待补）
+- 第一卷冲突在航线方向的推进落位（为第11-12章卷末段铺垫）
+- 期待债加深：信号含义/走向仍未解部分重新悬置或部分兑现
+- 钩子交接第11章；沿第5章末章先例可用陈述留白型收束（形态由章纲定）
+
+Hmm, wait. Is this too much invention? Let me re-check each allocation against given material:
+
+- "南方航线逐步显形" — directly from 全书大纲 (repeated 8 times). Distributing 显形 progression across 6-10 is direct allocation. ✓
+- "沿南方航线推进第一卷冲突" — directly from 卷纲. Allocating conflict progression across 6-10. ✓
+- "剧情点3的冲突主体将从航线方向进入" — from 第5章 facts. Chapter 6 opening with the conflict entity's first wave. ✓
+- 信标余留: "最终完成留待后续批次" — from 第5章 facts. Allocating completion candidate to this batch. ✓ (with 待补 for form)
+- 异常: "未解状态随确认过半携带进入后续，处置安排待补" — the 处置安排 is explicitly 待补 upstream. So I allocate "处置节点" positions but mark the arrangement itself 待补. ✓
+- 旧信: "未解部分与异常、信号并置" — 推进中. Allocating a 推进节点. The 卷纲 says 旧信推动冲突, so its continued 推进 is consistent. ✓ (details 待补)
+
+I think this is defensible. Each chapter's 剧情点 field will name 剧情点3 (with the specific slice), plus the parallel lines. The 微场景锚点 will carry forward inherited anchors and mark new ones 待补.
+
+Now, 角色状态入口 for chapters 7-10: I'll define them from my own allocation of the previous chapter's exit tasks — e.g., 第7章入口: "承接第6章出口任务（南方求证已启动、冲突第一波已接收）；以第6章正文落定为准，本章入口不得与第6章出口冲突". That's honest and executable. Actually the template wants: "本章开始时各关键角色的状态、关系、信息持有量". For 第7章 I can write the carried-over base state (男主单人在灯塔与旧航道区域、确认余留/异常/旧信随身状态、南方求证进行中) plus "以第6章出口为准更新". Good enough.
+
+角色: Only 男主. 无其他人物 through chapter 5. Chapters 6-10: 冲突主体从航线方向进入 — does that mean new characters appear? "冲突主体将从航线方向进入" — could be a person, ship, phenomenon. 卷纲 doesn't specify. 第5章 boundary said "不虚构航线上的人或船" — that was chapter 5's boundary. For 6-10, the conflict entity entering could be anything. I'll keep it at "冲突主体的具体形态（人物/势力/现象）卷纲未提供，待补信息" and note POV stays 男主线 unless 卷纲安排对手视角 — template: "仅当卷纲或输入明确安排对手视角切入时，写明切入目的与回切承接；未安排或本作为单视角、有限视角时，保持主角线，写对手行动造成的后果、物证、传闻或误判如何进入主角线。" 卷纲未安排对手视角, so chapters 6-10 keep 主角线, and the conflict entity's actions enter via 后果/物证/传闻/误判. Good — that's an executable, protocol-compliant instruction for each chapter.
+
+伏笔状态入口 per chapter: track the four threads' evolving states per my allocation:
+- 第6章: same as 第5章末 (旧信推进中、信标过半、南方埋设后首承、异常未解随身)
+- 第7章: 旧信推进中、信标过半（余留待办）、南方推进中（显形第二步）、异常推进中（处置节点到达）
+- 第8章: 旧信推进中、信标余留收束节点（完成或决定性推进，待补）、南方推进中、异常未解随身（与信标收束的关系待补）
+- 第9章: 信标线完成后的收束状态（若第8章完成）、旧信推进节点到达、南方推进中、异常状态待补
+- 第10章: 各线批次内状态 + 期待债状态
+
+上下游衔接 per chapter: 第6章承接第5章钩子; 第7章承接第6章出口; etc. 第10章 ends batch with hook to 第11章 (第11-12章 属下一批次 — wait, no: 本批次是6-10, 第11-12 will be a future batch. The 第10章 must hand off to 第11章).
+
+字数边界: 1000字 each (单章字数: 1000).
+
+单元位置与承接: 卷纲未划分剧情单元 → but I can still register 期待债 operations. The template: "本章所属剧情单元、在单元内的位置（单元开启/推进/兑现/收束），本章承接的期待债操作、资源状态变化、单元残留价值或结构段闭环任务（如本章处于对应区间），以及信息短章区用途（如适用）。" Since 卷纲 doesn't define units, I could treat 剧情点3 as the effective unit for 6-10? Hmm — risky. Better: mark 剧情单元=未提供/待补信息（卷纲未划分），期待债 operations from facts: 弄清那条线的新债 (from 第5章), 异常解释债, 旧信未解债, 信标完成债. Those are real, registered debts from the facts. I'll register the debts as batch-level and note per-chapter operations. Actually the 期待债 entry in the style example: "期待债入口'本卷尚未建立读者期待债'". For us: 债项清单 from 第5章 facts. Per chapter: 第6章 = 债开始计息/加深; 第8章 = 信标完成债兑现（若完成）; 第10章 = 批次内部分兑现+剩余加深. I'll write these as operations with 待补 where needed.
+
+卷级承接 per chapter: 卷型=未提供; 卷使命=旧信、灯塔与南方航线共同推动第一卷冲突; 第5章 established "定价变化为延续，无新增". For chapters 6-10: 卷级承接 = 推进卷使命的第三动力（南方航线）与第一卷冲突推进; 定价变化=延续，无新增 (unless something suggests otherwise — nothing does). 第8章 信标收束 = 灯塔动力线的兑现节点, serving 卷使命. I'll write these.
+
+【信息缺口】:
+1. 卷纲未提供第6-10章的逐章剧情点细分、事件与微场景素材；本包按剧情点3方向、第5章交接状态与全书大纲"南方航线逐步显形"分配推进位，各章具体事件形态待章纲深化时补足。
+2. 冲突主体的具体形态（人物/势力/现象）与进入方式未提供，待补信息。
+3. 四段结构、章节进度索引、剧情单元划分、期待债账本、资源状态未提供，待补信息。
+4. 异常信号处置安排、旧信未解部分内容、南方信号含义与走向、信标最终确认的具体形式未提供，待补信息。
+5. 对话指纹、世界规则、术语细节、主题命题的明确表述未提供，待补信息。
+6. 卷型、卷使命细节、主导增量、对手动作意图、收束产物未提供（仅第5章事实确认定价变化延续无新增），待补信息。
+
+Now, positioning within 四段结构: I need to give each chapter a 位置. Volume = 12 chapters. Known: 第1-2章 covers 旧信发现 (开篇), 第2-5章 确认 (中段), 6+ 南方线. If I map: 开篇段=第1-2章, 中段=第3-5章, 后段=第6-10章, 卷末段=第11-12章. That's a reasonable inference from 剧情点 order — I'll present it as "按剧情点顺序映射" and flag in gaps that 卷纲未明确四段区间. For chapters 6-10: 位置=卷的后段（第6章为后段进入点；第10章为后段末位、向卷末段过渡）。
+
+Now let me also handle 【全书资产】 properly:
+
+1. 故事梗概: 男主在灯塔与旧航道之间确认风暴信标，南方航线逐步显形（全书大纲第1-8节主线）；第一卷风暴起点：旧信、灯塔与南方航线共同推动第一卷冲突。
+2. 主题命题/叙事阶段: 叙事阶段=第一卷"风暴起点"进行中（12章，已完成5章）；主题命题=未提供/待补信息。
+3. 核心角色: 男主（未具名）——单人POV；当前状态：确认进程过半、余留随身；南方首个信号在视野已登记；异常信号未解（无法复现、登记为待解释线索）；旧信随身未解；行动目标=并行偏移结构；关系=无新增人际（截至第5章无其他角色登场）；动机=完成信标确认、弄清南方那条线。对话指纹=未提供/待补信息（第1-5章以单POV、无对白承载为主，第5章明确全章无对白）。
+4. 世界规则/势力格局/术语规范: 术语=风暴信标、灯塔、旧航道、南方航线、旧信、异常信号；规则细节=待补信息（信标确认机制未示、信号来源含义未示）；势力格局=待补信息。
+5. 伏笔索引:
+   - 已埋设/推进中：旧信（战略级，第1章起，指向支撑信标确认，未解部分随身）；风暴信标（战役级→确认过半，最终完成留待后续批次，机制未示）；南方航线（战略级，第5章埋设首个显形信号，含义与走向全悬置）；异常信号（战役级，第4章前后出现一次即沉默、无法复现，登记为待解释线索，处置安排待补）。
+   - 已回收：截至第5章无已回收伏笔登记。
+   - 待回收：旧信未解部分、信标最终确认与机制、南方信号含义与航线走向、异常信号成因。
+6. 读者承诺: 信标确认线要走到完成（推进中的战役级承诺）；南方航线从显形走向冲突推进（剧情点3方向承诺）；旧信要对其来源与作用给出交代（战略级推进中）；方向级承诺，具体兑现形式待补信息。
+7. 开放悬念: 南方信号是什么、通向哪里、冲突对象是谁；异常信号成因与是否复现；旧信未解部分；信标确认机制。这些悬念维持但兑现时点未定。
+8. 对话指纹: 未提供/待补信息。
+
+【当前卷信息】:
+
+1. 卷名=风暴起点; 主题=未提供/待补信息; 核心叙事驱动问题=信标确认能否完成、南方航线显形通向什么冲突、旧信如何推动第一卷冲突。
+2. 四段结构: 卷纲未提供明确四段区间；按剧情点顺序映射——开篇=发现旧信（第1-2章已生成）、中段=确认灯塔信标（第2-5章已生成，确认过半）、后段=沿南方航线推进第一卷冲突（第6章起）、卷末=待补信息（第11-12章承载，任务未提供）。
+3. 剧情点: 
+   - 剧情点1=发现旧信（已消费，第1-2章）
+   - 剧情点2=确认灯塔信标（关键推进段已兑现于第5章，确认过半；最终完成留待后续批次，本批次6-10为其候选区间，具体落位待补）
+   - 剧情点3=沿南方航线推进第一卷冲突（第6章起，冲突主体将从航线方向进入）
+   - 微场景锚点: 灯塔对位点、旧航道、旧航道侧望向南方的观测位、南方方向视野；第6-10章新增场景素材待补信息。
+4. 角色弧光方向: 男主从以信标为终点→信标之外有向南延伸的求证方向；一线落定、两线随身；对南方欠下弄清那条线的新债。核心冲突层次=男主与信息差（信号含义、异常成因、旧信未解）之间的张力 + 第一卷冲突主体从航线方向进入（形态待补）。
+5. 伏笔操作: as above (推进旧信/信标/异常/南方航线; 具体操作区间待补)。
+6. 卷末状态: 情感债务/悬念库存/卷级钩子/钩子形态/下卷衔接信号=未提供/待补信息（卷纲未描述卷末状态）。
+7. 章节进度索引: 卷纲未提供逐章索引；按剧情点顺序映射——第1-2章剧情点1，第2-5章剧情点2，第6-10章剧情点3推进（本批次），第11-12章卷末段（任务待补）。
+8. 剧情单元与期待债: 剧情单元=未提供/待补信息；期待债登记=弄清那条线的新债（第5章制造）、异常解释债、旧信未解债、信标完成债；资源状态/账本=未提供/待补信息。
+9. 结构段与信息区: 未提供/待补信息。
+10. 卷型与卷使命: 卷型=未提供/待补信息（第5章事实确认南方航线显形属卷纲既定主线方向、非定价变化）；卷使命=旧信、灯塔与南方航线共同推动第一卷冲突；主导增量/定价变化区间/对手动作意图/收束产物=待补信息（定价变化截至第5章=延续，无新增）。
+
+【本批次范围】:
+补充生成：已生成第1-5章，本批次第6章到第10章
+总章数：12
+本批次章节数：5
+
+【批次历史状态】: as drafted above.
+
+【剧情点进度】:
+已消费剧情点: 剧情点1发现旧信（第1-2章）；剧情点2确认灯塔信标的关键推进段（第3-5章：两轮定位→再对位重启→异常出现一次即沉默→临门一环推过→确认过半落定；最终完成留待后续批次，异常未解随身）
+当前剧情点: 剧情点3——沿南方航线推进第一卷冲突；本批次第一章（第6章）必须承接确认余留加南方信号的双线压力，冲突主体从航线方向进入主角线
+后续剧情点: 剧情点3在第7-10章逐章推进（南方航线逐步显形、冲突推进）；剧情点2余留（信标最终确认）在本批次内安排处置节点；第11-12章卷末段任务卷纲未提供，待补信息
+
+Now the 5 chapter packages. Let me write each with full 10 fields, concrete where possible.
+
+【章节素材第6章】
+位置：卷的后段进入点，剧情点3区间开启章；叙事弧线从信标确认主轴转向南方求证主轴的过渡位
+剧情点：剧情点3"沿南方航线推进第一卷冲突"开启——冲突主体从航线方向进入主角线；南方航线"逐步显形"的第一步推进；剧情点2余留（信标确认过半的余留）随身待办，不在本章收束
+微场景锚点：承接第5章既有锚点——旧航道侧望向南方的观测位、南方方向视野；旧信随身（旧信、信标、航线三物同框后首次在行动中并用）；本章新增场景素材未提供，待补信息
+角色状态入口：男主单人在旧航道侧观测位收束完毕（承接第5章章末空间状态）；确认过半、余留随身；异常信号未解随身（无法复现、登记为待解释线索）；旧信随身、未解部分与异常和信号并置；南方信号在视野内已登记，含义、走向、冲突对象未知；目标为并行偏移结构——确认余留+南方求证；注意力负担为双线并持；对南方欠下弄清那条线的新债；截至第5章无其他人物登场，本章除冲突主体进入主角线的外显外无新增人际的具体安排（冲突主体形态待补信息）
+伏笔状态入口：旧信=推进中（战略级）；风暴信标=推进中（战役级，过半，余留待完成）；南方航线=埋设后首次承接推进（战略级，信号可见、含义悬置）；异常信号=推进中（战役级，待解释线索、处置安排待补）
+上下游衔接：承接第5章陈述留白型钩子——信号在视野里、无人解释，确认过半的踏实与南方的悬置并置；本章把双开状态转为行动起点，不解答信号含义、不解释异常成因；向第7章传递南方求证已启动、冲突主体第一波外显已被男主接收的状态
+字数边界：1000字
+章节进度任务：进入任务=承接双线压力，把并行偏移结构落成可执行的行动起点；推进任务=剧情点3开启，冲突主体从航线方向进入主角线的第一波外显（以对手行动造成的后果、物证、传闻或误判形态进入，形态待补信息），南方求证启动；不安排对手视角切入（卷纲未安排，保持男主单POV主线）；不收束信标余留、不解释信号含义与异常成因
+单元位置与承接：剧情单元未提供，待补信息；期待债操作=弄清那条线的新债开始计息——冲突外显使"信号通向哪里"从悬置变为有压力的待答；信标完成债与旧信未解债随身携带；资源状态未提供，待补信息
+卷级承接：推进卷使命第三动力——南方航线显形与第一卷冲突推进属卷纲既定主线方向；定价变化=延续，无新增；灯塔动力（信标线）与旧信动力本章随身延续
+
+【章节素材第7章】
+位置：卷的后段，剧情点3推进位，南方求证的第一拍推进
+剧情点：剧情点3推进——南方航线"逐步显形"的第二步（显形度较第5章首信号提升，具体观测形态待补信息）；第一卷冲突沿航线方向加深；异常信号的处置节点之一（第5章事实登记处置安排待补，本章为候选节点，具体安排待补信息）
+微场景锚点：承接观测位与南方方向视野；显形推进的观测场景待补信息
+角色状态入口：男主单人在场，行动目标为并行结构——南方求证进行中（承接第6章出口：求证已启动、冲突第一波已接收）、信标余留随身、异常未解随身、旧信随身；信息持有量=确认过半、南方有信号且已有第一波外显；具体入口状态以第6章正文落定为准，不得与第6章出口冲突；无新增人物的具体安排（冲突主体形态待补）
+伏笔状态入口：旧信=推进中；风暴信标=推进中（余留随身）；南方航线=推进中（显形第二步）；异常信号=推进中，处置节点到达本章（是否与南方信号关联卷纲未提供，待补信息）
+上下游衔接：承接第6章出口——求证启动与冲突第一波；本章把显形推进结果与异常处置节点结果传给第8章；不给出航线完整走向、不解释信号来源含义
+字数边界：1000字
+章节进度任务：推进任务=南方显形第二步、冲突压力加深、异常处置节点（三者信息密度超出单章时按主次取舍，取舍由章纲深化决定，未取舍项顺延）；发酵任务=显形推进与未解项的并置发酵；不收束信标余留（信标收束节点安排在第8章）
+单元位置与承接：剧情单元待补信息；期待债操作=加深弄清那条线的债——显形第二步给出新观测但含义仍悬置；异常解释债在本章到达处置节点（兑现或加深由章纲定，处置安排上游登记为待补）；资源状态待补信息
+卷级承接：延续南方航线显形主线，非定价变化，无新增；卷使命三动力中南方动力推进、旧信与信标动力随身延续
+
+【章节素材第8章】
+位置：卷的后段中点，批次结构中的双线合流位
+剧情点：剧情点2余留的处置节点——信标确认余留的决定性推进或最终落定（第5章事实声明"最终完成留待后续批次"，本章为其候选落位；完成或部分完成的形态待补信息）；剧情点3并行推进——南方求证与冲突压力在信标收束节点上的并置
+微场景锚点：灯塔与旧航道之间的对位点（确认动作的既有场域）；南方方向视野随身；具体场景待补信息
+角色状态入口：男主单人，双线中点——南方求证已推进两拍（第6-7章出口累计）、信标余留到达处置节点、异常未解随身、旧信随身；本章入口以第7章正文落定为准；无新增人物的具体安排
+伏笔状态入口：旧信=推进中（指向支撑在确认收束中的作用待补）；风暴信标=到达收束节点——完成或决定性推进（形态待补）；南方航线=推进中；异常信号=推进中（与信标收束的关系未提供，待补信息）
+上下游衔接：承接第7章出口（显形第二步与异常节点结果）；本章把信标线的落定状态与南方线的中点状态传给第9章；信标线若在本章完成，后续章节的确认动作转为收束后状态维护，不再推进确认本身
+字数边界：1000字
+章节进度任务：推进任务=信标余留的处置节点落地（剧情点2收束候选位）+南方线并行推进一拍；收束任务=信标确认线的批次内收束（若章纲定为本章完成）；发酵任务=三物同框（旧信、信标、航线）在收束节点的并置重量（承接第5章画面锚点二的延续位）
+单元位置与承接：剧情单元待补信息；期待债操作=信标完成债在本章到达兑现位（全部兑现或部分兑现由章纲定，形态待补）；弄清那条线的债继续计息；资源状态待补信息
+卷级承接：卷使命中"灯塔"动力线在本章到达兑现节点，与"旧信""南方航线"两动力形成第一卷冲突的合流推进；定价变化=延续，无新增
+
+【章节素材第9章】
+位置：卷的后段后程，信标线落定后的南方主线聚焦位
+剧情点：剧情点3推进——第一卷冲突沿航线方向显出轮廓（冲突主体与航线的关系推进，具体待补信息）；旧信推进节点——未解部分的新推进（第1章以来的战略级线索，具体内容待补信息）；南方航线显形第三步推进
+微场景锚点：南方方向视野为主场域；旧信随身物件锚点；新场景素材待补信息
+角色状态入口：男主单人；信标线处于第8章出口的落定状态（完成或决定性推进后）；南方求证与冲突压力并行；异常、旧信随身；本章入口以第8章正文落定为准；无新增人物的具体安排
+伏笔状态入口：旧信=推进中，本章到达推进节点；风暴信标=第8章出口的收束状态（若完成则为已完成线，余下仅状态维护）；南方航线=推进中（显形第三步）；异常信号=状态待补（承接第8章出口）
+上下游衔接：承接第8章出口（信标落定+南方中点状态）；本章把冲突轮廓与旧信推进结果传给第10章；不解释信号含义、不给出航线完整走向
+字数边界：1000字
+章节进度任务：推进任务=冲突轮廓显出+旧信推进节点+南方显形第三步；发酵任务=信标落定后男主行动重心的重构（若信标完成，确认不再是行动目标，南方线成为唯一主动线，此重构在本章落位）
+单元位置与承接：剧情单元待补信息；期待债操作=旧信未解债在本章到达推进位（部分兑现或加深由章纲定，内容待补）；弄清那条线的债随冲突轮廓加深；资源状态待补信息
+卷级承接：卷使命三动力中旧信动力在本章推进，与南方航线动力并轨指向第一卷冲突；定价变化=延续，无新增
+
+【章节素材第10章】
+位置：卷的后段末位，本批次收束章，向第11-12章卷末段过渡
+剧情点：剧情点3的批次内阶段结果——南方求证取得阶段性落位（显形度较第5章显著推进，具体待补信息）；第一卷冲突在航线方向的推进落位，为卷末段铺垫；各随身线（异常、旧信）的批次末状态登记
+微场景锚点：南方方向视野；批次末收束位由正文演绎，具体待补信息
+角色状态入口：男主单人；信标线为落定状态、南方线为主动线、冲突压力已显轮廓、旧信与异常随身（承接第9章出口，以正文落定为准）；无新增人物的具体安排
+伏笔状态入口：旧信=推进中（批次末状态）；风暴信标=第8章出口落定状态的延续（若已完成则为已完成）；南方航线=推进中（批次内阶段结果落位）；异常信号=批次末状态（处置结果以第7-9章落定为准，未处理部分继续悬置）
+上下游衔接：承接第9章出口；本章完成本批次向第11章的状态交接——第11章属卷末段（任务卷纲未提供，待补信息），交接内容为南方求证的阶段结果与冲突推进位；钩子形态可沿用本批次已确立的陈述留白型（第5章末章先例），是否沿用由章纲定，不写成品收束句
+字数边界：1000字
+章节进度任务：收束任务=本批次（第6-10章）的双线推进收束与状态登记；推进任务=剧情点3向卷末段的过渡落位；退出任务=把冲突推进位与南方阶段结果交接给第11章；不收束信号含义、不收束第一卷冲突（冲突解决方向属卷末段及后续）
+单元位置与承接：剧情单元待补信息；期待债操作=弄清那条线的债批次末结算——阶段结果兑现一部分、剩余部分加深悬置作为向卷末段的钩子压力；旧信与异常债维持随身；资源状态待补信息
+卷级承接：本批次收束产物=信标线落定+南方求证阶段结果+冲突推进位三项目登记（对应产物形态待补信息）；定价变化=延续，无新增；为第11-12章卷末段（旧信、灯塔与南方航线共同推动第一卷冲突的合流位）备好起点
+
+【信息缺口】:
+1. 卷纲未提供第6-10章的逐章剧情点细分、事件素材与微场景素材；本包按剧情点3方向、第5章交接状态与全书大纲"南方航线逐步显形"分配推进位，各章具体事件形态待章纲深化时补足。
+2. 冲突主体的具体形态（人物/势力/现象）与进入方式未提供，待补信息。
+3. 信标确认余留的最终落定形态、异常信号处置安排、旧信未解部分内容、南方信号含义与航线走向，上游均未提供，待补信息。
+4. 四段结构的明确区间、章节进度索引、剧情单元划分、期待债账本与资源状态、信息短章区安排未提供，待补信息。
+5. 卷型、主导增量、对手动作意图、收束产物细节、卷末状态（情感债务、悬念库存、卷级钩子、下卷衔接信号）未提供，待补信息。
+6. 世界规则、势力格局、主题命题明确表述、对话指纹未提供，待补信息（第1-5章为单POV男主、无对白承载为主）。
+
+Let me double check the output format requirements:
+- First char 【, last char 】 (信息缺口 ends with 【信息缺口结束】 which ends with 】). ✓
+- No JSON. ✓
+- All markers closed properly.
+- 素材块 count = 5 (chapters 6-10). ✓ Matches 本批次章节数=5. ✓
+- 范围 start = N+1 = 6. ✓ (Already generated 1-5, batch starts at 6 — correct, not 5.)
+- No repeated titles: I shouldn't invent titles at all (this step doesn't produce titles — titles come from 章纲 step). Good, my packages don't include titles. The template's chapter package fields don't include 标题. ✓
+
+One more check on 位置 field: "本章在四段结构中属于哪段，在叙事弧线中处于什么位置" — I have that.
+
+Also the note in 章节进度任务 about 对手视角: I wrote "不安排对手视角切入（卷纲未安排，保持男主单POV主线）" — good, and conflict enters via 后果/物证/传闻/误判. ✓
+
+Also need to make sure I note in 第6章 that the batch's first chapter must connect to the previous chapter's hook — done in 上下游衔接.
+
+Also, the template says the batch range section must include "总章数：M" — M here is... "总章数：M" where M is the last chapter of the batch? Let me re-read: 
+
+【本批次范围】
+首批生成：第1章到第N章
+或
+补充生成：已生成第1-N章，本批次第N+1章到第M章
+总章数：M
+本批次章节数：M-N
+
+Hmm, so 总章数：M and 本批次章节数：M-N. In the example: 已生成第1-5章，本批次第6章到第10章 → M=10, N=5, 总章数=10, 本批次章节数=10-5=5. Wait but the volume has 12 chapters. The template formula says 总章数：M = 10 (the last chapter of this batch), not the volume total. Hmm, that's the template's own notation: 总章数 = M = 10? That seems odd semantically ("总章数" usually means total volume chapters = 12), but the template defines 总章数：M explicitly in the structure. Given the formula "本批次章节数：M-N", M must be 10 and N must be 5 for 5 chapters. If 总章数 were 12 (volume total), then 本批次章节数 would be M-N = 12-5 = 7, which contradicts 5. So following the template's internal notation: 总章数：10, 本批次章节数：5.
+
+Hmm wait, but that reads weird: "总章数：10" when the volume is 12 chapters. Let me re-read the template: "本批次范围、本批次章节数和【章节素材第N章】的数量必须一致。" The consistency requirement is about batch chapter count. The formula "总章数：M / 本批次章节数：M-N" with 补充生成：已生成第1-N章，本批次第N+1章到第M章 — here M is clearly the batch's last chapter (10), and 总章数 in this block = M = 10. I'll follow the template's notation literally: 总章数：10，本批次章节数：5. Hmm, but could "总章数" mean the volume's total (12)? The template block:
+
+【本批次范围】
+首批生成：第1章到第N章
+或
+补充生成：已生成第1-N章，本批次第N+1章到第M章
+总章数：M
+本批次章节数：M-N
+
+In the 首批生成 case: 第1章到第N章, 总章数：N, 本批次章节数：N-N=0?? That's broken unless... hmm. For 首批: range 1..N, 总章数=N, 章节数 should be N. But formula says M-N. So in 首批 case, M isn't defined... The template is a bit sloppy. For 首批, maybe N = total and batch = all N chapters; 本批次章节数 would be N (with M=N meaning batch end = volume end? then M-N=0, broken).
+
+OK, the notation is imperfect. The intent: state the range, the total, and the batch count, all consistent. I'll write it unambiguously:
+
+【本批次范围】
+补充生成：已生成第1-5章，本批次第6章到第10章
+总章数：12（本卷）
+本批次末章：第10章
+本批次章节数：5
+
+Hmm, but deviating from template lines might be risky. Let me follow the template as closely as possible while being unambiguous:
+
+【本批次范围】
+补充生成：已生成第1-5章，本批次第6章到第10章
+总章数：12
+本批次章节数：5
+
+The consistency check: 本批次章节数=5 and 5 素材块 — consistent. 总章数：12 — this matches 本卷总章数12 from input. A validator checking "本批次章节数" against 素材块 count passes. I think writing 总章数：12 is correct given the input explicitly says 本卷总章数12. The template's "总章数：M" is ambiguous, but given input provides 本卷总章数=12, and the app parameter 预计章节数 maps to that, I'll use 12 and make the batch range explicit (第6章到第10章) so there's no confusion. Actually hmm — to be safe against both interpretations, I could write "总章数：12（本卷）；本批次末章：第10章". That adds clarity. Let me include both lines.
+
+Now, one more consideration: the input says "生成第6章到第10章，共5章。不要重复任何已有标题。" The 5-chapter range fits within the 12-chapter volume (6-10, leaving 11-12 for a later batch). ✓
+
+Also should I worry that chapters 6-10 might overlap with the "8 sections" in 全书大纲? The 8 sections all describe the same main line — they're the book's macro sections, not chapters. The volume is 12 chapters. Fine.
+
+Let me also double check 剧情点进度 section formatting:
+
+【剧情点进度】
+已消费剧情点：...
+当前剧情点：本批次第一章必须承接的剧情点
+后续剧情点：...
+【剧情点进度结束】
+
+Good.
+
+One more detail — 上一章事实 mentions: "第5章...为剧情点3沿南方航线推进第一卷冲突备好起点" — so 剧情点2's 关键推进段 was consumed, but 剧情点2 as a whole ("确认灯塔信标") isn't fully consumed (确认过半, not complete). I'll represent that: 剧情点2关键推进段已消费，最终完成余留随身. And in 当前剧情点: 剧情点3.
+
+Also the 上一章摘要 (from 相关记忆): "男主复盘两轮定位后以再对位重启确认进程，异常信号在确认将成未成处出现一次即归于沉默、无法复现，他将异常登记为待解释线索而非干扰；确认推进到关键节点停在临门，确认与异常只能双线并持。" — this describes chapter 4 or the state entering chapter 5. It's consistent with what I have. The 上一章事实 block describes chapter 5 itself. I'll use both.
+
+Now let me also make sure each chapter's 角色状态入口 is concrete enough. The style reference "好" example has concrete per-character state. Mine has concrete carried states for ch6, and for ch7-10 references the previous chapter's exit plus the carried base state. I think that's acceptable given the chain: the 章纲 step for ch7 will happen before ch6's 正文 exists (batch deepening presumably runs chapter by chapter). So stating "以第6章出口为准" is the honest, executable approach. But I should still give the base state concretely so the chapter isn't empty: e.g., for ch7: "男主单人；确认余留随身待办、异常未解随身（待解释线索）、旧信随身；南方求证已启动（第6章出口）、冲突主体第一波外显已被接收；信息持有量=信标过半+南方信号存在+第一波外显内容；具体数值状态以第6章正文落定为准。"
+
+Also 关系状态: 无新增人际；男主与确认线、异常、南方信号、冲突压力的并行关系。
+
+Alright — also each chapter needs "伏笔状态入口" (listed), "单元位置与承接" (with 待补 marks), "卷级承接" (延续无新增 + which 动力推进). Good.
+
+Let me also reconsider: should 第8章 really be assigned the 信标收束节点? Alternative: keep 信标余留 as "随身待办" through the whole batch and put completion in ch11-12. But then ch11-12 must carry both 卷末冲突 AND 信标 completion — and the 卷末段 tasks are 待补. The 第5章 facts say "最终完成留待后续批次" without specifying which. Given this batch has 5 chapters to fill and the template demands executable density + progression, assigning the 信标 final confirmation to this batch's midpoint (ch8) is a reasonable allocation decision. But I must frame it carefully: "本章为信标余留处置节点的分配落位（第5章声明最终完成留待后续批次，本批次属后续批次）；具体落定形态（全部完成或决定性推进）待补信息，由章纲深化决定。" That keeps it as an allocation, not invented plot detail. Good.
+
+Similarly, 异常处置节点 in ch7: "第5章登记'处置安排待补'，本章为候选处置位，具体安排待补信息。" Fine.
+
+And 旧信推进节点 in ch9. Fine.
+
+Hmm, actually, wait — let me reconsider the 冲突主体 entering in ch6. The 第5章 facts: "第6章从确认余留加南方信号的双线压力开始，剧情点3的冲突主体将从航线方向进入。" This is fairly explicit: ch6 begins the dual-line pressure, and the conflict entity enters from the route direction. It doesn't say the conflict enters IN ch6 — "将从航线方向进入" describes 剧情点3's mechanism. It's natural for ch6 (剧情点3 开启章) to carry the first wave. I'll keep it but with 待补 for form. Also, per the 对手视角 rule: since no 对手视角 is arranged, the conflict entity's actions enter 主角线 via 后果、物证、传闻或误判 — I'll note this in ch6 and ch7 (and generally). ✓
+
+One more thing: the chapters' 剧情点 field — the template says "分到的剧情点：本章需要覆盖的卷纲剧情点。" The 卷纲 plot points: ①发现旧信（consumed）②确认灯塔信标（余留）③沿南方航线推进第一卷冲突. So per chapter: 剧情点3 primary; ch8 also touches 剧情点2 余留; ch9 touches 旧信 thread (which belongs to 剧情点1's legacy / 卷纲 first movement "男主发现旧信" — its 推进 continues). I'll phrase accordingly.
+
+Also the "微场景锚点" — the 卷纲 provides almost no scene-level material for 6-10. The inherited anchors from ch5 (观测位、南方方向视野) are legitimate to carry. New ones: 待补信息. OK.
+
+Let me also add 角色弧光方向 to 当前卷信息 — required: "角色弧光方向、核心冲突层次". Done.
+
+Length check: this will be a long output, but necessary. Let me be reasonably concise per field while concrete.
+
+Also: "历史标题：输入提供历史标题时逐条列出" — list all 5 titles. ✓
+
+"不可逆状态：已确认的角色状态、关系变化、信息持有量、伏笔操作" — from ch5 facts. ✓
+
+Final structure check — order of blocks:
+1. 【全书资产】...【全书资产结束】
+2. 【当前卷信息】...【当前卷信息结束】
+3. 【本批次范围】...【本批次范围结束】
+4. 【批次历史状态】...【批次历史状态结束】
+5. 【剧情点进度】...【剧情点进度结束】
+6. 【章节素材第6章】...【章节素材第10章】(5 blocks)
+7. 【信息缺口】...【信息缺口结束】
+
+No tables needed (no GFM table content — skip tables).
+
+Last char will be 】 from 【信息缺口结束】. ✓ First char 【. ✓
+
+Let me write it out now, keeping each field tight but concrete.
+
+One thing on 位置 for each chapter — need "本章在四段结构中属于哪段，在叙事弧线中处于什么位置". Since 四段 explicit 区间未提供, I'll say "卷的后段（按剧情点顺序映射：开篇=旧信第1-2章、中段=确认第2-5章、后段=南方航线推进第6章起、卷末段=第11-12章待补）" once, and per chapter just "卷的后段进入点/推进位/中点/后程/末位"。
+
+Also for 第10章, 位置: "卷的后段末位，叙事弧线处于批次收束、向卷末段过渡位；第11-12章为卷末段（任务待补）"。
+
+Writing now. I'll aim for completeness without excessive verbosity. Each chapter block ~10 fields.
+
+Also, quick sanity check on the "本批次范围" consistency statement: 5 素材块 (第6、7、8、9、10章) = 本批次章节数5. ✓ And range starts at 6 = 已生成最后章5+1. ✓ No overlap with 1-5. ✓
+
+Also note: the instruction "不要重复任何已有标题" — I don't output titles at all in this step (章节素材 doesn't include titles; titles are for the 章纲 step). That's consistent — the constraint is passed along implicitly. Actually, should I register it somewhere? The 章节素材 doesn't have a title field. I could add a note in 信息缺口 or... hmm, actually the task constraint "不要重复任何已有标题" is a generation constraint for downstream. I could register it in 批次历史状态 or as part of each chapter's... no. I'll add one line in 【本批次范围】 or 章节进度任务? Cleanest: mention in 【批次历史状态】 that new titles must not repeat the 5 listed historical titles. Actually, I could add it to the 本批次范围 block as a constraint note. The template doesn't provide a slot, but adding one clarifying line inside 本批次范围 seems acceptable and useful. Hmm — the template says the block contains range/总章数/章节数. I'll add the title constraint note in the 信息缺口 or... Actually let me put it as a line in 【本批次范围】: "命名约束：本批次新章标题不得重复已生成5章的任何标题". That preserves the upstream constraint for downstream. I think that's within the spirit of "完整分配上游信息".
+
+OK writing final output.

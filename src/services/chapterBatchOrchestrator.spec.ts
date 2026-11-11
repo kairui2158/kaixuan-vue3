@@ -72,6 +72,48 @@ describe('buildChapterBatchPrompt', () => {
     expect(prompt).toContain('【禁止重复的已有标题】')
     expect(prompt).toContain('第一章、第二章')
   })
+
+  it('folder-chain mode replaces the JSON protocol with a task boundary note', () => {
+    const prompt = buildChapterBatchPrompt({
+      contract,
+      repair: false,
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n暂无已生成章节',
+      outputProtocol: 'folder-chain'
+    })
+
+    expect(prompt).not.toContain('输出JSON数组')
+    expect(prompt).toContain('输出协议由当前 SKILL 模板决定')
+  })
+
+  it('folder-chain repair prompt also replaces the JSON protocol', () => {
+    const prompt = buildChapterBatchPrompt({
+      contract,
+      repair: true,
+      missingStart: 2,
+      missingCount: 4,
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n暂无已生成章节',
+      outputProtocol: 'folder-chain'
+    })
+
+    expect(prompt).not.toContain('输出JSON数组')
+    expect(prompt).toContain('输出协议由当前 SKILL 模板决定')
+    expect(prompt).toContain('补充生成第2章到第5章，共4章')
+  })
+
+  it('direct-json mode keeps the existing JSON protocol', () => {
+    const prompt = buildChapterBatchPrompt({
+      contract,
+      repair: false,
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n暂无已生成章节',
+      outputProtocol: 'direct-json'
+    })
+
+    expect(prompt).toContain('输出JSON数组，每项含title/plot字段')
+    expect(prompt).toContain('数组长度必须为5')
+  })
 })
 
 describe('generateChapterBatch', () => {

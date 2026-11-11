@@ -6180,11 +6180,13 @@ async function genChapters(mode: ChapterGenerationMode) {
       appendStepLogForRun(chaptersRunId, 3,
         (phase === 'supplement' ? "补充生成" : "正在生成") + "第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）"
       )
+      const chapterRequestIsFolderChain = getStepSkillTemplates(3).some(t => t.skill?.format === "folder" && t.skill.folderPath)
       const batchResult = await generateChapterBatch({
         contract,
         historyTitles: new Set(collected.map(c => String(c.title || '').trim())),
         basePrompt,
         historyContext,
+        outputProtocol: chapterRequestIsFolderChain ? 'folder-chain' : 'direct-json',
         callChapterApi: (requestPrompt) => callChapterApi(requestPrompt, trace.runId, chaptersRunId),
         shouldContinue: () => !pipelineStore.isGenerationCanceled(chaptersRunId),
         maxRepairAttempts: 0,

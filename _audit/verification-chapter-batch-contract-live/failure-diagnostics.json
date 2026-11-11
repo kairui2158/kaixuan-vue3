@@ -1,0 +1,8 @@
+{
+  "at": "2026-11-11T05:17:33.324Z",
+  "error": "exported run uses the current runTrace schema v19\n\n23 !== 19\n",
+  "electronExitCode": null,
+  "electronSignal": null,
+  "traceExportPath": "D:\\codex\\novel-workshop-vue3\\_data\\chapter-batch-contract-live-exports\\run-trace-章节层-20261111-120151-deep-2",
+  "runId": "run-1794369711108-1"
+}

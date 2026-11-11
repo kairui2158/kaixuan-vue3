@@ -1,10 +1,10 @@
 {
   "schema": "shenyi.chapter-batch-contract.electron-live",
   "version": 1,
-  "generatedAt": "2026-10-27T00:04:52.815Z",
+  "generatedAt": "2026-11-11T05:17:33.320Z",
   "script": "verify-chapter-batch-contract-electron.mjs",
-  "model": "deepseek-v4-pro",
-  "baseUrl": "https://openapi.cloud-ai.cn/v1",
+  "model": "glm-5.3-flashx",
+  "baseUrl": "https://api.kjdfhl.school/v1",
   "projectId": "chapter-batch-contract-live",
   "totalChapters": 12,
   "expectedBatches": [
@@ -24,8 +24,8 @@
       "requestedCount": 2
     }
   ],
-  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\chapter-batch-contract-live-exports\\run-trace-章节层-20261027-072128-deep",
-  "runId": "run-1793056888650-1",
+  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\chapter-batch-contract-live-exports\\run-trace-章节层-20261111-120151-deep",
+  "runId": "run-1794369711108-1",
   "status": "success",
   "chapterCount": 12,
   "validatedBatches": [
@@ -59,62 +59,62 @@
   ],
   "apiCalls": [
     {
-      "id": "api-1793056888764-10",
+      "id": "api-1794369711297-11",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793057017657-45",
+      "id": "api-1794369920701-68",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793057344346-106",
+      "id": "api-1794370673130-237",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793057642942-164",
+      "id": "api-1794371182173-408",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793057814446-204",
+      "id": "api-1794371439253-529",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793057879473-231",
+      "id": "api-1794371764757-597",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793058194577-292",
+      "id": "api-1794372283437-730",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793058479727-349",
+      "id": "api-1794372888263-909",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793058736038-401",
+      "id": "api-1794373188248-1047",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793058869476-436",
+      "id": "api-1794373315373-1102",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793059084374-487",
+      "id": "api-1794373677341-1194",
       "status": "success",
       "toolCallCount": 0
     },
     {
-      "id": "api-1793059331200-538",
+      "id": "api-1794373999067-1293",
       "status": "success",
       "toolCallCount": 0
     }

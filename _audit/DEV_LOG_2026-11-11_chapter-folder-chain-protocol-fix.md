@@ -1,0 +1,30 @@
+# DEV_LOG_2026-11-11_chapter-folder-chain-protocol-fix
+
+- 主题：章节层 folder-chain 输出协议修复 3.125.0
+- 交付目的：宿主编排器在章节批量使用 folder SKILL 时不再注入“输出JSON数组”格式指令；direct-json 旧语义保留给无 folder SKILL 路径。
+- 应用改动：
+  - `src/services/chapterBatchOrchestrator.ts`：新增 `outputProtocol: 'folder-chain' | 'direct-json'`；normal 与补充/repair 分支在 folder-chain 下替换为任务边界声明。
+  - `src/components/pipeline/PipelinePanel.vue`：`genChapters` 按当前批量步骤真实选择的 SKILL 判定 `format === 'folder' && folderPath`，并透传协议。
+  - `src/services/chapterBatchOrchestrator.spec.ts`：新增 folder-chain normal、folder-chain repair、direct-json 保留三组契约测试，13→16。
+  - `scripts/verify-chapter-batch-contract-electron.mjs`：trace schema 断言迁移 v19→v23。
+  - `scripts/verify-chapter-live-export.mjs`：新增离线导出复验，统计请求 payload 的 JSON 协议命中与边界声明数量。
+- 根因：chapterBatchOrchestrator 固定在用户 prompt 尾部注入 JSON 输出协议；folder SKILL l4-s1-s3 明确禁止 JSON。模型在 system「以应用系统提示为准」与 SKILL「禁止 JSON」间反复解析冲突，reasoning 膨胀并在正文流出前触发 watchdog。
+- 验证：
+  - `npx vitest run src/services/chapterBatchOrchestrator.spec.ts`：16/16 passed。
+  - `npm run type-check`：exit 0。
+  - `npm run test:services`：2726 tests passed。
+  - `npm run build:vue`：exit 0。
+  - Electron 真实供应商烟测：`https://api.kjdfhl.school/v1` + `glm-5.3-flashx`，12 章分 5/5/2 三批全部通过，run status `success`，repairAttempts 0。
+  - `node scripts/verify-chapter-live-export.mjs`：exit 0；`forbiddenCount=0`，`boundaryCount=12`，schema v23，12 次 API call。
+- 证据：`_audit/verification-chapter-batch-contract-live/summary.json`、`_audit/verification-chapter-batch-contract-live/live-export/`、`_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-11_chapter-folder-chain-protocol-fix-v1.md`。
+- 经验：`神意开发经验总结_v9.md` v10.4.0 在 G2.9 新增“folder-chain 不得注入冲突输出协议”规则。
+- 安装包：
+  - 路径：`dist/神意助手-Setup-3.125.0.exe`
+  - 大小：231,670,430 bytes
+  - SHA256：`71700134a6ad50c86cc3557d258e4f05d1732364c3ce7b68e44b30c3ccc0bed5`
+  - 打包核验：`npm run verify:packaging` PASSED；rendererFiles=87，electronAPI methods=94。
+- 收尾清理：
+  - `_audit/verification-chapter-batch-contract-live/` 递归密钥扫描 0 命中；请求 payload 只记录模型与端点，不落 key。
+  - 旧 3.123.0 / 3.124.0 安装产物已 Move 隔离到 gitignore 的 `_audit/retired-installers/`。
+  - 旧 3.110.6.exe 仍锁定：`[IO.File]::Open(...ReadWrite...None)` Access denied、`icacls` Access denied、无同名进程/窗口命中；按 G1.12 登记锁死边界，不强行删除。
+- 边界：SKILL l4-s2/l4-s3 协议优先级声明归 SKILL 层；heartbeat 重试间隔膨胀为独立问题；direct-json 旧语义不清退。

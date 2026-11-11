@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-10
+更新日期：2026-11-11
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -1868,3 +1868,11 @@
 - 验证：定向 41 tests passed；全量服务 250 files / 2715 tests passed；type-check、build、verify:packaging 全通过；真实供应商 glm-5.2 live 5 requests PASS。
 - 安装包：`dist/神意助手-Setup-3.124.0.exe`，231,670,788 bytes，SHA256 `2065C8262A2B2BA1053317C9ABC96C9AF7D710B12C61A9D78925CA3141A6C2E1`。
 - 边界：不新增快照缓存、自动同步器、批量重建工具或第二导入协议；.agent.md 与 SKILL JSON 仍是两套事实源。
+
+# 2026-11-11 章节层folder-chain协议修复
+
+- 文件：[_audit/DEV_LOG_2026-11-11_chapter-folder-chain-protocol-fix.md](_audit/DEV_LOG_2026-11-11_chapter-folder-chain-protocol-fix.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-11_chapter-folder-chain-protocol-fix-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-11_chapter-folder-chain-protocol-fix-v1.md)
+- 交付：folder SKILL 章节批量请求不再注入 JSON 输出协议，替换为任务边界声明；direct-json 旧路径显式保留；trace 校验器迁移 v23。
+- 验证：定向 16 tests passed；全量服务 2726 tests passed；type-check、build:vue 通过；glm-5.3-flashx 真实供应商 12 章 5/5/2 全部 success；离线导出 forbiddenCount=0、boundaryCount=12。
+- 边界：SKILL 模板协议声明归 SKILL 层；heartbeat 重试间隔为独立遗留面；不新增预算系统、自动调度或 UI。
