@@ -41,6 +41,13 @@ function readCompletionTokens(usage?: Record<string, unknown> | null): number | 
   return Number.isFinite(value) ? value : undefined
 }
 
+function readTotalTokens(usage?: Record<string, unknown> | null): number | undefined {
+  if (!usage) return undefined
+  const raw = usage.totalTokens ?? usage.total_tokens ?? usage.totalTokenCount
+  const value = Number(raw)
+  return Number.isFinite(value) ? value : undefined
+}
+
 function readReasoningOutputTokens(usage?: Record<string, unknown> | null): number | undefined {
   if (!usage) return undefined
   const raw = usage.reasoningOutputTokens ?? usage.reasoning_output_tokens
@@ -105,6 +112,19 @@ export function classifyGenerationValidity(input: GenerationValidityInput): Gene
       kind: 'usable',
       usable: true,
       message: '工具调用有效'
+    }
+  }
+
+  // Some gateways return short fallback prose while reporting zero output
+  // tokens against a non-zero total. The prose is not model work; treating it
+  // as usable lets placeholder text pollute candidate selection.
+  const outputTokens = readCompletionTokens(input.usage)
+  const totalTokens = readTotalTokens(input.usage)
+  if (text.trim().length > 0 && outputTokens === 0 && totalTokens != null && totalTokens > 0) {
+    return {
+      kind: 'empty',
+      usable: false,
+      message: '供应商返回占位文本且输出 usage 为零，判定为假成功'
     }
   }
 

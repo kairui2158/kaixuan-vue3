@@ -1663,6 +1663,71 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('rejects nonempty stream placeholder prose with zero usage and retries it once', async () => {
+    const fakeSuccessSse = [
+      'data: {"choices":[{"delta":{"content":"上游模型响应失败，请重试。"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":127240}}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const successSse = [
+      'data: {"choices":[{"delta":{"content":"正文"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":2,"total_tokens":12}}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const sseResponse = (text: string) => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(text));
+        controller.close();
+      },
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => Promise.resolve(sseResponse(fakeSuccessSse)))
+      .mockImplementationOnce(() => Promise.resolve(sseResponse(successSse)));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: true,
+      onPhysicalCall: event => physicalEvents.push(event),
+    })).resolves.toMatchObject({ text: '正文' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(physicalEvents.filter(event => event.status === 'failed')).toHaveLength(1);
+    expect(physicalEvents.filter(event => event.status === 'success')).toHaveLength(1);
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('rejects nonempty stream placeholder prose with zero usage after retry budget is exhausted', async () => {
+    const fakeSuccessSse = [
+      'data: {"choices":[{"delta":{"content":"上游模型响应失败，请重试。"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":127240}}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(fakeSuccessSse));
+        controller.close();
+      },
+    }), { status: 200 })));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: true,
+      timeoutMs: null,
+    })).rejects.toMatchObject({
+      kind: 'network',
+      fakeSuccess: true,
+      message: expect.stringContaining('供应商返回占位正文且输出 usage 为零'),
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('keeps normal novel prose mentioning quota and recharge as valid content', async () => {
     const content = '他看着终端上的提示：“额度已耗尽，请充值后继续。”然后转身离开。';
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
@@ -2224,6 +2289,90 @@ describe('createAiService.callAi', () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
   });
+
+  it('hard-stops heartbeat probes after 180 seconds even when reasoning deltas continue', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const abortedSignalIds: string[] = [];
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.(toMainNetFrame({ ...event, signalId: currentSignalId }));
+    };
+    const networkError = Promise.resolve({ ok: false, kind: 'network', message: 'network dropped' });
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n' },
+          { event: 'error', message: 'network dropped' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      })
+      .mockImplementationOnce(() => networkError)
+      .mockImplementationOnce(() => networkError)
+      .mockImplementationOnce(() => networkError)
+      .mockImplementation((request: any) => {
+        // The heartbeat probe keeps reasoning flowing but never sends body
+        // output or end. Its dedicated hard-timeout signal is the only exit.
+        currentSignalId = request.signalId;
+        return new Promise(() => {});
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn((signalId: string) => {
+          if (streamMock.mock.calls.length > 4) abortedSignalIds.push(currentSignalId || signalId);
+          return Promise.resolve();
+        }),
+        onProviderNetStreamFrame: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-11T00:00:00.000Z'));
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: true,
+      timeoutMs: null,
+      onChunk: () => {},
+      onPhysicalCall: event => physicalEvents.push(event),
+    });
+    request.catch(() => {});
+    for (let i = 0; i < 20 && !emitMainNetEvent; i += 1) await Promise.resolve();
+    expect(streamMock).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(6_100);
+    expect(streamMock).toHaveBeenCalledTimes(4);
+    expect(physicalEvents.filter(event => event.status === 'failed' && event.phase !== 'heartbeat_retry')).toHaveLength(4);
+    for (let probe = 1; probe <= 3; probe += 1) {
+      await vi.advanceTimersByTimeAsync(20_000);
+      expect(streamMock).toHaveBeenCalledTimes(4 + probe);
+      emitCurrentStream([
+        { event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":"still thinking"}}]}\n\n' },
+      ]);
+      await vi.advanceTimersByTimeAsync(180_000);
+      await Promise.resolve();
+      await Promise.resolve();
+    }
+    await expect(request).rejects.toMatchObject({ kind: 'network' });
+    const heartbeatFailures = physicalEvents.filter(event =>
+      event.status === 'failed' && event.phase === 'heartbeat_retry'
+    );
+    expect(heartbeatFailures).toHaveLength(3);
+    expect(heartbeatFailures.map(event => event.interruptionCode))
+      .toEqual(['reasoning_only_stalled', 'reasoning_only_stalled', 'reasoning_only_stalled']);
+    expect(heartbeatFailures.every(event => event.bodyAbsentMs === 180_000)).toBe(true);
+    expect(heartbeatFailures.every(event => event.lastReasoningAt > 0)).toBe(true);
+    expect(new Set(abortedSignalIds).size).toBe(3);
+    expect(streamMock).toHaveBeenCalledTimes(7);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
 
   it('rejects malformed JSON after one structured retry', async () => {
     const fetchMock = vi.fn()

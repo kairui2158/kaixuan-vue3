@@ -68,15 +68,17 @@ function hasProviderSoftQuotaError(text: string): boolean {
   return PROVIDER_SOFT_ERROR_PATTERNS.some(pattern => pattern.test(text))
 }
 
-function hasAbnormalZeroUsage(usage: any, hasText: boolean): boolean {
+function hasAbnormalZeroUsage(usage: any): boolean {
   if (!usage || typeof usage !== 'object') return false
   const inputTokens = Number(usage.inputTokens ?? usage.promptTokens ?? usage.prompt_tokens ?? usage.input_tokens)
   const outputTokens = Number(usage.outputTokens ?? usage.completion_tokens ?? usage.completionTokens ?? usage.output_tokens)
   const totalTokens = Number(usage.totalTokens ?? usage.total_tokens ?? usage.totalTokenCount)
   const allNumbers = [inputTokens, outputTokens, totalTokens].filter(value => Number.isFinite(value))
   if (allNumbers.length === 0) return false
-  return !hasText
-    && Number.isFinite(totalTokens) && totalTokens > 0
+  // A non-empty placeholder body plus zero completion usage is still a fake
+  // success: some gateways return short fallback prose while claiming that
+  // the model produced no output tokens.
+  return Number.isFinite(totalTokens) && totalTokens > 0
     && inputTokens === 0
     && outputTokens === 0
 }
@@ -89,10 +91,10 @@ export function classifyProviderSoftFailure(
     : null
   const hasContent = Boolean(contract.text || contract.reasoning)
   const abnormalZeroUsage = contract.transportKind === 'stream'
-    && hasAbnormalZeroUsage(contract.usage, hasContent)
+    && hasAbnormalZeroUsage(contract.usage)
   return {
     softError: Boolean(body) && !hasContent,
-    quota: Boolean(body && hasProviderSoftQuotaError(extractProviderErrorSummary(body))) || abnormalZeroUsage,
+    quota: Boolean(body && hasProviderSoftQuotaError(extractProviderErrorSummary(body))),
     abnormalZeroUsage,
   }
 }

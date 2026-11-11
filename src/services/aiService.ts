@@ -126,6 +126,7 @@ export interface AiServiceError {
   providerErrorSummary?: string
   retryable?: boolean
   softError?: boolean
+  fakeSuccess?: boolean
 }
 
 export class AiServiceErrorImpl extends Error implements AiServiceError {
@@ -136,6 +137,7 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
   providerErrorSummary?: string
   retryable?: boolean
   softError?: boolean
+  fakeSuccess?: boolean
   constructor(params: AiServiceError) {
     super(params.message)
     this.name = 'AiServiceError'
@@ -146,6 +148,7 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
     this.providerErrorSummary = params.providerErrorSummary
     this.retryable = params.retryable
     this.softError = params.softError
+    this.fakeSuccess = params.fakeSuccess
   }
 }
 
@@ -1206,9 +1209,12 @@ function throwProviderSoftError(
     ? extractProviderErrorSummary(extractSoftProviderErrorBody(raw))
     : ''
   const quotaText = classification.quota
+  const fakeSuccessText = classification.abnormalZeroUsage && !quotaText
   const message = quotaText
     ? `quota_exhausted：供应商返回软错误，未产生正文${summary ? `：${summary}` : ''}`
-    : `供应商在 HTTP 200 中返回错误结构，未产生正文${summary ? `：${summary}` : ''}`
+    : fakeSuccessText
+      ? `供应商返回占位正文且输出 usage 为零，判定为假成功${summary ? `：${summary}` : ''}`
+      : `供应商在 HTTP 200 中返回错误结构，未产生正文${summary ? `：${summary}` : ''}`
   throw new AiServiceErrorImpl({
     kind: 'auth',
     message,
@@ -1218,6 +1224,7 @@ function throwProviderSoftError(
     providerErrorSummary: summary || JSON.stringify(raw).slice(0, 500),
     retryable: false,
     softError: true,
+    fakeSuccess: fakeSuccessText,
   })
 }
 
@@ -1576,6 +1583,40 @@ function createFirstOutputStreamSignal(
   return {
     signal: controller.signal,
     markOutput,
+    dispose: () => {
+      if (disposed) return
+      disposed = true
+      clearTimeout(timer)
+      externalSignal?.removeEventListener('abort', onExternalAbort)
+    },
+  }
+}
+
+// Heartbeat probes must not treat reasoning deltas as progress: the probe
+// exists to prove that body output can arrive. This signal cannot be released
+// by stream events; only elapsed time or a user abort settles it.
+function createHardTimeoutSignal(
+  timeoutMs: number,
+  externalSignal?: AbortSignal,
+): { signal: AbortSignal; dispose: () => void } {
+  const controller = new AbortController()
+  let disposed = false
+  const timer = setTimeout(() => {
+    controller.abort(new DOMException(
+      `Heartbeat probe timed out after ${timeoutMs}ms without receiving output`,
+      'TimeoutError',
+    ))
+  }, timeoutMs)
+  const onExternalAbort = () => {
+    clearTimeout(timer)
+    controller.abort(externalSignal?.reason)
+  }
+  if (externalSignal) {
+    if (externalSignal.aborted) onExternalAbort()
+    else externalSignal.addEventListener('abort', onExternalAbort, { once: true })
+  }
+  return {
+    signal: controller.signal,
     dispose: () => {
       if (disposed) return
       disposed = true
@@ -2083,6 +2124,11 @@ async function mainNetStream(
 
   try {
     while (!ended || frameQueue.length > 0 || parseBudgetExceeded) {
+      if (externalSignal?.aborted) {
+        throw externalSignal.reason instanceof Error
+          ? externalSignal.reason
+          : new DOMException('The operation was aborted', 'AbortError')
+      }
       if (frameQueue.length === 0 && parseBudgetExceeded) {
         parseBudgetExceeded = false
       } else if (frameQueue.length === 0 && !ended) {
@@ -2090,6 +2136,11 @@ async function mainNetStream(
           resolveFrame = resolve
           setTimeout(resolve, 100)
         })
+        if (externalSignal?.aborted) {
+          throw externalSignal.reason instanceof Error
+            ? externalSignal.reason
+            : new DOMException('The operation was aborted', 'AbortError')
+        }
         if (!ended && timeoutMs && !sawStreamOutput && Date.now() - startedAt > timeoutMs) {
           throw new DOMException('The operation was aborted', 'AbortError')
         }
@@ -2430,8 +2481,23 @@ export function createAiService(
           canceled: false,
         }
         const streamSoftFailure = classifyProviderSoftFailure(streamContract)
-        if (streamSoftFailure.softError || streamSoftFailure.quota || streamSoftFailure.abnormalZeroUsage) {
+        if (streamSoftFailure.softError || streamSoftFailure.quota) {
           throwProviderSoftError(result.raw, provider, params.purpose, usage, Boolean(result.text))
+        }
+        if (streamSoftFailure.abnormalZeroUsage) {
+          // abnormalZeroUsage without a quota phrase or error body is a fake
+          // success: the gateway returned fallback prose with no completion
+          // tokens. Keep the candidate out of downstream selection and let
+          // the executor spend its own retry budget on a fresh attempt.
+          throw new AiServiceErrorImpl({
+            kind: 'network',
+            message: '供应商返回占位正文且输出 usage 为零，判定为假成功，已拒绝进入候选',
+            providerId: provider.id,
+            purpose: params.purpose,
+            retryable: true,
+            softError: true,
+            fakeSuccess: true,
+          })
         }
         const finishReason = resolveFinishReason(result.finishReason, usage, maxTokens, Boolean(result.text))
         return { ...result, usage, finishReason, raw: result.raw, maxTokens, modelCapability }
@@ -3960,6 +4026,7 @@ export function createAiService(
     // and are not killed by the outer tool-run watchdog.
     params = { ...traceParams, onReasoning: (text: string) => {
       if (!text) return
+      sawStreamOutput = true
       if (physicalFirstTokenAt === null) physicalFirstTokenAt = Date.now()
       streamLastReasoningAt = Date.now()
       reasoningBuffer += text
@@ -4147,8 +4214,21 @@ export function createAiService(
           break
         }
         // Provider soft errors are terminal: a quota response never becomes
-        // valid through another physical request.
+        // valid through another physical request. A gateway fallback with
+        // zero usage is also fake success, but it is transport-shape specific:
+        // give it one fresh physical attempt instead of terminal failure.
         if ((e as any)?.softError === true) {
+          if ((e as any)?.fakeSuccess === true && attempt < physicalRetryCeiling) {
+            lastErr = e as AiServiceErrorImpl
+            stopPhysicalHeartbeat()
+            reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
+            try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
+            catch (ce: any) {
+              if (params.signal?.aborted) return throwCanceled()
+              throw ce
+            }
+            continue
+          }
           lastErr = e as AiServiceErrorImpl
           stopPhysicalHeartbeat()
           physicalDiagnostics = {
@@ -4336,11 +4416,13 @@ export function createAiService(
       && lastErr
       && lastErr.kind !== 'json'
       && lastErr.kind !== 'timeout'
-      && sawStreamOutput
+      && lastErr.fakeSuccess !== true
+      && (streamLastReasoningAt !== null || sawStreamOutput)
     ) {
       let hbAttempt = 0
       while (hbAttempt < MAX_HEARTBEAT_ATTEMPTS) {
         hbAttempt++
+        let probeTimeoutMs = HEARTBEAT_PROBE_TIMEOUT_MS
         try {
           await waitWithSignal(heartbeatWaitMs(lastErr), params.signal)
         } catch (e: any) {
@@ -4350,15 +4432,26 @@ export function createAiService(
           throw e
         }
         try {
-          const hbParams = { ...params, reasoning: { mode: 'off' as const }, retryStrategy: 'heartbeat_recovery' as const }
+          probeTimeoutMs = Math.min(timeoutMs ?? HEARTBEAT_PROBE_TIMEOUT_MS, HEARTBEAT_PROBE_TIMEOUT_MS)
+          const hardProbeSignal = createHardTimeoutSignal(probeTimeoutMs, params.signal)
+          const hbParams = {
+            ...params,
+            reasoning: { mode: 'off' as const },
+            retryStrategy: 'heartbeat_recovery' as const,
+            signal: hardProbeSignal.signal,
+          }
           streamBuffer = ''
           reasoningBuffer = ''
           currentPhysicalAttempt = hbAttempt
           currentPhysicalScope = 'heartbeat'
           physicalDiagnostics = {}
           reportPhysical(hbAttempt, 'running', undefined, undefined, 'heartbeat_retry')
-          const probeTimeoutMs = Math.min(timeoutMs ?? HEARTBEAT_PROBE_TIMEOUT_MS, HEARTBEAT_PROBE_TIMEOUT_MS)
-          const result = await _rawCall(provider, hbParams, probeTimeoutMs, toolRunBudget)
+          let result
+          try {
+            result = await _rawCall(provider, hbParams, probeTimeoutMs, toolRunBudget)
+          } finally {
+            hardProbeSignal.dispose()
+          }
           let finalText = filterThinkingTags(result.text)
           if (params.jsonMode) {
             finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs, toolRunBudget).then(r => r.text))
@@ -4405,7 +4498,23 @@ export function createAiService(
             statusCode: hbStatus,
             providerErrorSummary: hbProviderMessage || undefined,
           }
-          reportPhysical(hbAttempt, 'failed', undefined, hbErr?.message || String(hbErr), 'heartbeat_retry')
+          const probeTimedOut = hbErr instanceof DOMException
+            && hbErr.name === 'TimeoutError'
+          reportPhysical(
+            hbAttempt,
+            'failed',
+            undefined,
+            hbErr?.message || String(hbErr),
+            'heartbeat_retry',
+            undefined,
+            probeTimedOut
+              ? {
+                  interruptionCode: 'reasoning_only_stalled',
+                  bodyAbsentMs: probeTimeoutMs,
+                  lastReasoningAt: streamLastReasoningAt === null ? undefined : streamLastReasoningAt,
+                }
+              : undefined,
+          )
           console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + ((hbErr && (hbErr.message || String(hbErr))) || 'unknown'))
         }
       }

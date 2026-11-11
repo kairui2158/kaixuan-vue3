@@ -128,8 +128,50 @@ describe('normalizeProviderResponse', () => {
 
     expect(classifyProviderSoftFailure(contract)).toMatchObject({
       softError: true,
-      quota: true,
+      quota: false,
       abnormalZeroUsage: true,
+    })
+  })
+
+  it('classifies nonempty stream placeholder prose with zero output usage as fake success', () => {
+    const contract = normalizeProviderResponse(
+      {
+        ok: true,
+        statusCode: 200,
+        data: {
+          choices: [{ delta: { content: '上游模型响应失败，请重试。' } }],
+          usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 127240 },
+        },
+        stream: true,
+      },
+      { protocolName: 'openai-compatible' }
+    )
+
+    expect(classifyProviderSoftFailure(contract)).toEqual({
+      softError: false,
+      quota: false,
+      abnormalZeroUsage: true,
+    })
+  })
+
+  it('does not classify placeholder prose with reported output usage as zero usage', () => {
+    const contract = normalizeProviderResponse(
+      {
+        ok: true,
+        statusCode: 200,
+        data: {
+          choices: [{ delta: { content: '正文' } }],
+          usage: { prompt_tokens: 1000, completion_tokens: 5000, total_tokens: 6000 },
+        },
+        stream: true,
+      },
+      { protocolName: 'openai-compatible' }
+    )
+
+    expect(classifyProviderSoftFailure(contract)).toEqual({
+      softError: false,
+      quota: false,
+      abnormalZeroUsage: false,
     })
   })
 })

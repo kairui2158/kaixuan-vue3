@@ -57,4 +57,32 @@ describe('apiCallBudget', () => {
       ],
     })
   })
+
+  it('covers four chain steps with four physical calls under a shared budget of 16', () => {
+    const budget = createApiCallBudget(16)
+    const steps = ['s1', 's2', 's3', 's4']
+
+    for (const step of steps) {
+      expect(budget.tryConsume(step)).toMatchObject({ status: 'allowed', used: expect.any(Number) })
+      for (let physicalCall = 1; physicalCall <= 3; physicalCall += 1) {
+        expect(budget.consumePhysicalRetry(`${step}:physical-${physicalCall}`))
+          .toMatchObject({ status: 'allowed', used: expect.any(Number) })
+      }
+    }
+
+    expect(budget.tryConsume('overflow')).toMatchObject({
+      status: 'blocked',
+      used: 16,
+      limit: 16,
+      reason: expect.stringContaining('overflow'),
+    })
+    expect(budget.consumePhysicalRetry('overflow:physical')).toMatchObject({
+      status: 'blocked',
+      used: 16,
+      limit: 16,
+      reason: expect.stringContaining('overflow:physical'),
+    })
+    expect(budget.snapshot()).toMatchObject({ used: 16, limit: 16 })
+    expect(budget.snapshot().entries).toHaveLength(18)
+  })
 })

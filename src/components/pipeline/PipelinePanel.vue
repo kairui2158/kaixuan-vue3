@@ -3352,7 +3352,7 @@ async function callValidatedSkill(
           ? prompt.slice(prompt.indexOf('【终步重试协议】'))
           : undefined,
         protectedContract: protectedBodyContract,
-        budget: createApiCallBudget(24),
+        budget: createApiCallBudget(16),
         providerId: fallbackProviderId || undefined,
         providerSource: requestProfile.source,
         contextLayer: pipelineLayerForStep(step) || undefined,

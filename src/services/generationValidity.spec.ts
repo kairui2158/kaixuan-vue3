@@ -71,6 +71,26 @@ describe('classifyGenerationValidity', () => {
     })).toMatchObject({ kind: 'empty', usable: false })
   })
 
+  it('rejects nonempty placeholder prose when output usage is zero', () => {
+    expect(classifyGenerationValidity({
+      text: '上游模型响应失败，请重试。',
+      usage: { completion_tokens: 0, total_tokens: 127240 },
+      finishReason: 'stop'
+    })).toMatchObject({
+      kind: 'empty',
+      usable: false,
+      message: '供应商返回占位文本且输出 usage 为零，判定为假成功'
+    })
+  })
+
+  it('keeps normal body output usable when output usage is reported', () => {
+    expect(classifyGenerationValidity({
+      text: '正文',
+      usage: { completion_tokens: 5000, total_tokens: 6000 },
+      finishReason: 'stop'
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
   it('marks tool-call responses as usable without body text', () => {
     expect(classifyGenerationValidity({
       text: '',
