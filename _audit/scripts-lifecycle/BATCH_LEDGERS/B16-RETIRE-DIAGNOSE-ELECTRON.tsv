@@ -1,0 +1,7 @@
+batch	B16-RETIRE-DIAGNOSE-ELECTRON
+action	retire
+tag	scripts-lifecycle-16-retire
+preCommit	933f38d0f9adfed186b109e967f0dda1d1fa66c5
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\diagnose-electron-provider-fetch.mjs	retire	clean	0BF9FFBCAD3843B1D9658AE51405ABE9A191AE62889DC786F0E39E2A54E00531
