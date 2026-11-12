@@ -1,0 +1,7 @@
+batch	B05-RETIRE-AUDIT-INTENT
+action	retire
+tag	scripts-lifecycle-05-retire
+preCommit	ab804f760a18b21a474a63e97fe9f39eb6db1981
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\audit-intent-factory-stop.mjs	retire	clean	53B0387A669651B0F411BF5CD4C826CC1DCB1C2E7B896C294D56A8FA9C4FAD2B
