@@ -1,0 +1,7 @@
+batch	B36-RETIRE-VERIFY-DATA
+action	retire
+tag	scripts-lifecycle-36-retire
+preCommit	aaaa13737356c4f5c3c2f6a18f0a071bf691c943
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\verify-data-migration-c-to-d.mjs	retire	clean	4DB1635C5C67AD5B952D03D9345A3BC0A2816834511CC68C04BB12064F2A3A87
