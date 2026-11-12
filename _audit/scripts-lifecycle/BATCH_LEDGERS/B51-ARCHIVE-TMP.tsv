@@ -1,0 +1,8 @@
+batch	B51-ARCHIVE-TMP
+action	archive
+tag	scripts-lifecycle-archive-tmp
+preCommit	c3f162139c119b5b683466747dd62d4905cc4eb2
+pathHashRows	2
+path`taction`tstatus`tsha256
+scripts\tmp\redundancy-audit.mjs	archive	clean	463213A90D3F594130B646F519E30B075F346DA6A1DB18478229EF592434E719
+scripts\tmp\verify-chapter-batch-ui-electron.mjs	archive	clean	A138A041C0E7F607F6030FF783DBE46CCA620E5805644B418BAB5F53BE9CFE3E
