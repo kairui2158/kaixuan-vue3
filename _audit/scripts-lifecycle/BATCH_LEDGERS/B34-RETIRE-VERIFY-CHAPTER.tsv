@@ -1,0 +1,9 @@
+batch	B34-RETIRE-VERIFY-CHAPTER
+action	retire
+tag	scripts-lifecycle-34-retire
+preCommit	62e21943a12ae8ee827fc73b4874a3d6d4953a0b
+pathHashRows	3
+path`taction`tstatus`tsha256
+scripts\verify-chapter-batch-contract-replay.mjs	retire	clean	10DF997E8D3277DF68048D86A16B6D819614E2796BEEB7A66794A91D474E6FC4
+scripts\verify-chapter-context-contract-replay.mjs	retire	clean	6DFBFE3C1B785E17B2EF160002A583F7D058C4E6D121C1565545FBC7D0916B85
+scripts\verify-chapter-live-export.mjs	retire	clean	54D5AF00FFB5CDC9C8F8328A3F5E54829D9B61734DD9222E7418AD9BEC76DFB2
