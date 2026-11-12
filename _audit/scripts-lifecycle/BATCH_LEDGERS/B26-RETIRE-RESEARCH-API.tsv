@@ -1,0 +1,7 @@
+batch	B26-RETIRE-RESEARCH-API
+action	retire
+tag	scripts-lifecycle-26-retire
+preCommit	950cb81f457abedc8ffeb762cf4945342de320fd
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\research-api-direct-write-100-closure.mjs	retire	clean	D46ACD0B6C0C93ED141004DE290CD7972993B2FC3014607DB1787256FEFB2B79
