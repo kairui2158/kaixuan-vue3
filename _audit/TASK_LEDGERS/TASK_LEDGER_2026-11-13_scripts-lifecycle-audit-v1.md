@@ -224,3 +224,31 @@ one 文件全部纳入计划器逐文件裁决，输出 keep/quarantine/retire/a
 ### P2 启动判定
 
 51 个批次已具备独立 tag、文件闭包、固定名复扫与仓库级补扫证据；按用户已批准的连续执行合同进入 P2。
+
+## 12. P2/P3 执行证据（2026-11-13）
+
+### 命令证据
+
+1. 恢复执行 `pwsh.exe -NoProfile -ExecutionPolicy Bypass -File _audit/scripts-lifecycle/execute-p2.ps1` → B39-B51 全部输出 `COMPLETE`，最终 `ALL_BATCHES_COMPLETE total=50 files=100`（该计数为恢复会话新增批次，B01 属前一会话）。
+2. `git tag | Select-String '^scripts-lifecycle-'` → B01-B49 49 个 retire tag，B50 与 B51 归档 tag 全部存在。
+3. ledger 扫描 → 51 批、101 条 `scripts\...|sha256` 行；无 hashRows=0 批次。
+4. `git ls-files scripts | Measure-Object | % Count` → 94。
+5. `git diff --check` → exit 0。
+6. P2_SUMMARY 汇总 52 行 = 表头 + 51 批；恢复期遗漏 B01 行已在本次收尾补齐。
+
+### P2 结果
+
+1. B01-B49：96 个零引用 retire 文件逐批删除；每批有 pre-commit tag、ledger SHA-256、`rg` 负向断言与独立 revert 锚点。
+2. B50：4 个 style-profile 链文件归档至 `_audit/scripts-lifecycle/archive/`，MANIFEST 保留原路径与哈希。
+3. B51：2 个 tmp 文件按 D1 归档并移出运行面；MANIFEST 判定 `D1-archive`。
+4. 终态规模：195 → 94 个 `scripts/` 文件，收敛 101 处（95 retire + 6 archive）。
+
+### P3 裁决
+
+1. 本轮不修复被 P2 退役的历史-only 资产，避免为死资产扩写守卫。
+2. 仍 active 的保留/隔离面存在 catch-silent 与破坏性命中初筛，登记为后续单独修复分账。
+3. P2 与 P3 不混 commit；本轮只提交执行器、P2 汇总、账本与 DEV_LOG，不改任何 active 产品脚本。
+
+### 结论
+
+P2 已按方案停止条件完成；P3 尚未执行修复，只完成剩余质量面登记与分账边界。

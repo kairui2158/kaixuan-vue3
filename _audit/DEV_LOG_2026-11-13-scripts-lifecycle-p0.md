@@ -26,6 +26,13 @@
 2. 方案登记的破坏性基线为 123 files；该口径排除 tmp。builder 按全部 scripts 报 124 files，差异仅为 `scripts/tmp/verify-chapter-batch-ui-electron.mjs`。
 3. `secret-suspicion` 为初筛规则命中，包含固定测试假键、脱敏断言和 safeStorage 字段名；P1 必须逐文件复核，不当作真实泄密定罪。
 
+## P1/P2/P3 执行收口（2026-11-13）
+
+1. P1：`build-batch-plan.ps1` 修复语法缺陷后 exit 0，输出 `keep=36 quarantine=58 retire=95 archive=6; batches=51`；BATCH_PLAN 与 95 候选仓库级复扫完成。
+2. P2：B01-B51 全部完成；`scripts/` 从 195 个文件收敛到 94 个；B01-B49 每批独立退役并打 tag，B50/B51 归档链与 tmp 产物。每批 ledger 含 SHA-256 与负向断言，B01-B51 tag 与 101 条哈希行闭环。
+3. P3：保留/隔离面仍含 catch-silent 与破坏性命中，已登记为后续冻结/修复分账；本轮未把历史-only 资产升格修复，未新增守卫代码。
+4. 仪器：`execute-p2.ps1` 完成批次恢复、计划解析对已删文件放行、工作区边界校验、SHA-256 对账、负向引用断言与路径白名单；已随本轮证据提交。
+
 ## 边界
 
 1. 未触碰 `scripts/`、产品代码、folder SKILL、`package.json`。

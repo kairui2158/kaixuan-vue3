@@ -1924,11 +1924,11 @@
 - 验证：P1/P2/P3 分别单 commit；负向断言零命中；终态 wiring 590 modules / 0 violations、type-check 与 build:vue 通过、全量服务 250 files / 2734 tests passed；`git diff --check` 通过。
 - 边界：本轮只删不加，净减 462 行；不升级版本、不封装安装包；`scripts/` 孤儿资产、底层 Electron 验证脚本、folder SKILL 和用户侧未跟踪材料均不改。
 
-# 2026-11-13 scripts 生命周期审计 P0 清单
+# 2026-11-13 scripts 生命周期审计 P0-P3 收口
 
 - 文件：[_audit/DEV_LOG_2026-11-13-scripts-lifecycle-p0.md](_audit/DEV_LOG_2026-11-13-scripts-lifecycle-p0.md)
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-13_scripts-lifecycle-audit-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-13_scripts-lifecycle-audit-v1.md)
-- 交付：生成 195 个 `scripts/` 文件的 P0 生命周期清单；Tier B 六文件、25 个 internal-chain 成员逐个列名；61 个密钥嫌疑文件按初筛进入隔离面；负向测试与真实仓库生成均通过。
-- 用途：把 195 个脚本的入口证据、质量初筛和处置建议落成单一可对账清单，防止后续按“没引用”或计数-only 误删历史资产。
-- 验证：negative-case PASS、builder exit 0、195 rows == 195 files、classSum == 195、SHA256 已登记、`git diff --check` 通过。
-- 边界：只审计不改文件；P1 批次计划、P2 归档/删除与 P3 质量修复仍未启动且需另行批准；旧基线漂移已在日志登记。
+- 交付：P0 生成 195 文件清单；P1 产出 51 批处置计划；P2 完成 B01-B51，`scripts/` 收敛到 94 文件；P3 登记剩余质量面分账边界。
+- 用途：把零引用/历史验证脚本与仍承担交付验证、隔离审查的脚本分开，保留独立 revert 锚点与 SHA-256 对账。
+- 验证：B01-B51 tag 连续；101 条 ledger SHA-256 对账通过；B01-B49 96 个 retire 文件零引用断言；B50/B51 6 个 archive 文件哈希一致；`git diff --check` 通过。
+- 边界：未触碰产品代码、folder SKILL 与用户未跟踪材料；保留/隔离面质量问题不混入删除 commit，后续单独分账。
