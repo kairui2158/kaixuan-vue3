@@ -163,3 +163,41 @@
 2. 方案同步修订（apply_patch）：清单增加 gitTracked 字段与执行日期一致规则；Tier B/C 逐个列名；新增仍承担交付验证的客观判据；破坏性命中误报复核；批次计划第二审批门；每批对账表与 DEV_LOG 收口；归档清单字段。
 3. 本轮边界不变：未触碰产品代码与 scripts/，未执行 P0。
 4. 仍开放：P0 清单未生成；Tier C 计数在 P0 后转精确；本轮无运行时验证义务。
+
+## 10. P0 执行证据（2026-11-13）
+
+### 命令证据
+
+1. `node _audit/scripts-lifecycle/negative-case.mjs` → exit 0；`NEGATIVE-PATH-HARNESS: PASS`。
+2. `pwsh.exe -NoProfile -ExecutionPolicy Bypass -File _audit/scripts-lifecycle/build-inventory.ps1` → exit 0；`total=195 tracked=193 csvRows=195`。
+3. `git diff --check` → exit 0。
+
+### 产物
+
+1. 清单：`_audit/scripts-lifecycle/INVENTORY_2026-11-13.csv`；SHA256 `09C59A654522CB03C30C9CC7C70AADDC81AF9BEEF367069849C92CF1F8A4053A`。
+2. 证据摘要：`_audit/scripts-lifecycle/P0_EVIDENCE_2026-11-13.txt`。
+3. 日志：`_audit/DEV_LOG_2026-11-13-scripts-lifecycle-p0.md`，并已登记 `DEV_LOG_MASTER_INDEX.md`。
+
+### 实测分类与质量面
+
+1. 分类：npm=11、src-electron=1、doc-spec=6、internal-chain=25、none=152；合计 195，未分类为 0。
+2. Tier B 六文件：`calibrate-intent-routing-thresholds.mjs`、`run-intent-adversarial-factory.mjs`、`verify-app-confirm-layering.mjs`、`verify-design-fusion-legacy.mjs`、`verify-intent-corpus-electron.mjs`、`verify-outline-workspace.mjs`。
+3. Tier C 25 成员按 CSV `entryClass=internal-chain` 与 `evidenceRefs` 逐个列名；包含 decrypt-provider-key、style-profile、deai 与 lib/tests 四族。
+4. 质量初筛：catch-silent 116、destructive 124、subprocess 121、provider 99、live 19、no-timeout 69、secret-suspicion 61；SHA-256 重复组 0。
+5. `scripts/tmp/` 两文件在 CSV 中均为 `decision-required`，等待 P1 按 D1 归档/删除终态裁决。
+
+### 仪器修复与负向证明
+
+1. 移除 builder 自测夹具内部清理，消除“先删证据后验证”的时序缺陷。
+2. parentMap 空数组初始化，消除真实仓库因空父链导致 `ContainsKey($null)` 失败。
+3. negative-case 改用 builder `runDate` 命名 CSV，消除 UTC/local 跨天假失败。
+
+### 基线漂移登记
+
+1. 静默吞错：方案旧口径 455/115；临时 `rg` 当前口径 449 lines/112 files；builder 多规则口径 116 files。P1 不继承旧数，以 CSV 为准。
+2. 破坏性：方案旧口径 123 files 排除 tmp；builder 全 scripts 口径 124 files，差异仅 `scripts/tmp/verify-chapter-batch-ui-electron.mjs`。
+3. secret-suspicion 61 是初筛，不等于真实泄密；P1 逐文件复核，已知含固定测试假键、脱敏断言与 safeStorage 字段名。
+
+### 结论
+
+P0 通过；P1 批次划分、P2 处置执行、P3 质量修复仍需用户另行批准。

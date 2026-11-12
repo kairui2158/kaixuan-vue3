@@ -1,0 +1,15 @@
+root=D:\codex\novel-workshop-vue3
+runDate=2026-11-13
+builderExit=0
+negativeHarnessExit=0
+negativeHarness=NEGATIVE-PATH-HARNESS: PASS
+scriptFiles=195
+trackedScripts=193
+csvRows=195
+classes: npm=11 src-electron=1 doc-spec=6 internal-chain=25 none=152
+qualityFiles: catchSilent=116 catchSilentActive=116 destructive=124 destructiveActive=124 subprocess=121 provider=99 live=19 noTimeout=69 noTimeoutActive=69 secret=61
+duplicateGroups=0
+csv=_audit/scripts-lifecycle/INVENTORY_2026-11-13.csv
+csvSha256=09C59A654522CB03C30C9CC7C70AADDC81AF9BEEF367069849C92CF1F8A4053A
+rgBaselineSilent=449 lines / 112 files (temporary current command result; persisted builder baseline 455/115)
+rgBaselineDestructive=123 files excluding scripts/tmp (builder includes tmp and reports 124 files)
