@@ -1,0 +1,7 @@
+batch	B06-RETIRE-AUDIT-PHRASE
+action	retire
+tag	scripts-lifecycle-06-retire
+preCommit	984e31208baa71b6ee3acd1bc923ab4dadcfaed5
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\audit-phrase-corpus-saturation.cjs	retire	clean	86386F3882254B0E35D62D6C6CB5C0D1C805957E07AC5FCE6FE122CB4DEC339B
