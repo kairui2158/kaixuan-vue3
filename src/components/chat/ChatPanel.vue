@@ -2783,14 +2783,6 @@ watch(() => editorStore.activeTab, (tab) => {
   })
 }, { immediate: true })
 
-watch(() => editorStore.activeTab?.content, (content) => {
-  const tab = editorStore.activeTab
-  if (!tab || chatStore.currentContext?.tabId !== tab.id) return
-  if (chatStore.currentContext) {
-    chatStore.currentContext.content = content || ''
-  }
-})
-
 async function restoreContinuation(sessionId: string) {
   const snapshot = await loadContinuation(projectId.value, 'main', sessionId)
   if (!snapshot) return

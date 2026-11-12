@@ -1885,3 +1885,12 @@
 - 验证：aiService 189/189 passed；realSkillExecutor 81/81 passed；全量服务 250 files / 2728 tests passed；vue-tsc exit 0；glm-5.3-flashx 真实供应商 SSE 直连 HTTP 200。
 - 边界：不改 realSkillExecutor、编排器、预算系统、自动调度或 UI；第三方网关不可诱导真实故障，如实登记并以真实错误序列单测覆盖。
 - 经验：`神意开发经验总结_v9.md` 升级 v10.4.1；G1.19 增补心跳探针等待、超时与 trace 标记规则。
+
+# 2026-11-12 编辑器性能账本 Phase D 首源收敛
+
+- 文件：[_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md](_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md)
+- 交付：按 7 条真实 Electron 账本定位并收敛首页击键首源；`updateContent` 同引用短路、无书签跳过全文哈希，删除 ChatPanel 每键全文拷贝到零读取上下文的死链。
+- 用途：首页长文输入不再每次击键执行全文双哈希和跨 store 全文拷贝；编辑、撤销、书签失效与会话读取语义保持不变。
+- 验证：账本 before/after 中 `hashEditorContent` 从 52 samples 降至 0 samples，after 全路径 >50ms 长任务为 0；定向编辑 store 10/10 passed；全量服务 250 files / 2738 tests passed；type-check 与 build:vue 通过。
+- 边界：Phase B/C/E/F 不凭剩余 `_s`/`gs` 样本加闸，继续按缩小窗口账本证据裁决；不改大纲编辑器、持久化协议、UI 结构和生成流水线。

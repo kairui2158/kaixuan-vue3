@@ -71,23 +71,20 @@ export const useEditorStore = defineStore('editor', () => {
 
   function updateContent(id: string, content: string) {
     const tab = tabs.value.find(t => t.id === id)
-    if (tab) {
-      const previousContent = tab.content
-      tab.content = content
-      tab.isDirty = true
-      const previousHash = hashEditorContent(previousContent)
-      const currentHash = hashEditorContent(content)
-      if (previousHash !== currentHash) {
-        const nextContent = content
-        const keptForDocument = bookmarks.value
-          .filter(bookmark => bookmark.documentId === id)
-          .filter(bookmark => bookmark.offset <= nextContent.length)
-          .map(bookmark => ({ ...bookmark, contentHash: currentHash }))
-        bookmarks.value = bookmarks.value
-          .filter(bookmark => bookmark.documentId !== id)
-          .concat(keptForDocument)
-      }
-    }
+    if (!tab || tab.content === content) return
+
+    const documentBookmarks = bookmarks.value.filter(bookmark => bookmark.documentId === id)
+    tab.content = content
+    tab.isDirty = true
+    if (documentBookmarks.length === 0) return
+
+    const currentHash = hashEditorContent(content)
+    const keptForDocument = documentBookmarks
+      .filter(bookmark => bookmark.offset <= content.length)
+      .map(bookmark => ({ ...bookmark, contentHash: currentHash }))
+    bookmarks.value = bookmarks.value
+      .filter(bookmark => bookmark.documentId !== id)
+      .concat(keptForDocument)
   }
 
   function markSaved(id: string) {

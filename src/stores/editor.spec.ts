@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useEditorStore } from './editor'
+import { hashEditorContent } from '../services/editorTarget'
 import { resetUndoService } from '../services/editorUndoService'
 
 const bookmarkContent = '# 第一卷\n少年在雪原行走。\n# 第二卷\n旧城位于河湾。'
@@ -24,6 +25,30 @@ describe('editor store undo stacks', () => {
     expect(store.undoTab('tab-1')).toBe('第一版')
     expect(store.redoTab('tab-1')).toBe('第一版')
     expect(store.redoTab('tab-1')).toBe('第二版')
+  })
+
+  it('skips dirty update when tab content identity is unchanged', () => {
+    const store = useEditorStore()
+    store.openTab({ id: 'tab-1', title: '第一章', content: '同一内容', chapterId: '', isDirty: false })
+
+    store.updateContent('tab-1', '同一内容')
+
+    expect(store.activeTab?.content).toBe('同一内容')
+    expect(store.activeTab?.isDirty).toBe(false)
+  })
+
+  it('refreshes bookmark hashes once when content changes', () => {
+    const store = useEditorStore()
+    store.openTab({ id: 'tab-1', title: '第一章', content: bookmarkContent, chapterId: '', isDirty: false })
+    store.addBookmark('tab-1', bookmarkContent, bookmarkContent.indexOf('少年'), '北境')
+
+    const nextContent = bookmarkContent + '\n新增一行。'
+    store.updateContent('tab-1', nextContent)
+
+    const [bookmark] = store.listBookmarks('tab-1')
+    expect(store.activeTab?.content).toBe(nextContent)
+    expect(store.activeTab?.isDirty).toBe(true)
+    expect(bookmark?.contentHash).toBe(hashEditorContent(nextContent))
   })
 
   it('clears redo history when a new checkpoint is pushed', () => {
