@@ -1914,3 +1914,12 @@
 - 验证：type-check 通过；chat store 8 tests passed；全量服务 251 files / 2740 tests passed；build:vue、真实 Electron 7 路径账本与 3.127.1 verify:packaging 通过。
 - 安装包：`dist/神意助手-Setup-3.127.1.exe`，231,671,529 bytes，SHA256 `5bf7b1cff8ae9ea77d9c4968f9e596cf3b6e4906a6e350b6fbd53f29eb9dcef5`。
 - 边界：不恢复轮询，不加调度器、预算系统或第二套 UI；不改生成流水线与 folder SKILL；历史无 id 为兼容兜底，2026-08-16 起新增消息本就有 id。
+
+# 2026-11-12 冗余清理方案 V1 执行收口
+
+- 文件：[_audit/DEV_LOG_2026-11-12-redundancy-cleanup-v1.md](_audit/DEV_LOG_2026-11-12-redundancy-cleanup-v1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_redundancy-audit-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_redundancy-audit-v1.md)
+- 交付：退役 `editTaskExecutor` 及自 spec 并关闭 depcruise 豁免；裁剪 `PipelineProgressPhase` 四个幻影枝并删除孤儿 chapter store；删除孤儿 `DiffModal.vue.d.ts` 与死 npm 入口。
+- 用途：编辑任务与 Pipeline 状态语义回归单一事实；移除零消费组件、孤儿类型面和无效脚本入口；orphan 规则恢复真实侦测能力。
+- 验证：P1/P2/P3 分别单 commit；负向断言零命中；终态 wiring 590 modules / 0 violations、type-check 与 build:vue 通过、全量服务 250 files / 2734 tests passed；`git diff --check` 通过。
+- 边界：本轮只删不加，净减 454 行；不升级版本、不封装安装包；`scripts/` 孤儿资产、底层 Electron 验证脚本、folder SKILL 和用户侧未跟踪材料均不改。
