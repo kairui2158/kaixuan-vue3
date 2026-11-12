@@ -38,3 +38,9 @@
 1. 未触碰 `scripts/`、产品代码、folder SKILL、`package.json`。
 2. 未执行 P1 批次划分、P2 归档/删除或 P3 质量修复。
 3. 未升级版本或封装安装包；P1/P2/P3 仍需用户另行批准。
+
+## P3 质量修复收口（2026-11-13）
+
+1. 按“最小必要性”修复 3 个 active 保留脚本的真静默吞错：outline workspace 的 4 处 UI 状态探测、packaging 关闭异常、deai 失败章节快照落盘；均改为显式 `console.warn`，不改成功路径语义。
+2. CDP 轮询、进程/目录清理、JSON 默认值、崩溃取证类 best-effort 兜底保留，理由已在任务台账 §13 登记。
+3. `node --check` 三脚本全部通过；`git diff --check` 无空白错误；修复与 P2 删除/归档分账独立提交。

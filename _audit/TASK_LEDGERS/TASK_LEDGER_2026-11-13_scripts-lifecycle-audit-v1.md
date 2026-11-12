@@ -252,3 +252,27 @@ one 文件全部纳入计划器逐文件裁决，输出 keep/quarantine/retire/a
 ### 结论
 
 P2 已按方案停止条件完成；P3 尚未执行修复，只完成剩余质量面登记与分账边界。
+
+## 13. P3 质量修复证据（2026-11-13）
+
+### 修复范围
+
+1. `scripts/verify-outline-workspace.mjs`：将项目切换确认、新建入口、创建确认、项目弹窗四处 `catch(() => false)` / `catch(() => '')` 改为显式可见性/文本探测；探测异常输出 `console.warn`，成功路径语义不变。
+2. `scripts/verify-packaging.mjs`：将 `finally` 中 `electronApp.close()` 的静默失败改为 `console.warn`，保留进程兜底与退出码语义。
+3. `scripts/verify-deai-stage-guidance-live.mjs`：将失败章节运行快照写入的静默失败改为 `console.warn`，避免证据丢失不可归因。
+4. 清理临时调试产物 `_audit/scripts-lifecycle/p2-debug.log`，不入库。
+
+### 有意保留清单
+
+1. CDP 轮询与进程清理的 best-effort `catch {}` 保留：失败后仍进入 retry/taskkill 兜底，不构成吞错终点。
+2. `finally` 中 `browser.close().catch(() => {})`、`taskkill`、`removeDir` 重试循环保留：清理路径不应反向改变验证失败原因。
+3. `JSON.parse` 返回默认值的模式保留：解析空/坏片段时的语义是“无值”，不是隐藏验证失败。
+4. `verify-chapter-batch-contract-electron.mjs` 的失败证据取回与解析默认值保留：这是崩溃后的 best-effort 取证，不应让取证失败覆盖主失败。
+5. 其余初筛命中按 CSV `qualityFlags` 与文件用途分账，不在 P3 把历史-only 面升格重写。
+
+### 命令证据
+
+1. `node --check scripts/verify-outline-workspace.mjs`、`node --check scripts/verify-packaging.mjs`、`node --check scripts/verify-deai-stage-guidance-live.mjs` → 全部 exit 0。
+2. `git diff --check` → exit 0；仅提示 LF/CRLF 工作区转换警告，无空白错误。
+3. `git diff --stat` → 3 files changed, 34 insertions(+), 6 deletions(-)。
+4. 台账核对：`verify-outline-workspace.mjs` 为 doc-spec keep 资产；`verify-packaging.mjs` 与 `verify-deai-stage-guidance-live.mjs` 分别绑定 `package.json:25`、`package.json:26`，均为 npm keep 资产。

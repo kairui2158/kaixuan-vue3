@@ -904,7 +904,9 @@ async function preserveFailureEvidence(page, chapter, error) {
     const snapshot = await currentRunSnapshot(page)
     fs.writeFileSync(path.join(EVIDENCE_ROOT, `chapter-${chapter}-last-snapshot.json`),
       JSON.stringify(snapshot, null, 2), 'utf8')
-  } catch {}
+  } catch (snapshotError) {
+    console.warn(`[FAIL EVIDENCE] chapter ${chapter} run snapshot persistence failed: ${String(snapshotError?.message || snapshotError)}`)
+  }
   try {
     const exported = await exportLatestRun(page)
     const { directory, run } = readExportedRun(exported)

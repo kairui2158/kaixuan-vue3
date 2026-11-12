@@ -37,12 +37,24 @@ await page.waitForTimeout(300)
 await page.locator('#btn-open-project').click()
 await page.waitForTimeout(300)
 const confirm = page.locator('.project-transition-confirm')
-if (await confirm.isVisible().catch(() => false)) {
+  let confirmVisible = false
+  try {
+    confirmVisible = await confirm.isVisible()
+  } catch (error) {
+    console.warn(`[OUTLINE WORKSPACE] transition confirm visibility check failed: ${String(error?.message || error)}`)
+  }
+  if (confirmVisible) {
   await confirm.getByRole('button', { name: '取消' }).click()
   await page.waitForTimeout(200)
 }
 const projectToggle = page.locator('.new-project-btn')
-if ((await projectToggle.innerText().catch(() => '')) === '取消') {
+  let projectToggleText = ''
+  try {
+    projectToggleText = await projectToggle.innerText()
+  } catch (error) {
+    console.warn(`[OUTLINE WORKSPACE] project toggle text check failed: ${String(error?.message || error)}`)
+  }
+  if (projectToggleText === '取消') {
   await projectToggle.click()
   await page.waitForTimeout(200)
 }
@@ -52,11 +64,23 @@ await page.locator('.new-project-form textarea').fill('第一卷 起点\n主角�
 await page.getByRole('button', { name: '创建' }).click()
 await page.waitForTimeout(500)
 const createConfirm = page.locator('.project-transition-confirm')
-if (await createConfirm.isVisible().catch(() => false)) {
+  let createConfirmVisible = false
+  try {
+    createConfirmVisible = await createConfirm.isVisible()
+  } catch (error) {
+    console.warn(`[OUTLINE WORKSPACE] create confirm visibility check failed: ${String(error?.message || error)}`)
+  }
+  if (createConfirmVisible) {
   await createConfirm.getByRole('button', { name: '保存并继续' }).click()
   await page.waitForTimeout(500)
 }
-if (await page.locator('.project-modal-content').isVisible().catch(() => false)) {
+  let projectModalVisible = false
+  try {
+    projectModalVisible = await page.locator('.project-modal-content').isVisible()
+  } catch (error) {
+    console.warn(`[OUTLINE WORKSPACE] project modal visibility check failed: ${String(error?.message || error)}`)
+  }
+  if (projectModalVisible) {
   await page.locator('.project-modal-content .btn-close').click()
   await page.waitForTimeout(300)
 }

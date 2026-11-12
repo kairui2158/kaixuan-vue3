@@ -158,7 +158,9 @@ try {
   try {
     await withTimeout(electronApp.close(), 'electronApp.close', 15_000)
     closed = true
-  } catch {}
+  } catch (closeError) {
+    console.warn(`[PACKAGING EVIDENCE] electronApp.close failed: ${String(closeError?.message || closeError)}`)
+  }
   if (!closed && electronProcess?.pid) {
     spawnSync('taskkill', ['/PID', String(electronProcess.pid), '/T', '/F'], { stdio: 'ignore' })
   }
