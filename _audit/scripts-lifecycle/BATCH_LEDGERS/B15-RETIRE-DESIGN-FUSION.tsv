@@ -1,0 +1,7 @@
+batch	B15-RETIRE-DESIGN-FUSION
+action	retire
+tag	scripts-lifecycle-15-retire
+preCommit	796d59157260ab53ad54aca27f7db0ccffa5064a
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\design-fusion-cleanup.mjs	retire	clean	49AA626A415D6199AAC69CC73C2F203699C5958312065D9312B9A7ECA386469F
