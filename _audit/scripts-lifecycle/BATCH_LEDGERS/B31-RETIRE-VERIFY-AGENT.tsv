@@ -1,0 +1,8 @@
+batch	B31-RETIRE-VERIFY-AGENT
+action	retire
+tag	scripts-lifecycle-31-retire
+preCommit	9d8b359bc0225d423e0d662c734bd7ba18c10c74
+pathHashRows	2
+path`taction`tstatus`tsha256
+scripts\verify-agent-state-electron.mjs	retire	clean	F342473076FC0A40FD095809D459C14FE8A19319E75485569EA2F46B5960186D
+scripts\verify-agent-tool-surface-electron.mjs	retire	clean	18FE11B7EA1E155E659A563167881AFEA666F4F317CF21DDEA5CBAB299D918EA
