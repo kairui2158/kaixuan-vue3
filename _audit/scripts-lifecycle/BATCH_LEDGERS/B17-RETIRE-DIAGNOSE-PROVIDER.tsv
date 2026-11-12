@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-17-retire
 preCommit	c1ecfb5a95a0502e1eed66ed47695e8c3597fefd
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\diagnose-provider-tool-stream.mjs	retire	clean	18050E0F8385708E8881968B37548D2C2228076A7C0E384D7E0A84CFA9754A53

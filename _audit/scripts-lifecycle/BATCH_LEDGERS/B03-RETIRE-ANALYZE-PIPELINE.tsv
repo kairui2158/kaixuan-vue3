@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-03-retire
 preCommit	0488b4081e08a44537a025bd8d7c96c254689595
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\analyze-pipeline-live-performance.mjs	retire	clean	62850732A8DD5C3964D6E75691A480FB2CE851BB028D30750D17462C78E897C5

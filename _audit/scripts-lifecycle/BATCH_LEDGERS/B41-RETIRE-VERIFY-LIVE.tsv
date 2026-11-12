@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-41-retire
 preCommit	da7aa452aa02bbba9944c863834aa5e34457e404
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-live-api-status-electron.mjs	retire	clean	21C865CD24A9716F16E8F72E0E7DDD2F9D89133C0BA6A33CE0DEF549C2A3E862

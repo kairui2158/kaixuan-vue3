@@ -3,7 +3,7 @@ action	archive
 tag	scripts-lifecycle-50-archive-chain
 preCommit	e365db0756c5462b8aad5216749885b650ba296b
 pathHashRows	4
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\style-profile-p0-budget-account.entry.mjs	archive	clean	A79F2B241ECE4FD05CFCEAE0D1A50712A97077898DBDA6E2B0C665FCA6C85859
 scripts\style-profile-p0-budget-account.mjs	archive	clean	878A712236B698A2B1D5D35F8D2ED6D42B19F5811A58516158FDC3D0775BAE5F
 scripts\style-profile-p0-ts-loader.mjs	archive	clean	BB5DF4AD17F9D8ECFEB2865B423C3C8D9856D8DE638EFC66F1F34B7746C7DFEC

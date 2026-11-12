@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-04-retire
 preCommit	90dfa91c4374260e12127600d7382119dfe0d482
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\audit-design-tokens.mjs	retire	clean	4E63875818442687636518E9ACCD70152A07E206BA2E167B10024EB6ACF6B919

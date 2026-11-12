@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-30-retire
 preCommit	ab367a401ba3c44f0206e7a1f4150107b9554aed
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\validate-folder-skill.cjs	retire	clean	43A2F818B6D11C17850D255BC582E2C24C65C521E51305C20074A9B72CF115AD

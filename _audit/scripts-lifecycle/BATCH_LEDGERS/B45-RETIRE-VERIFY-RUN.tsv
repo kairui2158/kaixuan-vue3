@@ -3,6 +3,6 @@ action	retire
 tag	scripts-lifecycle-45-retire
 preCommit	74433cf8e980fd159efcc3bec5d21ea4995c92ca
 pathHashRows	2
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-run-trace-audit.mjs	retire	clean	7FE88DB22CBD8D3F114A2F1F0BD29C6EBD1FF595969FF7659D3C68A93B6B3FFD
 scripts\verify-run-trace-diff-electron.mjs	retire	clean	6DC2DF04E13A19E21A144C5980104ED9220718CCDA0FFCD65596F5B5EDEB35CA

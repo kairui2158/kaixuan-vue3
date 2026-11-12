@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-10-retire
 preCommit	8dd0d85f19ac462218aa9e5d63c7a24664f14d54
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\cleanup-api-direct-write-user-data.ps1	retire	clean	7418B02B3D89AE53CFCE5B1C77A71DFAB7CF6E977C1EB76B5197DFEA6558DE07

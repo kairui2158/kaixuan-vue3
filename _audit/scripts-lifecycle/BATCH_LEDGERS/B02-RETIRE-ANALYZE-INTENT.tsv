@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-02-retire
 preCommit	69b9d11955bea35b2482b578f1ee5c44d4e2ba7b
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\analyze-intent-factory-failures.mjs	retire	clean	0FBEBAEFCFE57AB4930A97164405D45C59DEB546C6251F442084724DF45EB17A

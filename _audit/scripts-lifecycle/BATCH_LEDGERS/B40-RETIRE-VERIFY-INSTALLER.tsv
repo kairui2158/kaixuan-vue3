@@ -3,7 +3,7 @@ action	retire
 tag	scripts-lifecycle-40-retire
 preCommit	0ff7c7011b082ea0f1c2a053a2639c0a6c2b6abc
 pathHashRows	3
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-installer-3-42-2-direct-write.mjs	retire	clean	142A3DD48CC213C0F430FE2F34A6707BDB2A7E6CE105674F08325E28CCEE18FE
 scripts\verify-installer-3-42-2-smoke.mjs	retire	clean	5B8DFA1CBE3988FDF34964F99E95DDD0EC2CD6A49612E5DEB6816A3DF504C47D
 scripts\verify-installer-3-44-0-smoke.mjs	retire	clean	82B773D17689F11903561551B3D4C8F3953BFFEEF0C1D759816150FA243F7370

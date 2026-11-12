@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-14-retire
 preCommit	81663eb4300e0c69cae428ac2f2f9c8d36f72a7a
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\debug-outline-state.mjs	retire	clean	C1E5559BD0C13DF4ED8B8ED413414E0EC4536EE9D518C0CBF8970902B42103CE

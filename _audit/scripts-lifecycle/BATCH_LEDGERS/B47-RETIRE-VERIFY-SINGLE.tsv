@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-47-retire
 preCommit	077cb4373a92f0561dbeceb9ebea0adb9e433e59
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-single-pass-live-replay.mjs	retire	clean	989DCAF245AC1E521FF3B16B6E5AC6ADA611DCA734F550B8FA55B9AA59E9A62E

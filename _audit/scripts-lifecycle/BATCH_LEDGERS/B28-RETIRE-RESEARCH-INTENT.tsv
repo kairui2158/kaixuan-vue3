@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-28-retire
 preCommit	5588a797e93442c3671d7a772fd61bece64674c5
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\research-intent-semantic-routing.mjs	retire	clean	ED79DAD02EDDB3620A08DE1FD3786EAA966FBC86149AAC6D78703EFA3B13778C

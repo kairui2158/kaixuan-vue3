@@ -3,7 +3,7 @@ action	retire
 tag	scripts-lifecycle-27-retire
 preCommit	9dd1eca03f09a84ea4e442e938bc4cba50634474
 pathHashRows	3
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\research-editor-base-alignment.mjs	retire	clean	7D5BD273F7149ECD95DC2659781CE151CE52E2C836D0ADA617EA15FCFF325CE0
 scripts\research-editor-followup-features.mjs	retire	clean	C516E91E24758DEA5E23CA0D5D7DD9B46BBA67097C651B9BBEBB48549944326D
 scripts\research-editor-full-product.mjs	retire	clean	2F91108393D464D2B92B462BCB9FE0AAC604F0826C4C0BED20D99C7DCA727573

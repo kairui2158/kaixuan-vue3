@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-24-retire
 preCommit	0a232ef306db64f878bd15b7c604931b11dabdbb
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\probe-provider-net-stream-electron.mjs	retire	clean	F9336BA4BDCF094C203549361CE1FADF4192D9B479FB122E4C6C0FC144FF891C

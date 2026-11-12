@@ -3,6 +3,6 @@ action	retire
 tag	scripts-lifecycle-42-retire
 preCommit	9264d16de7a624ff2a333cd2015c983d92305c51
 pathHashRows	2
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-long-document-local-transform-electron.mjs	retire	clean	E8C8ACE3F21C19FFF810033EC59BA6084CE8195BA890484F5DF9A857B5D95970
 scripts\verify-long-document-restructure-phase6-electron.mjs	retire	clean	476BDA5D0351107391BED0EBC9297650964331EE250205D3C38C1E268F5C5A1A

@@ -3,7 +3,7 @@ action	retire
 tag	scripts-lifecycle-43-retire
 preCommit	04ef09b5f4af98475ae212e9a527a32a21e8410a
 pathHashRows	16
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-outline-deletion-confirmation-electron.mjs	retire	clean	01EE7D8638466E26E9F6B420AE1E6C3BFB720ECEEF47D116B0283B8B597933E6
 scripts\verify-outline-deletion-live-replay-electron.mjs	retire	clean	2C089142CD112DC621C29732E46154A9709305F5B39C48DD8BCBF9377B98928A
 scripts\verify-outline-export-ui-regression.mjs	retire	clean	C4B7EECCD7BDB9DE3CFD78A3512AF0E45ACF67066DB31D528097937E737C2185

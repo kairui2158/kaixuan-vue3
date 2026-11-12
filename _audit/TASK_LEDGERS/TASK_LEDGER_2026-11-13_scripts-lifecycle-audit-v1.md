@@ -276,3 +276,9 @@ P2 已按方案停止条件完成；P3 尚未执行修复，只完成剩余质�
 2. `git diff --check` → exit 0；仅提示 LF/CRLF 工作区转换警告，无空白错误。
 3. `git diff --stat` → 3 files changed, 34 insertions(+), 6 deletions(-)。
 4. 台账核对：`verify-outline-workspace.mjs` 为 doc-spec keep 资产；`verify-packaging.mjs` 与 `verify-deai-stage-guidance-live.mjs` 分别绑定 `package.json:25`、`package.json:26`，均为 npm keep 资产。
+
+### 仪器缺陷修正
+
+1. 终局复核发现 `execute-p2.ps1` 第 89 行的表头字符串误用单引号，导致 51 份批次台账的 `path/action/status/sha256` 表头被写入字面量反引号；哈希数据本身 101 行完整可读。
+2. 已将执行器表头改为双引号制表符表达式，防止重跑复发；51 份已落盘台账就地替换字面量表头为真实制表符。
+3. 复核输出：`hashRows=101`、`batches=51`、`literalHeaders=0`。

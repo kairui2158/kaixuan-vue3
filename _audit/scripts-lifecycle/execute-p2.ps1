@@ -86,7 +86,7 @@ foreach ($batch in $batches) {
   $preCommit = (& git rev-parse HEAD).Trim()
 
   $ledgerPath = Join-Path $ledgerRoot ($batch.id + '.tsv')
-  $ledger = @("batch`t$($batch.id)", "action`t$($batch.action)", "tag`t$($batch.tag)", "preCommit`t$preCommit", "pathHashRows`t$($batch.files.Count)", 'path`taction`tstatus`tsha256')
+  $ledger = @("batch`t$($batch.id)", "action`t$($batch.action)", "tag`t$($batch.tag)", "preCommit`t$preCommit", "pathHashRows`t$($batch.files.Count)", "path`taction`tstatus`tsha256")
   foreach ($rel in $batch.files) {
     $full = [System.IO.Path]::GetFullPath((Join-Path $Root $rel))
     Assert-True ($full.StartsWith($Root + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) "outside workspace: $rel"

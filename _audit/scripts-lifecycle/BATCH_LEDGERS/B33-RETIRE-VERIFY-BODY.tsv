@@ -3,6 +3,6 @@ action	retire
 tag	scripts-lifecycle-33-retire
 preCommit	714a8602e281e572e2e401ccd0cf2fd33255ea64
 pathHashRows	2
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-body-bare-not-ready-targeted-electron.mjs	retire	clean	A5993A53CEB154D2B1A1AF3EFA79F76DCD651F8FCFA832DCE5545ED2ABCD4BAA
 scripts\verify-body-contract-degraded-replay.mjs	retire	clean	7770B28F7A7FE0A27D14A112DABF950FC23A6872E48324B5D73ADF387A4CD951

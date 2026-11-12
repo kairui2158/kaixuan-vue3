@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-20-retire
 preCommit	4ad16255aa79fea9c443f3dbd9459d16e453fb94
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\extract-phrase-corpus-fifth-round.cjs	retire	clean	66246EEFAB9E21560EC25CE1315DDA07D13F0E754BDD101D08A116F098965CFA

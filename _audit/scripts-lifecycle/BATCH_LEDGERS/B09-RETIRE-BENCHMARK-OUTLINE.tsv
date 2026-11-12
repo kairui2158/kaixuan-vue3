@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-09-retire
 preCommit	bd62941b06c77967c5f187fe1bbb278c92befc06
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\benchmark-outline-editor-v6-baseline.mjs	retire	clean	37D4978572732B5F9A60417BEE93F1447BE1BD25388B4985AFFD65321FC99E50

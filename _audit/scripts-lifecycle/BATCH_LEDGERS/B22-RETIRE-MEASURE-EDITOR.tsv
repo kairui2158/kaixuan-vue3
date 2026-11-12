@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-22-retire
 preCommit	ac151d05cc3b668fb4a75f3d1d7f2180e6e48adc
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\measure-editor-perf-ledger.mjs	retire	clean	201F15AADBFB6206309F8995BE50793CF36A7772959EF42786EAE68EE94D3F72

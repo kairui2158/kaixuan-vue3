@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-46-retire
 preCommit	f55ffd2eaf9fcad975b1eae721e10ad2946716fd
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-settings-skill-page-e2e.mjs	retire	clean	248A0D93FCCB92133F7A247BC72D3FF9F2C06F42ABEC6EBC63509404F9C14436

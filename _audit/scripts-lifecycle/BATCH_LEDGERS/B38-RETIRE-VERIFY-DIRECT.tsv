@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-38-retire
 preCommit	32e3fd86cfc2a05b9eb663dae085722da37c961e
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-direct-write-negative-paths-electron.mjs	retire	clean	C264A037C55C984B0B939BA536F60C22B881E5E1462F92DCF34455C273B025C8

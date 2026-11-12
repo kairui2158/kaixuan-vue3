@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-23-retire
 preCommit	8d0ff1a20ecb28e987edb866f6fecd3520868372
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\probe-chapter-tree-overflow.mjs	retire	clean	9843390AE6DD305BF08EAD58238EF932963B9DFBD573086AEC9E75939E309D72

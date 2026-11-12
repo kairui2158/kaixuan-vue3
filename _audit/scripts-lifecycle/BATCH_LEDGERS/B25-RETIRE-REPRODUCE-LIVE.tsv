@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-25-retire
 preCommit	fbb1775afd64cff129de69fe5649c54292bad77e
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\reproduce-live-v3-step5-stall.mjs	retire	clean	0DAED5EE7659E1538079238024BFE453AC5A04CF450F82D2F79002CDD257C180

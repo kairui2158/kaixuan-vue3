@@ -3,7 +3,7 @@ action	retire
 tag	scripts-lifecycle-32-retire
 preCommit	cf3725657ccef932ae502253c2a4445b434f16a3
 pathHashRows	5
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\verify-api-direct-write-live-v3.mjs	retire	clean	38ED3EB06C4801F0CB971D589DBB002DED46D6A5AF69ACB61DE8F2B9A68E23FD
 scripts\verify-api-direct-write-long-document-loop.mjs	retire	clean	1B99187A8B1E349DB6FD8141FD2DECC66C68161F861AF1532BD0F9A4B6296887
 scripts\verify-api-direct-write-provider-matrix.mjs	retire	clean	BD20BCE4C8EE35C6CAAB5BCB2E7EFF9FFCB0C98C72C2A89A581808FA3C7DB48E

@@ -3,5 +3,5 @@ action	retire
 tag	scripts-lifecycle-21-retire
 preCommit	b71c8ad3079c793c056d964e4dcada1c74d35f13
 pathHashRows	1
-path`taction`tstatus`tsha256
+path	action	status	sha256
 scripts\inspect-parallelism-live-app.mjs	retire	clean	6A45414DE34EE4A46B4C6DD7A7B8F73B60B370D8FD97905A53836CB2F9CC1657
