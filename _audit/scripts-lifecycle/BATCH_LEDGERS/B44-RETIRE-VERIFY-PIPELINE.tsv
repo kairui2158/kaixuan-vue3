@@ -1,0 +1,12 @@
+batch	B44-RETIRE-VERIFY-PIPELINE
+action	retire
+tag	scripts-lifecycle-44-retire
+preCommit	7e0fd079319837c6845384dfab116a97b1d2eace
+pathHashRows	6
+path`taction`tstatus`tsha256
+scripts\verify-pipeline-artifact-contracts-electron.mjs	retire	clean	55B9A8CBBD79B2FF90B3959AB367083CDBAC3A5F4F77F34AC7126B7940D53B07
+scripts\verify-pipeline-artifact-contracts-replay.mjs	retire	clean	E7F959F56E3C0BDFB78C48410800302CC7E744D319B67F0DD8BBB8ACB08DE611
+scripts\verify-pipeline-repair-feedback-electron.mjs	retire	clean	43EC9AD633218CBBB5143187F9E9F745717281C0654EACD205487433066074BA
+scripts\verify-pipeline-repair-feedback-replay.fixture.json	retire	clean	ECB7D0841BB4AF8C05E9A82C8E9F4983165482CF33FC1C5B7F92E4EFDE57F45B
+scripts\verify-pipeline-repair-feedback-replay.mjs	retire	clean	5161E7324B47B076BFB0835CBABBFD678FEE9BC5DBD62A02399D95CC9B81B212
+scripts\verify-pipeline-timing-ledger-electron.mjs	retire	clean	7F4B1FFBB70E934E220E24B3C9AA56700E138A71FEAB0AA5C15A39631171CCB6
