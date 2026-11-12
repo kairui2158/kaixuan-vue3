@@ -201,3 +201,26 @@
 ### 结论
 
 P0 通过；P1 批次划分、P2 处置执行、P3 质量修复仍需用户另行批准。
+
+## 11. P1 执行证据（2026-11-13）
+
+### 命令证据
+
+1. 修复 uild-batch-plan.ps1 非法表达式 Assert-True = $null 后执行 pwsh.exe -NoProfile -ExecutionPolicy Bypass -File _audit/scripts-lifecycle/build-batch-plan.ps1 → exit 0。
+2. 输出：keep=36 quarantine=58 retire=95 archive=6; batches=51。
+3. 产物：_audit/scripts-lifecycle/BATCH_PLAN_2026-11-13.md。
+4. 仓库级退役候选复扫：排除 scripts/** 与 _audit/** 后，95 个候选固定文件名在 package.json/src/electron/docs 及全部非审计路径命中 0。证据 SHA256 2E52599AB916438264DFE2E27FEB29F1CD4B0185BDE5022F33FF1070A7AA2E73。
+5. 抽检命中复核：skill-script-worker.spec.cjs 引用产品 worker，非脚本闭包互引；其余候选命中均为脚本自身 usage/self-reference。
+6. git diff --check → exit 0。
+
+### 裁决执行
+
+1. D1：scripts/tmp/redundancy-audit.mjs、scripts/tmp/verify-chapter-batch-ui-electron.mjs 判定 archive，已列入 B51。
+2. D2：Tier D 152 个 
+one 文件全部纳入计划器逐文件裁决，输出 keep/quarantine/retire/archive。
+3. D3/D4：质量修复尚未执行；P2 完成后按 active/historical-only 分账。
+4. D5：无自动到期删除；本计划无时间淘汰逻辑。
+
+### P2 启动判定
+
+51 个批次已具备独立 tag、文件闭包、固定名复扫与仓库级补扫证据；按用户已批准的连续执行合同进入 P2。
