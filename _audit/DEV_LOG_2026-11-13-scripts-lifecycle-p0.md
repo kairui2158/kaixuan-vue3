@@ -45,3 +45,25 @@
 2. CDP 轮询、进程/目录清理、JSON 默认值、崩溃取证类 best-effort 兜底保留，理由已在任务台账 §13 登记。
 3. `node --check` 三脚本全部通过；`git diff --check` 无空白错误；修复与 P2 删除/归档分账独立提交。
 4. 终局复核发现 `execute-p2.ps1` 表头单引号导致 51 份批次台账写入字面量 `path`taction`；已修正生成器为双引号，并将 51 份 TSV 表头就地归一为真实制表符，哈希数据与 101 行对账不受影响。
+
+## 3.127.2 交付复核与封装（2026-11-13）
+
+### 对账结果
+
+1. 复用台账已有证据：`scripts/` 终态 94 文件；51 份批次台账、101 条哈希行、0 个字面量表头复测通过。
+2. 剩余分账面如实保留：INVENTORY 中 `keep=18`、`quarantine-only=57`、`decision-required=120`，不并入本轮交付。
+3. 3.127.1 基线 `npm run test:services` 复测为 250 files / 2734 tests passed；台账 2740 为 2026-11-12 旧快照，不继承。
+4. 封装前置 `npm run type-check` exit 0；`npm run build:vue` / `electron-builder --win` 完整构建 exit 0。
+
+### 交付物
+
+1. 版本：3.127.1 → 3.127.2。
+2. 安装包：`dist/神意助手-Setup-3.127.2.exe`，231,667,073 bytes，SHA-256 `04cdfcec1f23ed99bd12e90595c46057f51bfaa1b242af115aee043f062590fc`。
+3. 封装核验：`npm run verify:packaging` exit 0，`verdict=pass`，rendererFiles=87，electronAPI methods=94；`electronApp.close` 15s 超时由 P3 显式 warn + 进程兜底处理，不改判封装失败。
+4. 经验回写：G1.21 增补“新增脚本必须先进入生命周期清单与批次计划、临时脚本只允许 `scripts/tmp/`、禁止版本化副本”的长期维护规则。
+
+### 分支处置
+
+1. 本地 `master` 与当前 HEAD 同源：HEAD 领先本地 master 218 commits，本地 master 理论可 fast-forward 到 HEAD。
+2. `origin/master` 与 HEAD 分叉：merge-base 是 `29e321be...`，远端另持 56 commits，HEAD 领先远端 merge-base 274 commits；本轮不做强推覆盖，远端 56 commits 需单独审计后另行裁决。
+3. `git rev-parse 'refs/heads/master^{commit}'` 正常返回 `ac278a74...`；前轮 base64 乱码为 Windows 引号解析假象，ref 文件与 packed-refs 均健康。

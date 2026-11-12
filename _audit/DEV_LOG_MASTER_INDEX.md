@@ -1932,3 +1932,12 @@
 - 用途：把零引用/历史验证脚本与仍承担交付验证、隔离审查的脚本分开，保留独立 revert 锚点与 SHA-256 对账。
 - 验证：B01-B51 tag 连续；101 条 ledger SHA-256 对账通过；B01-B49 96 个 retire 文件零引用断言；B50/B51 6 个 archive 文件哈希一致；`git diff --check` 通过。
 - 边界：未触碰产品代码、folder SKILL 与用户未跟踪材料；保留/隔离面质量问题不混入删除 commit，后续单独分账。
+
+# 2026-11-13 scripts 生命周期 3.127.2 交付复核与封装
+
+- 文件：[_audit/DEV_LOG_2026-11-13-scripts-lifecycle-p0.md](_audit/DEV_LOG_2026-11-13-scripts-lifecycle-p0.md)
+- 交付：P3 后对账 scripts=94、51 批次台账、101 条哈希行、0 字面量表头；G1.21 补脚本先登记后落盘的长期规则；升版 3.127.2 并完成 NSIS 交付。
+- 验证：`npm run type-check` exit 0；完整 `npm run build` exit 0；`npm run verify:packaging` exit 0 且 `verdict=pass`，rendererFiles=87、electronAPI methods=94。
+- 安装包：`dist/神意助手-Setup-3.127.2.exe`，231,667,073 bytes，SHA256 `04cdfcec1f23ed99bd12e90595c46057f51bfaa1b242af115aee043f062590fc`。
+- 分支：HEAD 领先本地 master 218 commits 可 fast-forward；`origin/master` 与 HEAD 有 56 个未审计远端提交，本轮不强推。
+- 边界：`keep=18 / quarantine-only=57 / decision-required=120` 剩余分账不并入本轮；用户 untracked 材料未触碰；旧安装包按既有交付保留。
