@@ -337,6 +337,7 @@
 import { applyOutlineReplacement } from '../../services/outlineReplace'
 import { computeEditorMatches, type SearchOptions } from '../../services/editorReplace'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
+import type { WatchStopHandle } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
 import {
   useRunTraceStore,
@@ -3301,9 +3302,20 @@ const findOptions = computed<SearchOptions>(() => ({
   wholeWord: findWholeWord.value,
   useRegex: findUseRegex.value,
 }))
-const findMatches = computed(() => findOpen.value
-  ? computeEditorMatches(projectStore.outlineText || '', findQuery.value, findOptions.value)
-  : { matches: [], error: null as string | null })
+const emptyFindResult = { matches: [], error: null as string | null }
+const debouncedFindSource = ref({
+  content: '',
+  query: '',
+  options: null as SearchOptions | null,
+  open: false,
+})
+let stopDebouncedFindSource: WatchStopHandle | null = null
+let debouncedFindTimer: ReturnType<typeof setTimeout> | null = null
+const findMatches = computed(() => {
+  const source = debouncedFindSource.value
+  if (!source.open) return emptyFindResult
+  return computeEditorMatches(source.content, source.query, source.options || {})
+})
 const findError = computed(() => findMatches.value.error)
 
 const findResult = computed(() => {
@@ -3596,6 +3608,22 @@ function createWorkspaceSkillAdapter(
 }
 
 onMounted(async () => {
+  stopDebouncedFindSource = watch(
+    [() => projectStore.outlineText, findQuery, findOptions, findOpen],
+    ([content, query, options, open]) => {
+      if (!open) {
+        if (debouncedFindTimer) clearTimeout(debouncedFindTimer)
+        debouncedFindTimer = null
+        debouncedFindSource.value = { content: '', query: '', options: null, open: false }
+        return
+      }
+      if (debouncedFindTimer) clearTimeout(debouncedFindTimer)
+      debouncedFindTimer = setTimeout(() => {
+        debouncedFindSource.value = { content, query, options, open: true }
+      }, 150)
+    },
+    { immediate: true },
+  )
   if (editorRef.value) {
     outlineViewport = createTextareaViewport({
       textarea: editorRef.value,
@@ -3618,6 +3646,14 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  if (stopDebouncedFindSource) {
+    stopDebouncedFindSource()
+    stopDebouncedFindSource = null
+  }
+  if (debouncedFindTimer) {
+    clearTimeout(debouncedFindTimer)
+    debouncedFindTimer = null
+  }
   if (outlineStreamRecoveryTimer) {
     clearInterval(outlineStreamRecoveryTimer)
     outlineStreamRecoveryTimer = null
@@ -3683,7 +3719,7 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null
 watch(
   () => projectStore.outlineText,
   () => {
-    scheduleMultiCursorRepaint()
+    if (multiCursorSelection.value) scheduleMultiCursorRepaint()
     if (saveTimer) clearTimeout(saveTimer)
     saveTimer = setTimeout(() => {
       if (projectStore.currentProjectId) projectStore.setOutline(projectStore.outlineText)
@@ -4021,6 +4057,7 @@ function clearMultiCursorSelection(reason: string, level: 'info' | 'warn' = 'inf
   if (!multiCursorSelection.value) return
   multiCursorSelection.value = null
   multiCursorBaseContent.value = ''
+  outlineMultiCursorLayer.value?.replaceChildren()
   const type = level === 'warn' ? 'multi-cursor-conflict' : 'multi-cursor-downgrade'
   recordMultiCursorEvent(type, level, { reason, cursorCount: 0 })
   scheduleMultiCursorRepaint()
