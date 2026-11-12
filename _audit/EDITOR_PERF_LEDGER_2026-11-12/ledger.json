@@ -1,6 +1,6 @@
 {
   "script": "measure-editor-perf-ledger.mjs",
-  "capturedAt": "2026-11-12T12:11:52.207Z",
+  "capturedAt": "2026-11-12T14:04:24.460Z",
   "environment": {
     "electron": "bundled",
     "cdpPort": 9461,
@@ -20,23 +20,28 @@
         "keystrokes": 30,
         "findPanel": false
       },
-      "startedAt": 1794485495073,
-      "finishedAt": 1794485499248,
+      "startedAt": 1794492246227,
+      "finishedAt": 1794492250962,
       "longTaskStats": {
-        "count": 1,
-        "p50": 54,
-        "p95": 54,
-        "max": 54
+        "count": 2,
+        "p50": 60,
+        "p95": 60,
+        "max": 60
       },
       "longTasks": [
         {
           "name": "self",
-          "startTime": 2327.8999996185303,
-          "duration": 54
+          "startTime": 3403.9000000953674,
+          "duration": 60
+        },
+        {
+          "name": "self",
+          "startTime": 4553.699999809265,
+          "duration": 57
         }
       ],
       "cpuProfileSummary": {
-        "sampleCount": 6056,
+        "sampleCount": 5814,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -44,139 +49,90 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 4342
+            "hitCount": 3784
           },
           {
             "functionName": "(program)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 1581
+            "hitCount": 1884
           },
           {
             "functionName": "(garbage collector)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 17
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 365,
-            "columnNumber": 11543,
-            "hitCount": 7
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 2,
-            "columnNumber": 81,
-            "hitCount": 7
-          },
-          {
-            "functionName": "insertBefore",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
-            "hitCount": 5
+            "hitCount": 28
           },
           {
             "functionName": "focus",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 4
+            "hitCount": 7
           },
           {
-            "functionName": "u",
+            "functionName": "Yi",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 349,
-            "hitCount": 3
-          },
-          {
-            "functionName": "Li",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 45074,
-            "hitCount": 2
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 366,
-            "columnNumber": 90719,
-            "hitCount": 2
-          },
-          {
-            "functionName": "Fa",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 61755,
-            "hitCount": 2
-          },
-          {
-            "functionName": "findIndex",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 10571,
-            "hitCount": 2
-          },
-          {
-            "functionName": "pe",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 56275,
-            "hitCount": 2
-          },
-          {
-            "functionName": "V",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 5906,
-            "hitCount": 2
+            "columnNumber": 47170,
+            "hitCount": 5
           },
           {
             "functionName": "set",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
             "columnNumber": 13733,
-            "hitCount": 2
+            "hitCount": 4
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 335,
+            "columnNumber": 8045,
+            "hitCount": 4
+          },
+          {
+            "functionName": "Fn",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 23199,
+            "hitCount": 3
           },
           {
             "functionName": "Ii",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
             "columnNumber": 44932,
-            "hitCount": 2
+            "hitCount": 3
           },
           {
-            "functionName": "Li",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 45074,
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 365,
+            "columnNumber": 11565,
+            "hitCount": 3
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
             "hitCount": 2
           },
           {
             "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 335,
-            "columnNumber": 8045,
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
+            "lineNumber": 2,
+            "columnNumber": 81,
             "hitCount": 2
           },
           {
-            "functionName": "E",
+            "functionName": "Or",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 53118,
-            "hitCount": 2
-          },
-          {
-            "functionName": "v",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 50140,
+            "columnNumber": 32466,
             "hitCount": 2
           },
           {
@@ -187,17 +143,52 @@
             "hitCount": 2
           },
           {
-            "functionName": "setTimeout",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
+            "functionName": "de",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 55759,
             "hitCount": 2
           },
           {
-            "functionName": "t",
+            "functionName": "Ve",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 33332,
+            "columnNumber": 6456,
+            "hitCount": 2
+          },
+          {
+            "functionName": "Ia",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 62325,
+            "hitCount": 2
+          },
+          {
+            "functionName": "get",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 13123,
+            "hitCount": 2
+          },
+          {
+            "functionName": "re",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 52269,
+            "hitCount": 2
+          },
+          {
+            "functionName": "v",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 50140,
+            "hitCount": 2
+          },
+          {
+            "functionName": "get",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 13123,
             "hitCount": 2
           },
           {
@@ -206,6 +197,20 @@
             "lineNumber": 1,
             "columnNumber": 7816,
             "hitCount": 2
+          },
+          {
+            "functionName": "get",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 13123,
+            "hitCount": 2
+          },
+          {
+            "functionName": "evaluate",
+            "url": "",
+            "lineNumber": 297,
+            "columnNumber": 11,
+            "hitCount": 1
           }
         ]
       }
@@ -217,23 +222,23 @@
         "keystrokes": 30,
         "findPanel": true
       },
-      "startedAt": 1794485499253,
-      "finishedAt": 1794485503179,
+      "startedAt": 1794492250969,
+      "finishedAt": 1794492255061,
       "longTaskStats": {
         "count": 1,
-        "p50": 58,
-        "p95": 58,
-        "max": 58
+        "p50": 57,
+        "p95": 57,
+        "max": 57
       },
       "longTasks": [
         {
           "name": "self",
-          "startTime": 6259.39999961853,
-          "duration": 58
+          "startTime": 9431.099999904633,
+          "duration": 57
         }
       ],
       "cpuProfileSummary": {
-        "sampleCount": 6204,
+        "sampleCount": 6085,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -241,168 +246,168 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 4393
+            "hitCount": 4065
           },
           {
             "functionName": "(program)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 1675
+            "hitCount": 1875
           },
           {
             "functionName": "(garbage collector)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 23
-          },
-          {
-            "functionName": "focus",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
-            "hitCount": 6
-          },
-          {
-            "functionName": "Yi",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 47170,
-            "hitCount": 5
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
-            "hitCount": 4
+            "hitCount": 14
           },
           {
             "functionName": "elementsFromPoint",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 4
-          },
-          {
-            "functionName": "Li",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 45074,
-            "hitCount": 3
-          },
-          {
-            "functionName": "setElementText",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 980,
-            "hitCount": 3
-          },
-          {
-            "functionName": "Ii",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 44932,
-            "hitCount": 3
+            "hitCount": 6
           },
           {
             "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 365,
-            "columnNumber": 11543,
-            "hitCount": 3
-          },
-          {
-            "functionName": "n",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 7816,
-            "hitCount": 3
-          },
-          {
-            "functionName": "query",
-            "url": "",
-            "lineNumber": 5447,
-            "columnNumber": 21,
-            "hitCount": 2
-          },
-          {
-            "functionName": "Fn",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 23199,
-            "hitCount": 2
-          },
-          {
-            "functionName": "ft",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 12088,
-            "hitCount": 2
-          },
-          {
-            "functionName": "V",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 5906,
-            "hitCount": 2
-          },
-          {
-            "functionName": "E",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 53118,
-            "hitCount": 2
+            "lineNumber": 2,
+            "columnNumber": 81,
+            "hitCount": 6
           },
           {
             "functionName": "set",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
             "columnNumber": 13733,
-            "hitCount": 2
+            "hitCount": 5
           },
           {
-            "functionName": "trigger",
+            "functionName": "Li",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 8870,
-            "hitCount": 2
+            "columnNumber": 45074,
+            "hitCount": 4
           },
           {
-            "functionName": "querySelectorAll",
+            "functionName": "focus",
             "url": "",
-            "lineNumber": 6755,
-            "columnNumber": 19,
-            "hitCount": 1
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hitCount": 3
           },
           {
-            "functionName": "(anonymous)",
-            "url": "",
-            "lineNumber": 5266,
-            "columnNumber": 117,
-            "hitCount": 1
+            "functionName": "s",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 54461,
+            "hitCount": 3
+          },
+          {
+            "functionName": "Yi",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 47170,
+            "hitCount": 3
           },
           {
             "functionName": "query",
             "url": "",
             "lineNumber": 5447,
             "columnNumber": 21,
-            "hitCount": 1
+            "hitCount": 2
           },
           {
-            "functionName": "previewNode",
+            "functionName": "(anonymous)",
             "url": "",
-            "lineNumber": 7537,
-            "columnNumber": 14,
-            "hitCount": 1
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hitCount": 2
           },
           {
-            "functionName": "innerSerialize",
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 365,
+            "columnNumber": 11565,
+            "hitCount": 2
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 366,
+            "columnNumber": 90671,
+            "hitCount": 2
+          },
+          {
+            "functionName": "r",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 23581,
+            "hitCount": 2
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 365,
+            "columnNumber": 18258,
+            "hitCount": 2
+          },
+          {
+            "functionName": "v",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 50140,
+            "hitCount": 2
+          },
+          {
+            "functionName": "Ii",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 44932,
+            "hitCount": 2
+          },
+          {
+            "functionName": "u",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 349,
+            "hitCount": 2
+          },
+          {
+            "functionName": "get",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 13123,
+            "hitCount": 2
+          },
+          {
+            "functionName": "clearTimeout",
             "url": "",
-            "lineNumber": 180,
-            "columnNumber": 24,
-            "hitCount": 1
+            "lineNumber": 0,
+            "columnNumber": 0,
+            "hitCount": 2
+          },
+          {
+            "functionName": "Ge",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
+            "lineNumber": 2,
+            "columnNumber": 2220,
+            "hitCount": 2
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 365,
+            "columnNumber": 11565,
+            "hitCount": 2
+          },
+          {
+            "functionName": "Vi",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 46041,
+            "hitCount": 2
           }
         ]
       }
@@ -413,17 +418,23 @@
         "contentChars": 100000,
         "keystrokes": 30
       },
-      "startedAt": 1794485503357,
-      "finishedAt": 1794485507160,
+      "startedAt": 1794492255275,
+      "finishedAt": 1794492259238,
       "longTaskStats": {
-        "count": 0,
-        "p50": 0,
-        "p95": 0,
-        "max": 0
+        "count": 1,
+        "p50": 55,
+        "p95": 55,
+        "max": 55
       },
-      "longTasks": [],
+      "longTasks": [
+        {
+          "name": "self",
+          "startTime": 14480.799999713898,
+          "duration": 55
+        }
+      ],
       "cpuProfileSummary": {
-        "sampleCount": 5994,
+        "sampleCount": 6236,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -431,42 +442,49 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 4294
+            "hitCount": 4270
           },
           {
             "functionName": "(program)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 1547
+            "hitCount": 1808
           },
           {
             "functionName": "_s",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
             "lineNumber": 96,
             "columnNumber": 64,
-            "hitCount": 43
+            "hitCount": 32
           },
           {
             "functionName": "gs",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
             "lineNumber": 94,
             "columnNumber": 2259,
-            "hitCount": 20
+            "hitCount": 30
           },
           {
             "functionName": "(garbage collector)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 12
+            "hitCount": 18
           },
           {
             "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
             "lineNumber": 95,
             "columnNumber": 196,
-            "hitCount": 7
+            "hitCount": 6
+          },
+          {
+            "functionName": "Ke",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 100,
+            "columnNumber": 10750,
+            "hitCount": 6
           },
           {
             "functionName": "focus",
@@ -476,18 +494,32 @@
             "hitCount": 4
           },
           {
-            "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 109,
-            "columnNumber": 202,
+            "functionName": "u",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/useAppConfirm-waCu1se-.js",
+            "lineNumber": 1,
+            "columnNumber": 707,
             "hitCount": 4
           },
           {
-            "functionName": "setElementText",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
+            "functionName": "Li",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 980,
+            "columnNumber": 45074,
             "hitCount": 4
+          },
+          {
+            "functionName": "trimString",
+            "url": "",
+            "lineNumber": 1962,
+            "columnNumber": 20,
+            "hitCount": 3
+          },
+          {
+            "functionName": "Ss",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 99,
+            "columnNumber": 1060,
+            "hitCount": 3
           },
           {
             "functionName": "r",
@@ -497,73 +529,66 @@
             "hitCount": 3
           },
           {
+            "functionName": "trimString",
+            "url": "",
+            "lineNumber": 1962,
+            "columnNumber": 20,
+            "hitCount": 2
+          },
+          {
             "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 366,
-            "columnNumber": 44275,
-            "hitCount": 3
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 109,
+            "columnNumber": 202,
+            "hitCount": 2
           },
           {
             "functionName": "setElementText",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
             "lineNumber": 1,
             "columnNumber": 980,
-            "hitCount": 3
-          },
-          {
-            "functionName": "trimString",
-            "url": "",
-            "lineNumber": 1962,
-            "columnNumber": 20,
             "hitCount": 2
           },
           {
-            "functionName": "u",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/useAppConfirm-waCu1se-.js",
-            "lineNumber": 1,
-            "columnNumber": 707,
-            "hitCount": 2
-          },
-          {
-            "functionName": "invoke",
-            "url": "node:electron/js2c/sandbox_bundle",
-            "lineNumber": 2,
-            "columnNumber": 118161,
-            "hitCount": 2
-          },
-          {
-            "functionName": "s",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 54461,
-            "hitCount": 2
-          },
-          {
-            "functionName": "Ts",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 99,
-            "columnNumber": 2146,
-            "hitCount": 2
-          },
-          {
-            "functionName": "trimString",
-            "url": "",
-            "lineNumber": 1962,
-            "columnNumber": 20,
-            "hitCount": 1
-          },
-          {
-            "functionName": "(anonymous)",
+            "functionName": "replaceChildren",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
+            "hitCount": 2
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 100,
+            "columnNumber": 9187,
+            "hitCount": 2
+          },
+          {
+            "functionName": "query",
+            "url": "",
+            "lineNumber": 5475,
+            "columnNumber": 8,
             "hitCount": 1
           },
           {
-            "functionName": "cloneableSnapshot",
+            "functionName": "innerSerialize",
             "url": "",
-            "lineNumber": 4,
-            "columnNumber": 27,
+            "lineNumber": 180,
+            "columnNumber": 24,
+            "hitCount": 1
+          },
+          {
+            "functionName": "rz",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 366,
+            "columnNumber": 95031,
+            "hitCount": 1
+          },
+          {
+            "functionName": "S",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 94,
+            "columnNumber": 1491,
             "hitCount": 1
           },
           {
@@ -574,24 +599,10 @@
             "hitCount": 1
           },
           {
-            "functionName": "n",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 7816,
-            "hitCount": 1
-          },
-          {
-            "functionName": "Je",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 100,
-            "columnNumber": 10751,
-            "hitCount": 1
-          },
-          {
-            "functionName": "F",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/pinia-S6DnWMF3.js",
-            "lineNumber": 1,
-            "columnNumber": 3189,
+            "functionName": "(anonymous)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
             "hitCount": 1
           }
         ]
@@ -604,8 +615,8 @@
         "keystrokes": 30,
         "messageCount": 500
       },
-      "startedAt": 1794485507558,
-      "finishedAt": 1794485511393,
+      "startedAt": 1794492259723,
+      "finishedAt": 1794492263622,
       "longTaskStats": {
         "count": 0,
         "p50": 0,
@@ -614,7 +625,7 @@
       },
       "longTasks": [],
       "cpuProfileSummary": {
-        "sampleCount": 6025,
+        "sampleCount": 6091,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -622,62 +633,55 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 4388
+            "hitCount": 4252
           },
           {
             "functionName": "(program)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 1540
+            "hitCount": 1742
           },
           {
             "functionName": "gs",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
             "lineNumber": 94,
             "columnNumber": 2259,
-            "hitCount": 20
+            "hitCount": 25
           },
           {
             "functionName": "(garbage collector)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 17
+            "hitCount": 18
+          },
+          {
+            "functionName": "Ke",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 100,
+            "columnNumber": 10750,
+            "hitCount": 7
           },
           {
             "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
             "lineNumber": 95,
             "columnNumber": 196,
-            "hitCount": 8
+            "hitCount": 5
           },
           {
-            "functionName": "setElementText",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 980,
-            "hitCount": 6
+            "functionName": "trimString",
+            "url": "",
+            "lineNumber": 1962,
+            "columnNumber": 20,
+            "hitCount": 3
           },
           {
-            "functionName": "Li",
+            "functionName": "ii",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 45074,
-            "hitCount": 3
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 109,
-            "columnNumber": 202,
-            "hitCount": 3
-          },
-          {
-            "functionName": "Je",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 100,
-            "columnNumber": 10751,
+            "columnNumber": 36481,
             "hitCount": 3
           },
           {
@@ -688,10 +692,31 @@
             "hitCount": 2
           },
           {
-            "functionName": "Yi",
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 109,
+            "columnNumber": 202,
+            "hitCount": 2
+          },
+          {
+            "functionName": "_s",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 96,
+            "columnNumber": 64,
+            "hitCount": 2
+          },
+          {
+            "functionName": "he",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 47170,
+            "columnNumber": 1984,
+            "hitCount": 2
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 366,
+            "columnNumber": 44259,
             "hitCount": 2
           },
           {
@@ -702,11 +727,32 @@
             "hitCount": 2
           },
           {
-            "functionName": "requestAnimationFrame",
+            "functionName": "setElementText",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
+            "lineNumber": 1,
+            "columnNumber": 980,
+            "hitCount": 2
+          },
+          {
+            "functionName": "get parentNode",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
             "hitCount": 2
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "",
+            "lineNumber": 1,
+            "columnNumber": 2,
+            "hitCount": 1
+          },
+          {
+            "functionName": "query",
+            "url": "",
+            "lineNumber": 5447,
+            "columnNumber": 21,
+            "hitCount": 1
           },
           {
             "functionName": "querySelectorAll",
@@ -716,66 +762,10 @@
             "hitCount": 1
           },
           {
-            "functionName": "previewNode",
-            "url": "",
-            "lineNumber": 7537,
-            "columnNumber": 14,
-            "hitCount": 1
-          },
-          {
-            "functionName": "trimString",
-            "url": "",
-            "lineNumber": 1962,
-            "columnNumber": 20,
-            "hitCount": 1
-          },
-          {
-            "functionName": "_s",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
-            "lineNumber": 96,
-            "columnNumber": 64,
-            "hitCount": 1
-          },
-          {
-            "functionName": "V",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-dom.esm-bundler-Bh3wz0RF.js",
-            "lineNumber": 1,
-            "columnNumber": 5906,
-            "hitCount": 1
-          },
-          {
-            "functionName": "get",
+            "functionName": "Fn",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
-            "columnNumber": 13123,
-            "hitCount": 1
-          },
-          {
-            "functionName": "insertBefore",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
-            "hitCount": 1
-          },
-          {
-            "functionName": "po",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 67166,
-            "hitCount": 1
-          },
-          {
-            "functionName": "get parentNode",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
-            "hitCount": 1
-          },
-          {
-            "functionName": "E",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 53118,
+            "columnNumber": 23199,
             "hitCount": 1
           },
           {
@@ -783,6 +773,27 @@
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
             "lineNumber": 1,
             "columnNumber": 45074,
+            "hitCount": 1
+          },
+          {
+            "functionName": "$t",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 17839,
+            "hitCount": 1
+          },
+          {
+            "functionName": "oi",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
+            "lineNumber": 1,
+            "columnNumber": 37253,
+            "hitCount": 1
+          },
+          {
+            "functionName": "(anonymous)",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
+            "lineNumber": 366,
+            "columnNumber": 90671,
             "hitCount": 1
           }
         ]
@@ -794,8 +805,8 @@
         "messageCount": 500,
         "persistedMessages": 500
       },
-      "startedAt": 1794485511395,
-      "finishedAt": 1794485511728,
+      "startedAt": 1794492263625,
+      "finishedAt": 1794492264001,
       "longTaskStats": {
         "count": 0,
         "p50": 0,
@@ -804,7 +815,7 @@
       },
       "longTasks": [],
       "cpuProfileSummary": {
-        "sampleCount": 473,
+        "sampleCount": 467,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -812,14 +823,21 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 454
+            "hitCount": 433
           },
           {
             "functionName": "v",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-CyucKr3S.js",
+            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/index-BQrTG9SW.js",
             "lineNumber": 118,
-            "columnNumber": 9759,
-            "hitCount": 8
+            "columnNumber": 9873,
+            "hitCount": 18
+          },
+          {
+            "functionName": "cloneableSnapshot",
+            "url": "",
+            "lineNumber": 4,
+            "columnNumber": 27,
+            "hitCount": 5
           },
           {
             "functionName": "(program)",
@@ -829,24 +847,24 @@
             "hitCount": 3
           },
           {
-            "functionName": "cloneableSnapshot",
-            "url": "",
-            "lineNumber": 4,
-            "columnNumber": 27,
-            "hitCount": 2
-          },
-          {
-            "functionName": "invoke",
+            "functionName": "(anonymous)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
             "hitCount": 2
           },
           {
-            "functionName": "ownKeys",
-            "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/runtime-core.esm-bundler-CByYotL7.js",
-            "lineNumber": 1,
-            "columnNumber": 14199,
+            "functionName": "invoke",
+            "url": "node:electron/js2c/sandbox_bundle",
+            "lineNumber": 2,
+            "columnNumber": 118161,
+            "hitCount": 2
+          },
+          {
+            "functionName": "evaluate",
+            "url": "",
+            "lineNumber": 297,
+            "columnNumber": 11,
             "hitCount": 1
           },
           {
@@ -857,17 +875,17 @@
             "hitCount": 1
           },
           {
-            "functionName": "(anonymous)",
+            "functionName": "sendSync",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
             "hitCount": 1
           },
           {
-            "functionName": "invoke",
-            "url": "node:electron/js2c/sandbox_bundle",
-            "lineNumber": 2,
-            "columnNumber": 118161,
+            "functionName": "(garbage collector)",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 0,
             "hitCount": 1
           }
         ]
@@ -878,8 +896,8 @@
       "metadata": {
         "outlineChars": 100000
       },
-      "startedAt": 1794485511730,
-      "finishedAt": 1794485511826,
+      "startedAt": 1794492264003,
+      "finishedAt": 1794492264114,
       "longTaskStats": {
         "count": 0,
         "p50": 0,
@@ -888,7 +906,7 @@
       },
       "longTasks": [],
       "cpuProfileSummary": {
-        "sampleCount": 51,
+        "sampleCount": 39,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -896,21 +914,21 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 43
+            "hitCount": 28
           },
           {
             "functionName": "(program)",
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 2
+            "hitCount": 4
           },
           {
             "functionName": "u",
             "url": "D:/codex/novel-workshop-vue3/dist-renderer/assets/useAppConfirm-waCu1se-.js",
             "lineNumber": 1,
             "columnNumber": 707,
-            "hitCount": 2
+            "hitCount": 3
           },
           {
             "functionName": "invoke",
@@ -920,17 +938,17 @@
             "hitCount": 2
           },
           {
+            "functionName": "evaluate",
+            "url": "",
+            "lineNumber": 297,
+            "columnNumber": 11,
+            "hitCount": 1
+          },
+          {
             "functionName": "cloneableSnapshot",
             "url": "",
             "lineNumber": 4,
             "columnNumber": 27,
-            "hitCount": 1
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
             "hitCount": 1
           }
         ]
@@ -943,8 +961,8 @@
         "renderedMessageNodesMax": 80,
         "virtualized": true
       },
-      "startedAt": 1794485511827,
-      "finishedAt": 1794485511902,
+      "startedAt": 1794492264116,
+      "finishedAt": 1794492264193,
       "longTaskStats": {
         "count": 0,
         "p50": 0,
@@ -953,7 +971,7 @@
       },
       "longTasks": [],
       "cpuProfileSummary": {
-        "sampleCount": 22,
+        "sampleCount": 17,
         "sampleIntervalUs": 500,
         "hotNodes": [
           {
@@ -968,27 +986,13 @@
             "url": "",
             "lineNumber": 0,
             "columnNumber": 0,
-            "hitCount": 6
+            "hitCount": 3
           },
           {
-            "functionName": "querySelectorAll",
+            "functionName": "evaluate",
             "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
-            "hitCount": 1
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "",
-            "lineNumber": 1,
-            "columnNumber": 1,
-            "hitCount": 1
-          },
-          {
-            "functionName": "(anonymous)",
-            "url": "",
-            "lineNumber": 0,
-            "columnNumber": 0,
+            "lineNumber": 297,
+            "columnNumber": 11,
             "hitCount": 1
           }
         ]

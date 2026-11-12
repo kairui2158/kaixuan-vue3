@@ -82,3 +82,11 @@
 5. 收尾验证：type-check 通过；全量服务 251 files / 2739 tests passed；build:vue 通过；NSIS 3.127.0 构建通过；packaging 真实启动验证 PASSED。
 
 本节登记：方案阶段无执行缺口；Phase A 未执行是待用户批准的有意断点，不是遗漏。
+
+## 10. Phase E/F 深度复查闭环
+
+1. 复查发现：非密集回退仍滚动外层容器，而真实滚动容器是 `#messages-list`；整轮生成结束后没有恢复检查兜底；密集回底冒烟对等待前旧快照断言；`saveFeedbackTimer` 未卸载清理。
+2. 兼容性核证：`git log -S "id: 'msg_" -- src/stores/chat.ts` 命中 2026-08-16 提交 `3d6f03c5`；仍为运行时历史数据补 `loadSessions` id 兜底，并加回归断言。
+3. 修复结果：非密集回底直接滚动内层列表；生成结束 250ms 后事件驱动一次恢复检查；冒烟断言改为等待后最新几何；保存反馈 timer 与恢复 watch/timer 卸载清理。
+4. 诚实边界：本轮为最小语义修复，不恢复轮询、不加调度器、不扩 UI；密集路径已修真实断言，非密集路径需下一轮账本补 <300 条冒烟。
+5. 收尾验证：`npm run type-check` 通过；`npx vitest run src/stores/chat.spec.ts` 8 tests passed；`npm run test:services` 251 files / 2740 tests passed；`npm run build:vue` 通过；真实 Electron 账本 7 路径全部产出（2026-11-12 22:04 本地时间）；3.127.1 `verify:packaging` PASSED。

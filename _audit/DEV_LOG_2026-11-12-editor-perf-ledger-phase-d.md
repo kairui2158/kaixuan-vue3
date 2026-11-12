@@ -21,3 +21,12 @@
 - 验证：真实 Electron 账本 7 路径全部产出；真实 Electron 冒烟确认密集列表虚拟化、底部锚定与消息落账；`npm run type-check` exit 0；`npm run test:services` 251 files / 2739 tests passed；`npm run build:vue` exit 0。
 - 交付封装：3.127.0 NSIS 构建通过；`dist/神意助手-Setup-3.127.0.exe` 231,668,979 bytes，SHA256 `d3a1f939fc4d104140ff35569ebc5e98f97eecfb5f78cc0e0132305b01972aea`；`verify:packaging` PASSED，rendererFiles=87、electronAPI methods=94。
 - 冒烟边界：测试 profile 未配置供应商时，“生成中…”提示在 preparing→idle 一帧内结束，因此测试探针不把该瞬态作为硬断言；消息唯一落账、虚拟化数量与底部锚定仍为硬断言。
+
+# 2026-11-12 Phase E/F 深度复查与 3.127.1 交付
+
+- 文件：[_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md](_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md)
+- 复查结论：确认非密集回退回底目标错在外层 `overflow:hidden` 容器；确认错误帧触发恢复检查在整轮结束后缺少兜底；确认密集回底冒烟断言读取的是等待前旧快照；确认历史消息 id 已于 2026-08-16 引入，但仍补运行时兜底；确认 `saveFeedbackTimer` 未卸载清理。
+- 修复：非密集路径直接滚动 `#messages-list`；`isGenerating` false 后 250ms 事件驱动一次恢复检查；冒烟改为 `waitForFunction` 后读取最新几何；`loadSessions` 为无 id 旧消息生成稳定 id；卸载清理保存反馈 timer。
+- 验证：`npm run type-check` exit 0；`npx vitest run src/stores/chat.spec.ts` 8 tests passed；`npm run test:services` 251 files / 2740 tests passed；`npm run build:vue` exit 0；真实 Electron 账本 7 路径全部产出（`capturedAt=2026-11-12T14:04:24.460Z`）。
+- 交付封装：3.127.1 NSIS 构建通过；`dist/神意助手-Setup-3.127.1.exe` 231,671,529 bytes，SHA256 `5bf7b1cff8ae9ea77d9c4968f9e596cf3b6e4906a6e350b6fbd53f29eb9dcef5`；`verify:packaging` PASSED，rendererFiles=87、electronAPI methods=94，证据见 [_audit/verification-packaging-3.127.1/packaging-evidence.json](_audit/verification-packaging-3.127.1/packaging-evidence.json)。

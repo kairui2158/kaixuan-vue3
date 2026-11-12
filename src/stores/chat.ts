@@ -113,6 +113,13 @@ export const useChatStore = defineStore('chat', () => {
     // project has been loaded.
     if (loadSeq !== sessionsLoadSeq || currentProjectId.value !== id) return
     sessions.value = data && Array.isArray(data) ? data : []
+    for (const session of sessions.value) {
+      for (const message of session.messages) {
+        if (!message.id) {
+          message.id = 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+        }
+      }
+    }
     sessionsLoadedForProject = id
     loadedProjectGeneration = generation
     sessionsSavePending = null

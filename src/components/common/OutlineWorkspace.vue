@@ -3115,6 +3115,8 @@ interface OutlineStreamRecoveryItem {
 const outlineStreamRecovery = ref<OutlineStreamRecoveryItem | null>(null)
 const outlineStreamRecoveryDismissed = new Set<string>()
 let stopOutlineStreamRecoveryWatch: (() => void) | null = null
+let stopOutlineRecoveryCompletionWatch: WatchStopHandle | null = null
+let outlineRecoveryRefreshTimer: ReturnType<typeof setTimeout> | null = null
 const outlineInputGateFlags = reactive(createOutlineInputGateFlags())
 const outlineLatestAwaitResumeToken = ref<string | null>(null)
 const outlineInputGate = computed(() => resolveOutlineInputGate({
@@ -3657,6 +3659,14 @@ onMounted(async () => {
     }
   })
   stopOutlineStreamRecoveryWatch = typeof stopStreamFrameWatch === 'function' ? stopStreamFrameWatch : null
+  stopOutlineRecoveryCompletionWatch = watch(isGenerating, (active, previous) => {
+    if (active || previous !== true) return
+    if (outlineRecoveryRefreshTimer) clearTimeout(outlineRecoveryRefreshTimer)
+    outlineRecoveryRefreshTimer = setTimeout(() => {
+      outlineRecoveryRefreshTimer = null
+      void refreshOutlineStreamRecovery()
+    }, 250)
+  })
 })
 
 onUnmounted(() => {
@@ -3671,6 +3681,18 @@ onUnmounted(() => {
   if (stopOutlineStreamRecoveryWatch) {
     stopOutlineStreamRecoveryWatch()
     stopOutlineStreamRecoveryWatch = null
+  }
+  if (saveFeedbackTimer) {
+    clearTimeout(saveFeedbackTimer)
+    saveFeedbackTimer = null
+  }
+  if (stopOutlineRecoveryCompletionWatch) {
+    stopOutlineRecoveryCompletionWatch()
+    stopOutlineRecoveryCompletionWatch = null
+  }
+  if (outlineRecoveryRefreshTimer) {
+    clearTimeout(outlineRecoveryRefreshTimer)
+    outlineRecoveryRefreshTimer = null
   }
   if (outlineMessageScrollTimer) {
     clearTimeout(outlineMessageScrollTimer)

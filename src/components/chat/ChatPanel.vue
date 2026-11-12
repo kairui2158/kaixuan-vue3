@@ -57,7 +57,7 @@
           </DynamicScrollerItem>
         </template>
       </DynamicScroller>
-      <div v-else id="messages-list" class="messages-list">
+      <div v-else id="messages-list" class="messages-list" ref="messageListRef">
         <ChatMessageComponent
           v-for="(msg, i) in messages"
           :key="msg.id"
@@ -1075,6 +1075,7 @@ let homeFailedWriteBatch: {
 let lastToolCallSummary: string | null = null
 const messagesContainer = ref<HTMLElement | null>(null)
 const messageScrollerRef = ref<any | null>(null)
+const messageListRef = ref<HTMLElement | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
 const MESSAGE_VIRTUALIZATION_THRESHOLD = 300
 const messageVirtualizationEnabled = computed(() => messages.value.length >= MESSAGE_VIRTUALIZATION_THRESHOLD)
@@ -5505,8 +5506,9 @@ function scrollToBottom() {
     messageScrollerRef.value?.scrollToBottom?.()
     return
   }
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  const scrollTarget = messageListRef.value || messagesContainer.value
+  if (scrollTarget) {
+    scrollTarget.scrollTop = scrollTarget.scrollHeight
   }
 }
 </script>

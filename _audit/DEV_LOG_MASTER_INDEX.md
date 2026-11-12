@@ -1904,3 +1904,13 @@
 - 验证：真实 Electron 7 路径账本产出；密集列表 13 节点、回底与消息落账冒烟通过；全量服务 251 files / 2739 tests passed；type-check、build、verify:packaging 通过。
 - 安装包：`dist/神意助手-Setup-3.127.0.exe`，231,668,979 bytes，SHA256 `d3a1f939fc4d104140ff35569ebc5e98f97eecfb5f78cc0e0132305b01972aea`。
 - 边界：不新增调度器、预算系统或第二套 UI；不改生成流水线与 folder SKILL；供应商缺失时的“生成中…”一帧瞬态只做信息性探针，不做假硬断言。
+
+# 2026-11-12 Phase E/F 深度复查与 3.127.1 交付
+
+- 文件：[_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md](_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md)
+- 交付：复查并修复非密集回退滚动目标、整轮结束后的恢复横幅兜底、密集回底冒烟旧快照断言、旧消息 id 兜底与保存反馈 timer 清理。
+- 用途：少量消息自动回底真正生效；异常轮次结束后恢复候选不再丢失；冒烟测试不再使用等待前旧几何；历史无 id 消息可稳定渲染。
+- 验证：type-check 通过；chat store 8 tests passed；全量服务 251 files / 2740 tests passed；build:vue、真实 Electron 7 路径账本与 3.127.1 verify:packaging 通过。
+- 安装包：`dist/神意助手-Setup-3.127.1.exe`，231,671,529 bytes，SHA256 `5bf7b1cff8ae9ea77d9c4968f9e596cf3b6e4906a6e350b6fbd53f29eb9dcef5`。
+- 边界：不恢复轮询，不加调度器、预算系统或第二套 UI；不改生成流水线与 folder SKILL；历史无 id 为兼容兜底，2026-08-16 起新增消息本就有 id。

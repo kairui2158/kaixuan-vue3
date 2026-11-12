@@ -479,6 +479,16 @@ async function main() {
         if (!scroller) return false
         return scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= 4
       }, null, { timeout: 10_000, polling: 100 })
+      const smokeBottom = await page.evaluate(() => {
+        const scroller = document.querySelector('#messages-list.chat-message-scroller')
+        return {
+          scrollTop: scroller?.scrollTop ?? 0,
+          scrollHeight: scroller?.scrollHeight ?? 0,
+          clientHeight: scroller?.clientHeight ?? 0,
+        }
+      })
+      assert.ok(smokeBottom.scrollHeight - smokeBottom.scrollTop - smokeBottom.clientHeight <= 4,
+        `dense home list should anchor to the bottom, got ${JSON.stringify(smokeBottom)}`)
       assert.ok(smokeBefore.scrollHeight - smokeBefore.scrollTop - smokeBefore.clientHeight <= 4,
         `dense home list should anchor to the bottom, got ${JSON.stringify(smokeBefore)}`)
       const streamProbeReady = await page.evaluate(() => {

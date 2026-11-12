@@ -37,6 +37,30 @@ describe('chat store saveSessions coalescing', () => {
     expect(chatWrites[0]?.[1]).toEqual(store.sessions)
   })
 
+  it('assigns stable ids to legacy messages missing persisted ids', async () => {
+    storageRead.mockResolvedValue([
+      {
+        id: 'legacy-session',
+        title: '旧会话',
+        tabId: 'tab-1',
+        chapterId: 'chapter-1',
+        createdAt: 1,
+        updatedAt: 1,
+        messages: [
+          { role: 'user', content: '旧用户消息', ts: 1 },
+          { role: 'assistant', content: '旧助手消息', ts: 2 },
+        ],
+      },
+    ])
+    const store = useChatStore()
+    store.__setProjectForTests('legacy-ids')
+    await store.loadSessions('legacy-ids')
+    const messages = store.sessions[0]?.messages ?? []
+    expect(messages).toHaveLength(2)
+    expect(messages.every(message => typeof message.id === 'string' && message.id.startsWith('msg_'))).toBe(true)
+    expect(new Set(messages.map(message => message.id)).size).toBe(2)
+  })
+
   it('persists rapid updates to the requested project bucket', async () => {
     const store = useChatStore()
     store.ensureSession('tab-1', 'chapter-1', '第一章', 'project-A')
