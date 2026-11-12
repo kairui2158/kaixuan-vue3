@@ -26,7 +26,6 @@
     "verify:deai-stage-guidance-live": "node scripts/verify-deai-stage-guidance-live.mjs",
     "verify:chapter-batch-contract-electron": "npm run build:vue && node scripts/verify-chapter-batch-contract-electron.mjs",
     "verify:outline-legacy-restore-electron": "node scripts/verify-outline-legacy-restore-electron.mjs",
-    "verify:postprocess-ui-electron": "npm run build:vue && node scripts/verify-postprocess-terminal-ui-electron.mjs",
     "verify:production-wiring": "depcruise src --config .dependency-cruiser.cjs"
   },
   "author": "kaixuan",
