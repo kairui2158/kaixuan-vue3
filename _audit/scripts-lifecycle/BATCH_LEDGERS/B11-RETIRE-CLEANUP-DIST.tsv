@@ -1,0 +1,8 @@
+batch	B11-RETIRE-CLEANUP-DIST
+action	retire
+tag	scripts-lifecycle-11-retire
+preCommit	8da51a5f622b427290d6dd0041af12a6c1238d9a
+pathHashRows	2
+path`taction`tstatus`tsha256
+scripts\cleanup-dist-3-102-0.mjs	retire	clean	5B80A4F594BD8DDDB7C8A017967B5CBDD4D3BD00C56A2D1B3F20BAECD7CEA537
+scripts\cleanup-dist-3-103-0.mjs	retire	clean	163918EB85CBD4BE071F370D366E9ECAC77CB565FA9020E1102874767D1684D2
