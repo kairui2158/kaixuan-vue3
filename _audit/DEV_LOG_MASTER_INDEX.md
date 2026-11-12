@@ -1894,3 +1894,13 @@
 - 用途：首页长文输入不再每次击键执行全文双哈希和跨 store 全文拷贝；编辑、撤销、书签失效与会话读取语义保持不变。
 - 验证：账本 before/after 中 `hashEditorContent` 从 52 samples 降至 0 samples，after 全路径 >50ms 长任务为 0；定向编辑 store 10/10 passed；全量服务 250 files / 2738 tests passed；type-check 与 build:vue 通过。
 - 边界：Phase B/C/E/F 不凭剩余 `_s`/`gs` 样本加闸，继续按缩小窗口账本证据裁决；不改大纲编辑器、持久化协议、UI 结构和生成流水线。
+
+# 2026-11-12 编辑器交互残留 V1 Phase E/F 与 3.127.0 交付
+
+- 文件：[_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md](_audit/DEV_LOG_2026-11-12-editor-perf-ledger-phase-d.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-12_EDITOR_PERF_RESIDUAL_V1.md)
+- 交付：首页密集消息虚拟化与非密集回退、Markdown 渲染节流收口、大纲保存反馈定时器合并、流恢复轮询改错误事件驱动、密集列表回底；升版 3.127.0 并完成 NSIS 交付。
+- 用途：500 条首页会话与长文输入不再撑出全量消息节点，大纲反馈不再堆叠定时器，流错误只在真实事件后恢复检查；交互性能改善且行为边界可审计。
+- 验证：真实 Electron 7 路径账本产出；密集列表 13 节点、回底与消息落账冒烟通过；全量服务 251 files / 2739 tests passed；type-check、build、verify:packaging 通过。
+- 安装包：`dist/神意助手-Setup-3.127.0.exe`，231,668,979 bytes，SHA256 `d3a1f939fc4d104140ff35569ebc5e98f97eecfb5f78cc0e0132305b01972aea`。
+- 边界：不新增调度器、预算系统或第二套 UI；不改生成流水线与 folder SKILL；供应商缺失时的“生成中…”一帧瞬态只做信息性探针，不做假硬断言。

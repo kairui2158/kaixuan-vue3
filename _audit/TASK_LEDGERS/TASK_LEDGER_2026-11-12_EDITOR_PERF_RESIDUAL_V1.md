@@ -44,7 +44,9 @@
 | Phase A | `node scripts/measure-editor-perf-ledger.mjs` | 7 路径全部产出；最终账本 `ledger.json`；输入长动作 CPU 采样约 6.4k-6.5k samples | `scripts/measure-editor-perf-ledger.mjs:219-398`；`_audit/EDITOR_PERF_LEDGER_2026-11-12/ledger.json` |
 | Phase D | `npm run type-check`；`npm run test:services`；`npm run build:vue` | type-check 通过；全量服务测试通过；Vue 构建通过 | `src/stores/editor.ts:71-88`；`src/components/chat/ChatPanel.vue:2783-2785`；`src/stores/editor.spec.ts:38-62` |
 | Phase D 对照 | Phase A/D `ledger.json` | before `hashEditorContent=52`；after `hashEditorContent=0`；`home-typing-100k`、`home-typing-dense-messages`、`chat-sessions-persist-500`、`project-save-100k`、`home-message-panel-density` longTasks 均为 0 | `_audit/EDITOR_PERF_LEDGER_2026-11-12/ledger.json` |
-| Phase B/C/E/F | 暂缓 | 未达 G1.19 可归因优化阈值；不做无证据热源加闸 | `_audit/EDITOR_PERF_LEDGER_2026-11-12/ledger.json` |
+| Phase B/C | 按 G1.19 观测 | 剩余 `_s`/`gs` 与大纲 54/58ms 抖动未形成可归因优化阈值；不做猜测性加闸 | `_audit/EDITOR_PERF_LEDGER_2026-11-12/ledger.json` |
+| Phase E | `node scripts/measure-editor-perf-ledger.mjs` | 500 条会话 `.chat-message` 渲染 13 节点；`home-message-panel-density` longTasks=0；密集输入复跑 longTasks=0；真实 Electron 冒烟确认消息唯一落账、虚拟化与底部锚定 | `src/components/chat/ChatPanel.vue:9-89`；`scripts/measure-editor-perf-ledger.mjs:440-538` |
+| Phase F | `rg -n "saveFeedback\\.value = .*\\n.*setTimeout"`；`rg -n "outlineStreamRecoveryTimer|setInterval"` | 旧模式 0 命中；单 timer helper 与错误事件触发收口 | `src/components/common/OutlineWorkspace.vue:686-696`；`src/components/common/OutlineWorkspace.vue:3648-3660` |
 
 ### Phase D 执行记录
 
@@ -67,8 +69,16 @@
 | G1.14 枚举：输入热链（大纲 7 项/首页 8 项/全局 2 项/UI 5 项/疑似 2 项） | 已枚举，见审计报告第一节 | Phase A 账本定性后逐项处置 |
 | Phase A 账本 | 已执行；CPU 热点归因受压缩 bundle/DevTools evaluator 限制 | 先修可归因的 `hashEditorContent`；其他源按分路探针补充证据 |
 | Phase A 粒度：20-50ms 分段 | 当前只采 PerformanceObserver >50ms + CPU 采样 | Phase D 已完成同一脚本 before/after 对照；不凭 50ms 以下样本改生产 |
-| 大纲 find-open 归因 | 上轮有 71-74ms，最终复跑为 0；仍被 evaluator 淹没 | 下轮缩小 Profiler 窗口或使用专区分段标记 |
+| 大纲 find-open 归因 | 最新复跑 1×58ms；热点仍被 runtime/GC 与 evaluator 淹没 | 按 G1.19 观测；下轮若复现需缩小 Profiler 窗口或专区分段 |
 | 持久化安全假设验证 | Phase D 已触及面已执行 | D1/D2 通过编辑 store 行为断言、`ChatPanel` 零读取交叉搜索、全量持久化相关服务测试验证；D3/D4 未实施，进程杀恢复门禁留给其实施批次 |
-| 真实 Electron 冒烟 | 账本级已执行 | after 账本由真实 Electron + CDP 采集；无 UI 交互变化，手工冒烟留给后续 UI 变更批次 |
+| 真实 Electron 冒烟 | 已执行 | 500 条会话启用虚拟列表、`.chat-message` 13 节点、底部锚定、发送后用户消息精确 +1；无供应商一帧状态切换导致“生成中…”仅做信息性探针 |
+
+## 9. Phase E/F 收尾结论
+
+1. Phase E 交付：消息列表 300 条阈值分流；密集路径用 `DynamicScroller`，非密集路径保留 v-for 且 key 改为稳定 `msg.id`；Markdown 用 `useThrottledMarkdown`，非流式挂载与流结束 flush；删除首页 token-bar 死代码。
+2. Phase F 交付：大纲保存反馈收敛为 `showSaveFeedback` 单 timer；5 秒恢复轮询退役，改为 `onProviderNetStreamFrame` 中 `transportEvent === 'error'` 触发一次检查，并在卸载时清理。
+3. 缺陷补修：虚拟滚轮需要约束高度，`.messages-container` 改为 flex/min-height 约束；密集会话挂载后才注入时补一帧回底，虚拟化阈值切换也补回底。
+4. 最终账本：七路径产出；`home-message-panel-density` 13 nodes / longTasks 0；密集输入 0；chat persistence 0；project save 0；outline typing 与 find-open 各 1 个 54/58ms 抖动，无本轮改动热点，按观测登记。
+5. 收尾验证：type-check 通过；全量服务 251 files / 2739 tests passed；build:vue 通过；NSIS 3.127.0 构建通过；packaging 真实启动验证 PASSED。
 
 本节登记：方案阶段无执行缺口；Phase A 未执行是待用户批准的有意断点，不是遗漏。

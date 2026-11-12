@@ -180,10 +180,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useAiTaskStore } from '../../stores/aiTaskStore'
 import { enhanceCodeBlocks } from '../../utils/markdownService'
-import { renderMarkdown } from '../../utils/markdownService'
+import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { canContinue as isContinuationAvailable } from '../../services/continuation'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
@@ -343,7 +343,12 @@ function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace' | 'contin
 }
 
 const messageSource = computed(() => props.message.content || '')
-const renderedContent = computed(() => renderMarkdown(messageSource.value))
+const rendered = useThrottledMarkdown(messageSource)
+const renderedContent = rendered.content
+
+onMounted(() => {
+  if (!props.busy) rendered.flush()
+})
 
 watch(renderedContent, async () => {
   await nextTick()
@@ -352,6 +357,7 @@ watch(renderedContent, async () => {
 
 watch(() => props.busy, (busy, previousBusy) => {
   if (previousBusy && !busy) {
+    rendered.flush()
     nextTick().then(() => enhanceCodeBlocks(contentRef.value))
   }
 })

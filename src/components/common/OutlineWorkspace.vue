@@ -686,6 +686,16 @@ const multiCursorComposing = ref(false)
 const chatAreaOpen = ref(false)
 const isFullscreen = ref(false)
 const saveFeedback = ref('')
+let saveFeedbackTimer: ReturnType<typeof setTimeout> | null = null
+
+function showSaveFeedback(message: string, durationMs = 2500) {
+  saveFeedback.value = message
+  if (saveFeedbackTimer) clearTimeout(saveFeedbackTimer)
+  saveFeedbackTimer = setTimeout(() => {
+    saveFeedbackTimer = null
+    saveFeedback.value = ''
+  }, durationMs)
+}
 const lastUserRequest = ref('')
 const currentRoutingIntent = ref<PlainDialogueIntent>('discuss')
 const toolCompatibilityNotice = ref('')
@@ -2636,7 +2646,7 @@ async function applyOutlineDirectWrite(input: {
     })
     pendingOutlineDeletionReplay.value = null
   }
-  saveFeedback.value = '[OK] API 已直接写入大纲'
+  showSaveFeedback('[OK] API 已直接写入大纲')
   recordOutlineEditorPresentation({
     phase: 'finished',
     workspace: 'outline',
@@ -2645,7 +2655,6 @@ async function applyOutlineDirectWrite(input: {
     commands: input.commands.length,
     reason: input.reason,
   })
-  setTimeout(() => { saveFeedback.value = '' }, 2500)
   return { ok: true, rollbackAvailable: true }
   })
 }
@@ -3105,7 +3114,7 @@ interface OutlineStreamRecoveryItem {
 }
 const outlineStreamRecovery = ref<OutlineStreamRecoveryItem | null>(null)
 const outlineStreamRecoveryDismissed = new Set<string>()
-let outlineStreamRecoveryTimer: ReturnType<typeof setInterval> | null = null
+let stopOutlineStreamRecoveryWatch: (() => void) | null = null
 const outlineInputGateFlags = reactive(createOutlineInputGateFlags())
 const outlineLatestAwaitResumeToken = ref<string | null>(null)
 const outlineInputGate = computed(() => resolveOutlineInputGate({
@@ -3642,7 +3651,12 @@ onMounted(async () => {
   window.addEventListener('style-analysis-request', handleStyleAnalysisRequest)
   // DOM scroll events do not bubble; capture lets the same intent state cover the virtual scroller.
   msgContainer.value?.addEventListener('scroll', handleOutlineMessageUserScroll, { passive: true, capture: true })
-  outlineStreamRecoveryTimer = setInterval(refreshOutlineStreamRecovery, 5000)
+  const stopStreamFrameWatch = window.electronAPI?.onProviderNetStreamFrame?.((payload: any) => {
+    if (payload?.transportEvent === 'error') {
+      window.setTimeout(() => { void refreshOutlineStreamRecovery() }, 0)
+    }
+  })
+  stopOutlineStreamRecoveryWatch = typeof stopStreamFrameWatch === 'function' ? stopStreamFrameWatch : null
 })
 
 onUnmounted(() => {
@@ -3654,9 +3668,9 @@ onUnmounted(() => {
     clearTimeout(debouncedFindTimer)
     debouncedFindTimer = null
   }
-  if (outlineStreamRecoveryTimer) {
-    clearInterval(outlineStreamRecoveryTimer)
-    outlineStreamRecoveryTimer = null
+  if (stopOutlineStreamRecoveryWatch) {
+    stopOutlineStreamRecoveryWatch()
+    stopOutlineStreamRecoveryWatch = null
   }
   if (outlineMessageScrollTimer) {
     clearTimeout(outlineMessageScrollTimer)
@@ -3796,11 +3810,10 @@ async function copySelection() {
     } else {
       await navigator.clipboard.writeText(selected)
     }
-    saveFeedback.value = '[OK] 已复制选中文本'
+    showSaveFeedback('[OK] 已复制选中文本', 2000)
   } catch {
-    saveFeedback.value = '[失败] 无法写入剪贴板'
+    showSaveFeedback('[失败] 无法写入剪贴板', 2000)
   }
-  setTimeout(() => { saveFeedback.value = '' }, 2000)
 }
 
 async function pasteText() {
@@ -3816,8 +3829,7 @@ async function pasteText() {
     ta.focus()
     ta.selectionStart = ta.selectionEnd = start + text.length
   } catch {
-    saveFeedback.value = '[提示] 请使用系统粘贴快捷键或授予剪贴板权限'
-    setTimeout(() => { saveFeedback.value = '' }, 2500)
+    showSaveFeedback('[提示] 请使用系统粘贴快捷键或授予剪贴板权限', 2500)
   }
 }
 
@@ -3835,8 +3847,7 @@ function replaceCurrent() {
   if (!ta || !query || projectStore.outlineLocked) return
   const search = computeEditorMatches(ta.value, query, findOptions.value)
   if (search.error) {
-    saveFeedback.value = `[提示] ${search.error}`
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback(`[提示] ${search.error}`, 2000)
     return
   }
   const result = applyOutlineReplacement({
@@ -3850,18 +3861,15 @@ function replaceCurrent() {
     selectionEnd: ta.selectionEnd,
   })
   if (result.status === 'invalid-selection') {
-    saveFeedback.value = '[提示] 请先定位到要替换的匹配'
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('[提示] 请先定位到要替换的匹配', 2000)
     return
   }
   if (result.status === 'invalid-pattern') {
-    saveFeedback.value = '[提示] 查找内容无效'
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('[提示] 查找内容无效', 2000)
     return
   }
   if (result.status === 'no-match') {
-    saveFeedback.value = '[提示] 未找到匹配'
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('[提示] 未找到匹配', 2000)
     return
   }
   if (result.status !== 'replaced' || !result.next || !commitOutlineChange(result.next)) return
@@ -3880,8 +3888,7 @@ function replaceAll() {
   const current = projectStore.outlineText || ''
   const search = computeEditorMatches(current, query, findOptions.value)
   if (search.error) {
-    saveFeedback.value = `[提示] ${search.error}`
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback(`[提示] ${search.error}`, 2000)
     return
   }
   const result = applyOutlineReplacement({
@@ -3893,24 +3900,20 @@ function replaceAll() {
     options: findOptions.value,
   })
   if (result.status === 'invalid-pattern') {
-    saveFeedback.value = '[提示] 查找内容无效'
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('[提示] 查找内容无效', 2000)
     return
   }
   if (result.status === 'no-match') {
-    saveFeedback.value = '[提示] 未找到匹配'
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('[提示] 未找到匹配', 2000)
     return
   }
   if (result.status === 'unchanged') {
-    saveFeedback.value = '[提示] 替换结果与原文相同'
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('[提示] 替换结果与原文相同', 2000)
     return
   }
   if (result.status !== 'replaced' || !result.next || !commitOutlineChange(result.next)) return
   recordOutlineReplace('all', current, result.next, result.matchCount)
-  saveFeedback.value = '[OK] 已替换全部匹配'
-  setTimeout(() => { saveFeedback.value = '' }, 2000)
+  showSaveFeedback('[OK] 已替换全部匹配', 2000)
   void nextTick()
   ta.focus()
   ta.setSelectionRange(0, 0)
@@ -3923,8 +3926,7 @@ function findNext() {
   if (!ta || !query) return
   const search = computeEditorMatches(ta.value, query, findOptions.value)
   if (search.error) {
-    saveFeedback.value = `[提示] ${search.error}`
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback(`[提示] ${search.error}`, 2000)
     return
   }
   const matches = search.matches
@@ -3945,8 +3947,7 @@ function findPrevious() {
   if (!ta || !query) return
   const search = computeEditorMatches(ta.value, query, findOptions.value)
   if (search.error) {
-    saveFeedback.value = `[提示] ${search.error}`
-    setTimeout(() => { saveFeedback.value = '' }, 2000)
+    showSaveFeedback(`[提示] ${search.error}`, 2000)
     return
   }
   const matches = search.matches
@@ -4247,8 +4248,7 @@ function rollbackOutlineBatch(messageIndex: number) {
     targetId: record.targetId,
     status: 'rolled_back'
   }).catch(error => console.error('[OUTLINE] 记录 AI 批次回滚上下文失败', error))
-  saveFeedback.value = '[OK] 已回滚大纲批次，可撤销恢复'
-  setTimeout(() => { saveFeedback.value = '' }, 2500)
+  showSaveFeedback('[OK] 已回滚大纲批次，可撤销恢复', 2500)
 }
 
 function revealOutlineBatch(messageIndex: number) {
@@ -4428,8 +4428,7 @@ function rollbackOutlineBatchHunk(messageIndex: number, hunkIndex: number) {
       range: { start: firstChange, end: Math.max(firstChange + 1, firstChange + (replanned.next.length - currentContent.length)) },
     },
   }))
-  saveFeedback.value = '[OK] 已回滚单条大纲修改，可撤销恢复'
-  setTimeout(() => { saveFeedback.value = '' }, 2500)
+  showSaveFeedback('[OK] 已回滚单条大纲修改，可撤销恢复', 2500)
 }
 
 function revealOutlineBatchHunk(messageIndex: number, hunk: EditorDiffHunk) {
@@ -4538,8 +4537,7 @@ async function approveOutlineDeletion(index: number) {
   } else {
     outlineDeletionContract.dismiss(confirmation.turnId)
     pendingOutlineDeletionReplay.value = null
-    saveFeedback.value = `[提示] 授权删除执行失败：${replayResult.message}`
-    setTimeout(() => { saveFeedback.value = '' }, 5000)
+    showSaveFeedback(`[提示] 授权删除执行失败：${replayResult.message}`, 5000)
   }
 }
 
@@ -4661,14 +4659,12 @@ function findOutlineFocusNode(
 
 async function handleLockOutline() {
   if (projectStore.outlineLocked) {
-    saveFeedback.value = '[提示] 大纲已锁定，如需修改请先解锁编辑'
-    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    showSaveFeedback('[提示] 大纲已锁定，如需修改请先解锁编辑', 3000)
     return
   }
   const outline = projectStore.outlineText.trim()
   if (!outline) {
-    saveFeedback.value = '[WARN] 大纲为空，请先输入内容'
-    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    showSaveFeedback('[WARN] 大纲为空，请先输入内容', 3000)
     return
   }
 
@@ -4686,15 +4682,13 @@ async function handleLockOutline() {
     projectStore.syncTreeToPipeline()
     pipelineStore.setStep(0)
 
-    saveFeedback.value = '[OK] 大纲已锁定，正在同步到流水线...'
-    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    showSaveFeedback('[OK] 大纲已锁定，正在同步到流水线...', 3000)
 
     emit('navigate', 'pipeline')
 
     autoDecompose(outline)
   } catch (e: any) {
-    saveFeedback.value = '[锁定失败] ' + (e.message || String(e))
-    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    showSaveFeedback('[锁定失败] ' + (e.message || String(e)), 3000)
   }
 }
 
@@ -4872,21 +4866,18 @@ function parseForeshadows(raw: string | null) {
 async function saveOutline() {
   const text = projectStore.outlineText || ''
   if (!text.trim()) {
-    saveFeedback.value = '[WARN] 大纲为空，无法保存'
-    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    showSaveFeedback('[WARN] 大纲为空，无法保存', 3000)
     return
   }
   projectStore.setOutline(text)
   const defaultName = (projectStore.projectName || '大纲') + '.md'
   const filePath = await window.electronAPI.dialogSaveFile(defaultName)
   if (!filePath) {
-    saveFeedback.value = '已取消保存'
-    setTimeout(function() { saveFeedback.value = '' }, 2000)
+    showSaveFeedback('已取消保存', 2000)
     return
   }
   const ok = await window.electronAPI.dialogWriteFile(filePath, text)
-  saveFeedback.value = ok ? '[OK] 已保存到本地' : '[失败] 无法写入文件'
-  setTimeout(function() { saveFeedback.value = '' }, 3000)
+  showSaveFeedback(ok ? '[OK] 已保存到本地' : '[失败] 无法写入文件', 3000)
 }
 
 function exportMd() {
@@ -4926,8 +4917,7 @@ async function copyMsg(text: string) {
 
 function replaceOutline(text: string) {
   commitOutlineChange(text)
-  saveFeedback.value = '[OK] 大纲已替换'
-  setTimeout(function() { saveFeedback.value = '' }, 3000)
+  showSaveFeedback('[OK] 大纲已替换', 3000)
 }
 
 function insertAtCursor(text: string) {
@@ -7125,9 +7115,8 @@ async function restoreLegacyConversation() {
 
 function handleUnlockOutline() {
   projectStore.unlockOutline()
-  saveFeedback.value = '[OK] 已解锁，现在可以编辑大纲；修改后需重新确认才能进入流水线'
+  showSaveFeedback('[OK] 已解锁，现在可以编辑大纲；修改后需重新确认才能进入流水线', 3000)
   nextTick(() => editorRef.value?.focus())
-  setTimeout(function() { saveFeedback.value = '' }, 3000)
 }
 </script>
 

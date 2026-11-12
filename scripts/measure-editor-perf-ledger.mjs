@@ -257,6 +257,7 @@ function summarizeCpuProfile(profile) {
       columnNumber: node.callFrame.columnNumber + 1,
       hitCount: sampleHits.get(node.id) || node.hitCount || 0,
     }))
+
     .filter(node => node.hitCount > 0)
     .sort((a, b) => b.hitCount - a.hitCount)
     .slice(0, 24)
@@ -407,6 +408,9 @@ async function main() {
       chat.activeSessionId = sessions[0].id
       if (chat.activeMessages.length !== 500) throw new Error('dense chat session failed to load')
     }, HOME_SESSIONS)
+    await page.waitForFunction(() => document.querySelectorAll('.chat-message').length > 0,
+      null, { timeout: 10_000, polling: 100 })
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
     await installPerfObserver(page)
     results.push(await measureLongTasks(page, 'home-typing-dense-messages', {
       contentChars: LARGE_TAB_CONTENT.length,
@@ -440,14 +444,74 @@ async function main() {
     }))
 
     // Path 6: message panel DOM density.
+    const messageCount = HOME_SESSION_MESSAGES.length
     results.push(await measureLongTasks(page, 'home-message-panel-density', {
-      messageCount: HOME_SESSION_MESSAGES.length,
+      messageCount,
+      renderedMessageNodesMax: 80,
+      virtualized: true,
     }, async () => {
-      await page.waitForSelector('.chat-message', { timeout: 20_000 })
+      await page.waitForFunction(() => document.querySelectorAll('.chat-message').length > 0,
+        null, { timeout: 20_000, polling: 100 })
       const nodeCount = await page.evaluate(() => document.querySelectorAll('.chat-message').length)
-      assert.equal(nodeCount, HOME_SESSION_MESSAGES.length,
-        `home message panel renders all messages without virtualization; got ${nodeCount}`)
+      assert.ok(nodeCount > 0, `home message panel rendered no messages; got ${nodeCount}`)
+      assert.ok(nodeCount < 100,
+        `home message panel must virtualize the dense session; got ${nodeCount} rendered nodes`)
+      assert.ok(nodeCount < messageCount,
+        `home message panel rendered every message; got ${nodeCount}/${messageCount}`)
     }))
+
+    // Path 6a: real Electron smoke for dense-list virtualization and bottom anchoring.
+    {
+      const smokeBefore = await page.evaluate(() => {
+        const scroller = document.querySelector('#messages-list.chat-message-scroller')
+        return {
+          virtualized: Boolean(scroller),
+          nodeCount: document.querySelectorAll('.chat-message').length,
+          scrollTop: scroller?.scrollTop ?? 0,
+          scrollHeight: scroller?.scrollHeight ?? 0,
+          clientHeight: scroller?.clientHeight ?? 0,
+        }
+      })
+      assert.equal(smokeBefore.virtualized, true, 'dense home session should use the virtual scroller')
+      assert.ok(smokeBefore.nodeCount < 100, `virtual smoke expected few rendered nodes, got ${smokeBefore.nodeCount}`)
+      await page.waitForFunction(() => {
+        const scroller = document.querySelector('#messages-list.chat-message-scroller')
+        if (!scroller) return false
+        return scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= 4
+      }, null, { timeout: 10_000, polling: 100 })
+      assert.ok(smokeBefore.scrollHeight - smokeBefore.scrollTop - smokeBefore.clientHeight <= 4,
+        `dense home list should anchor to the bottom, got ${JSON.stringify(smokeBefore)}`)
+      const streamProbeReady = await page.evaluate(() => {
+        const target = document.querySelector('#char-count')
+        if (!target) return false
+        window.__smokeStreamingHint = { seen: false, finalText: target.textContent || '', observedNode: 'body' }
+        const observer = new MutationObserver(() => {
+          const current = document.querySelector('#char-count')?.textContent || ''
+          window.__smokeStreamingHint.finalText = current
+          if (current.includes('生成中…')) window.__smokeStreamingHint.seen = true
+        })
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true })
+        window.__smokeStreamingHintObserver = observer
+        return true
+      })
+      assert.equal(streamProbeReady, true, 'streaming hint probe should attach before send')
+      await page.locator('#user-input').fill('性能冒烟输入')
+      await page.locator('#btn-send').click()
+      await page.waitForFunction(() => {
+        const chat = window.__pinia?._s?.get('chat')
+        return Boolean(chat?.activeMessages?.some?.(message => message.content === '性能冒烟输入'))
+      }, null, { timeout: 15_000, polling: 200 })
+      await page.waitForSelector('#config-status', { state: 'visible', timeout: 10_000 })
+      const smokeAfter = await page.evaluate(() => ({
+        sentUserMessages: (window.__pinia?._s?.get('chat')?.activeMessages ?? [])
+          .filter(message => message.role === 'user' && message.content === '性能冒烟输入').length,
+        streamingHint: window.__smokeStreamingHint?.seen === true,
+        streamingHintProbe: window.__smokeStreamingHint,
+      }))
+      assert.equal(smokeAfter.sentUserMessages, 1, 'sent message must append to dense session')
+      console.log(`[LEDGER] smoke streamingHint=${smokeAfter.streamingHint ? 'seen' : 'not-seen'} providerMissingOneFrameTransition=expected probe=${JSON.stringify(smokeAfter.streamingHintProbe)}`)
+      await page.evaluate(() => window.__smokeStreamingHintObserver?.disconnect?.())
+    }
 
     const payload = {
       script: SCRIPT_NAME,
@@ -470,6 +534,8 @@ async function main() {
     for (const row of results) {
       console.log(`[LEDGER] path=${row.path} longTasks=${JSON.stringify(row.longTaskStats)}`)
     }
+    const smokeStreamingProbe = await page.evaluate(() => window.__smokeStreamingHint ?? null)
+    console.log(`[LEDGER] smoke streamingHintFinal=${smokeStreamingProbe?.seen === true ? 'seen' : 'not-seen'} probe=${JSON.stringify(smokeStreamingProbe)}`)
     console.log(`[LEDGER] evidence=${path.join(EVIDENCE_ROOT, 'ledger.json')}`)
   } finally {
     await stopElectron(app)

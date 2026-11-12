@@ -8,35 +8,85 @@
         title="开始对话"
         description="在下方输入框输入消息，与 AI 助手开始创作"
       />
-      <div id="messages-list" class="messages-list">
+      <DynamicScroller
+        v-if="messageVirtualizationEnabled"
+        id="messages-list"
+        ref="messageScrollerRef"
+        :items="messages"
+        :min-item-size="96"
+        key-field="id"
+        class="messages-list chat-message-scroller"
+        :buffer="600"
+        :prerender="12"
+      >
+        <template #default="{ item: msg, index: i, active }">
+          <DynamicScrollerItem
+            :item="msg"
+            :active="active"
+            :index="i"
+            :data-message-id="msg.id"
+          >
+            <ChatMessageComponent
+              :key="msg.id"
+              :message="msg"
+              :busy="isStreaming"
+              :current-content-for-diff="editorContentForBatch(msg)"
+              :providers="providerStore.providers"
+              @copy="copyMessage"
+              @regenerate="regenerateMessage(i)"
+              @apply="insertToEditor(msg.content)"
+              @replace="replaceWhole(msg.content)"
+              @continue="continueMessage(msg)"
+              @rollback="rollbackEditorBatch(msg)"
+              @reveal="revealEditorBatch(msg)"
+              @rollback-hunk="rollbackEditorBatchHunk(msg, $event)"
+              @reveal-hunk="revealEditorBatchHunk(msg, $event)"
+              @resume-task="aiTaskStore.resumeTask(aiTaskStore.activeTaskId!)"
+              @pause-task="aiTaskStore.pauseTask(aiTaskStore.activeTaskId!)"
+              @retry-step="aiTaskStore.retryStep(aiTaskStore.activeTaskId!)"
+              @resume-breakpoint="resumeFromChainBreakpoint()"
+              @discard-breakpoint="discardChainBreakpoint()"
+              @routing-continue="continueRoutingFallback(msg)"
+              @routing-bypass="bypassRoutingFallback(msg)"
+              @budget-extend="extendRoutingBudget(msg)"
+              @continue-final-draft="continueFinalDraftMessage(msg)"
+              @resume-final-draft="resumeFinalDraftMessage(msg)"
+              @retry-final-draft-segment-with-provider="retryFinalDraftSegmentMessage(msg, $event)"
+              :chain-breakpoint="chainBreakpointInfo"
+            />
+          </DynamicScrollerItem>
+        </template>
+      </DynamicScroller>
+      <div v-else id="messages-list" class="messages-list">
         <ChatMessageComponent
           v-for="(msg, i) in messages"
-          :key="i"
+          :key="msg.id"
           :message="msg"
-        :busy="isStreaming"
-        :current-content-for-diff="editorContentForBatch(msg)"
-        :providers="providerStore.providers"
+          :busy="isStreaming"
+          :current-content-for-diff="editorContentForBatch(msg)"
+          :providers="providerStore.providers"
           @copy="copyMessage"
           @regenerate="regenerateMessage(i)"
-          @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
+          @apply="insertToEditor(msg.content)"
+          @replace="replaceWhole(msg.content)"
           @continue="continueMessage(msg)"
-         @rollback="rollbackEditorBatch(msg)"
-         @reveal="revealEditorBatch(msg)"
-         @rollback-hunk="rollbackEditorBatchHunk(msg, $event)"
-         @reveal-hunk="revealEditorBatchHunk(msg, $event)"
-        @resume-task="aiTaskStore.resumeTask(aiTaskStore.activeTaskId!)"
-        @pause-task="aiTaskStore.pauseTask(aiTaskStore.activeTaskId!)"
-         @retry-step="aiTaskStore.retryStep(aiTaskStore.activeTaskId!)"
-        @resume-breakpoint="resumeFromChainBreakpoint()"
-        @discard-breakpoint="discardChainBreakpoint()"
-        @routing-continue="continueRoutingFallback(msg)"
-        @routing-bypass="bypassRoutingFallback(msg)"
-        @budget-extend="extendRoutingBudget(msg)"
-        @continue-final-draft="continueFinalDraftMessage(msg)"
-        @resume-final-draft="resumeFinalDraftMessage(msg)"
-        @retry-final-draft-segment-with-provider="retryFinalDraftSegmentMessage(msg, $event)"
-        :chain-breakpoint="chainBreakpointInfo"
-     />
+          @rollback="rollbackEditorBatch(msg)"
+          @reveal="revealEditorBatch(msg)"
+          @rollback-hunk="rollbackEditorBatchHunk(msg, $event)"
+          @reveal-hunk="revealEditorBatchHunk(msg, $event)"
+          @resume-task="aiTaskStore.resumeTask(aiTaskStore.activeTaskId!)"
+          @pause-task="aiTaskStore.pauseTask(aiTaskStore.activeTaskId!)"
+          @retry-step="aiTaskStore.retryStep(aiTaskStore.activeTaskId!)"
+          @resume-breakpoint="resumeFromChainBreakpoint()"
+          @discard-breakpoint="discardChainBreakpoint()"
+          @routing-continue="continueRoutingFallback(msg)"
+          @routing-bypass="bypassRoutingFallback(msg)"
+          @budget-extend="extendRoutingBudget(msg)"
+          @continue-final-draft="continueFinalDraftMessage(msg)"
+          @resume-final-draft="resumeFinalDraftMessage(msg)"
+          @retry-final-draft-segment-with-provider="retryFinalDraftSegmentMessage(msg, $event)"
+          :chain-breakpoint="chainBreakpointInfo"
+        />
       </div>
     </div>
 
@@ -150,8 +200,8 @@
     <div id="char-count" class="input-hint">
       <span>{{ inputText.length }}</span> 字 |
         <span id="config-status">{{ configStatus }}</span>
+        <span v-if="isStreaming" class="token-inline">生成中…</span>
     </div>
-    <div class="token-bar" v-show="tokenCount > 0">本次消耗: <span>{{ tokenCount }}</span> 个 Token</div>
   </section>
 
 </template>
@@ -1024,7 +1074,10 @@ let homeFailedWriteBatch: {
 } | null = null
 let lastToolCallSummary: string | null = null
 const messagesContainer = ref<HTMLElement | null>(null)
+const messageScrollerRef = ref<any | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
+const MESSAGE_VIRTUALIZATION_THRESHOLD = 300
+const messageVirtualizationEnabled = computed(() => messages.value.length >= MESSAGE_VIRTUALIZATION_THRESHOLD)
 const homeSendStarting = ref(false)
 const homeInputBlocked = computed(() =>
   isStreaming.value || homeSendStarting.value
@@ -1800,7 +1853,6 @@ function beginActiveHomeRunTracking(): () => void {
     activeHomeRunPromise = null
   }
 }
-const tokenCount = ref(0)
 const maxDepthRef = ref(21)
 const coCreationSkillToAdd = ref('')
 const DEFAULT_CO_CREATION_HISTORY_TURNS = 10
@@ -2820,6 +2872,8 @@ onMounted(() => {
   void coCreation.loadConfig()
   void loadChainBreakpointStatus()
   syncChatProject()
+  // Dense sessions can mount already populated; virtual scrollers need one settled frame before anchoring.
+  void nextTick().then(() => scrollToBottom())
   // Reload 后保留上一条 chat run 的指针，跨进程重载也能继续聚合。
   const restoredHomeRunId = runTraceStore.getLastRunId('home')
   if (restoredHomeRunId && runTraceStore.getRun(restoredHomeRunId)?.sessionKind === 'chat') {
@@ -2828,6 +2882,12 @@ onMounted(() => {
   }
   window.addEventListener('editor-action', handleEditorAction)
   aiTaskStore.restore(projectId.value)
+})
+
+watch(messageVirtualizationEnabled, async (enabled) => {
+  if (!enabled) return
+  await nextTick()
+  scrollToBottom()
 })
 
 onUnmounted(() => {
@@ -5441,6 +5501,10 @@ async function clearMessages() {
 }
 
 function scrollToBottom() {
+  if (messageVirtualizationEnabled.value) {
+    messageScrollerRef.value?.scrollToBottom?.()
+    return
+  }
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
   }
@@ -5482,8 +5546,10 @@ function scrollToBottom() {
 }
 .messages-container {
   flex: 1;
-  overflow-y: auto;
-  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 .chat-input-row {
   display: flex;
@@ -5706,10 +5772,16 @@ function scrollToBottom() {
   color: var(--text-muted);
   font-size: var(--font-size-xs);
 }
-.token-bar { padding: var(--space-2) var(--space-5) var(--space-3); font-size: var(--font-size-sm); color: var(--text-muted); }
 .input-hint {
   padding: var(--space-2) var(--space-5) var(--space-4);
   font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+.chat-message-scroller {
+  padding: var(--space-5);
+}
+.token-inline {
+  margin-left: auto;
   color: var(--text-muted);
 }
 </style>
