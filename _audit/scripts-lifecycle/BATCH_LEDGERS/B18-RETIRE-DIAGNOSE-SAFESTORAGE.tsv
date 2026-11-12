@@ -1,0 +1,7 @@
+batch	B18-RETIRE-DIAGNOSE-SAFESTORAGE
+action	retire
+tag	scripts-lifecycle-18-retire
+preCommit	3e47e7f74b3b802b5b1219f9345b004156c6759c
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\diagnose-safestorage-electron.cjs	retire	clean	E866ED1EBF6F621CDEAB30B3B261B893DC71B552EB92A7119CF5E0BEA23EE035
