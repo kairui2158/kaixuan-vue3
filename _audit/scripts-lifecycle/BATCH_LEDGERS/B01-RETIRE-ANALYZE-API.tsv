@@ -1,0 +1,7 @@
+batch	B01-RETIRE-ANALYZE-API
+action	retire
+tag	scripts-lifecycle-01-retire
+preCommit	59fafc22e4dd0c019c04b95413fa70e967ec8c36
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\analyze-api-direct-write-100-closure.mjs	retire	clean	4FDAD4C1AB83BD69D55936BFD6E91144E29E1A6B3CDA663959007FD0C37BD313
