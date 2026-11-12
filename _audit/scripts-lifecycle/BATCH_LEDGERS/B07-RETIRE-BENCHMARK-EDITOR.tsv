@@ -1,0 +1,7 @@
+batch	B07-RETIRE-BENCHMARK-EDITOR
+action	retire
+tag	scripts-lifecycle-07-retire
+preCommit	cfc7ab6ca151b3379ac85eb9551b8834ddf37c75
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\benchmark-editor-long-document.mjs	retire	clean	7F78A8572DD8250ED83B1EADC8006F4C146986F0577A629DAF9C16A9BE5E30D8
