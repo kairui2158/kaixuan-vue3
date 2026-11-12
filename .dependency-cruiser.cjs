@@ -59,7 +59,7 @@ module.exports = {
       severity: 'error',
       from: {
         path: '^src/(components|services)/',
-        pathNot: '^src/services/(toolLoopPolicy(\\.spec)?|aiService|editTaskExecutor)\\.ts$',
+        pathNot: '^src/services/(toolLoopPolicy(\\.spec)?|aiService)\\.ts$',
       },
       to: { path: '^src/services/toolLoopPolicy\\.ts$' },
     },

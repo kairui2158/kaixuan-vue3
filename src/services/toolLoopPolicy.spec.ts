@@ -1,7 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { sep } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { getToolLoopPolicy, normalizeToolIterations } from './toolLoopPolicy'
 
 describe('toolLoopPolicy', () => {
@@ -22,12 +19,4 @@ describe('toolLoopPolicy', () => {
     expect(normalizeToolIterations('compatibility-json', 3)).toBe(1)
   })
 
-  it('keeps dependency rules and the edit-task executor in the same policy contract', () => {
-    const here = fileURLToPath(new URL('.', import.meta.url))
-    const executorSource = readFileSync(new URL('./editTaskExecutor.ts', import.meta.url), 'utf8')
-    const dependencyRules = readFileSync(new URL('../../.dependency-cruiser.cjs', import.meta.url), 'utf8')
-    expect(here).toContain(['src', 'services'].join(sep))
-    expect(executorSource).toContain("import { normalizeToolIterations, type ToolLoopScenario } from './toolLoopPolicy'")
-    expect(dependencyRules).toContain('toolLoopPolicy(\\\\.spec)?|aiService|editTaskExecutor')
-  })
 })
