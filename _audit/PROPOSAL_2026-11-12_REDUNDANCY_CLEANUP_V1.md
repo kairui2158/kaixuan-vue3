@@ -150,6 +150,12 @@
 
 ## 4.2 逐 Phase 事后闭环矩阵
 
+| Phase | 功能反查 | 闭环证据 | 失败判定 |
+| --- | --- | --- | --- |
+| P1 | `rg editTaskExecutor` 全仓 0 命中 | depcruise + type-check + target spec + `npm run build:vue` | 任一失败即回滚 |
+| P2 | `rg useChapterStore` 0 命中；progressPhase UI 0 引用 | depcruise + type-check + `npm run test:services` + `npm run build:vue` | 任一失败即回滚 |
+| P3 | `rg DiffModal.vue.d.ts` 0 命中；`rg verify:postprocess-ui-electron` 0 命中 | type-check + `npm run build:vue` | 任一失败即回滚 |
+
 ## 5. 裁决点
 
 ### D1. progressPhase 裁剪还是冻结
@@ -233,8 +239,3 @@
 1. `scripts/` lifecycle audit：先建机器可读清单，区分可执行验证器、历史证据、tmp 副本、重复版本，再分批处置。
 2. Pipeline 阶段若未来需要细粒度展示，须重新接线 streaming/validating/repairing/saving，而不是恢复死枚举。
 3. `__shenyiStepArtifact` 兼容层在 SKILL 侧存量确认后单独退役。
-| Phase | 功能反查 | 闭环证据 | 失败判定 |
-| --- | --- | --- | --- |
-| P1 | `rg editTaskExecutor` 全仓 0 命中 | depcruise + type-check + target spec + `npm run build:vue` | 任一失败即回滚 |
-| P2 | `rg useChapterStore` 0 命中；progressPhase UI 0 引用 | depcruise + type-check + `npm run test:services` + `npm run build:vue` | 任一失败即回滚 |
-| P3 | `rg DiffModal.vue.d.ts` 0 命中；`rg verify:postprocess-ui-electron` 0 命中 | type-check + `npm run build:vue` | 任一失败即回滚 |

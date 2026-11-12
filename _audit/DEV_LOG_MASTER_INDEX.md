@@ -1922,4 +1922,4 @@
 - 交付：退役 `editTaskExecutor` 及自 spec 并关闭 depcruise 豁免；裁剪 `PipelineProgressPhase` 四个幻影枝并删除孤儿 chapter store；删除孤儿 `DiffModal.vue.d.ts` 与死 npm 入口。
 - 用途：编辑任务与 Pipeline 状态语义回归单一事实；移除零消费组件、孤儿类型面和无效脚本入口；orphan 规则恢复真实侦测能力。
 - 验证：P1/P2/P3 分别单 commit；负向断言零命中；终态 wiring 590 modules / 0 violations、type-check 与 build:vue 通过、全量服务 250 files / 2734 tests passed；`git diff --check` 通过。
-- 边界：本轮只删不加，净减 454 行；不升级版本、不封装安装包；`scripts/` 孤儿资产、底层 Electron 验证脚本、folder SKILL 和用户侧未跟踪材料均不改。
+- 边界：本轮只删不加，净减 462 行；不升级版本、不封装安装包；`scripts/` 孤儿资产、底层 Electron 验证脚本、folder SKILL 和用户侧未跟踪材料均不改。

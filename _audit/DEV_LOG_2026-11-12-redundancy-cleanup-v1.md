@@ -6,11 +6,11 @@
 
 | Phase | Commit | 内容 | 实际净变化 |
 | --- | --- | --- | --- |
-| P1 | `5c1ad8d1` | 退役幽灵 `editTaskExecutor`：删除实现与自 spec，收窄 depcruise 豁免，迁移 `toolLoopPolicy.spec.ts` 源码契约并保留 `normalizeToolIterations` 行为契约 | `-385` |
-| P2 | `900409ba` | 删除孤儿 `chapter.ts` store；`PipelineProgressPhase` 从七枝裁剪为 `queued/requesting/terminal`；迁移 `runProgressChannel.spec.ts` 五处夹具，并把 `pipelineParallelismPhase0.spec.ts:109` 第二参数改为 detail 文本 `'修复中'` | `-65` |
+| P1 | `5c1ad8d1` | 退役幽灵 `editTaskExecutor`：删除实现与自 spec，收窄 depcruise 豁免，迁移 `toolLoopPolicy.spec.ts` 源码契约并保留 `normalizeToolIterations` 行为契约 | `-384` |
+| P2 | `900409ba` | 删除孤儿 `chapter.ts` store；`PipelineProgressPhase` 从七枝裁剪为 `queued/requesting/terminal`；迁移 `runProgressChannel.spec.ts` 五处夹具，并把 `pipelineParallelismPhase0.spec.ts:109` 第二参数改为 detail 文本 `'修复中'` | `-73` |
 | P3 | `292617f1` | 删除孤儿 `DiffModal.vue.d.ts` 和死入口 `verify:postprocess-ui-electron`；底层 `scripts/verify-postprocess-terminal-ui-electron.mjs` 按 D5 保留另议 | `-4` |
 
-三个 commit 合计 `+9/-463`，净减 `454` 行。交付不涉及版本升级或安装包封装。
+三个 commit 合计 `+9/-471`，净减 `462` 行。交付不涉及版本升级或安装包封装。
 
 ## 用途
 
