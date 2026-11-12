@@ -1,0 +1,7 @@
+batch	B12-RETIRE-CLEANUP-RELEASE
+action	retire
+tag	scripts-lifecycle-12-retire
+preCommit	b0b3f265c16f2edab13bb52335b5f13616781868
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\cleanup-release-artifacts.ps1	retire	clean	B6EA78EB9E5E4649D67BC94110F14433B82CA2AD43B7D681449CE3C7B63A28F9
