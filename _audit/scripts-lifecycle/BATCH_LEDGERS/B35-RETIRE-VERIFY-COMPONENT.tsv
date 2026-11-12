@@ -1,0 +1,7 @@
+batch	B35-RETIRE-VERIFY-COMPONENT
+action	retire
+tag	scripts-lifecycle-35-retire
+preCommit	d86079a369e8764fbb967ed31639f38f38e9847f
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\verify-component-lifecycle-electron.mjs	retire	clean	2DD467A453045E1E4A4968941803858A23F3E1969C505A94E033112BED62FB18
