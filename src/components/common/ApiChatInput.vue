@@ -84,6 +84,7 @@ const emit = defineEmits<{
 const settings = useSettingsStore()
 const chatInputMode = computed(() => settings.chatInputMode)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
+let autosizeFrame = 0
 
 function setMode(mode: 'enter-send' | 'enter-newline') {
   settings.updateSettings({ chatInputMode: mode })
@@ -91,15 +92,26 @@ function setMode(mode: 'enter-send' | 'enter-newline') {
 
 function autosize() {
   nextTick(() => {
-    const el = textareaRef.value
-    if (!el) return
-    el.style.height = 'auto'
-    el.style.height = Math.min(120, Math.max(60, el.scrollHeight)) + 'px'
+    if (autosizeFrame) return
+    autosizeFrame = requestAnimationFrame(() => {
+      autosizeFrame = 0
+      const el = textareaRef.value
+      if (!el) return
+      el.style.height = 'auto'
+      el.style.height = Math.min(120, Math.max(60, el.scrollHeight)) + 'px'
+    })
   })
 }
 
 function handleInput(event: Event) {
   emit('update:modelValue', (event.target as HTMLTextAreaElement).value)
+  autosize()
+}
+
+function flushAutosize() {
+  if (!autosizeFrame) return
+  cancelAnimationFrame(autosizeFrame)
+  autosizeFrame = 0
   autosize()
 }
 
@@ -117,10 +129,14 @@ function handleKeydown(event: KeyboardEvent) {
       emit('send')
     }
   }
+  flushAutosize()
 }
 
 watch(() => props.modelValue, () => autosize())
-onMounted(autosize)
+onMounted(() => {
+  autosize()
+  nextTick(() => flushAutosize())
+})
 </script>
 
 <style scoped>
