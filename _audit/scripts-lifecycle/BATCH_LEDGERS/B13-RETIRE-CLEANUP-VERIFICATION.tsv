@@ -1,0 +1,7 @@
+batch	B13-RETIRE-CLEANUP-VERIFICATION
+action	retire
+tag	scripts-lifecycle-13-retire
+preCommit	74fe47829ac0003246a0d012480fdff45ff12f60
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\cleanup-verification-artifacts.mjs	retire	clean	C0E0619711D4E45C6CC099F5A295B5D7B76EF5001B809FC9B10A6F37B03C8D50
