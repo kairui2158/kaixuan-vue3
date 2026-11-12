@@ -1,0 +1,11 @@
+batch	B32-RETIRE-VERIFY-API
+action	retire
+tag	scripts-lifecycle-32-retire
+preCommit	cf3725657ccef932ae502253c2a4445b434f16a3
+pathHashRows	5
+path`taction`tstatus`tsha256
+scripts\verify-api-direct-write-live-v3.mjs	retire	clean	38ED3EB06C4801F0CB971D589DBB002DED46D6A5AF69ACB61DE8F2B9A68E23FD
+scripts\verify-api-direct-write-long-document-loop.mjs	retire	clean	1B99187A8B1E349DB6FD8141FD2DECC66C68161F861AF1532BD0F9A4B6296887
+scripts\verify-api-direct-write-provider-matrix.mjs	retire	clean	BD20BCE4C8EE35C6CAAB5BCB2E7EFF9FFCB0C98C72C2A89A581808FA3C7DB48E
+scripts\verify-api-direct-write-user-visible-v3.mjs	retire	clean	28721E1C25AE3AB87606B4B71B63CB27DE8B11132E3F771805A76E1EF6615B27
+scripts\verify-api-live-status-electron.mjs	retire	clean	C11E68F15E14811C53F8D54F7E5A2EC3A635D6375DAB6A9348E4C693E31E2582
