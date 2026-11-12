@@ -1,0 +1,7 @@
+batch	B19-RETIRE-EXTRACT-LONG
+action	retire
+tag	scripts-lifecycle-19-retire
+preCommit	fccd89088aa9980e57896da7f85ea86cbbe48f36
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\extract-long-document-efficiency-baseline.mjs	retire	clean	876E89C3BF3385D878A901BD7BD0C6867311E7A3E71D4BD445EFB314C040DA75
