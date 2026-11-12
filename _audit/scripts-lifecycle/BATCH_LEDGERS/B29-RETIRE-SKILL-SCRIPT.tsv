@@ -1,0 +1,7 @@
+batch	B29-RETIRE-SKILL-SCRIPT
+action	retire
+tag	scripts-lifecycle-29-retire
+preCommit	68b3a6ac9505d7ce9e7b4a85be571788e389e8e9
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\tests\skill-script-worker.spec.cjs	retire	clean	D16F98D226AF5654C5AE78907E6CFC27003283FB6C306FDCB67A6CB4E78893F7
