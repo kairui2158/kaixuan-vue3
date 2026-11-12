@@ -1,0 +1,7 @@
+batch	B49-RETIRE-VERIFY-VOLUME
+action	retire
+tag	scripts-lifecycle-49-retire
+preCommit	73b28b69213bd012ed48de65513516620ff2b8e2
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\verify-volume-trace-six-defects-e2e.mjs	retire	clean	FC673A1ED821D7493C7CA4920C9278BC1192B4B822F5E1E3D7CCB8F56713A221
