@@ -1,0 +1,7 @@
+batch	B08-RETIRE-BENCHMARK-LONG
+action	retire
+tag	scripts-lifecycle-08-retire
+preCommit	c7747ca609edb9127e92bd4238eaffc9950bc9b2
+pathHashRows	1
+path`taction`tstatus`tsha256
+scripts\benchmark-long-document-local-transform.mjs	retire	clean	C8C00182DF1BF6DEF21F1B264CFCDFD7366E24FDCE0B0C21974B0D76D2F69C65
