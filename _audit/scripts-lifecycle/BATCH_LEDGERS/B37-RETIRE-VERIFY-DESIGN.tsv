@@ -1,0 +1,8 @@
+batch	B37-RETIRE-VERIFY-DESIGN
+action	retire
+tag	scripts-lifecycle-37-retire
+preCommit	8e5243ad342910ca42e81d05bd986a839188acd0
+pathHashRows	2
+path`taction`tstatus`tsha256
+scripts\verify-design-fusion-responsive-overflow.mjs	retire	clean	1B3C6DA3E4EE7C40E7CAECC2A02DF2FFD8B84F5BF907A1E7362C7908A79A5AB0
+scripts\verify-design-fusion-visual-matrix.mjs	retire	clean	EF727206D91044E3225631175B7465C4C49BEF3A1BFDA48C32A0F4599E1DC31E
