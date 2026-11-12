@@ -13,10 +13,6 @@ export type PipelineRunLayer = 'settings' | 'volumes' | 'chapters' | 'body'
 export type PipelineProgressPhase =
   | 'queued'
   | 'requesting'
-  | 'streaming'
-  | 'validating'
-  | 'repairing'
-  | 'saving'
   | 'terminal'
 
 export interface PipelineRejectedRunEvent {

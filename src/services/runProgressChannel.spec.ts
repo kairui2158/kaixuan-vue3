@@ -30,17 +30,17 @@ describe('RunProgressChannel', () => {
     const run = registry.createRun({ layer: 'volumes', target: 'volume-4' })
     const channel = new RunProgressChannel(registry)
 
-    channel.emit({ runId: run.runId, percent: 10, phase: 'streaming', detail: '开始生成' })
+    channel.emit({ runId: run.runId, percent: 10, phase: 'requesting', detail: '开始生成' })
     expect(registry.getRun(run.runId)?.progress).toBe(10)
 
-    channel.emit({ runId: run.runId, percent: 20, phase: 'streaming', detail: '流式接收' })
-    channel.emit({ runId: run.runId, percent: 30, phase: 'validating', detail: '契约验收' })
+    channel.emit({ runId: run.runId, percent: 20, phase: 'requesting', detail: '流式接收' })
+    channel.emit({ runId: run.runId, percent: 30, phase: 'requesting', detail: '契约验收' })
     expect(registry.getRun(run.runId)?.progress).toBe(10)
 
     vi.advanceTimersByTime(250)
     const stored = registry.getRun(run.runId)
     expect(stored?.progress).toBe(30)
-    expect(stored?.progressPhase).toBe('validating')
+    expect(stored?.progressPhase).toBe('requesting')
     expect(stored?.statusText).toBe('契约验收')
   })
 
@@ -52,7 +52,7 @@ describe('RunProgressChannel', () => {
     channel.emit({
       runId: run.runId,
       percent: 88,
-      phase: 'repairing',
+      phase: 'requesting',
       detail: '修复中（第 2 次）',
       attempt: 2,
     })
@@ -124,7 +124,7 @@ describe('RunProgressChannel', () => {
         channel.emit({
           runId: run.runId,
           percent: Math.min(100, Math.floor((index + 1) / 3)),
-          phase: 'streaming',
+          phase: 'requesting',
           detail: `run-${runIndex + 1}-${index}`
         })
       })
@@ -135,7 +135,7 @@ describe('RunProgressChannel', () => {
     runs.forEach(run => {
       const stored = registry.getRun(run.runId)
       expect(stored?.progress).toBe(100)
-      expect(stored?.progressPhase).toBe('streaming')
+      expect(stored?.progressPhase).toBe('requesting')
     })
   })
 })

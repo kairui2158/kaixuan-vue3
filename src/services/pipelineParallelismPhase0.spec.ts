@@ -106,7 +106,7 @@ describe('V3.3 Phase 0 parallelism red tests', () => {
     const runId = pipeline.startGeneration()
     pipeline.cancelGeneration(runId)
 
-    pipeline.updateProgress(10, 'repairing', runId)
+    pipeline.updateProgress(10, '修复中', runId)
     pipeline.failGeneration('保存失败', runId)
 
     const run = pipeline.getRun(runId)
