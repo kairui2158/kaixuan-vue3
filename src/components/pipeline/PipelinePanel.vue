@@ -834,7 +834,7 @@ import { extractJsonArray, extractJsonObject } from "../../services/jsonExtracti
 import type { RunTraceStatus } from "../../stores/runTrace"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
 import { buildOutlineUnitClosure, validateOutlineContextScope } from "../../services/outlineContextScope"
-import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, getChainEchoWarningLevel, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
+import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, getChainEchoWarningLevel, isGeneratorEnvelopeArtifact, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import type { ChainBreakpointStepOutput } from "../../services/chainBreakpoint"
@@ -4533,6 +4533,25 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       ? prompt
       : (legacyArtifact.output || prompt)
     if (legacyArtifact.recovery === 'reset') startSi = 0
+    if (
+      startSi > 0 &&
+      step === 4 &&
+      !isGeneratorEnvelopeArtifact(current)
+    ) {
+      startSi = 0
+      if (runId) {
+        runTraceStore.addEvent(runId, {
+          type: 'body-resume-artifact-invalid',
+          level: 'warn',
+          label: '断点产物缺少生成器信封，已从头执行',
+          detail: JSON.stringify({
+            ownerKey: checkpointOwnerKey,
+            requestedStartIndex: resumePoint.startIndex,
+            reason: 'generator_envelope_missing'
+          })
+        })
+      }
+    }
     let pendingStageDiagnosisGuidance = ''
     let completedStepOutputs = resumePoint.stepOutputs.slice()
     let upstreamStepMetadata: Record<string, unknown> | null =
@@ -4557,7 +4576,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           : resumePoint.stepOutputs
         const upstream = upstreamSource.find(output => output.skillIndex === startSi - 1)
         upstreamStepMetadata = upstream?.metadata || null
-        if (upstream) {
+        if (upstream && isGeneratorEnvelopeArtifact(upstream.output)) {
           current = upstream.output
         } else {
           startSi = 0
@@ -4568,7 +4587,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               label: '定点修复缺少上游产物，已降级整链重跑',
               detail: JSON.stringify({
                 requestedStartIndex: executionPlan.startIndex,
-                reason: 'upstream_step_output_not_persisted'
+                reason: upstream
+                  ? 'upstream_artifact_invalid'
+                  : 'upstream_step_output_not_persisted'
               })
             })
           }

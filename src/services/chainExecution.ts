@@ -1,4 +1,5 @@
 import { buildVolumeOutlineScaffold } from './volumeGeneration'
+import { parseGenerationResult } from './generationResult'
 import {
   locatePromptBlock,
   FULL_OUTLINE_BLOCK_END_HEADERS,
@@ -374,6 +375,27 @@ function countChainOverlap(previous: string, current: string): number {
 
 export function buildChainSkillSequence<T>(skills: T[]): T[] {
   return skills.slice()
+}
+
+/**
+ * Structural gate for resuming a body chain at or after its generator step.
+ * This checks delivery shape only: quality remains owned by SKILL verdicts.
+ */
+export function isGeneratorEnvelopeArtifact(output: string): boolean {
+  const trimmed = String(output || '').trim()
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
+  const candidate = fenced ? fenced[1].trim() : trimmed
+  let envelope: unknown
+  try {
+    envelope = JSON.parse(candidate)
+  } catch {
+    return false
+  }
+  if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope)) return false
+  const parsed = parseGenerationResult(output)
+  return parsed.body.trim().length > 0 &&
+    Array.isArray(parsed.metadata.extractedMeta) &&
+    parsed.metadata.extractedMeta.length > 0
 }
 
 /**

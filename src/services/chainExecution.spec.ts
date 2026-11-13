@@ -8,6 +8,7 @@ import {
   formatMemoryPrompt,
   getChainEchoWarningLevel,
   isBodyContractStep,
+  isGeneratorEnvelopeArtifact,
   resolveAttemptStartGeneratorIndex,
   resolveBodyGeneratorStepIndex,
   resolveFinalStepEchoRole,
@@ -19,6 +20,40 @@ import {
 } from "./chainExecution"
 
 describe("body chain execution contract", () => {
+  describe("isGeneratorEnvelopeArtifact", () => {
+    const validEnvelope = JSON.stringify({
+      body: "这是可交付正文。",
+      metadata: {
+        extractedMeta: ["【正文交接】\nrunId: r-1"]
+      }
+    })
+
+    it("accepts a complete generator envelope", () => {
+      expect(isGeneratorEnvelopeArtifact(validEnvelope)).toBe(true)
+    })
+
+    it("rejects an envelope with an empty body", () => {
+      const output = JSON.stringify({
+        body: "",
+        metadata: { extractedMeta: ["【正文交接】"] }
+      })
+      expect(isGeneratorEnvelopeArtifact(output)).toBe(false)
+    })
+
+    it("rejects an envelope without extracted metadata", () => {
+      const output = JSON.stringify({ body: "正文", metadata: {} })
+      expect(isGeneratorEnvelopeArtifact(output)).toBe(false)
+    })
+
+    it("rejects invalid JSON", () => {
+      expect(isGeneratorEnvelopeArtifact('{"body":')).toBe(false)
+    })
+
+    it("rejects legacy plain prose", () => {
+      expect(isGeneratorEnvelopeArtifact("正文\n【正文交接】\nrunId: r-1")).toBe(false)
+    })
+  })
+
   it("keeps the selected skill order", () => {
     const skills = [{ id: "kaixuan-s1" }, { id: "kaixuan-s2" }, { id: "kaixuan-s3" }]
     expect(buildChainSkillSequence(skills).map((skill) => skill.id)).toEqual([
