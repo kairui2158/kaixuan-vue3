@@ -1998,5 +1998,5 @@
 - 交付：`buildDeaiStageDiagnosis` 超预算后不再全弃 findings，回到既有 6 条 / 1200 字符有界指导；`budgetExceeded` 保留为观测与 trace warn。
 - 用途：修复 S2 后指导被静默清空和终稿校准样本被同源丢弃的应用侧缺陷。
 - 验证：定向回归 2 files / 28 tests、type-check、build:vue、确定性 Electron E2E、全量服务 251 files / 2749 tests 全部 PASS；旧语义 `budgetExceeded ? 0` 全仓 0 命中。
-- 安装包：`dist/神意助手-Setup-3.127.6.exe`，SHA-256 待包装完成后回填。
+- 安装包：`dist/神意助手-Setup-3.127.6.exe`，231,671,819 bytes，SHA-256 `C325EF942EA5E9E61B78C9B5E07EA1396109D3303D51EA5F77EE9E67B6EDD91D`。
 - 边界：真实供应商 live 登记 `untested`；不新增预算系统、调度、UI 或第二裁判；不改 `deai-model-profile` 校准门槛。

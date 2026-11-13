@@ -124,7 +124,7 @@ Electron 关键证据：
 - 构建：完整 `npm run build` exit 0。
 - Packaging：`npm run verify:packaging` exit 0 / `PACKAGING 3.127.6 VERIFICATION PASSED`，`rendererFiles=87`，`electronAPI methods=94`。
 - 安装包：`dist/神意助手-Setup-3.127.6.exe`。
-- SHA-256：待包装完成后回填。
+- SHA-256：`C325EF942EA5E9E61B78C9B5E07EA1396109D3303D51EA5F77EE9E67B6EDD91D`。
 
 ## 7. 缺口清单与边界
 
