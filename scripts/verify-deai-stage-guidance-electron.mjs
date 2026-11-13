@@ -798,8 +798,8 @@ function assertStageGuidanceRun({ tracePath, run, payloads, requests }) {
       const text = [systemText(messages), userText(messages)].join('\n')
       assert(!text.includes(methodologyProbe),
         'skill ownership injects no application methodology text')
-      assert(!text.includes(modelProfileProbe),
-        'model profile stays frozen until calibration release')
+      assert(text.includes(modelProfileProbe),
+        'released model profile injects bounded model facts')
     }
   }
   assert.deepEqual((run.apiCalls || []).map(call => call.deaiPromptVariant),
@@ -814,12 +814,12 @@ function assertStageGuidanceRun({ tracePath, run, payloads, requests }) {
     assert.equal(detail.provider, 'deai-stage-guidance-provider')
     assert.equal(detail.model, 'deai-stage-model')
     assert(detail.eligibleRuleCount >= 1, `the mature seeded rule is eligible, got ${JSON.stringify(detail)}`)
-    assert.equal(detail.released, false,
-      `model-profile release stays closed while calibration is not ready, got ${JSON.stringify(detail)}`)
-    assert.equal(detail.releaseGate, 'calibration-not-ready',
-      `model-profile records the blocking release gate, got ${JSON.stringify(detail)}`)
-    assert.equal(detail.injectedRuleCount, 0,
-      `the frozen profile is not injected, got ${JSON.stringify(detail)}`)
+    assert.equal(detail.released, true,
+      `eligible model profile releases at the calibration threshold, got ${JSON.stringify(detail)}`)
+    assert.equal(detail.releaseGate, null,
+      `released model profile clears the blocking release gate, got ${JSON.stringify(detail)}`)
+    assert(detail.injectedRuleCount > 0 && detail.injectedRuleCount <= 3,
+      `released model profile injects at most three rules, got ${JSON.stringify(detail)}`)
   }
 
   const calibrationEvents = eventsByType(run, 'deai-calibration')

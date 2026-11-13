@@ -720,14 +720,16 @@ function assertObservations(observations) {
     assert(observation.modelProfile.length > 0,
       `each live run records model-profile state, got ${JSON.stringify(observation)}`)
     for (const profile of observation.modelProfile) {
-      assert.equal(profile.released, false,
-        `model profile stays frozen until calibration release, got ${JSON.stringify(profile)}`)
-      assert.equal(profile.injectedRuleCount, 0,
-        `frozen model profile must not inject, got ${JSON.stringify(profile)}`)
-      assert.equal(profile.guidanceChars, 0,
-        `frozen model profile must not inject prose, got ${JSON.stringify(profile)}`)
-      assert.equal(profile.releaseGate, 'calibration-not-ready',
-        `unreleased model profile must expose its release gate, got ${JSON.stringify(profile)}`)
+      assert.equal(profile.released, true,
+        `eligible model profile must release at calibration threshold, got ${JSON.stringify(profile)}`)
+      assert(profile.eligibleRuleCount > 0,
+        `released model profile requires eligible rules, got ${JSON.stringify(profile)}`)
+      assert(profile.injectedRuleCount > 0 && profile.injectedRuleCount <= 3,
+        `released model profile must inject at most three rules, got ${JSON.stringify(profile)}`)
+      assert(profile.guidanceChars > 0 && profile.guidanceChars <= 600,
+        `released model profile must stay bounded to 600 chars, got ${JSON.stringify(profile)}`)
+      assert.equal(profile.releaseGate, null,
+        `released model profile must clear its release gate, got ${JSON.stringify(profile)}`)
     }
   }
 }

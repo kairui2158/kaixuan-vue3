@@ -177,12 +177,14 @@ describe('DEAI stage guidance integration contract', () => {
       'utf8',
     )
 
-    expect(modelProfileSource).toContain('DEAI_MODEL_PROFILE_RELEASED = false')
+    expect(modelProfileSource).toContain('DEAI_MODEL_PROFILE_RELEASED = true')
+    expect(modelProfileSource).toContain('const released = DEAI_MODEL_PROFILE_RELEASED && snapshot.rules.length > 0')
     expect(modelProfileSource).toContain("DEAI_MODEL_PROFILE_RELEASE_GATE = 'calibration-not-ready'")
-    expect(modelProfileSource).toContain('if (!DEAI_MODEL_PROFILE_RELEASED) return \'\'')
-    expect(modelProfileSource).toContain('const frozen = !DEAI_MODEL_PROFILE_RELEASED')
-    expect(modelProfileSource).toContain('releaseGate: frozen ? DEAI_MODEL_PROFILE_RELEASE_GATE : null')
-    expect(modelProfileSource).toContain('模型事实画像已冻结，未注入')
+    expect(modelProfileSource).toContain('if (!snapshot || !snapshot.rules.length) return \'\'')
+    expect(modelProfileSource).toContain('releaseGate: released ? null : DEAI_MODEL_PROFILE_RELEASE_GATE')
+    expect(modelProfileSource).toContain('模型事实画像未达标，未注入')
+    expect(modelProfileSource).toContain('DEAI_MODEL_PROFILE_MAX_RULES = 3')
+    expect(modelProfileSource).toContain('DEAI_MODEL_PROFILE_MAX_CHARS = 600')
   })
 
   it('keeps live stall detection independent of heartbeat timestamps', () => {
@@ -214,7 +216,7 @@ describe('DEAI stage guidance integration contract', () => {
       'guidance.injected, true',
       'guidance.guidanceChars <= 1200',
       '诊断 · \\d+条\\/\\d+字符',
-      "profile.releaseGate, 'calibration-not-ready'",
+      "profile.releaseGate, null",
     ]) {
       expect(assertionsSource).toContain(anchor)
     }

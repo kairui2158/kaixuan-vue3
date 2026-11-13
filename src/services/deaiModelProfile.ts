@@ -8,7 +8,7 @@ import type { RunTraceEvent } from '../stores/runTrace'
 export const DEAI_MODEL_PROFILE_VERSION = 1
 export const DEAI_MODEL_PROFILE_MAX_RULES = 3
 export const DEAI_MODEL_PROFILE_MAX_CHARS = 600
-export const DEAI_MODEL_PROFILE_RELEASED = false
+export const DEAI_MODEL_PROFILE_RELEASED = true
 export const DEAI_MODEL_PROFILE_RELEASE_GATE = 'calibration-not-ready'
 
 export interface DeaiModelProfileSnapshot {
@@ -45,7 +45,6 @@ export function buildDeaiModelProfileSnapshot(
 export function buildDeaiModelProfileGuidance(
   snapshot: DeaiModelProfileSnapshot | null,
 ): string {
-  if (!DEAI_MODEL_PROFILE_RELEASED) return ''
   if (!snapshot || !snapshot.rules.length) return ''
   const lines = [
     '【模型事实情报】',
@@ -69,15 +68,11 @@ export function buildDeaiModelProfileTraceEvent(
   },
 ): DeaiModelProfileTraceEvent | null {
   if (!snapshot) return null
-  const frozen = !DEAI_MODEL_PROFILE_RELEASED
+  const released = DEAI_MODEL_PROFILE_RELEASED && snapshot.rules.length > 0
   return {
     type: 'deai-model-profile',
-    level: frozen ? 'warn' : guidance ? 'info' : 'warn',
-    label: frozen
-      ? snapshot.rules.length > 0
-        ? '模型事实画像已冻结，未注入'
-        : '模型事实画像未达标，未注入'
-      : guidance
+    level: released ? 'info' : 'warn',
+    label: guidance
       ? `模型事实画像注入：${snapshot.rules.slice(0, DEAI_MODEL_PROFILE_MAX_RULES).length}条 / ${guidance.length}字符`
       : '模型事实画像未达标，未注入',
     detail: JSON.stringify({
@@ -87,8 +82,8 @@ export function buildDeaiModelProfileTraceEvent(
       provider: snapshot.provider,
       model: snapshot.model,
       profileVersion: snapshot.profileVersion,
-      released: DEAI_MODEL_PROFILE_RELEASED,
-      releaseGate: frozen ? DEAI_MODEL_PROFILE_RELEASE_GATE : null,
+      released,
+      releaseGate: released ? null : DEAI_MODEL_PROFILE_RELEASE_GATE,
       eligibleRuleCount: snapshot.rules.length,
       injectedRuleCount: guidance ? Math.min(snapshot.rules.length, DEAI_MODEL_PROFILE_MAX_RULES) : 0,
       guidanceChars: guidance.length,

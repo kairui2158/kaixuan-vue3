@@ -48,24 +48,16 @@ describe('deaiModelProfile', () => {
       provider: 'provider-a',
       model: 'model-a',
     })!
-    const guidance = DEAI_MODEL_PROFILE_RELEASED
-      ? buildDeaiModelProfileGuidance(snapshot)
-      : ''
-
-    if (DEAI_MODEL_PROFILE_RELEASED) {
-      expect(guidance).toContain('【模型事实情报】')
-      expect(guidance).toContain('rule-1')
-      expect(guidance).not.toContain('rule-4')
-      expect(guidance.length).toBeLessThanOrEqual(600)
-    } else {
-      expect(guidance).toBe('')
-    }
+    const guidance = buildDeaiModelProfileGuidance(snapshot)
+    expect(guidance).toContain('【模型事实情报】')
+    expect(guidance).toContain('rule-1')
+    expect(guidance).not.toContain('rule-4')
+    expect(guidance.length).toBeLessThanOrEqual(600)
     expect(guidance).not.toContain('写作')
     expect(guidance).not.toContain('方法论')
   })
 
-  it('freezes model-profile injection until calibration is released', () => {
-    expect(DEAI_MODEL_PROFILE_RELEASED).toBe(false)
+  it('marks an eligible profile as released and observable', () => {
     const snapshot = buildDeaiModelProfileSnapshot(ledger, {
       provider: 'provider-a',
       model: 'model-a',
@@ -77,15 +69,15 @@ describe('deaiModelProfile', () => {
       totalSkillCount: 3,
     })
 
-    expect(guidance).toBe('')
-    expect(event?.level).toBe('warn')
-    expect(event?.label).toBe('模型事实画像已冻结，未注入')
+    expect(guidance).toContain('【模型事实情报】')
+    expect(event?.level).toBe('info')
+    expect(event?.label).toBe('模型事实画像注入：3条 / 62字符')
     expect(JSON.parse(String(event?.detail))).toMatchObject({
-      released: false,
-      releaseGate: DEAI_MODEL_PROFILE_RELEASE_GATE,
+      released: true,
+      releaseGate: null,
       eligibleRuleCount: 4,
-      injectedRuleCount: 0,
-      guidanceChars: 0,
+      injectedRuleCount: 3,
+      guidanceChars: 62,
     })
   })
 
@@ -133,7 +125,7 @@ describe('deaiModelProfile', () => {
       model: 'model-a',
       profileVersion: snapshot.profileVersion,
       eligibleRuleCount: 4,
-      injectedRuleCount: DEAI_MODEL_PROFILE_RELEASED ? 3 : 0,
+      injectedRuleCount: 3,
       guidanceChars: guidance.length,
     })
     if (guidance) {
