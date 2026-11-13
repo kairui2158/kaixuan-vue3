@@ -1990,3 +1990,13 @@
 - 用途：杜绝失败信封当终稿、NOT-READY 短文假通过、断点复用旧结构产物，并让 usage/perf 观测可对账。
 - 验证：Phase A/B focused、Phase C focused、全量服务 251 files / 2748 tests、type-check、build:vue 全部 PASS；commits `7992942a`、`2dbd11b8`、`d249dca6`、`43f10fa9`。
 - 边界：Phase D 真实供应商 trace 未回填，标记 `untested`；本轮不新增预算、调度、UI 或第二裁判。
+
+# 2026-11-14 deai-stage-guidance 超预算截断修复 3.127.6
+
+- 文件：[_audit/DEV_LOG_2026-11-14_deai-stage-guidance-budget-truncate-v1.md](_audit/DEV_LOG_2026-11-14_deai-stage-guidance-budget-truncate-v1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_deai-stage-guidance-budget-truncate-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_deai-stage-guidance-budget-truncate-v1.md)
+- 交付：`buildDeaiStageDiagnosis` 超预算后不再全弃 findings，回到既有 6 条 / 1200 字符有界指导；`budgetExceeded` 保留为观测与 trace warn。
+- 用途：修复 S2 后指导被静默清空和终稿校准样本被同源丢弃的应用侧缺陷。
+- 验证：定向回归 2 files / 28 tests、type-check、build:vue、确定性 Electron E2E、全量服务 251 files / 2749 tests 全部 PASS；旧语义 `budgetExceeded ? 0` 全仓 0 命中。
+- 安装包：`dist/神意助手-Setup-3.127.6.exe`，SHA-256 待包装完成后回填。
+- 边界：真实供应商 live 登记 `untested`；不新增预算系统、调度、UI 或第二裁判；不改 `deai-model-profile` 校准门槛。

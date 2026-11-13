@@ -1,7 +1,7 @@
 {
   "schemaVersion": 23,
   "exportSchemaVersion": 23,
-  "id": "run-1794572134064-1",
+  "id": "run-1794602044729-1",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -19,36 +19,36 @@
     "S-Live-DeaiStageS3（文件夹）"
   ],
   "skillMode": "chain",
-  "pipelineRunId": "pipeline-run-1794572134036-1",
+  "pipelineRunId": "pipeline-run-1794602044696-1",
   "status": "success",
   "runtimeFingerprint": {
     "source": "vite-manifest",
     "manifestVersion": "1",
-    "commit": "1ae6c6df0a02",
-    "buildTime": "2026-11-13T12:13:20.231Z",
-    "appVersion": "3.127.3"
+    "commit": "9fbdc321befc",
+    "buildTime": "2026-11-13T20:33:33.510Z",
+    "appVersion": "3.127.5"
   },
-  "startedAt": 1794572134064,
+  "startedAt": 1794602044729,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "body_generation_complete",
-      "recordedAt": 1794572135110
+      "recordedAt": 1794602046016
     }
   ],
   "events": [
     {
-      "id": "event-1794572134064-2",
-      "ts": 1794572134064,
+      "id": "event-1794602044729-2",
+      "ts": 1794602044729,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1794572134065-3",
-      "ts": 1794572134065,
+      "id": "event-1794602044730-3",
+      "ts": 1794602044730,
       "seq": 2,
       "type": "settings-projection-composed",
       "level": "info",
@@ -56,8 +56,8 @@
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1794572134066-4",
-      "ts": 1794572134066,
+      "id": "event-1794602044731-4",
+      "ts": 1794602044731,
       "seq": 3,
       "type": "style-semantics-merged",
       "level": "info",
@@ -65,8 +65,8 @@
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1794572134110-5",
-      "ts": 1794572134110,
+      "id": "event-1794602044836-5",
+      "ts": 1794602044836,
       "seq": 4,
       "type": "context_scope",
       "level": "warn",
@@ -74,8 +74,8 @@
       "detail": "{\"volume\":\"风暴起点\",\"chapter\":\"风暴信标\",\"unitId\":null,\"mode\":\"legacy_outline_no_scope\",\"permanentCount\":0,\"unitCount\":0,\"undeclaredCount\":0,\"closureBytes\":348,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":\"legacy_outline_no_scope\"}"
     },
     {
-      "id": "event-1794572134111-6",
-      "ts": 1794572134111,
+      "id": "event-1794602044847-6",
+      "ts": 1794602044847,
       "seq": 5,
       "type": "memory_context",
       "level": "info",
@@ -83,8 +83,8 @@
       "detail": "{\"chapterId\":\"ch-deai-stage\",\"unitId\":null,\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1794572134112-7",
-      "ts": 1794572134112,
+      "id": "event-1794602044847-7",
+      "ts": 1794602044847,
       "seq": 6,
       "type": "prompt-built",
       "level": "info",
@@ -92,8 +92,8 @@
       "detail": "{\"volume\":\"风暴起点\",\"chapter\":\"风暴信标\",\"targetWords\":2000}"
     },
     {
-      "id": "event-1794572134114-8",
-      "ts": 1794572134114,
+      "id": "event-1794602044848-8",
+      "ts": 1794602044848,
       "seq": 7,
       "type": "body-generator-step-resume-restored",
       "level": "info",
@@ -101,8 +101,8 @@
       "detail": "{\"index\":1,\"source\":\"fallback\",\"chainTotalSteps\":3}"
     },
     {
-      "id": "event-1794572134213-9",
-      "ts": 1794572134213,
+      "id": "event-1794602045016-9",
+      "ts": 1794602045016,
       "seq": 8,
       "type": "folder-hydration-field-cleared",
       "level": "warn",
@@ -110,8 +110,8 @@
       "detail": "{\"type\":\"folder-hydration-field-cleared\",\"level\":\"warn\",\"skillId\":\"folder:DEAI-STAGE-S1\",\"folderPath\":\"D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\deai-stage-guidance-skills\\\\deai-stage-s1\",\"field\":\"intents\"}"
     },
     {
-      "id": "event-1794572134228-10",
-      "ts": 1794572134228,
+      "id": "event-1794602045038-10",
+      "ts": 1794602045038,
       "seq": 9,
       "type": "folder-hydration-field-cleared",
       "level": "warn",
@@ -119,8 +119,8 @@
       "detail": "{\"type\":\"folder-hydration-field-cleared\",\"level\":\"warn\",\"skillId\":\"folder:DEAI-STAGE-S1\",\"folderPath\":\"D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\deai-stage-guidance-skills\\\\deai-stage-s1\",\"field\":\"contextPolicy\"}"
     },
     {
-      "id": "event-1794572134228-11",
-      "ts": 1794572134228,
+      "id": "event-1794602045038-11",
+      "ts": 1794602045038,
       "seq": 10,
       "type": "folder-hydration-field-cleared",
       "level": "warn",
@@ -128,8 +128,8 @@
       "detail": "{\"type\":\"folder-hydration-field-cleared\",\"level\":\"warn\",\"skillId\":\"folder:DEAI-STAGE-S2\",\"folderPath\":\"D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\deai-stage-guidance-skills\\\\deai-stage-s2\",\"field\":\"intents\"}"
     },
     {
-      "id": "event-1794572134230-12",
-      "ts": 1794572134230,
+      "id": "event-1794602045038-12",
+      "ts": 1794602045038,
       "seq": 11,
       "type": "folder-hydration-field-cleared",
       "level": "warn",
@@ -137,8 +137,8 @@
       "detail": "{\"type\":\"folder-hydration-field-cleared\",\"level\":\"warn\",\"skillId\":\"folder:DEAI-STAGE-S2\",\"folderPath\":\"D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\deai-stage-guidance-skills\\\\deai-stage-s2\",\"field\":\"contextPolicy\"}"
     },
     {
-      "id": "event-1794572134230-13",
-      "ts": 1794572134230,
+      "id": "event-1794602045042-13",
+      "ts": 1794602045042,
       "seq": 12,
       "type": "folder-hydration-field-cleared",
       "level": "warn",
@@ -146,8 +146,8 @@
       "detail": "{\"type\":\"folder-hydration-field-cleared\",\"level\":\"warn\",\"skillId\":\"folder:DEAI-STAGE-S3\",\"folderPath\":\"D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\deai-stage-guidance-skills\\\\deai-stage-s3\",\"field\":\"intents\"}"
     },
     {
-      "id": "event-1794572134231-14",
-      "ts": 1794572134231,
+      "id": "event-1794602045042-14",
+      "ts": 1794602045042,
       "seq": 13,
       "type": "folder-hydration-field-cleared",
       "level": "warn",
@@ -155,8 +155,8 @@
       "detail": "{\"type\":\"folder-hydration-field-cleared\",\"level\":\"warn\",\"skillId\":\"folder:DEAI-STAGE-S3\",\"folderPath\":\"D:\\\\codex\\\\novel-workshop-vue3\\\\_data\\\\deai-stage-guidance-skills\\\\deai-stage-s3\",\"field\":\"contextPolicy\"}"
     },
     {
-      "id": "event-1794572134239-15",
-      "ts": 1794572134239,
+      "id": "event-1794602045051-15",
+      "ts": 1794602045051,
       "seq": 14,
       "type": "chain-context-slim",
       "level": "info",
@@ -164,8 +164,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":292,\"finalPromptLength\":292,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1794572134244-16",
-      "ts": 1794572134244,
+      "id": "event-1794602045053-16",
+      "ts": 1794602045053,
       "seq": 15,
       "type": "deai-model-profile",
       "level": "info",
@@ -173,8 +173,8 @@
       "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"provider\":\"deai-stage-guidance-provider\",\"model\":\"deai-stage-model\",\"profileVersion\":\"1:1\",\"released\":true,\"releaseGate\":null,\"eligibleRuleCount\":1,\"injectedRuleCount\":1,\"guidanceChars\":40}"
     },
     {
-      "id": "event-1794572134247-17",
-      "ts": 1794572134247,
+      "id": "event-1794602045054-17",
+      "ts": 1794602045054,
       "seq": 16,
       "type": "chain-step",
       "level": "info",
@@ -182,8 +182,8 @@
       "detail": "S-Live-DeaiStageS1（文件夹）"
     },
     {
-      "id": "event-1794572134249-18",
-      "ts": 1794572134249,
+      "id": "event-1794602045055-18",
+      "ts": 1794602045055,
       "seq": 17,
       "type": "pipeline-request-profile-resolved",
       "level": "info",
@@ -191,8 +191,8 @@
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"deai-stage-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1794572134249-19",
-      "ts": 1794572134249,
+      "id": "event-1794602045055-19",
+      "ts": 1794602045055,
       "seq": 18,
       "type": "deai-injection-policy",
       "level": "info",
@@ -200,8 +200,8 @@
       "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"source\":\"skill-declared\",\"variant\":\"methodology\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"skill\",\"overlaps\":[]},\"warnings\":[]}"
     },
     {
-      "id": "event-1794572134249-20",
-      "ts": 1794572134249,
+      "id": "event-1794602045055-20",
+      "ts": 1794602045055,
       "seq": 19,
       "type": "deai-injection-policy",
       "level": "info",
@@ -209,8 +209,8 @@
       "detail": "{\"skillId\":\"folder:DEAI-STAGE-S1\",\"step\":4,\"ownership\":\"skill\",\"variant\":\"methodology\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"skill\",\"overlaps\":[]}}"
     },
     {
-      "id": "event-1794572134259-22",
-      "ts": 1794572134259,
+      "id": "event-1794602045058-22",
+      "ts": 1794602045058,
       "seq": 20,
       "type": "api-start",
       "level": "info",
@@ -218,8 +218,8 @@
       "detail": "{\"skillName\":\"S-Live-DeaiStageS1（文件夹）\",\"model\":\"deai-stage-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1794572134259-24",
-      "ts": 1794572134259,
+      "id": "event-1794602045059-24",
+      "ts": 1794602045059,
       "seq": 21,
       "type": "prompt-built",
       "level": "info",
@@ -227,8 +227,8 @@
       "detail": "S-Live-DeaiStageS1（文件夹） / folder:DEAI-STAGE-S1 / folder-fingerprint"
     },
     {
-      "id": "event-1794572134259-25",
-      "ts": 1794572134259,
+      "id": "event-1794602045059-25",
+      "ts": 1794602045059,
       "seq": 22,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -236,8 +236,8 @@
       "detail": "{\"skillIndex\":0,\"totalSkillCount\":3,\"variant\":\"methodology\",\"charCount\":0}"
     },
     {
-      "id": "event-1794572134259-26",
-      "ts": 1794572134259,
+      "id": "event-1794602045059-26",
+      "ts": 1794602045059,
       "seq": 23,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
@@ -245,17 +245,17 @@
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"deai-stage-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1794572134542-27",
-      "ts": 1794572134542,
+      "id": "event-1794602045371-27",
+      "ts": 1794602045371,
       "seq": 24,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1",
-      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":334,\"userPromptLength\":495,\"systemPromptLength\":162,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794572134064-1\",\"traceCallId\":\"api-1794572134259-21\"}"
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":334,\"userPromptLength\":495,\"systemPromptLength\":162,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794602044729-1\",\"traceCallId\":\"api-1794602045058-21\"}"
     },
     {
-      "id": "event-1794572134584-29",
-      "ts": 1794572134584,
+      "id": "event-1794602045397-29",
+      "ts": 1794602045397,
       "seq": 25,
       "type": "run-activity",
       "level": "info",
@@ -267,50 +267,50 @@
       }
     },
     {
-      "id": "event-1794572134584-30",
-      "ts": 1794572134584,
+      "id": "event-1794602045397-30",
+      "ts": 1794602045397,
       "seq": 26,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1794572134584-28",
+        "physicalCallId": "physical-1794602045396-28",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1794572134584-31",
-      "ts": 1794572134584,
+      "id": "event-1794602045397-31",
+      "ts": 1794602045397,
       "seq": 27,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
-      "detail": "normal / S-Live-DeaiStageS1（文件夹） / deai-stage-model / http://127.0.0.1:1138/v1/chat/completions / main-process"
+      "detail": "normal / S-Live-DeaiStageS1（文件夹） / deai-stage-model / http://127.0.0.1:9328/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1794572134589-32",
-      "ts": 1794572134589,
+      "id": "event-1794602045400-32",
+      "ts": 1794602045400,
       "seq": 28,
-      "turnId": "api-1794572134259-21",
+      "turnId": "api-1794602045058-21",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1794572134671-33",
-      "ts": 1794572134671,
+      "id": "event-1794602045517-33",
+      "ts": 1794602045517,
       "seq": 29,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
-      "detail": "normal / S-Live-DeaiStageS1（文件夹） / deai-stage-model / stop / http://127.0.0.1:1138/v1/chat/completions / main-process"
+      "detail": "normal / S-Live-DeaiStageS1（文件夹） / deai-stage-model / stop / http://127.0.0.1:9328/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1794572134678-34",
-      "ts": 1794572134678,
+      "id": "event-1794602045522-34",
+      "ts": 1794602045522,
       "seq": 30,
       "type": "run-activity",
       "level": "info",
@@ -322,16 +322,16 @@
       }
     },
     {
-      "id": "event-1794572134685-35",
-      "ts": 1794572134685,
+      "id": "event-1794602045528-35",
+      "ts": 1794602045528,
       "seq": 31,
       "type": "folder-diagnostics",
       "level": "info",
       "label": "记录 folder SKILL 诊断"
     },
     {
-      "id": "event-1794572134686-36",
-      "ts": 1794572134686,
+      "id": "event-1794602045529-36",
+      "ts": 1794602045529,
       "seq": 32,
       "type": "run-activity",
       "level": "info",
@@ -343,17 +343,17 @@
       }
     },
     {
-      "id": "event-1794572134688-37",
-      "ts": 1794572134688,
+      "id": "event-1794602045530-37",
+      "ts": 1794602045530,
       "seq": 33,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1794572134259-21 seq=1"
+      "detail": "apiCall=api-1794602045058-21 seq=1"
     },
     {
-      "id": "event-1794572134688-38",
-      "ts": 1794572134688,
+      "id": "event-1794602045530-38",
+      "ts": 1794602045530,
       "seq": 34,
       "type": "api-success",
       "level": "info",
@@ -361,8 +361,8 @@
       "detail": "S-Live-DeaiStageS1（文件夹） / deai-stage-model"
     },
     {
-      "id": "event-1794572134691-39",
-      "ts": 1794572134691,
+      "id": "event-1794602045533-39",
+      "ts": 1794602045533,
       "seq": 35,
       "type": "chain-dedupe",
       "level": "warn",
@@ -370,8 +370,8 @@
       "detail": "剔除上一步回显的记忆块/上一步标题，共 1 字符"
     },
     {
-      "id": "event-1794572134692-41",
-      "ts": 1794572134692,
+      "id": "event-1794602045533-41",
+      "ts": 1794602045533,
       "seq": 36,
       "type": "processing-report",
       "level": "info",
@@ -379,8 +379,8 @@
       "detail": "post"
     },
     {
-      "id": "event-1794572134692-42",
-      "ts": 1794572134692,
+      "id": "event-1794602045534-42",
+      "ts": 1794602045534,
       "seq": 37,
       "type": "chain-handoff",
       "level": "info",
@@ -388,8 +388,8 @@
       "detail": "{\"artifactId\":\"handoff-0-5e01a5cc\",\"sourceStep\":0,\"sourceSkillId\":\"folder:DEAI-STAGE-S1\",\"outputHash\":\"5e01a5cc\",\"fullTextLength\":33,\"delivery\":\"full_text\",\"excerptLength\":33,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1794572134705-43",
-      "ts": 1794572134705,
+      "id": "event-1794602045543-43",
+      "ts": 1794602045543,
       "seq": 38,
       "type": "chain-context-slim",
       "level": "info",
@@ -397,8 +397,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":292,\"finalPromptLength\":292,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1794572134708-44",
-      "ts": 1794572134708,
+      "id": "event-1794602045545-44",
+      "ts": 1794602045545,
       "seq": 39,
       "type": "deai-model-profile",
       "level": "info",
@@ -406,8 +406,8 @@
       "detail": "{\"step\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"provider\":\"deai-stage-guidance-provider\",\"model\":\"deai-stage-model\",\"profileVersion\":\"1:1\",\"released\":true,\"releaseGate\":null,\"eligibleRuleCount\":1,\"injectedRuleCount\":1,\"guidanceChars\":40}"
     },
     {
-      "id": "event-1794572134708-45",
-      "ts": 1794572134708,
+      "id": "event-1794602045545-45",
+      "ts": 1794602045545,
       "seq": 40,
       "type": "chain-handoff-delivery",
       "level": "info",
@@ -415,8 +415,8 @@
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":33,\"deliveredLength\":33,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:DEAI-STAGE-S2\",\"skillName\":\"S-Live-DeaiStageS2（文件夹）\",\"fullReason\":\"live verification generator step\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1794572134709-46",
-      "ts": 1794572134709,
+      "id": "event-1794602045546-46",
+      "ts": 1794602045546,
       "seq": 41,
       "type": "chain-step",
       "level": "info",
@@ -424,8 +424,8 @@
       "detail": "S-Live-DeaiStageS2（文件夹）"
     },
     {
-      "id": "event-1794572134709-47",
-      "ts": 1794572134709,
+      "id": "event-1794602045546-47",
+      "ts": 1794602045546,
       "seq": 42,
       "type": "pipeline-request-profile-resolved",
       "level": "info",
@@ -433,8 +433,8 @@
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"deai-stage-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1794572134709-48",
-      "ts": 1794572134709,
+      "id": "event-1794602045547-48",
+      "ts": 1794602045547,
       "seq": 43,
       "type": "deai-injection-policy",
       "level": "info",
@@ -442,8 +442,8 @@
       "detail": "{\"step\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"source\":\"skill-declared\",\"variant\":\"creative\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"skill\",\"overlaps\":[]},\"warnings\":[]}"
     },
     {
-      "id": "event-1794572134709-49",
-      "ts": 1794572134709,
+      "id": "event-1794602045547-49",
+      "ts": 1794602045547,
       "seq": 44,
       "type": "deai-injection-policy",
       "level": "info",
@@ -451,8 +451,8 @@
       "detail": "{\"skillId\":\"folder:DEAI-STAGE-S2\",\"step\":4,\"ownership\":\"skill\",\"variant\":\"creative\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"skill\",\"overlaps\":[]}}"
     },
     {
-      "id": "event-1794572134718-51",
-      "ts": 1794572134718,
+      "id": "event-1794602045561-51",
+      "ts": 1794602045561,
       "seq": 45,
       "type": "api-start",
       "level": "info",
@@ -460,8 +460,8 @@
       "detail": "{\"skillName\":\"S-Live-DeaiStageS2（文件夹）\",\"model\":\"deai-stage-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1794572134718-53",
-      "ts": 1794572134718,
+      "id": "event-1794602045561-53",
+      "ts": 1794602045561,
       "seq": 46,
       "type": "prompt-built",
       "level": "info",
@@ -469,8 +469,8 @@
       "detail": "S-Live-DeaiStageS2（文件夹） / folder:DEAI-STAGE-S2 / folder-fingerprint"
     },
     {
-      "id": "event-1794572134718-54",
-      "ts": 1794572134718,
+      "id": "event-1794602045561-54",
+      "ts": 1794602045561,
       "seq": 47,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -478,8 +478,8 @@
       "detail": "{\"skillIndex\":1,\"totalSkillCount\":3,\"variant\":\"creative\",\"charCount\":0}"
     },
     {
-      "id": "event-1794572134718-55",
-      "ts": 1794572134718,
+      "id": "event-1794602045561-55",
+      "ts": 1794602045561,
       "seq": 48,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
@@ -487,17 +487,17 @@
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"deai-stage-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1794572134740-56",
-      "ts": 1794572134740,
+      "id": "event-1794602045582-56",
+      "ts": 1794602045582,
       "seq": 49,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1",
-      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":513,\"userPromptLength\":731,\"systemPromptLength\":173,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794572134064-1\",\"traceCallId\":\"api-1794572134718-50\"}"
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":513,\"userPromptLength\":731,\"systemPromptLength\":173,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794602044729-1\",\"traceCallId\":\"api-1794602045561-50\"}"
     },
     {
-      "id": "event-1794572134741-58",
-      "ts": 1794572134741,
+      "id": "event-1794602045583-58",
+      "ts": 1794602045583,
       "seq": 50,
       "type": "run-activity",
       "level": "info",
@@ -509,50 +509,50 @@
       }
     },
     {
-      "id": "event-1794572134741-59",
-      "ts": 1794572134741,
+      "id": "event-1794602045583-59",
+      "ts": 1794602045583,
       "seq": 51,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1794572134741-57",
+        "physicalCallId": "physical-1794602045583-57",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1794572134741-60",
-      "ts": 1794572134741,
+      "id": "event-1794602045583-60",
+      "ts": 1794602045583,
       "seq": 52,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
-      "detail": "normal / S-Live-DeaiStageS2（文件夹） / deai-stage-model / http://127.0.0.1:1138/v1/chat/completions / main-process"
+      "detail": "normal / S-Live-DeaiStageS2（文件夹） / deai-stage-model / http://127.0.0.1:9328/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1794572134747-61",
-      "ts": 1794572134747,
+      "id": "event-1794602045590-61",
+      "ts": 1794602045590,
       "seq": 53,
-      "turnId": "api-1794572134718-50",
+      "turnId": "api-1794602045561-50",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1794572134757-62",
-      "ts": 1794572134757,
+      "id": "event-1794602045611-62",
+      "ts": 1794602045611,
       "seq": 54,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
-      "detail": "normal / S-Live-DeaiStageS2（文件夹） / deai-stage-model / stop / http://127.0.0.1:1138/v1/chat/completions / main-process"
+      "detail": "normal / S-Live-DeaiStageS2（文件夹） / deai-stage-model / stop / http://127.0.0.1:9328/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1794572134764-63",
-      "ts": 1794572134764,
+      "id": "event-1794602045614-63",
+      "ts": 1794602045614,
       "seq": 55,
       "type": "run-activity",
       "level": "info",
@@ -564,16 +564,16 @@
       }
     },
     {
-      "id": "event-1794572134791-64",
-      "ts": 1794572134791,
+      "id": "event-1794602045626-64",
+      "ts": 1794602045626,
       "seq": 56,
       "type": "folder-diagnostics",
       "level": "info",
       "label": "记录 folder SKILL 诊断"
     },
     {
-      "id": "event-1794572134791-65",
-      "ts": 1794572134791,
+      "id": "event-1794602045627-65",
+      "ts": 1794602045627,
       "seq": 57,
       "type": "run-activity",
       "level": "info",
@@ -585,17 +585,17 @@
       }
     },
     {
-      "id": "event-1794572134791-66",
-      "ts": 1794572134791,
+      "id": "event-1794602045627-66",
+      "ts": 1794602045627,
       "seq": 58,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1794572134718-50 seq=2"
+      "detail": "apiCall=api-1794602045561-50 seq=2"
     },
     {
-      "id": "event-1794572134791-67",
-      "ts": 1794572134791,
+      "id": "event-1794602045627-67",
+      "ts": 1794602045627,
       "seq": 59,
       "type": "api-success",
       "level": "info",
@@ -603,8 +603,8 @@
       "detail": "S-Live-DeaiStageS2（文件夹） / deai-stage-model"
     },
     {
-      "id": "event-1794572134793-68",
-      "ts": 1794572134793,
+      "id": "event-1794602045629-68",
+      "ts": 1794602045629,
       "seq": 60,
       "type": "chain-dedupe",
       "level": "warn",
@@ -612,8 +612,8 @@
       "detail": "剔除上一步回显的记忆块/上一步标题，共 1 字符"
     },
     {
-      "id": "event-1794572134794-69",
-      "ts": 1794572134794,
+      "id": "event-1794602045631-69",
+      "ts": 1794602045631,
       "seq": 61,
       "type": "chapter-event-increment-advisory",
       "level": "info",
@@ -621,8 +621,8 @@
       "detail": "{\"code\":\"chapter-event-increment-advisory\",\"severity\":\"warning\",\"detected\":false,\"incrementValue\":\"确认信标、取得名单、预约渔船\",\"message\":\"事件增量字段已按 SKILL 交接协议交付；应用只做协议观测，不评估叙事质量。\"}"
     },
     {
-      "id": "event-1794572134794-70",
-      "ts": 1794572134794,
+      "id": "event-1794602045631-70",
+      "ts": 1794602045631,
       "seq": 62,
       "type": "chapter-narrative-verdict",
       "level": "info",
@@ -630,8 +630,8 @@
       "detail": "{\"code\":\"chapter-narrative-verdict\",\"detected\":true,\"status\":\"declared_ready\",\"reason\":\"三场场景均推进事实状态\",\"stateChangingScenes\":\"3\",\"message\":\"SKILL 叙事裁决：declared_ready；三场场景均推进事实状态\",\"sourceCandidateIndex\":null,\"sourceResponseHash\":null,\"eventIncrement\":\"确认信标、取得名单、预约渔船\"}"
     },
     {
-      "id": "event-1794572134794-71",
-      "ts": 1794572134794,
+      "id": "event-1794602045632-71",
+      "ts": 1794602045632,
       "seq": 63,
       "type": "body-step-acceptance",
       "level": "info",
@@ -639,17 +639,17 @@
       "detail": "{\"stepIndex\":1,\"callerStatus\":\"success\",\"rawWordCount\":2681,\"extractedWordCount\":2520,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\n章节：风暴信标\\nPOV：周砚\\n已完成场景：3\\n未完成场景：无\\n来源覆盖状态：全部覆盖\\n角色状态变化：周砚确认信标并取得沉船名单\\n章末状态：等待清晨渔船\\n下一章必须使用：南方航线接头暗号\\n目标字数：2000\\n生成下限：1600\\n场景总数：3\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\\nnarrativeReason：三场场景均推进事实状态\\nstateChangingScenes：3\\nFACT_LOCK：人物状态=警觉；位置=灯塔；目标=南方航线\\nNEW_FACT：沉船名单指向旧航道\\n【正文交接结束】\"]},\"metadataDelta\":161,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":2000,\"minWords\":1600,\"maxWords\":4000},\"degradedErrors\":[],\"contractErrors\":[]}"
     },
     {
-      "id": "event-1794572134801-72",
-      "ts": 1794572134801,
+      "id": "event-1794602045639-72",
+      "ts": 1794602045639,
       "seq": 64,
       "type": "deai-stage-guidance",
       "level": "info",
       "label": "S2 后降AI位置诊断已注入 S3：3条 / 93字符",
-      "detail": "{\"step\":4,\"sourceSkillIndex\":1,\"targetSkillIndex\":2,\"totalSkillCount\":3,\"findingCount\":3,\"injected\":true,\"droppedFindingCount\":0,\"guidanceChars\":93,\"durationMs\":6.199999809265137,\"degraded\":false,\"degradedReason\":null,\"budgetExceeded\":false,\"hash\":\"deai-stage-v1:398d3de20000005d\",\"target\":\"next_step_user_prompt\"}"
+      "detail": "{\"step\":4,\"sourceSkillIndex\":1,\"targetSkillIndex\":2,\"totalSkillCount\":3,\"findingCount\":3,\"injected\":true,\"droppedFindingCount\":0,\"guidanceChars\":93,\"durationMs\":7.300000000745058,\"degraded\":false,\"degradedReason\":null,\"budgetExceeded\":false,\"hash\":\"deai-stage-v1:398d3de20000005d\",\"target\":\"next_step_user_prompt\"}"
     },
     {
-      "id": "event-1794572134801-74",
-      "ts": 1794572134801,
+      "id": "event-1794602045640-74",
+      "ts": 1794602045640,
       "seq": 65,
       "type": "processing-report",
       "level": "info",
@@ -657,8 +657,8 @@
       "detail": "post"
     },
     {
-      "id": "event-1794572134801-75",
-      "ts": 1794572134801,
+      "id": "event-1794602045640-75",
+      "ts": 1794602045640,
       "seq": 66,
       "type": "chain-handoff",
       "level": "info",
@@ -666,8 +666,8 @@
       "detail": "{\"artifactId\":\"handoff-1-0fb2f085\",\"sourceStep\":1,\"sourceSkillId\":\"folder:DEAI-STAGE-S2\",\"outputHash\":\"0fb2f085\",\"fullTextLength\":2900,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1794572134815-76",
-      "ts": 1794572134815,
+      "id": "event-1794602045660-76",
+      "ts": 1794602045660,
       "seq": 67,
       "type": "chain-context-slim",
       "level": "info",
@@ -675,8 +675,8 @@
       "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":292,\"finalPromptLength\":292,\"outlineOriginalLength\":0}"
     },
     {
-      "id": "event-1794572134819-77",
-      "ts": 1794572134819,
+      "id": "event-1794602045664-77",
+      "ts": 1794602045664,
       "seq": 68,
       "type": "deai-model-profile",
       "level": "info",
@@ -684,8 +684,8 @@
       "detail": "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"provider\":\"deai-stage-guidance-provider\",\"model\":\"deai-stage-model\",\"profileVersion\":\"1:1\",\"released\":true,\"releaseGate\":null,\"eligibleRuleCount\":1,\"injectedRuleCount\":1,\"guidanceChars\":40}"
     },
     {
-      "id": "event-1794572134819-78",
-      "ts": 1794572134819,
+      "id": "event-1794602045664-78",
+      "ts": 1794602045664,
       "seq": 69,
       "type": "chain-handoff-delivery",
       "level": "info",
@@ -693,8 +693,8 @@
       "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":2900,\"deliveredLength\":2900,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:DEAI-STAGE-S3\",\"skillName\":\"S-Live-DeaiStageS3（文件夹）\",\"fullReason\":\"live verification polish step\",\"fullReasonMissing\":false}"
     },
     {
-      "id": "event-1794572134820-79",
-      "ts": 1794572134820,
+      "id": "event-1794602045665-79",
+      "ts": 1794602045665,
       "seq": 70,
       "type": "chain-step",
       "level": "info",
@@ -702,8 +702,8 @@
       "detail": "S-Live-DeaiStageS3（文件夹）"
     },
     {
-      "id": "event-1794572134822-80",
-      "ts": 1794572134822,
+      "id": "event-1794602045665-80",
+      "ts": 1794602045665,
       "seq": 71,
       "type": "pipeline-request-profile-resolved",
       "level": "info",
@@ -711,8 +711,8 @@
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"deai-stage-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1794572134822-81",
-      "ts": 1794572134822,
+      "id": "event-1794602045665-81",
+      "ts": 1794602045665,
       "seq": 72,
       "type": "deai-injection-policy",
       "level": "info",
@@ -720,8 +720,8 @@
       "detail": "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"source\":\"skill-declared\",\"variant\":\"polish\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"skill\",\"overlaps\":[]},\"warnings\":[]}"
     },
     {
-      "id": "event-1794572134822-82",
-      "ts": 1794572134822,
+      "id": "event-1794602045665-82",
+      "ts": 1794602045665,
       "seq": 73,
       "type": "deai-injection-policy",
       "level": "info",
@@ -729,8 +729,8 @@
       "detail": "{\"skillId\":\"folder:DEAI-STAGE-S3\",\"step\":4,\"ownership\":\"skill\",\"variant\":\"polish\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"skill\",\"overlaps\":[]}}"
     },
     {
-      "id": "event-1794572134891-84",
-      "ts": 1794572134891,
+      "id": "event-1794602045675-84",
+      "ts": 1794602045675,
       "seq": 74,
       "type": "api-start",
       "level": "info",
@@ -738,8 +738,8 @@
       "detail": "{\"skillName\":\"S-Live-DeaiStageS3（文件夹）\",\"model\":\"deai-stage-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1794572134891-86",
-      "ts": 1794572134891,
+      "id": "event-1794602045676-86",
+      "ts": 1794602045676,
       "seq": 75,
       "type": "prompt-built",
       "level": "info",
@@ -747,8 +747,8 @@
       "detail": "S-Live-DeaiStageS3（文件夹） / folder:DEAI-STAGE-S3 / folder-fingerprint"
     },
     {
-      "id": "event-1794572134891-87",
-      "ts": 1794572134891,
+      "id": "event-1794602045676-87",
+      "ts": 1794602045676,
       "seq": 76,
       "type": "deai-prompt-variant",
       "level": "info",
@@ -756,8 +756,8 @@
       "detail": "{\"skillIndex\":2,\"totalSkillCount\":3,\"variant\":\"polish\",\"charCount\":0}"
     },
     {
-      "id": "event-1794572134891-88",
-      "ts": 1794572134891,
+      "id": "event-1794602045676-88",
+      "ts": 1794602045676,
       "seq": 77,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
@@ -765,17 +765,17 @@
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"deai-stage-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1794572134957-89",
-      "ts": 1794572134957,
+      "id": "event-1794602045690-89",
+      "ts": 1794602045690,
       "seq": 78,
       "type": "folder-pass-input",
       "level": "info",
       "label": "Folder pass 输入口径 1",
-      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":3795,\"userPromptLength\":3956,\"systemPromptLength\":185,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794572134064-1\",\"traceCallId\":\"api-1794572134891-83\"}"
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":3795,\"userPromptLength\":3956,\"systemPromptLength\":185,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794602044729-1\",\"traceCallId\":\"api-1794602045675-83\"}"
     },
     {
-      "id": "event-1794572134959-91",
-      "ts": 1794572134959,
+      "id": "event-1794602045691-91",
+      "ts": 1794602045691,
       "seq": 79,
       "type": "run-activity",
       "level": "info",
@@ -787,50 +787,50 @@
       }
     },
     {
-      "id": "event-1794572134959-92",
-      "ts": 1794572134959,
+      "id": "event-1794602045691-92",
+      "ts": 1794602045691,
       "seq": 80,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1794572134959-90",
+        "physicalCallId": "physical-1794602045691-90",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1794572134959-93",
-      "ts": 1794572134959,
+      "id": "event-1794602045691-93",
+      "ts": 1794602045691,
       "seq": 81,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
-      "detail": "normal / S-Live-DeaiStageS3（文件夹） / deai-stage-model / http://127.0.0.1:1138/v1/chat/completions / main-process"
+      "detail": "normal / S-Live-DeaiStageS3（文件夹） / deai-stage-model / http://127.0.0.1:9328/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1794572134963-94",
-      "ts": 1794572134963,
+      "id": "event-1794602045697-94",
+      "ts": 1794602045697,
       "seq": 82,
-      "turnId": "api-1794572134891-83",
+      "turnId": "api-1794602045675-83",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"deai-stage-guidance-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1794572134993-95",
-      "ts": 1794572134993,
+      "id": "event-1794602045702-95",
+      "ts": 1794602045702,
       "seq": 83,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求完成",
-      "detail": "normal / S-Live-DeaiStageS3（文件夹） / deai-stage-model / stop / http://127.0.0.1:1138/v1/chat/completions / main-process"
+      "detail": "normal / S-Live-DeaiStageS3（文件夹） / deai-stage-model / stop / http://127.0.0.1:9328/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1794572134996-96",
-      "ts": 1794572134996,
+      "id": "event-1794602045704-96",
+      "ts": 1794602045704,
       "seq": 84,
       "type": "run-activity",
       "level": "info",
@@ -842,8 +842,8 @@
       }
     },
     {
-      "id": "event-1794572135002-97",
-      "ts": 1794572135002,
+      "id": "event-1794602045711-97",
+      "ts": 1794602045711,
       "seq": 85,
       "type": "final-step-feedback-composed",
       "level": "info",
@@ -851,8 +851,8 @@
       "detail": "{\"sourceCounts\":{\"content_contract\":0,\"deai\":5,\"upstream_anchor\":1},\"length\":706,\"kind\":\"teaching\"}"
     },
     {
-      "id": "event-1794572135005-98",
-      "ts": 1794572135005,
+      "id": "event-1794602045714-98",
+      "ts": 1794602045714,
       "seq": 86,
       "type": "body-feedback-audit",
       "level": "info",
@@ -860,16 +860,16 @@
       "detail": "{\"channel\":\"final_step\",\"sourceCounts\":{\"content_contract\":0,\"deai\":5,\"upstream_anchor\":1},\"feedbackChars\":706}"
     },
     {
-      "id": "event-1794572135005-99",
-      "ts": 1794572135005,
+      "id": "event-1794602045714-99",
+      "ts": 1794602045714,
       "seq": 87,
       "type": "folder-diagnostics",
       "level": "info",
       "label": "记录 folder SKILL 诊断"
     },
     {
-      "id": "event-1794572135005-100",
-      "ts": 1794572135005,
+      "id": "event-1794602045714-100",
+      "ts": 1794602045714,
       "seq": 88,
       "type": "run-activity",
       "level": "info",
@@ -881,17 +881,17 @@
       }
     },
     {
-      "id": "event-1794572135006-101",
-      "ts": 1794572135006,
+      "id": "event-1794602045715-101",
+      "ts": 1794602045715,
       "seq": 89,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1794572134891-83 seq=3"
+      "detail": "apiCall=api-1794602045675-83 seq=3"
     },
     {
-      "id": "event-1794572135006-102",
-      "ts": 1794572135006,
+      "id": "event-1794602045715-102",
+      "ts": 1794602045715,
       "seq": 90,
       "type": "api-success",
       "level": "info",
@@ -899,8 +899,8 @@
       "detail": "S-Live-DeaiStageS3（文件夹） / deai-stage-model"
     },
     {
-      "id": "event-1794572135010-103",
-      "ts": 1794572135010,
+      "id": "event-1794602045719-103",
+      "ts": 1794602045719,
       "seq": 91,
       "type": "body-final-step-metadata",
       "level": "info",
@@ -908,8 +908,8 @@
       "detail": "{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉；位置=灯塔；目标=南方航线\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}},\"authoritativeKeys\":[\"extractedMeta\"],\"metadataKeys\":[\"extractedMeta\"],\"consumedMetadata\":{\"extractedMeta\":[\"【正文交接】\\n章节：风暴信标\\nPOV：周砚\\n已完成场景：3\\n未完成场景：无\\n来源覆盖状态：全部覆盖\\n角色状态变化：周砚确认信标并取得沉船名单\\n章末状态：等待清晨渔船\\n下一章必须使用：南方航线接头暗号\\n目标字数：2000\\n生成下限：1600\\n场景总数：3\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\\nnarrativeReason：三场场景均推进事实状态\\nstateChangingScenes：3\\nFACT_LOCK：人物状态=警觉；位置=灯塔；目标=南方航线\\nNEW_FACT：沉船名单指向旧航道\\n【正文交接结束】\"]}}"
     },
     {
-      "id": "event-1794572135010-104",
-      "ts": 1794572135010,
+      "id": "event-1794602045720-104",
+      "ts": 1794602045720,
       "seq": 92,
       "type": "chain-handoff",
       "level": "info",
@@ -917,17 +917,17 @@
       "detail": "{\"artifactId\":\"handoff-2-fbbd9381\",\"sourceStep\":2,\"sourceSkillId\":\"folder:DEAI-STAGE-S3\",\"outputHash\":\"fbbd9381\",\"fullTextLength\":2850,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
     },
     {
-      "id": "event-1794572135036-105",
-      "ts": 1794572135036,
+      "id": "event-1794602045825-105",
+      "ts": 1794602045825,
       "seq": 93,
       "type": "body-artifact-attempt",
       "level": "info",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"ch-deai-stage-attempt-1-wcrxje4c\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":2190,\"targetWords\":2000,\"ratio\":1.095,\"validationMs\":0,\"errors\":[],\"bodyPreview\":\"周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第1次记录结束。\\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第2段航路被写进海图。\\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第3次记录结束。\\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第4段航路被写进海图。\\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"none\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2681,\"extractedWordCount\":2520,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉；位置=灯塔；目标=南方航线\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":161}"
+      "detail": "{\"attemptId\":\"ch-deai-stage-attempt-1-9dxace9l\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":2190,\"targetWords\":2000,\"ratio\":1.095,\"validationMs\":25,\"errors\":[],\"bodyPreview\":\"周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第1次记录结束。\\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第2段航路被写进海图。\\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第3次记录结束。\\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第4段航路被写进海图。\\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"none\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":2681,\"extractedWordCount\":2520,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=警觉；位置=灯塔；目标=南方航线\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":161}"
     },
     {
-      "id": "event-1794572135040-106",
-      "ts": 1794572135040,
+      "id": "event-1794602045864-106",
+      "ts": 1794602045864,
       "seq": 94,
       "type": "hard_signal_scan",
       "level": "info",
@@ -935,8 +935,8 @@
       "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
     },
     {
-      "id": "event-1794572135044-107",
-      "ts": 1794572135044,
+      "id": "event-1794602045886-107",
+      "ts": 1794602045886,
       "seq": 95,
       "type": "contract_review",
       "level": "info",
@@ -944,17 +944,17 @@
       "detail": "{\"status\":\"no_declared_cards\",\"detected\":false,\"findings\":[],\"skillVerdict\":{\"status\":\"undeclared\",\"reason\":null},\"ownership\":\"app_protocol_observation\"}"
     },
     {
-      "id": "event-1794572135044-108",
-      "ts": 1794572135044,
+      "id": "event-1794602045887-108",
+      "ts": 1794602045887,
       "seq": 96,
       "type": "body-artifact-validated",
       "level": "info",
       "label": "正文批次验收通过",
-      "detail": "{\"chapterId\":\"ch-deai-stage\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-deai-stage-attempt-1-wcrxje4c\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":2190,\"targetWords\":2000,\"errors\":[]}],\"targetWords\":2000,\"wordCount\":2190,\"ratio\":1.095,\"status\":\"complete\",\"repairAttempts\":0}"
+      "detail": "{\"chapterId\":\"ch-deai-stage\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-deai-stage-attempt-1-9dxace9l\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":2190,\"targetWords\":2000,\"errors\":[]}],\"targetWords\":2000,\"wordCount\":2190,\"ratio\":1.095,\"status\":\"complete\",\"repairAttempts\":0}"
     },
     {
-      "id": "event-1794572135103-109",
-      "ts": 1794572135103,
+      "id": "event-1794602046014-109",
+      "ts": 1794602046014,
       "seq": 97,
       "type": "deai-calibration",
       "level": "info",
@@ -962,8 +962,8 @@
       "detail": "{\"provider\":\"deai-stage-guidance-provider\",\"model\":\"deai-stage-model\",\"findingCount\":3,\"ledgerWritten\":true,\"ledgerVersion\":1,\"ledgerEntryCount\":5,\"maxEntries\":500,\"pruned\":false,\"prunedCount\":0}"
     },
     {
-      "id": "event-1794572135107-110",
-      "ts": 1794572135107,
+      "id": "event-1794602046015-110",
+      "ts": 1794602046015,
       "seq": 98,
       "type": "write",
       "level": "info",
@@ -971,8 +971,8 @@
       "detail": "字数 2190"
     },
     {
-      "id": "event-1794572135110-111",
-      "ts": 1794572135110,
+      "id": "event-1794602046016-111",
+      "ts": 1794602046016,
       "seq": 99,
       "type": "finished",
       "level": "info",
@@ -980,18 +980,18 @@
       "detail": "body_generation_complete"
     },
     {
-      "id": "event-1794572135110-112",
-      "ts": 1794572135110,
+      "id": "event-1794602046016-112",
+      "ts": 1794602046016,
       "seq": 100,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "body_generation_complete / run=run-1794572134064-1"
+      "detail": "body_generation_complete / run=run-1794602044729-1"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1794572134259-21",
+      "id": "api-1794602045058-21",
       "seq": 1,
       "step": 4,
       "skillId": "folder:DEAI-STAGE-S1",
@@ -1012,14 +1012,14 @@
         }
       },
       "status": "success",
-      "startedAt": 1794572134259,
+      "startedAt": 1794602045058,
       "promptSnapshotIds": [
-        "prompt-1794572134259-23"
+        "prompt-1794602045058-23"
       ],
       "physicalCalls": [
         {
-          "id": "physical-1794572134584-28",
-          "physicalCallId": "physical-1794572134544-normal-0",
+          "id": "physical-1794602045396-28",
+          "physicalCallId": "physical-1794602045373-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -1040,11 +1040,11 @@
             "totalTokens": 200
           },
           "usageUnavailable": false,
-          "startedAt": 1794572134584,
-          "durationMs": 99,
-          "firstTokenMs": 93,
-          "outputMs": 6,
-          "endedAt": 1794572134671,
+          "startedAt": 1794602045396,
+          "durationMs": 133,
+          "firstTokenMs": 129,
+          "outputMs": 4,
+          "endedAt": 1794602045517,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "toolCallCount": 0,
@@ -1069,9 +1069,9 @@
             "driftRatio": -0.6815286624203822,
             "correctedRatio": 0.3184713375796178
           },
-          "firstContentAt": 1794572134665,
-          "lastContentAt": 1794572134665,
-          "finalUrl": "http://127.0.0.1:1138/v1/chat/completions",
+          "firstContentAt": 1794602045513,
+          "lastContentAt": 1794602045513,
+          "finalUrl": "http://127.0.0.1:9328/v1/chat/completions",
           "transport": "main-process",
           "providerSource": "global",
           "cacheUsageSummary": {
@@ -1098,9 +1098,9 @@
           "responseTextPreview": "骨架：\n场景1：确认信标。\n场景2：取得名单。\n场景3：预约渔船。\n"
         }
       ],
-      "lastExecutionActivityAt": 1794572134678,
+      "lastExecutionActivityAt": 1794602045522,
       "streamTotalChars": 34,
-      "lastStreamActivityAt": 1794572134678,
+      "lastStreamActivityAt": 1794602045522,
       "providerContextWindowTokens": 128000,
       "estimatedInputTokens": 314,
       "contextBudgetDecision": "fits",
@@ -1113,20 +1113,20 @@
         "correctedRatio": 0.3184713375796178
       },
       "finishReason": "stop",
-      "durationMs": 436,
+      "durationMs": 474,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 99,
-        "firstTokenSumMs": 93,
-        "outputSumMs": 6,
-        "minFirstTokenMs": 93,
-        "maxFirstTokenMs": 93,
-        "localOverheadMs": 337,
-        "requestBuildMs": 1,
+        "physicalDurationSumMs": 133,
+        "firstTokenSumMs": 129,
+        "outputSumMs": 4,
+        "minFirstTokenMs": 129,
+        "maxFirstTokenMs": 129,
+        "localOverheadMs": 341,
+        "requestBuildMs": 0,
         "schemaValidateMs": 0,
         "retryMs": 0,
-        "postProcessMs": 9,
+        "postProcessMs": 8,
         "schemaRetryCount": 0,
         "repeatedPromptBlocks": {
           "[已生成卷事实清单]": 0,
@@ -1158,9 +1158,9 @@
         "totalTokens": 200
       },
       "usageUnavailable": false,
-      "endedAt": 1794572134687,
+      "endedAt": 1794602045529,
       "semantic": {
-        "conversationId": "run-1794572134064-1",
+        "conversationId": "run-1794602044729-1",
         "usage": {
           "inputTokens": 100,
           "outputTokens": 100,
@@ -1171,7 +1171,7 @@
       "responseTextPreview": "骨架：\n场景1：确认信标。\n场景2：取得名单。\n场景3：预约渔船。\n"
     },
     {
-      "id": "api-1794572134718-50",
+      "id": "api-1794602045561-50",
       "seq": 2,
       "step": 4,
       "skillId": "folder:DEAI-STAGE-S2",
@@ -1192,14 +1192,14 @@
         }
       },
       "status": "success",
-      "startedAt": 1794572134718,
+      "startedAt": 1794602045561,
       "promptSnapshotIds": [
-        "prompt-1794572134718-52"
+        "prompt-1794602045561-52"
       ],
       "physicalCalls": [
         {
-          "id": "physical-1794572134741-57",
-          "physicalCallId": "physical-1794572134740-normal-0",
+          "id": "physical-1794602045583-57",
+          "physicalCallId": "physical-1794602045582-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -1220,11 +1220,11 @@
             "totalTokens": 200
           },
           "usageUnavailable": false,
-          "startedAt": 1794572134741,
-          "durationMs": 15,
-          "firstTokenMs": 12,
-          "outputMs": 3,
-          "endedAt": 1794572134756,
+          "startedAt": 1794602045583,
+          "durationMs": 27,
+          "firstTokenMs": 26,
+          "outputMs": 1,
+          "endedAt": 1794602045611,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "toolCallCount": 0,
@@ -1249,9 +1249,9 @@
             "driftRatio": -0.6389891696750902,
             "correctedRatio": 0.36101083032490977
           },
-          "firstContentAt": 1794572134752,
-          "lastContentAt": 1794572134752,
-          "finalUrl": "http://127.0.0.1:1138/v1/chat/completions",
+          "firstContentAt": 1794602045609,
+          "lastContentAt": 1794602045609,
+          "finalUrl": "http://127.0.0.1:9328/v1/chat/completions",
           "transport": "main-process",
           "providerSource": "global",
           "cacheUsageSummary": {
@@ -1278,9 +1278,9 @@
           "responseTextPreview": "周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第1次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第2段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第3次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第4段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第5次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第6段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第7次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第8段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第9次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第10段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，"
         }
       ],
-      "lastExecutionActivityAt": 1794572134764,
+      "lastExecutionActivityAt": 1794602045614,
       "streamTotalChars": 3180,
-      "lastStreamActivityAt": 1794572134764,
+      "lastStreamActivityAt": 1794602045614,
       "providerContextWindowTokens": 128000,
       "estimatedInputTokens": 277,
       "contextBudgetDecision": "fits",
@@ -1293,20 +1293,20 @@
         "correctedRatio": 0.36101083032490977
       },
       "finishReason": "stop",
-      "durationMs": 82,
+      "durationMs": 79,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 15,
-        "firstTokenSumMs": 12,
-        "outputSumMs": 3,
-        "minFirstTokenMs": 12,
-        "maxFirstTokenMs": 12,
-        "localOverheadMs": 67,
+        "physicalDurationSumMs": 27,
+        "firstTokenSumMs": 26,
+        "outputSumMs": 1,
+        "minFirstTokenMs": 26,
+        "maxFirstTokenMs": 26,
+        "localOverheadMs": 52,
         "requestBuildMs": 0,
         "schemaValidateMs": 0,
         "retryMs": 0,
-        "postProcessMs": 28,
+        "postProcessMs": 12,
         "schemaRetryCount": 0,
         "repeatedPromptBlocks": {
           "[已生成卷事实清单]": 0,
@@ -1355,9 +1355,9 @@
         "totalTokens": 200
       },
       "usageUnavailable": false,
-      "endedAt": 1794572134791,
+      "endedAt": 1794602045627,
       "semantic": {
-        "conversationId": "run-1794572134064-1",
+        "conversationId": "run-1794602044729-1",
         "usage": {
           "inputTokens": 100,
           "outputTokens": 100,
@@ -1368,7 +1368,7 @@
       "responseTextPreview": "周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第1次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第2段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第3次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第4段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第5次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第6段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第7次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第8段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第9次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第10段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，"
     },
     {
-      "id": "api-1794572134891-83",
+      "id": "api-1794602045675-83",
       "seq": 3,
       "step": 4,
       "skillId": "folder:DEAI-STAGE-S3",
@@ -1389,14 +1389,14 @@
         }
       },
       "status": "success",
-      "startedAt": 1794572134891,
+      "startedAt": 1794602045675,
       "promptSnapshotIds": [
-        "prompt-1794572134891-85"
+        "prompt-1794602045676-85"
       ],
       "physicalCalls": [
         {
-          "id": "physical-1794572134959-90",
-          "physicalCallId": "physical-1794572134957-normal-0",
+          "id": "physical-1794602045691-90",
+          "physicalCallId": "physical-1794602045690-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -1417,11 +1417,11 @@
             "totalTokens": 200
           },
           "usageUnavailable": false,
-          "startedAt": 1794572134959,
-          "durationMs": 35,
-          "firstTokenMs": 34,
+          "startedAt": 1794602045691,
+          "durationMs": 10,
+          "firstTokenMs": 9,
           "outputMs": 1,
-          "endedAt": 1794572134993,
+          "endedAt": 1794602045701,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "toolCallCount": 0,
@@ -1446,9 +1446,9 @@
             "driftRatio": -0.9272727272727272,
             "correctedRatio": 0.07272727272727272
           },
-          "firstContentAt": 1794572134992,
-          "lastContentAt": 1794572134992,
-          "finalUrl": "http://127.0.0.1:1138/v1/chat/completions",
+          "firstContentAt": 1794602045700,
+          "lastContentAt": 1794602045700,
+          "finalUrl": "http://127.0.0.1:9328/v1/chat/completions",
           "transport": "main-process",
           "providerSource": "global",
           "cacheUsageSummary": {
@@ -1475,9 +1475,9 @@
           "responseTextPreview": "周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第1次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第2段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第3次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第4段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第5次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第6段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第7次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第8段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第9次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第10段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第11次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第12段航路"
         }
       ],
-      "lastExecutionActivityAt": 1794572134997,
+      "lastExecutionActivityAt": 1794602045704,
       "streamTotalChars": 2850,
-      "lastStreamActivityAt": 1794572134997,
+      "lastStreamActivityAt": 1794602045704,
       "providerContextWindowTokens": 128000,
       "estimatedInputTokens": 1375,
       "contextBudgetDecision": "fits",
@@ -1490,20 +1490,20 @@
         "correctedRatio": 0.07272727272727272
       },
       "finishReason": "stop",
-      "durationMs": 183,
+      "durationMs": 49,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 35,
-        "firstTokenSumMs": 34,
+        "physicalDurationSumMs": 10,
+        "firstTokenSumMs": 9,
         "outputSumMs": 1,
-        "minFirstTokenMs": 34,
-        "maxFirstTokenMs": 34,
-        "localOverheadMs": 148,
-        "requestBuildMs": 0,
+        "minFirstTokenMs": 9,
+        "maxFirstTokenMs": 9,
+        "localOverheadMs": 39,
+        "requestBuildMs": 1,
         "schemaValidateMs": 0,
         "retryMs": 0,
-        "postProcessMs": 3,
+        "postProcessMs": 4,
         "schemaRetryCount": 0,
         "repeatedPromptBlocks": {
           "[已生成卷事实清单]": 0,
@@ -1535,9 +1535,9 @@
         "totalTokens": 200
       },
       "usageUnavailable": false,
-      "endedAt": 1794572135006,
+      "endedAt": 1794602045715,
       "semantic": {
-        "conversationId": "run-1794572134064-1",
+        "conversationId": "run-1794602044729-1",
         "usage": {
           "inputTokens": 100,
           "outputTokens": 100,
@@ -1551,108 +1551,108 @@
   "sessionKind": "task",
   "promptSnapshots": [
     {
-      "id": "prompt-1794572134259-23",
-      "apiCallId": "api-1794572134259-21",
+      "id": "prompt-1794602045058-23",
+      "apiCallId": "api-1794602045058-21",
       "skillId": "folder:DEAI-STAGE-S1",
       "skillName": "S-Live-DeaiStageS1（文件夹）",
       "mode": "folder-fingerprint",
-      "builtAt": 1794572134259,
+      "builtAt": 1794602045058,
       "contextBlocks": [],
       "folderFingerprint": [
         {
           "file": "SKILL.md",
           "hash": "316f80e70ad2c8bc563a3cd66d35c3ec0fb0d1f42bd628491e74e81afd52252b",
-          "mtime": 1794572105148,
+          "mtime": 1794602026164,
           "bytes": 154
         },
         {
           "file": "template.md",
           "hash": "7d05a74cd8ad2c587b0cbd674021add4dc8fb804205c62e99470eb3575fb28fa",
-          "mtime": 1794572105149,
+          "mtime": 1794602026165,
           "bytes": 108
         },
         {
           "file": "meta.json",
           "hash": "ad62d66688ca93e09e13b811ddd945ea69bae880863deb3e14a22640de989ef0",
-          "mtime": 1794572105149,
+          "mtime": 1794602026165,
           "bytes": 210
         },
         {
           "file": "script.js",
           "hash": "5e839074978ccc7156b97753ac24c2bb85bec5dc8522dfd598300beb8b66ac2d",
-          "mtime": 1794572105150,
+          "mtime": 1794602026165,
           "bytes": 76
         }
       ],
       "payloadRef": "payload-010"
     },
     {
-      "id": "prompt-1794572134718-52",
-      "apiCallId": "api-1794572134718-50",
+      "id": "prompt-1794602045561-52",
+      "apiCallId": "api-1794602045561-50",
       "skillId": "folder:DEAI-STAGE-S2",
       "skillName": "S-Live-DeaiStageS2（文件夹）",
       "mode": "folder-fingerprint",
-      "builtAt": 1794572134718,
+      "builtAt": 1794602045561,
       "contextBlocks": [],
       "folderFingerprint": [
         {
           "file": "SKILL.md",
           "hash": "47176837f4153e98a92d7036d62103ff3122ce3215ebf7aff264ac70f3a6e841",
-          "mtime": 1794572105151,
+          "mtime": 1794602026166,
           "bytes": 154
         },
         {
           "file": "template.md",
           "hash": "d7f997239979d29e1c205398565ac575917baf29cbdfa83551512d1291d1e1d5",
-          "mtime": 1794572105152,
+          "mtime": 1794602026166,
           "bytes": 141
         },
         {
           "file": "meta.json",
           "hash": "8e33a6e5392eb01fce98644ec9708e36df7a8e372e011f4cffeed66bf4e993d0",
-          "mtime": 1794572105153,
+          "mtime": 1794602026166,
           "bytes": 309
         },
         {
           "file": "script.js",
           "hash": "5e839074978ccc7156b97753ac24c2bb85bec5dc8522dfd598300beb8b66ac2d",
-          "mtime": 1794572105153,
+          "mtime": 1794602026166,
           "bytes": 76
         }
       ],
       "payloadRef": "payload-011"
     },
     {
-      "id": "prompt-1794572134891-85",
-      "apiCallId": "api-1794572134891-83",
+      "id": "prompt-1794602045676-85",
+      "apiCallId": "api-1794602045675-83",
       "skillId": "folder:DEAI-STAGE-S3",
       "skillName": "S-Live-DeaiStageS3（文件夹）",
       "mode": "folder-fingerprint",
-      "builtAt": 1794572134891,
+      "builtAt": 1794602045676,
       "contextBlocks": [],
       "folderFingerprint": [
         {
           "file": "SKILL.md",
           "hash": "014aa41b2346962a41c984794b0733040e31671d92b1eb464f1eb2c17b387da6",
-          "mtime": 1794572105154,
+          "mtime": 1794602026167,
           "bytes": 154
         },
         {
           "file": "template.md",
           "hash": "a662082eaf491f658eb13d4cad456f61dea4f1d8caabed0a4496f2127f0ad84b",
-          "mtime": 1794572105154,
+          "mtime": 1794602026168,
           "bytes": 137
         },
         {
           "file": "meta.json",
           "hash": "68ee501d008f1274ad443abe7e92ae5cfa3f555b2cb961627b57a54fa351471f",
-          "mtime": 1794572105155,
+          "mtime": 1794602026168,
           "bytes": 303
         },
         {
           "file": "script.js",
           "hash": "5e839074978ccc7156b97753ac24c2bb85bec5dc8522dfd598300beb8b66ac2d",
-          "mtime": 1794572105155,
+          "mtime": 1794602026168,
           "bytes": 76
         }
       ],
@@ -1661,24 +1661,24 @@
   ],
   "processingReports": [
     {
-      "id": "processing-1794572134692-40",
+      "id": "processing-1794602045533-40",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
-      "startedAt": 1794572134692,
-      "endedAt": 1794572134692,
+      "startedAt": 1794602045533,
+      "endedAt": 1794602045533,
       "durationMs": 0,
       "inputRef": "payload-013",
       "outputRef": "payload-014",
       "outputLength": 33
     },
     {
-      "id": "processing-1794572134801-73",
+      "id": "processing-1794602045640-73",
       "stage": "post",
       "processor": "chain-handoff",
       "status": "success",
-      "startedAt": 1794572134801,
-      "endedAt": 1794572134801,
+      "startedAt": 1794602045640,
+      "endedAt": 1794602045640,
       "durationMs": 0,
       "inputRef": "payload-013",
       "outputRef": "payload-016",
@@ -1696,10 +1696,10 @@
       "duplicateCount": 3,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134259-21",
+        "apiCallId": "api-1794602045058-21",
         "apiCallSeq": 1
       },
-      "createdAt": 1794572135212
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-002",
@@ -1711,10 +1711,10 @@
       "duplicateCount": 2,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134259-21",
+        "apiCallId": "api-1794602045058-21",
         "apiCallSeq": 1
       },
-      "createdAt": 1794572135212
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-003",
@@ -1726,10 +1726,10 @@
       "duplicateCount": 2,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134259-21",
+        "apiCallId": "api-1794602045058-21",
         "apiCallSeq": 1
       },
-      "createdAt": 1794572135212
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-004",
@@ -1741,10 +1741,10 @@
       "duplicateCount": 3,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134718-50",
+        "apiCallId": "api-1794602045561-50",
         "apiCallSeq": 2
       },
-      "createdAt": 1794572135212
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-005",
@@ -1756,10 +1756,10 @@
       "duplicateCount": 2,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134718-50",
+        "apiCallId": "api-1794602045561-50",
         "apiCallSeq": 2
       },
-      "createdAt": 1794572135212
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-006",
@@ -1771,10 +1771,10 @@
       "duplicateCount": 2,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134718-50",
+        "apiCallId": "api-1794602045561-50",
         "apiCallSeq": 2
       },
-      "createdAt": 1794572135213
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-007",
@@ -1786,10 +1786,10 @@
       "duplicateCount": 3,
       "artifactRole": "final",
       "firstSeen": {
-        "apiCallId": "api-1794572134891-83",
+        "apiCallId": "api-1794602045675-83",
         "apiCallSeq": 3
       },
-      "createdAt": 1794572135213
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-008",
@@ -1801,10 +1801,10 @@
       "duplicateCount": 2,
       "artifactRole": "final",
       "firstSeen": {
-        "apiCallId": "api-1794572134891-83",
+        "apiCallId": "api-1794602045675-83",
         "apiCallSeq": 3
       },
-      "createdAt": 1794572135213
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-009",
@@ -1816,10 +1816,10 @@
       "duplicateCount": 2,
       "artifactRole": "final",
       "firstSeen": {
-        "apiCallId": "api-1794572134891-83",
+        "apiCallId": "api-1794602045675-83",
         "apiCallSeq": 3
       },
-      "createdAt": 1794572135213
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-010",
@@ -1827,14 +1827,14 @@
       "file": "010-prompt.json",
       "bytes": 1837,
       "chars": 1283,
-      "sha256": "cf3c6c2ad10fdf02ccdc3eed7ac0ff8a69452851274b00a371788d304b75d69b",
+      "sha256": "0cc0e7a8d361818bf573ef24fb0bd4e7ad395385598417046330f870bbfdeaac",
       "duplicateCount": 1,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134259-21",
+        "apiCallId": "api-1794602045058-21",
         "firstSeenSource": "promptSnapshots"
       },
-      "createdAt": 1794572135213
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-011",
@@ -1842,14 +1842,14 @@
       "file": "011-prompt.json",
       "bytes": 2272,
       "chars": 1474,
-      "sha256": "6439ed92b80416a965a806aa3e78a823ee2807bd62a6780222fc3f0ccd024b44",
+      "sha256": "e953798dc25d0d9779c848bb2dba083eca18e1a1510aa20cae31b4e7dd080336",
       "duplicateCount": 1,
       "artifactRole": "intermediate",
       "firstSeen": {
-        "apiCallId": "api-1794572134718-50",
+        "apiCallId": "api-1794602045561-50",
         "firstSeenSource": "promptSnapshots"
       },
-      "createdAt": 1794572135213
+      "createdAt": 1794602046106
     },
     {
       "id": "payload-012",
@@ -1857,14 +1857,14 @@
       "file": "012-prompt.json",
       "bytes": 11527,
       "chars": 4839,
-      "sha256": "3222998bf30d3e776be956a11dd762b02726ee1e44bc97ce86675730120f2700",
+      "sha256": "dcd129edb3c6c52d86ad42905eacc2fc2e21456c4c0fcfd6b0b420b1163b3dd4",
       "duplicateCount": 1,
       "artifactRole": "final",
       "firstSeen": {
-        "apiCallId": "api-1794572134891-83",
+        "apiCallId": "api-1794602045675-83",
         "firstSeenSource": "promptSnapshots"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-013",
@@ -1878,7 +1878,7 @@
       "firstSeen": {
         "firstSeenSource": "processingReports"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-014",
@@ -1892,7 +1892,7 @@
       "firstSeen": {
         "firstSeenSource": "processingReports"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-015",
@@ -1906,7 +1906,7 @@
       "firstSeen": {
         "firstSeenSource": "processingReports"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-016",
@@ -1920,7 +1920,7 @@
       "firstSeen": {
         "firstSeenSource": "processingReports"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-017",
@@ -1934,7 +1934,7 @@
       "firstSeen": {
         "firstSeenSource": "folderDiagnostics"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-018",
@@ -1948,7 +1948,7 @@
       "firstSeen": {
         "firstSeenSource": "folderDiagnostics"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-019",
@@ -1962,7 +1962,7 @@
       "firstSeen": {
         "firstSeenSource": "folderDiagnostics"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-020",
@@ -1976,7 +1976,7 @@
       "firstSeen": {
         "firstSeenSource": "folderDiagnostics"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-021",
@@ -1990,7 +1990,7 @@
       "firstSeen": {
         "firstSeenSource": "folderDiagnostics"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     },
     {
       "id": "payload-022",
@@ -2004,7 +2004,7 @@
       "firstSeen": {
         "firstSeenSource": "folderDiagnostics"
       },
-      "createdAt": 1794572135214
+      "createdAt": 1794602046107
     }
   ],
   "eventLedger": {
@@ -2023,13 +2023,13 @@
           "type": "info",
           "code": "folder-template-priority",
           "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
-          "at": "2026-11-13T12:15:34.516Z"
+          "at": "2026-11-13T20:34:05.342Z"
         },
         {
           "type": "info",
           "code": "folder-template-variables-missing",
           "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
-          "at": "2026-11-13T12:15:34.516Z"
+          "at": "2026-11-13T20:34:05.349Z"
         }
       ],
       "folderPackageCache": false,
@@ -2037,8 +2037,9 @@
         "applied": true,
         "changedOutput": false,
         "issues": [],
-        "durationMs": 9,
+        "durationMs": 7,
         "ruleFingerprint": "fnv1a32_41880a10",
+        "perf": "thresholdNotMet",
         "outputPayloadRef": "payload-018",
         "outputLength": 34,
         "outputPreview": "骨架：\n场景1：确认信标。\n场景2：取得名单。\n场景3：预约渔船。\n"
@@ -2099,10 +2100,10 @@
           }
         ],
         "timingLedger": {
-          "requestBuildMs": 1,
+          "requestBuildMs": 0,
           "schemaValidateMs": 0,
           "retryMs": 0,
-          "postProcessMs": 9,
+          "postProcessMs": 8,
           "schemaRetryCount": 0,
           "repeatedPromptBlocks": {
             "[已生成卷事实清单]": 0,
@@ -2143,13 +2144,13 @@
           "type": "info",
           "code": "folder-template-priority",
           "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
-          "at": "2026-11-13T12:15:34.733Z"
+          "at": "2026-11-13T20:34:05.577Z"
         },
         {
           "type": "info",
           "code": "folder-template-variables-missing",
           "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
-          "at": "2026-11-13T12:15:34.733Z"
+          "at": "2026-11-13T20:34:05.577Z"
         }
       ],
       "folderPackageCache": false,
@@ -2157,8 +2158,9 @@
         "applied": true,
         "changedOutput": false,
         "issues": [],
-        "durationMs": 28,
+        "durationMs": 12,
         "ruleFingerprint": "fnv1a32_41880a10",
+        "perf": "thresholdNotMet",
         "outputPayloadRef": "payload-020",
         "outputLength": 3180,
         "outputPreview": "周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第1次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第2段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第3次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第4段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第5次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第6段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第7次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第8段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，他突然意识到沉船名单里的名字指向旧航道。第9次信号结束。\n许知微把私章按在名单末页，低声提醒旧航道的暗礁。周砚压低灯芯，记下第10段航路变化。\n周砚深吸一口气，缓缓地转身。风暴信标第三次亮起，"
@@ -2222,7 +2224,7 @@
           "requestBuildMs": 0,
           "schemaValidateMs": 0,
           "retryMs": 0,
-          "postProcessMs": 28,
+          "postProcessMs": 12,
           "schemaRetryCount": 0,
           "repeatedPromptBlocks": {
             "[已生成卷事实清单]": 0,
@@ -2280,13 +2282,13 @@
           "type": "info",
           "code": "folder-template-priority",
           "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
-          "at": "2026-11-13T12:15:34.943Z"
+          "at": "2026-11-13T20:34:05.686Z"
         },
         {
           "type": "info",
           "code": "folder-template-variables-missing",
           "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
-          "at": "2026-11-13T12:15:34.943Z"
+          "at": "2026-11-13T20:34:05.686Z"
         }
       ],
       "folderPackageCache": false,
@@ -2294,8 +2296,9 @@
         "applied": true,
         "changedOutput": false,
         "issues": [],
-        "durationMs": 3,
+        "durationMs": 4,
         "ruleFingerprint": "fnv1a32_41880a10",
+        "perf": "thresholdNotMet",
         "outputPayloadRef": "payload-022",
         "outputLength": 2850,
         "outputPreview": "周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第1次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第2段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第3次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第4段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第5次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第6段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第7次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第8段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第9次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第10段航路被写进海图。\n周砚收住呼吸，把名单折进防水袋。风暴信标第三次亮起，旧航道的名字压在他掌心。第11次记录结束。\n许知微收起私章，用炭笔圈出暗礁位置。灯芯安静下来，第12段航路"
@@ -2356,10 +2359,10 @@
           }
         ],
         "timingLedger": {
-          "requestBuildMs": 0,
+          "requestBuildMs": 1,
           "schemaValidateMs": 0,
           "retryMs": 0,
-          "postProcessMs": 3,
+          "postProcessMs": 4,
           "schemaRetryCount": 0,
           "repeatedPromptBlocks": {
             "[已生成卷事实清单]": 0,
@@ -2393,21 +2396,21 @@
     }
   ],
   "stepPhaseTiming": {
-    "validation": 0,
-    "persistence": 47
+    "validation": 25,
+    "persistence": 119
   },
   "timingLedger": {
     "apiCallCount": 3,
     "physicalCallCount": 3,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 149,
-    "firstTokenSumMs": 139,
-    "outputSumMs": 10,
-    "localOverheadSumMs": 552,
+    "physicalDurationSumMs": 170,
+    "firstTokenSumMs": 164,
+    "outputSumMs": 6,
+    "localOverheadSumMs": 432,
     "requestBuildSumMs": 1,
     "schemaValidateSumMs": 0,
     "retrySumMs": 0,
-    "postProcessSumMs": 40,
+    "postProcessSumMs": 24,
     "repeatedPromptBlocks": {
       "[已生成卷事实清单]": 0,
       "[全书大纲]": 0,
@@ -2422,11 +2425,11 @@
     "physicalCallCount": 3,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 139,
-    "outputSumMs": 10,
+    "firstTokenSumMs": 164,
+    "outputSumMs": 6,
     "postProcessSumMs": 0,
-    "validationSumMs": 0,
-    "persistenceSumMs": 47,
+    "validationSumMs": 25,
+    "persistenceSumMs": 119,
     "repeatedPromptBlocks": {
       "[已生成卷事实清单]": 0,
       "[全书大纲]": 0,
@@ -2436,13 +2439,13 @@
     },
     "contextChars": 5702,
     "outputChars": 6064,
-    "physicalDurationSumMs": 149
+    "physicalDurationSumMs": 170
   },
-  "endedAt": 1794572135110,
-  "durationMs": 1046,
+  "endedAt": 1794602046016,
+  "durationMs": 1287,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1794572134259-21",
+      "apiCallId": "api-1794602045058-21",
       "seq": 1,
       "status": "success",
       "response": {
@@ -2462,7 +2465,7 @@
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1794572134544-normal-0",
+          "physicalCallId": "physical-1794602045373-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -2485,7 +2488,7 @@
       ]
     },
     {
-      "apiCallId": "api-1794572134718-50",
+      "apiCallId": "api-1794602045561-50",
       "seq": 2,
       "status": "success",
       "response": {
@@ -2505,7 +2508,7 @@
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1794572134740-normal-0",
+          "physicalCallId": "physical-1794602045582-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -2528,7 +2531,7 @@
       ]
     },
     {
-      "apiCallId": "api-1794572134891-83",
+      "apiCallId": "api-1794602045675-83",
       "seq": 3,
       "status": "success",
       "response": {
@@ -2548,7 +2551,7 @@
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1794572134957-normal-0",
+          "physicalCallId": "physical-1794602045690-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -2574,62 +2577,62 @@
   "payloadToAttemptIndex": [
     {
       "payloadRef": "payload-001",
-      "apiCallId": "api-1794572134259-21",
+      "apiCallId": "api-1794602045058-21",
       "apiCallSeq": 1
     },
     {
       "payloadRef": "payload-002",
-      "apiCallId": "api-1794572134259-21",
+      "apiCallId": "api-1794602045058-21",
       "apiCallSeq": 1
     },
     {
       "payloadRef": "payload-003",
-      "apiCallId": "api-1794572134259-21",
+      "apiCallId": "api-1794602045058-21",
       "apiCallSeq": 1
     },
     {
       "payloadRef": "payload-004",
-      "apiCallId": "api-1794572134718-50",
+      "apiCallId": "api-1794602045561-50",
       "apiCallSeq": 2
     },
     {
       "payloadRef": "payload-005",
-      "apiCallId": "api-1794572134718-50",
+      "apiCallId": "api-1794602045561-50",
       "apiCallSeq": 2
     },
     {
       "payloadRef": "payload-006",
-      "apiCallId": "api-1794572134718-50",
+      "apiCallId": "api-1794602045561-50",
       "apiCallSeq": 2
     },
     {
       "payloadRef": "payload-007",
-      "apiCallId": "api-1794572134891-83",
+      "apiCallId": "api-1794602045675-83",
       "apiCallSeq": 3
     },
     {
       "payloadRef": "payload-008",
-      "apiCallId": "api-1794572134891-83",
+      "apiCallId": "api-1794602045675-83",
       "apiCallSeq": 3
     },
     {
       "payloadRef": "payload-009",
-      "apiCallId": "api-1794572134891-83",
+      "apiCallId": "api-1794602045675-83",
       "apiCallSeq": 3
     },
     {
       "payloadRef": "payload-010",
-      "apiCallId": "api-1794572134259-21",
+      "apiCallId": "api-1794602045058-21",
       "firstSeenSource": "promptSnapshots"
     },
     {
       "payloadRef": "payload-011",
-      "apiCallId": "api-1794572134718-50",
+      "apiCallId": "api-1794602045561-50",
       "firstSeenSource": "promptSnapshots"
     },
     {
       "payloadRef": "payload-012",
-      "apiCallId": "api-1794572134891-83",
+      "apiCallId": "api-1794602045675-83",
       "firstSeenSource": "promptSnapshots"
     },
     {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { afterEach, vi } from 'vitest'
 import {
   buildDeaiStageDiagnosis,
   formatDeaiStageGuidance,
@@ -166,7 +167,11 @@ describe('deaiStageDiagnosis', () => {
     })
   })
 
-  it('drops findings that would exceed the construction budget', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('retains bounded findings when the construction budget is exceeded', () => {
     let calls = 0
     const result = buildDeaiStageDiagnosis('正文'.repeat(600), {
       detect: () => {
@@ -179,8 +184,46 @@ describe('deaiStageDiagnosis', () => {
     })
 
     expect(result.budgetExceeded).toBe(true)
-    expect(result.findings).toHaveLength(0)
-    expect(result.droppedFindingCount).toBe(1)
+    expect(result.findings).toHaveLength(1)
+    expect(result.droppedFindingCount).toBe(0)
     expect(calls).toBe(1)
+  })
+
+  it('keeps budget-exceeded guidance traceable and bounded', () => {
+    const nowSpy = vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1000)
+      .mockReturnValueOnce(1051)
+      .mockReturnValue(1051)
+    const result = buildDeaiStageDiagnosis('正文', {
+      detect: () => ({
+        findings: Array.from({ length: 8 }, (_, index) =>
+          findingInput(`id-${index}`, `规则${index}`, [`样本${index}`]))
+      }),
+      maxConstructionMs: 50
+    })
+    const guidance = formatDeaiStageGuidance(result)
+    const event = buildDeaiStageGuidanceTraceEvent(result, guidance, {
+      step: 4,
+      sourceSkillIndex: 1,
+      targetSkillIndex: 2,
+      totalSkillCount: 3
+    })
+
+    expect(nowSpy).toHaveBeenCalledTimes(3)
+    expect(result.budgetExceeded).toBe(true)
+    expect(result.findings).toHaveLength(6)
+    expect(result.droppedFindingCount).toBe(2)
+    expect(result.durationMs).toBe(51)
+    expect(guidance.length).toBeLessThanOrEqual(1200)
+    expect(guidance).toContain('另有 2 条诊断因预算省略。')
+    expect(event.level).toBe('warn')
+    const detail = JSON.parse(event.detail)
+    expect(detail).toMatchObject({
+      findingCount: 6,
+      injected: true,
+      droppedFindingCount: 2,
+      guidanceChars: guidance.length,
+      budgetExceeded: true
+    })
   })
 })

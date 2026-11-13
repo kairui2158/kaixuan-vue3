@@ -110,7 +110,7 @@ export function buildDeaiStageDiagnosis(
         }
       })
       .filter((finding: DeaiStageFinding) => finding.id && finding.type)
-      .slice(0, budgetExceeded ? 0 : Math.max(0, maxFindings))
+      .slice(0, Math.max(0, maxFindings))
 
     return {
       findings,
