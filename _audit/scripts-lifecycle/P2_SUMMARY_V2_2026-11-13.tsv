@@ -1,0 +1,8 @@
+# SCRIPTS LIFECYCLE V2 SUMMARY - 2026-11-13
+
+batch|action|tag|preCommit|postCommit|files|hashRows|negativeAssertions
+V2-B01|archive|scripts-lifecycle-v2-01-archive-deai|ef31e279d8f3edd9dd99f7e145e1873be82beba2|5cde8e87d0550efc12a84fbdf343619e43005751|18|18|18
+V2-B02|archive|scripts-lifecycle-v2-02-archive-quarantine-a|5cde8e87d0550efc12a84fbdf343619e43005751|0876dcc5493114b58251fe38acca9259ba461e59|20|20|20
+V2-B03|archive|scripts-lifecycle-v2-03-archive-quarantine-b|0876dcc5493114b58251fe38acca9259ba461e59|4498c51bacba3c169fdb3d13d7b134599de8b133|20|20|20
+V2-B04|archive|scripts-lifecycle-v2-04-archive-quarantine-c|4498c51bacba3c169fdb3d13d7b134599de8b133|7181f60a5186b6f4aa8269d7c8d7319ceaffefce|15|15|15
+V2-B05|archive|scripts-lifecycle-v2-05-archive-obsolete-e2e|7181f60a5186b6f4aa8269d7c8d7319ceaffefce|c42959be8c2544d0c3b81061c51a35aeec1f54ac|1|1|1

@@ -1941,3 +1941,13 @@
 - 安装包：`dist/神意助手-Setup-3.127.2.exe`，231,667,073 bytes，SHA256 `04cdfcec1f23ed99bd12e90595c46057f51bfaa1b242af115aee043f062590fc`。
 - 分支：HEAD 领先本地 master 219 commits 可 fast-forward；`origin/master` 是 HEAD 祖先，本轮不强推；本地 master 快进前需审计其 11,735 文件差异面。
 - 边界：`keep=18 / quarantine-only=57 / decision-required=120` 剩余分账不并入本轮；用户 untracked 材料未触碰；旧安装包按既有交付保留。
+
+# 2026-11-13 scripts 生命周期 V2 分账收口
+
+- 文件：[_audit/DEV_LOG_2026-11-13-scripts-lifecycle-v2.md](_audit/DEV_LOG_2026-11-13-scripts-lifecycle-v2.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-13_scripts-lifecycle-v2.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-13_scripts-lifecycle-v2.md)
+- 交付：对剩余 76 个存活脚本完成外部引用对账；20 个真实入口/消费方保留，17+1 个内部闭合/过时验证链与 53 个 quarantine-only 脚本分 5 批哈希归档。
+- 用途：scripts 主工作区从 94 文件收敛到 20 文件，隔离验证和历史校准链保留独立 revert 锚点，且内容不改写。
+- 验证：74/74 pre/post 外部引用断言 exit 1；74/74 SHA-256 归档一致；5 个 tag/commit/ledger 全闭环；type-check exit 0；全量服务 250 files / 2734 tests passed；完整 build exit 0；`verify:packaging` pass，rendererFiles=87、electronAPI methods=94。
+- 安装包：`dist/神意助手-Setup-3.127.3.exe`，231,669,408 bytes，SHA256 `F44B71979A7B71893B5C693AA606F7E0C660348636318E6B3FC639BDB9FD15C4`。
+- 边界：不改产品代码、folder SKILL 与用户 untracked 材料；本地 master 独立差异仍未合并审计；临时规划器仅留在 `scripts/tmp/`，不作为发布资产。
