@@ -63,3 +63,11 @@
 - `postProcessReport.perf` 三态化：命中阈值保留 advisory 对象；无 `usage` 记录 `usageUnavailable`；有 `usage` 未达阈值记录 `thresholdNotMet`。类型同步至 run trace。
 - 状态：`untested`。本项只完成应用侧观测接线与本地回归，未经真实供应商 trace 回填，不得宣称闭环。
 - 验证：`npm run test:services` 251 files / 2748 tests PASS；`npm run type-check` PASS。
+
+## 2026-11-14 Phase D 真实 trace 观测回填
+
+- 证据：`_audit/verification-body-final-contract-outcome-20261113-213305.json`。
+- Phase A/B：`body-artifact-attempt` 从 `none/too_short/2705` 正确路由为 `targeted/complete/2926`，最终 `body-artifact-validated` 记录 `terminalReason=contract_valid / repairAttempts=1`。
+- Phase C：三次 `deai-model-profile` 均为 `released=false / releaseGate=calibration-not-ready / injectedRuleCount=0`；S2 后 `deai-stage-guidance` 活跃，6 条 findings、注入 187 字符、预算未超。
+- Phase D：运行时指纹为 `commit=1fba97791944 / appVersion=3.127.4`，早于 `43f10fa9`；`folderDiagnostics[0..2].postProcessReport.perf` 不存在属版本时序，不是接线缺陷。需下一次 3.127.5+ 真实供应商运行回填三态观测。
+- 结论：Phase A/B/C 已由真实 trace 验证；Phase D 保持 `untested`，不得宣称完全闭环。

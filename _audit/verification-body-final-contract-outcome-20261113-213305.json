@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 23,
+  "exportSchemaVersion": 23,
+  "id": "run-1794576785434-1",
+  "status": "failed",
+  "providerId": "prov-1788185503573",
+  "providerName": "新供应商",
+  "providerSource": "global",
+  "model": "deepseek-v4-flash",
+  "skillNames": [
+    "S1-骨架师（文件夹）",
+    "S2-血肉师（文件夹）",
+    "S3-打磨师（文件夹）"
+  ],
+  "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1794576785364-1",
+  "startedAt": 1794576785434,
+  "endedAt": 1794579619023,
+  "durationMs": 2833589,
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "1fba97791944",
+    "buildTime": "2026-11-13T13:23:35.748Z",
+    "appVersion": "3.127.4"
+  },
+  "observationConclusion": {
+    "phaseA": "verified",
+    "phaseB": "verified",
+    "phaseC": "verified",
+    "phaseD": "untested-runtime-version-mismatch",
+    "notes": "runtime commit 1fba97791944 predates Phase D commit 43f10fa9; postProcessReport.perf is therefore absent. Phase A/B repair routing and Phase C calibration-not-ready behavior are directly evidenced by this trace."
+  },
+  "deaiStageGuidance": [
+    {
+      "id": "event-1794578683107-591",
+      "step": 4,
+      "sourceSkillIndex": 1,
+      "targetSkillIndex": 2,
+      "findingCount": 6,
+      "injected": true,
+      "droppedFindingCount": 1,
+      "guidanceChars": 187,
+      "durationMs": 5.2,
+      "degraded": false,
+      "budgetExceeded": false,
+      "hash": "deai-stage-v1:455755bc000000bb",
+      "target": "next_step_user_prompt"
+    }
+  ],
+  "apiCalls": [
+    {
+      "index": 0,
+      "id": "api-1794576785583-17",
+      "step": 4,
+      "skillId": "folder:KAI-S3",
+      "skillName": "S3-打磨师（文件夹）",
+      "status": "failed",
+      "physicalCalls": [
+        {
+          "status": "failed"
+        },
+        {
+          "status": "failed"
+        },
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 25761,
+            "outputTokens": 4343,
+            "totalTokens": 30104
+          }
+        },
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 26635,
+            "outputTokens": 4803,
+            "totalTokens": 31438,
+            "cacheReadInputTokens": 1792
+          }
+        },
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 26632,
+            "outputTokens": 17430,
+            "totalTokens": 44062,
+            "cacheReadInputTokens": 1792,
+            "reasoningOutputTokens": 14044
+          }
+        }
+      ],
+      "postProcessReport": null
+    },
+    {
+      "index": 1,
+      "id": "api-1794577560368-77",
+      "step": 4,
+      "skillId": "folder:KAI-S2",
+      "skillName": "S2-血肉师（文件夹）",
+      "status": "success",
+      "finishReason": "stop",
+      "usage": {
+        "inputTokens": 8258,
+        "outputTokens": 4720,
+        "totalTokens": 12978
+      },
+      "usageUnavailable": false,
+      "physicalCalls": [
+        {
+          "status": "failed"
+        },
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 8258,
+            "outputTokens": 4720,
+            "totalTokens": 12978
+          }
+        }
+      ],
+      "postProcessReport": null
+    },
+    {
+      "index": 2,
+      "id": "api-1794578683209-602",
+      "step": 4,
+      "skillId": "folder:KAI-S3",
+      "skillName": "S3-打磨师（文件夹）",
+      "status": "failed",
+      "physicalCalls": [
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 25737,
+            "outputTokens": 12817,
+            "totalTokens": 38554
+          }
+        },
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 26288,
+            "outputTokens": 16601,
+            "totalTokens": 42889,
+            "cacheReadInputTokens": 1792
+          }
+        },
+        {
+          "status": "success",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 26367,
+            "outputTokens": 14019,
+            "totalTokens": 40386,
+            "cacheReadInputTokens": 1920
+          }
+        }
+      ],
+      "postProcessReport": null
+    }
+  ],
+  "deaiModelProfile": [
+    "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"provider\":\"prov-1788185503573\",\"model\":\"deepseek-v4-flash\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}",
+    "{\"step\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"provider\":\"prov-1788185503573\",\"model\":\"deepseek-v4-flash\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}",
+    "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"provider\":\"prov-1788185503573\",\"model\":\"deepseek-v4-flash\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}"
+  ],
+  "repairDecisions": [
+    {
+      "id": "event-1794577560326-69",
+      "type": "body-artifact-attempt",
+      "level": "warn",
+      "label": "正文批次验收",
+      "detail": "{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-1-7ifitg6o\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":2705,\"targetWords\":3500,\"ratio\":0.7728571428571429,\"validationMs\":1,\"errors\":[\"正文过短：2705字，要求不低于2800字\"],\"bodyPreview\":\"藤蔓从灰绿色的光里钻出来，贴着地面扫过，把防线外缘的碎石卷进半空，又在半空折转。灰绿的光源自偷袭处，光晕在空气里晃动，把散开的迎战人影照得忽明忽暗，把每一道藤蔓的轨迹都照得清楚。陈暮握着冷兵器，胳膊上的菌膜甲片被震得发麻，掌根抵在护臂边缘，压住那股想往后缩的劲。他站在小队近域的接战位上，顺着防线左前方接敌。\\n前侧有人喊，喊声被藤蔓破空的尖响撕成碎片，落进他耳里只剩断续的残响，听不清字。他没有喊。从\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"正文过短：2705字，要求不低于2800字\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态：陈暮独行静默到背负突围并首次开口，卷入不可逆；沈萤右踝崴伤一次定档、无法自行移动、临界未爆；位置：战局外缘→突围移动→定格；伤势：无；持有物：菌膜装甲、沈萤手中采集器具与冷兵器；时间点：遭遇战胶着至追击间隙；关键数字：首次开口=两个音节；新增事实：沈萤知道是陈暮背了她并听到那两个字；钩子兑现状态：画面定格于背上重量，倒叙入口开启\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":0}"
+    },
+    {
+      "id": "event-1794579618672-743",
+      "type": "body-artifact-attempt",
+      "level": "info",
+      "label": "正文批次验收",
+      "detail": "{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-2-n4xo9htc\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":2926,\"targetWords\":3500,\"ratio\":0.836,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"藤蔓是从他脚边三米处炸开的。\\n\\n陈暮踩碎一截枯枝，声音在胶着的夜色里被立即吞没。变异植物的攻击范围笼罩着近域，藤条从菌膜缝隙里钻出来，贴着地面游动，像黑色的水脉。他看见沈萤被逼离了队伍，迎战线散开后，她落在战线最外缘，离偷袭源最近的那个点。\\n\\n她的采集器具还握在手里，冷兵器斜插在腰间。藤蔓状的攻击结构在她近侧地面鼓起，灰绿色的汁液渗出来。她退一步，脚踝在碎石上崴了一下，身体晃了半圈，又站住。\\n\\n陈\",\"traceAuditFields\":{\"repairScope\":\"targeted\",\"previousBodySource\":\"candidate_metadata_only\",\"degradationReason\":\"none\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":4127,\"extractedWordCount\":2925,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=陈暮独行静默到背负突围并首次开口，卷入不可逆；沈萤右踝崴伤一次定档、无法自行移动、临界未爆；位置=战局外缘→突围移动→定格；持有物=菌膜装甲、沈萤手中采集器具与冷兵器；时间点=遭遇战胶着至追击间隙；关键数字=首次开口=两个音节；新增事实=沈萤知道是陈暮背了她并听到那两个字；钩子兑现状态：画面定格于背上重量，倒叙入口开启；伤势：无\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":1202}"
+    },
+    {
+      "id": "event-1794579618937-746",
+      "type": "body-artifact-validated",
+      "level": "info",
+      "label": "正文批次验收通过",
+      "detail": "{\"chapterId\":\"ch-vol_1794276033714_hlohas-002\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-1-7ifitg6o\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":2705,\"targetWords\":3500,\"errors\":[\"正文过短：2705字，要求不低于2800字\"]},{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-2-n4xo9htc\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":2926,\"targetWords\":3500,\"errors\":[]}],\"targetWords\":3500,\"wordCount\":2926,\"ratio\":0.836,\"status\":\"complete\",\"repairAttempts\":1}"
+    }
+  ],
+  "legacyFolderDiagnostics": [
+    {
+      "status": "failed",
+      "blockingGateFailed": true,
+      "issues": [
+        {
+          "severity": "blocking",
+          "code": "structural-contract",
+          "message": "【正文交接】出现0次，必须恰好一次"
+        }
+      ]
+    },
+    {
+      "status": "success",
+      "blockingGateFailed": false,
+      "usage": {
+        "inputTokens": 8258,
+        "outputTokens": 4720,
+        "totalTokens": 12978
+      },
+      "issues": []
+    },
+    {
+      "status": "failed",
+      "blockingGateFailed": true,
+      "issues": [
+        {
+          "severity": "blocking",
+          "code": "structural-contract",
+          "message": "终稿质量闭环失败：均句长16字（P10下限18.06）；恢复长短句呼吸，主语清楚的复合句不拆碎"
+        },
+        {
+          "severity": "blocking",
+          "code": "structural-contract",
+          "message": "终稿质量闭环失败：句首重复率0.564，高于作者基准P95上限0.4238；超线时换主语、场景物件或动作进入下一句"
+        },
+        {
+          "severity": "blocking",
+          "code": "structural-contract",
+          "message": "终稿质量闭环失败：四字重复率0.158，高于作者基准P95上限0.0517；改写高频短语，不用同义词循环替换"
+        }
+      ]
+    }
+  ]
+}
