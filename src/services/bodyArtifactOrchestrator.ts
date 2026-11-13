@@ -81,6 +81,7 @@ export interface BodyArtifactStructuredFailure {
   callerStatus: 'success' | 'degraded' | 'failed' | 'blocked'
   blockingGateFailed: boolean
   handoffNotReady: boolean
+  blockingVerdict: 'none' | 'handoff_not_ready' | 'quality_failed'
 }
 
 export function resolveBodyStructuredFailure(input: {
@@ -88,11 +89,18 @@ export function resolveBodyStructuredFailure(input: {
   callerStatus: 'success' | 'degraded' | 'failed' | 'blocked'
   blockingGateFailed?: boolean
 }): BodyArtifactStructuredFailure {
+  const handoffNotReady = input.callerStatus === 'blocked' &&
+    resolveChapterNarrativeBlock(input.output)?.retryableInBodyLayer === true
+  const blockingVerdict = handoffNotReady
+    ? 'handoff_not_ready'
+    : input.callerStatus === 'failed' && input.blockingGateFailed === true
+      ? 'quality_failed'
+      : 'none'
   return {
     callerStatus: input.callerStatus,
     blockingGateFailed: input.blockingGateFailed === true,
-    handoffNotReady: input.callerStatus === 'blocked' &&
-      resolveChapterNarrativeBlock(input.output)?.retryableInBodyLayer === true
+    handoffNotReady,
+    blockingVerdict
   }
 }
 
@@ -330,9 +338,12 @@ export async function generateBodyArtifact(
   const previousBody = lastAttempt?.body ?? ''
   const repairScope: BodyArtifactRepairScope = repairAttempt === 0
     ? 'none'
-      : structuredFailure?.handoffNotReady
+      : structuredFailure?.blockingVerdict === 'handoff_not_ready'
         ? 'targeted'
-        : previousBody.trim().length === 0 || targetedRepairFailed
+        : targetedRepairFailed
+        ? 'full_chain'
+        : previousBody.trim().length === 0 ||
+          (structuredFailure?.blockingVerdict === 'quality_failed' && targetedRepairFailed)
         ? 'full_chain'
         : 'targeted'
     const attemptId = createAttemptId(input.contract.chapterId, repairAttempt)
@@ -474,7 +485,7 @@ export async function generateBodyArtifact(
     attempts.push(attempt)
     input.onAttempt?.(attempt)
 
-    if (validation.valid) {
+    if (validation.valid && (!callStructuredFailure || callStructuredFailure.blockingVerdict === 'none')) {
       return {
         status: 'complete',
         body: generation.body,
@@ -488,9 +499,11 @@ export async function generateBodyArtifact(
       }
     }
 
-    if (repairAttempt >= maxRepairs) break
-    if (repairScope === 'targeted') targetedRepairFailed = true
+    if (repairScope === 'targeted' && callStructuredFailure?.blockingVerdict !== 'handoff_not_ready') {
+      targetedRepairFailed = true
+    }
     if (repairScope === 'full_chain') break
+    if (repairAttempt >= maxRepairs) break
     repairAttempt += 1
   }
 

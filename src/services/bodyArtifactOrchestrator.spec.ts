@@ -268,7 +268,7 @@ describe('generateBodyArtifact', () => {
     })
   })
 
-  it('routes a structured failed non-handoff output to targeted repair', async () => {
+  it('routes a structured failed non-handoff output to targeted repair first', async () => {
     const failedOutput = '短'
     const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
     const result = await generateBodyArtifact({
@@ -294,7 +294,101 @@ describe('generateBodyArtifact', () => {
     expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
       callerStatus: 'failed',
       blockingGateFailed: true,
-      handoffNotReady: false
+      handoffNotReady: false,
+      blockingVerdict: 'quality_failed'
+    })
+  })
+
+  it('routes the first quality failure through targeted and the second through full chain', async () => {
+    const calls: Array<BodyArtifactCallContext | undefined> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (_prompt, context) => {
+        calls.push(context)
+        return {
+          output: '这是一段合格的正文。',
+          callerStatus: 'failed',
+          blockingGateFailed: true,
+          errors: ['SKILL 质量闭环硬门禁未通过']
+        } as any
+      }
+    })
+
+    expect(result.status).toBe('failed')
+    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+    expect(result.attempts.map(attempt => attempt.metadata?.structuredFailure))
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({ blockingVerdict: 'quality_failed' })
+      ]))
+    expect(result.errors).toContain('SKILL 质量闭环硬门禁未通过')
+  })
+
+  it('does not return complete when SKILL already failed a word-valid output', async () => {
+    const calls: Array<BodyArtifactCallContext | undefined> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (_prompt, context) => {
+        calls.push(context)
+        if (calls.length < 3) {
+          return {
+            output: '这是一段合格的正文。',
+            callerStatus: 'failed',
+            blockingGateFailed: true,
+            errors: ['SKILL 质量闭环硬门禁未通过']
+          } as any
+        }
+        return '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+  })
+
+  it('keeps blocked handoff repair targeted and records its verdict', async () => {
+    const blockedMessage = '[NOT-READY] 交接输入不可恢复：缺上游账本'
+    const calls: Array<BodyArtifactCallContext | undefined> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (_prompt, context) => {
+        calls.push(context)
+        return calls.length === 1
+          ? {
+              output: blockedMessage,
+              callerStatus: 'blocked',
+              blockingGateFailed: true,
+              errors: [blockedMessage]
+            } as any
+          : '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted'])
+    expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
+      handoffNotReady: true,
+      blockingVerdict: 'handoff_not_ready'
+    })
+  })
+
+  it('does not upgrade a successful output to quality_failed', async () => {
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async () => ({
+        output: '这是一段合格的正文。',
+        callerStatus: 'success',
+        blockingGateFailed: false,
+        errors: []
+      })
+    })
+
+    expect(result.status).toBe('complete')
+    expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
+      blockingVerdict: 'none'
     })
   })
 
