@@ -1,6 +1,6 @@
 # 生成流水线正文层 SKILL 全链路说明 2026-11-14
 
-> 版本：V1  文档基线：2026-11-14  适用：凯旋正文层 kaixuan-s1/s2/s3  
+> 版本：V1.1  文档基线：2026-11-14  适用：凯旋正文层 kaixuan-s1/s2/s3
 > 本文只描述当前实现，不新增机制、不替 SKILL 定叙事规则。运行时以 trace 和文件夹指纹为准。
 
 ## 0. 定位与责任边界
@@ -31,6 +31,8 @@ S1 是 analysis，S2 是 generator，S3 是 polish。三个 `meta.json` 均声�
 
 现役形态是骨架字符串 + `【正文交接】`，不是 JSON 信封。应用用 legacy 分段解析账本区块。S1 不交付正文，不声明正文长度合同；它的账本是 S2 施工输入和诊断骨架来源。
 
+模板变量渲染会识别代码围栏和行内代码中的占位符，但不把它们当注入目标。流水线声明清单之外的多余变量记录 `folder-template-variables-missing`；空值渲染为“未设置”；模板内存在未被注入的 `{{...}}` 时记录 `template-placeholder-unresolved` 并阻止请求：`src/services/realSkillExecutor.ts:620-684`、`:865`。
+
 ### 2.2 S2：generator
 
 现役形态是 LHC JSON 信封：
@@ -58,6 +60,8 @@ S1 是 analysis，S2 是 generator，S3 是 polish。三个 `meta.json` 均声�
 
 终步 `final_step_ledger` 模式把生成步账本作为权威输入。单段上限 4000 字符，总上限 12000 字符：`src/services/chainExecution.ts:151-180`。缺权威账本会抛出 `正文生成步账本缺失`，不允许无 FACT_LOCK 交付：`src/components/pipeline/PipelinePanel.vue:5118-5126`。
 
+S2 产物通过后，终步对账会把上游元数据重置为权威生成步账本；S3 的账本漂移不会覆盖权威账本。执行计划在 attempt 开始时清空上一轮终步元数据缓存，避免跨 attempt 污染：`src/components/pipeline/PipelinePanel.vue:5186-5189`、`:6592-6602`。
+
 ## 3. 应用注入面
 
 ### 3.1 受保护正文契约
@@ -78,6 +82,8 @@ S2 输出后，应用做阶段诊断并把 `deai-stage-guidance` 拼到 S3 promp
 
 证据：指导包上限在 `src/services/deaiGuidancePack.ts:186-232`；模型画像上限在 `src/services/deaiModelProfile.ts:8-10,45-61`；S2 到 S3 阶段指导在 `src/components/pipeline/PipelinePanel.vue:5174-5200`。
 
+注入顺序是：先在下一轮 prompt 尾部拼接阶段诊断指导，再在其上方拼接模型事实画像。S2 后诊断只设置 `pendingStageDiagnosisGuidance`；画像解析发生在每个链步开始时。因此 S1/S2/S3 都可能收到模型画像，而阶段诊断只应出现在 S3：`src/components/pipeline/PipelinePanel.vue:4736-4805`。
+
 ### 3.3 重试反馈
 
 每步最多 3 次 attempt。结构化反馈进入 system message；folder-pass-input 导出通常只保存 user prompt，所以不能凭 `payload-prompt.json` 判断反馈缺失，必须看完整 request 或 trace 长度。
@@ -85,6 +91,25 @@ S2 输出后，应用做阶段诊断并把 `deai-stage-guidance` 拼到 S3 promp
 反馈策略单源为 bounded-summary、word-gap、handoff-repair、candidate-anchored。word-gap 骨架来源可为 candidate/upstream/none；骨架 800 字符截断。反馈不带候选全文。终步反馈明确说明账本由应用维护，S3 不要复述反馈。
 
 证据：`RETRY_LIMIT=3` 在 `src/services/realSkillExecutor.ts:43-45`；反馈注入位置在 `realSkillExecutor.ts:1030-1046`；策略实现与限长在 `src/services/schemaRetryFeedback.ts:18-82`；终步反馈在 `src/services/finalStepFeedback.ts:32-124`。
+
+第三次 attempt 的调用温度会在原值基础上加 `0.05`，上限 1.0：`src/services/realSkillExecutor.ts:1185`。这是对连续不收敛候选的轻微扰动，不是放宽合同。
+
+### 3.4 物理调用与预算
+
+每个 folder SKILL 调用获得独立预算 16；folder `meta.apiCallLimit` 可作为局部上限。逻辑 attempt 的第 3 次才触发本次 attempt 的自然重试。物理层面的 `retry`、`heartbeat_retry`、`direct_retry`、`continuation` 都会额外扣预算。`retry` 汇报会按 `physicalCallId` 去重，心跳探测同一物理调用不会重复计数。
+
+预算耗尽返回 `blocked`，不产出正文候选。预算证据：`src/components/pipeline/PipelinePanel.vue:3363`；消耗与阻断在 `src/services/realSkillExecutor.ts:999-1005,1113-1140`。
+
+### 3.5 有效性、直出重试与续写
+
+应用先对模型返回做有效性分类，再交给 SKILL postProcess：
+
+- `truncated`：按 body token（completion tokens 减 reasoning tokens）或 finishReason 判定，先续写合并。
+- `reasoning_exhausted` / `empty`：按供应商能力选择 `thinking_disabled` 或 `max_tokens_raised` 直出重试。
+- 续写返回“已到达协议终点/无待续写内容”时视为协议终点，不拼进正文。
+- 直出重试和续写都是可能增加物理调用的平台恢复动作，不改变每步 3 次逻辑 attempt 的语义。
+
+证据：`src/services/generationValidity.ts:62-145`；直出重试与续写在 `src/services/realSkillExecutor.ts:1216-1345`；续写自检在 `src/services/continuationSelfCheck.ts:1-7`。
 
 ## 4. 测量、候选账本与保留规则
 
@@ -110,11 +135,17 @@ S2 输出后，应用做阶段诊断并把 `deai-stage-guidance` 拼到 S3 promp
 
 targeted prompt 明确说明旧稿全文不进入本次请求；交接阻断时提示“上一版结果是 SKILL 交接阻断消息，不是可用正文”：`src/services/bodyArtifactOrchestrator.ts:241-292`。
 
+候选账本重试耗尽后有两条不同状态：SKILL 硬门禁阻断标记 `blockingGateFailed=true` 并返回 `failed`；只有结构化 schema 警告时返回 `degraded`，同时保留最佳候选交由产物契约门裁决。这个状态差是应用侧 targeted/full_chain 路由的输入，不是对 SKILL 质量的改判：`src/services/realSkillExecutor.ts:1746-1763`。
+
+postProcess 使用 `{ output, usage }` 输入。SKILL 可返回 `output`、`valid`、`errors/issues/warnings`、`_perf`；`_perf` 是 advisory，不是阻断器。应用只信任 blocking issue 的阻断作用，并把 `perf` 记录为 advisory 对象、`usageUnavailable` 或 `thresholdNotMet`：`src/services/realSkillExecutor.ts:43,1369-1425`。
+
 断点恢复和 targeted 复用上游 S2/S3 产物前，必须通过 `isGeneratorEnvelopeArtifact`。该检查只看交付形态：JSON 信封、非空 body、非空 extractedMeta，不评质量。失败降级整链并记录 `body-resume-artifact-invalid` 或 `body-targeted-repair-artifact-missing`：`src/services/chainExecution.ts:384-401`、`src/components/pipeline/PipelinePanel.vue:4519-4588`。
 
 ## 7. 断点恢复与产物状态
 
 断点产物若是旧信封或不可恢复形态，会先迁移或重置；恢复到生成步之后时，若产物不是生成器信封，则从头执行。历史物理调用 failed 只在最终产物未被接受时毒化 run 终态；终稿交付后，历史调用失败只体现为 recoveredFromDegraded，不覆盖成功终态：`src/services/pipelineRunOutcome.ts:24-60`。
+
+旧 `__shenyiStepArtifact` 信封只允许在断点恢复边界迁移。成功或降级的合法旧信封提取内部 `output`；解析失败或非法状态重置为链首并记录 `legacy-step-artifact-breakpoint-sanitized`。该兼容层不出现在新生成路径，S2/S3 新产物必须直接使用 LHC 信封：`src/components/pipeline/PipelinePanel.vue:4447-4468`。
 
 正文链多步时，缺失正文契约会直接失败；生成步索引无法唯一识别时抛出 `generator_not_identified`，禁止向所有步骤注入契约：`src/components/pipeline/PipelinePanel.vue:6602-6632`。
 
@@ -139,6 +170,12 @@ targeted prompt 明确说明旧稿全文不进入本次请求；交接阻断时�
 | `deai-stage-guidance` | S2 后诊断到 S3 的生成前指导 |
 | `deai-model-profile` | 模型画像释放与注入条数 |
 | `deai-calibration` | 终稿诊断入校准账本 |
+| `legacy-step-artifact-breakpoint-sanitized` | 旧信封断点产物迁移或重置 |
+| `generation-invalid` | 正文有效性分类失败 |
+| `direct-retry-start` / `direct-retry-finished` | 直出重试开始与结果 |
+| `continuation-self-check-skipped` | 续写返回协议终点，保留原候选 |
+| `template-placeholder-unresolved` | 模板占位符未注入，已阻止请求 |
+| `api-budget-blocked` | API 调用预算耗尽，返回 blocked |
 | `body-generator-step-resume-restored` | attempt 开始恢复生成步索引 |
 | `body-generator-step-unresolved` | 生成步无法唯一识别 |
 | `body-resume-artifact-invalid` | 断点产物缺生成器信封，整链重跑 |
@@ -180,6 +217,9 @@ run 首次加载 folder SKILL 时钉住指纹。运行中途磁盘文件变化�
 5. 诊断不得只看 user prompt 推断重试反馈缺失；要看完整 request 和 trace。
 6. 诊断不得把心跳、reasoning-only、provider retry 事件当成额外物理调用。
 7. 任何层不得用旧指纹或旧手册字段推翻当前 trace。
+8. 新生成不得重新使用 `__shenyiStepArtifact`；它只允许作为旧断点产物的一次性迁移边界。
+9. 不得把直出重试、续写或心跳恢复当成叙事质量修复；它们只处理空输出、reasoning-only 和 truncation。
+10. 不得把 `_perf` advisory 当作阻断信号，也不得为 advisory 扩大重试次数。
 
 ## 12. 变更纪律
 
