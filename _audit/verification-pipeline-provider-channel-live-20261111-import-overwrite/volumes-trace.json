@@ -1,0 +1,479 @@
+{
+  "id": "run-1794338910545-5",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "pipeline-provider-channel-ui",
+  "projectName": "层通道真实UI验证",
+  "providerId": "provider-volumes",
+  "providerName": "live-volumes通道供应商",
+  "providerSource": "layer",
+  "model": "glm-5.2",
+  "skillNames": [],
+  "skillMode": "compose",
+  "pipelineRunId": "pipeline-run-1794338910489-1",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "82873eac1d4c",
+    "buildTime": "2026-11-10T19:15:50.739Z",
+    "appVersion": "3.124.0"
+  },
+  "startedAt": 1794338910545,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "all_volumes_generation_complete",
+      "recordedAt": 1794338980239
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1794338910545-6",
+      "ts": 1794338910545,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1794338910547-7",
+      "ts": 1794338910547,
+      "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794338910548-8",
+      "ts": 1794338910548,
+      "seq": 3,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":8000,\"remainingVolumes\":1,\"currentVolumeBudget\":8000,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1794338910550-9",
+      "ts": 1794338910550,
+      "seq": 4,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1794338910566-10",
+      "ts": 1794338910566,
+      "seq": 5,
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：layer",
+      "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"glm-5.2\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
+    },
+    {
+      "id": "event-1794338910566-11",
+      "ts": 1794338910566,
+      "seq": 6,
+      "type": "deai-injection-policy",
+      "level": "info",
+      "label": "降AI注入策略",
+      "detail": "{\"step\":2,\"source\":\"app-default-no-skill-meta\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794338910567-12",
+      "ts": 1794338910567,
+      "seq": 7,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：compose",
+      "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"glm-5.2\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
+    },
+    {
+      "id": "event-1794338910567-14",
+      "ts": 1794338910567,
+      "seq": 8,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"glm-5.2\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1794338910584-16",
+      "ts": 1794338910584,
+      "seq": 9,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1794338910584-17",
+      "ts": 1794338910584,
+      "seq": 10,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1794338910583-15",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1794338910584-18",
+      "ts": 1794338910584,
+      "seq": 11,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / glm-5.2 / http://127.0.0.1:7706/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794338910620-19",
+      "ts": 1794338910620,
+      "seq": 12,
+      "turnId": "api-1794338910567-13",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"provider-volumes\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1794338974765-70",
+      "ts": 1794338974765,
+      "seq": 13,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1794338975796-71",
+      "ts": 1794338975796,
+      "seq": 14,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1794338979372-72",
+      "ts": 1794338979372,
+      "seq": 15,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1794338980206-73",
+      "ts": 1794338980206,
+      "seq": 16,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / glm-5.2 / stop / http://127.0.0.1:7706/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794338980206-74",
+      "ts": 1794338980206,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1794338980207-75",
+      "ts": 1794338980207,
+      "seq": 18,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "apiCall=api-1794338910567-13 seq=1"
+    },
+    {
+      "id": "event-1794338980207-76",
+      "ts": 1794338980207,
+      "seq": 19,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / glm-5.2"
+    },
+    {
+      "id": "event-1794338980214-77",
+      "ts": 1794338980214,
+      "seq": 20,
+      "type": "volume-batch-attempt",
+      "level": "info",
+      "label": "卷纲批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":0,\"errors\":[]}"
+    },
+    {
+      "id": "event-1794338980237-78",
+      "ts": 1794338980237,
+      "seq": 21,
+      "type": "volume-batch-validated",
+      "level": "info",
+      "label": "卷纲批次验收通过",
+      "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1794338980238-79",
+      "ts": 1794338980238,
+      "seq": 22,
+      "type": "write",
+      "level": "info",
+      "label": "卷纲已写入项目",
+      "detail": "写入 1 卷"
+    },
+    {
+      "id": "event-1794338980239-80",
+      "ts": 1794338980239,
+      "seq": 23,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "all_volumes_generation_complete"
+    },
+    {
+      "id": "event-1794338980239-81",
+      "ts": 1794338980239,
+      "seq": 24,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "all_volumes_generation_complete / run=run-1794338910545-5"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1794338910567-13",
+      "seq": 1,
+      "step": 2,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "provider-volumes",
+      "providerName": "live-volumes通道供应商",
+      "providerSource": "layer",
+      "model": "glm-5.2",
+      "temperature": 0.1,
+      "maxTokens": 8192,
+      "requestMessages": [
+        {
+          "role": "system",
+          "content": "你是专业小说创作助手。"
+        },
+        {
+          "role": "user",
+          "content": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+        }
+      ],
+      "responseText": "```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"承接第1卷对纸条的确认：王芳循纸条背面的刻痕重返灯塔，在塔底发现通往层通道维护层的暗门。她在维护层找到前任守望者的日志，得知灯塔并非导航设施，而是真实UI与渲染界面之间的校验节点，纸条正是上一位验证者留下的邀请。按日志指引，王芳依次完成三项验证：视差测试——看穿海雾中被渲染掩盖的缺帧；回声测试——在通道深处听见未被渲染的声音；自指测试——在UI中看见观察自己的窗口。前两项顺利通过，第三项却出现异常：界面里的'自己'比她先做出动作，层通道随即开始清除知情者，维护层逐段坍缩。高潮处，王芳借日志中的旧守望者权限，将第三项验证的结果反向写回通道，令真实UI短暂覆盖渲染层——灯塔光束扫过海面的一瞬，整片海域的伪装被剥离。结局：她没有摧毁通道，而是接过守望者之位，把纸条重新放回灯塔原处，等待下一个发现它的人；全卷以界面上残存的「验证仍在继续」字样收束。\",\n    \"summary\": \"王芳循纸条深入灯塔底部进入层通道维护层，从守望者日志得知灯塔是真实UI的校验节点；她完成视差、回声两项验证后，第三项自指测试出现异常并引来通道清除；最终她借旧权限让真实UI短暂显形，选择接任守望者并将纸条留给下一个验证者。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待纸条背后的真相被层层揭开：灯塔的真实用途、层通道与渲染界面的关系、三项验证的悬疑过程与第三项的反转，以及王芳在'所见非真'面前做出的抉择与身份转变。\",\n    \"mainPlotLine\": \"纸条引导下的层通道探索与真实UI验证主线：王芳由无意的发现者成长为层通道的新任守望者。\",\n    \"unlockMilestone\": \"解锁'真实UI验证'里程碑：三项验证完成、渲染层被短暂击穿、守望者权限完成传承。\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```",
+      "streamText": "```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"承接第1卷对纸条的确认：王芳循纸条背面的刻痕重返灯塔，在塔底发现通往层通道维护层的暗门。她在维护层找到前任守望者的日志，得知灯塔并非导航设施，而是真实UI与渲染界面之间的校验节点，纸条正是上一位验证者留下的邀请。按日志指引，王芳依次完成三项验证：视差测试——看穿海雾中被渲染掩盖的缺帧；回声测试——在通道深处听见未被渲染的声音；自指测试——在UI中看见观察自己的窗口。前两项顺利通过，第三项却出现异常：界面里的'自己'比她先做出动作，层通道随即开始清除知情者，维护层逐段坍缩。高潮处，王芳借日志中的旧守望者权限，将第三项验证的结果反向写回通道，令真实UI短暂覆盖渲染层——灯塔光束扫过海面的一瞬，整片海域的伪装被剥离。结局：她没有摧毁通道，而是接过守望者之位，把纸条重新放回灯塔原处，等待下一个发现它的人；全卷以界面上残存的「验证仍在继续」字样收束。\",\n    \"summary\": \"王芳循纸条深入灯塔底部进入层通道维护层，从守望者日志得知灯塔是真实UI的校验节点；她完成视差、回声两项验证后，第三项自指测试出现异常并引来通道清除；最终她借旧权限让真实UI短暂显形，选择接任守望者并将纸条留给下一个验证者。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待纸条背后的真相被层层揭开：灯塔的真实用途、层通道与渲染界面的关系、三项验证的悬疑过程与第三项的反转，以及王芳在'所见非真'面前做出的抉择与身份转变。\",\n    \"mainPlotLine\": \"纸条引导下的层通道探索与真实UI验证主线：王芳由无意的发现者成长为层通道的新任守望者。\",\n    \"unlockMilestone\": \"解锁'真实UI验证'里程碑：三项验证完成、渲染层被短暂击穿、守望者权限完成传承。\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```",
+      "reasoningText": "Let me analyze this request. The user wants me to generate a volume outline (卷纲) for volume 2 based on:\n- 大纲: A story unit H1-01 about 王芳 finding a note at a lighthouse (第1章)\n- 已生成卷数: 1 (volume 1 already generated: 第一卷 层通道, 12000 words, summary: 确认纸条)\n- 全书总字数: 20000字\n- Volume 2 needs to be generated\n\nSo total book is 20000 words, volume 1 was 12000 words, so volume 2 should be about 8000 words.\n\nWait, but the chapter range says 第1章 for H1-01... The 大纲 mentions \"剧情单元 H1-01 纸条\" spanning 第1章. Volume 1 covered 第1卷 层通道 with summary \"确认纸条\" (confirming the note). So volume 2 should continue from there.\n\nThe required output format is a JSON array with exactly 1 item, containing fields:\n- name (must not repeat existing volume name \"第一卷 层通道\")\n- outline\n- summary\n- allocatedWords\n- readerExpectations\n- mainPlotLine\n- unlockMilestone\n- forbiddenFinalCards (string array, [] if none)\n- contractRisk (must be contract_safe / contract_needs_reinforcement / contract_broken / [待补充])\n\nallocatedWords should be 20000 - 12000 = 8000.\n\nThe story so far: 王芳 finds a note at the lighthouse (灯塔). Volume 1 was \"层通道\" (Layer Channel), summary \"确认纸条\" (confirming the note). So the note was confirmed in volume 1. Volume 2 should advance the plot.\n\nGiven the title \"层通道真实UI验证\" (Layer Channel Real UI Verification) — this sounds like a sci-fi/system story where there's a \"层通道\" (layer channel/passage) and something about \"真实UI验证\" (real UI verification). Maybe the world has system-like interfaces, and the lighthouse note is part of discovering the truth about the UI.\n\nI should create a volume 2 outline that:\n- Doesn't repeat \"第一卷 层通道\"\n- Continues the story: after confirming the note, what next? Perhaps investigating the note's origin, discovering the lighthouse's secret, verifying the \"真实UI\" (real UI)\n- ~8000 words\n- Since it's the final volume (2 volumes total, 20000 words total), it should probably bring closure or at least a major milestone\n\nActually, with only 2 volumes and the 大纲 only mentioning H1-01 (第1章), the story is quite minimal. I need to extrapolate. Volume 2 could be about following the note's clues to the truth about the layer channel / UI verification.\n\nLet me draft:\n\nname: \"第二卷 灯塔之下\" or \"第二卷 真实界面\" — need to avoid repeating \"第一卷 层通道\". Let me pick \"第二卷 灯塔之下\" (Volume 2: Beneath the Lighthouse).\n\noutline: Detailed outline describing the volume's chapters/plot beats:\n- 王芳 follows the note's coordinates/instructions back to the lighthouse basement\n- Discovers the lighthouse is actually an access terminal for the \"层通道\" system\n- Meets someone or finds evidence about who wrote the note\n- The \"真实UI验证\" — the note asks her to verify whether the UI she sees is real or fabricated\n- Climax: she passes/fails the verification, gains the ability to see the true interface\n- Ending: opens the next stage or resolves the mystery\n\nSince it's the last volume (2 total), maybe it should end with a hook or resolution. With 20000 total words, this is a short story/novella. Volume 2 at 8000 words should probably conclude the H1-01 unit arc or set up the next major mystery.\n\nActually wait — the 大纲 only has one 剧情单元 (H1-01) for 第1章. The volume 1 summary says \"确认纸条\" — confirming the note. So H1-01 might span into volume 1's chapters. Volume 2 has no explicit 大纲 content, so I have creative freedom but should stay consistent: 王芳, 灯塔, 纸条, 层通道, UI验证.\n\nLet me write the JSON:\n\n```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"...\",\n    \"summary\": \"...\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"...\",\n    \"mainPlotLine\": \"...\",\n    \"unlockMilestone\": \"...\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```\n\nWait — contractRisk semantics: contract_safe / contract_needs_reinforcement / contract_broken / [待补充]. Since there's no 设定规划约束 (设定 is 暂无), the contract risk... Hmm. \"contract\" here likely refers to the reader contract / narrative promises. Since no constraints given, I could say \"contract_safe\" or \"[待补充]\". Given 设定规划约束 is 暂无 (none), maybe \"contract_safe\" is fine since there are no contracts to violate. Or \"[待补充]\" since no contract has been established. I think \"contract_safe\" is reasonable — no established contracts are being broken. Actually, since there's no 设定 at all, the safest interpretation: with no 设定规划约束, there are no contract obligations, so \"contract_safe\". But it could also be \"[待补充]\" meaning the contract status is pending. I'll go with \"contract_safe\" and maybe note it. Actually, let me think: the field asks whether the volume risks breaking the contract. With no constraints, outputting \"contract_safe\" makes sense.\n\nforbiddenFinalCards: 禁碰终局底牌 — forbidden endgame cards. Since we don't know the final endings, and no constraints given, output []. The instruction says \"没有则输出[]\".\n\nNow, since this is volume 2 of 2 (final volume), should it resolve the story? The 大纲 only defines H1-01 for 第1章, suggesting more units would come later — but with only 2 volumes and 20000 words, the whole book is short. The volume outline should probably bring the H1-01 arc to a satisfying stage and possibly end the book with the \"真实UI验证\" milestone.\n\nHmm, but actually maybe the book continues? \"卷数: 2\" and \"已生成卷数: 1\" means we're generating volume 2 now, and total 卷数 is 2 — so this is the last volume. The book should reach some resolution or at least a strong milestone.\n\nLet me write a good outline in Chinese:\n\n第二卷 name ideas:\n- 第二卷 灯塔之下\n- 第二卷 真实界面\n- 第二卷 验证者\n- 第二卷 纸条背面\n\nI'll go with \"第二卷 灯塔之下\" — evocative and connects to 王芳/灯塔.\n\noutline (detailed):\n1. 承接第1章纸条确认：王芳按纸条背面的刻痕回到灯塔，发现塔底铁门后的螺旋阶梯通向\"层通道\"维护层。\n2. 维护层中她找到前任守望者留下的日志，得知灯塔并非导航设施，而是\"真实UI\"与\"渲染界面\"之间的校验节点；纸条是上一任验证者留下的邀请。\n3. 王芳按日志指引完成三项验证：视差测试（看穿海雾中的缺帧）、回声测试（在通道中听见未被渲染的声音）、自指测试（在UI中看见自己的观察窗口）。\n4. 前两项通过，第三项出现异常——她在界面里看到的\"自己\"比她先做出了动作，层通道开始主动清除知情者。\n5. 高潮：王芳利用守望者日志中的旧权限，把第三项验证结果反向写回通道，让\"真实UI\"短暂覆盖渲染层，灯塔光束扫过海面时，整片海域的伪装剥离了一瞬。\n6. 结局：她没有摧毁通道，而是选择留在灯塔成为新的守望者，把纸条重新放回原处——等待下一个发现它的人；全卷以\"验证仍在继续\"的字样收束。\n\nsummary: 王芳循纸条深入灯塔底部，进入层通道维护层，完成真实UI的三项验证；在第三项验证出现异常后，她借旧权限让真实界面短暂显形，并选择接守望者之位，将纸条留予下一个验证者。\n\nreaderExpectations: 读者期待看到纸条背后的真相层层揭开、验证过程的悬疑与反转，以及王芳直面\"所见非真\"的抉择与成长。\n\nmainPlotLine: 纸条引导的层通道探索与真实UI验证（王芳由发现者成长为守望者）。\n\nunlockMilestone: 本卷解锁\"真实UI验证\"里程碑——三项验证完成，渲染层被短暂击穿，守望者权限传承。\n\nallocatedWords: 8000\n\nforbiddenFinalCards: [] — since no constraints. Hmm, but should I list some? The instruction: \"禁碰终局底牌（字符串数组，没有则输出[]）\". Since no 设定规划约束 exists, there's no info about forbidden final cards, so [].\n\ncontractRisk: \"contract_safe\" — no 设定规划约束 means no contract to violate. \n\nActually, let me reconsider — should I output \"[待补充]\" for contractRisk since there's no contract info? The field allows [待补充]. But \"contract_safe\" seems like a valid determination: nothing is being broken. I'll go with \"contract_safe\" since with no constraints established, there's no contract risk.\n\nShould other fields use [待补充]? No, I have enough info to fill them. The instruction says semantic fields MAY output [待补充] but must be present. I'll fill them all with real content.\n\nFormat: The response should be a JSON array. The system prompt mentions tables, but no table needed here — just output JSON. Should I wrap in code block? Probably fine to output as a JSON code block for readability. The instruction says \"输出JSON数组\" — I'll output a JSON array, possibly in a code fence. I'll use a code fence for clarity.\n\nLength check: allocatedWords 8000 = 20000 - 12000. Good.\n\nVolume name check: not \"第一卷 层通道\". \"第二卷 灯塔之下\" is different. Good.\n\nLet me also make sure the outline references continuity from volume 1: volume 1 summary was \"确认纸条\" (the note was confirmed). So volume 2 starts after confirmation. My outline says \"承接第1章纸条确认\" — good.\n\nAlso the 大纲 title: \"层通道真实UI验证\" — my outline centers on this. Good.\n\nLet me finalize the JSON. Make sure valid JSON: strings with Chinese, no trailing commas, proper escaping. Avoid special characters like quotes inside strings, or escape them. I'll avoid double quotes inside strings; use 「」 or '' instead.\n\nFinal JSON:\n\n```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"承接第1卷对纸条的确认：王芳循纸条背面的刻痕重返灯塔，在塔底发现通往层通道维护层的暗门。她在维护层找到前任守望者的日志，得知灯塔并非导航设施，而是真实UI与渲染界面之间的校验节点，纸条正是上一位验证者留下的邀请。按日志指引，王芳依次完成三项验证：视差测试——看穿海雾中被渲染掩盖的缺帧；回声测试——在通道深处听见未被渲染的声音；自指测试——在UI中看见观察自己的窗口。前两项顺利通过，第三项却出现异常：界面里的'自己'比她先做出动作，层通道随即开始清除知情者，维护层逐段坍缩。高潮处，王芳借日志中的旧守望者权限，将第三项验证的结果反向写回通道，令真实UI短暂覆盖渲染层——灯塔光束扫过海面的一瞬，整片海域的伪装被剥离。结局：她没有摧毁通道，而是接过守望者之位，把纸条重新放回灯塔原处，等待下一个发现它的人；全卷以界面上残存的'验证仍在继续'字样收束。\",\n    \"summary\": \"王芳循纸条深入灯塔底部进入层通道维护层，从守望者日志得知灯塔是真实UI的校验节点；她完成视差、回声两项验证后，第三项自指测试出现异常并引来通道清除；最终她借旧权限让真实UI短暂显形，选择接任守望者并将纸条留给下一个验证者。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待纸条背后的真相被层层揭开：灯塔的真实用途、层通道与渲染界面的关系、三项验证的悬疑过程与第三项的反转，以及王芳在'所见非真'面前做出的抉择与身份转变。\",\n    \"mainPlotLine\": \"纸条引导下的层通道探索与真实UI验证主线：王芳由无意的发现者成长为层通道的新任守望者。\",\n    \"unlockMilestone\": \"解锁'真实UI验证'里程碑：三项验证完成、渲染层被短暂击穿、守望者权限完成传承。\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```\n\nCheck quotes inside strings: I used '自己' — single quotes, fine in JSON. '所见非真' also single quotes — fine. \"验证仍在继续\" — wait, I used double quotes there in the outline: 残存的\"验证仍在继续\"字样 — that would break JSON! Let me change to 「验证仍在继续」or '验证仍在继续'. I'll use 「」.\n\nAlso in outline I wrote \"自己\" with single quotes '自己' — fine.\n\nLet me double-check all strings for double quotes:\n- outline: '自己' ok, 「验证仍在继续」ok\n- others: no quotes.\n\nallocatedWords: 8000 — number, fine.\n\ncontractRisk: \"contract_safe\" — valid value.\n\nArray length 1. Good. No repeated volume name.\n\nOne more consideration: since this is the final volume, ending with the story's close (守望者传承, 验证仍在继续) gives closure while leaving thematic resonance. Good.\n\nShould I add any explanation outside the JSON? The instruction is to output the JSON array. I'll output just the code block, maybe with a minimal lead-in. Keep it clean — just the JSON in a code fence. Actually a very brief intro line is fine, or none. I'll include just the code block to comply strictly. Hmm, the format instructions only concern tables. I'll output the JSON array in a fenced code block with no extra prose, or maybe one short line. I'll do just the code block for strict compliance.",
+      "status": "success",
+      "startedAt": 1794338910567,
+      "physicalCalls": [
+        {
+          "id": "physical-1794338910583-15",
+          "physicalCallId": "physical-1794338910569-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "你是专业小说创作助手。"
+            },
+            {
+              "role": "user",
+              "content": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+            }
+          ],
+          "responseText": "```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"承接第1卷对纸条的确认：王芳循纸条背面的刻痕重返灯塔，在塔底发现通往层通道维护层的暗门。她在维护层找到前任守望者的日志，得知灯塔并非导航设施，而是真实UI与渲染界面之间的校验节点，纸条正是上一位验证者留下的邀请。按日志指引，王芳依次完成三项验证：视差测试——看穿海雾中被渲染掩盖的缺帧；回声测试——在通道深处听见未被渲染的声音；自指测试——在UI中看见观察自己的窗口。前两项顺利通过，第三项却出现异常：界面里的'自己'比她先做出动作，层通道随即开始清除知情者，维护层逐段坍缩。高潮处，王芳借日志中的旧守望者权限，将第三项验证的结果反向写回通道，令真实UI短暂覆盖渲染层——灯塔光束扫过海面的一瞬，整片海域的伪装被剥离。结局：她没有摧毁通道，而是接过守望者之位，把纸条重新放回灯塔原处，等待下一个发现它的人；全卷以界面上残存的「验证仍在继续」字样收束。\",\n    \"summary\": \"王芳循纸条深入灯塔底部进入层通道维护层，从守望者日志得知灯塔是真实UI的校验节点；她完成视差、回声两项验证后，第三项自指测试出现异常并引来通道清除；最终她借旧权限让真实UI短暂显形，选择接任守望者并将纸条留给下一个验证者。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待纸条背后的真相被层层揭开：灯塔的真实用途、层通道与渲染界面的关系、三项验证的悬疑过程与第三项的反转，以及王芳在'所见非真'面前做出的抉择与身份转变。\",\n    \"mainPlotLine\": \"纸条引导下的层通道探索与真实UI验证主线：王芳由无意的发现者成长为层通道的新任守望者。\",\n    \"unlockMilestone\": \"解锁'真实UI验证'里程碑：三项验证完成、渲染层被短暂击穿、守望者权限完成传承。\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```",
+          "streamText": "```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"承接第1卷对纸条的确认：王芳循纸条背面的刻痕重返灯塔，在塔底发现通往层通道维护层的暗门。她在维护层找到前任守望者的日志，得知灯塔并非导航设施，而是真实UI与渲染界面之间的校验节点，纸条正是上一位验证者留下的邀请。按日志指引，王芳依次完成三项验证：视差测试——看穿海雾中被渲染掩盖的缺帧；回声测试——在通道深处听见未被渲染的声音；自指测试——在UI中看见观察自己的窗口。前两项顺利通过，第三项却出现异常：界面里的'自己'比她先做出动作，层通道随即开始清除知情者，维护层逐段坍缩。高潮处，王芳借日志中的旧守望者权限，将第三项验证的结果反向写回通道，令真实UI短暂覆盖渲染层——灯塔光束扫过海面的一瞬，整片海域的伪装被剥离。结局：她没有摧毁通道，而是接过守望者之位，把纸条重新放回灯塔原处，等待下一个发现它的人；全卷以界面上残存的「验证仍在继续」字样收束。\",\n    \"summary\": \"王芳循纸条深入灯塔底部进入层通道维护层，从守望者日志得知灯塔是真实UI的校验节点；她完成视差、回声两项验证后，第三项自指测试出现异常并引来通道清除；最终她借旧权限让真实UI短暂显形，选择接任守望者并将纸条留给下一个验证者。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待纸条背后的真相被层层揭开：灯塔的真实用途、层通道与渲染界面的关系、三项验证的悬疑过程与第三项的反转，以及王芳在'所见非真'面前做出的抉择与身份转变。\",\n    \"mainPlotLine\": \"纸条引导下的层通道探索与真实UI验证主线：王芳由无意的发现者成长为层通道的新任守望者。\",\n    \"unlockMilestone\": \"解锁'真实UI验证'里程碑：三项验证完成、渲染层被短暂击穿、守望者权限完成传承。\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```",
+          "reasoningText": "Let me analyze this request. The user wants me to generate a volume outline (卷纲) for volume 2 based on:\n- 大纲: A story unit H1-01 about 王芳 finding a note at a lighthouse (第1章)\n- 已生成卷数: 1 (volume 1 already generated: 第一卷 层通道, 12000 words, summary: 确认纸条)\n- 全书总字数: 20000字\n- Volume 2 needs to be generated\n\nSo total book is 20000 words, volume 1 was 12000 words, so volume 2 should be about 8000 words.\n\nWait, but the chapter range says 第1章 for H1-01... The 大纲 mentions \"剧情单元 H1-01 纸条\" spanning 第1章. Volume 1 covered 第1卷 层通道 with summary \"确认纸条\" (confirming the note). So volume 2 should continue from there.\n\nThe required output format is a JSON array with exactly 1 item, containing fields:\n- name (must not repeat existing volume name \"第一卷 层通道\")\n- outline\n- summary\n- allocatedWords\n- readerExpectations\n- mainPlotLine\n- unlockMilestone\n- forbiddenFinalCards (string array, [] if none)\n- contractRisk (must be contract_safe / contract_needs_reinforcement / contract_broken / [待补充])\n\nallocatedWords should be 20000 - 12000 = 8000.\n\nThe story so far: 王芳 finds a note at the lighthouse (灯塔). Volume 1 was \"层通道\" (Layer Channel), summary \"确认纸条\" (confirming the note). So the note was confirmed in volume 1. Volume 2 should advance the plot.\n\nGiven the title \"层通道真实UI验证\" (Layer Channel Real UI Verification) — this sounds like a sci-fi/system story where there's a \"层通道\" (layer channel/passage) and something about \"真实UI验证\" (real UI verification). Maybe the world has system-like interfaces, and the lighthouse note is part of discovering the truth about the UI.\n\nI should create a volume 2 outline that:\n- Doesn't repeat \"第一卷 层通道\"\n- Continues the story: after confirming the note, what next? Perhaps investigating the note's origin, discovering the lighthouse's secret, verifying the \"真实UI\" (real UI)\n- ~8000 words\n- Since it's the final volume (2 volumes total, 20000 words total), it should probably bring closure or at least a major milestone\n\nActually, with only 2 volumes and the 大纲 only mentioning H1-01 (第1章), the story is quite minimal. I need to extrapolate. Volume 2 could be about following the note's clues to the truth about the layer channel / UI verification.\n\nLet me draft:\n\nname: \"第二卷 灯塔之下\" or \"第二卷 真实界面\" — need to avoid repeating \"第一卷 层通道\". Let me pick \"第二卷 灯塔之下\" (Volume 2: Beneath the Lighthouse).\n\noutline: Detailed outline describing the volume's chapters/plot beats:\n- 王芳 follows the note's coordinates/instructions back to the lighthouse basement\n- Discovers the lighthouse is actually an access terminal for the \"层通道\" system\n- Meets someone or finds evidence about who wrote the note\n- The \"真实UI验证\" — the note asks her to verify whether the UI she sees is real or fabricated\n- Climax: she passes/fails the verification, gains the ability to see the true interface\n- Ending: opens the next stage or resolves the mystery\n\nSince it's the last volume (2 total), maybe it should end with a hook or resolution. With 20000 total words, this is a short story/novella. Volume 2 at 8000 words should probably conclude the H1-01 unit arc or set up the next major mystery.\n\nActually wait — the 大纲 only has one 剧情单元 (H1-01) for 第1章. The volume 1 summary says \"确认纸条\" — confirming the note. So H1-01 might span into volume 1's chapters. Volume 2 has no explicit 大纲 content, so I have creative freedom but should stay consistent: 王芳, 灯塔, 纸条, 层通道, UI验证.\n\nLet me write the JSON:\n\n```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"...\",\n    \"summary\": \"...\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"...\",\n    \"mainPlotLine\": \"...\",\n    \"unlockMilestone\": \"...\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```\n\nWait — contractRisk semantics: contract_safe / contract_needs_reinforcement / contract_broken / [待补充]. Since there's no 设定规划约束 (设定 is 暂无), the contract risk... Hmm. \"contract\" here likely refers to the reader contract / narrative promises. Since no constraints given, I could say \"contract_safe\" or \"[待补充]\". Given 设定规划约束 is 暂无 (none), maybe \"contract_safe\" is fine since there are no contracts to violate. Or \"[待补充]\" since no contract has been established. I think \"contract_safe\" is reasonable — no established contracts are being broken. Actually, since there's no 设定 at all, the safest interpretation: with no 设定规划约束, there are no contract obligations, so \"contract_safe\". But it could also be \"[待补充]\" meaning the contract status is pending. I'll go with \"contract_safe\" and maybe note it. Actually, let me think: the field asks whether the volume risks breaking the contract. With no constraints, outputting \"contract_safe\" makes sense.\n\nforbiddenFinalCards: 禁碰终局底牌 — forbidden endgame cards. Since we don't know the final endings, and no constraints given, output []. The instruction says \"没有则输出[]\".\n\nNow, since this is volume 2 of 2 (final volume), should it resolve the story? The 大纲 only defines H1-01 for 第1章, suggesting more units would come later — but with only 2 volumes and 20000 words, the whole book is short. The volume outline should probably bring the H1-01 arc to a satisfying stage and possibly end the book with the \"真实UI验证\" milestone.\n\nHmm, but actually maybe the book continues? \"卷数: 2\" and \"已生成卷数: 1\" means we're generating volume 2 now, and total 卷数 is 2 — so this is the last volume. The book should reach some resolution or at least a strong milestone.\n\nLet me write a good outline in Chinese:\n\n第二卷 name ideas:\n- 第二卷 灯塔之下\n- 第二卷 真实界面\n- 第二卷 验证者\n- 第二卷 纸条背面\n\nI'll go with \"第二卷 灯塔之下\" — evocative and connects to 王芳/灯塔.\n\noutline (detailed):\n1. 承接第1章纸条确认：王芳按纸条背面的刻痕回到灯塔，发现塔底铁门后的螺旋阶梯通向\"层通道\"维护层。\n2. 维护层中她找到前任守望者留下的日志，得知灯塔并非导航设施，而是\"真实UI\"与\"渲染界面\"之间的校验节点；纸条是上一任验证者留下的邀请。\n3. 王芳按日志指引完成三项验证：视差测试（看穿海雾中的缺帧）、回声测试（在通道中听见未被渲染的声音）、自指测试（在UI中看见自己的观察窗口）。\n4. 前两项通过，第三项出现异常——她在界面里看到的\"自己\"比她先做出了动作，层通道开始主动清除知情者。\n5. 高潮：王芳利用守望者日志中的旧权限，把第三项验证结果反向写回通道，让\"真实UI\"短暂覆盖渲染层，灯塔光束扫过海面时，整片海域的伪装剥离了一瞬。\n6. 结局：她没有摧毁通道，而是选择留在灯塔成为新的守望者，把纸条重新放回原处——等待下一个发现它的人；全卷以\"验证仍在继续\"的字样收束。\n\nsummary: 王芳循纸条深入灯塔底部，进入层通道维护层，完成真实UI的三项验证；在第三项验证出现异常后，她借旧权限让真实界面短暂显形，并选择接守望者之位，将纸条留予下一个验证者。\n\nreaderExpectations: 读者期待看到纸条背后的真相层层揭开、验证过程的悬疑与反转，以及王芳直面\"所见非真\"的抉择与成长。\n\nmainPlotLine: 纸条引导的层通道探索与真实UI验证（王芳由发现者成长为守望者）。\n\nunlockMilestone: 本卷解锁\"真实UI验证\"里程碑——三项验证完成，渲染层被短暂击穿，守望者权限传承。\n\nallocatedWords: 8000\n\nforbiddenFinalCards: [] — since no constraints. Hmm, but should I list some? The instruction: \"禁碰终局底牌（字符串数组，没有则输出[]）\". Since no 设定规划约束 exists, there's no info about forbidden final cards, so [].\n\ncontractRisk: \"contract_safe\" — no 设定规划约束 means no contract to violate. \n\nActually, let me reconsider — should I output \"[待补充]\" for contractRisk since there's no contract info? The field allows [待补充]. But \"contract_safe\" seems like a valid determination: nothing is being broken. I'll go with \"contract_safe\" since with no constraints established, there's no contract risk.\n\nShould other fields use [待补充]? No, I have enough info to fill them. The instruction says semantic fields MAY output [待补充] but must be present. I'll fill them all with real content.\n\nFormat: The response should be a JSON array. The system prompt mentions tables, but no table needed here — just output JSON. Should I wrap in code block? Probably fine to output as a JSON code block for readability. The instruction says \"输出JSON数组\" — I'll output a JSON array, possibly in a code fence. I'll use a code fence for clarity.\n\nLength check: allocatedWords 8000 = 20000 - 12000. Good.\n\nVolume name check: not \"第一卷 层通道\". \"第二卷 灯塔之下\" is different. Good.\n\nLet me also make sure the outline references continuity from volume 1: volume 1 summary was \"确认纸条\" (the note was confirmed). So volume 2 starts after confirmation. My outline says \"承接第1章纸条确认\" — good.\n\nAlso the 大纲 title: \"层通道真实UI验证\" — my outline centers on this. Good.\n\nLet me finalize the JSON. Make sure valid JSON: strings with Chinese, no trailing commas, proper escaping. Avoid special characters like quotes inside strings, or escape them. I'll avoid double quotes inside strings; use 「」 or '' instead.\n\nFinal JSON:\n\n```json\n[\n  {\n    \"name\": \"第二卷 灯塔之下\",\n    \"outline\": \"承接第1卷对纸条的确认：王芳循纸条背面的刻痕重返灯塔，在塔底发现通往层通道维护层的暗门。她在维护层找到前任守望者的日志，得知灯塔并非导航设施，而是真实UI与渲染界面之间的校验节点，纸条正是上一位验证者留下的邀请。按日志指引，王芳依次完成三项验证：视差测试——看穿海雾中被渲染掩盖的缺帧；回声测试——在通道深处听见未被渲染的声音；自指测试——在UI中看见观察自己的窗口。前两项顺利通过，第三项却出现异常：界面里的'自己'比她先做出动作，层通道随即开始清除知情者，维护层逐段坍缩。高潮处，王芳借日志中的旧守望者权限，将第三项验证的结果反向写回通道，令真实UI短暂覆盖渲染层——灯塔光束扫过海面的一瞬，整片海域的伪装被剥离。结局：她没有摧毁通道，而是接过守望者之位，把纸条重新放回灯塔原处，等待下一个发现它的人；全卷以界面上残存的'验证仍在继续'字样收束。\",\n    \"summary\": \"王芳循纸条深入灯塔底部进入层通道维护层，从守望者日志得知灯塔是真实UI的校验节点；她完成视差、回声两项验证后，第三项自指测试出现异常并引来通道清除；最终她借旧权限让真实UI短暂显形，选择接任守望者并将纸条留给下一个验证者。\",\n    \"allocatedWords\": 8000,\n    \"readerExpectations\": \"读者期待纸条背后的真相被层层揭开：灯塔的真实用途、层通道与渲染界面的关系、三项验证的悬疑过程与第三项的反转，以及王芳在'所见非真'面前做出的抉择与身份转变。\",\n    \"mainPlotLine\": \"纸条引导下的层通道探索与真实UI验证主线：王芳由无意的发现者成长为层通道的新任守望者。\",\n    \"unlockMilestone\": \"解锁'真实UI验证'里程碑：三项验证完成、渲染层被短暂击穿、守望者权限完成传承。\",\n    \"forbiddenFinalCards\": [],\n    \"contractRisk\": \"contract_safe\"\n  }\n]\n```\n\nCheck quotes inside strings: I used '自己' — single quotes, fine in JSON. '所见非真' also single quotes — fine. \"验证仍在继续\" — wait, I used double quotes there in the outline: 残存的\"验证仍在继续\"字样 — that would break JSON! Let me change to 「验证仍在继续」or '验证仍在继续'. I'll use 「」.\n\nAlso in outline I wrote \"自己\" with single quotes '自己' — fine.\n\nLet me double-check all strings for double quotes:\n- outline: '自己' ok, 「验证仍在继续」ok\n- others: no quotes.\n\nallocatedWords: 8000 — number, fine.\n\ncontractRisk: \"contract_safe\" — valid value.\n\nArray length 1. Good. No repeated volume name.\n\nOne more consideration: since this is the final volume, ending with the story's close (守望者传承, 验证仍在继续) gives closure while leaving thematic resonance. Good.\n\nShould I add any explanation outside the JSON? The instruction is to output the JSON array. I'll output just the code block, maybe with a minimal lead-in. Keep it clean — just the JSON in a code fence. Actually a very brief intro line is fine, or none. I'll include just the code block to comply strictly. Hmm, the format instructions only concern tables. I'll output the JSON array in a fenced code block with no extra prose, or maybe one short line. I'll do just the code block for strict compliance.",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 330,
+            "outputTokens": 3745,
+            "totalTokens": 4075,
+            "cacheReadInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "reasoningOutputTokens": 3206
+          },
+          "usageUnavailable": false,
+          "startedAt": 1794338910583,
+          "durationMs": 69635,
+          "firstTokenMs": 1721,
+          "outputMs": 67914,
+          "endedAt": 1794338980206,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "toolCallCount": 0,
+          "toolCallNames": [],
+          "maxTokens": 8192,
+          "modelCapability": {
+            "contextWindowTokens": 128000,
+            "contextWindowSource": "provider",
+            "maxOutputTokens": 8192,
+            "maxOutputSource": "override",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 197,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 197 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 197,
+            "actualInputTokens": 330,
+            "driftRatio": 0.6751269035532994,
+            "correctedRatio": 1.6751269035532994
+          },
+          "firstContentAt": 1794338974757,
+          "lastContentAt": 1794338980185,
+          "lastReasoningAt": 1794338974757,
+          "finalUrl": "http://127.0.0.1:7706/v1/chat/completions",
+          "transport": "main-process",
+          "providerSource": "layer",
+          "cacheUsageSummary": {
+            "status": "reported",
+            "cacheReadInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "cacheReadInputRatio": 0
+          },
+          "contextComposition": {
+            "layer": "volumes",
+            "step": 2,
+            "providerType": "openai-compatible",
+            "providerId": "provider-volumes",
+            "model": "glm-5.2",
+            "cacheFamily": "openai-compatible:provider-volumes:glm-5.2:volumes:step-2",
+            "prefixFingerprint": "ca3594e6-115dc87-11:811c9dc5-1000193-0",
+            "systemLength": 116,
+            "userLength": 536,
+            "stableSystemPrefixLength": 11,
+            "stableUserPrefixLength": 0,
+            "stableChars": 11,
+            "variableChars": 641,
+            "stableRatio": 0.017
+          },
+          "heartbeat": true
+        }
+      ],
+      "lastExecutionActivityAt": 1794338980188,
+      "streamTotalChars": 908,
+      "lastStreamActivityAt": 1794338980188,
+      "finishReason": "stop",
+      "durationMs": 69636,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 69635,
+        "firstTokenSumMs": 1721,
+        "outputSumMs": 67914,
+        "minFirstTokenMs": 1721,
+        "maxFirstTokenMs": 1721,
+        "localOverheadMs": 1
+      },
+      "usage": {
+        "inputTokens": 330,
+        "outputTokens": 3745,
+        "totalTokens": 4075,
+        "cacheReadInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "reasoningOutputTokens": 3206
+      },
+      "usageUnavailable": false,
+      "endedAt": 1794338980207,
+      "semantic": {
+        "conversationId": "run-1794338910545-5",
+        "usage": {
+          "inputTokens": 330,
+          "outputTokens": 3745,
+          "totalTokens": 4075,
+          "cacheReadInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "reasoningOutputTokens": 3206
+        }
+      }
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "eventLedger": {
+    "totalEvents": 24,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "dirName": "run-trace-卷纲层-20261111-032830",
+  "stepPhaseTiming": {
+    "validation": 0,
+    "persistence": 21
+  },
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 69635,
+    "firstTokenSumMs": 1721,
+    "outputSumMs": 67914,
+    "localOverheadSumMs": 1,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 1721,
+    "outputSumMs": 67914,
+    "validationSumMs": 0,
+    "persistenceSumMs": 21,
+    "repeatedPromptBlocks": {},
+    "contextChars": 547,
+    "outputChars": 908,
+    "physicalDurationSumMs": 69635
+  },
+  "endedAt": 1794338980239,
+  "durationMs": 69694
+}
