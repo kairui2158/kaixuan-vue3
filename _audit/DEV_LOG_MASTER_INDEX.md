@@ -1981,3 +1981,12 @@
 - 交付：failed folder step 保留结构化输出并回接既有 targeted 路由；`deai-model-profile` 按快照规则最小释放，无规则仍空注入，有规则最多 3 条且 600 字符截断。
 - 验证：Phase B focused 30/30；Phase C focused 26/26；type-check 与 build:vue PASS；真实 Electron 观测 PASS，三次 profile 均为 `released=true / releaseGate=null / injectedRuleCount=1 / guidanceChars=40`；commit `1ae6c6df`、`30205b99`。
 - 边界：不新增修复系统、预算、调度、UI 或第二裁判；不要求 folder SKILL 改动；下一次真实正文层 trace 仍需对账 `postProcessReport.perf`、`repairScope` 与画像注入条数。
+
+# 2026-11-14 正文层终态契约与产物回退 V1 执行
+
+- 文件：[_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md](_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md)
+- 方案：[_audit/PROPOSAL_2026-11-14_BODY_FINAL_CONTRACT_OUTCOME_V1.md](_audit/PROPOSAL_2026-11-14_BODY_FINAL_CONTRACT_OUTCOME_V1.md)
+- 交付：历史调用失败不覆盖已验收终稿；SKILL blocking verdict 参与路由并阻断字数假通过；断点恢复和定点复用先做纯结构信封校验；`postProcessReport.perf` 三态化。
+- 用途：杜绝失败信封当终稿、NOT-READY 短文假通过、断点复用旧结构产物，并让 usage/perf 观测可对账。
+- 验证：Phase A/B focused、Phase C focused、全量服务 251 files / 2748 tests、type-check、build:vue 全部 PASS；commits `7992942a`、`2dbd11b8`、`d249dca6`、`43f10fa9`。
+- 边界：Phase D 真实供应商 trace 未回填，标记 `untested`；本轮不新增预算、调度、UI 或第二裁判。
