@@ -1,0 +1,38 @@
+{
+  "skillId": "folder:DEAI-STAGE-S1",
+  "skillName": "S-Live-DeaiStageS1（文件夹）",
+  "mode": "folder-fingerprint",
+  "contextBlocks": [],
+  "folderFingerprint": [
+    {
+      "file": "SKILL.md",
+      "hash": "316f80e70ad2c8bc563a3cd66d35c3ec0fb0d1f42bd628491e74e81afd52252b",
+      "mtime": 1794572105148,
+      "bytes": 154
+    },
+    {
+      "file": "template.md",
+      "hash": "7d05a74cd8ad2c587b0cbd674021add4dc8fb804205c62e99470eb3575fb28fa",
+      "mtime": 1794572105149,
+      "bytes": 108
+    },
+    {
+      "file": "meta.json",
+      "hash": "ad62d66688ca93e09e13b811ddd945ea69bae880863deb3e14a22640de989ef0",
+      "mtime": 1794572105149,
+      "bytes": 210
+    },
+    {
+      "file": "script.js",
+      "hash": "5e839074978ccc7156b97753ac24c2bb85bec5dc8522dfd598300beb8b66ac2d",
+      "mtime": 1794572105150,
+      "bytes": 76
+    }
+  ],
+  "finalMessages": [
+    {
+      "role": "user",
+      "content": "【模型事实情报】\n1. deai-e2e-stable-rule：近6次稳定命中\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标的三次红色闪烁；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。"
+    }
+  ]
+}

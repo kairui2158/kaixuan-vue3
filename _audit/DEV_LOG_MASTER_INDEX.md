@@ -1973,3 +1973,11 @@
 - 交付：LHC 现役双形态与指纹同步给应用侧记录；三条待办改判为 usage 已解决观测期、deai profile 冻结门禁待最小释放、S3 回退先路由对账再单点修复。
 - 验证：`realSkillExecutor.ts:1382-1385`、S1 `script.js:587-601`、`deaiModelProfile.ts:11,48`、`bodyArtifactOrchestrator.ts:331-337` 等源码位逐条核验。
 - 边界：不改 SKILL 和产品代码；不新增兼容层、预算系统、调度器、UI 或第二裁判。
+
+# 2026-11-13 LHC 同步 Phase B/C 执行
+
+- 文件：[_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md](_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md)
+- 方案：[_audit/PROPOSAL_2026-11-13_LHC_ARCH_SYNC_AND_APP_TODO_ROUTES_V1.md](_audit/PROPOSAL_2026-11-13_LHC_ARCH_SYNC_AND_APP_TODO_ROUTES_V1.md)
+- 交付：failed folder step 保留结构化输出并回接既有 targeted 路由；`deai-model-profile` 按快照规则最小释放，无规则仍空注入，有规则最多 3 条且 600 字符截断。
+- 验证：Phase B focused 30/30；Phase C focused 26/26；type-check 与 build:vue PASS；真实 Electron 观测 PASS，三次 profile 均为 `released=true / releaseGate=null / injectedRuleCount=1 / guidanceChars=40`；commit `1ae6c6df`、`30205b99`。
+- 边界：不新增修复系统、预算、调度、UI 或第二裁判；不要求 folder SKILL 改动；下一次真实正文层 trace 仍需对账 `postProcessReport.perf`、`repairScope` 与画像注入条数。

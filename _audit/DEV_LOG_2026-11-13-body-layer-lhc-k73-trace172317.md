@@ -48,3 +48,11 @@
 - 待办改判 2：`deai-model-profile` 不是数据未注入，而是 `deaiModelProfile.ts:11` 冻结门禁 `RELEASED=false` 导致 `:48` 永远返回空 guidance；账本已有 5 样本门槛。改为“冻结门禁待最小释放”。
 - 待办改判 3：`S3三败回退` 不是“无路由”。`bodyArtifactOrchestrator.ts:331-337` 首败即编排 targeted，`:203-220` 会从生成步重跑，PipelinePanel `:6555-6569` 展开执行计划；K73 未触发属路由对账问题。改为“现有 targeted/full_chain 路由未触发，先对账再修单点”，不新增修复系统。
 - 边界：本段不改 SKILL，不改产品代码，只同步声明与待办状态。
+
+## 2026-11-13 LHC 同步方案 Phase B/C 执行
+
+- 方案：`_audit/PROPOSAL_2026-11-13_LHC_ARCH_SYNC_AND_APP_TODO_ROUTES_V1.md`
+- Phase B：`PipelinePanel.vue:3554-3562` 在 folder result failed 且存在 `stepArtifactContext` 时保留 `StructuredSkillStepOutput`，不再把硬门禁失败转成裸异常；blocked 叙事路由保持原优先级。focused 测试 30/30、type-check、build:vue PASS，commit `1ae6c6df`。
+- Phase C：`deaiModelProfile.ts:11` 与 `:45-97` 从快照规则推导释放；无规则仍空注入，有规则最多 3 条且 600 字符截断；trace 保留 `released/releaseGate/eligibleRuleCount/injectedRuleCount/guidanceChars`。focused 测试 26/26、type-check、build:vue PASS，commit `30205b99`。
+- Electron 观测：`scripts/verify-deai-stage-guidance-electron.mjs` PASS；三次 profile 事件均为 `released=true / releaseGate=null / injectedRuleCount=1 / guidanceChars=40`，证据在 `_audit/verification-deai-stage-guidance-electron/run-trace.json:170,403,681`。
+- Phase D 边界：真实正文层供应商 trace 仍需对账 `postProcessReport.perf`、`repairScope` 与 profile 注入条数；未回填前不宣称完全闭环。

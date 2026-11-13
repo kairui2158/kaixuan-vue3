@@ -99,11 +99,15 @@
 3. trace 断言：无规则不注入，有规则最多 3 条且 `guidanceChars <= 600`。
 4. 用户可见状态变化时做一次真实 Electron 手工烟测。
 
+执行结论：已按快照规则释放，无规则时仍返回空 guidance；`released` 改为 `DEAI_MODEL_PROFILE_RELEASED && snapshot.rules.length > 0` 推导，保留全部 trace 对账字段。Electron 观测链 PASS，三次 `deai-model-profile` 均为 `released=true / releaseGate=null / injectedRuleCount=1 / guidanceChars=40`。
+
 ### Phase D：观测闭环
 
 1. 下一次真实正文层运行检查：`postProcessReport.perf` 是否在 reasoning ratio > 70% 时出现；如出现则退役观测项。
 2. 若执行 Phase B/C，用真实运行记录对账 repairScope、profile 注入条数与 UI/trace 展示一致。
 3. 更新 DEV_LOG 与 STACK 版本索引；不重写历史结论。
+
+执行状态：Phase B/C 代码与本地验收已完成；本仓库 Electron 观测链已确认画像释放与 bounded 注入。下一次真实正文层供应商运行仍需对账 `postProcessReport.perf`、`repairScope` 与画像注入条数，未回填前 Phase D 不宜宣称完全闭环。
 
 ## 4. 过度设计自检
 
