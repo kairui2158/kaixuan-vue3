@@ -3551,6 +3551,15 @@ async function callValidatedSkill(
         ;(error as Error & { blockingGateFailed?: boolean }).blockingGateFailed =
           folderResult.blockingGateFailed === true
       }
+      if (stepArtifactContext && folderResult?.status === 'failed') {
+        return {
+          output: folderResult.output,
+          callerStatus: 'failed',
+          blockingGateFailed: folderResult.blockingGateFailed === true,
+          errors: folderResult.errors,
+          stepCandidateAudit: stepArtifactCandidateAudit(folderResult.apiMeta)
+        }
+      }
       throw error
     }
     if (route.mode === "folder" && route.folderResult) {

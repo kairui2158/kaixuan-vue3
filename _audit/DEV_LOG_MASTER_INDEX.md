@@ -1951,3 +1951,25 @@
 - 验证：74/74 pre/post 外部引用断言 exit 1；74/74 SHA-256 归档一致；5 个 tag/commit/ledger 全闭环；type-check exit 0；全量服务 250 files / 2734 tests passed；完整 build exit 0；`verify:packaging` pass，rendererFiles=87、electronAPI methods=94。
 - 安装包：`dist/神意助手-Setup-3.127.3.exe`，231,669,408 bytes，SHA256 `F44B71979A7B71893B5C693AA606F7E0C660348636318E6B3FC639BDB9FD15C4`。
 - 边界：不改产品代码、folder SKILL 与用户 untracked 材料；本地 master 独立差异仍未合并审计；临时规划器仅留在 `scripts/tmp/`，不作为发布资产。
+
+# 2026-11-13 正文层 LHC 与 K69/K70/K72 收口
+
+- 文件：[_audit/DEV_LOG_2026-11-13-body-layer-lhc-k69-k70-k72.md](_audit/DEV_LOG_2026-11-13-body-layer-lhc-k69-k70-k72.md)
+- 交付：LHC 新架构形态入开发日志；104548 trace 定谳为修复前旧版回归样本；K69/K70 现役指纹、失败链、reasoning 耗时与修复面记录完成。
+- 验证：104548 主回归、salvage 回归、selfreport 回归、K13 LHC 信封回归均 PASS；全量 56 个独立测试 JS `TOTAL=56 / FAILED_COUNT=0`；S2/S3 `node --check` exit 0。
+- 边界：不改应用产品代码；离线回归 PASS 不等于 live PASS，现役新版仍需真实应用重跑一章定论；`deai-model-profile calibration-not-ready` 是应用侧待办。
+
+## 2026-11-13 body-layer LHC K73 trace-172317
+
+- 文件：[_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md](_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md)
+- 交付：LHC 现役四根因（分隔行污染/预算无闸/直引号误报/无上游回退）修复落盘；贴地板收敛合同、旧预算剥离、直引号同构计数；K73 入经验总结。
+- 验证：新增回归 5/5 PASS；全量 57 个独立测试 JS `TOTAL=57 / FAILED_COUNT=0`；S2/S3 `node --check` exit 0；现役指纹 S2=5E2ABBDF S3=E4B3C58F 无旧残留。
+- 边界：S3三败无上游S2回退路由属应用侧决策面，SKILL 不越界补路由；现役新版仍需真实应用重跑一章定论。
+
+# 2026-11-13 LHC 声明同步与应用侧待办改判 V1
+
+- 文件：[_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md](_audit/DEV_LOG_2026-11-13-body-layer-lhc-k73-trace172317.md)
+- 方案：[_audit/PROPOSAL_2026-11-13_LHC_ARCH_SYNC_AND_APP_TODO_ROUTES_V1.md](_audit/PROPOSAL_2026-11-13_LHC_ARCH_SYNC_AND_APP_TODO_ROUTES_V1.md)
+- 交付：LHC 现役双形态与指纹同步给应用侧记录；三条待办改判为 usage 已解决观测期、deai profile 冻结门禁待最小释放、S3 回退先路由对账再单点修复。
+- 验证：`realSkillExecutor.ts:1382-1385`、S1 `script.js:587-601`、`deaiModelProfile.ts:11,48`、`bodyArtifactOrchestrator.ts:331-337` 等源码位逐条核验。
+- 边界：不改 SKILL 和产品代码；不新增兼容层、预算系统、调度器、UI 或第二裁判。

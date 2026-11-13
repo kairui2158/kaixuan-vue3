@@ -268,6 +268,36 @@ describe('generateBodyArtifact', () => {
     })
   })
 
+  it('routes a structured failed non-handoff output to targeted repair', async () => {
+    const failedOutput = '短'
+    const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (prompt, context) => {
+        calls.push({ prompt, context })
+        return calls.length === 1
+          ? {
+              output: failedOutput,
+              callerStatus: 'failed',
+              blockingGateFailed: true,
+              errors: ['输出未通过校验，已达最大尝试次数 3']
+            } as any
+          : '这是一段合格的正文。'
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls[1].context?.repairScope).toBe('targeted')
+    expect(calls[1].context?.previousBody).toBe(failedOutput)
+    expect(calls[1].context?.errors).toContain('输出未通过校验，已达最大尝试次数 3')
+    expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
+      callerStatus: 'failed',
+      blockingGateFailed: true,
+      handoffNotReady: false
+    })
+  })
+
   it('uses structured-step output as the body while retaining structured failure metadata', async () => {
     const result = await generateBodyArtifact({
       contract,
