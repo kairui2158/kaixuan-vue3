@@ -32,6 +32,22 @@ describe('resolvePipelineRunOutcome', () => {
     expect(outcome.recoveredFromDegraded).toBe(false)
   })
 
+  it('does not let historical call failures poison an accepted final artifact', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      apiCalls: [
+        { status: 'failed' },
+        { status: 'success' },
+        { status: 'success' }
+      ],
+      folderStatus: null,
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('success')
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
   it('keeps failure priority above artifact acceptance', () => {
     const outcome = resolvePipelineRunOutcome({
       runStatus: 'failed: 写入失败',

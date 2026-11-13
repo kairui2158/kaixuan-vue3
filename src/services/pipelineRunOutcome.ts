@@ -35,7 +35,11 @@ export function resolvePipelineRunOutcome(
   if (runStatus === 'canceled' || owningPipelineStatus === 'canceled' || hasCallStatus('canceled')) {
     return { status: 'canceled', recoveredFromDegraded: false, degradedApiCalls }
   }
-  if (runStatus.startsWith('failed') || owningPipelineStatus === 'failed' || hasCallStatus('failed')) {
+  if (
+    runStatus.startsWith('failed') ||
+    owningPipelineStatus === 'failed' ||
+    (!input.finalArtifactAccepted && hasCallStatus('failed'))
+  ) {
     return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls, error: runError || undefined }
   }
   if (runStatus.startsWith('blocked') || owningPipelineStatus === 'blocked' || hasCallStatus('blocked')) {
