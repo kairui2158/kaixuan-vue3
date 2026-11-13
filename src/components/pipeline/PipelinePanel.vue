@@ -2895,6 +2895,14 @@ function getStepSkillAgentId(step: number, skillId: string): string {
   return stepSkillAgents.value[getSkillAgentKey(step, skillId)] || ""
 }
 
+function resolveBodyCalibrationAgentConfig(): { model?: string; provider?: string } | null {
+  const generatorStep = resolveBodyGeneratorStepIndex(getStepSkillTemplates(4))
+  if (generatorStep.index === null) return null
+  const skillId = getStepSkillIds(4)[generatorStep.index] || ""
+  const agentId = skillId ? getStepSkillAgentId(4, skillId) : ""
+  return agentId ? agentStore.getAgent(agentId) || null : null
+}
+
 function getStepSkillOutputFormat(step: number, si: number): string {
   const ids = getStepSkillIds(step)
   const sid = ids[si]
@@ -6352,6 +6360,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     await pipelineStore.clearBreakpoint(`pipeline:${String(projectStore.currentProjectId || '')}:step-4`)
   }
   const bodyProviderChannel = buildProviderChannelConfigSnapshot('body')
+  const bodyCalibrationAgentConfig = resolveBodyCalibrationAgentConfig()
   const bodyConfigSnapshot = {
     ...(await readStepConfigSnapshotForRun()),
     pipelineProviderChannel: bodyProviderChannel,
@@ -6793,7 +6802,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
     try {
-      const requestProfile = resolvePipelineRunRequestProfile(bodyRunId, 4, null)
+      const requestProfile = resolvePipelineRunRequestProfile(bodyRunId, 4, bodyCalibrationAgentConfig)
       const finalDiagnosis = buildDeaiStageDiagnosis(finalBody)
       const finalGuidance = formatDeaiStageGuidance(finalDiagnosis)
         const calibrationRecord = await recordDeaiCalibrationFindings(
