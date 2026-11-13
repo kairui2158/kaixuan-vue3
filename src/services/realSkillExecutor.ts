@@ -1398,13 +1398,15 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           })
         }
         const rawPerf = postResult.fields._perf
-        const perf = isPlainObject(rawPerf)
+        const perf: RealSkillPostProcessReport['perf'] = isPlainObject(rawPerf)
           && typeof rawPerf.warning === 'string'
           && rawPerf.warning.length > 0
           && Number.isFinite(rawPerf.ratio)
           && rawPerf.blocking === false
           ? { warning: rawPerf.warning, ratio: rawPerf.ratio as number, blocking: false as const }
-          : undefined
+          : result.usage
+            ? 'thresholdNotMet'
+            : 'usageUnavailable'
         postProcessReport = {
           applied: true,
           changedOutput: candidateOutput !== postInput,

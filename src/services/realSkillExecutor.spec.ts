@@ -1755,8 +1755,29 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
     expect(result.status).toBe('success')
-    expect(result.postProcessReport?.perf).toBeUndefined()
+    expect(result.postProcessReport?.perf).toBe('usageUnavailable')
     expect(result.postProcessReport?.issues).toEqual([])
+  })
+
+  it('marks thresholdNotMet when usage exists but no perf threshold is reached', async () => {
+    const callAi = vi.fn(async () => ({
+      text: '输出',
+      usage: { inputTokens: 100, outputTokens: 10, reasoningOutputTokens: 1 }
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess({ output, usage }) { const ratio = usage?.reasoningOutputTokens / usage?.outputTokens; return { output, valid: true, issues: [], _perf: ratio > 0.7 ? { warning: 'reasoning-output-ratio-high', ratio, blocking: false } : undefined } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.postProcessReport?.perf).toBe('thresholdNotMet')
   })
 
   it('downgrades structural postProcess warnings but keeps prose taste warnings successful', async () => {

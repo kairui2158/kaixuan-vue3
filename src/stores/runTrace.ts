@@ -707,11 +707,14 @@ export interface RunTraceFolderDiagnostic {
     outputPayloadRef?: string
     issues?: Array<{ severity?: string; code?: string; message?: string }>
     durationMs?: number
-    perf?: {
-      warning: string
-      ratio: number
-      blocking: false
-    }
+    perf?:
+      | {
+          warning: string
+          ratio: number
+          blocking: false
+        }
+      | 'usageUnavailable'
+      | 'thresholdNotMet'
   }
 }
 

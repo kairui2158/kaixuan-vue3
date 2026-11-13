@@ -81,11 +81,14 @@ export interface RealSkillPostProcessReport {
   /** FNV-1a fingerprint of the script text that produced this report. */
   ruleFingerprint?: string
   /** Advisory performance observation emitted by folder SKILL; never blocking. */
-  perf?: {
-    warning: string
-    ratio: number
-    blocking: false
-  }
+  perf?:
+    | {
+        warning: string
+        ratio: number
+        blocking: false
+      }
+    | 'usageUnavailable'
+    | 'thresholdNotMet'
 }
 
 export interface WorkspaceSkillRunMetaPostProcess {

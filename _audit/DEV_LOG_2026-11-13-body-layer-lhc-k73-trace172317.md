@@ -56,3 +56,10 @@
 - Phase C：`deaiModelProfile.ts:11` 与 `:45-97` 从快照规则推导释放；无规则仍空注入，有规则最多 3 条且 600 字符截断；trace 保留 `released/releaseGate/eligibleRuleCount/injectedRuleCount/guidanceChars`。focused 测试 26/26、type-check、build:vue PASS，commit `30205b99`。
 - Electron 观测：`scripts/verify-deai-stage-guidance-electron.mjs` PASS；三次 profile 事件均为 `released=true / releaseGate=null / injectedRuleCount=1 / guidanceChars=40`，证据在 `_audit/verification-deai-stage-guidance-electron/run-trace.json:170,403,681`。
 - Phase D 边界：真实正文层供应商 trace 仍需对账 `postProcessReport.perf`、`repairScope` 与 profile 注入条数；未回填前不宣称完全闭环。
+
+## 2026-11-14 Body final contract outcome Phase D
+
+- 方案：`_audit/PROPOSAL_2026-11-14_BODY_FINAL_CONTRACT_OUTCOME_V1.md`
+- `postProcessReport.perf` 三态化：命中阈值保留 advisory 对象；无 `usage` 记录 `usageUnavailable`；有 `usage` 未达阈值记录 `thresholdNotMet`。类型同步至 run trace。
+- 状态：`untested`。本项只完成应用侧观测接线与本地回归，未经真实供应商 trace 回填，不得宣称闭环。
+- 验证：`npm run test:services` 251 files / 2748 tests PASS；`npm run type-check` PASS。
