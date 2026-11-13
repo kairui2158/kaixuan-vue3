@@ -1939,5 +1939,5 @@
 - 交付：P3 后对账 scripts=94、51 批次台账、101 条哈希行、0 字面量表头；G1.21 补脚本先登记后落盘的长期规则；升版 3.127.2 并完成 NSIS 交付。
 - 验证：`npm run type-check` exit 0；完整 `npm run build` exit 0；`npm run verify:packaging` exit 0 且 `verdict=pass`，rendererFiles=87、electronAPI methods=94。
 - 安装包：`dist/神意助手-Setup-3.127.2.exe`，231,667,073 bytes，SHA256 `04cdfcec1f23ed99bd12e90595c46057f51bfaa1b242af115aee043f062590fc`。
-- 分支：HEAD 领先本地 master 218 commits 可 fast-forward；`origin/master` 与 HEAD 有 56 个未审计远端提交，本轮不强推。
+- 分支：HEAD 领先本地 master 219 commits 可 fast-forward；`origin/master` 是 HEAD 祖先，本轮不强推；本地 master 快进前需审计其 11,735 文件差异面。
 - 边界：`keep=18 / quarantine-only=57 / decision-required=120` 剩余分账不并入本轮；用户 untracked 材料未触碰；旧安装包按既有交付保留。

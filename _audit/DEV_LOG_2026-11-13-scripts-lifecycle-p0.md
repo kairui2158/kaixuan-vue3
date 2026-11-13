@@ -65,5 +65,5 @@
 ### 分支处置
 
 1. 本地 `master` 与当前 HEAD 同源：HEAD 领先本地 master 218 commits，本地 master 理论可 fast-forward 到 HEAD。
-2. `origin/master` 与 HEAD 分叉：merge-base 是 `29e321be...`，远端另持 56 commits，HEAD 领先远端 merge-base 274 commits；本轮不做强推覆盖，远端 56 commits 需单独审计后另行裁决。
+2. `origin/master` 本体就是 HEAD 的祖先 merge-base（`29e321be...`）；所谓 56 commits 在本地 `master` 独立线上，不在远端。本轮不做无审计强推；本地 master 快进需先完成二进制资产与 11735 文件差异面审计。
 3. `git rev-parse 'refs/heads/master^{commit}'` 正常返回 `ac278a74...`；前轮 base64 乱码为 Windows 引号解析假象，ref 文件与 packed-refs 均健康。
