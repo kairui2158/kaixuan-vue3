@@ -1,0 +1,2 @@
+batch	V2-B05 action	archive tag	scripts-lifecycle-v2-05-archive-obsolete-e2e preCommit	7181f60a5186b6f4aa8269d7c8d7319ceaffefce pathHashRows	1 path	action	status	sha256
+scripts\verify-api-direct-write-v2-e2e.mjs	archive	clean	FD93E2BD49220A6817CDAE7401D1C8BD82419CCD2A1C5C50772D6D5B9F29CBE2

@@ -74,3 +74,4 @@ V2-B04|scripts\verify-skill-agent-authority-electron.mjs|DFC5B462F006C6A56043CA1
 V2-B04|scripts\verify-skill-context-policy-v21-electron.mjs|89584531CB121A0BAC05FE696BF4725CFA086F6C4D189BF4D0B5BE6432756A9E|2026-11-13|quarantine-only-retired
 V2-B04|scripts\verify-skill-folder-not-found-electron.mjs|89262058F1D91AD917F2EBF21F5179606CAAD4D2079A757EB46EC0AA5BF15BFE|2026-11-13|quarantine-only-retired
 V2-B04|scripts\verify-skill-neutral-execution-electron.mjs|8C2B545AFB5D5110E4FCA63A41A5D0AFA1E259C8CF781EAE0399E5E9260D25DD|2026-11-13|quarantine-only-retired
+V2-B05|scripts\verify-api-direct-write-v2-e2e.mjs|FD93E2BD49220A6817CDAE7401D1C8BD82419CCD2A1C5C50772D6D5B9F29CBE2|2026-11-13|quarantine-only-retired
