@@ -1,9 +1,9 @@
 # 方案 · 正文层生成步失败接线与定点修复形态（V1）
 
-状态：待用户审核
+状态：已执行（live 判定 observational-blocked，W1/W2 行为达标）
 日期：2026-11-14
 上游证据：`_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_phase-b-observation-closure-v1.md`
-规则基准：`_audit/神意开发经验总结_v9.md`（v10.4.1）
+规则基准：`_audit/神意开发经验总结_v9.md`（v10.4.2）
 
 ## 1. 目标与原话
 

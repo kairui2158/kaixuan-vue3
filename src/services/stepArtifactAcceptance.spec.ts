@@ -34,6 +34,38 @@ describe('acceptStepArtifact', () => {
     }
   })
 
+  it('keeps a malformed failed envelope as structured rejection instead of crashing advisory parsing', () => {
+    const malformedEnvelope = JSON.stringify({
+      body: '正文',
+      metadata: {
+        extractedMeta: '【正文交接】\nFACT_LOCK：位置：码头'
+      }
+    })
+    const result = resolveStepArtifactFlow({
+      stepOutput: {
+        output: malformedEnvelope,
+        callerStatus: 'failed',
+        blockingGateFailed: true,
+        errors: ['metadata.extractedMeta必须是数组']
+      },
+      stepIndex: 1,
+      contract
+    })
+
+    expect(result.acceptance).toMatchObject({
+      decision: 'reject',
+      reason: 'caller_failed',
+      callerStatus: 'failed'
+    })
+    expect(result.acceptance.errors).toEqual(['SKILL 调用失败'])
+    expect(result.chapterEventIncrementAdvisory).toMatchObject({
+      detected: true,
+      incrementValue: null
+    })
+    expect(result.chapterNarrativeVerdict.status).toBe('undeclared')
+    expect(result.traceAuditFields.eventIncrement).toBeNull()
+  })
+
   it('keeps legacy raw-output flow for steps without a contract', () => {
     const result = acceptStepArtifact({
       rawOutput: '普通步骤产物',

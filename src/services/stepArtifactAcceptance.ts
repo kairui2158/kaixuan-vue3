@@ -202,16 +202,16 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
         }
       : null,
     chapterEventIncrementAdvisory: evaluateChapterEventIncrement(
-      acceptance.metadata.extractedMeta?.join('\n') || ''
+      metadataSections(acceptance.metadata).join('\n')
     ),
     chapterNarrativeVerdict: detectChapterNarrativeVerdict(
-      acceptance.metadata.extractedMeta?.join('\n') || ''
+      metadataSections(acceptance.metadata).join('\n')
     ),
     traceAuditFields: {
       sourceCandidateIndex: stepCandidateAudit?.attempt ?? null,
       sourceResponseHash: stepCandidateAudit?.sourceResponseHash ?? null,
       eventIncrement: findChapterEventIncrementValue(
-        acceptance.metadata.extractedMeta?.join('\n') || ''
+        metadataSections(acceptance.metadata).join('\n')
       )
     }
   }
@@ -222,9 +222,13 @@ const FACT_LOCK_BLOCK_HEADER_PATTERN = /(?:^|\n)\s*FACT_LOCK\s*[:：]\s*(?=\n|$)
 const FACT_LOCK_INLINE_PATTERN = /FACT_LOCK[:：]\s*([^：:=\n\r]{1,32})\s*[:：]\s*([^；\n\r]+)/g
 const RESERVED_FACT_LOCK_TAIL_KEYS = new Set(['NEW_FACT'])
 
+function metadataSections(metadata: GenerationMetadata | null | undefined): string[] {
+  return Array.isArray(metadata?.extractedMeta) ? metadata?.extractedMeta || [] : []
+}
+
 function extractFactLockEntries(metadata: GenerationMetadata | null | undefined): Map<string, string> {
   const entries = new Map<string, string>()
-  const sections = Array.isArray(metadata?.extractedMeta) ? metadata?.extractedMeta || [] : []
+  const sections = metadataSections(metadata)
   for (const section of sections) {
     FACT_LOCK_PATTERN.lastIndex = 0
     let match = FACT_LOCK_PATTERN.exec(String(section || ''))

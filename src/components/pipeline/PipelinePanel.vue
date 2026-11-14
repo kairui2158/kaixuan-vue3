@@ -4575,9 +4575,19 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         const upstreamSource = executionPlan.upstreamStepOutputs?.length
           ? executionPlan.upstreamStepOutputs
           : resumePoint.stepOutputs
-        const upstream = upstreamSource.find(output => output.skillIndex === startSi - 1)
+        const upstreamSkillIndex = startSi - 1
+        const upstream = upstreamSource.find(output => output.skillIndex === upstreamSkillIndex)
         upstreamStepMetadata = upstream?.metadata || null
-        if (upstream && isGeneratorEnvelopeArtifact(upstream.output)) {
+        const targetedGeneratorIndex = resolveBodyGeneratorStepIndex(templates).index
+        const startsAtGeneratorStep = startSi === targetedGeneratorIndex
+        const upstreamScaffoldBody = upstream ? parseGenerationResult(upstream.output).body : ''
+        const upstreamUsable = Boolean(upstream && (
+          isGeneratorEnvelopeArtifact(upstream.output) ||
+          (startsAtGeneratorStep &&
+            (upstreamScaffoldBody.trim().length > 0 ||
+              upstream.output.trim().length > 0))
+        ))
+        if (upstream && upstreamUsable) {
           current = upstream.output
         } else {
           startSi = 0
@@ -4932,6 +4942,41 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         )
         let stepOutput = stepResult.output
         if (bodyStepContext && stepResult.callerStatus && stepResult.callerStatus !== 'success') {
+          const artifactFlow = resolveStepArtifactFlow({
+            stepOutput: stepResult,
+            stepIndex: si,
+            contract: bodyChainContract
+          })
+          const acceptance = {
+            ...artifactFlow.acceptance,
+            errors: Array.from(new Set([
+              ...artifactFlow.acceptance.errors,
+              `caller_failed:${stepResult.callerStatus}`
+            ]))
+          }
+          rememberBodyStepAcceptance(pipelineRunId, si, acceptance)
+          if (runId) {
+            runTraceStore.addEvent(runId, {
+              type: 'body-step-acceptance',
+              level: 'error',
+              label: `正文生成步骤 ${si + 1}/${templates.length} 统一验收`,
+              detail: JSON.stringify({
+                ...artifactFlow.traceDetail,
+                callerStatus: stepResult.callerStatus,
+                blockingGateFailed: stepResult.blockingGateFailed === true,
+                errors: acceptance.errors
+              })
+            })
+          }
+          completedStepOutputs = completedStepOutputs
+            .filter(output => output.skillIndex < si)
+            .concat([{
+              skillIndex: si,
+              skillId: t.id,
+              output: stepResult.output,
+              metadata: upstreamStepMetadata || undefined
+            }])
+          executionPlan?.onStepOutputs?.(completedStepOutputs)
           // Preserve caller status for the body orchestrator; collapsing it here
           // would turn a failed/degraded chain candidate into a false success.
           return stepResult

@@ -2019,3 +2019,13 @@
 - 用途：防止真实供应商业务失败被包装成观测通过，并固化 S2 失败接线与 targeted 上游形态缺口作为独立缺陷单。
 - 验证：观测脚本 `node --check` exit 0；双向 trace 干跑已在台账第 6 节；三次真实运行证据保留。
 - 边界：不改产品代码与 SKILL；不新增预算、调度、UI、第二裁判；S2 接线缺口进入独立方案。
+
+# 2026-11-14 正文层生成步失败接线 W1/W2
+
+- 文件：[_audit/DEV_LOG_2026-11-14_body-generator-failure-wiring-v1.md](_audit/DEV_LOG_2026-11-14_body-generator-failure-wiring-v1.md)
+- 方案：[_audit/PROPOSAL_2026-11-14_BODY_GENERATOR_FAILURE_WIRING_V1.md](_audit/PROPOSAL_2026-11-14_BODY_GENERATOR_FAILURE_WIRING_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-generator-failure-wiring-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-generator-failure-wiring-v1.md)
+- 交付：body 步 failed/degraded 保留结构化验收账本并回传编排器；targeted-from-generator 正确消费 S1 legacy 骨架；malformed `extractedMeta` 防崩。
+- 用途：修复失败步被早退绕过验收、S1 骨架被误判信封导致定点修复降级全链、畸形账本崩溃三个平台合同缺陷。
+- 验证：聚焦 2 files / 29 tests、全量服务 252 files / 2758 tests、type-check、build:vue 全部 PASS；两次真实 Electron run 中失败验收、targeted 收敛与 deai-stage-guidance 注入可见；Live 2 诚实登记 `observational-blocked`。
+- 边界：物理调用放大、resume/replay 信封闸、`deai-model-profile` 校准门禁为独立遗留；不改 SKILL，不新增预算系统、调度、UI 或第二裁判。
