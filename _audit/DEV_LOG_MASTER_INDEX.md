@@ -2063,3 +2063,11 @@
 - 用途：同步活体 SKILL 快照，防止把请求总长、终步账本限、SKILL 输入/输出限混成一个“反馈合成限”而误修应用链路。
 - 验证：PowerShell `Get-FileHash` 三个 script.js 与声明值一致；Node 解析 005/012 request 得到 system/user/总长与反馈长度；`rg` 核对应用与 S2 磁盘包中的 12000 语义。
 - 边界：不改 SKILL 与反馈合成代码；不新增预算系统、调度器、UI 或第二裁判。
+
+# 2026-11-15 3.128.0 封装与旧安装产物清理
+
+- 文件：[_audit/DEV_LOG_2026-11-15_packaging-3.128.0.md](_audit/DEV_LOG_2026-11-15_packaging-3.128.0.md)
+- 交付：版本升级 3.128.0，完成完整 NSIS 封装与 packaging 核验；清理 27 个旧 `.exe`/`.blockmap`，`dist` 只保留当前安装产物与构建元数据。
+- 用途：交付包含正文层 SKILL 现役指纹与 retry 载荷对账结论的正式版本，避免历史安装包继续造成版本误用。
+- 验证：`npm run type-check` exit 0；`npm run test:services` 253 files / 2770 tests PASS；`npm run build` exit 0；`npm run verify:packaging` PASS；安装包 SHA-256 `3f5336e0adc6a01dab12a71b96cb0f083ce14a54d0ad39c51e1944cab203429f`。
+- 边界：不改 folder SKILL；不新增预算系统、调度器、UI 或第二裁判；清理只针对 `dist` 已确认旧产物。
