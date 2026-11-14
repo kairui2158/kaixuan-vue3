@@ -2055,3 +2055,11 @@
 - 交付：校正后真实供应商 Electron live PASS（5 requests）；`postProcess usage` 与 `deai-model-profile` 两项历史待办按提交证据改判为已解决；版本升级 3.127.8 并完成完整构建与 packaging 核验。
 - 用途：确保终态 worst-of 修正进入可安装交付包，消除文档残留待办与真实实现的矛盾。
 - 验证：`npm run build` exit 0；`npm run verify:packaging` PASS；安装包 `dist/神意助手-Setup-3.127.8.exe`，SHA-256 `0b0813c3d816abd4324cc74a3a52317193d72fb3b28fb11bfd58959249a3a1f1`。
+
+# 2026-11-15 SKILL 转达指纹与重试载荷对账
+
+- 文件：[_audit/DEV_LOG_2026-11-15_skill-handoff-payload-reconciliation-v1.md](_audit/DEV_LOG_2026-11-15_skill-handoff-payload-reconciliation-v1.md)
+- 交付：实测并更新正文层 S1/S2/S3 现役指纹；按完整 request 量化 retry feedback，确认 12403 是请求总长、反馈本体仅 824 字符，12000 不是该反馈路径上限。
+- 用途：同步活体 SKILL 快照，防止把请求总长、终步账本限、SKILL 输入/输出限混成一个“反馈合成限”而误修应用链路。
+- 验证：PowerShell `Get-FileHash` 三个 script.js 与声明值一致；Node 解析 005/012 request 得到 system/user/总长与反馈长度；`rg` 核对应用与 S2 磁盘包中的 12000 语义。
+- 边界：不改 SKILL 与反馈合成代码；不新增预算系统、调度器、UI 或第二裁判。
