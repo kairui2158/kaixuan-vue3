@@ -44,6 +44,10 @@ npm 切换器导致顶层依赖壳（vue/pinia/marked 等 10 包）和 Electron 
 - 安装包：`dist/神意助手-Setup-3.127.7.exe`，231,668,756 bytes。
 - SHA-256：`2048AB028B5C71B63C2870B33A6F0EC985AC302D01D21BB0D0FD69219C5AE2B2`。
 
+## 2026-11-15 F3 接线对账校正
+
+回头对账发现 `traceOutcomeFromRun` 曾按最后一条 `folderDiagnostics` 取值，偏离方案承诺的 `folderDiagnosticsStatus()` worst-of 汇总。早期 failed、后续 success 的历史诊断会丢失失败信号。已恢复 worst-of 接线：`PipelinePanel.vue` 不再读取 `latestFolderDiagnostic`。定向回归 3 files / 160 tests、全量服务 253 files / 2761 tests、`type-check` 与 `build:vue` 均 PASS。
+
 ## 边界
 
 1. 不新增预算系统、调度器、UI 或第二裁判。

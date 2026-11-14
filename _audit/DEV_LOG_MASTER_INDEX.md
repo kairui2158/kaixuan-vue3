@@ -2038,4 +2038,12 @@
 - 交付：物理重试接入共享预算的当前步 `apiCallLimit`；checkpoint 从唯一生成步恢复时接受非空 S1 骨架；`deai-model-profile` 明确为校准数据未达标观测项。
 - 用途：防止物理重试吃穿步级预算，防止断点恢复误降全链，防止把校准数据缺口误修成统计噪声注入。
 - 验证：聚焦 5 files / 102 tests、全量服务 253 files / 2761 tests、type-check、build:vue 全部 PASS。
+
+# 2026-11-15 正文层 F1-F5 终态对账校正
+
+- 文件：[_audit/DEV_LOG_2026-11-14_body-final-failure-transparency-f1-f5.md](_audit/DEV_LOG_2026-11-14_body-final-failure-transparency-f1-f5.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-final-failure-transparency-f1-f5.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-final-failure-transparency-f1-f5.md)
+- 交付：对账发现 F3 追踪入口误用最后一条 folder 诊断，已恢复 `folderDiagnosticsStatus()` worst-of 汇总；F1/F2/F4/F5 接线核证通过。
+- 用途：防止早期 folder failed 被后续 success 诊断遮蔽，保证 run 终态裁决与原始方案一致。
+- 验证：定向回归 3 files / 160 tests、全量服务 253 files / 2761 tests、type-check、build:vue 全部 PASS。
 - 边界：不改 SKILL；不放宽校准门槛；不新增预算系统、调度、UI、第二裁判；未重跑真实 Electron 供应商链路，已在台账登记为下次 live 对账项。

@@ -2027,13 +2027,12 @@ function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
     return { status: 'success' as RunTraceStatus, recoveredFromDegraded: false, degradedApiCalls: 0 }
   }
   const pipelineRun = pipelineStore.getRun(pipelineStore.getPipelineRunIdForTrace(runId) || '')
-  const latestFolderDiagnostic = run.folderDiagnostics?.[run.folderDiagnostics.length - 1]
   return resolvePipelineRunOutcome({
     apiCalls: run.apiCalls,
     pipelineRunStatus: pipelineRun?.status ?? undefined,
     runStatus: run.status,
     runError: pipelineRun?.error,
-    folderStatus: latestFolderDiagnostic?.status ?? null,
+    folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
     finalArtifactAccepted,
     hardSignalUnresolved: hardSignalUnresolvedRuns.has(runId)
   })
