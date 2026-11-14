@@ -2047,3 +2047,11 @@
 - 用途：防止早期 folder failed 被后续 success 诊断遮蔽，保证 run 终态裁决与原始方案一致。
 - 验证：定向回归 3 files / 160 tests、全量服务 253 files / 2761 tests、type-check、build:vue 全部 PASS。
 - 边界：不改 SKILL；不放宽校准门槛；不新增预算系统、调度、UI、第二裁判；未重跑真实 Electron 供应商链路，已在台账登记为下次 live 对账项。
+
+# 2026-11-15 F3 校正后 live 复跑与 3.127.8 封装
+
+- 文件：[_audit/DEV_LOG_2026-11-14_body-final-failure-transparency-f1-f5.md](_audit/DEV_LOG_2026-11-14_body-final-failure-transparency-f1-f5.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-final-failure-transparency-f1-f5.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-final-failure-transparency-f1-f5.md)
+- 交付：校正后真实供应商 Electron live PASS（5 requests）；`postProcess usage` 与 `deai-model-profile` 两项历史待办按提交证据改判为已解决；版本升级 3.127.8 并完成完整构建与 packaging 核验。
+- 用途：确保终态 worst-of 修正进入可安装交付包，消除文档残留待办与真实实现的矛盾。
+- 验证：`npm run build` exit 0；`npm run verify:packaging` PASS；安装包 `dist/神意助手-Setup-3.127.8.exe`，SHA-256 `0b0813c3d816abd4324cc74a3a52317193d72fb3b28fb11bfd58959249a3a1f1`。
