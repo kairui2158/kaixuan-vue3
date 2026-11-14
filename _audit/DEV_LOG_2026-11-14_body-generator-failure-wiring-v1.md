@@ -32,3 +32,7 @@ Live 2 章级业务在 40 分钟超时前未完成，观测汇总为 `observatio
 ## 边界
 
 不改 folder SKILL；不改叙事裁判权；不新增预算系统、调度器、UI、第二裁判或新修复体系。证据目录 `_data/` 与 `_audit/verification-*` 不入库。
+
+## 后续收口
+
+三项独立遗留已于 2026-11-15 处理，见 `DEV_LOG_2026-11-15_three-remaining-items-v1.md`。

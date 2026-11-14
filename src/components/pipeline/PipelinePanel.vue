@@ -4537,6 +4537,10 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     if (
       startSi > 0 &&
       step === 4 &&
+      !(
+        startSi === resolveBodyGeneratorStepIndex(templates).index &&
+        current.trim().length > 0
+      ) &&
       !isGeneratorEnvelopeArtifact(current)
     ) {
       startSi = 0

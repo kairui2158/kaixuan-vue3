@@ -304,7 +304,7 @@ export interface RealSkillExecuteOptions {
   providerSource?: 'agent' | 'layer' | 'global'
   budget: {
     tryConsume: (step: string, skillLimit?: number | null) => ApiBudgetDecisionLike
-    consumePhysicalRetry?: (step: string) => ApiBudgetDecisionLike
+    consumePhysicalRetry?: (step: string, skillLimit?: number | null) => ApiBudgetDecisionLike
   }
   skillId?: string
   aiService?: {

@@ -118,10 +118,11 @@ type CallAiToolResultLike = {
 function consumeBudgetPhysicalRetry(
   budget: RealSkillExecuteOptions['budget'],
   step: string,
+  skillLimit?: number | null,
 ): void {
   const consume = budget.consumePhysicalRetry
   if (!consume) return
-  const decision = consume(step)
+  const decision = consume(step, skillLimit)
   if (decision.status === 'blocked') {
     throw Object.assign(
       new Error(decision.reason || 'API 调用预算已耗尽'),
@@ -1136,7 +1137,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
                 event.phase === 'direct_retry' ||
                 event.phase === 'continuation'
               ) {
-                consumeBudgetPhysicalRetry(options.budget, physicalRetryStep)
+                consumeBudgetPhysicalRetry(options.budget, physicalRetryStep, pkg.meta.apiCallLimit ?? null)
               }
             }
             options.onPhysicalCall?.(event)

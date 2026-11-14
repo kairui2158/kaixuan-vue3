@@ -1048,7 +1048,10 @@ describe('realSkillExecutor single pass', () => {
     expect(result.status).toBe('success')
     expect(callAi).toHaveBeenCalledTimes(2)
     expect(consumePhysicalRetry).toHaveBeenCalledTimes(1)
-    expect(consumePhysicalRetry).toHaveBeenCalledWith(expect.stringContaining('attempt-1:physical'))
+    expect(consumePhysicalRetry).toHaveBeenCalledWith(
+      expect.stringContaining('attempt-1:physical'),
+      null
+    )
     expect(onPhysicalCall).toHaveBeenCalledTimes(2)
   })
 

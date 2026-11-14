@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-14
+更新日期：2026-11-15
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -2029,3 +2029,13 @@
 - 用途：修复失败步被早退绕过验收、S1 骨架被误判信封导致定点修复降级全链、畸形账本崩溃三个平台合同缺陷。
 - 验证：聚焦 2 files / 29 tests、全量服务 252 files / 2758 tests、type-check、build:vue 全部 PASS；两次真实 Electron run 中失败验收、targeted 收敛与 deai-stage-guidance 注入可见；Live 2 诚实登记 `observational-blocked`。
 - 边界：物理调用放大、resume/replay 信封闸、`deai-model-profile` 校准门禁为独立遗留；不改 SKILL，不新增预算系统、调度、UI 或第二裁判。
+
+# 2026-11-15 W1/W2 遗留三项收口
+
+- 文件：[_audit/DEV_LOG_2026-11-15_three-remaining-items-v1.md](_audit/DEV_LOG_2026-11-15_three-remaining-items-v1.md)
+- 方案：[_audit/PROPOSAL_2026-11-15_THREE_REMAINING_ITEMS_V1.md](_audit/PROPOSAL_2026-11-15_THREE_REMAINING_ITEMS_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-15_three-remaining-items-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-15_three-remaining-items-v1.md)
+- 交付：物理重试接入共享预算的当前步 `apiCallLimit`；checkpoint 从唯一生成步恢复时接受非空 S1 骨架；`deai-model-profile` 明确为校准数据未达标观测项。
+- 用途：防止物理重试吃穿步级预算，防止断点恢复误降全链，防止把校准数据缺口误修成统计噪声注入。
+- 验证：聚焦 5 files / 102 tests、全量服务 253 files / 2761 tests、type-check、build:vue 全部 PASS。
+- 边界：不改 SKILL；不放宽校准门槛；不新增预算系统、调度、UI、第二裁判；未重跑真实 Electron 供应商链路，已在台账登记为下次 live 对账项。

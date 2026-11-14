@@ -61,7 +61,7 @@
 
 1. **物理调用放大（独立缺陷单）**：Live 2 `chapter-1-observation.json` 记录 `apiCallCount=6 / physicalCallCount=14 / retryPhysicalCallCount=8`；预算在 `PipelinePanel.vue:3364` 为 16。逻辑重试乘物理重试造成放大，需要单独治理步级调用上限与计数口径。
 2. **resume/replay 信封闸（独立缺陷单）**：Live 2 seq 362/661 出现两次 `body-resume-artifact-invalid (generator_envelope_missing)`。W2 只修 targeted-from-generator；断点恢复/replay 仍要求生成器信封，需独立对账生命周期与合同形态。
-3. **`deai-model-profile` 校准门禁**：两次 Live 共 6 次 `released=false / releaseGate=calibration-not-ready / eligibleRuleCount=0 / injectedRuleCount=0`，为既有观测项。
+3. **`deai-model-profile` 校准门禁**：两次 Live 共 6 次 `released=false / releaseGate=calibration-not-ready / eligibleRuleCount=0 / injectedRuleCount=0`，已复核为校准数据未达标观测项；不是代码缺陷，处置见 `PROPOSAL_2026-11-15_THREE_REMAINING_ITEMS_V1.md`。
 4. glm-5.3/deep 供应商耗时与稳定性、章级 40 分钟超时、503 属供应商观测项；本轮不把它伪装成应用或 SKILL 质量结论。
 5. Phase D 其他观测项不因本修复宣布通过；正文质量提升仍需后续成功章级运行另行对账。
 

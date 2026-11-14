@@ -58,6 +58,26 @@ describe('apiCallBudget', () => {
     })
   })
 
+  it('applies the skill limit to physical retries', () => {
+    const budget = createApiCallBudget(16)
+
+    expect(budget.consumePhysicalRetry('step:physical-1', 2)).toMatchObject({
+      status: 'allowed',
+      used: 1,
+      limit: 2
+    })
+    expect(budget.consumePhysicalRetry('step:physical-2', 2)).toMatchObject({
+      status: 'allowed',
+      used: 2,
+      limit: 2
+    })
+    expect(budget.consumePhysicalRetry('step:physical-3', 2)).toMatchObject({
+      status: 'blocked',
+      used: 2,
+      limit: 2
+    })
+  })
+
   it('covers four chain steps with four physical calls under a shared budget of 16', () => {
     const budget = createApiCallBudget(16)
     const steps = ['s1', 's2', 's3', 's4']
