@@ -147,6 +147,10 @@ npm 切换器导致顶层依赖壳（vue/pinia/marked 等 10 包）和 Electron 
 
 版本：3.127.6 → 3.127.7。完整构建与 packaging 核验证据见 DEV_LOG。
 
+### 2026-11-15 回头看校正
+
+对账发现 F3 的接线实现偏离方案：`traceOutcomeFromRun` 曾读取最后一条 `folderDiagnostics`，而方案要求继续使用 `folderDiagnosticsStatus()` worst-of 汇总。该偏差可能让早期 folder failed 被后续 success 诊断遮蔽。已恢复 worst-of 接线并复核全仓 `folderDiagnostics` 读取点，未发现其他 run 终态入口使用 last-entry 语义。定向回归 3 files / 160 tests、全量服务 253 files / 2761 tests、`type-check`、`build:vue` 均 PASS；本轮未重跑真实 Electron 供应商链路。
+
 ## 7. 缺口清单与边界
 
 ### 已知缺口
