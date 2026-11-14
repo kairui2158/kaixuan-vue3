@@ -48,10 +48,10 @@ npm 切换器导致顶层依赖壳（vue/pinia/marked 等 10 包）和 Electron 
 
 回头对账发现 `traceOutcomeFromRun` 曾按最后一条 `folderDiagnostics` 取值，偏离方案承诺的 `folderDiagnosticsStatus()` worst-of 汇总。早期 failed、后续 success 的历史诊断会丢失失败信号。已恢复 worst-of 接线：`PipelinePanel.vue` 不再读取 `latestFolderDiagnostic`。定向回归 3 files / 160 tests、全量服务 253 files / 2761 tests、`type-check` 与 `build:vue` 均 PASS。
 
-校正后收口：真实供应商 Electron live 重跑 PASS，5 requests，provider 为 `prov-1793816697590`、model 为 `glm-5.3`。两项历史待办改判为已解决：`postProcess usage` 已由 `ad6ad3dc9` 于 [realSkillExecutor.ts](../src/services/realSkillExecutor.ts:1383) 注入；`deai-model-profile` 已由 `30205b99` 按“有达标规则即释放”实现，不是硬编码关闭。版本升级 3.127.7 → 3.127.8，完整构建 PASS；packaging PASS，安装包 `dist/神意助手-Setup-3.127.8.exe`，231,671,049 bytes，SHA-256 `0b0813c3d816abd4324cc74a3a52317193d72fb3b28fb11bfd58959249a3a1f1`。
+校正后收口：真实供应商 Electron live 重跑 PASS，5 requests，provider 为 `prov-1793816697590`、model 为 `glm-5.3`。两项历史待办改判为已解决：`postProcess usage` 已由 `ad6ad3dc9` 于 [realSkillExecutor.ts](../src/services/realSkillExecutor.ts:1385) 注入；`deai-model-profile` 已由 `30205b99` 按“有达标规则即释放”实现，不是硬编码关闭。版本升级 3.127.7 → 3.127.8，完整构建 PASS；packaging PASS，安装包 `dist/神意助手-Setup-3.127.8.exe`，231,671,049 bytes，SHA-256 `0b0813c3d816abd4324cc74a3a52317193d72fb3b28fb11bfd58959249a3a1f1`。
 
 ## 边界
 
 1. 不新增预算系统、调度器、UI 或第二裁判。
 2. 不改 SKILL 模板或叙事裁判权。
-3. `deai-model-profile` 校准门槛与 `postProcess usage` 注入仍为独立待办。
+3. 两项历史待办已于 2026-11-15 改判为已解决，不再列入待办。
