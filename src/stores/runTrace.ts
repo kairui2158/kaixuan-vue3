@@ -746,12 +746,24 @@ export interface RecordStepPhaseTimingInput {
 }
 
 export function folderDiagnosticsStatus(diagnostics: RunTraceFolderDiagnostic[]): RunTraceStatus | null {
-  let worst: RunTraceStatus | null = null
-  for (const item of diagnostics) {
-    if (item?.status === 'failed' || item?.status === 'blocked') return 'failed'
-    if (item?.status === 'degraded') worst = 'degraded'
+  // Tail recovery: the most recent verdict decides whether a historical
+  // failure is still live. A failed/blocked entry followed by a later
+  // success or degraded is recovered evidence; a trailing failure is not.
+  let hasWarning = false
+  for (let i = diagnostics.length - 1; i >= 0; i--) {
+    const status = diagnostics[i]?.status
+    if (!status) continue
+    if (status === 'failed' || status === 'blocked') return 'failed'
+    if (status === 'degraded') { hasWarning = true; break }
+    if (status === 'success') {
+      hasWarning = diagnostics.slice(0, i).some(item => {
+        const prev = item?.status
+        return prev === 'failed' || prev === 'blocked' || prev === 'degraded'
+      })
+      break
+    }
   }
-  return worst
+  return hasWarning ? 'degraded' : null
 }
 
 function traceStatusLevel(status: RunTraceStatus): 'info' | 'warn' | 'error' {

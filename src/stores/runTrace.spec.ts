@@ -3806,6 +3806,89 @@ describe('runTrace store', () => {
     expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('failed')
   })
 
+  it('recovers a recovered folder failure as degraded for run-level aggregation', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'failed', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('degraded')
+  })
+
+  it('keeps an unresolved trailing folder failure failed for run-level aggregation', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'failed', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'failed', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('failed')
+  })
+
+  it('keeps a blocked folder verdict failed regardless of prior successes', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'blocked', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('failed')
+  })
+
+  it('keeps a blocked folder verdict failed when it trails a recovered failure', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, { status: 'failed', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'blocked', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('failed')
+  })
+
+  it('treats a recovered blocked failure as degraded when the tail is success', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, { status: 'blocked', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('degraded')
+  })
+
+  it('treats a recovered failure as degraded when the tail is degraded', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, { status: 'failed', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'degraded', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('degraded')
+  })
+
+  it('returns null for diagnostics without status', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'chain', skillNames: ['S1', 'S2', 'S3'] })
+    store.appendFolderDiagnostics(runId, [{ level: 'warning', code: 'quality_gate_degraded', message: 'no status' }])
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBeNull()
+  })
+
+  it('ignores malformed entries when scanning for tail recovery', () => {
+    expect(folderDiagnosticsStatus([null as any, undefined as any])).toBeNull()
+    expect(folderDiagnosticsStatus([null as any, { status: 'failed' } as any])).toBe('failed')
+    expect(folderDiagnosticsStatus([null as any, { status: 'success' } as any])).toBeNull()
+  })
+
+  it('returns degraded for a success tail after a degraded history', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'continue', skillNames: ['文件夹技能'] })
+    store.appendFolderDiagnostics(runId, { status: 'degraded', diagnostics: [] })
+    store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
+
+    expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('degraded')
+  })
+
   it('records and resets body feedback audits on the active pipeline run', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
