@@ -537,7 +537,12 @@ async function waitForBodyCompletion(page) {
     } else if (Date.now() - lastProgressAt >= STALLED_TIMEOUT_MS) {
       console.warn(`[STALL WARNING LIVE] body run unchanged for ${Date.now() - lastProgressAt}ms`)
     }
-    if (snapshot.isGenerating || snapshot.status === 'generating' || snapshot.runningApiCalls > 0) {
+    if (snapshot.runningApiCalls > 0) {
+      lastProgressAt = Date.now()
+      await sleep(1000)
+      continue
+    }
+    if (snapshot.isGenerating || snapshot.status === 'generating') {
       await sleep(1000)
       continue
     }
@@ -603,7 +608,17 @@ function collectChapterObservation({ chapter, directory, run, page }) {
   const injectionPolicy = collectEvents('deai-injection-policy')
   const guidancePack = collectEvents('deai-guidance-pack')
   const promptVariant = collectEvents('deai-prompt-variant')
+  const artifactAttempts = collectEvents('body-artifact-attempt')
   const calls = run.apiCalls || []
+  const folderDiagnostics = Array.isArray(run.folderDiagnostics) ? run.folderDiagnostics : []
+  const stateHistory = Array.isArray(run.stateHistory) ? run.stateHistory : []
+  let failedToSuccessDoubleJump = 0
+  for (let index = 1; index < stateHistory.length; index += 1) {
+    if (stateHistory[index - 1].toStatus === 'failed'
+      && stateHistory[index].toStatus === 'success') {
+      failedToSuccessDoubleJump += 1
+    }
+  }
   return {
     chapter,
     runId: run.id,
@@ -656,6 +671,21 @@ function collectChapterObservation({ chapter, directory, run, page }) {
       findingCount: item.findingCount,
       ledgerWritten: item.ledgerWritten,
     })),
+    postProcessPerf: folderDiagnostics.map(item => item?.postProcessReport?.perf ?? null),
+    repairScopes: artifactAttempts.map(item => ({
+      repairAttempt: item.repairAttempt,
+      repairScope: item.repairScope,
+      status: item.status,
+      wordCount: item.wordCount,
+    })),
+    traceStateTimeline: {
+      stateHistoryCount: stateHistory.length,
+      transitions: stateHistory.map(item => ({
+        fromStatus: item.fromStatus,
+        toStatus: item.toStatus,
+      })),
+      failedToSuccessDoubleJump,
+    },
     modelProfile: modelProfile.map(item => ({
       released: item.released,
       releaseGate: item.releaseGate,
@@ -701,6 +731,22 @@ function assertObservations(observations) {
   for (const observation of observations) {
     assert.equal(observation.runStatus, 'success',
       `live body generation must succeed: ${JSON.stringify(observation)}`)
+    assert(observation.postProcessPerf.length > 0,
+      `each run exports folder diagnostics, got ${JSON.stringify(observation.postProcessPerf)}`)
+    for (const perf of observation.postProcessPerf) {
+      const valid = perf !== null && (perf === 'thresholdNotMet'
+        || perf === 'usageUnavailable'
+        || (typeof perf === 'object' && typeof perf.warning === 'string'
+          && Number.isFinite(perf.ratio) && perf.blocking === false))
+      assert(valid,
+        `postProcessReport.perf must be one of its three states, got ${JSON.stringify(perf)}`)
+    }
+    assert(observation.repairScopes.length > 0,
+      `each run records body-artifact attempts, got ${JSON.stringify(observation.repairScopes)}`)
+    assert.equal(observation.repairScopes[0].repairScope, 'none',
+      `first artifact attempt must use the none scope, got ${JSON.stringify(observation.repairScopes)}`)
+    assert.equal(observation.traceStateTimeline.failedToSuccessDoubleJump, 0,
+      `trace state machine must not double-jump failed -> success, got ${JSON.stringify(observation.traceStateTimeline)}`)
     assert(observation.stageGuidance.length > 0,
       `each live run records the S2->S3 diagnosis execution, got ${JSON.stringify(observation)}`)
     for (const guidance of observation.stageGuidance) {
@@ -720,16 +766,23 @@ function assertObservations(observations) {
     assert(observation.modelProfile.length > 0,
       `each live run records model-profile state, got ${JSON.stringify(observation)}`)
     for (const profile of observation.modelProfile) {
-      assert.equal(profile.released, true,
-        `eligible model profile must release at calibration threshold, got ${JSON.stringify(profile)}`)
-      assert(profile.eligibleRuleCount > 0,
-        `released model profile requires eligible rules, got ${JSON.stringify(profile)}`)
-      assert(profile.injectedRuleCount > 0 && profile.injectedRuleCount <= 3,
-        `released model profile must inject at most three rules, got ${JSON.stringify(profile)}`)
-      assert(profile.guidanceChars > 0 && profile.guidanceChars <= 600,
-        `released model profile must stay bounded to 600 chars, got ${JSON.stringify(profile)}`)
-      assert.equal(profile.releaseGate, null,
-        `released model profile must clear its release gate, got ${JSON.stringify(profile)}`)
+      if (profile.eligibleRuleCount > 0) {
+        assert.equal(profile.released, true,
+          `eligible model profile must release at calibration threshold, got ${JSON.stringify(profile)}`)
+        assert(profile.injectedRuleCount > 0 && profile.injectedRuleCount <= 3,
+          `released model profile must inject at most three rules, got ${JSON.stringify(profile)}`)
+        assert(profile.guidanceChars > 0 && profile.guidanceChars <= 600,
+          `released model profile must stay bounded to 600 chars, got ${JSON.stringify(profile)}`)
+        assert.equal(profile.releaseGate, null,
+          `released model profile must clear its release gate, got ${JSON.stringify(profile)}`)
+      } else {
+        assert.equal(profile.released, false,
+          `immature model profile must not release, got ${JSON.stringify(profile)}`)
+        assert.equal(profile.injectedRuleCount, 0,
+          `immature model profile must inject no rules, got ${JSON.stringify(profile)}`)
+        assert.equal(profile.releaseGate, 'calibration-not-ready',
+          `immature model profile must record its release gate, got ${JSON.stringify(profile)}`)
+      }
     }
   }
 }
@@ -853,8 +906,8 @@ async function main() {
           observations,
           businessStatus: 'failed',
           verificationStatus: failure.evidenceExportError || failure.uiGuidanceCollectionError
-            ? 'failed'
-            : 'completed',
+            ? 'observational-failed'
+            : 'observational-blocked',
           failure,
         }))
         throw error
@@ -867,7 +920,7 @@ async function main() {
       skills,
       observations,
       businessStatus: 'success',
-      verificationStatus: 'completed',
+      verificationStatus: 'observational-pass',
     }))
     console.log('===== DEAI STAGE GUIDANCE LIVE OBSERVATION COMPLETED =====')
   } finally {

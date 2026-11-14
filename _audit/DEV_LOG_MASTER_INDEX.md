@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-11
+更新日期：2026-11-14
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -2009,3 +2009,13 @@
 - 用途：修复终步结构化失败被吞、账本空转假通过、trace 双跳与断点污染五个正文层透传缺陷。
 - 验证：定向回归 7 files / 118 tests、type-check、build:vue、全量服务 251 files / 2753 tests、Electron IPC 8 files / 81 tests、真实供应商 live 5 requests 全部 PASS。
 - 边界：不新增预算系统、调度、UI 或第二裁判；不改 SKILL 模板或叙事裁判权；`deai-model-profile` 校准门槛与 `postProcess usage` 注入仍为独立待办。
+
+# 2026-11-14 deai-stage-guidance Phase B 观测闭环收尾
+
+- 文件：[_audit/DEV_LOG_2026-11-14_phase-b-observation-closure.md](_audit/DEV_LOG_2026-11-14_phase-b-observation-closure.md)
+- 方案：[_audit/PROPOSAL_2026-11-14_PHASE_B_OBSERVATION_CLOSURE_V1.md](_audit/PROPOSAL_2026-11-14_PHASE_B_OBSERVATION_CLOSURE_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_phase-b-observation-closure-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_phase-b-observation-closure-v1.md)
+- 交付：B1 观测器覆盖 `postProcessReport.perf`、`repairScope`、trace 状态双跳与 model profile 两态；B2 三次真实供应商运行均诚实登记为 `observational-blocked`，Phase D 三项保持 `untested`。
+- 用途：防止真实供应商业务失败被包装成观测通过，并固化 S2 失败接线与 targeted 上游形态缺口作为独立缺陷单。
+- 验证：观测脚本 `node --check` exit 0；双向 trace 干跑已在台账第 6 节；三次真实运行证据保留。
+- 边界：不改产品代码与 SKILL；不新增预算、调度、UI、第二裁判；S2 接线缺口进入独立方案。
