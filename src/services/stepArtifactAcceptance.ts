@@ -219,6 +219,7 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
 
 const FACT_LOCK_PATTERN = /FACT_LOCK[:：]\s*([^=\s]+)\s*=\s*([^\n\r]+)/g
 const FACT_LOCK_BLOCK_HEADER_PATTERN = /(?:^|\n)\s*FACT_LOCK\s*[:：]\s*(?=\n|$)/g
+const FACT_LOCK_INLINE_PATTERN = /FACT_LOCK[:：]\s*([^：:=\n\r]{1,32})\s*[:：]\s*([^；\n\r]+)/g
 const RESERVED_FACT_LOCK_TAIL_KEYS = new Set(['NEW_FACT'])
 
 function extractFactLockEntries(metadata: GenerationMetadata | null | undefined): Map<string, string> {
@@ -233,6 +234,31 @@ function extractFactLockEntries(metadata: GenerationMetadata | null | undefined)
       const normalizedValue = String(value || '').trim()
       if (normalizedKey && normalizedValue) entries.set(normalizedKey, normalizedValue)
       match = FACT_LOCK_PATTERN.exec(String(section || ''))
+    }
+
+    FACT_LOCK_INLINE_PATTERN.lastIndex = 0
+    let inlineMatch = FACT_LOCK_INLINE_PATTERN.exec(String(section || ''))
+    while (inlineMatch) {
+      const [, key, value] = inlineMatch
+      const normalizedKey = String(key || '').trim()
+      const normalizedValue = String(value || '').trim()
+      if (normalizedKey && normalizedValue) entries.set(normalizedKey, normalizedValue)
+      const remainder = String(section || '').slice(inlineMatch.index + inlineMatch[0].length)
+      for (const segment of remainder.split(/；/)) {
+        const segmentMatch = /^([^：:=\n\r]{1,32})\s*[:：]\s*([^；\n\r]+)/.exec(segment.trim())
+        if (!segmentMatch) continue
+        const [, segmentKey, segmentValue] = segmentMatch
+        const normalizedSegmentKey = String(segmentKey || '').trim()
+        const normalizedSegmentValue = String(segmentValue || '').trim()
+        if (
+          normalizedSegmentKey &&
+          normalizedSegmentValue &&
+          !RESERVED_FACT_LOCK_TAIL_KEYS.has(normalizedSegmentKey)
+        ) {
+          entries.set(normalizedSegmentKey, normalizedSegmentValue)
+        }
+      }
+      inlineMatch = FACT_LOCK_INLINE_PATTERN.exec(String(section || ''))
     }
 
     FACT_LOCK_BLOCK_HEADER_PATTERN.lastIndex = 0
@@ -291,6 +317,17 @@ export function resolveFinalStepMetadataFlow(
 
     const authoritative = extractFactLockEntries(input.authoritativeGeneratorMetadata)
   const final = extractFactLockEntries(input.finalMetadata)
+  if (authoritative.size === 0) {
+    return {
+      decision: 'generator_ledger_missing',
+      metadata: finalMetadata,
+      comparison: { matched: [], missing_in_final: [], conflicting: [] },
+      warnings: [{
+        code: 'generator-ledger-missing',
+        message: 'S2 权威账本存在但没有可对账的 FACT_LOCK，禁止空转通过。'
+      }]
+    }
+  }
   const matched: string[] = []
   const missingInFinal: string[] = []
   const conflicting: string[] = []

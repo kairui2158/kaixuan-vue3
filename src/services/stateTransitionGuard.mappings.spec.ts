@@ -21,6 +21,14 @@ const expectedLifecycleMappings: Record<string, Record<string, string>> = {
     canceled: 'canceled',
     blocked: 'blocked',
   },
+  ApiCallStatus: {
+    running: 'active',
+    success: 'completed',
+    degraded: 'degraded',
+    failed: 'failed',
+    canceled: 'canceled',
+    blocked: 'blocked',
+  },
   AiTraceStatus: {
     running: 'active',
     success: 'completed',

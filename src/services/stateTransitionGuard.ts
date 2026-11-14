@@ -66,6 +66,14 @@ export const LIFECYCLE_MAPPINGS: Record<string, Record<string, LifecycleStatus>>
     canceled: 'canceled',
     blocked: 'blocked',
   },
+  ApiCallStatus: {
+    running: 'active',
+    success: 'completed',
+    degraded: 'degraded',
+    failed: 'failed',
+    canceled: 'canceled',
+    blocked: 'blocked',
+  },
   RunOutcomeStatus: {
     success: 'completed',
     degraded: 'degraded',

@@ -1,6 +1,6 @@
 [
   {
-    "at": "2026-11-06T11:14:43.001Z",
+    "at": "2026-11-14T04:58:56.184Z",
     "url": "/v1/models",
     "method": "GET",
     "model": null,
@@ -10,7 +10,7 @@
     "proxyResponder": "models-fixture"
   },
   {
-    "at": "2026-11-06T11:14:43.035Z",
+    "at": "2026-11-14T04:58:56.203Z",
     "url": "/v1/chat/completions",
     "method": "POST",
     "model": "glm-5.3",
@@ -19,7 +19,7 @@
     "status": 200
   },
   {
-    "at": "2026-11-06T11:14:46.051Z",
+    "at": "2026-11-14T04:59:00.263Z",
     "url": "/v1/chat/completions",
     "method": "POST",
     "model": "glm-5.3",
@@ -28,7 +28,7 @@
     "status": 200
   },
   {
-    "at": "2026-11-06T11:14:46.576Z",
+    "at": "2026-11-14T04:59:00.702Z",
     "url": "/v1/chat/completions",
     "method": "POST",
     "model": "glm-5.3",
@@ -37,7 +37,7 @@
     "status": 200
   },
   {
-    "at": "2026-11-06T11:14:47.098Z",
+    "at": "2026-11-14T04:59:01.084Z",
     "url": "/v1/chat/completions",
     "method": "POST",
     "model": "glm-5.3",

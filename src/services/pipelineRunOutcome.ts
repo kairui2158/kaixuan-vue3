@@ -38,6 +38,7 @@ export function resolvePipelineRunOutcome(
   if (
     runStatus.startsWith('failed') ||
     owningPipelineStatus === 'failed' ||
+    input.folderStatus === 'failed' ||
     (!input.finalArtifactAccepted && hasCallStatus('failed'))
   ) {
     return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls, error: runError || undefined }
@@ -49,7 +50,7 @@ export function resolvePipelineRunOutcome(
     return { status: 'degraded', recoveredFromDegraded: false, degradedApiCalls }
   }
 
-  if (input.finalArtifactAccepted) {
+  if (input.finalArtifactAccepted && input.folderStatus !== 'blocked') {
     return {
       status: 'success',
       recoveredFromDegraded: degradedApiCalls > 0 || input.folderStatus === 'degraded',
@@ -57,9 +58,6 @@ export function resolvePipelineRunOutcome(
     }
   }
 
-  if (input.folderStatus === 'failed') {
-    return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls }
-  }
   if (degradedApiCalls > 0 || input.folderStatus === 'degraded') {
     return { status: 'degraded', recoveredFromDegraded: false, degradedApiCalls }
   }

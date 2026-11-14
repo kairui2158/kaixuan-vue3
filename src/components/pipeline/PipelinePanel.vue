@@ -2027,12 +2027,13 @@ function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
     return { status: 'success' as RunTraceStatus, recoveredFromDegraded: false, degradedApiCalls: 0 }
   }
   const pipelineRun = pipelineStore.getRun(pipelineStore.getPipelineRunIdForTrace(runId) || '')
+  const latestFolderDiagnostic = run.folderDiagnostics?.[run.folderDiagnostics.length - 1]
   return resolvePipelineRunOutcome({
     apiCalls: run.apiCalls,
     pipelineRunStatus: pipelineRun?.status ?? undefined,
     runStatus: run.status,
     runError: pipelineRun?.error,
-    folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
+    folderStatus: latestFolderDiagnostic?.status ?? null,
     finalArtifactAccepted,
     hardSignalUnresolved: hardSignalUnresolvedRuns.has(runId)
   })
@@ -4930,6 +4931,11 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           pipelineRunId
         )
         let stepOutput = stepResult.output
+        if (bodyStepContext && stepResult.callerStatus && stepResult.callerStatus !== 'success') {
+          // Preserve caller status for the body orchestrator; collapsing it here
+          // would turn a failed/degraded chain candidate into a false success.
+          return stepResult
+        }
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
         }
@@ -5220,6 +5226,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           })
         }
     // Persist a complete success checkpoint immediately after each Skill.
+    if (bodyStepContext && stepResult.callerStatus !== 'success') {
+      throw new Error(`链式步骤 ${si + 1}/${templates.length} 非 success 候选禁止写入成功断点`)
+    }
     const handoffHashes = Array.from(seenHandoffHashes)
     completedStepOutputs = completedStepOutputs
       .filter(output => output.skillIndex < si)

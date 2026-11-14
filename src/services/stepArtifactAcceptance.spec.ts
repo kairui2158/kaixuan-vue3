@@ -348,6 +348,41 @@ describe('acceptStepArtifact', () => {
     expect(flow.warnings).toEqual([])
   })
 
+  it('parses inline FACT_LOCK ledgers without a vacuous pass', () => {
+    const authoritativeGeneratorMetadata = {
+      extractedMeta: [
+        'FACT_LOCK：人物状态：陈暮倒叙苏醒，左肩撕裂伤；位置：废弃仓库；关键数字：无；新增事实：门后无锁'
+      ]
+    }
+    const flow = resolveFinalStepMetadataFlow({
+      finalMetadata: {
+        extractedMeta: [
+          'FACT_LOCK：人物状态：陈暮倒叙苏醒，左肩撕裂伤；位置：废弃仓库；关键数字：无；新增事实：门后无锁'
+        ]
+      },
+      authoritativeGeneratorMetadata,
+      finalBody: '陈暮在废弃仓库倒叙苏醒，左肩撕裂伤，门后没有锁。'
+    })
+
+    expect(flow.comparison.matched).toContain('人物状态=陈暮倒叙苏醒，左肩撕裂伤')
+    expect(flow.comparison.matched).toContain('位置=废弃仓库')
+    expect(flow.comparison.missing_in_final).toEqual([])
+    expect(flow.comparison.conflicting).toEqual([])
+    expect(flow.decision).toBe('pass')
+  })
+
+  it('rejects an authoritative ledger whose FACT_LOCK fields cannot be extracted', () => {
+    const flow = resolveFinalStepMetadataFlow({
+      finalMetadata: { extractedMeta: ['FACT_LOCK：人物状态：未知'] },
+      authoritativeGeneratorMetadata: { extractedMeta: ['【来源覆盖】\nH1-01,H1-02'] },
+      finalBody: '正文'
+    })
+
+    expect(flow.decision).toBe('generator_ledger_missing')
+    expect(flow.comparison.matched).toEqual([])
+    expect(flow.warnings.map(item => item.code)).toContain('generator-ledger-missing')
+  })
+
   it('backfills label drift but refuses body divergence', () => {
     const authoritativeGeneratorMetadata = {
       extractedMeta: [

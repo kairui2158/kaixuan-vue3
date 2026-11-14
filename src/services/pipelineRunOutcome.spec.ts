@@ -20,6 +20,18 @@ describe('resolvePipelineRunOutcome', () => {
     expect(outcome.degradedApiCalls).toBe(2)
   })
 
+  it('does not let an accepted artifact override a failed folder verdict', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: 'failed',
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('failed')
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
   it('does not let intermediate degraded calls mask a failed final artifact', () => {
     const outcome = resolvePipelineRunOutcome({
       runStatus: '',

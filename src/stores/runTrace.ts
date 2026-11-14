@@ -2641,7 +2641,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       currentApiCallIdBySource.value[run.source] = null
     }
     addEvent(runId, createLifecycleTransitionEvent(
-      'RunTraceStatus',
+      'ApiCallStatus',
       'running',
       patch.status,
       [patch.reason, `apiCall=${call.id} seq=${call.seq}`].filter(Boolean).join(' / '),

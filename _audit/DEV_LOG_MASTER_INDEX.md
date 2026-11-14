@@ -2000,3 +2000,12 @@
 - 验证：定向回归 2 files / 28 tests、type-check、build:vue、确定性 Electron E2E、全量服务 251 files / 2749 tests 全部 PASS；旧语义 `budgetExceeded ? 0` 全仓 0 命中。
 - 安装包：`dist/神意助手-Setup-3.127.6.exe`，231,671,819 bytes，SHA-256 `C325EF942EA5E9E61B78C9B5E07EA1396109D3303D51EA5F77EE9E67B6EDD91D`。
 - 边界：真实供应商 live 登记 `untested`；不新增预算系统、调度、UI 或第二裁判；不改 `deai-model-profile` 校准门槛。
+
+# 2026-11-14 正文层终步失败透传 F1-F5 3.127.7
+
+- 文件：[_audit/DEV_LOG_2026-11-14_body-final-failure-transparency-f1-f5.md](_audit/DEV_LOG_2026-11-14_body-final-failure-transparency-f1-f5.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-final-failure-transparency-f1-f5.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-14_body-final-failure-transparency-f1-f5.md)
+- 交付：终步 failed/degraded 保留结构化状态；内联 FACT_LOCK 可对账且 0 项账本不再空转 pass；run 终态不被 accepted artifact 短路；失败产物不写成功断点；API call 状态不再污染 run 级 trace 状态机。
+- 用途：修复终步结构化失败被吞、账本空转假通过、trace 双跳与断点污染五个正文层透传缺陷。
+- 验证：定向回归 7 files / 118 tests、type-check、build:vue、全量服务 251 files / 2753 tests、Electron IPC 8 files / 81 tests、真实供应商 live 5 requests 全部 PASS。
+- 边界：不新增预算系统、调度、UI 或第二裁判；不改 SKILL 模板或叙事裁判权；`deai-model-profile` 校准门槛与 `postProcess usage` 注入仍为独立待办。
