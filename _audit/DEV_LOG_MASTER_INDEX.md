@@ -2071,3 +2071,14 @@
 - 用途：交付包含正文层 SKILL 现役指纹与 retry 载荷对账结论的正式版本，避免历史安装包继续造成版本误用。
 - 验证：`npm run type-check` exit 0；`npm run test:services` 253 files / 2770 tests PASS；`npm run build` exit 0；`npm run verify:packaging` PASS；安装包 SHA-256 `3f5336e0adc6a01dab12a71b96cb0f083ce14a54d0ad39c51e1944cab203429f`。
 - 边界：不改 folder SKILL；不新增预算系统、调度器、UI 或第二裁判；清理只针对 `dist` 已确认旧产物。
+
+# 2026-11-15 正文层 LHC 反馈链路修复 V1
+
+- 文件：[_audit/DEV_LOG_2026-11-15_body-lhc-retry-feedback-v1.md](_audit/DEV_LOG_2026-11-15_body-lhc-retry-feedback-v1.md)
+- 方案：[_audit/PROPOSAL_2026-11-15_BODY_LHC_RETRY_FEEDBACK_V1.md](_audit/PROPOSAL_2026-11-15_BODY_LHC_RETRY_FEEDBACK_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-15_BODY_LHC_RETRY_FEEDBACK_V1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-15_BODY_LHC_RETRY_FEEDBACK_V1.md)
+- 交付：正文合同句统一为 LHC 信封口径；word-gap 骨架解析兼容信封与 legacy；上游情报改接 S1 骨架产物；信封/JSON 结构失败优先携带完整候选路由；模型可见反馈 legacy 措辞清零。
+- 用途：防止重试反馈用旧追加账本合同误导信封输出，防止信封候选账本解析不到和结构失败被有界摘要抑制。
+- 验证：定向 5 files / 137 tests PASS；legacy 合同句 `src/` 生产词面 0 命中；经验补条、DEV_LOG 与七节台账登记完成。
+- 边界：不改 folder SKILL 与历史 trace；12403/12000 按 G1.31 定性为请求总长与终步账本限，不是反馈合成限。
+- 交付包：3.128.1 封装 PASS，SHA-256 `14200a14e50b6b9518b75edf9e382dae85668dc125cb6615913c85f6d5a2714d`；3.128.0 安装产物已清理。

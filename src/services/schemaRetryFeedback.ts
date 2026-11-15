@@ -1,4 +1,5 @@
 import { countProtectedBodyWords } from './protectedSkillContract'
+import { parseGenerationResult } from './generationResult'
 import { splitLegacyMetadataSections } from './legacyMetadataSections'
 import { resolveProseWordContract } from './proseWordContract'
 
@@ -55,6 +56,8 @@ const HANDOFF_FAILURE_PATTERNS = [
 ] as const
 
 const STRUCTURE_OR_FORMAT_FAILURE_PATTERNS = [
+  /JSON信封解析失败/,
+  /(?:信封|metadata\.extractedMeta).{0,40}(?:错误|失败|必须是|不匹配|invalid|mismatch|重复)/i,
   /正文过短|正文过长/,
   /正文交接.{0,12}(?:缺失|缺少|为空|没有输出)/,
   /缺少【正文交接】/,
@@ -69,6 +72,10 @@ function isStructureOrFormatFailure(errors: string[]): boolean {
   return errors.some(error => STRUCTURE_OR_FORMAT_FAILURE_PATTERNS.some(pattern => pattern.test(String(error))))
 }
 
+function isPureWordCountFailure(errors: string[]): boolean {
+  return errors.length > 0 && errors.every(error => /正文(?:过短|过长)/.test(String(error)))
+}
+
 interface WordGapScaffold {
   text: string
   fieldCount: number
@@ -79,9 +86,15 @@ interface WordGapScaffold {
 function buildWordGapScaffold(candidate: string, maxChars: number): WordGapScaffold {
   const limit = Math.max(0, maxChars)
   if (!candidate) return { text: '', fieldCount: 0, available: false, source: 'none' }
-  const handoff = splitLegacyMetadataSections(candidate)
-    .sections
-    .find(section => section.includes('【正文交接】'))
+  const generation = parseGenerationResult(candidate)
+  const handoffSources = [
+    ...Array.isArray(generation.metadata.extractedMeta) ? generation.metadata.extractedMeta : [],
+    generation.body,
+    candidate,
+  ]
+  const handoff = handoffSources
+    .map(source => splitLegacyMetadataSections(source).sections.find(section => section.includes('【正文交接】')))
+    .find(Boolean)
   if (!handoff) return { text: '', fieldCount: 0, available: false, source: 'none' }
 
   const fields: string[] = []
@@ -236,7 +249,12 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
   const maxPreviewEdgeChars = input.maxPreviewEdgeChars ?? DEFAULT_MAX_PREVIEW_EDGE_CHARS
   const maxScaffoldChars = input.maxScaffoldChars ?? DEFAULT_MAX_SCAFFOLD_CHARS
   const contract = input.protectedContract
-  const missingHandoff = Boolean(contract?.kind === 'body' && candidate && !candidate.includes('【正文交接】'))
+  const parsedCandidate = parseGenerationResult(candidate)
+  const candidateHandoffAvailable = Boolean(
+    (Array.isArray(parsedCandidate.metadata.extractedMeta) && parsedCandidate.metadata.extractedMeta.length > 0) ||
+    splitLegacyMetadataSections(parsedCandidate.body).sections.some(section => section.includes('【正文交接】'))
+  )
+  const missingHandoff = Boolean(contract?.kind === 'body' && candidate && !candidateHandoffAvailable)
   const handoffFailure = isHandoffFailure(errors)
   const upstreamScaffold = missingHandoff
     ? buildUpstreamWordGapScaffold(input.chainUpstreamContext || '', maxScaffoldChars)
@@ -248,7 +266,7 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
   if (contract?.kind === 'body' && (missingHandoff || handoffFailure)) {
     const lines = [
       '【结构化重试反馈】',
-      '本反馈只携带失败指标与有界【正文交接】账本，不携带正文全文。请基于原始任务输入重建完整正文，并在正文本体后补齐【正文交接】账本。',
+      '本反馈只携带失败指标与有界交接账本，不携带正文全文。请基于原始任务输入重建完整正文，并输出现役 LHC JSON 信封：正文本体放进 body；交接账本放进 metadata.extractedMeta[0]。',
       '',
       '一、校验失败项',
       ...buildErrorLines(errors, maxErrors),
@@ -274,7 +292,7 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
           '三、链路上游事实链（有界）',
           upstreamScaffold.text,
           '',
-          '修复要求：基于 FACT_LOCK 与上游事实链重建【正文交接】账本；正文事实不得漂移，正文末尾必须保留【正文交接】区块。'
+          '修复要求：基于 FACT_LOCK 与上游事实链重建交接账本；正文事实不得漂移，交接账本必须放进 metadata.extractedMeta[0]。'
         )
       } else {
         lines.push(
@@ -282,11 +300,11 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
           '三、修复基础缺失',
           '链路上游事实链不可用，本次无法提供可复用状态骨架。',
           '',
-          '修复要求：按原始任务输入重建正文，并补齐【正文交接】账本；不要复述本反馈，不要输出解释。'
+          '修复要求：按原始任务输入重建正文并输出 LHC JSON 信封，交接账本放进 metadata.extractedMeta[0]；不要复述本反馈，不要输出解释。'
         )
       }
     } else {
-      lines.push('', '修复要求：保留上一版已完成事实与段落结构，只修复失败项；正文末尾必须保留【正文交接】区块。')
+      lines.push('', '修复要求：保留上一版已完成事实与段落结构，只修复失败项；交接账本必须放进 metadata.extractedMeta[0]。')
     }
 
     const feedback = lines.join('\n')
@@ -312,6 +330,41 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
 
   const isWordGapFailure = Boolean(contract?.kind === 'body' &&
     errors.some(error => /正文过短|正文过长/.test(String(error))))
+
+  const isStructureFailure = Boolean(
+    contract?.kind === 'body' &&
+    candidate &&
+    isStructureOrFormatFailure(errors) &&
+    !isPureWordCountFailure(errors)
+  )
+
+  if (isStructureFailure) {
+    const lines = [
+      '【结构化重试反馈】',
+      '上一版候选因结构或格式问题未通过验收。以下是上一版完整候选，仅作为定点修复基础：保留其中已通过的部分，只修复下列失败项；不要逐字复述整篇，不要输出解释，不要输出与本修复无关的内容。',
+      '',
+      '一、校验失败项',
+      ...buildErrorLines(errors, maxErrors),
+      '',
+      '二、上一版完整候选（定点修复基础）',
+      candidate,
+      '',
+      '输出要求：基于上一版候选输出修复后的完整 LHC JSON 信封；正文本体放进 body，交接账本放进 metadata.extractedMeta[0]；不要复述本反馈。'
+    ]
+    const feedback = lines.join('\n')
+    return {
+      feedback,
+      strategy: 'candidate-anchored',
+      scaffoldSource: 'candidate',
+      candidateChars: candidate.length,
+      feedbackChars: feedback.length,
+      anchorCount: 0,
+      previewChars: 0,
+      scaffoldChars: candidate.length,
+      scaffoldFieldCount: 0,
+      suppressedCandidateChars: 0
+    }
+  }
 
   if (contract?.kind === 'body' && isWordGapFailure) {
     const { targetWords, minWords, maxWords } = resolveProseWordContract(contract)
@@ -344,18 +397,18 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
       lines.push(
         scaffold.text,
         '',
-        `修复要求：以上一版场景结构骨架为结构与事实边界完整施工；不删除场景、不压缩必要对白、不新增事实、不注水、不逐字复述上一版；${lengthRepairRequirement}正文末尾必须保留【正文交接】区块。`
+        `修复要求：以上一版场景结构骨架为结构与事实边界完整施工；不删除场景、不压缩必要对白、不新增事实、不注水、不逐字复述上一版；${lengthRepairRequirement}交接账本必须放进 metadata.extractedMeta[0]。`
       )
     } else {
       lines.push(
         '（上一版候选没有可解析的【正文交接】账本，无法提供事实边界。）',
         '',
-        '修复要求：按原始任务输入完整重交付正文，并补齐【正文交接】账本；不要把缺失账本降级为丢弃段落结构。'
+        '修复要求：按原始任务输入完整重交付 LHC JSON 信封正文，并把交接账本放进 metadata.extractedMeta[0]；不要把缺失账本降级为丢弃段落结构。'
       )
     }
     if (scaffold.source === 'upstream') {
       lines.push('', '状态说明：上一版候选没有可解析的【正文交接】账本，已改用链路上游事实链。')
-      lines.push('', '补充要求：以上游事实链为事实边界，基于原始骨架输出覆盖全部场景的完整正文，并重建【正文交接】账本；不要输出补字片段。')
+      lines.push('', '补充要求：以上游事实链为事实边界，基于原始骨架输出覆盖全部场景的完整 LHC JSON 信封正文，并把交接账本放进 metadata.extractedMeta[0]；不要输出补字片段。')
     }
     const feedback = lines.join('\n')
     return {
@@ -372,47 +425,13 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
     }
   }
 
-  const isStructureFailure = Boolean(
-    contract?.kind === 'body' &&
-    candidate &&
-    isStructureOrFormatFailure(errors)
-  )
-
-  if (isStructureFailure) {
-    const lines = [
+  const lines: string[] = [
       '【结构化重试反馈】',
-      '上一版候选因结构或格式问题未通过验收。以下是上一版完整候选，仅作为定点修复基础：保留其中已通过的部分，只修复下列失败项；不要逐字复述整篇，不要输出解释，不要输出与本修复无关的内容。',
+      '本反馈只描述失败事实与有界候选摘要，不携带候选输出全文。请基于原始任务输入重新输出完整结果。',
       '',
       '一、校验失败项',
       ...buildErrorLines(errors, maxErrors),
-      '',
-      '二、上一版完整候选（定点修复基础）',
-      candidate,
-      '',
-      '输出要求：基于上一版候选输出修复后的完整结果；正文本体后必须保留【正文交接】区块；不要复述本反馈。'
     ]
-    const feedback = lines.join('\n')
-    return {
-      feedback,
-      strategy: 'candidate-anchored',
-      scaffoldSource: 'candidate',
-      candidateChars: candidate.length,
-      feedbackChars: feedback.length,
-      anchorCount: 0,
-      previewChars: 0,
-      scaffoldChars: candidate.length,
-      scaffoldFieldCount: 0,
-      suppressedCandidateChars: 0
-    }
-  }
-
-  const lines: string[] = [
-    '【结构化重试反馈】',
-    '本反馈只描述失败事实与有界候选摘要，不携带候选输出全文。请基于原始任务输入重新输出完整结果。',
-    '',
-    '一、校验失败项',
-    ...buildErrorLines(errors, maxErrors),
-  ]
 
   const anchors = candidate ? buildAnchors(candidate, maxAnchors, maxAnchorChars) : []
   if (anchors.length > 0) {

@@ -50,7 +50,7 @@ export interface BodyContractStepInput {
 export function bodyGeneratorContractSentence(targetWords: unknown): string {
   if (!Number(targetWords)) return ''
   const { targetWords: target, minWords: min, maxWords: max } = resolveProseWordContract({ targetWords })
-  return `请生成本章节正文，目标约${target}字（不低于${min}字，不超过${max}字）。正文本体后必须追加【正文交接】区块。`
+  return `请生成本章节正文，目标约${target}净字数（不低于${min}字，不超过${max}字）。输出现役 LHC JSON 信封：正文本体放进 body；交接账本放进 metadata.extractedMeta[0]。`
 }
 
 export const MEMORY_PROMPT_HEADER = "[相关记忆]"

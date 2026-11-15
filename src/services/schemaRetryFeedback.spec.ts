@@ -2,6 +2,79 @@ import { describe, expect, it } from 'vitest'
 import { buildSchemaRetryFeedback } from './schemaRetryFeedback'
 
 describe('buildSchemaRetryFeedback', () => {
+  it('routes envelope format failures to the complete candidate before word-gap', () => {
+    const candidate = JSON.stringify({
+      body: '正'.repeat(1000),
+      metadata: {
+        extractedMeta: [
+          [
+            '【正文交接】',
+            '章节：第12章 王芳入局',
+            'POV：林越',
+            '已完成场景：场景1、场景2',
+            'FACT_LOCK：王芳=话痨；账册=旧案关键物',
+            '【正文交接结束】'
+          ].join('\n')
+        ]
+      }
+    })
+    const result = buildSchemaRetryFeedback({
+      errors: [
+        '信封body与extractedMeta重复包含正文交接账本',
+        '正文过短：1000字，要求不低于2800字'
+      ],
+      previousOutput: candidate,
+      protectedContract: { kind: 'body', targetWords: 3500 }
+    })
+
+    expect(result.strategy).toBe('candidate-anchored')
+    expect(result.scaffoldSource).toBe('candidate')
+    expect(result.suppressedCandidateChars).toBe(0)
+    expect(result.feedback).toContain('信封body与extractedMeta重复包含正文交接账本')
+    expect(result.feedback).toContain('正文过短：1000字，要求不低于2800字')
+    expect(result.feedback).toContain(candidate)
+    expect(result.feedback).toContain('完整 LHC JSON 信封')
+    expect(result.feedback).toContain('metadata.extractedMeta[0]')
+    expect(result.feedback).not.toContain('正文本体后必须保留【正文交接】区块')
+  })
+
+  it('keeps pure word-count failures on the word-gap strategy', () => {
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：1000字，要求不低于2800字'],
+      previousOutput: '正'.repeat(1000),
+      protectedContract: { kind: 'body', targetWords: 3500 }
+    })
+
+    expect(result.strategy).toBe('handoff-repair')
+    expect(result.scaffoldSource).toBe('none')
+  })
+
+  it('extracts the envelope handoff ledger for word-gap repair', () => {
+    const ledger = [
+      '【正文交接】',
+      '章节：第12章 王芳入局',
+      'POV：林越',
+      '已完成场景：场景1、场景2、场景3、场景4',
+      'FACT_LOCK：王芳=话痨；账册=旧案关键物',
+      '【正文交接结束】'
+    ].join('\n')
+    const candidate = JSON.stringify({
+      body: '正'.repeat(1000),
+      metadata: { extractedMeta: [ledger] }
+    })
+    const result = buildSchemaRetryFeedback({
+      errors: ['正文过短：1000字，要求不低于2800字'],
+      previousOutput: candidate,
+      protectedContract: { kind: 'body', targetWords: 3500 }
+    })
+
+    expect(result.strategy).toBe('word-gap')
+    expect(result.scaffoldSource).toBe('candidate')
+    expect(result.feedback).toContain('章节：第12章 王芳入局')
+    expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
+    expect(result.feedback).not.toContain('正'.repeat(100))
+  })
+
   it('keeps the complete failed candidate for structural body failures', () => {
     const candidate = [
       '第一段'.repeat(120),
@@ -114,6 +187,8 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).toContain('本反馈不携带上一版正文全文')
     expect(result.feedback).toContain('请输出覆盖全部场景的完整正文')
     expect(result.feedback).toContain('以上一版场景结构骨架为结构与事实边界完整施工')
+    expect(result.feedback).toContain('交接账本必须放进 metadata.extractedMeta[0]')
+    expect(result.feedback).not.toContain('正文末尾必须保留【正文交接】区块')
     expect(result.feedback).toContain('本轮净字数不得低于下限，也不得低于上一版净字数')
     expect(result.feedback).toContain('当前净字数/还差净字数只描述上一轮候选，不是本轮输出长度')
     expect(result.feedback).toContain('不删除场景、不压缩必要对白、不新增事实、不注水、不逐字复述上一版')
@@ -181,7 +256,9 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).toContain('王芳拿到账册')
     expect(result.feedback).toContain('【场景1：酒馆问线】')
     expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
-    expect(result.feedback).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(result.feedback).toContain('基于 FACT_LOCK 与上游事实链重建交接账本')
+    expect(result.feedback).toContain('交接账本必须放进 metadata.extractedMeta[0]')
+    expect(result.feedback).not.toContain('正文末尾必须保留【正文交接】区块')
     expect(result.feedback).not.toContain('按原始任务输入重建正文')
     expect(result.scaffoldSource).toBe('upstream')
     expect(result.scaffoldFieldCount).toBeGreaterThan(0)
@@ -337,7 +414,7 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).toContain('上一版候选正文中没有出现【正文交接】标记')
     expect(result.feedback).toContain('链路上游事实链（有界）')
     expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
-    expect(result.feedback).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(result.feedback).toContain('基于 FACT_LOCK 与上游事实链重建交接账本')
     expect(result.feedback).not.toContain('正'.repeat(100))
     expect(result.feedback).not.toContain('【结构化重试反馈】\n本反馈描述净字数缺口')
     expect(result.scaffoldChars).toBeLessThanOrEqual(800)

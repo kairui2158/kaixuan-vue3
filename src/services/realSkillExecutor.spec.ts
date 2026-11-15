@@ -1602,7 +1602,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
   })
 
   it('injects the protected body contract after folder preProcess and blocks a missing contract before the API call', async () => {
-    const contract = '请生成本章节正文，目标约3500字（不低于2800字，不超过7000字）。正文本体后必须追加【正文交接】区块。'
+    const contract = '请生成本章节正文，目标约3500净字数（不低于2800字，不超过7000字）。输出现役 LHC JSON 信封：正文本体放进 body；交接账本放进 metadata.extractedMeta[0]。'
     const callAi = vi.fn(async () => ({ text: '正'.repeat(3000) }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
@@ -1687,7 +1687,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(retrySystemPrompt).toContain('【结构化重试反馈】')
     expect(retrySystemPrompt).toContain('上一版候选正文中没有出现【正文交接】标记')
     expect(retrySystemPrompt).toContain('FACT_LOCK：王芳=话痨')
-    expect(retrySystemPrompt).toContain('基于 FACT_LOCK 与上游事实链重建【正文交接】账本')
+    expect(retrySystemPrompt).toContain('基于 FACT_LOCK 与上游事实链重建交接账本')
     expect(retrySystemPrompt).toContain('正文过短：2000字，要求不低于2800字')
     expect(retrySystemPrompt).not.toContain('当前净字数：2000')
     expect(retrySystemPrompt).not.toContain('按原始任务输入重建正文')

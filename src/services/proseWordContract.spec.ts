@@ -20,6 +20,7 @@ describe('resolveProseWordContract', () => {
     expect(contract.maxRatio).toBe(PROSE_MAX_WORD_RATIO)
     expect(sentence).toContain(`不低于${contract.minWords}字`)
     expect(sentence).toContain(`不超过${contract.maxWords}字`)
+    expect(sentence).not.toContain("正文本体后必须追加【正文交接】区块")
     expect(validation.minWords).toBe(contract.minWords)
     expect(validation.status).toBe('too_short')
   })

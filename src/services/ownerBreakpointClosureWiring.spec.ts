@@ -64,6 +64,13 @@ describe('owner breakpoint lifecycle closure wiring', () => {
     expect(source).toContain('executionPlan?.onStepOutputs?.(completedStepOutputs)')
   })
 
+  it('passes the first chain artifact as retry upstream intelligence', () => {
+    expect(source).toContain('const retryChainUpstreamContext = completedStepOutputs[0]?.output || \'\'')
+    expect(source).not.toContain('si < templates.length - 1,\n          upstreamPrompt.prompt,')
+    expect(source).not.toContain('si < templates.length - 1,\n            upstreamPrompt.prompt,')
+    expect(source).not.toContain('si < templates.length - 1,\n              upstreamPrompt.prompt,')
+  })
+
   it('prefers attempt-scoped upstream outputs over a cleared completed breakpoint', () => {
     expect(source).toContain('const upstreamSource = executionPlan.upstreamStepOutputs?.length')
     expect(source).toContain('? executionPlan.upstreamStepOutputs')

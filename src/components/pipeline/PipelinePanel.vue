@@ -4792,6 +4792,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       const promptWithModelProfile = modelProfilePrompt
         ? `${modelProfilePrompt}\n\n${stageGuidancePrompt}`
         : stageGuidancePrompt
+      const retryChainUpstreamContext = completedStepOutputs[0]?.output || ''
       const previousOutput = si === 0 ? "" : previousResolution.output
       const ctxForSkill = {
         ...chainCtx,
@@ -4935,7 +4936,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           resolvedTemplate,
           ctxForSkill,
           si < templates.length - 1,
-          upstreamPrompt.prompt,
+          retryChainUpstreamContext,
           si,
           templates.length,
           bodyStepContext,
@@ -5053,7 +5054,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             resolvedTemplate,
             ctxForSkill,
             si < templates.length - 1,
-            upstreamPrompt.prompt,
+            retryChainUpstreamContext,
             si,
             templates.length,
             bodyStepContext,
@@ -5377,7 +5378,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               fullRetryResolvedTemplate,
               ctxForSkill,
               si < templates.length - 1,
-              upstreamPrompt.prompt,
+              retryChainUpstreamContext,
               si,
               templates.length,
               bodyStepContext,
