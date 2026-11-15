@@ -1,5 +1,5 @@
 {
-  "id": "run-1793955595074-55",
+  "id": "run-1794776115366-59",
   "source": "pipeline",
   "sourceName": "生成流水线",
   "step": 4,
@@ -13,136 +13,154 @@
   "model": "body-model",
   "skillNames": [],
   "skillMode": "compose",
-  "pipelineRunId": "pipeline-run-1793955595065-3",
+  "pipelineRunId": "pipeline-run-1794776115360-3",
   "status": "success",
   "runtimeFingerprint": {
-    "source": "vite-manifest",
-    "manifestVersion": "1",
-    "commit": "8743ef9b753b",
-    "buildTime": "2026-11-06T08:58:28.543Z",
-    "appVersion": "3.114.3"
+    "source": "dev",
+    "manifestVersion": "0",
+    "commit": "dev",
+    "buildTime": "dev",
+    "appVersion": "dev"
   },
-  "startedAt": 1793955595074,
+  "startedAt": 1794776115366,
   "stateHistory": [
     {
       "fromStatus": "running",
       "toStatus": "success",
       "reason": "body_generation_complete",
-      "recordedAt": 1793955595444
+      "recordedAt": 1794776115524
     }
   ],
   "events": [
     {
-      "id": "event-1793955595074-56",
-      "ts": 1793955595074,
+      "id": "event-1794776115366-60",
+      "ts": 1794776115366,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始生成流水线 正文层运行"
     },
     {
-      "id": "event-1793955595075-57",
-      "ts": 1793955595075,
+      "id": "event-1794776115366-61",
+      "ts": 1794776115366,
       "seq": 2,
+      "type": "runtime-fingerprint-missing",
+      "level": "warn",
+      "label": "运行指纹缺失",
+      "detail": "source=dev missingFields=schemaVersion,commit,buildTime,appVersion",
+      "payload": {
+        "source": "dev",
+        "missingFields": [
+          "schemaVersion",
+          "commit",
+          "buildTime",
+          "appVersion"
+        ]
+      }
+    },
+    {
+      "id": "event-1794776115366-62",
+      "ts": 1794776115366,
+      "seq": 3,
       "type": "settings-projection-composed",
       "level": "info",
       "label": "设定锁定投影已组装",
       "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
     },
     {
-      "id": "event-1793955595075-58",
-      "ts": 1793955595075,
-      "seq": 3,
+      "id": "event-1794776115366-63",
+      "ts": 1794776115366,
+      "seq": 4,
       "type": "style-semantics-merged",
       "level": "info",
       "label": "风格语义已仲裁合并",
       "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
     },
     {
-      "id": "event-1793955595121-59",
-      "ts": 1793955595121,
-      "seq": 4,
+      "id": "event-1794776115368-64",
+      "ts": 1794776115368,
+      "seq": 5,
       "type": "context_scope",
       "level": "warn",
       "label": "正文层上下文闭包",
       "detail": "{\"volume\":\"第一卷 层通道\",\"chapter\":\"第1章 层通道\",\"unitId\":\"H1-01\",\"mode\":\"legacy_outline_no_scope\",\"permanentCount\":0,\"unitCount\":0,\"undeclaredCount\":0,\"closureBytes\":134,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":\"legacy_outline_no_scope\"}"
     },
     {
-      "id": "event-1793955595121-60",
-      "ts": 1793955595121,
-      "seq": 5,
+      "id": "event-1794776115368-65",
+      "ts": 1794776115368,
+      "seq": 6,
       "type": "memory_context",
       "level": "info",
       "label": "正文层记忆上下文",
       "detail": "{\"chapterId\":\"ch-provider-channel\",\"unitId\":\"H1-01\",\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
     },
     {
-      "id": "event-1793955595122-61",
-      "ts": 1793955595122,
-      "seq": 6,
+      "id": "event-1794776115369-66",
+      "ts": 1794776115369,
+      "seq": 7,
       "type": "prompt-built",
       "level": "info",
       "label": "正文层执行包已构建",
       "detail": "{\"volume\":\"第一卷 层通道\",\"chapter\":\"第1章 层通道\",\"targetWords\":3500}"
     },
     {
-      "id": "event-1793955595129-62",
-      "ts": 1793955595129,
-      "seq": 7,
+      "id": "event-1794776115373-67",
+      "ts": 1794776115373,
+      "seq": 8,
       "type": "pipeline-request-profile-resolved",
       "level": "info",
       "label": "生成流水线请求形态：layer",
       "detail": "{\"providerId\":\"provider-body\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"body-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1793955595130-63",
-      "ts": 1793955595130,
-      "seq": 8,
+      "id": "event-1794776115374-68",
+      "ts": 1794776115374,
+      "seq": 9,
       "type": "deai-injection-policy",
       "level": "info",
       "label": "降AI注入策略",
       "detail": "{\"step\":4,\"source\":\"app-default-no-skill-meta\",\"variant\":\"methodology-compose\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
     },
     {
-      "id": "event-1793955595132-64",
-      "ts": 1793955595132,
-      "seq": 9,
+      "id": "event-1794776115375-69",
+      "ts": 1794776115375,
+      "seq": 10,
       "type": "pipeline-provider-channel-resolved",
       "level": "info",
       "label": "生成流水线供应商通道：compose",
       "detail": "{\"providerId\":\"provider-body\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"body-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
     },
     {
-      "id": "event-1793955595132-65",
-      "ts": 1793955595132,
-      "seq": 10,
+      "id": "event-1794776115375-70",
+      "ts": 1794776115375,
+      "seq": 11,
       "type": "deai-guidance-pack",
       "level": "info",
       "label": "降AI方法指导包已构造：6条 / 412字符",
-      "detail": "{\"schemaVersion\":1,\"step\":4,\"bodyLayerStep\":4,\"role\":\"methodology-compose\",\"itemCount\":6,\"droppedItemIds\":[],\"guidanceChars\":412,\"voiceProfileChars\":0,\"totalInjectionChars\":412,\"truncated\":false,\"constructionMs\":0.20000004768371582,\"slowConstruction\":false,\"hash\":\"d085b077\"}"
+      "detail": "{\"schemaVersion\":1,\"step\":4,\"bodyLayerStep\":4,\"role\":\"methodology-compose\",\"itemCount\":6,\"droppedItemIds\":[],\"guidanceChars\":412,\"voiceProfileChars\":0,\"totalInjectionChars\":412,\"truncated\":false,\"constructionMs\":0.20000000298023224,\"slowConstruction\":false,\"hash\":\"d085b077\"}"
     },
     {
-      "id": "event-1793955595133-66",
-      "ts": 1793955595133,
-      "seq": 11,
+      "id": "event-1794776115375-71",
+      "ts": 1794776115375,
+      "seq": 12,
       "type": "deai-prompt-variant",
       "level": "info",
       "label": "降AI注入变体：非链式调用",
       "detail": "{\"variant\":\"methodology-compose\",\"charCount\":412}"
     },
     {
-      "id": "event-1793955595133-68",
-      "ts": 1793955595133,
-      "seq": 12,
+      "id": "event-1794776115375-73",
+      "ts": 1794776115375,
+      "seq": 13,
       "type": "api-start",
       "level": "info",
       "label": "第 1 次 API 调用开始",
       "detail": "{\"skillName\":\"compose\",\"model\":\"body-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
     },
     {
-      "id": "event-1793955595133-70",
-      "ts": 1793955595133,
-      "seq": 13,
+      "id": "event-1794776115378-75",
+      "ts": 1794776115378,
+      "seq": 14,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -153,50 +171,41 @@
       }
     },
     {
-      "id": "event-1793955595133-71",
-      "ts": 1793955595133,
-      "seq": 14,
+      "id": "event-1794776115378-76",
+      "ts": 1794776115378,
+      "seq": 15,
       "type": "long-request-in-progress",
       "level": "info",
       "label": "长物理请求进行中",
       "detail": "physicalCall=1 / heartbeat=false / normal",
       "payload": {
-        "physicalCallId": "physical-1793955595133-69",
+        "physicalCallId": "physical-1794776115378-74",
         "seq": 1,
         "heartbeat": false
       }
     },
     {
-      "id": "event-1793955595133-72",
-      "ts": 1793955595133,
-      "seq": 15,
+      "id": "event-1794776115378-77",
+      "ts": 1794776115378,
+      "seq": 16,
       "type": "physical-call",
       "level": "info",
       "label": "第 1 次物理请求进行中",
-      "detail": "normal / compose / body-model / http://127.0.0.1:10592/v1/chat/completions / main-process"
+      "detail": "normal / compose / body-model / http://127.0.0.1:11296/v1/chat/completions / main-process"
     },
     {
-      "id": "event-1793955595221-73",
-      "ts": 1793955595221,
-      "seq": 16,
-      "turnId": "api-1793955595133-67",
+      "id": "event-1794776115406-78",
+      "ts": 1794776115406,
+      "seq": 17,
+      "turnId": "api-1794776115375-72",
       "type": "provider-queue",
       "level": "info",
       "label": "已获得供应商槽位",
       "detail": "{\"providerId\":\"provider-body\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
     },
     {
-      "id": "event-1793955595244-74",
-      "ts": 1793955595244,
-      "seq": 17,
-      "type": "physical-call",
-      "level": "info",
-      "label": "第 1 次物理请求完成",
-      "detail": "normal / compose / body-model / stop / http://127.0.0.1:10592/v1/chat/completions / main-process"
-    },
-    {
-      "id": "event-1793955595247-75",
-      "ts": 1793955595247,
+      "id": "event-1794776115418-79",
+      "ts": 1794776115418,
       "seq": 18,
       "type": "run-activity",
       "level": "info",
@@ -208,9 +217,18 @@
       }
     },
     {
-      "id": "event-1793955595247-76",
-      "ts": 1793955595247,
+      "id": "event-1794776115425-80",
+      "ts": 1794776115425,
       "seq": 19,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / body-model / stop / http://127.0.0.1:11296/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794776115426-81",
+      "ts": 1794776115426,
+      "seq": 20,
       "type": "run-activity",
       "level": "info",
       "label": "运行活性证据",
@@ -221,126 +239,126 @@
       }
     },
     {
-      "id": "event-1793955595248-77",
-      "ts": 1793955595248,
-      "seq": 20,
+      "id": "event-1794776115427-82",
+      "ts": 1794776115427,
+      "seq": 21,
       "type": "state-transition",
       "level": "info",
-      "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1793955595133-67 seq=1"
+      "label": "ApiCallStatus：running → success",
+      "detail": "apiCall=api-1794776115375-72 seq=1"
     },
     {
-      "id": "event-1793955595248-78",
-      "ts": 1793955595248,
-      "seq": 21,
+      "id": "event-1794776115427-83",
+      "ts": 1794776115427,
+      "seq": 22,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "compose / body-model"
     },
     {
-      "id": "event-1793955595266-79",
-      "ts": 1793955595266,
-      "seq": 22,
+      "id": "event-1794776115437-84",
+      "ts": 1794776115437,
+      "seq": 23,
       "type": "chapter-event-increment-advisory",
       "level": "warn",
       "label": "正文生成步骤 1/1 事件增量协议观测",
       "detail": "{\"code\":\"chapter-event-increment-advisory\",\"severity\":\"warning\",\"detected\":true,\"incrementValue\":null,\"message\":\"【正文交接】缺少必填字段「事件增量」，属于交接协议缺口；叙事质量由 SKILL 层裁定。\"}"
     },
     {
-      "id": "event-1793955595267-80",
-      "ts": 1793955595267,
-      "seq": 23,
+      "id": "event-1794776115437-85",
+      "ts": 1794776115437,
+      "seq": 24,
       "type": "chapter-narrative-verdict",
       "level": "info",
       "label": "正文生成步骤 1/1 SKILL 叙事裁决透传",
       "detail": "{\"code\":\"chapter-narrative-verdict\",\"detected\":false,\"status\":\"undeclared\",\"reason\":null,\"stateChangingScenes\":null,\"message\":\"SKILL 未声明 narrativeStatus；应用不推断叙事质量。\",\"sourceCandidateIndex\":null,\"sourceResponseHash\":null,\"eventIncrement\":null}"
     },
     {
-      "id": "event-1793955595267-81",
-      "ts": 1793955595267,
-      "seq": 24,
+      "id": "event-1794776115437-86",
+      "ts": 1794776115437,
+      "seq": 25,
       "type": "body-step-acceptance",
       "level": "info",
       "label": "正文生成步骤 1/1 统一验收",
       "detail": "{\"stepIndex\":0,\"callerStatus\":\"success\",\"rawWordCount\":3958,\"extractedWordCount\":3900,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\n\\nFACT_LOCK:人物状态=王芳发现纸条并确认三次红色闪烁\\n\\nFACT_LOCK:位置=灯塔底层\\n\\nFACT_LOCK:持有物=纸条\\n\\n【正文交接结束】\",\"【来源覆盖】\\n\\nH1-01\\n\\n【来源覆盖结束】\"]},\"metadataDelta\":58,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3500,\"minWords\":2800,\"maxWords\":7000},\"degradedErrors\":[],\"contractErrors\":[]}"
     },
     {
-      "id": "event-1793955595274-82",
-      "ts": 1793955595274,
-      "seq": 25,
+      "id": "event-1794776115444-87",
+      "ts": 1794776115444,
+      "seq": 26,
       "type": "body-artifact-attempt",
       "level": "info",
       "label": "正文批次验收",
-      "detail": "{\"attemptId\":\"ch-provider-channel-attempt-1-egucji4m\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3900,\"targetWords\":3500,\"ratio\":1.1142857142857143,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\\n\\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\\n\\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\\n\\n4. 她想起南方航线，又想起一个没\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"none\"},\"requestFingerprint\":{\"physicalRequests\":1,\"promptHash\":\"fnv1a32_d62d3100\",\"outputHash\":\"fnv1a32_2b5421b0\",\"resumedFromBreakpoint\":false},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":3958,\"extractedWordCount\":3900,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":58}"
+      "detail": "{\"attemptId\":\"ch-provider-channel-attempt-1-nhg1nxsf\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3900,\"targetWords\":3500,\"ratio\":1.1142857142857143,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\\n\\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\\n\\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\\n\\n4. 她想起南方航线，又想起一个没\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"none\"},\"generatorStepIndex\":0,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":3958,\"extractedWordCount\":3900,\"errors\":[]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":58}"
     },
     {
-      "id": "event-1793955595279-83",
-      "ts": 1793955595279,
-      "seq": 26,
+      "id": "event-1794776115449-88",
+      "ts": 1794776115449,
+      "seq": 27,
       "type": "hard_signal_scan",
       "level": "info",
       "label": "正文硬信号扫描通过",
       "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
     },
     {
-      "id": "event-1793955595282-84",
-      "ts": 1793955595282,
-      "seq": 27,
+      "id": "event-1794776115453-89",
+      "ts": 1794776115453,
+      "seq": 28,
       "type": "contract_review",
       "level": "info",
       "label": "卷契约协议观测",
       "detail": "{\"status\":\"no_declared_cards\",\"detected\":false,\"findings\":[],\"skillVerdict\":{\"status\":\"undeclared\",\"reason\":null},\"ownership\":\"app_protocol_observation\"}"
     },
     {
-      "id": "event-1793955595283-85",
-      "ts": 1793955595283,
-      "seq": 28,
+      "id": "event-1794776115454-90",
+      "ts": 1794776115454,
+      "seq": 29,
       "type": "body-artifact-validated",
       "level": "info",
       "label": "正文批次验收通过",
-      "detail": "{\"chapterId\":\"ch-provider-channel\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-provider-channel-attempt-1-egucji4m\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3900,\"targetWords\":3500,\"errors\":[]}],\"targetWords\":3500,\"wordCount\":3900,\"ratio\":1.1142857142857143,\"status\":\"complete\",\"repairAttempts\":0}"
+      "detail": "{\"chapterId\":\"ch-provider-channel\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-provider-channel-attempt-1-nhg1nxsf\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"complete\",\"wordCount\":3900,\"targetWords\":3500,\"errors\":[]}],\"targetWords\":3500,\"wordCount\":3900,\"ratio\":1.1142857142857143,\"status\":\"complete\",\"repairAttempts\":0}"
     },
     {
-      "id": "event-1793955595441-86",
-      "ts": 1793955595441,
-      "seq": 29,
+      "id": "event-1794776115522-91",
+      "ts": 1794776115522,
+      "seq": 30,
       "type": "deai-calibration",
       "level": "info",
       "label": "降AI校准已落账：4条",
       "detail": "{\"provider\":\"provider-body\",\"model\":\"body-model\",\"findingCount\":4,\"ledgerWritten\":true,\"ledgerVersion\":1,\"ledgerEntryCount\":4,\"maxEntries\":500,\"pruned\":false,\"prunedCount\":0}"
     },
     {
-      "id": "event-1793955595442-87",
-      "ts": 1793955595442,
-      "seq": 30,
+      "id": "event-1794776115523-92",
+      "ts": 1794776115523,
+      "seq": 31,
       "type": "write",
       "level": "info",
       "label": "正文已写入项目",
       "detail": "字数 3900"
     },
     {
-      "id": "event-1793955595444-88",
-      "ts": 1793955595444,
-      "seq": 31,
+      "id": "event-1794776115524-93",
+      "ts": 1794776115524,
+      "seq": 32,
       "type": "finished",
       "level": "info",
       "label": "运行完成",
       "detail": "body_generation_complete"
     },
     {
-      "id": "event-1793955595444-89",
-      "ts": 1793955595444,
-      "seq": 32,
+      "id": "event-1794776115524-94",
+      "ts": 1794776115524,
+      "seq": 33,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "body_generation_complete / run=run-1793955595074-55"
+      "detail": "body_generation_complete / run=run-1794776115366-59"
     }
   ],
   "apiCalls": [
     {
-      "id": "api-1793955595133-67",
+      "id": "api-1794776115375-72",
       "seq": 1,
       "step": 4,
       "skillId": "compose",
@@ -366,11 +384,11 @@
       "streamText": "1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n4. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n5. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n6. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n7. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n8. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n9. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n10. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n11. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n12. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n13. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n14. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n15. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n16. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n17. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n18. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n19. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n20. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n21. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n22. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n23. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n24. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n25. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n26. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n27. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n28. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n29. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n30. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n31. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n32. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n33. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n34. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n35. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n36. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n37. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n38. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n39. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n40. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n41. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n42. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n43. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n44. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n45. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n46. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n47. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n48. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n49. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n50. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n51. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n52. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n53. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n54. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n55. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n56. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n57. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n58. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n59. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n60. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n61. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n62. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n63. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n64. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n65. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n66. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n67. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n68. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n69. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n70. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n【正文交接】\n\nFACT_LOCK:人物状态=王芳发现纸条并确认三次红色闪烁\n\nFACT_LOCK:位置=灯塔底层\n\nFACT_LOCK:持有物=纸条\n\n【正文交接结束】\n\n【来源覆盖】\n\nH1-01\n\n【来源覆盖结束】",
       "reasoningText": "",
       "status": "success",
-      "startedAt": 1793955595133,
+      "startedAt": 1794776115375,
       "physicalCalls": [
         {
-          "id": "physical-1793955595133-69",
-          "physicalCallId": "physical-1793955595133-normal-0",
+          "id": "physical-1794776115378-74",
+          "physicalCallId": "physical-1794776115376-normal-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -394,11 +412,11 @@
             "totalTokens": 15
           },
           "usageUnavailable": false,
-          "startedAt": 1793955595133,
-          "durationMs": 109,
-          "firstTokenMs": 108,
-          "outputMs": 1,
-          "endedAt": 1793955595243,
+          "startedAt": 1794776115378,
+          "durationMs": 48,
+          "firstTokenMs": 41,
+          "outputMs": 7,
+          "endedAt": 1794776115424,
           "toolsEnabled": false,
           "toolsDowngraded": false,
           "toolCallCount": 0,
@@ -423,9 +441,9 @@
             "driftRatio": -0.9652777777777778,
             "correctedRatio": 0.034722222222222224
           },
-          "firstContentAt": 1793955595241,
-          "lastContentAt": 1793955595241,
-          "finalUrl": "http://127.0.0.1:10592/v1/chat/completions",
+          "firstContentAt": 1794776115417,
+          "lastContentAt": 1794776115417,
+          "finalUrl": "http://127.0.0.1:11296/v1/chat/completions",
           "transport": "main-process",
           "providerSource": "layer",
           "cacheUsageSummary": {
@@ -450,19 +468,19 @@
           "heartbeat": false
         }
       ],
-      "lastExecutionActivityAt": 1793955595247,
+      "lastExecutionActivityAt": 1794776115418,
       "streamTotalChars": 4753,
-      "lastStreamActivityAt": 1793955595247,
+      "lastStreamActivityAt": 1794776115418,
       "finishReason": "stop",
-      "durationMs": 108,
+      "durationMs": 47,
       "timingLedger": {
         "physicalCallCount": 1,
         "retryPhysicalCallCount": 0,
-        "physicalDurationSumMs": 109,
-        "firstTokenSumMs": 108,
-        "outputSumMs": 1,
-        "minFirstTokenMs": 108,
-        "maxFirstTokenMs": 108,
+        "physicalDurationSumMs": 48,
+        "firstTokenSumMs": 41,
+        "outputSumMs": 7,
+        "minFirstTokenMs": 41,
+        "maxFirstTokenMs": 41,
         "localOverheadMs": -1
       },
       "usage": {
@@ -471,9 +489,9 @@
         "totalTokens": 15
       },
       "usageUnavailable": false,
-      "endedAt": 1793955595247,
+      "endedAt": 1794776115427,
       "semantic": {
-        "conversationId": "run-1793955595074-55",
+        "conversationId": "run-1794776115366-59",
         "usage": {
           "inputTokens": 10,
           "outputTokens": 5,
@@ -487,23 +505,23 @@
   "processingReports": [],
   "payloads": [],
   "eventLedger": {
-    "totalEvents": 32,
+    "totalEvents": 33,
     "droppedInfoEvents": 0,
     "droppedWarnEvents": 0,
     "droppedErrorEvents": 0
   },
   "stepPhaseTiming": {
     "validation": 1,
-    "persistence": 105
+    "persistence": 47
   },
-  "dirName": "run-trace-正文层-20261106-165955",
+  "dirName": "run-trace-正文层-20261116-045515",
   "timingLedger": {
     "apiCallCount": 1,
     "physicalCallCount": 1,
     "retryPhysicalCallCount": 0,
-    "physicalDurationSumMs": 109,
-    "firstTokenSumMs": 108,
-    "outputSumMs": 1,
+    "physicalDurationSumMs": 48,
+    "firstTokenSumMs": 41,
+    "outputSumMs": 7,
     "localOverheadSumMs": -1,
     "requestBuildSumMs": 0,
     "schemaValidateSumMs": 0,
@@ -517,15 +535,15 @@
     "physicalCallCount": 1,
     "retryCallCount": 0,
     "continuationCallCount": 0,
-    "firstTokenSumMs": 108,
-    "outputSumMs": 1,
+    "firstTokenSumMs": 41,
+    "outputSumMs": 7,
     "validationSumMs": 1,
-    "persistenceSumMs": 105,
+    "persistenceSumMs": 47,
     "repeatedPromptBlocks": {},
     "contextChars": 565,
     "outputChars": 4753,
-    "physicalDurationSumMs": 109
+    "physicalDurationSumMs": 48
   },
-  "endedAt": 1793955595444,
-  "durationMs": 370
+  "endedAt": 1794776115524,
+  "durationMs": 158
 }

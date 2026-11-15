@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-11-06T08:59:57.020Z",
+  "at": "2026-11-15T20:55:16.896Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1793955593824-1",
+      "runId": "pipeline-run-1794776114456-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -72,12 +72,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793955593833,
+      "startedAt": 1794776114456,
       "progressPhase": "terminal",
-      "endedAt": 1793955594032
+      "endedAt": 1794776114592
     },
     "chapters": {
-      "runId": "pipeline-run-1793955594428-2",
+      "runId": "pipeline-run-1794776114931-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -131,12 +131,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793955594428,
+      "startedAt": 1794776114931,
       "progressPhase": "terminal",
-      "endedAt": 1793955594627
+      "endedAt": 1794776115028
     },
     "body": {
-      "runId": "pipeline-run-1793955595065-3",
+      "runId": "pipeline-run-1794776115360-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -190,13 +190,13 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1793955595065,
+      "startedAt": 1794776115360,
       "progressPhase": "terminal",
-      "endedAt": 1793955595443
+      "endedAt": 1794776115524
     }
   },
   "auxiliaryMemory": {
-    "id": "run-1793955596531-90",
+    "id": "run-1794776116453-95",
     "source": "pipeline",
     "sourceName": "生成流水线",
     "step": 4,
@@ -209,123 +209,141 @@
     "skillMode": "compose",
     "status": "success",
     "runtimeFingerprint": {
-      "source": "vite-manifest",
-      "manifestVersion": "1",
-      "commit": "8743ef9b753b",
-      "buildTime": "2026-11-06T08:58:28.543Z",
-      "appVersion": "3.114.3"
+      "source": "dev",
+      "manifestVersion": "0",
+      "commit": "dev",
+      "buildTime": "dev",
+      "appVersion": "dev"
     },
-    "startedAt": 1793955596531,
+    "startedAt": 1794776116453,
     "stateHistory": [
       {
         "fromStatus": "running",
         "toStatus": "success",
-        "recordedAt": 1793955596586
+        "recordedAt": 1794776116499
       }
     ],
     "events": [
       {
-        "id": "event-1793955596531-91",
-        "ts": 1793955596531,
+        "id": "event-1794776116453-96",
+        "ts": 1794776116453,
         "seq": 1,
         "type": "started",
         "level": "info",
         "label": "开始生成流水线 记忆抽取运行"
       },
       {
-        "id": "event-1793955596547-93",
-        "ts": 1793955596547,
+        "id": "event-1794776116453-97",
+        "ts": 1794776116453,
         "seq": 2,
+        "type": "runtime-fingerprint-missing",
+        "level": "warn",
+        "label": "运行指纹缺失",
+        "detail": "source=dev missingFields=schemaVersion,commit,buildTime,appVersion",
+        "payload": {
+          "source": "dev",
+          "missingFields": [
+            "schemaVersion",
+            "commit",
+            "buildTime",
+            "appVersion"
+          ]
+        }
+      },
+      {
+        "id": "event-1794776116463-99",
+        "ts": 1794776116463,
+        "seq": 3,
         "type": "api-start",
         "level": "info",
         "label": "第 1 次 API 调用开始",
         "detail": "{\"actualToolSurface\":[],\"permissionDecision\":null}"
       },
       {
-        "id": "event-1793955596549-95",
-        "ts": 1793955596549,
-        "seq": 3,
+        "id": "event-1794776116464-101",
+        "ts": 1794776116464,
+        "seq": 4,
         "type": "run-activity",
         "level": "info",
         "label": "运行活性证据",
-        "detail": "physical_call_running / 1/api-1793955596547-92",
+        "detail": "physical_call_running / 1/api-1794776116462-98",
         "payload": {
           "source": "physical_call_running",
-          "detail": "1/api-1793955596547-92"
+          "detail": "1/api-1794776116462-98"
         }
       },
       {
-        "id": "event-1793955596550-96",
-        "ts": 1793955596550,
-        "seq": 4,
+        "id": "event-1794776116464-102",
+        "ts": 1794776116464,
+        "seq": 5,
         "type": "long-request-in-progress",
         "level": "info",
         "label": "长物理请求进行中",
         "detail": "physicalCall=1 / heartbeat=false / normal",
         "payload": {
-          "physicalCallId": "physical-1793955596549-94",
+          "physicalCallId": "physical-1794776116464-100",
           "seq": 1,
           "heartbeat": false
         }
       },
       {
-        "id": "event-1793955596550-97",
-        "ts": 1793955596550,
-        "seq": 5,
-        "type": "physical-call",
-        "level": "info",
-        "label": "第 1 次物理请求进行中",
-        "detail": "normal / http://127.0.0.1:10592/v1/chat/completions / main-process"
-      },
-      {
-        "id": "event-1793955596574-98",
-        "ts": 1793955596574,
+        "id": "event-1794776116465-103",
+        "ts": 1794776116465,
         "seq": 6,
         "type": "physical-call",
         "level": "info",
-        "label": "第 1 次物理请求完成",
-        "detail": "normal / stop / http://127.0.0.1:10592/v1/chat/completions / main-process"
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / http://127.0.0.1:11296/v1/chat/completions / main-process"
       },
       {
-        "id": "event-1793955596576-99",
-        "ts": 1793955596576,
+        "id": "event-1794776116492-104",
+        "ts": 1794776116492,
         "seq": 7,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求完成",
+        "detail": "normal / stop / http://127.0.0.1:11296/v1/chat/completions / main-process"
+      },
+      {
+        "id": "event-1794776116493-105",
+        "ts": 1794776116493,
+        "seq": 8,
         "type": "state-transition",
         "level": "info",
-        "label": "RunTraceStatus：running → success",
-        "detail": "apiCall=api-1793955596547-92 seq=1"
+        "label": "ApiCallStatus：running → success",
+        "detail": "apiCall=api-1794776116462-98 seq=1"
       },
       {
-        "id": "event-1793955596577-100",
-        "ts": 1793955596577,
-        "seq": 8,
+        "id": "event-1794776116493-106",
+        "ts": 1794776116493,
+        "seq": 9,
         "type": "api-success",
         "level": "info",
         "label": "第 1 次 API 调用完成",
         "detail": ""
       },
       {
-        "id": "event-1793955596585-101",
-        "ts": 1793955596585,
-        "seq": 9,
+        "id": "event-1794776116499-107",
+        "ts": 1794776116499,
+        "seq": 10,
         "type": "finished",
         "level": "info",
         "label": "运行完成",
         "detail": ""
       },
       {
-        "id": "event-1793955596586-102",
-        "ts": 1793955596586,
-        "seq": 10,
+        "id": "event-1794776116499-108",
+        "ts": 1794776116499,
+        "seq": 11,
         "type": "state-transition",
         "level": "info",
         "label": "RunTraceStatus：running → success",
-        "detail": "run=run-1793955596531-90"
+        "detail": "run=run-1794776116453-95"
       }
     ],
     "apiCalls": [
       {
-        "id": "api-1793955596547-92",
+        "id": "api-1794776116462-98",
         "seq": 1,
         "providerSource": "auxiliary",
         "requestMessages": [
@@ -342,11 +360,11 @@
         "streamText": "",
         "reasoningText": "",
         "status": "success",
-        "startedAt": 1793955596547,
+        "startedAt": 1794776116462,
         "physicalCalls": [
           {
-            "id": "physical-1793955596549-94",
-            "physicalCallId": "physical-1793955596547-normal-0",
+            "id": "physical-1794776116464-100",
+            "physicalCallId": "physical-1794776116463-normal-0",
             "seq": 1,
             "phase": "normal",
             "status": "success",
@@ -365,9 +383,9 @@
             "reasoningText": "",
             "finishReason": "stop",
             "usageUnavailable": true,
-            "startedAt": 1793955596549,
-            "durationMs": 26,
-            "endedAt": 1793955596574,
+            "startedAt": 1794776116464,
+            "durationMs": 28,
+            "endedAt": 1794776116492,
             "toolsEnabled": false,
             "toolsDowngraded": false,
             "toolCallCount": 0,
@@ -389,7 +407,7 @@
               "status": "unavailable",
               "estimatedInputTokens": 2640
             },
-            "finalUrl": "http://127.0.0.1:10592/v1/chat/completions",
+            "finalUrl": "http://127.0.0.1:11296/v1/chat/completions",
             "transport": "main-process",
             "providerSource": "auxiliary",
             "cacheUsageSummary": {
@@ -415,25 +433,25 @@
             "heartbeat": false
           }
         ],
-        "lastExecutionActivityAt": 1793955596549,
+        "lastExecutionActivityAt": 1794776116464,
         "finishReason": "stop",
-        "durationMs": 28,
+        "durationMs": 30,
         "timingLedger": {
           "physicalCallCount": 1,
           "retryPhysicalCallCount": 0,
-          "physicalDurationSumMs": 26,
+          "physicalDurationSumMs": 28,
           "localOverheadMs": 2
         },
-        "endedAt": 1793955596576
+        "endedAt": 1794776116493
       }
     ],
     "sessionKind": "task",
     "promptSnapshots": [],
     "processingReports": [],
     "payloads": [],
-    "stepBoundaryGapMs": 1087,
+    "stepBoundaryGapMs": 929,
     "eventLedger": {
-      "totalEvents": 10,
+      "totalEvents": 11,
       "droppedInfoEvents": 0,
       "droppedWarnEvents": 0,
       "droppedErrorEvents": 0
@@ -442,7 +460,7 @@
       "apiCallCount": 1,
       "physicalCallCount": 1,
       "retryPhysicalCallCount": 0,
-      "physicalDurationSumMs": 26,
+      "physicalDurationSumMs": 28,
       "firstTokenSumMs": 0,
       "outputSumMs": 0,
       "localOverheadSumMs": 2,
@@ -458,15 +476,15 @@
       "physicalCallCount": 1,
       "retryCallCount": 0,
       "continuationCallCount": 0,
-      "stepBoundaryGapMs": 1087,
+      "stepBoundaryGapMs": 929,
       "repeatedPromptBlocks": {},
       "contextChars": 5182,
       "outputChars": 72,
-      "physicalDurationSumMs": 26
+      "physicalDurationSumMs": 28
     },
-    "endedAt": 1793955596585,
-    "durationMs": 54,
-    "dirName": "run-trace-记忆抽取-20261106-165956"
+    "endedAt": 1794776116499,
+    "durationMs": 46,
+    "dirName": "run-trace-记忆抽取-20261116-045516"
   },
   "modelAssertions": {
     "volumes": "volumes-model",

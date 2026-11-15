@@ -1,0 +1,458 @@
+{
+  "id": "run-1794776072907-6",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 2,
+  "stepName": "卷纲层",
+  "mode": "auto",
+  "projectId": "pipeline-provider-channel-ui",
+  "projectName": "层通道真实UI验证",
+  "providerId": "provider-volumes",
+  "providerName": "volumes通道供应商",
+  "providerSource": "layer",
+  "model": "volumes-model",
+  "skillNames": [],
+  "skillMode": "compose",
+  "pipelineRunId": "pipeline-run-1794776072866-1",
+  "status": "success",
+  "runtimeFingerprint": {
+    "source": "dev",
+    "manifestVersion": "0",
+    "commit": "dev",
+    "buildTime": "dev",
+    "appVersion": "dev"
+  },
+  "startedAt": 1794776072907,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "all_volumes_generation_complete",
+      "recordedAt": 1794776073042
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1794776072907-7",
+      "ts": 1794776072907,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 卷纲层运行"
+    },
+    {
+      "id": "event-1794776072907-8",
+      "ts": 1794776072907,
+      "seq": 2,
+      "type": "runtime-fingerprint-missing",
+      "level": "warn",
+      "label": "运行指纹缺失",
+      "detail": "source=dev missingFields=schemaVersion,commit,buildTime,appVersion",
+      "payload": {
+        "source": "dev",
+        "missingFields": [
+          "schemaVersion",
+          "commit",
+          "buildTime",
+          "appVersion"
+        ]
+      }
+    },
+    {
+      "id": "event-1794776072908-9",
+      "ts": 1794776072908,
+      "seq": 3,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"volume\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794776072909-10",
+      "ts": 1794776072909,
+      "seq": 4,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "卷纲层提示词已构建",
+      "detail": "{\"plannedVolumeCount\":2,\"generatedVolumeCount\":1,\"allocatedWords\":12000,\"remainingWords\":8000,\"remainingVolumes\":1,\"currentVolumeBudget\":8000,\"conflicts\":[],\"mode\":\"auto\"}"
+    },
+    {
+      "id": "event-1794776072910-11",
+      "ts": 1794776072910,
+      "seq": 5,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"volume\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1794776072922-12",
+      "ts": 1794776072922,
+      "seq": 6,
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：layer",
+      "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"volumes-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
+    },
+    {
+      "id": "event-1794776072922-13",
+      "ts": 1794776072922,
+      "seq": 7,
+      "type": "deai-injection-policy",
+      "level": "info",
+      "label": "降AI注入策略",
+      "detail": "{\"step\":2,\"source\":\"app-default-no-skill-meta\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"on\",\"finalStepDetection\":\"on\",\"conflictPolicy\":\"skill-wins\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794776072923-14",
+      "ts": 1794776072923,
+      "seq": 8,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：compose",
+      "detail": "{\"providerId\":\"provider-volumes\",\"source\":\"layer\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"volumes-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"volumes\",\"step\":2}"
+    },
+    {
+      "id": "event-1794776072923-16",
+      "ts": 1794776072923,
+      "seq": 9,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"compose\",\"model\":\"volumes-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1794776072952-18",
+      "ts": 1794776072952,
+      "seq": 10,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/compose",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/compose"
+      }
+    },
+    {
+      "id": "event-1794776072953-19",
+      "ts": 1794776072953,
+      "seq": 11,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1794776072951-17",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1794776072953-20",
+      "ts": 1794776072953,
+      "seq": 12,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / compose / volumes-model / http://127.0.0.1:11144/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794776072976-21",
+      "ts": 1794776072976,
+      "seq": 13,
+      "turnId": "api-1794776072923-15",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"provider-volumes\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1794776072998-22",
+      "ts": 1794776072998,
+      "seq": 14,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1794776073007-23",
+      "ts": 1794776073007,
+      "seq": 15,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / compose / volumes-model / stop / http://127.0.0.1:11144/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794776073009-24",
+      "ts": 1794776073009,
+      "seq": 16,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1794776073010-25",
+      "ts": 1794776073010,
+      "seq": 17,
+      "type": "state-transition",
+      "level": "info",
+      "label": "ApiCallStatus：running → success",
+      "detail": "apiCall=api-1794776072923-15 seq=1"
+    },
+    {
+      "id": "event-1794776073010-26",
+      "ts": 1794776073010,
+      "seq": 18,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 1 次 API 调用完成",
+      "detail": "compose / volumes-model"
+    },
+    {
+      "id": "event-1794776073016-27",
+      "ts": 1794776073016,
+      "seq": 19,
+      "type": "volume-batch-attempt",
+      "level": "info",
+      "label": "卷纲批次验收",
+      "detail": "{\"repairAttempt\":0,\"status\":\"complete\",\"requestedCount\":1,\"acceptedCount\":1,\"missingStart\":2,\"missingCount\":1,\"validationMs\":1,\"errors\":[]}"
+    },
+    {
+      "id": "event-1794776073040-28",
+      "ts": 1794776073040,
+      "seq": 20,
+      "type": "volume-batch-validated",
+      "level": "info",
+      "label": "卷纲批次验收通过",
+      "detail": "{\"mode\":\"auto\",\"expectedCount\":1,\"actualCount\":1,\"repairAttempts\":0,\"status\":\"complete\"}"
+    },
+    {
+      "id": "event-1794776073040-29",
+      "ts": 1794776073040,
+      "seq": 21,
+      "type": "write",
+      "level": "info",
+      "label": "卷纲已写入项目",
+      "detail": "写入 1 卷"
+    },
+    {
+      "id": "event-1794776073042-30",
+      "ts": 1794776073042,
+      "seq": 22,
+      "type": "finished",
+      "level": "info",
+      "label": "运行完成",
+      "detail": "all_volumes_generation_complete"
+    },
+    {
+      "id": "event-1794776073042-31",
+      "ts": 1794776073042,
+      "seq": 23,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success",
+      "detail": "all_volumes_generation_complete / run=run-1794776072907-6"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1794776072923-15",
+      "seq": 1,
+      "step": 2,
+      "skillId": "compose",
+      "skillName": "compose",
+      "providerId": "provider-volumes",
+      "providerName": "volumes通道供应商",
+      "providerSource": "layer",
+      "model": "volumes-model",
+      "temperature": 0.1,
+      "maxTokens": 8192,
+      "requestMessages": [
+        {
+          "role": "system",
+          "content": "你是专业小说创作助手。"
+        },
+        {
+          "role": "user",
+          "content": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+        }
+      ],
+      "responseText": "[{\"name\":\"第二卷 航线\",\"outline\":\"王芳确认航线与纸条之间的关系。\",\"summary\":\"航线确认。\",\"allocatedWords\":12000,\"readerExpectations\":\"确认航线。\",\"mainPlotLine\":\"纸条推动航线。\",\"unlockMilestone\":\"航线确认。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+      "streamText": "[{\"name\":\"第二卷 航线\",\"outline\":\"王芳确认航线与纸条之间的关系。\",\"summary\":\"航线确认。\",\"allocatedWords\":12000,\"readerExpectations\":\"确认航线。\",\"mainPlotLine\":\"纸条推动航线。\",\"unlockMilestone\":\"航线确认。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+      "reasoningText": "",
+      "status": "success",
+      "startedAt": 1794776072923,
+      "physicalCalls": [
+        {
+          "id": "physical-1794776072951-17",
+          "physicalCallId": "physical-1794776072925-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "你是专业小说创作助手。"
+            },
+            {
+              "role": "user",
+              "content": "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contractRisk字段。\nreaderExpectations=读者期待，mainPlotLine=主推线，unlockMilestone=本卷解锁里程碑。\nforbiddenFinalCards=禁碰终局底牌（字符串数组，没有则输出[]）。\ncontractRisk必须是contract_safe / contract_needs_reinforcement / contract_broken / [待补充]。\n语义字段允许输出[待补充]，但字段必须在场。\n数组长度必须为1。"
+            }
+          ],
+          "responseText": "[{\"name\":\"第二卷 航线\",\"outline\":\"王芳确认航线与纸条之间的关系。\",\"summary\":\"航线确认。\",\"allocatedWords\":12000,\"readerExpectations\":\"确认航线。\",\"mainPlotLine\":\"纸条推动航线。\",\"unlockMilestone\":\"航线确认。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+          "streamText": "[{\"name\":\"第二卷 航线\",\"outline\":\"王芳确认航线与纸条之间的关系。\",\"summary\":\"航线确认。\",\"allocatedWords\":12000,\"readerExpectations\":\"确认航线。\",\"mainPlotLine\":\"纸条推动航线。\",\"unlockMilestone\":\"航线确认。\",\"forbiddenFinalCards\":[],\"contractRisk\":\"contract_safe\"}]",
+          "reasoningText": "",
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 10,
+            "outputTokens": 5,
+            "totalTokens": 15
+          },
+          "usageUnavailable": false,
+          "startedAt": 1794776072951,
+          "durationMs": 80,
+          "firstTokenMs": 69,
+          "outputMs": 11,
+          "endedAt": 1794776073007,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "toolCallCount": 0,
+          "toolCallNames": [],
+          "maxTokens": 8192,
+          "modelCapability": {
+            "contextWindowTokens": 128000,
+            "contextWindowSource": "provider",
+            "maxOutputTokens": 8192,
+            "maxOutputSource": "override",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 197,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 197 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 197,
+            "actualInputTokens": 10,
+            "driftRatio": -0.949238578680203,
+            "correctedRatio": 0.050761421319796954
+          },
+          "firstContentAt": 1794776072995,
+          "lastContentAt": 1794776072995,
+          "finalUrl": "http://127.0.0.1:11144/v1/chat/completions",
+          "transport": "main-process",
+          "providerSource": "layer",
+          "cacheUsageSummary": {
+            "status": "not_reported"
+          },
+          "contextComposition": {
+            "layer": "volumes",
+            "step": 2,
+            "providerType": "openai-compatible",
+            "providerId": "provider-volumes",
+            "model": "volumes-model",
+            "cacheFamily": "openai-compatible:provider-volumes:volumes-model:volumes:step-2",
+            "prefixFingerprint": "ca3594e6-115dc87-11:811c9dc5-1000193-0",
+            "systemLength": 116,
+            "userLength": 536,
+            "stableSystemPrefixLength": 11,
+            "stableUserPrefixLength": 0,
+            "stableChars": 11,
+            "variableChars": 641,
+            "stableRatio": 0.017
+          },
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1794776072998,
+      "streamTotalChars": 224,
+      "lastStreamActivityAt": 1794776072998,
+      "finishReason": "stop",
+      "durationMs": 78,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 80,
+        "firstTokenSumMs": 69,
+        "outputSumMs": 11,
+        "minFirstTokenMs": 69,
+        "maxFirstTokenMs": 69,
+        "localOverheadMs": -2
+      },
+      "usage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15
+      },
+      "usageUnavailable": false,
+      "endedAt": 1794776073009,
+      "semantic": {
+        "conversationId": "run-1794776072907-6",
+        "usage": {
+          "inputTokens": 10,
+          "outputTokens": 5,
+          "totalTokens": 15
+        }
+      }
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [],
+  "eventLedger": {
+    "totalEvents": 23,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "stepPhaseTiming": {
+    "validation": 1,
+    "persistence": 21
+  },
+  "dirName": "run-trace-卷纲层-20261116-045432",
+  "timingLedger": {
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 80,
+    "firstTokenSumMs": 69,
+    "outputSumMs": 11,
+    "localOverheadSumMs": -2,
+    "requestBuildSumMs": 0,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 0,
+    "repeatedPromptBlocks": {}
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 0,
+    "apiCallCount": 1,
+    "physicalCallCount": 1,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 69,
+    "outputSumMs": 11,
+    "validationSumMs": 1,
+    "persistenceSumMs": 21,
+    "repeatedPromptBlocks": {},
+    "contextChars": 547,
+    "outputChars": 224,
+    "physicalDurationSumMs": 80
+  },
+  "endedAt": 1794776073042,
+  "durationMs": 135
+}

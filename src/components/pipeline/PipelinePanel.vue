@@ -789,7 +789,7 @@ import { useSkillStore, type Skill } from "../../stores/skill"
 import { useAgentStore } from "../../stores/agent"
 import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
-import { folderDiagnosticsStatus, useRunTraceStore } from "../../stores/runTrace"
+import { folderDiagnosticsRecoveryKind, folderDiagnosticsStatus, useRunTraceStore } from "../../stores/runTrace"
 import { useAiCallTrace, type AiCallContext } from "../../composables/useAiCallTrace"
 import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
@@ -2033,6 +2033,7 @@ function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
     runStatus: run.status,
     runError: pipelineRun?.error,
     folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
+    folderRecoveryKind: folderDiagnosticsRecoveryKind(run.folderDiagnostics || []),
     finalArtifactAccepted,
     hardSignalUnresolved: hardSignalUnresolvedRuns.has(runId)
   })
@@ -4471,6 +4472,20 @@ function sanitizeLegacyEnvelopeArtifact(text: string): {
   }
 }
 
+function isFailureArtifactSource(
+  output: ChainBreakpointStepOutput | undefined,
+  fallbackStepIndex?: number
+): boolean {
+  if (!output) return false
+  const callerStatus = output.callerStatus
+  if (callerStatus === 'failed' || callerStatus === 'blocked') return true
+  if (callerStatus === 'success' || callerStatus === 'degraded') return false
+  if (typeof fallbackStepIndex !== 'number' || output.skillIndex !== fallbackStepIndex) {
+    return false
+  }
+  return !isGeneratorEnvelopeArtifact(output.output)
+}
+
 async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[], executionPlan?: RunStepSkillsExecutionPlan, traceRunId?: string | null | undefined, pipelineRunId?: string | null | undefined): Promise<string | StructuredSkillStepOutput> {
   const templates = hydratedTemplates
   const runId = traceRunId || null
@@ -4580,32 +4595,69 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           : resumePoint.stepOutputs
         const upstreamSkillIndex = startSi - 1
         const upstream = upstreamSource.find(output => output.skillIndex === upstreamSkillIndex)
-        upstreamStepMetadata = upstream?.metadata || null
         const targetedGeneratorIndex = resolveBodyGeneratorStepIndex(templates).index
         const startsAtGeneratorStep = startSi === targetedGeneratorIndex
-        const upstreamScaffoldBody = upstream ? parseGenerationResult(upstream.output).body : ''
-        const upstreamUsable = Boolean(upstream && (
-          isGeneratorEnvelopeArtifact(upstream.output) ||
-          (startsAtGeneratorStep &&
-            (upstreamScaffoldBody.trim().length > 0 ||
-              upstream.output.trim().length > 0))
-        ))
-        if (upstream && upstreamUsable) {
-          current = upstream.output
-        } else {
+        if (isFailureArtifactSource(upstream, upstreamSkillIndex)) {
           startSi = 0
+          current = prompt
+          upstreamStepMetadata = null
+          authoritativeGeneratorMetadata = null
+          completedStepOutputs = completedStepOutputs.filter(output => output.skillIndex < 0)
           if (runId) {
             runTraceStore.addEvent(runId, {
-              type: 'body-targeted-repair-artifact-missing',
-              level: 'warn',
-              label: '定点修复缺少上游产物，已降级整链重跑',
+              type: 'body-targeted-repair-upstream-rejected',
+              level: 'error',
+              label: '定点修复失败上游已拒绝，降级整链重跑',
               detail: JSON.stringify({
-                requestedStartIndex: executionPlan.startIndex,
-                reason: upstream
-                  ? 'upstream_artifact_invalid'
-                  : 'upstream_step_output_not_persisted'
+                sourceStepIndex: upstreamSkillIndex,
+                callerStatus: upstream?.callerStatus || 'unknown',
+                reason: 'failure_source_forbidden'
               })
             })
+          }
+        } else {
+          upstreamStepMetadata = upstream?.metadata || null
+          const upstreamScaffoldBody = upstream ? parseGenerationResult(upstream.output).body : ''
+          const upstreamUsable = Boolean(upstream && (
+            isGeneratorEnvelopeArtifact(upstream.output) ||
+            (startsAtGeneratorStep &&
+              (upstreamScaffoldBody.trim().length > 0 ||
+                upstream.output.trim().length > 0))
+          ))
+          if (upstream && upstreamUsable) {
+            current = upstream.output
+          } else {
+            startSi = 0
+            upstreamStepMetadata = null
+            if (runId) {
+              runTraceStore.addEvent(runId, {
+                type: 'body-targeted-repair-artifact-missing',
+                level: 'warn',
+                label: '定点修复缺少上游产物，已降级整链重跑',
+                detail: JSON.stringify({
+                  requestedStartIndex: executionPlan.startIndex,
+                  reason: upstream
+                    ? 'upstream_artifact_invalid'
+                    : 'upstream_step_output_not_persisted'
+                })
+              })
+            }
+          }
+        }
+        if (startSi === 0) {
+          current = prompt
+          authoritativeGeneratorMetadata = null
+          completedStepOutputs = completedStepOutputs.filter(output => output.skillIndex < 0)
+        }
+        if (executionPlan.reuseArtifacts && startSi > 0) {
+          const acceptedUpstream = upstreamSource.find(output => output.skillIndex === startSi - 1)
+          if (acceptedUpstream) {
+            completedStepOutputs = completedStepOutputs
+              .filter(output => output.skillIndex < startSi - 1)
+              .concat([acceptedUpstream])
+            authoritativeGeneratorMetadata = acceptedUpstream.skillIndex === resolveBodyGeneratorStepIndex(templates).index
+              ? acceptedUpstream.metadata || null
+              : authoritativeGeneratorMetadata
           }
         }
       }
@@ -4978,6 +5030,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               skillIndex: si,
               skillId: t.id,
               output: stepResult.output,
+              callerStatus: stepResult.callerStatus,
               metadata: upstreamStepMetadata || undefined
             }])
           executionPlan?.onStepOutputs?.(completedStepOutputs)
@@ -5285,6 +5338,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         skillIndex: si,
         skillId: t.id,
         output: current,
+        callerStatus: stepResult.callerStatus,
         metadata: upstreamStepMetadata || undefined
       }])
     await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
@@ -5480,6 +5534,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
                 skillIndex: si,
                 skillId: t.id,
                 output: current,
+                callerStatus: escalationStepResult.callerStatus,
                 metadata: upstreamStepMetadata || undefined
               }])
             await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
@@ -6980,17 +7035,28 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       trace.addEvent({
         type: "body-artifact-recovered",
         level: "warn",
-        label: "正文中间尝试曾降级，最终产物已通过契约验收",
+        label: outcome.recoveredFromFailed
+          ? "正文中间尝试曾失败，最终产物已通过契约验收"
+          : "正文中间尝试曾降级，最终产物已通过契约验收",
         detail: JSON.stringify({
           degradedApiCalls: outcome.degradedApiCalls,
+          recoveryKind: outcome.recoveredFromFailed
+            ? 'recovered_from_failed'
+            : 'recovered_from_degraded',
           finalStatus: 'complete'
         })
       })
     }
-    const bodyTraceError = outcome.status === 'success'
+    const bodyTraceError = outcome.status === 'success' || outcome.status === 'success_with_warnings'
       ? undefined
       : outcome.error
-    trace.finish(outcome.status, bodyTraceError, outcome.status === 'success' ? 'body_generation_complete' : 'generation_failed')
+    trace.finish(
+      outcome.status,
+      bodyTraceError,
+      outcome.status === 'success' || outcome.status === 'success_with_warnings'
+        ? 'body_generation_complete'
+        : 'generation_failed'
+    )
   }
 }
 

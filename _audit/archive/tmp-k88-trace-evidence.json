@@ -1,0 +1,170 @@
+EVT15 {
+  "id": "event-1794764304357-959",
+  "ts": 1794764304357,
+  "seq": 24,
+  "type": "physical-call",
+  "level": "error",
+  "label": "第 1 次物理请求失败",
+  "detail": "normal / S1-骨架师（文件夹） / deepseek-v4-flash / https://openapi.cloud-ai.cn/v1/chat/completions / main-process / 供应商返回占位正文且输出 usage 为零，判定为假成功，已拒绝进入候选"
+}
+EVT16 {
+  "id": "event-1794764398985-971",
+  "ts": 1794764398985,
+  "seq": 35,
+  "type": "schema-retry-feedback-composed",
+  "level": "info",
+  "label": "结构化重试反馈已单源合成：S1-骨架师（文件夹）",
+  "detail": "{\"strategy\":\"bounded-summary\",\"candidateChars\":3548,\"feedbackChars\":858,\"anchorCount\":3,\"previewChars\":418,\"scaffoldSource\":\"none\",\"scaffoldChars\":0,\"scaffoldFieldCount\":0,\"suppressedCandidateChars\":3130}"
+}
+EVT17 {
+  "id": "event-1794764398993-972",
+  "ts": 1794764398993,
+  "seq": 36,
+  "type": "folder-pass-input",
+  "level": "info",
+  "label": "Folder pass 输入口径 1（重试）",
+  "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":27156,\"userPromptLength\":27863,\"systemPromptLength\":9758,\"sampleCount\":5,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794764302964-932\",\"traceCallId\":\"api-1794764303027-946\"}"
+}
+EVT18 {
+  "id": "event-1794764494079-984",
+  "ts": 1794764494079,
+  "seq": 47,
+  "type": "schema-retry-feedback-composed",
+  "level": "info",
+  "label": "结构化重试反馈已单源合成：S1-骨架师（文件夹）",
+  "detail": "{\"strategy\":\"bounded-summary\",\"candidateChars\":3944,\"feedbackChars\":633,\"anchorCount\":3,\"previewChars\":418,\"scaffoldSource\":\"none\",\"scaffoldChars\":0,\"scaffoldFieldCount\":0,\"suppressedCandidateChars\":3526}"
+}
+EVT19 {
+  "id": "event-1794764494093-985",
+  "ts": 1794764494093,
+  "seq": 48,
+  "type": "folder-pass-input",
+  "level": "info",
+  "label": "Folder pass 输入口径 1（重试）",
+  "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":27156,\"userPromptLength\":27863,\"systemPromptLength\":9533,\"sampleCount\":5,\"isRetry\":true,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794764302964-932\",\"traceCallId\":\"api-1794764303027-946\"}"
+}
+EVT20 {
+  "id": "event-1794764596982-1004",
+  "ts": 1794764596982,
+  "seq": 66,
+  "type": "schema-retry-feedback-composed",
+  "level": "info",
+  "label": "结构化重试反馈已单源合成：S1-骨架师（文件夹）",
+  "detail": "{\"strategy\":\"bounded-summary\",\"candidateChars\":4295,\"feedbackChars\":700,\"anchorCount\":3,\"previewChars\":418,\"scaffoldSource\":\"none\",\"scaffoldChars\":0,\"scaffoldFieldCount\":0,\"suppressedCandidateChars\":3877}"
+}
+EVT22 {
+  "id": "event-1794764596990-1009",
+  "ts": 1794764596990,
+  "seq": 71,
+  "type": "folder-skill-blocking-gate",
+  "level": "error",
+  "label": "SKILL「S1-骨架师（文件夹）」硬门禁未通过",
+  "detail": "{\"step\":4,\"status\":\"failed\",\"blockingGateFailed\":true,\"errors\":[\"第 1/3 次输出未通过 postProcess 校验：stateChangingScenes格式错误：场景1每个维度都必须有→\\nstateChangingScenes格式错误：场景4每个维度都必须有→\\n场景1状态差格式错误：须为“资源/信息/关系/威胁/身体：起点→终点”；位置位移、抽象描述或纯编号不能申报：身体：沈萤脚踝崴伤一次定档，陈暮接人负重\\n场景4状态差格式错误：须为“资源/信息/关系/威胁/身体：起点→终点”；位置位移、抽象描述或纯编号不能申报：关系：陈暮与沈萤为背上重量与温度线起点，退不回独行\",\"第 2/3 次输出未通过 postProcess 校验：场景4缺字段：阻碍与代价\",\"第 3/3 次输出未通过 postProcess 校验：场景施工卡阈值与场景区块施工卡不一致；【正文交接】中的场景施工卡必须逐场与场景区块同步\\n对白/互动密度不足；多角色推进章至少半数推进场景有互动或出声计划\",\"输出未通过校验，已达最大尝试次数 3\"]}"
+}
+EVT23 {
+  "id": "event-1794764597002-1010",
+  "ts": 1794764597002,
+  "seq": 72,
+  "type": "body-step-acceptance",
+  "level": "error",
+  "label": "正文生成步骤 1/3 统一验收",
+  "detail": "{\"stepIndex\":0,\"callerStatus\":\"failed\",\"rawWordCount\":3177,\"extractedWordCount\":0,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\n章节：背上的重量\\nPOV：陈暮\\nchapterIntent：遭遇战胶着突进→崴脚后背负突围与首次开口→战局悬置、背上重量定格切入倒叙\\n场景类型：场景1：动作；场景2：动作；场景3：观察；场景4：静场\\n对白排布：场景1：无对话对象；场景2：出声；场景3：无对话对象；场景4：无对话对象\\n场景分段：场景1：段A-段C；场景2：段A-段D；场景3：段A-段C；场景4：段A-段B\\n场景字数：场景1：900；场景2：900；场景3：850；场景4：850\\n场景施工卡：场景1：按动作场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景2：按动作场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景3：按观察场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景4：按静场场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处\\n已完成场景：场景1至场景4\\n未完成场景：无\\n来源覆盖状态：已覆盖全部剧情点\\n角色状态变化：陈暮从冲入搭救、发不出声的卷入者，变为背负沈萤突围并在危机顶点首次开口的开路起点。\\n章末状态：陈暮背着沈萤，队伍向预设安全点退却，威胁未除但出现间隙，画面定格于背上重量并切入倒叙。\\n下一章必须使用：从背上重量滑入第3章试验舱休眠终止的倒叙开端，以死寂与门没有锁的反常承接。\\n目标字数：3500\\n生成下限：2800\\n场景总数：4\\n事件增量：陈暮突进救下崴脚失能的沈萤，背负突围中于危机顶点首次挤出两个音节，威胁暂时拉开但战局未收尾，画面定格于背上重量并切入倒叙。\\nnarrativeStatus：ready\\nnarrativeReason：四场施工可覆盖全部剧情点，POV与事实边界锁定，倒叙触发点与章末钩子可施工。\\nstateChangingScenes：场景1（资源：陈暮独行机动资源→背负沈萤后机动下降；信息：沈萤落单位置与伤情未明→确认沈萤崴脚且扶搀不可行；威胁：变异植物与变异体合拢中→陈暮与沈萤进入背负突围移动；身体：沈萤可自行移动→脚踝崴伤一次定档且陈暮开始承重）；场景2（资源：背负突围的机动余量→开口消耗残余镇定；信息：陈暮自认发不出声→确认能挤出两个音节；威胁：追击近失手顶点→危机被两个音节打破但仍在突围；关系：陌生队员→背上重量与温度线起点）；场景3（威胁：外圈追压合拢→追击出现间隙、威胁暂时拉开；信息：战局未收尾→背上重量与体温成为倒叙触发点；身体：背负行进中的持续暴露→画面定格于背上重量，无新增代价；关系：卷入中→卷入已成定局、退不回独行）；场景4（信息：倒叙触发点未确立→画面定格即倒叙入口；关系：温度线起点→倒叙入口锁定，读者即将获得语言丧失与独行来处；威胁：遭遇战悬置→未收尾移交第7章切回现场）\\nFACT_LOCK：人物状态：陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动；位置：陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走；伤势：沈萤脚踝崴伤一次定档，不复发不升格不留疤；持有物：菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手；时间点：承接第1章遭遇战胶着现场，突围行进至威胁出现间隙；关键数字：唯一有效发声单元=两个音节；新增事实：陈暮危机顶点首次开口、背上重量定格切入倒叙；钩子兑现状态：已兑现\\nNEW_FACT：陈暮在危机顶点第一次对同类挤出两个音节，语言恢复线启动；背上重量与体温的画面定格即倒叙入口\"]},\"metadataDelta\":3177,\"decision\":\"reject\",\"reason\":\"caller_failed\",\"contract\":{\"targetWords\":3500,\"minWords\":null,\"maxWords\":null},\"degradedErrors\":[],\"contractErrors\":[],\"blockingGateFailed\":true,\"errors\":[\"SKILL 调用失败\",\"caller_failed:failed\"]}"
+}
+EVT24 {
+  "id": "event-1794764597021-1011",
+  "ts": 1794764597021,
+  "seq": 73,
+  "type": "body-artifact-attempt",
+  "level": "warn",
+  "label": "正文批次验收",
+  "detail": "{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-1-v16anfp5\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":2020,\"targetWords\":3500,\"ratio\":0.5771428571428572,\"validationMs\":0,\"errors\":[\"正文过短：2020字，要求不低于2800字\"],\"bodyPreview\":\"【场景1：冲入】\\n场景类型：动作\\nPOV：陈暮\\n时间地点：偷袭战局胶着现场，承接第1章末冲锋瞬间；陈暮在小队近域接战位，沈萤落单于战线外缘，阿黎与其余队员在迎战线内侧持冷兵器接敌，变异植物攻击范围笼罩近域，变异体从外围挤压\\n目标：把沈萤从战线外缘的死亡位置带出来\\n行动链：在胶着中向沈萤方位突进；以菌膜装甲硬接变异植物攻击、格挡藤蔓状攻击结构；抵达后扶住沈萤；沈萤在躲闪失衡中脚踝崴伤一次完成；威胁逼\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"正文过短：2020字，要求不低于2800字\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"failed\",\"decision\":\"reject\",\"reason\":\"caller_failed\",\"rawWordCount\":3177,\"extractedWordCount\":0,\"errors\":[\"SKILL 调用失败\",\"caller_failed:failed\"]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":3177}"
+}
+EVT32 {
+  "id": "event-1794764597109-1026",
+  "ts": 1794764597109,
+  "seq": 86,
+  "type": "folder-pass-input",
+  "level": "info",
+  "label": "Folder pass 输入口径 1",
+  "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":8082,\"userPromptLength\":8888,\"systemPromptLength\":3821,\"sampleCount\":5,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794764302964-932\",\"traceCallId\":\"api-1794764597084-1019\"}"
+}
+EVT35 {
+  "id": "event-1794764900957-1040",
+  "ts": 1794764900957,
+  "seq": 99,
+  "type": "body-step-acceptance",
+  "level": "info",
+  "label": "正文生成步骤 2/3 统一验收",
+  "detail": "{\"stepIndex\":1,\"callerStatus\":\"success\",\"rawWordCount\":4040,\"extractedWordCount\":2842,\"metadata\":{\"extractedMeta\":[\"【正文交接】\\n章节：背上的重量\\nPOV：陈暮\\nchapterIntent：遭遇战胶着突进，崴脚后背负突围与首次开口，战局悬置，背上重量定格切入倒叙\\n场景类型：场景1：动作；场景2：动作；场景3：观察；场景4：静场\\n对白排布：场景1：无对话对象；场景2：出声；场景3：无对话对象；场景4：无对话对象\\n场景分段：场景1：段A-段C；场景2：段A-段D；场景3：段A-段C；场景4：段A-段B\\n场景字数：场景1：900；场景2：900；场景3：850；场景4：850\\n场景施工卡：场景1：按动作场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景2：按动作场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景3：按观察场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景4：按静场场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处\\n已完成场景：场景1至场景4\\n未完成场景：无\\n来源覆盖状态：已覆盖全部剧情点\\n角色状态变化：陈暮从冲入搭救、发不出声的卷入者，变为背负沈萤突围并在危机顶点首次开口的开路起点。\\n章末状态：陈暮背着沈萤，队伍向预设安全点退却，威胁未除但出现间隙，画面定格于背上重量并切入倒叙。\\n下一章必须使用：从背上重量滑入第3章试验舱休眠终止的倒叙开端，以死寂与门没有锁的反常承接。\\n目标字数：3500\\n生成下限：2800\\n场景总数：4\\n事件增量：陈暮突进救下崴脚失能的沈萤，背负突围中于危机顶点首次挤出两个音节，威胁暂时拉开但战局未收尾，画面定格于背上重量并切入倒叙。\\nnarrativeStatus：ready\\nnarrativeReason：四场施工可覆盖全部剧情点，POV与事实边界锁定，倒叙触发点与章末钩子可施工。\\nstateChangingScenes：场景1（资源：陈暮独行机动资源→背负沈萤后机动下降；信息：沈萤落单位置与伤情未明→确认沈萤崴脚且扶搀不可行；威胁：变异植物与变异体合拢中→陈暮与沈萤进入背负突围移动；身体：沈萤可自行移动→脚踝崴伤一次定档且陈暮开始承重）；场景2（资源：背负突围的机动余量→开口消耗残余镇定；信息：陈暮自认发不出声→确认能挤出两个音节；威胁：追击近失手顶点→危机被两个音节打破但仍在突围；关系：陌生队员→背上重量与温度线起点）；场景3（威胁：外圈追压合拢→追击出现间隙、威胁暂时拉开；信息：战局未收尾→背上重量与体温成为倒叙触发点；身体：背负行进中的持续暴露→画面定格于背上重量，无新增代价；关系：卷入中→卷入已成定局、退不回独行）；场景4（信息：倒叙触发点未确立→画面定格即倒叙入口；关系：温度线起点→倒叙入口锁定，读者即将获得语言丧失与独行来处；威胁：遭遇战悬置→未收尾移交第7章切回现场）\\nFACT_LOCK：人物状态：陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动；位置：陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走；伤势：沈萤脚踝崴伤一次定档，不复发不升格不留疤；持有物：菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手；时间点：承接第1章遭遇战胶着现场，突围行进至威胁出现间隙；关键数字：唯一有效发声单元=两个音节；新增事实：陈暮危机顶点首次开口、背上重量定格切入倒叙；钩子兑现状态：已兑现\\nNEW_FACT：陈暮在危机顶点第一次对同类挤出两个音节，语言恢复线启动；背上重量与体温的画面定格即倒叙入口\"]},\"metadataDelta\":1198,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3500,\"minWords\":2800,\"maxWords\":7000},\"degradedErrors\":[],\"contractErrors\":[]}"
+}
+EVT38 {
+  "id": "event-1794764900968-1044",
+  "ts": 1794764900968,
+  "seq": 102,
+  "type": "chain-handoff",
+  "level": "info",
+  "label": "链式步骤 2/3 Handoff",
+  "detail": "{\"artifactId\":\"handoff-1-146c986d\",\"sourceStep\":1,\"sourceSkillId\":\"folder:KAI-S2\",\"outputHash\":\"146c986d\",\"fullTextLength\":3226,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+}
+EVT41 {
+  "id": "event-1794764901315-1047",
+  "ts": 1794764901315,
+  "seq": 105,
+  "type": "chain-handoff-delivery",
+  "level": "info",
+  "label": "链式步骤 3/3 上游交付决策",
+  "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":3226,\"deliveredLength\":3226,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:KAI-S3\",\"skillName\":\"S3-打磨师（文件夹）\",\"fullReason\":\"S3 是顺序链的终步：在 S2 正文生成后执行语言层打磨；quality_failed 触发 targeted repair，不表示 S3 缺席。\",\"fullReasonMissing\":false}"
+}
+EVT113 {
+  "id": "event-1794765746403-1123",
+  "ts": 1794765746403,
+  "seq": 177,
+  "type": "folder-diagnostics",
+  "level": "info",
+  "label": "记录 folder SKILL 诊断"
+}
+EVT118 {
+  "id": "event-1794765746414-1128",
+  "ts": 1794765746415,
+  "seq": 182,
+  "type": "body-final-step-metadata",
+  "level": "info",
+  "label": "正文终步 3/3 元数据对账",
+  "detail": "{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态：陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动；位置：陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走；伤势：沈萤脚踝崴伤一次定档，不复发不升格不留疤；持有物：菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手；时间点：承接第1章遭遇战胶着现场，突围行进至威胁出现间隙；关键数字：唯一有效发声单元=两个音节；新增事实：陈暮危机顶点首次开口、背上重量定格切入倒叙；钩子兑现状态：已兑现\",\"人物状态=陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动\",\"位置=陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走\",\"伤势=沈萤脚踝崴伤一次定档，不复发不升格不留疤\",\"持有物=菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手\",\"时间点=承接第1章遭遇战胶着现场，突围行进至威胁出现间隙\",\"关键数字=唯一有效发声单元=两个音节\",\"新增事实=陈暮危机顶点首次开口、背上重量定格切入倒叙\",\"钩子兑现状态=已兑现\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}},\"authoritativeKeys\":[\"extractedMeta\"],\"metadataKeys\":[\"extractedMeta\"],\"consumedMetadata\":{\"extractedMeta\":[\"【正文交接】\\n\\n章节：背上的重量\\nPOV：陈暮\\nchapterIntent：遭遇战胶着突进，崴脚后背负突围与首次开口，战局悬置，背上重量定格切入倒叙\\n场景类型：场景1：动作；场景2：动作；场景3：观察；场景4：静场\\n对白排布：场景1：无对话对象；场景2：出声；场景3：无对话对象；场景4：无对话对象\\n场景分段：场景1：段A-段C；场景2：段A-段D；场景3：段A-段C；场景4：段A-段B\\n场景字数：场景1：900；场景2：900；场景3：850；场景4：850\\n场景施工卡：场景1：按动作场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景2：按动作场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景3：按观察场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处；场景4：按静场场景组执行；句号密度≤40.548/千字；段落中位≤51字；身体词≤16.4808/千字；物件/空间替代≥2处\\n已完成场景：场景1至场景4\\n未完成场景：无\\n来源覆盖状态：已覆盖全部剧情点\\n角色状态变化：陈暮从冲入搭救、发不出声的卷入者，变为背负沈萤突围并在危机顶点首次开口的开路起点。\\n章末状态：陈暮背着沈萤，队伍向预设安全点退却，威胁未除但出现间隙，画面定格于背上重量并切入倒叙。\\n下一章必须使用：从背上重量滑入第3章试验舱休眠终止的倒叙开端，以死寂与门没有锁的反常承接。\\n目标字数：3500\\n生成下限：2800\\n场景总数：4\\n事件增量：陈暮突进救下崴脚失能的沈萤，背负突围中于危机顶点首次挤出两个音节，威胁暂时拉开但战局未收尾，画面定格于背上重量并切入倒叙。\\nnarrativeStatus：ready\\nnarrativeReason：四场施工可覆盖全部剧情点，POV与事实边界锁定，倒叙触发点与章末钩子可施工。\\nstateChangingScenes：场景1（资源：陈暮独行机动资源→背负沈萤后机动下降；信息：沈萤落单位置与伤情未明→确认沈萤崴脚且扶搀不可行；威胁：变异植物与变异体合拢中→陈暮与沈萤进入背负突围移动；身体：沈萤可自行移动→脚踝崴伤一次定档且陈暮开始承重）；场景2（资源：背负突围的机动余量→开口消耗残余镇定；信息：陈暮自认发不出声→确认能挤出两个音节；威胁：追击近失手顶点→危机被两个音节打破但仍在突围；关系：陌生队员→背上重量与温度线起点）；场景3（威胁：外圈追压合拢→追击出现间隙、威胁暂时拉开；信息：战局未收尾→背上重量与体温成为倒叙触发点；身体：背负行进中的持续暴露→画面定格于背上重量，无新增代价；关系：卷入中→卷入已成定局、退不回独行）；场景4（信息：倒叙触发点未确立→画面定格即倒叙入口；关系：温度线起点→倒叙入口锁定，读者即将获得语言丧失与独行来处；威胁：遭遇战悬置→未收尾移交第7章切回现场）\\nFACT_LOCK：人物状态：陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动；位置：陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走；伤势：沈萤脚踝崴伤一次定档，不复发不升格不留疤；持有物：菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手；时间点：承接第1章遭遇战胶着现场，突围行进至威胁出现间隙；关键数字：唯一有效发声单元=两个音节；新增事实：陈暮危机顶点首次开口、背上重量定格切入倒叙；钩子兑现状态：已兑现\\nNEW_FACT：陈暮在危机顶点第一次对同类挤出两个音节，语言恢复线启动；背上重量与体温的画面定格即倒叙入口\"]}}"
+}
+EVT120 {
+  "id": "event-1794765746558-1130",
+  "ts": 1794765746558,
+  "seq": 184,
+  "type": "body-artifact-attempt",
+  "level": "info",
+  "label": "正文批次验收",
+  "detail": "{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-2-k48gomso\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":2892,\"targetWords\":3500,\"ratio\":0.8262857142857143,\"validationMs\":0,\"errors\":[],\"bodyPreview\":\"藤蔓从斜上方压下来，速度比眼睛快。偷袭从开始就缠住了整片近域，变异植物的攻击范围把接战位罩在里头，外围的变异体从黑暗里往中间挤，灰绿色的光在植被之间摇晃。阿黎带着其余队员在迎战线内侧持冷兵器接敌，喊声、兵刃的碰撞、植物抽打的脆响搅在一起，被风撕成一段一段的残片，落进陈暮的耳朵里。防线中段被压得往后退，一株变异植物的藤蔓横扫过去，两名队员侧身避让，脚下的碎石在湿滑地面上滚动。他卡在小队近域的接战位上\",\"traceAuditFields\":{\"repairScope\":\"targeted\",\"previousBodySource\":\"candidate_metadata_only\",\"degradationReason\":\"none\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":4040,\"extractedWordCount\":2842,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态：陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动；位置：陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走；伤势：沈萤脚踝崴伤一次定档，不复发不升格不留疤；持有物：菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手；时间点：承接第1章遭遇战胶着现场，突围行进至威胁出现间隙；关键数字：唯一有效发声单元=两个音节；新增事实：陈暮危机顶点首次开口、背上重量定格切入倒叙；钩子兑现状态：已兑现\",\"人物状态=陈暮为背负沈萤突围的开路起点，首次开口、语言恢复线启动\",\"位置=陈暮与沈萤在突围行进中，队伍侧后向预设安全点退却，威胁在视野外缘游走\",\"伤势=沈萤脚踝崴伤一次定档，不复发不升格不留疤\",\"持有物=菌膜装甲、沈萤采集器具与冷兵器、抓着衣料的手\",\"时间点=承接第1章遭遇战胶着现场，突围行进至威胁出现间隙\",\"关键数字=唯一有效发声单元=两个音节\",\"新增事实=陈暮危机顶点首次开口、背上重量定格切入倒叙\",\"钩子兑现状态=已兑现\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":1198}"
+}
+EVT123 {
+  "id": "event-1794765746578-1133",
+  "ts": 1794765746578,
+  "seq": 187,
+  "type": "body-artifact-validated",
+  "level": "info",
+  "label": "正文批次验收通过",
+  "detail": "{\"chapterId\":\"ch-vol_1794276033714_hlohas-002\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-1-v16anfp5\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":2020,\"targetWords\":3500,\"errors\":[\"正文过短：2020字，要求不低于2800字\"]},{\"attemptId\":\"ch-vol_1794276033714_hlohas-002-attempt-2-k48gomso\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":2892,\"targetWords\":3500,\"errors\":[]}],\"targetWords\":3500,\"wordCount\":2892,\"ratio\":0.8262857142857143,\"status\":\"complete\",\"repairAttempts\":1}"
+}
+EVT126 {
+  "id": "event-1794765746668-1136",
+  "ts": 1794765746668,
+  "seq": 190,
+  "type": "body-artifact-recovered",
+  "level": "warn",
+  "label": "正文中间尝试曾降级，最终产物已通过契约验收",
+  "detail": "{\"degradedApiCalls\":0,\"finalStatus\":\"complete\"}"
+}
+EVT128 {
+  "id": "event-1794765746669-1138",
+  "ts": 1794765746669,
+  "seq": 192,
+  "type": "state-transition",
+  "level": "info",
+  "label": "RunTraceStatus：running → success",
+  "detail": "body_generation_complete / run=run-1794764302964-932"
+}

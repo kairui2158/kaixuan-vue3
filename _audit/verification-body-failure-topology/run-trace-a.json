@@ -1,0 +1,3114 @@
+{
+  "schemaVersion": 23,
+  "exportSchemaVersion": 23,
+  "id": "run-1794782535803-1",
+  "source": "pipeline",
+  "sourceName": "生成流水线",
+  "step": 4,
+  "stepName": "正文层",
+  "mode": "body",
+  "projectId": "body-failure-topology",
+  "projectName": "正文失败拓扑验证",
+  "providerId": "body-failure-topology-provider",
+  "providerName": "Body Failure Topology Provider",
+  "providerSource": "global",
+  "model": "topology-model",
+  "skillNames": [
+    "失败拓扑S1（文件夹）",
+    "失败拓扑S2（文件夹）",
+    "失败拓扑S3（文件夹）"
+  ],
+  "skillMode": "chain",
+  "pipelineRunId": "pipeline-run-1794782535796-1",
+  "status": "success_with_warnings",
+  "runtimeFingerprint": {
+    "source": "vite-manifest",
+    "manifestVersion": "1",
+    "commit": "42697e78030f",
+    "buildTime": "2026-11-15T22:30:41.888Z",
+    "appVersion": "3.128.1"
+  },
+  "startedAt": 1794782535804,
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success_with_warnings",
+      "reason": "body_generation_complete",
+      "recordedAt": 1794782536400
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1794782535804-2",
+      "ts": 1794782535804,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始生成流水线 正文层运行"
+    },
+    {
+      "id": "event-1794782535805-3",
+      "ts": 1794782535805,
+      "seq": 2,
+      "type": "settings-projection-composed",
+      "level": "info",
+      "label": "设定锁定投影已组装",
+      "detail": "{\"layer\":\"body\",\"policyVersion\":2,\"lockedCount\":0,\"draftExcludedCount\":0,\"projectionChars\":0,\"contentHash\":\"811c9dc5\",\"categoryDistribution\":{},\"includedReasons\":[],\"excludedReasons\":[],\"trimmedReasons\":[],\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794782535806-4",
+      "ts": 1794782535806,
+      "seq": 3,
+      "type": "style-semantics-merged",
+      "level": "info",
+      "label": "风格语义已仲裁合并",
+      "detail": "{\"layer\":\"body\",\"sources\":{\"profileStyle\":false,\"settingsStyle\":false},\"profileHash\":\"811c9dc5\",\"settingsHash\":\"811c9dc5\",\"duplicateLineCount\":0,\"conflictLineCount\":0,\"settingsProjectionHash\":\"811c9dc5\"}"
+    },
+    {
+      "id": "event-1794782535807-5",
+      "ts": 1794782535807,
+      "seq": 4,
+      "type": "context_scope",
+      "level": "warn",
+      "label": "正文层上下文闭包",
+      "detail": "{\"volume\":\"风暴起点\",\"chapter\":\"风暴信标\",\"unitId\":null,\"mode\":\"legacy_outline_no_scope\",\"permanentCount\":0,\"unitCount\":0,\"undeclaredCount\":0,\"closureBytes\":327,\"targetBytes\":12000,\"maxBytes\":24000,\"trimmed\":[],\"warnings\":[],\"degradedReason\":\"legacy_outline_no_scope\"}"
+    },
+    {
+      "id": "event-1794782535807-6",
+      "ts": 1794782535807,
+      "seq": 5,
+      "type": "memory_context",
+      "level": "info",
+      "label": "正文层记忆上下文",
+      "detail": "{\"chapterId\":\"ch-body-failure-topology\",\"unitId\":null,\"charCount\":0,\"priority\":\"global-permanent\",\"trimmed\":[]}"
+    },
+    {
+      "id": "event-1794782535808-7",
+      "ts": 1794782535808,
+      "seq": 6,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "正文层执行包已构建",
+      "detail": "{\"volume\":\"风暴起点\",\"chapter\":\"风暴信标\",\"targetWords\":3500}"
+    },
+    {
+      "id": "event-1794782535809-8",
+      "ts": 1794782535809,
+      "seq": 7,
+      "type": "body-generator-step-resume-restored",
+      "level": "info",
+      "label": "正文生成步索引已恢复",
+      "detail": "{\"index\":1,\"source\":\"fallback\",\"chainTotalSteps\":3}"
+    },
+    {
+      "id": "event-1794782535842-9",
+      "ts": 1794782535842,
+      "seq": 8,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 1/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":278,\"finalPromptLength\":278,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1794782535845-10",
+      "ts": 1794782535845,
+      "seq": 9,
+      "type": "deai-model-profile",
+      "level": "warn",
+      "label": "模型事实画像未达标，未注入",
+      "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"provider\":\"body-failure-topology-provider\",\"model\":\"topology-model\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}"
+    },
+    {
+      "id": "event-1794782535848-11",
+      "ts": 1794782535848,
+      "seq": 10,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 1/3",
+      "detail": "失败拓扑S1（文件夹）"
+    },
+    {
+      "id": "event-1794782535849-12",
+      "ts": 1794782535849,
+      "seq": 11,
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：global",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782535850-13",
+      "ts": 1794782535850,
+      "seq": 12,
+      "type": "deai-injection-policy",
+      "level": "info",
+      "label": "降AI注入策略",
+      "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"source\":\"skill-disabled\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"off\",\"finalStepDetection\":\"off\",\"conflictPolicy\":\"report\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794782535853-15",
+      "ts": 1794782535853,
+      "seq": 13,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"失败拓扑S1（文件夹）\",\"model\":\"topology-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1794782535853-17",
+      "ts": 1794782535853,
+      "seq": 14,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "提示词快照已创建",
+      "detail": "失败拓扑S1（文件夹） / folder:FIX-S1 / folder-fingerprint"
+    },
+    {
+      "id": "event-1794782535853-18",
+      "ts": 1794782535853,
+      "seq": 15,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：失败拓扑S1（文件夹）",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536026-19",
+      "ts": 1794782536026,
+      "seq": 16,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":278,\"userPromptLength\":439,\"systemPromptLength\":88,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794782535803-1\",\"traceCallId\":\"api-1794782535852-14\"}"
+    },
+    {
+      "id": "event-1794782536031-21",
+      "ts": 1794782536031,
+      "seq": 17,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/失败拓扑S1（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/失败拓扑S1（文件夹）"
+      }
+    },
+    {
+      "id": "event-1794782536031-22",
+      "ts": 1794782536031,
+      "seq": 18,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1794782536031-20",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1794782536031-23",
+      "ts": 1794782536031,
+      "seq": 19,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 失败拓扑S1（文件夹） / topology-model / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536036-24",
+      "ts": 1794782536036,
+      "seq": 20,
+      "turnId": "api-1794782535852-14",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1794782536068-25",
+      "ts": 1794782536068,
+      "seq": 21,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 失败拓扑S1（文件夹） / topology-model / stop / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536070-26",
+      "ts": 1794782536070,
+      "seq": 22,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1794782536071-27",
+      "ts": 1794782536071,
+      "seq": 23,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1"
+      }
+    },
+    {
+      "id": "event-1794782536071-28",
+      "ts": 1794782536071,
+      "seq": 24,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=1/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=1/terminal"
+      }
+    },
+    {
+      "id": "event-1794782536072-29",
+      "ts": 1794782536072,
+      "seq": 25,
+      "type": "state-transition",
+      "level": "info",
+      "label": "ApiCallStatus：running → blocked",
+      "detail": "apiCall=api-1794782535852-14 seq=1"
+    },
+    {
+      "id": "event-1794782536072-30",
+      "ts": 1794782536072,
+      "seq": 26,
+      "type": "api-blocked",
+      "level": "warn",
+      "label": "第 1 次 API 调用已阻断，等待恢复",
+      "detail": "失败拓扑S1（文件夹） / topology-model / folder SKILL 已阻断，等待恢复条件"
+    },
+    {
+      "id": "event-1794782536072-31",
+      "ts": 1794782536072,
+      "seq": 27,
+      "type": "chapter-narrative-not-ready",
+      "level": "warn",
+      "label": "SKILL 交接输入不可恢复：路由到生成步 targeted 修复",
+      "detail": "{\"code\":\"chapter-narrative-not-ready\",\"gap\":\"剧情点缺少完成判定。\",\"guidance\":\"SKILL 交接输入不可恢复：路由到生成步 targeted 修复。\",\"retryableInBodyLayer\":true}"
+    },
+    {
+      "id": "event-1794782536076-32",
+      "ts": 1794782536076,
+      "seq": 28,
+      "type": "body-step-acceptance",
+      "level": "error",
+      "label": "正文生成步骤 1/3 统一验收",
+      "detail": "{\"stepIndex\":0,\"callerStatus\":\"blocked\",\"rawWordCount\":11,\"extractedWordCount\":0,\"metadata\":{},\"metadataDelta\":11,\"decision\":\"reject\",\"reason\":\"caller_failed\",\"contract\":{\"targetWords\":3500,\"minWords\":null,\"maxWords\":null},\"degradedErrors\":[],\"contractErrors\":[],\"blockingGateFailed\":false,\"errors\":[\"SKILL 调用被阻断\",\"caller_failed:blocked\"]}"
+    },
+    {
+      "id": "event-1794782536083-33",
+      "ts": 1794782536083,
+      "seq": 29,
+      "type": "body-artifact-attempt",
+      "level": "warn",
+      "label": "正文批次验收",
+      "detail": "{\"attemptId\":\"ch-body-failure-topology-attempt-1-45i325iv\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":11,\"targetWords\":3500,\"ratio\":0.003142857142857143,\"validationMs\":0,\"errors\":[\"正文过短：11字，要求不低于2800字\"],\"bodyPreview\":\"[NOT-READY] 剧情点缺少完成判定。\",\"traceAuditFields\":{\"repairScope\":\"none\",\"previousBodySource\":\"none\",\"degradationReason\":\"正文过短：11字，要求不低于2800字\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":0,\"callerStatus\":\"blocked\",\"decision\":\"reject\",\"reason\":\"caller_failed\",\"rawWordCount\":11,\"extractedWordCount\":0,\"errors\":[\"SKILL 调用被阻断\",\"caller_failed:blocked\"]}],\"degradedSteps\":[],\"rawVsExtractedDelta\":11}"
+    },
+    {
+      "id": "event-1794782536092-34",
+      "ts": 1794782536092,
+      "seq": 30,
+      "type": "body-targeted-repair-upstream-rejected",
+      "level": "error",
+      "label": "定点修复失败上游已拒绝，降级整链重跑",
+      "detail": "{\"sourceStepIndex\":0,\"callerStatus\":\"blocked\",\"reason\":\"failure_source_forbidden\"}"
+    },
+    {
+      "id": "event-1794782536092-35",
+      "ts": 1794782536092,
+      "seq": 31,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 1/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"primary_consumer\",\"isPrimaryConsumer\":true,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":440,\"finalPromptLength\":440,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1794782536094-36",
+      "ts": 1794782536094,
+      "seq": 32,
+      "type": "deai-model-profile",
+      "level": "warn",
+      "label": "模型事实画像未达标，未注入",
+      "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"provider\":\"body-failure-topology-provider\",\"model\":\"topology-model\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}"
+    },
+    {
+      "id": "event-1794782536095-37",
+      "ts": 1794782536095,
+      "seq": 33,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 1/3",
+      "detail": "失败拓扑S1（文件夹）"
+    },
+    {
+      "id": "event-1794782536095-38",
+      "ts": 1794782536095,
+      "seq": 34,
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：global",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536095-39",
+      "ts": 1794782536095,
+      "seq": 35,
+      "type": "deai-injection-policy",
+      "level": "info",
+      "label": "降AI注入策略",
+      "detail": "{\"step\":4,\"skillIndex\":0,\"totalSkillCount\":3,\"source\":\"skill-disabled\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"off\",\"finalStepDetection\":\"off\",\"conflictPolicy\":\"report\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794782536098-41",
+      "ts": 1794782536098,
+      "seq": 36,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 2 次 API 调用开始",
+      "detail": "{\"skillName\":\"失败拓扑S1（文件夹）\",\"model\":\"topology-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1794782536099-43",
+      "ts": 1794782536099,
+      "seq": 37,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "提示词快照已创建",
+      "detail": "失败拓扑S1（文件夹） / folder:FIX-S1 / folder-fingerprint"
+    },
+    {
+      "id": "event-1794782536099-44",
+      "ts": 1794782536099,
+      "seq": 38,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：失败拓扑S1（文件夹）",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536110-45",
+      "ts": 1794782536110,
+      "seq": 39,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":440,\"userPromptLength\":601,\"systemPromptLength\":88,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794782535803-1\",\"traceCallId\":\"api-1794782536098-40\"}"
+    },
+    {
+      "id": "event-1794782536111-47",
+      "ts": 1794782536111,
+      "seq": 40,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/失败拓扑S1（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/失败拓扑S1（文件夹）"
+      }
+    },
+    {
+      "id": "event-1794782536111-48",
+      "ts": 1794782536111,
+      "seq": 41,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1794782536110-46",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1794782536111-49",
+      "ts": 1794782536111,
+      "seq": 42,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 失败拓扑S1（文件夹） / topology-model / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536113-50",
+      "ts": 1794782536113,
+      "seq": 43,
+      "turnId": "api-1794782536098-40",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1794782536117-51",
+      "ts": 1794782536117,
+      "seq": 44,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 失败拓扑S1（文件夹） / topology-model / stop / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536123-52",
+      "ts": 1794782536123,
+      "seq": 45,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1794782536123-53",
+      "ts": 1794782536123,
+      "seq": 46,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2"
+      }
+    },
+    {
+      "id": "event-1794782536123-54",
+      "ts": 1794782536123,
+      "seq": 47,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=2/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=2/terminal"
+      }
+    },
+    {
+      "id": "event-1794782536124-55",
+      "ts": 1794782536124,
+      "seq": 48,
+      "type": "state-transition",
+      "level": "info",
+      "label": "ApiCallStatus：running → success",
+      "detail": "apiCall=api-1794782536098-40 seq=2"
+    },
+    {
+      "id": "event-1794782536124-56",
+      "ts": 1794782536124,
+      "seq": 49,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 2 次 API 调用完成",
+      "detail": "失败拓扑S1（文件夹） / topology-model"
+    },
+    {
+      "id": "event-1794782536127-58",
+      "ts": 1794782536127,
+      "seq": 50,
+      "type": "processing-report",
+      "level": "info",
+      "label": "本地处理完成：chain-handoff",
+      "detail": "post"
+    },
+    {
+      "id": "event-1794782536127-59",
+      "ts": 1794782536127,
+      "seq": 51,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 1/3 Handoff",
+      "detail": "{\"artifactId\":\"handoff-0-0d9ae469\",\"sourceStep\":0,\"sourceSkillId\":\"folder:FIX-S1\",\"outputHash\":\"0d9ae469\",\"fullTextLength\":117,\"delivery\":\"full_text\",\"excerptLength\":117,\"metadataKeys\":[],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1794782536141-60",
+      "ts": 1794782536141,
+      "seq": 52,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 2/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":440,\"finalPromptLength\":440,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1794782536144-61",
+      "ts": 1794782536144,
+      "seq": 53,
+      "type": "deai-model-profile",
+      "level": "warn",
+      "label": "模型事实画像未达标，未注入",
+      "detail": "{\"step\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"provider\":\"body-failure-topology-provider\",\"model\":\"topology-model\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}"
+    },
+    {
+      "id": "event-1794782536144-62",
+      "ts": 1794782536144,
+      "seq": 54,
+      "type": "chain-handoff-delivery",
+      "level": "info",
+      "label": "链式步骤 2/3 上游交付决策",
+      "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":117,\"deliveredLength\":117,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:FIX-S2\",\"skillName\":\"失败拓扑S2（文件夹）\",\"fullReason\":\"夹具 S2 承担正文合同与 LHC 信封交付。\",\"fullReasonMissing\":false}"
+    },
+    {
+      "id": "event-1794782536145-63",
+      "ts": 1794782536145,
+      "seq": 55,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 2/3",
+      "detail": "失败拓扑S2（文件夹）"
+    },
+    {
+      "id": "event-1794782536145-64",
+      "ts": 1794782536145,
+      "seq": 56,
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：global",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536146-65",
+      "ts": 1794782536146,
+      "seq": 57,
+      "type": "deai-injection-policy",
+      "level": "info",
+      "label": "降AI注入策略",
+      "detail": "{\"step\":4,\"skillIndex\":1,\"totalSkillCount\":3,\"source\":\"skill-disabled\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"off\",\"finalStepDetection\":\"off\",\"conflictPolicy\":\"report\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794782536151-67",
+      "ts": 1794782536151,
+      "seq": 58,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 3 次 API 调用开始",
+      "detail": "{\"skillName\":\"失败拓扑S2（文件夹）\",\"model\":\"topology-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1794782536152-69",
+      "ts": 1794782536152,
+      "seq": 59,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "提示词快照已创建",
+      "detail": "失败拓扑S2（文件夹） / folder:FIX-S2 / folder-fingerprint"
+    },
+    {
+      "id": "event-1794782536152-70",
+      "ts": 1794782536152,
+      "seq": 60,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：失败拓扑S2（文件夹）",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536167-71",
+      "ts": 1794782536167,
+      "seq": 61,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":703,\"userPromptLength\":967,\"systemPromptLength\":95,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794782535803-1\",\"traceCallId\":\"api-1794782536151-66\"}"
+    },
+    {
+      "id": "event-1794782536169-73",
+      "ts": 1794782536169,
+      "seq": 62,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/失败拓扑S2（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/失败拓扑S2（文件夹）"
+      }
+    },
+    {
+      "id": "event-1794782536169-74",
+      "ts": 1794782536169,
+      "seq": 63,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1794782536168-72",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1794782536169-75",
+      "ts": 1794782536169,
+      "seq": 64,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 失败拓扑S2（文件夹） / topology-model / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536177-76",
+      "ts": 1794782536177,
+      "seq": 65,
+      "turnId": "api-1794782536151-66",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1794782536184-77",
+      "ts": 1794782536184,
+      "seq": 66,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 失败拓扑S2（文件夹） / topology-model / stop / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536188-78",
+      "ts": 1794782536188,
+      "seq": 67,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=3",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=3"
+      }
+    },
+    {
+      "id": "event-1794782536199-79",
+      "ts": 1794782536199,
+      "seq": 68,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1794782536199-80",
+      "ts": 1794782536199,
+      "seq": 69,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=3/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=3/terminal"
+      }
+    },
+    {
+      "id": "event-1794782536200-81",
+      "ts": 1794782536200,
+      "seq": 70,
+      "type": "state-transition",
+      "level": "info",
+      "label": "ApiCallStatus：running → success",
+      "detail": "apiCall=api-1794782536151-66 seq=3"
+    },
+    {
+      "id": "event-1794782536200-82",
+      "ts": 1794782536200,
+      "seq": 71,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 3 次 API 调用完成",
+      "detail": "失败拓扑S2（文件夹） / topology-model"
+    },
+    {
+      "id": "event-1794782536206-83",
+      "ts": 1794782536206,
+      "seq": 72,
+      "type": "chapter-event-increment-advisory",
+      "level": "info",
+      "label": "正文生成步骤 2/3 事件增量协议观测",
+      "detail": "{\"code\":\"chapter-event-increment-advisory\",\"severity\":\"warning\",\"detected\":false,\"incrementValue\":\"确认信标、取得名单、预约渔船\",\"message\":\"事件增量字段已按 SKILL 交接协议交付；应用只做协议观测，不评估叙事质量。\"}"
+    },
+    {
+      "id": "event-1794782536206-84",
+      "ts": 1794782536206,
+      "seq": 73,
+      "type": "chapter-narrative-verdict",
+      "level": "error",
+      "label": "正文生成步骤 2/3 SKILL 叙事裁决透传",
+      "detail": "{\"code\":\"chapter-narrative-verdict\",\"detected\":true,\"status\":\"unreadable_because_missing_handoff\",\"reason\":null,\"stateChangingScenes\":null,\"message\":\"narrativeStatus 出现但【正文交接】缺失；verdict 无法归因到有效交付账本。\",\"sourceCandidateIndex\":null,\"sourceResponseHash\":null,\"eventIncrement\":\"确认信标、取得名单、预约渔船\"}"
+    },
+    {
+      "id": "event-1794782536206-85",
+      "ts": 1794782536206,
+      "seq": 74,
+      "type": "body-step-acceptance",
+      "level": "info",
+      "label": "正文生成步骤 2/3 统一验收",
+      "detail": "{\"stepIndex\":1,\"callerStatus\":\"success\",\"rawWordCount\":6441,\"extractedWordCount\":6300,\"metadata\":{\"extractedMeta\":[\"FACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\"]},\"metadataDelta\":141,\"decision\":\"accept\",\"reason\":\"contract_valid\",\"contract\":{\"targetWords\":3500,\"minWords\":2800,\"maxWords\":7000},\"degradedErrors\":[],\"contractErrors\":[]}"
+    },
+    {
+      "id": "event-1794782536218-86",
+      "ts": 1794782536218,
+      "seq": 75,
+      "type": "deai-stage-guidance",
+      "level": "info",
+      "label": "S2 后降AI位置诊断已注入 S3：4条 / 124字符",
+      "detail": "{\"step\":4,\"sourceSkillIndex\":1,\"targetSkillIndex\":2,\"totalSkillCount\":3,\"findingCount\":4,\"injected\":true,\"droppedFindingCount\":0,\"guidanceChars\":124,\"durationMs\":11.799999997019768,\"degraded\":false,\"degradedReason\":null,\"budgetExceeded\":false,\"hash\":\"deai-stage-v1:f23d0d690000007c\",\"target\":\"next_step_user_prompt\"}"
+    },
+    {
+      "id": "event-1794782536218-88",
+      "ts": 1794782536218,
+      "seq": 76,
+      "type": "processing-report",
+      "level": "info",
+      "label": "本地处理完成：chain-handoff",
+      "detail": "post"
+    },
+    {
+      "id": "event-1794782536219-89",
+      "ts": 1794782536219,
+      "seq": 77,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 2/3 Handoff",
+      "detail": "{\"artifactId\":\"handoff-1-2ada6193\",\"sourceStep\":1,\"sourceSkillId\":\"folder:FIX-S2\",\"outputHash\":\"2ada6193\",\"fullTextLength\":7091,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1794782536238-90",
+      "ts": 1794782536238,
+      "seq": 78,
+      "type": "chain-context-slim",
+      "level": "info",
+      "label": "链式步骤 3/3 上下文决策",
+      "detail": "{\"decision\":\"full\",\"measurement\":\"upstream_prompt_only\",\"reason\":\"outline_block_absent\",\"isPrimaryConsumer\":false,\"requiresFullUpstream\":false,\"declarationSource\":\"folder-meta\",\"declaredFullUpstream\":false,\"originalPromptLength\":440,\"finalPromptLength\":440,\"outlineOriginalLength\":0}"
+    },
+    {
+      "id": "event-1794782536242-91",
+      "ts": 1794782536242,
+      "seq": 79,
+      "type": "deai-model-profile",
+      "level": "warn",
+      "label": "模型事实画像未达标，未注入",
+      "detail": "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"provider\":\"body-failure-topology-provider\",\"model\":\"topology-model\",\"profileVersion\":\"1:1\",\"released\":false,\"releaseGate\":\"calibration-not-ready\",\"eligibleRuleCount\":0,\"injectedRuleCount\":0,\"guidanceChars\":0}"
+    },
+    {
+      "id": "event-1794782536242-92",
+      "ts": 1794782536242,
+      "seq": 80,
+      "type": "chain-handoff-delivery",
+      "level": "info",
+      "label": "链式步骤 3/3 上游交付决策",
+      "detail": "{\"delivery\":\"full_text\",\"fullTextLength\":7091,\"deliveredLength\":7091,\"declaredMode\":\"default\",\"requires\":[],\"skillId\":\"folder:FIX-S3\",\"skillName\":\"失败拓扑S3（文件夹）\",\"fullReason\":\"夹具 S3 只做账本传递与终稿信封交付。\",\"fullReasonMissing\":false}"
+    },
+    {
+      "id": "event-1794782536248-93",
+      "ts": 1794782536248,
+      "seq": 81,
+      "type": "chain-step",
+      "level": "info",
+      "label": "链式步骤 3/3",
+      "detail": "失败拓扑S3（文件夹）"
+    },
+    {
+      "id": "event-1794782536248-94",
+      "ts": 1794782536248,
+      "seq": 82,
+      "type": "pipeline-request-profile-resolved",
+      "level": "info",
+      "label": "生成流水线请求形态：global",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536248-95",
+      "ts": 1794782536248,
+      "seq": 83,
+      "type": "deai-injection-policy",
+      "level": "info",
+      "label": "降AI注入策略",
+      "detail": "{\"step\":4,\"skillIndex\":2,\"totalSkillCount\":3,\"source\":\"skill-disabled\",\"variant\":\"off\",\"policy\":{\"contractVersion\":2,\"generation\":\"off\",\"finalStepDetection\":\"off\",\"conflictPolicy\":\"report\",\"guidanceOwnership\":\"app\",\"overlaps\":[]},\"warnings\":[]}"
+    },
+    {
+      "id": "event-1794782536258-97",
+      "ts": 1794782536258,
+      "seq": 84,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 4 次 API 调用开始",
+      "detail": "{\"skillName\":\"失败拓扑S3（文件夹）\",\"model\":\"topology-model\",\"actualToolSurface\":[],\"permissionDecision\":null}"
+    },
+    {
+      "id": "event-1794782536259-99",
+      "ts": 1794782536259,
+      "seq": 85,
+      "type": "prompt-built",
+      "level": "info",
+      "label": "提示词快照已创建",
+      "detail": "失败拓扑S3（文件夹） / folder:FIX-S3 / folder-fingerprint"
+    },
+    {
+      "id": "event-1794782536259-100",
+      "ts": 1794782536259,
+      "seq": 86,
+      "type": "pipeline-provider-channel-resolved",
+      "level": "info",
+      "label": "生成流水线供应商通道：失败拓扑S3（文件夹）",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"source\":\"global\",\"providerMissing\":false,\"providerUnsupported\":false,\"model\":\"topology-model\",\"modelSource\":\"provider-selected\",\"modelMissing\":false,\"modelSupported\":true,\"layer\":\"body\",\"step\":4}"
+    },
+    {
+      "id": "event-1794782536287-101",
+      "ts": 1794782536287,
+      "seq": 87,
+      "type": "folder-pass-input",
+      "level": "info",
+      "label": "Folder pass 输入口径 1",
+      "detail": "{\"passIndex\":0,\"inputMode\":\"original\",\"inputLength\":7946,\"userPromptLength\":8107,\"systemPromptLength\":97,\"sampleCount\":3,\"isRetry\":false,\"declaredFullUpstream\":false,\"appliedFullUpstream\":false,\"traceRunId\":\"run-1794782535803-1\",\"traceCallId\":\"api-1794782536258-96\"}"
+    },
+    {
+      "id": "event-1794782536288-103",
+      "ts": 1794782536288,
+      "seq": 88,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/失败拓扑S3（文件夹）",
+      "payload": {
+        "source": "physical_call_running",
+        "detail": "1/失败拓扑S3（文件夹）"
+      }
+    },
+    {
+      "id": "event-1794782536288-104",
+      "ts": 1794782536288,
+      "seq": 89,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payload": {
+        "physicalCallId": "physical-1794782536288-102",
+        "seq": 1,
+        "heartbeat": false
+      }
+    },
+    {
+      "id": "event-1794782536288-105",
+      "ts": 1794782536288,
+      "seq": 90,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 失败拓扑S3（文件夹） / topology-model / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536295-106",
+      "ts": 1794782536295,
+      "seq": 91,
+      "turnId": "api-1794782536258-96",
+      "type": "provider-queue",
+      "level": "info",
+      "label": "已获得供应商槽位",
+      "detail": "{\"providerId\":\"body-failure-topology-provider\",\"status\":\"started\",\"maxConcurrencyPerProvider\":2}"
+    },
+    {
+      "id": "event-1794782536303-107",
+      "ts": 1794782536303,
+      "seq": 92,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求完成",
+      "detail": "normal / 失败拓扑S3（文件夹） / topology-model / stop / http://127.0.0.1:3406/v1/chat/completions / main-process"
+    },
+    {
+      "id": "event-1794782536305-108",
+      "ts": 1794782536305,
+      "seq": 93,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=4",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=4"
+      }
+    },
+    {
+      "id": "event-1794782536309-109",
+      "ts": 1794782536309,
+      "seq": 94,
+      "type": "folder-diagnostics",
+      "level": "info",
+      "label": "记录 folder SKILL 诊断"
+    },
+    {
+      "id": "event-1794782536309-110",
+      "ts": 1794782536309,
+      "seq": 95,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "stream_delta / apiCall=4/terminal",
+      "payload": {
+        "source": "stream_delta",
+        "detail": "apiCall=4/terminal"
+      }
+    },
+    {
+      "id": "event-1794782536309-111",
+      "ts": 1794782536309,
+      "seq": 96,
+      "type": "state-transition",
+      "level": "info",
+      "label": "ApiCallStatus：running → success",
+      "detail": "apiCall=api-1794782536258-96 seq=4"
+    },
+    {
+      "id": "event-1794782536310-112",
+      "ts": 1794782536310,
+      "seq": 97,
+      "type": "api-success",
+      "level": "info",
+      "label": "第 4 次 API 调用完成",
+      "detail": "失败拓扑S3（文件夹） / topology-model"
+    },
+    {
+      "id": "event-1794782536314-113",
+      "ts": 1794782536314,
+      "seq": 98,
+      "type": "body-final-step-metadata",
+      "level": "info",
+      "label": "正文终步 3/3 元数据对账",
+      "detail": "{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=周砚确认名单并预约渔船\",\"位置=灯塔底层\",\"持有物=沉船名单\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}},\"authoritativeKeys\":[\"extractedMeta\"],\"metadataKeys\":[\"extractedMeta\"],\"consumedMetadata\":{\"extractedMeta\":[\"FACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\"]}}"
+    },
+    {
+      "id": "event-1794782536315-114",
+      "ts": 1794782536315,
+      "seq": 99,
+      "type": "chain-handoff",
+      "level": "info",
+      "label": "链式步骤 3/3 Handoff",
+      "detail": "{\"artifactId\":\"handoff-2-84d5c393\",\"sourceStep\":2,\"sourceSkillId\":\"folder:FIX-S3\",\"outputHash\":\"84d5c393\",\"fullTextLength\":7312,\"delivery\":\"full_text\",\"excerptLength\":2400,\"metadataKeys\":[\"extractedMeta\"],\"factCount\":0,\"constraintCount\":0,\"requiresFullPreviousOutput\":false,\"repeatedHashCount\":0}"
+    },
+    {
+      "id": "event-1794782536338-115",
+      "ts": 1794782536338,
+      "seq": 100,
+      "type": "body-artifact-attempt",
+      "level": "info",
+      "label": "正文批次验收",
+      "detail": "{\"attemptId\":\"ch-body-failure-topology-attempt-2-4p0ldg3u\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":6300,\"targetWords\":3500,\"ratio\":1.8,\"validationMs\":1,\"errors\":[],\"bodyPreview\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有\",\"traceAuditFields\":{\"repairScope\":\"targeted\",\"previousBodySource\":\"candidate_metadata_only\",\"degradationReason\":\"none\"},\"generatorStepIndex\":1,\"feedbackAudits\":[],\"stepAcceptanceDecisions\":[{\"stepIndex\":1,\"callerStatus\":\"success\",\"decision\":\"accept\",\"reason\":\"contract_valid\",\"rawWordCount\":6441,\"extractedWordCount\":6300,\"errors\":[]}],\"finalStepMetadata\":{\"decision\":\"pass\",\"comparison\":{\"matched\":[\"人物状态=周砚确认名单并预约渔船\",\"位置=灯塔底层\",\"持有物=沉船名单\"],\"missing_in_final\":[],\"conflicting\":[],\"conflictTypes\":{}}},\"degradedSteps\":[],\"rawVsExtractedDelta\":141}"
+    },
+    {
+      "id": "event-1794782536342-116",
+      "ts": 1794782536342,
+      "seq": 101,
+      "type": "hard_signal_scan",
+      "level": "info",
+      "label": "正文硬信号扫描通过",
+      "detail": "{\"detected\":false,\"status\":\"pass\",\"findings\":[],\"counts\":{\"truncated\":0,\"refusal\":0,\"meta_language\":0,\"near_duplicate_line\":0}}"
+    },
+    {
+      "id": "event-1794782536347-117",
+      "ts": 1794782536347,
+      "seq": 102,
+      "type": "contract_review",
+      "level": "info",
+      "label": "卷契约协议观测",
+      "detail": "{\"status\":\"no_declared_cards\",\"detected\":false,\"findings\":[],\"skillVerdict\":{\"status\":\"undeclared\",\"reason\":null},\"ownership\":\"app_protocol_observation\"}"
+    },
+    {
+      "id": "event-1794782536348-118",
+      "ts": 1794782536348,
+      "seq": 103,
+      "type": "body-artifact-validated",
+      "level": "info",
+      "label": "正文批次验收通过",
+      "detail": "{\"chapterId\":\"ch-body-failure-topology\",\"terminalReason\":\"contract_valid\",\"decisionPath\":[{\"attemptId\":\"ch-body-failure-topology-attempt-1-45i325iv\",\"repairAttempt\":0,\"repairScope\":\"none\",\"status\":\"too_short\",\"wordCount\":11,\"targetWords\":3500,\"errors\":[\"正文过短：11字，要求不低于2800字\"]},{\"attemptId\":\"ch-body-failure-topology-attempt-2-4p0ldg3u\",\"repairAttempt\":1,\"repairScope\":\"targeted\",\"status\":\"complete\",\"wordCount\":6300,\"targetWords\":3500,\"errors\":[]}],\"targetWords\":3500,\"wordCount\":6300,\"ratio\":1.8,\"status\":\"complete\",\"repairAttempts\":1}"
+    },
+    {
+      "id": "event-1794782536396-119",
+      "ts": 1794782536396,
+      "seq": 104,
+      "type": "deai-calibration",
+      "level": "info",
+      "label": "降AI校准已落账：4条",
+      "detail": "{\"provider\":\"body-failure-topology-provider\",\"model\":\"topology-model\",\"findingCount\":4,\"ledgerWritten\":true,\"ledgerVersion\":1,\"ledgerEntryCount\":4,\"maxEntries\":500,\"pruned\":false,\"prunedCount\":0}"
+    },
+    {
+      "id": "event-1794782536397-120",
+      "ts": 1794782536397,
+      "seq": 105,
+      "type": "write",
+      "level": "info",
+      "label": "正文已写入项目",
+      "detail": "字数 6300"
+    },
+    {
+      "id": "event-1794782536398-121",
+      "ts": 1794782536398,
+      "seq": 106,
+      "type": "body-artifact-recovered",
+      "level": "warn",
+      "label": "正文中间尝试曾失败，最终产物已通过契约验收",
+      "detail": "{\"degradedApiCalls\":0,\"recoveryKind\":\"recovered_from_failed\",\"finalStatus\":\"complete\"}"
+    },
+    {
+      "id": "event-1794782536400-122",
+      "ts": 1794782536400,
+      "seq": 107,
+      "type": "finished",
+      "level": "warn",
+      "label": "运行完成（带警告）",
+      "detail": "body_generation_complete"
+    },
+    {
+      "id": "event-1794782536400-123",
+      "ts": 1794782536400,
+      "seq": 108,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → success_with_warnings",
+      "detail": "body_generation_complete / run=run-1794782535803-1"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1794782535852-14",
+      "seq": 1,
+      "step": 4,
+      "skillId": "folder:FIX-S1",
+      "skillName": "失败拓扑S1（文件夹）",
+      "providerId": "body-failure-topology-provider",
+      "providerName": "Body Failure Topology Provider",
+      "providerSource": "global",
+      "model": "topology-model",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "status": "blocked",
+      "startedAt": 1794782535853,
+      "promptSnapshotIds": [
+        "prompt-1794782535853-16"
+      ],
+      "physicalCalls": [
+        {
+          "id": "physical-1794782536031-20",
+          "physicalCallId": "physical-1794782536027-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-003"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 100,
+            "totalTokens": 200
+          },
+          "usageUnavailable": false,
+          "startedAt": 1794782536031,
+          "durationMs": 38,
+          "firstTokenMs": 34,
+          "outputMs": 4,
+          "endedAt": 1794782536067,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "toolCallCount": 0,
+          "toolCallNames": [],
+          "maxTokens": 8192,
+          "modelCapability": {
+            "contextWindowTokens": 128000,
+            "contextWindowSource": "provider",
+            "maxOutputTokens": 8192,
+            "maxOutputSource": "override",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 271,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 271 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 271,
+            "actualInputTokens": 100,
+            "driftRatio": -0.6309963099630996,
+            "correctedRatio": 0.36900369003690037
+          },
+          "firstContentAt": 1794782536063,
+          "lastContentAt": 1794782536063,
+          "finalUrl": "http://127.0.0.1:3406/v1/chat/completions",
+          "transport": "main-process",
+          "providerSource": "global",
+          "cacheUsageSummary": {
+            "status": "not_reported"
+          },
+          "contextComposition": {
+            "layer": "body",
+            "step": 0,
+            "providerType": "openai-compatible",
+            "providerId": "body-failure-topology-provider",
+            "model": "topology-model",
+            "cacheFamily": "openai-compatible:body-failure-topology-provider:topology-model:body:step-0",
+            "prefixFingerprint": "a620696e-5984a99-88:811c9dc5-1000193-0",
+            "systemLength": 193,
+            "userLength": 439,
+            "stableSystemPrefixLength": 88,
+            "stableUserPrefixLength": 0,
+            "stableChars": 88,
+            "variableChars": 544,
+            "stableRatio": 0.139
+          },
+          "heartbeat": false,
+          "responseTextPayloadRef": "payload-002",
+          "responseTextPreview": "[NOT-READY] 剧情点缺少完成判定。"
+        }
+      ],
+      "lastExecutionActivityAt": 1794782536071,
+      "streamTotalChars": 22,
+      "lastStreamActivityAt": 1794782536071,
+      "providerContextWindowTokens": 128000,
+      "estimatedInputTokens": 271,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 271 / 可用 119808",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 271,
+        "actualInputTokens": 100,
+        "driftRatio": -0.6309963099630996,
+        "correctedRatio": 0.36900369003690037
+      },
+      "finishReason": "stop",
+      "durationMs": 221,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 38,
+        "firstTokenSumMs": 34,
+        "outputSumMs": 4,
+        "minFirstTokenMs": 34,
+        "maxFirstTokenMs": 34,
+        "localOverheadMs": 183,
+        "requestBuildMs": 1,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 0,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[全书大纲]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "usage": {
+        "inputTokens": 100,
+        "outputTokens": 100,
+        "totalTokens": 200
+      },
+      "usageUnavailable": false,
+      "error": "folder SKILL 已阻断，等待恢复条件",
+      "endedAt": 1794782536072,
+      "semantic": {
+        "conversationId": "run-1794782535803-1",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        }
+      },
+      "responseTextPayloadRef": "payload-002",
+      "responseTextPreview": "[NOT-READY] 剧情点缺少完成判定。"
+    },
+    {
+      "id": "api-1794782536098-40",
+      "seq": 2,
+      "step": 4,
+      "skillId": "folder:FIX-S1",
+      "skillName": "失败拓扑S1（文件夹）",
+      "providerId": "body-failure-topology-provider",
+      "providerName": "Body Failure Topology Provider",
+      "providerSource": "global",
+      "model": "topology-model",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-004"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-006"
+        }
+      },
+      "status": "success",
+      "startedAt": 1794782536098,
+      "promptSnapshotIds": [
+        "prompt-1794782536099-42"
+      ],
+      "physicalCalls": [
+        {
+          "id": "physical-1794782536110-46",
+          "physicalCallId": "physical-1794782536110-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-004"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-006"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 100,
+            "totalTokens": 200
+          },
+          "usageUnavailable": false,
+          "startedAt": 1794782536110,
+          "durationMs": 6,
+          "firstTokenMs": 5,
+          "outputMs": 1,
+          "endedAt": 1794782536117,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "toolCallCount": 0,
+          "toolCallNames": [],
+          "maxTokens": 8192,
+          "modelCapability": {
+            "contextWindowTokens": 128000,
+            "contextWindowSource": "provider",
+            "maxOutputTokens": 8192,
+            "maxOutputSource": "override",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 229,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 229 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 229,
+            "actualInputTokens": 100,
+            "driftRatio": -0.5633187772925764,
+            "correctedRatio": 0.4366812227074236
+          },
+          "firstContentAt": 1794782536115,
+          "lastContentAt": 1794782536115,
+          "finalUrl": "http://127.0.0.1:3406/v1/chat/completions",
+          "transport": "main-process",
+          "providerSource": "global",
+          "cacheUsageSummary": {
+            "status": "not_reported"
+          },
+          "contextComposition": {
+            "layer": "body",
+            "step": 0,
+            "providerType": "openai-compatible",
+            "providerId": "body-failure-topology-provider",
+            "model": "topology-model",
+            "cacheFamily": "openai-compatible:body-failure-topology-provider:topology-model:body:step-0",
+            "prefixFingerprint": "a620696e-5984a99-88:811c9dc5-1000193-0",
+            "systemLength": 193,
+            "userLength": 601,
+            "stableSystemPrefixLength": 88,
+            "stableUserPrefixLength": 0,
+            "stableChars": 88,
+            "variableChars": 706,
+            "stableRatio": 0.111
+          },
+          "heartbeat": false,
+          "responseTextPayloadRef": "payload-005",
+          "responseTextPreview": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】"
+        }
+      ],
+      "lastExecutionActivityAt": 1794782536123,
+      "streamTotalChars": 117,
+      "lastStreamActivityAt": 1794782536123,
+      "providerContextWindowTokens": 128000,
+      "estimatedInputTokens": 229,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 229 / 可用 119808",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 229,
+        "actualInputTokens": 100,
+        "driftRatio": -0.5633187772925764,
+        "correctedRatio": 0.4366812227074236
+      },
+      "finishReason": "stop",
+      "durationMs": 28,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 6,
+        "firstTokenSumMs": 5,
+        "outputSumMs": 1,
+        "minFirstTokenMs": 5,
+        "maxFirstTokenMs": 5,
+        "localOverheadMs": 22,
+        "requestBuildMs": 1,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 3,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[全书大纲]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "candidateLedger": [
+        {
+          "passIndex": 0,
+          "attempt": 1,
+          "rawChars": 117,
+          "output": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】",
+          "sourceResponseHash": "fnv1a32_c7b3d2cf",
+          "valid": true,
+          "schemaValidationValid": true,
+          "errorCount": 0,
+          "errors": [],
+          "postProcessIssueCodes": [],
+          "retained": true
+        }
+      ],
+      "retainedCandidateIndex": 1,
+      "usage": {
+        "inputTokens": 100,
+        "outputTokens": 100,
+        "totalTokens": 200
+      },
+      "usageUnavailable": false,
+      "endedAt": 1794782536124,
+      "semantic": {
+        "conversationId": "run-1794782535803-1",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        }
+      },
+      "responseTextPayloadRef": "payload-005",
+      "responseTextPreview": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】"
+    },
+    {
+      "id": "api-1794782536151-66",
+      "seq": 3,
+      "step": 4,
+      "skillId": "folder:FIX-S2",
+      "skillName": "失败拓扑S2（文件夹）",
+      "providerId": "body-failure-topology-provider",
+      "providerName": "Body Failure Topology Provider",
+      "providerSource": "global",
+      "model": "topology-model",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-007"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-009"
+        }
+      },
+      "status": "success",
+      "startedAt": 1794782536151,
+      "promptSnapshotIds": [
+        "prompt-1794782536152-68"
+      ],
+      "physicalCalls": [
+        {
+          "id": "physical-1794782536168-72",
+          "physicalCallId": "physical-1794782536167-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-007"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-009"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 100,
+            "totalTokens": 200
+          },
+          "usageUnavailable": false,
+          "startedAt": 1794782536168,
+          "durationMs": 15,
+          "firstTokenMs": 14,
+          "outputMs": 1,
+          "endedAt": 1794782536184,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "toolCallCount": 0,
+          "toolCallNames": [],
+          "maxTokens": 8192,
+          "modelCapability": {
+            "contextWindowTokens": 128000,
+            "contextWindowSource": "provider",
+            "maxOutputTokens": 8192,
+            "maxOutputSource": "override",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 331,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 331 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 331,
+            "actualInputTokens": 100,
+            "driftRatio": -0.6978851963746224,
+            "correctedRatio": 0.3021148036253776
+          },
+          "firstContentAt": 1794782536182,
+          "lastContentAt": 1794782536182,
+          "finalUrl": "http://127.0.0.1:3406/v1/chat/completions",
+          "transport": "main-process",
+          "providerSource": "global",
+          "cacheUsageSummary": {
+            "status": "not_reported"
+          },
+          "contextComposition": {
+            "layer": "body",
+            "step": 0,
+            "providerType": "openai-compatible",
+            "providerId": "body-failure-topology-provider",
+            "model": "topology-model",
+            "cacheFamily": "openai-compatible:body-failure-topology-provider:topology-model:body:step-0",
+            "prefixFingerprint": "79e3a968-5c484a3-95:811c9dc5-1000193-0",
+            "systemLength": 200,
+            "userLength": 967,
+            "stableSystemPrefixLength": 95,
+            "stableUserPrefixLength": 0,
+            "stableChars": 95,
+            "variableChars": 1072,
+            "stableRatio": 0.081
+          },
+          "heartbeat": false,
+          "responseTextPayloadRef": "payload-008",
+          "responseTextPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+        }
+      ],
+      "lastExecutionActivityAt": 1794782536189,
+      "streamTotalChars": 7312,
+      "lastStreamActivityAt": 1794782536189,
+      "providerContextWindowTokens": 128000,
+      "estimatedInputTokens": 331,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 331 / 可用 119808",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 331,
+        "actualInputTokens": 100,
+        "driftRatio": -0.6978851963746224,
+        "correctedRatio": 0.3021148036253776
+      },
+      "finishReason": "stop",
+      "durationMs": 53,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 15,
+        "firstTokenSumMs": 14,
+        "outputSumMs": 1,
+        "minFirstTokenMs": 14,
+        "maxFirstTokenMs": 14,
+        "localOverheadMs": 38,
+        "requestBuildMs": 0,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 9,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[全书大纲]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "candidateLedger": [
+        {
+          "passIndex": 0,
+          "attempt": 1,
+          "rawChars": 7312,
+          "output": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第7次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第8段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第8次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第9段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第9次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第10段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第10次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第11段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第11次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第12段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第12次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第13段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第13次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第14段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第14次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第15段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第15次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第16段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第16次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第17段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第17次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第18段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第18次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第19段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第19次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第20段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第20次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第21段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第21次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第22段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第22次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第23段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第23次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第24段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第24次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第25段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第25次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第26段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第26次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第27段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第27次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第28段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第28次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第29段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第29次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第30段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第30次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第31段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第31次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第32段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第32次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第33段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第33次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第34段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第34次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第35段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第35次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第36段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第36次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第37段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第37次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第38段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第38次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第39段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第39次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第40段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第40次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第41段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第41次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第42段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第42次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第43段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第43次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第44段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第44次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第45段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第45次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第46段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第46次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第47段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第47次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第48段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第48次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第49段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第49次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第50段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第50次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第51段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第51次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第52段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第52次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第53段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第53次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第54段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第54次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第55段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第55次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第56段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第56次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第57段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第57次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第58段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第58次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第59段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第59次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第60段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第60次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第61段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第61次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第62段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第62次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第63段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第63次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第64段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第64次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第65段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第65次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第66段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第66次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第67段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第67次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第68段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第68次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第69段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第69次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第70段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第70次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第71段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第71次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第72段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第72次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第73段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第73次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第74段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第74次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第75段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第75次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第76段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第76次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第77段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第77次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第78段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第78次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第79段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第79次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第80段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第80次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第81段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第81次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第82段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第82次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第83段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第83次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第84段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第84次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第85段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第85次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第86段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第86次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第87段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第87次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第88段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第88次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第89段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第89次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第90段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第90次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\",\"metadata\":{\"extractedMeta\":[\"FACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\"]}}",
+          "sourceResponseHash": "fnv1a32_da8c2fd3",
+          "valid": true,
+          "schemaValidationValid": true,
+          "errorCount": 0,
+          "errors": [],
+          "postProcessIssueCodes": [],
+          "retained": true
+        }
+      ],
+      "bodyCandidateLedger": [
+        {
+          "attempt": 1,
+          "rawChars": 7312,
+          "netWords": 6300,
+          "handoffCount": 0,
+          "contractDistance": 0,
+          "missingHandoff": true,
+          "valid": true,
+          "errorCount": 0
+        }
+      ],
+      "bodyCandidateRetention": {
+        "retainedCandidateIndex": 1,
+        "retainedAttempt": 1,
+        "retainedReason": "first-valid-candidate"
+      },
+      "retainedCandidateIndex": 1,
+      "usage": {
+        "inputTokens": 100,
+        "outputTokens": 100,
+        "totalTokens": 200
+      },
+      "usageUnavailable": false,
+      "endedAt": 1794782536199,
+      "semantic": {
+        "conversationId": "run-1794782535803-1",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        }
+      },
+      "responseTextPayloadRef": "payload-008",
+      "responseTextPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+    },
+    {
+      "id": "api-1794782536258-96",
+      "seq": 4,
+      "step": 4,
+      "skillId": "folder:FIX-S3",
+      "skillName": "失败拓扑S3（文件夹）",
+      "providerId": "body-failure-topology-provider",
+      "providerName": "Body Failure Topology Provider",
+      "providerSource": "global",
+      "model": "topology-model",
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-010"
+        }
+      },
+      "streamText": {
+        "__payload": {
+          "id": "payload-009"
+        }
+      },
+      "status": "success",
+      "startedAt": 1794782536258,
+      "promptSnapshotIds": [
+        "prompt-1794782536259-98"
+      ],
+      "physicalCalls": [
+        {
+          "id": "physical-1794782536288-102",
+          "physicalCallId": "physical-1794782536287-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-010"
+            }
+          },
+          "streamText": {
+            "__payload": {
+              "id": "payload-009"
+            }
+          },
+          "finishReason": "stop",
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 100,
+            "totalTokens": 200
+          },
+          "usageUnavailable": false,
+          "startedAt": 1794782536288,
+          "durationMs": 15,
+          "firstTokenMs": 14,
+          "outputMs": 1,
+          "endedAt": 1794782536302,
+          "toolsEnabled": false,
+          "toolsDowngraded": false,
+          "toolCallCount": 0,
+          "toolCallNames": [],
+          "maxTokens": 8192,
+          "modelCapability": {
+            "contextWindowTokens": 128000,
+            "contextWindowSource": "provider",
+            "maxOutputTokens": 8192,
+            "maxOutputSource": "override",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 128000,
+          "estimatedInputTokens": 2843,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 2843 / 可用 119808",
+          "usageReconciliation": {
+            "status": "available",
+            "estimatedInputTokens": 2843,
+            "actualInputTokens": 100,
+            "driftRatio": -0.9648258881463243,
+            "correctedRatio": 0.035174111853675694
+          },
+          "firstContentAt": 1794782536301,
+          "lastContentAt": 1794782536301,
+          "finalUrl": "http://127.0.0.1:3406/v1/chat/completions",
+          "transport": "main-process",
+          "providerSource": "global",
+          "cacheUsageSummary": {
+            "status": "not_reported"
+          },
+          "contextComposition": {
+            "layer": "body",
+            "step": 0,
+            "providerType": "openai-compatible",
+            "providerId": "body-failure-topology-provider",
+            "model": "topology-model",
+            "cacheFamily": "openai-compatible:body-failure-topology-provider:topology-model:body:step-0",
+            "prefixFingerprint": "1625f718-6785d95-97:811c9dc5-1000193-0",
+            "systemLength": 202,
+            "userLength": 8107,
+            "stableSystemPrefixLength": 97,
+            "stableUserPrefixLength": 0,
+            "stableChars": 97,
+            "variableChars": 8212,
+            "stableRatio": 0.012
+          },
+          "heartbeat": false,
+          "responseTextPayloadRef": "payload-008",
+          "responseTextPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+        }
+      ],
+      "lastExecutionActivityAt": 1794782536305,
+      "streamTotalChars": 7312,
+      "lastStreamActivityAt": 1794782536305,
+      "providerContextWindowTokens": 128000,
+      "estimatedInputTokens": 2843,
+      "contextBudgetDecision": "fits",
+      "contextBudgetReason": "上下文可容纳：输入 2843 / 可用 119808",
+      "usageReconciliation": {
+        "status": "available",
+        "estimatedInputTokens": 2843,
+        "actualInputTokens": 100,
+        "driftRatio": -0.9648258881463243,
+        "correctedRatio": 0.035174111853675694
+      },
+      "finishReason": "stop",
+      "durationMs": 61,
+      "timingLedger": {
+        "physicalCallCount": 1,
+        "retryPhysicalCallCount": 0,
+        "physicalDurationSumMs": 15,
+        "firstTokenSumMs": 14,
+        "outputSumMs": 1,
+        "minFirstTokenMs": 14,
+        "maxFirstTokenMs": 14,
+        "localOverheadMs": 46,
+        "requestBuildMs": 0,
+        "schemaValidateMs": 0,
+        "retryMs": 0,
+        "postProcessMs": 4,
+        "schemaRetryCount": 0,
+        "repeatedPromptBlocks": {
+          "[已生成卷事实清单]": 0,
+          "[全书大纲]": 0,
+          "[大纲]": 0,
+          "[style reference]": 1,
+          "[上一步 SKILL 完整输出]": 0
+        }
+      },
+      "candidateLedger": [
+        {
+          "passIndex": 0,
+          "attempt": 1,
+          "rawChars": 7312,
+          "output": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第7次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第8段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第8次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第9段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第9次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第10段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第10次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第11段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第11次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第12段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第12次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第13段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第13次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第14段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第14次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第15段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第15次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第16段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第16次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第17段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第17次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第18段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第18次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第19段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第19次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第20段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第20次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第21段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第21次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第22段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第22次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第23段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第23次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第24段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第24次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第25段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第25次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第26段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第26次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第27段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第27次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第28段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第28次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第29段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第29次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第30段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第30次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第31段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第31次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第32段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第32次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第33段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第33次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第34段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第34次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第35段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第35次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第36段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第36次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第37段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第37次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第38段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第38次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第39段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第39次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第40段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第40次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第41段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第41次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第42段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第42次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第43段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第43次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第44段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第44次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第45段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第45次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第46段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第46次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第47段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第47次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第48段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第48次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第49段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第49次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第50段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第50次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第51段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第51次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第52段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第52次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第53段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第53次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第54段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第54次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第55段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第55次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第56段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第56次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第57段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第57次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第58段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第58次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第59段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第59次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第60段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第60次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第61段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第61次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第62段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第62次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第63段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第63次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第64段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第64次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第65段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第65次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第66段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第66次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第67段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第67次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第68段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第68次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第69段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第69次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第70段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第70次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第71段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第71次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第72段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第72次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第73段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第73次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第74段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第74次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第75段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第75次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第76段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第76次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第77段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第77次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第78段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第78次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第79段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第79次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第80段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第80次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第81段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第81次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第82段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第82次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第83段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第83次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第84段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第84次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第85段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第85次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第86段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第86次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第87段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第87次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第88段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第88次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第89段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第89次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第90段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第90次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\",\"metadata\":{\"extractedMeta\":[\"FACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\"]}}",
+          "sourceResponseHash": "fnv1a32_da8c2fd3",
+          "valid": true,
+          "schemaValidationValid": true,
+          "errorCount": 0,
+          "errors": [],
+          "postProcessIssueCodes": [],
+          "retained": true
+        }
+      ],
+      "retainedCandidateIndex": 1,
+      "usage": {
+        "inputTokens": 100,
+        "outputTokens": 100,
+        "totalTokens": 200
+      },
+      "usageUnavailable": false,
+      "endedAt": 1794782536309,
+      "semantic": {
+        "conversationId": "run-1794782535803-1",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        }
+      },
+      "responseTextPayloadRef": "payload-008",
+      "responseTextPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+    }
+  ],
+  "sessionKind": "task",
+  "promptSnapshots": [
+    {
+      "id": "prompt-1794782535853-16",
+      "apiCallId": "api-1794782535852-14",
+      "skillId": "folder:FIX-S1",
+      "skillName": "失败拓扑S1（文件夹）",
+      "mode": "folder-fingerprint",
+      "builtAt": 1794782535853,
+      "contextBlocks": [],
+      "folderFingerprint": [
+        {
+          "file": "SKILL.md",
+          "hash": "1ff342c65acde3bd788c0e12b90eadd9f4dfc23ca31a90e3b6ada6cf8d152046",
+          "mtime": 1794778623281,
+          "bytes": 90
+        },
+        {
+          "file": "template.md",
+          "hash": "c726f123494220cbe8d0c08cb65d09d03c6fd2eecbaf80f5ca3cfb713f446797",
+          "mtime": 1794778623283,
+          "bytes": 88
+        },
+        {
+          "file": "meta.json",
+          "hash": "e586608e05812c7d3f3d6be3b9801fc71c62b201269edd3a404ac46c5bd193df",
+          "mtime": 1794778623282,
+          "bytes": 449
+        },
+        {
+          "file": "script.js",
+          "hash": "6e983938629441aa861da23ad9e9cf3b47fc1c1e44b18551ac826169d8c49010",
+          "mtime": 1794779778973,
+          "bytes": 525
+        }
+      ],
+      "payloadRef": "payload-011"
+    },
+    {
+      "id": "prompt-1794782536099-42",
+      "apiCallId": "api-1794782536098-40",
+      "skillId": "folder:FIX-S1",
+      "skillName": "失败拓扑S1（文件夹）",
+      "mode": "folder-fingerprint",
+      "builtAt": 1794782536099,
+      "contextBlocks": [],
+      "folderFingerprint": [
+        {
+          "file": "SKILL.md",
+          "hash": "1ff342c65acde3bd788c0e12b90eadd9f4dfc23ca31a90e3b6ada6cf8d152046",
+          "mtime": 1794778623281,
+          "bytes": 90
+        },
+        {
+          "file": "template.md",
+          "hash": "c726f123494220cbe8d0c08cb65d09d03c6fd2eecbaf80f5ca3cfb713f446797",
+          "mtime": 1794778623283,
+          "bytes": 88
+        },
+        {
+          "file": "meta.json",
+          "hash": "e586608e05812c7d3f3d6be3b9801fc71c62b201269edd3a404ac46c5bd193df",
+          "mtime": 1794778623282,
+          "bytes": 449
+        },
+        {
+          "file": "script.js",
+          "hash": "6e983938629441aa861da23ad9e9cf3b47fc1c1e44b18551ac826169d8c49010",
+          "mtime": 1794779778973,
+          "bytes": 525
+        }
+      ],
+      "payloadRef": "payload-012"
+    },
+    {
+      "id": "prompt-1794782536152-68",
+      "apiCallId": "api-1794782536151-66",
+      "skillId": "folder:FIX-S2",
+      "skillName": "失败拓扑S2（文件夹）",
+      "mode": "folder-fingerprint",
+      "builtAt": 1794782536152,
+      "contextBlocks": [],
+      "folderFingerprint": [
+        {
+          "file": "SKILL.md",
+          "hash": "14f743797eef07926f96389b84b336ef6c11043aa22fd26381b24638e07360b8",
+          "mtime": 1794778623284,
+          "bytes": 90
+        },
+        {
+          "file": "template.md",
+          "hash": "42b2b8af2c534e4c89bc15df7e4a997a081932cca8d7bb130546e55f5685a18e",
+          "mtime": 1794778623286,
+          "bytes": 89
+        },
+        {
+          "file": "meta.json",
+          "hash": "ca1431f36c724f8733e53bd591e816d3a49fd7d40176ff516edb2316c75699d3",
+          "mtime": 1794778623285,
+          "bytes": 458
+        },
+        {
+          "file": "script.js",
+          "hash": "3c3ede22eab548f12a08d7956879548f04fd64e7a94d3b27ea1a281af418065c",
+          "mtime": 1794779778974,
+          "bytes": 795
+        }
+      ],
+      "payloadRef": "payload-013"
+    },
+    {
+      "id": "prompt-1794782536259-98",
+      "apiCallId": "api-1794782536258-96",
+      "skillId": "folder:FIX-S3",
+      "skillName": "失败拓扑S3（文件夹）",
+      "mode": "folder-fingerprint",
+      "builtAt": 1794782536259,
+      "contextBlocks": [],
+      "folderFingerprint": [
+        {
+          "file": "SKILL.md",
+          "hash": "5c728013dcce91040070395dfd2c8deeea7597216d838f2746eb91ed9d89357a",
+          "mtime": 1794778623287,
+          "bytes": 90
+        },
+        {
+          "file": "template.md",
+          "hash": "7f2536368699a064741c5373cda39e6ddbdbed04eb97aa8949e6e416c71d2bab",
+          "mtime": 1794778623288,
+          "bytes": 105
+        },
+        {
+          "file": "meta.json",
+          "hash": "23f144e2a62562ea2a968d8f3e07c57e9b6880168e9c9d4ba2f2e4362cf5e45d",
+          "mtime": 1794778623288,
+          "bytes": 456
+        },
+        {
+          "file": "script.js",
+          "hash": "ef5cc1e6940e47bf07fea751a79d93626d520f8b40cb44e0b3aad6ca168c0a47",
+          "mtime": 1794779778974,
+          "bytes": 1105
+        }
+      ],
+      "payloadRef": "payload-014"
+    }
+  ],
+  "processingReports": [
+    {
+      "id": "processing-1794782536127-57",
+      "stage": "post",
+      "processor": "chain-handoff",
+      "status": "success",
+      "startedAt": 1794782536126,
+      "endedAt": 1794782536126,
+      "durationMs": 0,
+      "inputRef": "payload-015",
+      "outputRef": "payload-016",
+      "outputLength": 117
+    },
+    {
+      "id": "processing-1794782536218-87",
+      "stage": "post",
+      "processor": "chain-handoff",
+      "status": "success",
+      "startedAt": 1794782536218,
+      "endedAt": 1794782536218,
+      "durationMs": 0,
+      "inputRef": "payload-015",
+      "outputRef": "payload-018",
+      "outputLength": 7091
+    }
+  ],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 1539,
+      "chars": 651,
+      "sha256": "5e6547f16e813a9689a22e55783622185f36e5850063e4f2d047b9adba7c4bc6",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782535852-14",
+        "apiCallSeq": 1
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-002",
+      "kind": "response",
+      "file": "002-response.json",
+      "bytes": 42,
+      "chars": 22,
+      "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782535852-14",
+        "apiCallSeq": 1
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-003",
+      "kind": "stream",
+      "file": "003-stream.json",
+      "bytes": 42,
+      "chars": 22,
+      "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782535852-14",
+        "apiCallSeq": 1
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-004",
+      "kind": "request",
+      "file": "004-request.json",
+      "bytes": 1980,
+      "chars": 820,
+      "sha256": "db76f9151024031bac1e3a8b3a6c5e62d6be7315ccd6d4c41d8a7e3202e5c7cd",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536098-40",
+        "apiCallSeq": 2
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-005",
+      "kind": "response",
+      "file": "005-response.json",
+      "bytes": 265,
+      "chars": 117,
+      "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536098-40",
+        "apiCallSeq": 2
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-006",
+      "kind": "stream",
+      "file": "006-stream.json",
+      "bytes": 265,
+      "chars": 117,
+      "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536098-40",
+        "apiCallSeq": 2
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-007",
+      "kind": "request",
+      "file": "007-request.json",
+      "bytes": 2799,
+      "chars": 1211,
+      "sha256": "117e3623848edb25b7ca6998586c0ecf2643e8d577b333480adcc6c22d28d479",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536151-66",
+        "apiCallSeq": 3
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-008",
+      "kind": "response",
+      "file": "008-response.json",
+      "bytes": 20740,
+      "chars": 7312,
+      "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+      "duplicateCount": 4,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536151-66",
+        "apiCallSeq": 3
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-009",
+      "kind": "stream",
+      "file": "009-stream.json",
+      "bytes": 20740,
+      "chars": 7312,
+      "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+      "duplicateCount": 4,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536151-66",
+        "apiCallSeq": 3
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-010",
+      "kind": "request",
+      "file": "010-request.json",
+      "bytes": 23445,
+      "chars": 8447,
+      "sha256": "ac014e4217e771f7589d8e69985af4a645baf0577a02ae0f28dca917e20888c1",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536258-96",
+        "apiCallSeq": 4
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-011",
+      "kind": "prompt",
+      "file": "011-prompt.json",
+      "bytes": 1708,
+      "chars": 1204,
+      "sha256": "e7cdc2e7b12cf1f90ec69aba4bd9f3678e84f6d6941b1442961e3075fec5c6cc",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782535852-14",
+        "firstSeenSource": "promptSnapshots"
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-012",
+      "kind": "prompt",
+      "file": "012-prompt.json",
+      "bytes": 2149,
+      "chars": 1373,
+      "sha256": "658ad1d44591e65ea66a6f8cd53007da09cfaee9049fc35c44ce98631b2289c3",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536098-40",
+        "firstSeenSource": "promptSnapshots"
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-013",
+      "kind": "prompt",
+      "file": "013-prompt.json",
+      "bytes": 2766,
+      "chars": 1652,
+      "sha256": "a820ea461838d0c05ea8cd4d4143a494835033faa453511ea0b92e6cd2d9bec9",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "apiCallId": "api-1794782536151-66",
+        "firstSeenSource": "promptSnapshots"
+      },
+      "createdAt": 1794782536911
+    },
+    {
+      "id": "payload-014",
+      "kind": "prompt",
+      "file": "014-prompt.json",
+      "bytes": 23599,
+      "chars": 8993,
+      "sha256": "a2f6ff8ed072112ca0b23a116ca2ea30f31b11b5eb4d0b95733dd3f19080dee6",
+      "duplicateCount": 1,
+      "artifactRole": "final",
+      "firstSeen": {
+        "apiCallId": "api-1794782536258-96",
+        "firstSeenSource": "promptSnapshots"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-015",
+      "kind": "processing-input",
+      "file": "015-processing-input.json",
+      "bytes": 1198,
+      "chars": 440,
+      "sha256": "c0107071bbfd1291804aa100d62a899d447595cf569c194328a0242b6c524e3b",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "processingReports"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-016",
+      "kind": "processing-output",
+      "file": "016-processing-output.json",
+      "bytes": 265,
+      "chars": 117,
+      "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+      "duplicateCount": 3,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "processingReports"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-017",
+      "kind": "processing-output",
+      "file": "017-processing-output.json",
+      "bytes": 1462,
+      "chars": 500,
+      "sha256": "e1982ee4022dbbb589545e5b162f73a1efb7312e3922679533f029d19893f00a",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "processingReports"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-018",
+      "kind": "processing-output",
+      "file": "018-processing-output.json",
+      "bytes": 20411,
+      "chars": 7091,
+      "sha256": "7af0b0554c82cc080d1515737fafaa126b90fc38b660c80bf0a04bc5eee130fe",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "processingReports"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-019",
+      "kind": "folder-output",
+      "file": "019-folder-output.json",
+      "bytes": 42,
+      "chars": 22,
+      "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "folderDiagnostics"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-020",
+      "kind": "folder-output",
+      "file": "020-folder-output.json",
+      "bytes": 265,
+      "chars": 117,
+      "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+      "duplicateCount": 1,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "folderDiagnostics"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-021",
+      "kind": "folder-output",
+      "file": "021-folder-output.json",
+      "bytes": 20740,
+      "chars": 7312,
+      "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "folderDiagnostics"
+      },
+      "createdAt": 1794782536912
+    },
+    {
+      "id": "payload-022",
+      "kind": "processing-output",
+      "file": "022-processing-output.json",
+      "bytes": 20740,
+      "chars": 7312,
+      "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+      "duplicateCount": 2,
+      "artifactRole": "intermediate",
+      "firstSeen": {
+        "firstSeenSource": "folderDiagnostics"
+      },
+      "createdAt": 1794782536912
+    }
+  ],
+  "eventLedger": {
+    "totalEvents": 108,
+    "droppedInfoEvents": 0,
+    "droppedWarnEvents": 0,
+    "droppedErrorEvents": 0
+  },
+  "folderDiagnostics": [
+    {
+      "status": "blocked",
+      "errors": [
+        "剧情点缺少完成判定。；SKILL 交接输入不可恢复：路由到生成步 targeted 修复。"
+      ],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-11-15T22:42:16.019Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-11-15T22:42:16.020Z"
+        },
+        {
+          "type": "error",
+          "code": "chapter-narrative-not-ready",
+          "message": "剧情点缺少完成判定。SKILL 交接输入不可恢复：路由到生成步 targeted 修复。",
+          "at": "2026-11-15T22:42:16.070Z"
+        }
+      ],
+      "folderPackageCache": false,
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "body-failure-topology-provider",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        },
+        "maxTokens": 8192,
+        "reasoningText": "",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 128000,
+          "windowDeclared": true,
+          "outputLimitDeclared": true,
+          "estimatedInputTokens": 271,
+          "outputReserveTokens": 8192,
+          "availableContextTokens": 119808,
+          "reason": "上下文可容纳：输入 271 / 可用 119808"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 271,
+          "actualInputTokens": 100,
+          "driftRatio": -0.6309963099630996,
+          "correctedRatio": 0.36900369003690037
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S1\n\n输出场景骨架与正文交接账本。不得输出 JSON。",
+            "length": 88
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。",
+            "length": 439
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S1\n\n输出场景骨架与正文交接账本。不得输出 JSON。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 1,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 0,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "requestPayloadRef": "payload-001"
+      },
+      "outputPayloadRef": "payload-019",
+      "outputLength": 22,
+      "outputPreview": "[NOT-READY] 剧情点缺少完成判定。"
+    },
+    {
+      "status": "success",
+      "blockingGateFailed": false,
+      "errors": [],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-11-15T22:42:16.106Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-11-15T22:42:16.106Z"
+        }
+      ],
+      "folderPackageCache": false,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [],
+        "durationMs": 3,
+        "ruleFingerprint": "fnv1a32_a6343bc7",
+        "perf": "thresholdNotMet",
+        "outputPayloadRef": "payload-016",
+        "outputLength": 117,
+        "outputPreview": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "body-failure-topology-provider",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        },
+        "maxTokens": 8192,
+        "reasoningText": "",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 128000,
+          "windowDeclared": true,
+          "outputLimitDeclared": true,
+          "estimatedInputTokens": 229,
+          "outputReserveTokens": 8192,
+          "availableContextTokens": 119808,
+          "reason": "上下文可容纳：输入 229 / 可用 119808"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 229,
+          "actualInputTokens": 100,
+          "driftRatio": -0.5633187772925764,
+          "correctedRatio": 0.4366812227074236
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S1\n\n输出场景骨架与正文交接账本。不得输出 JSON。",
+            "length": 88
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。\n\n上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。\n上一版结果是 SKILL 交接",
+            "length": 601
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S1\n\n输出场景骨架与正文交接账本。不得输出 JSON。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。\n\n上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。\n上一版结果是 SKILL 交接阻断消息，不是可用正文；目标字数：3500；旧稿全文不进入本次请求。\n错误如下：\n- 正文过短：11字，要求不低于2800字\n\n要求：由正文生成步重新输出完整正文，再进入打磨步；只输出修复后的完整正文。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 1,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 3,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "retainedCandidateIndex": 1,
+        "candidateLedger": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "rawChars": 117,
+            "output": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】",
+            "sourceResponseHash": "fnv1a32_c7b3d2cf",
+            "valid": true,
+            "schemaValidationValid": true,
+            "errorCount": 0,
+            "errors": [],
+            "postProcessIssueCodes": [],
+            "retained": true
+          }
+        ],
+        "requestPayloadRef": "payload-004"
+      },
+      "outputPayloadRef": "payload-020",
+      "outputLength": 117,
+      "outputPreview": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】"
+    },
+    {
+      "status": "success",
+      "blockingGateFailed": false,
+      "errors": [],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-11-15T22:42:16.162Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-11-15T22:42:16.163Z"
+        }
+      ],
+      "folderPackageCache": false,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [],
+        "durationMs": 9,
+        "ruleFingerprint": "fnv1a32_707ae4b0",
+        "perf": "thresholdNotMet",
+        "outputPayloadRef": "payload-022",
+        "outputLength": 7312,
+        "outputPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "body-failure-topology-provider",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        },
+        "maxTokens": 8192,
+        "reasoningText": "",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 128000,
+          "windowDeclared": true,
+          "outputLimitDeclared": true,
+          "estimatedInputTokens": 331,
+          "outputReserveTokens": 8192,
+          "availableContextTokens": 119808,
+          "reason": "上下文可容纳：输入 331 / 可用 119808"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 331,
+          "actualInputTokens": 100,
+          "driftRatio": -0.6978851963746224,
+          "correctedRatio": 0.3021148036253776
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S2\n\n输出 LHC JSON 信封，body 装正文。不得输出解释。",
+            "length": 95
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。\n\n上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。",
+            "length": 967
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S2\n\n输出 LHC JSON 信封，body 装正文。不得输出解释。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 2/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。\n\n上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。\n上一版结果是 SKILL 交接阻断消息，不是可用正文；目标字数：3500；旧稿全文不进入本次请求。\n错误如下：\n- 正文过短：11字，要求不低于2800字\n\n要求：由正文生成步重新输出完整正文，再进入打磨步；只输出修复后的完整正文。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】\n\n请生成本章节正文，目标约3500净字数（不低于2800字，不超过7000字）。输出现役 LHC JSON 信封：正文本体放进 body；交接账本放进 metadata.extractedMeta[0]。"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 0,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 9,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "retainedCandidateIndex": 1,
+        "candidateLedger": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "rawChars": 7312,
+            "output": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第7次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第8段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第8次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第9段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第9次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第10段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第10次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第11段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第11次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第12段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第12次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第13段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第13次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第14段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第14次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第15段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第15次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第16段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第16次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第17段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第17次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第18段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第18次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第19段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第19次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第20段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第20次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第21段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第21次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第22段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第22次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第23段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第23次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第24段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第24次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第25段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第25次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第26段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第26次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第27段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第27次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第28段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第28次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第29段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第29次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第30段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第30次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第31段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第31次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第32段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第32次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第33段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第33次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第34段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第34次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第35段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第35次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第36段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第36次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第37段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第37次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第38段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第38次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第39段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第39次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第40段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第40次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第41段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第41次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第42段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第42次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第43段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第43次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第44段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第44次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第45段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第45次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第46段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第46次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第47段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第47次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第48段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第48次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第49段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第49次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第50段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第50次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第51段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第51次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第52段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第52次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第53段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第53次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第54段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第54次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第55段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第55次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第56段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第56次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第57段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第57次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第58段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第58次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第59段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第59次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第60段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第60次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第61段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第61次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第62段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第62次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第63段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第63次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第64段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第64次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第65段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第65次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第66段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第66次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第67段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第67次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第68段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第68次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第69段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第69次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第70段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第70次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第71段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第71次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第72段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第72次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第73段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第73次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第74段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第74次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第75段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第75次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第76段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第76次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第77段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第77次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第78段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第78次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第79段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第79次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第80段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第80次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第81段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第81次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第82段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第82次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第83段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第83次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第84段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第84次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第85段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第85次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第86段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第86次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第87段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第87次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第88段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第88次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第89段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第89次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第90段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第90次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\",\"metadata\":{\"extractedMeta\":[\"FACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\"]}}",
+            "sourceResponseHash": "fnv1a32_da8c2fd3",
+            "valid": true,
+            "schemaValidationValid": true,
+            "errorCount": 0,
+            "errors": [],
+            "postProcessIssueCodes": [],
+            "retained": true
+          }
+        ],
+        "bodyCandidateLedger": [
+          {
+            "attempt": 1,
+            "rawChars": 7312,
+            "netWords": 6300,
+            "handoffCount": 0,
+            "contractDistance": 0,
+            "missingHandoff": true,
+            "valid": true,
+            "errorCount": 0
+          }
+        ],
+        "bodyCandidateRetention": {
+          "retainedCandidateIndex": 1,
+          "retainedAttempt": 1,
+          "retainedReason": "first-valid-candidate"
+        },
+        "requestPayloadRef": "payload-007"
+      },
+      "outputPayloadRef": "payload-021",
+      "outputLength": 7312,
+      "outputPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+    },
+    {
+      "status": "success",
+      "blockingGateFailed": false,
+      "errors": [],
+      "diagnostics": [
+        {
+          "type": "info",
+          "code": "folder-template-priority",
+          "message": "已优先执行 folder template.md，并注入流水线已解析的同名变量",
+          "at": "2026-11-15T22:42:16.280Z"
+        },
+        {
+          "type": "info",
+          "code": "folder-template-variables-missing",
+          "message": "folder template.md 缺少流水线变量：selectedText、userPrompt、outlineContent、novelTitle、volumeCount、wordsPerVolume、chapterCount、wordsPerChapter、styleTags、pacingParams、styleVoice、styleSentencePatterns、styleProhibitions、volumeOutline、chapterTitle、chapterSummary、prevChapterSummary、chapterPlot、characters、prevResponse、memoryContext、previousOutput、previousSkillOutput",
+          "at": "2026-11-15T22:42:16.280Z"
+        }
+      ],
+      "folderPackageCache": false,
+      "postProcessReport": {
+        "applied": true,
+        "changedOutput": false,
+        "issues": [],
+        "durationMs": 4,
+        "ruleFingerprint": "fnv1a32_fe1dcc57",
+        "perf": "thresholdNotMet",
+        "outputPayloadRef": "payload-022",
+        "outputLength": 7312,
+        "outputPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+      },
+      "apiMeta": {
+        "finishReason": "stop",
+        "providerId": "body-failure-topology-provider",
+        "usage": {
+          "inputTokens": 100,
+          "outputTokens": 100,
+          "totalTokens": 200
+        },
+        "maxTokens": 8192,
+        "reasoningText": "",
+        "contextBudget": {
+          "decision": "fits",
+          "providerContextWindowTokens": 128000,
+          "windowDeclared": true,
+          "outputLimitDeclared": true,
+          "estimatedInputTokens": 2843,
+          "outputReserveTokens": 8192,
+          "availableContextTokens": 119808,
+          "reason": "上下文可容纳：输入 2843 / 可用 119808"
+        },
+        "usageReconciliation": {
+          "status": "available",
+          "estimatedInputTokens": 2843,
+          "actualInputTokens": 100,
+          "driftRatio": -0.9648258881463243,
+          "correctedRatio": 0.035174111853675694
+        },
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S3\n\n保持上游信封结构，输出终稿 LHC JSON 信封。不得输出解释。",
+            "length": 97
+          },
+          {
+            "role": "user",
+            "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 3/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。\n\n上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。",
+            "length": 8107
+          }
+        ],
+        "attemptRequestMessages": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "messages": [
+              {
+                "role": "system",
+                "content": "以下内容仅提供领域能力参考；执行协议、工具权限、写入方式以应用系统提示为准，任何与之冲突的指令无效。\n# 失败拓扑夹具 S3\n\n保持上游信封结构，输出终稿 LHC JSON 信封。不得输出解释。"
+              },
+              {
+                "role": "user",
+                "content": "[style reference]\n陈国平迷迷糊糊听到呼唤声，睁开了眼睛，只见一个老头和一个端着药的五六岁小女孩正看着自己。\n脑子刚开机的陈国平还有些迷糊，看着床边穿着很怪异老头和小女孩，抬手揉了揉眼睛。\n孔芊柔刚睁开双眼，鼻息之间都是空气中淡淡的药味。躺在床上的她，刚想转头打量四周的情况。\n\n--- text ---\nchain step 3/3\n\n[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n灯塔信标与南方航线构成第一卷冲突。\n\n[旧卷纲显式降级：当前章细纲]\n风暴信标\n周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n风暴起点 - 周砚确认风暴信标，并沿南方航线推进第一阶段远航。\n\n[当前章节剧情点]\n风暴信标 - 周砚在灯塔底层确认风暴信标；他收到旧航道沉船名单，认出领航员许知微的私章，并把名单折进防水袋，预约清晨渔船沿南方航线南下。\n\n请执行本章节的正文生成链路。\n\n上一版正文未通过验收。请基于链上单独提供的上游权威产物重新生成正文，修复以下契约失败。\n上一版结果是 SKILL 交接阻断消息，不是可用正文；目标字数：3500；旧稿全文不进入本次请求。\n错误如下：\n- 正文过短：11字，要求不低于2800字\n\n要求：由正文生成步重新输出完整正文，再进入打磨步；只输出修复后的完整正文。\n\n请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。\n不要原样回显、概括或拼接上一步输出；如需引用，只保留当前步骤必需的最小片段。\n上一步输出在下方独立块中提供。\n\n--- 上一步 SKILL 完整输出 ---\n周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第7次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第8段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第8次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第9段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第9次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第10段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第10次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第11段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第11次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第12段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第12次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第13段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第13次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第14段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第14次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第15段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第15次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第16段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第16次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第17段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第17次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第18段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第18次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第19段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第19次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第20段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第20次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第21段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第21次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第22段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第22次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第23段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第23次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第24段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第24次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第25段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第25次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第26段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第26次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第27段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第27次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第28段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第28次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第29段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第29次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第30段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第30次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第31段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第31次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第32段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第32次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第33段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第33次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第34段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第34次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第35段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第35次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第36段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第36次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第37段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第37次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第38段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第38次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第39段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第39次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第40段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第40次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第41段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第41次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第42段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第42次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第43段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第43次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第44段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第44次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第45段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第45次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第46段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第46次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第47段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第47次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第48段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第48次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第49段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第49次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第50段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第50次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第51段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第51次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第52段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第52次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第53段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第53次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第54段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第54次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第55段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第55次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第56段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第56次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第57段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第57次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第58段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第58次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第59段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第59次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第60段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第60次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第61段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第61次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第62段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第62次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第63段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第63次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第64段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第64次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第65段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第65次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第66段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第66次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第67段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第67次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第68段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第68次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第69段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第69次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第70段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第70次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第71段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第71次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第72段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第72次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第73段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第73次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第74段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第74次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第75段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第75次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第76段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第76次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第77段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第77次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第78段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第78次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第79段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第79次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第80段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第80次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第81段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第81次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第82段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第82次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第83段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第83次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第84段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第84次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第85段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第85次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第86段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第86次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第87段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第87次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第88段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第88次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第89段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第89次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n周砚在灯塔第90段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第90次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\n\n--- 上一步结构化交接（终步账本） ---\n【正文交接】\nextractedMeta[0]\nFACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\n事件增量：确认信标、取得名单、预约渔船\nnarrativeStatus：ready\n【正文交接结束】\n\n【S2诊断情报（有界，不改稿）】\n1. 位置 0%：句长趋同（连续3句约24字）\n2. 位置 0%：句长方差不足（全篇句长变异系数 0.03）\n3. 位置 0%：二元词组重复指纹（周砚(90)）\n4. 位置 0%：三元词组重复指纹（周砚在(90)）"
+              }
+            ]
+          }
+        ],
+        "timingLedger": {
+          "requestBuildMs": 0,
+          "schemaValidateMs": 0,
+          "retryMs": 0,
+          "postProcessMs": 4,
+          "schemaRetryCount": 0,
+          "repeatedPromptBlocks": {
+            "[已生成卷事实清单]": 0,
+            "[全书大纲]": 0,
+            "[大纲]": 0,
+            "[style reference]": 1,
+            "[上一步 SKILL 完整输出]": 0
+          }
+        },
+        "retainedCandidateIndex": 1,
+        "candidateLedger": [
+          {
+            "passIndex": 0,
+            "attempt": 1,
+            "rawChars": 7312,
+            "output": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第7次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第8段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第8次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第9段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第9次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第10段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第10次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第11段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第11次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第12段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第12次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第13段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第13次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第14段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第14次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第15段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第15次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第16段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第16次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第17段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第17次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第18段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第18次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第19段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第19次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第20段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第20次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第21段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第21次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第22段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第22次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第23段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第23次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第24段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第24次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第25段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第25次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第26段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第26次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第27段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第27次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第28段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第28次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第29段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第29次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第30段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第30次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第31段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第31次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第32段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第32次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第33段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第33次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第34段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第34次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第35段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第35次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第36段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第36次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第37段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第37次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第38段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第38次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第39段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第39次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第40段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第40次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第41段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第41次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第42段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第42次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第43段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第43次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第44段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第44次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第45段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第45次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第46段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第46次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第47段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第47次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第48段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第48次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第49段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第49次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第50段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第50次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第51段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第51次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第52段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第52次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第53段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第53次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第54段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第54次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第55段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第55次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第56段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第56次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第57段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第57次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第58段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第58次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第59段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第59次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第60段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第60次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第61段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第61次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第62段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第62次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第63段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第63次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第64段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第64次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第65段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第65次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第66段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第66次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第67段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第67次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第68段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第68次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第69段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第69次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第70段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第70次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第71段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第71次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第72段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第72次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第73段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第73次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第74段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第74次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第75段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第75次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第76段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第76次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第77段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第77次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第78段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第78次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第79段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第79次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第80段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第80次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第81段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第81次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第82段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第82次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第83段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第83次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第84段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第84次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第85段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第85次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第86段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第86次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第87段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第87次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第88段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第88次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第89段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第89次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第90段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第90次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\",\"metadata\":{\"extractedMeta\":[\"FACT_LOCK：人物状态：周砚确认名单并预约渔船；位置：灯塔底层；持有物：沉船名单\\n事件增量：确认信标、取得名单、预约渔船\\nnarrativeStatus：ready\"]}}",
+            "sourceResponseHash": "fnv1a32_da8c2fd3",
+            "valid": true,
+            "schemaValidationValid": true,
+            "errorCount": 0,
+            "errors": [],
+            "postProcessIssueCodes": [],
+            "retained": true
+          }
+        ],
+        "requestPayloadRef": "payload-010"
+      },
+      "outputPayloadRef": "payload-021",
+      "outputLength": 7312,
+      "outputPreview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+    }
+  ],
+  "stepPhaseTiming": {
+    "validation": 1,
+    "persistence": 34
+  },
+  "timingLedger": {
+    "apiCallCount": 4,
+    "physicalCallCount": 4,
+    "retryPhysicalCallCount": 0,
+    "physicalDurationSumMs": 74,
+    "firstTokenSumMs": 67,
+    "outputSumMs": 7,
+    "localOverheadSumMs": 289,
+    "requestBuildSumMs": 2,
+    "schemaValidateSumMs": 0,
+    "retrySumMs": 0,
+    "postProcessSumMs": 16,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[全书大纲]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    }
+  },
+  "stepTimingLedger": {
+    "promptBuildMs": 2,
+    "apiCallCount": 4,
+    "physicalCallCount": 4,
+    "retryCallCount": 0,
+    "continuationCallCount": 0,
+    "firstTokenSumMs": 67,
+    "outputSumMs": 7,
+    "postProcessSumMs": 0,
+    "validationSumMs": 1,
+    "persistenceSumMs": 34,
+    "repeatedPromptBlocks": {
+      "[已生成卷事实清单]": 0,
+      "[全书大纲]": 0,
+      "[大纲]": 0,
+      "[style reference]": 1,
+      "[上一步 SKILL 完整输出]": 0
+    },
+    "contextChars": 10482,
+    "outputChars": 14763,
+    "physicalDurationSumMs": 74
+  },
+  "endedAt": 1794782536400,
+  "durationMs": 596,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1794782535852-14",
+      "seq": 1,
+      "status": "blocked",
+      "response": {
+        "ref": "payload-002",
+        "file": "002-response.json",
+        "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+        "bytes": 42,
+        "chars": 22,
+        "preview": "[NOT-READY] 剧情点缺少完成判定。"
+      },
+      "stream": {
+        "ref": "payload-003",
+        "file": "003-stream.json",
+        "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+        "bytes": 42,
+        "chars": 22
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1794782536027-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-002",
+            "file": "002-response.json",
+            "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+            "bytes": 42,
+            "chars": 22,
+            "preview": "[NOT-READY] 剧情点缺少完成判定。"
+          },
+          "stream": {
+            "ref": "payload-003",
+            "file": "003-stream.json",
+            "sha256": "aa998be45c6208499d39cbe3e4d3e8ec25fb56afd91bc0372ce1715c229f2e18",
+            "bytes": 42,
+            "chars": 22
+          }
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1794782536098-40",
+      "seq": 2,
+      "status": "success",
+      "response": {
+        "ref": "payload-005",
+        "file": "005-response.json",
+        "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+        "bytes": 265,
+        "chars": 117,
+        "preview": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】"
+      },
+      "stream": {
+        "ref": "payload-006",
+        "file": "006-stream.json",
+        "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+        "bytes": 265,
+        "chars": 117
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1794782536110-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-005",
+            "file": "005-response.json",
+            "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+            "bytes": 265,
+            "chars": 117,
+            "preview": "场景1：周砚确认信标。\n场景2：取得沉船名单。\n场景3：预约南方航线渔船。\n【正文交接】\nFACT_LOCK:人物状态=周砚确认信标并取得名单\nFACT_LOCK:位置=灯塔底层\nFACT_LOCK:持有物=沉船名单\n【正文交接结束】"
+          },
+          "stream": {
+            "ref": "payload-006",
+            "file": "006-stream.json",
+            "sha256": "89d574b18ea44ff8d65e25af329b223d87218f0ee0529dfebfb939f38d55f8b9",
+            "bytes": 265,
+            "chars": 117
+          }
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1794782536151-66",
+      "seq": 3,
+      "status": "success",
+      "response": {
+        "ref": "payload-008",
+        "file": "008-response.json",
+        "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+        "bytes": 20740,
+        "chars": 7312,
+        "preview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+      },
+      "stream": {
+        "ref": "payload-009",
+        "file": "009-stream.json",
+        "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+        "bytes": 20740,
+        "chars": 7312
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1794782536167-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-008",
+            "file": "008-response.json",
+            "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+            "bytes": 20740,
+            "chars": 7312,
+            "preview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+          },
+          "stream": {
+            "ref": "payload-009",
+            "file": "009-stream.json",
+            "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+            "bytes": 20740,
+            "chars": 7312
+          }
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1794782536258-96",
+      "seq": 4,
+      "status": "success",
+      "response": {
+        "ref": "payload-008",
+        "file": "008-response.json",
+        "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+        "bytes": 20740,
+        "chars": 7312,
+        "preview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+      },
+      "stream": {
+        "ref": "payload-009",
+        "file": "009-stream.json",
+        "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+        "bytes": 20740,
+        "chars": 7312
+      },
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1794782536287-normal-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "success",
+          "response": {
+            "ref": "payload-008",
+            "file": "008-response.json",
+            "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+            "bytes": 20740,
+            "chars": 7312,
+            "preview": "{\"body\":\"周砚在灯塔第1段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第1次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第2段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第2次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第3段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第3次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第4段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第4次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第5段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第5次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第6段刻痕前停住，风暴信标的光压在纸页上。他把沉船名单折成方形，确认第6次潮声没有打乱航路。许知微提醒南方航线要避开旧暗礁，他把暗号压进掌心。\\n周砚在灯塔第7段刻痕前停住，风暴信标的光压在纸"
+          },
+          "stream": {
+            "ref": "payload-009",
+            "file": "009-stream.json",
+            "sha256": "46d7c21263950cf99677f64ddb3e723c51bf6a766c295e833b0d5b64104f8b96",
+            "bytes": 20740,
+            "chars": 7312
+          }
+        }
+      ]
+    }
+  ],
+  "payloadToAttemptIndex": [
+    {
+      "payloadRef": "payload-001",
+      "apiCallId": "api-1794782535852-14",
+      "apiCallSeq": 1
+    },
+    {
+      "payloadRef": "payload-002",
+      "apiCallId": "api-1794782535852-14",
+      "apiCallSeq": 1
+    },
+    {
+      "payloadRef": "payload-003",
+      "apiCallId": "api-1794782535852-14",
+      "apiCallSeq": 1
+    },
+    {
+      "payloadRef": "payload-004",
+      "apiCallId": "api-1794782536098-40",
+      "apiCallSeq": 2
+    },
+    {
+      "payloadRef": "payload-005",
+      "apiCallId": "api-1794782536098-40",
+      "apiCallSeq": 2
+    },
+    {
+      "payloadRef": "payload-006",
+      "apiCallId": "api-1794782536098-40",
+      "apiCallSeq": 2
+    },
+    {
+      "payloadRef": "payload-007",
+      "apiCallId": "api-1794782536151-66",
+      "apiCallSeq": 3
+    },
+    {
+      "payloadRef": "payload-008",
+      "apiCallId": "api-1794782536151-66",
+      "apiCallSeq": 3
+    },
+    {
+      "payloadRef": "payload-009",
+      "apiCallId": "api-1794782536151-66",
+      "apiCallSeq": 3
+    },
+    {
+      "payloadRef": "payload-010",
+      "apiCallId": "api-1794782536258-96",
+      "apiCallSeq": 4
+    },
+    {
+      "payloadRef": "payload-011",
+      "apiCallId": "api-1794782535852-14",
+      "firstSeenSource": "promptSnapshots"
+    },
+    {
+      "payloadRef": "payload-012",
+      "apiCallId": "api-1794782536098-40",
+      "firstSeenSource": "promptSnapshots"
+    },
+    {
+      "payloadRef": "payload-013",
+      "apiCallId": "api-1794782536151-66",
+      "firstSeenSource": "promptSnapshots"
+    },
+    {
+      "payloadRef": "payload-014",
+      "apiCallId": "api-1794782536258-96",
+      "firstSeenSource": "promptSnapshots"
+    },
+    {
+      "payloadRef": "payload-015",
+      "firstSeenSource": "processingReports"
+    },
+    {
+      "payloadRef": "payload-016",
+      "firstSeenSource": "processingReports"
+    },
+    {
+      "payloadRef": "payload-017",
+      "firstSeenSource": "processingReports"
+    },
+    {
+      "payloadRef": "payload-018",
+      "firstSeenSource": "processingReports"
+    },
+    {
+      "payloadRef": "payload-019",
+      "firstSeenSource": "folderDiagnostics"
+    },
+    {
+      "payloadRef": "payload-020",
+      "firstSeenSource": "folderDiagnostics"
+    },
+    {
+      "payloadRef": "payload-021",
+      "firstSeenSource": "folderDiagnostics"
+    },
+    {
+      "payloadRef": "payload-022",
+      "firstSeenSource": "folderDiagnostics"
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

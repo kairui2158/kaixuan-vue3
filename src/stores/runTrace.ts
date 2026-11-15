@@ -766,6 +766,26 @@ export function folderDiagnosticsStatus(diagnostics: RunTraceFolderDiagnostic[])
   return hasWarning ? 'degraded' : null
 }
 
+export type FolderDiagnosticsRecoveryKind =
+  | 'none'
+  | 'recovered_from_degraded'
+  | 'recovered_from_failed'
+
+export function folderDiagnosticsRecoveryKind(
+  diagnostics: RunTraceFolderDiagnostic[]
+): FolderDiagnosticsRecoveryKind {
+  let seenDegraded = false
+  let seenFailed = false
+  for (const diagnostic of diagnostics) {
+    const status = diagnostic?.status
+    if (!status) continue
+    if (status === 'failed' || status === 'blocked') seenFailed = true
+    if (status === 'degraded') seenDegraded = true
+  }
+  if (seenFailed) return 'recovered_from_failed'
+  return seenDegraded ? 'recovered_from_degraded' : 'none'
+}
+
 function traceStatusLevel(status: RunTraceStatus): 'info' | 'warn' | 'error' {
   if (status === 'success') return 'info'
   if (status === 'degraded' || status === 'blocked' || status === 'interrupted' || status === 'partially_applied' || status === 'success_with_warnings') return 'warn'

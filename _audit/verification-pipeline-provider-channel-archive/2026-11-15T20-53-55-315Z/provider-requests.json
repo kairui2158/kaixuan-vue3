@@ -1,0 +1,59 @@
+﻿{
+    "value":  [
+                  {
+                      "at":  "2026-11-06T08:59:52.340Z",
+                      "url":  "/v1/models",
+                      "apiKey":  "[redacted]",
+                      "layer":  null,
+                      "model":  null,
+                      "wantsStream":  false,
+                      "userPreview":  ""
+                  },
+                  {
+                      "at":  "2026-11-06T08:59:52.411Z",
+                      "url":  "/v1/chat/completions",
+                      "apiKey":  "[redacted]",
+                      "layer":  null,
+                      "model":  "settings-model-imported",
+                      "wantsStream":  false,
+                      "userPreview":  "Reply OK"
+                  },
+                  {
+                      "at":  "2026-11-06T08:59:53.887Z",
+                      "url":  "/v1/chat/completions",
+                      "apiKey":  "[redacted]",
+                      "layer":  "volumes",
+                      "model":  "volumes-model",
+                      "wantsStream":  true,
+                      "userPreview":  "[大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[设定规划约束]\n（暂无设定）\n\n[卷数]\n2\n\n[已生成卷数]\n1\n\n[全书总字数]\n20000字\n\n[已生成卷事实清单]\n第1卷《第一卷 层通道》\n分配字数：12000\n摘要：确认纸条。\n\n生成1卷的卷纲。不要重复任何已有卷名。\n输出JSON数组，每项含name/outline/summary/allocatedWords/readerExpectations/mainPlotLine/unlockMilestone/forbiddenFinalCards/contract"
+                  },
+                  {
+                      "at":  "2026-11-06T08:59:54.522Z",
+                      "url":  "/v1/chat/completions",
+                      "apiKey":  "[redacted]",
+                      "layer":  "chapters",
+                      "model":  "chapters-model",
+                      "wantsStream":  true,
+                      "userPreview":  "[全书大纲]\n# 层通道真实UI验证\n## 剧情单元 H1-01 纸条\n章节范围：第 1 章\n- 王芳在灯塔发现纸条。\n\n[章节规划约束]\n（暂无设定）\n\n[卷纲]\n第一卷 层通道 - 王芳在灯塔发现纸条。\n\n[本卷总章数]\n2\n\n[单章字数]\n3500\n\n[已生成章节标题清单]\n第1章《第1章 层通道》\n\n[上一章事实]\n第1章《第1章 层通道》\n王芳确认纸条。\n\n生成第2章到第2章，共1章。不要重复任何已有标题。\n输出JSON数组，每项含title/plot字段。数组长度必须为1。"
+                  },
+                  {
+                      "at":  "2026-11-06T08:59:55.139Z",
+                      "url":  "/v1/chat/completions",
+                      "apiKey":  "[redacted]",
+                      "layer":  "body",
+                      "model":  "body-model",
+                      "wantsStream":  true,
+                      "userPreview":  "[单元闭包卷纲]\n[旧卷纲显式降级：卷概要]\n确认纸条。\n\n[旧卷纲显式降级：当前章细纲]\n第1章 层通道\n王芳确认纸条。\n\n[正文执行约束]\n（暂无设定）\n\n[当前卷概要]\n第一卷 层通道 - 王芳在灯塔发现纸条。\n\n[当前章节剧情点]\n第1章 层通道 - 王芳确认纸条。\n\n请执行本章节的正文生成链路。"
+                  },
+                  {
+                      "at":  "2026-11-06T08:59:56.557Z",
+                      "url":  "/v1/chat/completions",
+                      "apiKey":  "[redacted]",
+                      "layer":  null,
+                      "model":  "global-model",
+                      "wantsStream":  false,
+                      "userPreview":  "请从下面第 0 章（chapterId: ch-provider-channel）正文中提取可长期复用的小说记忆。\n\n要求：\n1. 只保留正文明确出现或明确推断的内容，不要臆造。\n2. 每个条目必须有 evidence 数组，数组至少一项；每项包含 chapterId（必须填 ch-provider-channel）和正文原文 snippet。\n3. 没有内容的类别返回空数组。\n4. 返回对象必须包含 entities、relations、events、world、foreshadowing 五个数组。\n\nJSON 结构示例：\n{\n  \"entities\": [{\"name\":\"角色名\",\"t"
+                  }
+              ],
+    "Count":  6
+}

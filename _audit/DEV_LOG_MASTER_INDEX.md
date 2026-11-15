@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-15
+更新日期：2026-11-16
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -2082,3 +2082,30 @@
 - 验证：定向 5 files / 137 tests PASS；legacy 合同句 `src/` 生产词面 0 命中；经验补条、DEV_LOG 与七节台账登记完成。
 - 边界：不改 folder SKILL 与历史 trace；12403/12000 按 G1.31 定性为请求总长与终步账本限，不是反馈合成限。
 - 交付包：3.128.1 封装 PASS，SHA-256 `14200a14e50b6b9518b75edf9e382dae85668dc125cb6615913c85f6d5a2714d`；3.128.0 安装产物已清理。
+
+# 2026-11-16 正文层 Spec 指纹同步 K88
+
+- 文件：[_audit/DEV_LOG_2026-11-16_body-spec-fingerprint-sync-k88-v1.md](_audit/DEV_LOG_2026-11-16_body-spec-fingerprint-sync-k88-v1.md)
+- 交付：正文层交接规格 §9 三环指纹同步为 K88 磁盘现役值，并记录 spec、历史 trace 与磁盘三方对账。
+- 用途：防止旧 spec 指纹在新 run 归因时与磁盘、trace 三方打架；同时固化 `deai-model-profile` 与 `postProcess usage` 注入面终态结论。
+- 验证：PowerShell `Get-FileHash` 三个 `script.js` 的 SHA256 与字节大小同 SKILL K88 交接表逐项一致；spec 与日志登记通过文件检索复核。
+- 边界：不改 folder SKILL 与历史 trace；不新增裁判、预算系统、调度器或 UI。
+
+# 2026-11-16 正文层失败拓扑收口 V1.1
+
+- 方案：[_audit/PROPOSAL_2026-11-16_BODY_LAYER_FAILURE_TOPOLOGY_EXECUTION_V1.md](_audit/PROPOSAL_2026-11-16_BODY_LAYER_FAILURE_TOPOLOGY_EXECUTION_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_body-failure-topology-v1.1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_body-failure-topology-v1.1.md)
+- 交付：V1 方案升级为 V1.1。失败上游按 callerStatus/信封来源拒绝进入 targeted 修复与权威账本；repairScope 用信封 body 单源路由；删除 `failedStepRole`、`upstreamContract` 和第三种账本事件；恢复观测补 `folderDiagnosticsRecoveryKind` 与 `recoveredFromFailed`。
+- 用途：阻断 K88 类“失败 S1 骨架与账本进入 S2/S3 后 9/9 对账通过”的污染路径，同时保留 G2.9 targeted-first 和应用/SKILL 裁判边界。
+- 验证：源码锚点核对通过；`rg` 确认关键修正入方案；`git diff --check` 通过。生产代码与真实烟测尚未执行。
+- 边界：本轮不改生产代码与 folder SKILL；方案执行后按台账逐项回填。
+
+# 2026-11-16 正文层失败拓扑 V1.1 执行收口
+
+- 文件：[_audit/DEV_LOG_2026-11-16_body-failure-topology-v1.1.md](_audit/DEV_LOG_2026-11-16_body-failure-topology-v1.1.md)
+- 方案：[_audit/PROPOSAL_2026-11-16_BODY_LAYER_FAILURE_TOPOLOGY_EXECUTION_V1.md](_audit/PROPOSAL_2026-11-16_BODY_LAYER_FAILURE_TOPOLOGY_EXECUTION_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_body-failure-topology-v1.1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_body-failure-topology-v1.1.md)
+- 交付：失败上游按 callerStatus/信封来源拒绝进入 targeted 修复与权威账本；repairScope 用信封 body 单源路由；恢复观测区分 failed/degraded；失败候选不进成功断点。真实 Electron mock-provider 合同级 E2E A/B/C 全部 PASS。
+- 用途：阻断失败骨架、失败账本和旧断点 fallback 污染 S2/S3 的路径，同时保留 targeted-first 与应用/SKILL 裁判边界；历史失败恢复不再被终态锁存误判。
+- 验证：SCENARIO=a/c 成功恢复、SCENARIO=b 确定性失败全部符合合同；`test:services` 253 files / 2779 tests PASS；type-check、build:vue:test、production wiring、定向 Playwright 8 tests、`git diff --check` 全部 PASS。blocked 裁决修正与 E2E 断点脚本修正均在日志登记。
+- 边界：不改 folder SKILL 与历史 trace；不新增裁判、预算系统、调度器或 UI。

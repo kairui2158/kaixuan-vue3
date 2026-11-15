@@ -34,6 +34,29 @@ describe('acceptStepArtifact', () => {
     }
   })
 
+  it('never authorizes failed metadata as the generator ledger', () => {
+    const envelope = JSON.stringify({
+      body: '这是一段合格的正文。',
+      metadata: {
+        extractedMeta: ['【正文交接】', 'FACT_LOCK：人物状态：已知']
+      }
+    })
+    const result = resolveStepArtifactFlow({
+      stepOutput: {
+        output: envelope,
+        callerStatus: 'failed',
+        blockingGateFailed: true,
+        errors: ['SKILL 质量闭环硬门禁未通过']
+      },
+      stepIndex: 1,
+      contract
+    })
+
+    expect(result.acceptance.decision).toBe('reject')
+    expect(result.acceptance.downstreamPayload).toBeNull()
+    expect(result.metadata).toEqual({})
+  })
+
   it('keeps a malformed failed envelope as structured rejection instead of crashing advisory parsing', () => {
     const malformedEnvelope = JSON.stringify({
       body: '正文',

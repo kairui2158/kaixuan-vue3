@@ -1,0 +1,14 @@
+{
+  "schema": "shenyi.body-failure-topology.electron",
+  "version": 1,
+  "scenario": "c",
+  "generatedAt": "2026-11-15T22:43:26.427Z",
+  "script": "verify-body-failure-topology-electron.mjs",
+  "projectId": "body-failure-topology",
+  "ownerKey": "pipeline:body-failure-topology:step-4:chapter-ch-body-failure-topology",
+  "runId": "run-1794782603796-1",
+  "runStatus": "success_with_warnings",
+  "physicalRequests": 6,
+  "breakpointStatus": null,
+  "evidenceDirectory": "D:\\codex\\novel-workshop-vue3\\_data\\body-failure-topology-exports\\run-trace-正文层-20261116-064323-deep"
+}

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { folderDiagnosticsStatus, useRunTraceStore } from './runTrace'
+import { folderDiagnosticsRecoveryKind, folderDiagnosticsStatus, useRunTraceStore } from './runTrace'
 import { PerformanceMonitor } from '../services/performanceMonitor'
 import { installResponsivenessProjection, setPerformanceMonitorForTests } from '../services/responsivenessStore'
 import type { RunTrace } from './runTrace'
@@ -3815,6 +3815,7 @@ describe('runTrace store', () => {
     store.appendFolderDiagnostics(runId, { status: 'success', diagnostics: [] })
 
     expect(folderDiagnosticsStatus(store.getRun(runId)!.folderDiagnostics || [])).toBe('degraded')
+    expect(folderDiagnosticsRecoveryKind(store.getRun(runId)!.folderDiagnostics || [])).toBe('recovered_from_failed')
   })
 
   it('keeps an unresolved trailing folder failure failed for run-level aggregation', () => {

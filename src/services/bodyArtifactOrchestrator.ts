@@ -1,4 +1,5 @@
 import { parseGenerationResult } from './generationResult'
+import { isGeneratorEnvelopeArtifact } from './chainExecution'
 import type { StructuredSkillStepOutput } from './stepArtifactAcceptance'
 import { resolveChapterNarrativeBlock } from './chapterEventDensity'
 import {
@@ -82,6 +83,8 @@ export interface BodyArtifactStructuredFailure {
   blockingGateFailed: boolean
   handoffNotReady: boolean
   blockingVerdict: 'none' | 'handoff_not_ready' | 'quality_failed'
+  /** True only for a non-empty prose body in the active LHC envelope form. */
+  hasRepairableBody?: boolean
 }
 
 export function resolveBodyStructuredFailure(input: {
@@ -100,7 +103,10 @@ export function resolveBodyStructuredFailure(input: {
     callerStatus: input.callerStatus,
     blockingGateFailed: input.blockingGateFailed === true,
     handoffNotReady,
-    blockingVerdict
+    blockingVerdict,
+    hasRepairableBody: isGeneratorEnvelopeArtifact(input.output)
+      ? parseGenerationResult(input.output).body.trim().length > 0
+      : false
   }
 }
 
@@ -255,7 +261,8 @@ function buildPrompt(input: {
   return [
     input.basePrompt,
     '',
-    '上一次正文未通过验收。错误如下：',
+    '上一次正文未通过验收。若上游产物不可用，请从头重新生成完整正文；本请求不授权任何旧稿为事实权威。',
+    '错误如下：',
     ...(input.errors || []).map(error => `- ${error}`),
     '该结果不适合作为定点修复基础。',
     '请重新生成完整正文，不要输出解释或元数据。'
@@ -340,10 +347,12 @@ export async function generateBodyArtifact(
     ? 'none'
       : structuredFailure?.blockingVerdict === 'handoff_not_ready'
         ? 'targeted'
+        : structuredFailure?.blockingVerdict === 'quality_failed' &&
+          structuredFailure.hasRepairableBody !== true
+        ? 'full_chain'
         : targetedRepairFailed
         ? 'full_chain'
-        : previousBody.trim().length === 0 ||
-          (structuredFailure?.blockingVerdict === 'quality_failed' && targetedRepairFailed)
+        : previousBody.trim().length === 0
         ? 'full_chain'
         : 'targeted'
     const attemptId = createAttemptId(input.contract.chapterId, repairAttempt)

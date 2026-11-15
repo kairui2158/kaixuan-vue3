@@ -855,6 +855,7 @@ async function main() {
     provider = LIVE_MODE
       ? liveProviderConfig(liveBridge.proxyBaseUrl, liveBridge.apiKey)
       : providerConfig({ port: providers.port })
+    let auxiliaryMemoryTrace = null
     if (!LIVE_MODE) {
       provider.providers.push({
         id: 'provider-global',
@@ -981,7 +982,7 @@ async function main() {
         path: path.join(EVIDENCE_ROOT, 'auxiliary-memory-preview.png'),
         fullPage: true,
       })
-      const auxiliaryMemoryTrace = await page.evaluate(() => {
+      auxiliaryMemoryTrace = await page.evaluate(() => {
         const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
           .find(item => item.source === 'pipeline' && item.stepName === '记忆抽取')
         return run ? JSON.parse(JSON.stringify(run)) : null

@@ -1,0 +1,484 @@
+{
+  "script": "verify-pipeline-provider-channel-electron.mjs",
+  "at": "2026-11-06T08:59:57.020Z",
+  "result": "PASS",
+  "ui": {
+    "initialUi": {
+      "settings": "",
+      "volumes": "",
+      "chapters": "",
+      "body": ""
+    },
+    "selectedUi": {
+      "settings": "provider-settings",
+      "volumes": "provider-volumes",
+      "chapters": "provider-chapters",
+      "body": "provider-body"
+    }
+  },
+  "runs": {
+    "volumes": {
+      "runId": "pipeline-run-1793955593824-1",
+      "layer": "volumes",
+      "target": "all",
+      "dependencyRevision": "0",
+      "configSnapshot": {
+        "agents": {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": ""
+        },
+        "skills": {
+          "0": [],
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": []
+        },
+        "modes": {
+          "0": "compose",
+          "1": "compose",
+          "2": "compose",
+          "3": "compose",
+          "4": "compose"
+        },
+        "skillAgents": {},
+        "pipelineProviderChannel": {
+          "layer": "volumes",
+          "layerProviderId": "provider-volumes",
+          "agentProviderId": "",
+          "globalProviderId": "provider-global",
+          "providerId": "provider-volumes",
+          "source": "layer",
+          "providerMissing": false,
+          "providerUnsupported": false
+        },
+        "pipelineProviderChannels": {
+          "volumes": {
+            "layer": "volumes",
+            "layerProviderId": "provider-volumes",
+            "agentProviderId": "",
+            "globalProviderId": "provider-global",
+            "providerId": "provider-volumes",
+            "source": "layer",
+            "providerMissing": false,
+            "providerUnsupported": false
+          }
+        }
+      },
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded",
+      "controller": {},
+      "startedAt": 1793955593833,
+      "progressPhase": "terminal",
+      "endedAt": 1793955594032
+    },
+    "chapters": {
+      "runId": "pipeline-run-1793955594428-2",
+      "layer": "chapters",
+      "target": "vol-provider-channel",
+      "dependencyRevision": "0",
+      "configSnapshot": {
+        "agents": {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": ""
+        },
+        "skills": {
+          "0": [],
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": []
+        },
+        "modes": {
+          "0": "compose",
+          "1": "compose",
+          "2": "compose",
+          "3": "compose",
+          "4": "compose"
+        },
+        "skillAgents": {},
+        "pipelineProviderChannel": {
+          "layer": "chapters",
+          "layerProviderId": "provider-chapters",
+          "agentProviderId": "",
+          "globalProviderId": "provider-global",
+          "providerId": "provider-chapters",
+          "source": "layer",
+          "providerMissing": false,
+          "providerUnsupported": false
+        },
+        "pipelineProviderChannels": {
+          "chapters": {
+            "layer": "chapters",
+            "layerProviderId": "provider-chapters",
+            "agentProviderId": "",
+            "globalProviderId": "provider-global",
+            "providerId": "provider-chapters",
+            "source": "layer",
+            "providerMissing": false,
+            "providerUnsupported": false
+          }
+        }
+      },
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded",
+      "controller": {},
+      "startedAt": 1793955594428,
+      "progressPhase": "terminal",
+      "endedAt": 1793955594627
+    },
+    "body": {
+      "runId": "pipeline-run-1793955595065-3",
+      "layer": "body",
+      "target": "ch-provider-channel",
+      "dependencyRevision": "0",
+      "configSnapshot": {
+        "agents": {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": ""
+        },
+        "skills": {
+          "0": [],
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": []
+        },
+        "modes": {
+          "0": "compose",
+          "1": "compose",
+          "2": "compose",
+          "3": "compose",
+          "4": "compose"
+        },
+        "skillAgents": {},
+        "pipelineProviderChannel": {
+          "layer": "body",
+          "layerProviderId": "provider-body",
+          "agentProviderId": "",
+          "globalProviderId": "provider-global",
+          "providerId": "provider-body",
+          "source": "layer",
+          "providerMissing": false,
+          "providerUnsupported": false
+        },
+        "pipelineProviderChannels": {
+          "body": {
+            "layer": "body",
+            "layerProviderId": "provider-body",
+            "agentProviderId": "",
+            "globalProviderId": "provider-global",
+            "providerId": "provider-body",
+            "source": "layer",
+            "providerMissing": false,
+            "providerUnsupported": false
+          }
+        }
+      },
+      "status": "succeeded",
+      "progress": 100,
+      "statusText": "succeeded",
+      "controller": {},
+      "startedAt": 1793955595065,
+      "progressPhase": "terminal",
+      "endedAt": 1793955595443
+    }
+  },
+  "auxiliaryMemory": {
+    "id": "run-1793955596531-90",
+    "source": "pipeline",
+    "sourceName": "生成流水线",
+    "step": 4,
+    "stepName": "记忆抽取",
+    "mode": "memory-extraction",
+    "projectId": "pipeline-provider-channel-ui",
+    "projectName": "层通道真实UI验证",
+    "providerSource": "auxiliary",
+    "skillNames": [],
+    "skillMode": "compose",
+    "status": "success",
+    "runtimeFingerprint": {
+      "source": "vite-manifest",
+      "manifestVersion": "1",
+      "commit": "8743ef9b753b",
+      "buildTime": "2026-11-06T08:58:28.543Z",
+      "appVersion": "3.114.3"
+    },
+    "startedAt": 1793955596531,
+    "stateHistory": [
+      {
+        "fromStatus": "running",
+        "toStatus": "success",
+        "recordedAt": 1793955596586
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1793955596531-91",
+        "ts": 1793955596531,
+        "seq": 1,
+        "type": "started",
+        "level": "info",
+        "label": "开始生成流水线 记忆抽取运行"
+      },
+      {
+        "id": "event-1793955596547-93",
+        "ts": 1793955596547,
+        "seq": 2,
+        "type": "api-start",
+        "level": "info",
+        "label": "第 1 次 API 调用开始",
+        "detail": "{\"actualToolSurface\":[],\"permissionDecision\":null}"
+      },
+      {
+        "id": "event-1793955596549-95",
+        "ts": 1793955596549,
+        "seq": 3,
+        "type": "run-activity",
+        "level": "info",
+        "label": "运行活性证据",
+        "detail": "physical_call_running / 1/api-1793955596547-92",
+        "payload": {
+          "source": "physical_call_running",
+          "detail": "1/api-1793955596547-92"
+        }
+      },
+      {
+        "id": "event-1793955596550-96",
+        "ts": 1793955596550,
+        "seq": 4,
+        "type": "long-request-in-progress",
+        "level": "info",
+        "label": "长物理请求进行中",
+        "detail": "physicalCall=1 / heartbeat=false / normal",
+        "payload": {
+          "physicalCallId": "physical-1793955596549-94",
+          "seq": 1,
+          "heartbeat": false
+        }
+      },
+      {
+        "id": "event-1793955596550-97",
+        "ts": 1793955596550,
+        "seq": 5,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求进行中",
+        "detail": "normal / http://127.0.0.1:10592/v1/chat/completions / main-process"
+      },
+      {
+        "id": "event-1793955596574-98",
+        "ts": 1793955596574,
+        "seq": 6,
+        "type": "physical-call",
+        "level": "info",
+        "label": "第 1 次物理请求完成",
+        "detail": "normal / stop / http://127.0.0.1:10592/v1/chat/completions / main-process"
+      },
+      {
+        "id": "event-1793955596576-99",
+        "ts": 1793955596576,
+        "seq": 7,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "apiCall=api-1793955596547-92 seq=1"
+      },
+      {
+        "id": "event-1793955596577-100",
+        "ts": 1793955596577,
+        "seq": 8,
+        "type": "api-success",
+        "level": "info",
+        "label": "第 1 次 API 调用完成",
+        "detail": ""
+      },
+      {
+        "id": "event-1793955596585-101",
+        "ts": 1793955596585,
+        "seq": 9,
+        "type": "finished",
+        "level": "info",
+        "label": "运行完成",
+        "detail": ""
+      },
+      {
+        "id": "event-1793955596586-102",
+        "ts": 1793955596586,
+        "seq": 10,
+        "type": "state-transition",
+        "level": "info",
+        "label": "RunTraceStatus：running → success",
+        "detail": "run=run-1793955596531-90"
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1793955596547-92",
+        "seq": 1,
+        "providerSource": "auxiliary",
+        "requestMessages": [
+          {
+            "role": "system",
+            "content": "你是小说记忆抽取器。只返回合法 JSON，不要 Markdown、解释或额外文字。"
+          },
+          {
+            "role": "user",
+            "content": "请从下面第 0 章（chapterId: ch-provider-channel）正文中提取可长期复用的小说记忆。\n\n要求：\n1. 只保留正文明确出现或明确推断的内容，不要臆造。\n2. 每个条目必须有 evidence 数组，数组至少一项；每项包含 chapterId（必须填 ch-provider-channel）和正文原文 snippet。\n3. 没有内容的类别返回空数组。\n4. 返回对象必须包含 entities、relations、events、world、foreshadowing 五个数组。\n\nJSON 结构示例：\n{\n  \"entities\": [{\"name\":\"角色名\",\"type\":\"character\",\"description\":\"...\",\"evidence\":[{\"chapterId\":\"ch-provider-channel\",\"snippet\":\"原文片段\"}]}],\n  \"relations\": [],\n  \"events\": [],\n  \"world\": [],\n  \"foreshadowing\": []\n}\n\n章节标题：第1章 层通道\n章节正文：\n1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n4. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n5. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n6. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n7. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n8. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n9. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n10. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n11. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n12. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n13. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n14. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n15. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n16. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n17. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n18. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n19. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n20. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n21. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n22. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n23. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n24. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n25. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n26. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n27. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n28. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n29. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n30. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n31. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n32. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n33. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n34. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n35. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n36. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n37. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n38. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n39. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n40. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n41. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n42. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n43. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n44. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n45. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n46. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n47. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n48. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n49. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n50. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n51. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n52. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n53. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n54. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n55. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n56. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n57. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n58. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n59. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n60. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n61. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n62. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n63. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n64. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n65. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n66. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n67. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n68. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n69. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n70. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。"
+          }
+        ],
+        "responseText": "{\"entities\":[],\"relations\":[],\"events\":[],\"world\":[],\"foreshadowing\":[]}",
+        "streamText": "",
+        "reasoningText": "",
+        "status": "success",
+        "startedAt": 1793955596547,
+        "physicalCalls": [
+          {
+            "id": "physical-1793955596549-94",
+            "physicalCallId": "physical-1793955596547-normal-0",
+            "seq": 1,
+            "phase": "normal",
+            "status": "success",
+            "requestMessages": [
+              {
+                "role": "system",
+                "content": "你是小说记忆抽取器。只返回合法 JSON，不要 Markdown、解释或额外文字。"
+              },
+              {
+                "role": "user",
+                "content": "请从下面第 0 章（chapterId: ch-provider-channel）正文中提取可长期复用的小说记忆。\n\n要求：\n1. 只保留正文明确出现或明确推断的内容，不要臆造。\n2. 每个条目必须有 evidence 数组，数组至少一项；每项包含 chapterId（必须填 ch-provider-channel）和正文原文 snippet。\n3. 没有内容的类别返回空数组。\n4. 返回对象必须包含 entities、relations、events、world、foreshadowing 五个数组。\n\nJSON 结构示例：\n{\n  \"entities\": [{\"name\":\"角色名\",\"type\":\"character\",\"description\":\"...\",\"evidence\":[{\"chapterId\":\"ch-provider-channel\",\"snippet\":\"原文片段\"}]}],\n  \"relations\": [],\n  \"events\": [],\n  \"world\": [],\n  \"foreshadowing\": []\n}\n\n章节标题：第1章 层通道\n章节正文：\n1. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n2. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n3. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n4. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n5. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n6. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n7. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n8. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n9. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n10. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n11. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n12. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n13. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n14. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n15. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n16. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n17. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n18. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n19. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n20. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n21. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n22. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n23. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n24. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n25. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n26. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n27. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n28. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n29. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n30. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n31. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n32. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n33. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n34. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n35. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n36. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n37. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n38. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n39. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n40. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n41. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n42. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n43. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n44. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n45. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n46. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n47. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n48. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n49. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n50. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n51. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n52. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n53. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n54. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n55. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n56. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n57. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n58. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n59. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n60. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n61. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n62. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n63. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n64. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n65. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n66. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。\n\n67. 她数到第三次红闪，才敢承认自己在怕。灯光把她的影子钉在潮湿的墙上。远处的货船鸣笛，声音被雨压得很低。\n\n68. 她想起南方航线，又想起一个没兑现的约定。手指抚过灯座裂纹时，纸条轻轻颤了一下。她把恐惧折成话多的样子，好让自己站住。雨点在灯塔玻璃上排成细密的鼓点。\n\n69. 雨点在灯塔玻璃上排成细密的鼓点。王芳把纸条压进灯座，指尖停了半秒。红色信标每闪一次，她就把呼吸放慢一拍。\n\n70. 楼梯下的海水声像有人在翻旧账。她把玩笑说给风暴听，风暴没有回嘴。纸条上的字迹被潮气咬出一圈毛边。她数到第三次红闪，才敢承认自己在怕。"
+              }
+            ],
+            "responseText": "{\"entities\":[],\"relations\":[],\"events\":[],\"world\":[],\"foreshadowing\":[]}",
+            "streamText": "",
+            "reasoningText": "",
+            "finishReason": "stop",
+            "usageUnavailable": true,
+            "startedAt": 1793955596549,
+            "durationMs": 26,
+            "endedAt": 1793955596574,
+            "toolsEnabled": false,
+            "toolsDowngraded": false,
+            "toolCallCount": 0,
+            "toolCallNames": [],
+            "maxTokens": 8192,
+            "modelCapability": {
+              "contextWindowTokens": 128000,
+              "contextWindowSource": "provider",
+              "maxOutputTokens": 8192,
+              "maxOutputSource": "override",
+              "protocolRequiresMaxTokens": false,
+              "protocolRequiredMaxTokens": 32768
+            },
+            "providerContextWindowTokens": 128000,
+            "estimatedInputTokens": 2640,
+            "contextBudgetDecision": "fits",
+            "contextBudgetReason": "上下文可容纳：输入 2640 / 可用 119808",
+            "usageReconciliation": {
+              "status": "unavailable",
+              "estimatedInputTokens": 2640
+            },
+            "finalUrl": "http://127.0.0.1:10592/v1/chat/completions",
+            "transport": "main-process",
+            "providerSource": "auxiliary",
+            "cacheUsageSummary": {
+              "status": "usage_unavailable",
+              "estimatedInputTokens": 2640
+            },
+            "contextComposition": {
+              "layer": "body",
+              "step": 4,
+              "providerType": "openai-compatible",
+              "providerId": "provider-global",
+              "model": "global-model",
+              "cacheFamily": "openai-compatible:provider-global:global-model:body:step-4",
+              "prefixFingerprint": "ae24f74e-1d8b593-41:811c9dc5-1000193-0",
+              "systemLength": 41,
+              "userLength": 5141,
+              "stableSystemPrefixLength": 41,
+              "stableUserPrefixLength": 0,
+              "stableChars": 41,
+              "variableChars": 5141,
+              "stableRatio": 0.008
+            },
+            "heartbeat": false
+          }
+        ],
+        "lastExecutionActivityAt": 1793955596549,
+        "finishReason": "stop",
+        "durationMs": 28,
+        "timingLedger": {
+          "physicalCallCount": 1,
+          "retryPhysicalCallCount": 0,
+          "physicalDurationSumMs": 26,
+          "localOverheadMs": 2
+        },
+        "endedAt": 1793955596576
+      }
+    ],
+    "sessionKind": "task",
+    "promptSnapshots": [],
+    "processingReports": [],
+    "payloads": [],
+    "stepBoundaryGapMs": 1087,
+    "eventLedger": {
+      "totalEvents": 10,
+      "droppedInfoEvents": 0,
+      "droppedWarnEvents": 0,
+      "droppedErrorEvents": 0
+    },
+    "timingLedger": {
+      "apiCallCount": 1,
+      "physicalCallCount": 1,
+      "retryPhysicalCallCount": 0,
+      "physicalDurationSumMs": 26,
+      "firstTokenSumMs": 0,
+      "outputSumMs": 0,
+      "localOverheadSumMs": 2,
+      "requestBuildSumMs": 0,
+      "schemaValidateSumMs": 0,
+      "retrySumMs": 0,
+      "postProcessSumMs": 0,
+      "repeatedPromptBlocks": {}
+    },
+    "stepTimingLedger": {
+      "promptBuildMs": 0,
+      "apiCallCount": 1,
+      "physicalCallCount": 1,
+      "retryCallCount": 0,
+      "continuationCallCount": 0,
+      "stepBoundaryGapMs": 1087,
+      "repeatedPromptBlocks": {},
+      "contextChars": 5182,
+      "outputChars": 72,
+      "physicalDurationSumMs": 26
+    },
+    "endedAt": 1793955596585,
+    "durationMs": 54,
+    "dirName": "run-trace-记忆抽取-20261106-165956"
+  },
+  "modelAssertions": {
+    "volumes": "volumes-model",
+    "chapters": "chapters-model",
+    "body": "body-model",
+    "surfaces": [
+      "trace-event",
+      "apiCall",
+      "provider-request"
+    ]
+  },
+  "requestCount": 6,
+  "mode": "mock-four-layer-providers",
+  "live": null
+}

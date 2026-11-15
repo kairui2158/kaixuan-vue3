@@ -268,7 +268,7 @@ describe('generateBodyArtifact', () => {
     })
   })
 
-  it('routes a structured failed non-handoff output to targeted repair first', async () => {
+  it('routes a structured failed legacy output to full chain because it has no repairable body', async () => {
     const failedOutput = '短'
     const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
     const result = await generateBodyArtifact({
@@ -288,7 +288,7 @@ describe('generateBodyArtifact', () => {
     })
 
     expect(result.status).toBe('complete')
-    expect(calls[1].context?.repairScope).toBe('targeted')
+    expect(calls[1].context?.repairScope).toBe('full_chain')
     expect(calls[1].context?.previousBody).toBe(failedOutput)
     expect(calls[1].context?.errors).toContain('输出未通过校验，已达最大尝试次数 3')
     expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
@@ -299,7 +299,7 @@ describe('generateBodyArtifact', () => {
     })
   })
 
-  it('routes the first quality failure through targeted and the second through full chain', async () => {
+  it('routes every failed legacy output through full chain', async () => {
     const calls: Array<BodyArtifactCallContext | undefined> = []
     const result = await generateBodyArtifact({
       contract,
@@ -316,7 +316,7 @@ describe('generateBodyArtifact', () => {
     })
 
     expect(result.status).toBe('failed')
-    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'full_chain'])
     expect(result.attempts.map(attempt => attempt.metadata?.structuredFailure))
       .toEqual(expect.arrayContaining([
         expect.objectContaining({ blockingVerdict: 'quality_failed' })
@@ -324,7 +324,47 @@ describe('generateBodyArtifact', () => {
     expect(result.errors).toContain('SKILL 质量闭环硬门禁未通过')
   })
 
-  it('does not return complete when SKILL already failed a word-valid output', async () => {
+  it('routes a structured failed LHC envelope through targeted repair and keeps its prose body', async () => {
+    const failedEnvelope = JSON.stringify({
+      body: '这是一段足够长的候选正文。',
+      metadata: {
+        extractedMeta: ['FACT_LOCK:人物状态=候选期间受伤']
+      }
+    })
+    const successEnvelope = JSON.stringify({
+      body: '这是一段合格的正文。',
+      metadata: {
+        extractedMeta: ['FACT_LOCK:人物状态=候选期间受伤']
+      }
+    })
+    const calls: Array<{ prompt: string; context: BodyArtifactCallContext | undefined }> = []
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async (prompt, callContext) => {
+        calls.push({ prompt, context: callContext })
+        return calls.length === 1
+          ? {
+              output: failedEnvelope,
+              callerStatus: 'failed',
+              blockingGateFailed: true,
+              errors: ['SKILL 质量闭环硬门禁未通过']
+            } as any
+          : successEnvelope
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls[1]?.context?.repairScope).toBe('targeted')
+    expect(calls[1]?.context?.previousBody).toBe('这是一段足够长的候选正文。')
+    expect(result.body).toBe('这是一段合格的正文。')
+    expect(result.attempts[0]?.metadata?.structuredFailure).toMatchObject({
+      blockingVerdict: 'quality_failed',
+      hasRepairableBody: true
+    })
+  })
+
+  it('keeps failed legacy outputs failed even when their fallback body passes word count', async () => {
     const calls: Array<BodyArtifactCallContext | undefined> = []
     const result = await generateBodyArtifact({
       contract,
@@ -343,8 +383,8 @@ describe('generateBodyArtifact', () => {
       }
     })
 
-    expect(result.status).toBe('complete')
-    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'targeted', 'full_chain'])
+    expect(result.status).toBe('failed')
+    expect(calls.map(context => context?.repairScope)).toEqual(['none', 'full_chain'])
   })
 
   it('keeps blocked handoff repair targeted and records its verdict', async () => {

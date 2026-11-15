@@ -177,7 +177,7 @@ export function resolveStepArtifactFlow(input: StepArtifactFlowInput): StepArtif
     acceptance: result,
     continueChain: !rejected,
     downstreamPayload: result.downstreamPayload,
-    metadata: result.metadata,
+    metadata: rejected ? {} : result.metadata,
     traceDetail: {
       stepIndex: input.stepIndex,
       callerStatus: result.callerStatus,

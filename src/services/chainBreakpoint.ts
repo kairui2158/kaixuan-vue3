@@ -14,6 +14,7 @@ export type ChainBreakpointStepOutput = {
   skillIndex: number
   skillId: string
   output: string
+  callerStatus?: 'success' | 'degraded' | 'failed' | 'blocked'
   outputHash?: string
   metadata?: Record<string, unknown>
 }

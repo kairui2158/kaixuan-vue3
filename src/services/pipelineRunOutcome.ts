@@ -10,6 +10,7 @@ export interface ResolvePipelineRunOutcomeInput {
   pipelineRunStatus?: string | null
   apiCalls?: PipelineApiCallLike[] | null
   folderStatus?: RunTraceStatus | null
+  folderRecoveryKind?: 'none' | 'recovered_from_degraded' | 'recovered_from_failed'
   finalArtifactAccepted?: boolean
   hardSignalUnresolved?: boolean
 }
@@ -17,6 +18,7 @@ export interface ResolvePipelineRunOutcomeInput {
 export interface PipelineRunOutcome {
   status: RunTraceStatus
   recoveredFromDegraded: boolean
+  recoveredFromFailed?: boolean
   degradedApiCalls: number
   error?: string
 }
@@ -32,8 +34,12 @@ export function resolvePipelineRunOutcome(
     apiCalls.some(call => call?.status === status)
 
   const owningPipelineStatus = input.pipelineRunStatus || ''
+  const recoveredFromFailed = input.folderRecoveryKind === 'recovered_from_failed'
+  const recoveredFromDegraded =
+    degradedApiCalls > 0 ||
+    input.folderRecoveryKind === 'recovered_from_degraded'
   if (runStatus === 'canceled' || owningPipelineStatus === 'canceled' || hasCallStatus('canceled')) {
-    return { status: 'canceled', recoveredFromDegraded: false, degradedApiCalls }
+    return { status: 'canceled', recoveredFromDegraded, recoveredFromFailed, degradedApiCalls }
   }
   if (
     runStatus.startsWith('failed') ||
@@ -41,19 +47,27 @@ export function resolvePipelineRunOutcome(
     input.folderStatus === 'failed' ||
     (!input.finalArtifactAccepted && hasCallStatus('failed'))
   ) {
-    return { status: 'failed', recoveredFromDegraded: false, degradedApiCalls, error: runError || undefined }
+    return { status: 'failed', recoveredFromDegraded, recoveredFromFailed, degradedApiCalls, error: runError || undefined }
   }
-  if (runStatus.startsWith('blocked') || owningPipelineStatus === 'blocked' || hasCallStatus('blocked')) {
-    return { status: 'blocked', recoveredFromDegraded: false, degradedApiCalls }
+  const hasBlockedCall = hasCallStatus('blocked')
+  if (
+    runStatus.startsWith('blocked') ||
+    owningPipelineStatus === 'blocked' ||
+    (!input.finalArtifactAccepted && hasBlockedCall)
+  ) {
+    return { status: 'blocked', recoveredFromDegraded, recoveredFromFailed, degradedApiCalls }
   }
   if (input.hardSignalUnresolved) {
-    return { status: 'degraded', recoveredFromDegraded: false, degradedApiCalls }
+    return { status: 'degraded', recoveredFromDegraded, recoveredFromFailed, degradedApiCalls }
   }
 
   if (input.finalArtifactAccepted && input.folderStatus !== 'blocked') {
     return {
-      status: 'success',
-      recoveredFromDegraded: degradedApiCalls > 0 || input.folderStatus === 'degraded',
+      status: recoveredFromFailed ? 'success_with_warnings' : 'success',
+      recoveredFromDegraded: degradedApiCalls > 0 ||
+        input.folderRecoveryKind === 'recovered_from_degraded' ||
+        input.folderStatus === 'degraded',
+      recoveredFromFailed,
       degradedApiCalls
     }
   }
@@ -61,5 +75,5 @@ export function resolvePipelineRunOutcome(
   if (degradedApiCalls > 0 || input.folderStatus === 'degraded') {
     return { status: 'degraded', recoveredFromDegraded: false, degradedApiCalls }
   }
-  return { status: 'success', recoveredFromDegraded: false, degradedApiCalls }
+  return { status: 'success', recoveredFromDegraded, recoveredFromFailed, degradedApiCalls }
 }

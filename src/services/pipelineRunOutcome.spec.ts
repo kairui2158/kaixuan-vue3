@@ -20,6 +20,20 @@ describe('resolvePipelineRunOutcome', () => {
     expect(outcome.degradedApiCalls).toBe(2)
   })
 
+  it('marks a recovered failed folder verdict separately from degraded recovery', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      folderRecoveryKind: 'recovered_from_failed',
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('success_with_warnings')
+    expect(outcome.recoveredFromFailed).toBe(true)
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
   it('does not let an accepted artifact override a failed folder verdict', () => {
     const outcome = resolvePipelineRunOutcome({
       runStatus: '',
@@ -58,6 +72,19 @@ describe('resolvePipelineRunOutcome', () => {
 
     expect(outcome.status).toBe('success')
     expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
+  it('marks a historical folder failure recovered by the accepted artifact as success_with_warnings', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      folderRecoveryKind: 'recovered_from_failed',
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('success_with_warnings')
+    expect(outcome.recoveredFromFailed).toBe(true)
   })
 
   it('keeps failure priority above artifact acceptance', () => {
@@ -131,8 +158,21 @@ describe('resolvePipelineRunOutcome', () => {
     expect(resolvePipelineRunOutcome({
       runStatus: '',
       apiCalls: [{ status: 'blocked' }],
-      finalArtifactAccepted: true
+      finalArtifactAccepted: false
     }).status).toBe('blocked')
+  })
+
+  it('recovers a historical blocked call when the final artifact is accepted', () => {
+    const outcome = resolvePipelineRunOutcome({
+      runStatus: '',
+      apiCalls: [{ status: 'blocked' }, { status: 'success' }],
+      folderStatus: null,
+      folderRecoveryKind: 'recovered_from_failed',
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('success_with_warnings')
+    expect(outcome.recoveredFromFailed).toBe(true)
   })
 
   it('returns success when no run evidence reports a problem', () => {
