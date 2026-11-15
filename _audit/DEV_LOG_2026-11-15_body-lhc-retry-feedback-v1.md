@@ -27,3 +27,10 @@
 
 - 12403/12000 不动作项维持 G1.31 结论：它是 system+user 完整 request 总长，不是重试反馈合成限；12000 属终步账本限。
 - 本轮不改 folder SKILL 与历史 trace payload；真实供应商 live smoke 在全量验证与封装阶段继续执行。
+
+## 2026-11-15 SKILL 四项转达复核
+
+1. `deai-model-profile`：`DEAI_MODEL_PROFILE_RELEASED=true` 已落地；`calibration-not-ready` 只在快照无达标规则时出现，继续按 G2.13 保留为校准数据观测项。
+2. `postProcess usage`：`realSkillExecutor.ts` 已传 `{ output, usage }`，并保留 `_perf` 的 advisory 对象、`thresholdNotMet`、`usageUnavailable` 三态；相关定向回归 PASS。应用侧历史待办改判关闭。
+3. `fullReasonMissing`：按 `chainHandoff.ts` 现役协议，`requiresFullUpstreamContext` 不属于 full 交付 reason 触发面；当前正文层 S2/S3 均声明 false，无产品缺陷。保留观测。
+4. S3 供应商占位正文防线：零 output usage 且非空正文判定假成功，`generationValidity.ts` 拒绝为 usable；定向回归 PASS。
