@@ -2136,3 +2136,19 @@
 - 用途：让 advisory warning 在观测面可对账，避免 executor 返回但 trace 丢失；同时防止把纯字数失败误改成携带候选全文的结构修复。
 - 验证：定向 4 files / 136 tests PASS；全量服务 252 passed / 1 failed，唯一失败为 `de-ai-v2.spec.ts` 冷 JIT 性能预算 flake，单独重跑 14/14 PASS；type-check、build、3.128.5 packaging PASS，安装包 SHA-256 `2103f4e3b59d923fdccfc718d2c95dea46a820e02037e25d20285466502660ba`；旧安装包与避锁目录清理完成。
 - 边界：不修改 folder SKILL；不改 word-gap/candidate-anchored 策略合同；不新增裁判、预算系统、自动调度或 UI。
+
+# 2026-11-17 reasoning 终态短路与禁思考声明 3.128.6
+
+- 文件：[_audit/DEV_LOG_2026-11-17_reasoning-terminal-and-provider-thinking-disable-v1.md](_audit/DEV_LOG_2026-11-17_reasoning-terminal-and-provider-thinking-disable-v1.md)
+- 交付：reasoning 耗尽组合短路为供应商终态；Provider 增加 OpenAI 兼容禁思考参数声明入口。
+- 用途：防止 reasoning-only 断流进入修复循环空转，并让用户以通用声明方式配置供应商可选能力。
+- 验证：定向 4 files / 147 tests PASS；全量服务 253 files / 2794 tests PASS；type-check 与 build:vue PASS。
+- 边界：不做自动探测、运行中调度或校准账本；不硬编码供应商名。
+
+# 2026-11-17 供应商禁思考能力自探测 3.128.7
+
+- 文件：[_audit/DEV_LOG_2026-11-17_thinking-disable-probe-v1.md](_audit/DEV_LOG_2026-11-17_thinking-disable-probe-v1.md)
+- 交付：OpenAI 兼容供应商新增手动“探测禁思考”能力；同基线候选参数实测后判定六态，生效声明与时间持久化。
+- 用途：避免错误禁思考参数静默失败；把候选表降级为探测预设，让最终请求只消费已验证声明。
+- 验证：定向 2 files / 20 tests PASS；全量服务 254 files / 2809 tests PASS；type-check 与 build:vue PASS。
+- 边界：探测不进生成路径，不自动挂接“测试连接”；信号不可解码时判 `undecidable` 并提示手动声明。

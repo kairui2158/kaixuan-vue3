@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 import { normalizeProviderType } from '../services/providerProtocols'
+import type { ThinkingProbeResult } from '../services/providerThinkingProbe'
 import {
   PIPELINE_PROVIDER_CHANNEL_LAYERS,
   normalizePipelineLayerProviders,
@@ -32,6 +33,8 @@ export interface Provider {
   thinkingDisableParam?: string
   /** JSON value for thinkingDisableParam; a plain string is sent verbatim. */
   thinkingDisableValue?: string
+  /** Last provider thinking-disable probe; stored for observability, never auto-cleared. */
+  thinkingProbe?: ThinkingProbeResult
   timeoutMs?: number
   purpose: ('generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video')[]
   streamMode?: boolean

@@ -4,6 +4,16 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ApiSettings from './ApiSettings.vue'
 import { useProviderStore, type Provider } from '../../stores/provider'
+import { getAiService } from '../../services/aiService'
+import type { ThinkingProbeResult } from '../../services/providerThinkingProbe'
+
+vi.mock('../../services/aiService', async () => {
+  const actual = await vi.importActual<typeof import('../../services/aiService')>('../../services/aiService')
+  return {
+    ...actual,
+    getAiService: vi.fn(),
+  }
+})
 
 const storage = new Map<string, unknown>()
 const storageRead = vi.fn(async (key: string) => storage.get(key) ?? null)
@@ -41,6 +51,7 @@ async function mountSettings() {
 }
 
 describe('ApiSettings pipeline provider channels', () => {
+  const mockedGetAiService = vi.mocked(getAiService)
   beforeEach(() => {
     storage.clear()
     setActivePinia(createPinia())
@@ -56,6 +67,7 @@ describe('ApiSettings pipeline provider channels', () => {
       createObjectURL: vi.fn(() => 'blob:api-settings-test'),
       revokeObjectURL: vi.fn(),
     })
+    mockedGetAiService.mockReset()
   })
 
   it('binds each pipeline layer through the provider purpose row and blocks non-generate providers', async () => {
@@ -244,5 +256,67 @@ describe('ApiSettings pipeline provider channels', () => {
       thinkingDisableParam: 'thinking',
       thinkingDisableValue: '{"type":"disabled"}',
     })
+  })
+
+  it('runs the thinking-disable probe and persists the effective declaration with verdict', async () => {
+    const store = useProviderStore()
+    store.addProvider(providerFixture('provider-thinking-probe', ['generate']))
+    const probeResult: ThinkingProbeResult = {
+      verdict: 'effective',
+      param: 'thinking',
+      value: '{"type":"disabled"}',
+      baselineReasoningChars: 100,
+      baselineTextChars: 2,
+      requestsUsed: 2,
+      attempts: [],
+    }
+    mockedGetAiService.mockResolvedValue({
+      testThinkingDisableProbe: vi.fn(async () => probeResult),
+    } as any)
+
+    const wrapper = await mountSettings()
+    await wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === 'provider-thinking-probe')!
+      .findAll('button')
+      .find(item => item.text() === '编辑')!
+      .trigger('click')
+    await wrapper.vm.$nextTick()
+
+    await clickButton(wrapper, '探测禁思考').trigger('click')
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('禁思考已生效 · 参数: thinking · 共 2 次请求')
+    expect(store.providers[0].thinkingProbe?.verdict).toBe('effective')
+    expect(store.providers[0].thinkingProbe?.param).toBe('thinking')
+    expect(store.providers[0].thinkingDisableParam).toBe('thinking')
+    expect(store.providers[0].thinkingDisableValue).toBe('{"type":"disabled"}')
+  })
+
+  it('shows the last probe verdict when reopening a probed provider for editing', async () => {
+    const store = useProviderStore()
+    store.addProvider({
+      ...providerFixture('provider-probe-history', ['generate']),
+      thinkingProbe: {
+        verdict: 'no_effect',
+        baselineReasoningChars: 100,
+        baselineTextChars: 2,
+        requestsUsed: 5,
+        attempts: [],
+        probedAt: '2026-11-17T00:00:00.000Z',
+      },
+    })
+
+    const wrapper = await mountSettings()
+    await wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === 'provider-probe-history')!
+      .findAll('button')
+      .find(item => item.text() === '编辑')!
+      .trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('上次探测:')
+    expect(wrapper.text()).toContain('禁思考参数未生效')
   })
 })

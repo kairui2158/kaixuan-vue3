@@ -24,6 +24,10 @@ import {
 } from './providerAdapter'
 import type { ModelCapability } from './modelCapability'
 import {
+  runThinkingProbe,
+  type ThinkingProbeResult,
+} from './providerThinkingProbe'
+import {
   buildUsageReconciliation,
   updateInputTokenCalibration,
   resolveContextBudget,
@@ -167,6 +171,9 @@ export interface CallAiParams {
   }
   /** Marks a request as a deliberate validity retry; recorded in diagnostics and run traces. */
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
+  /** Probe-level override for the provider thinking-disable declaration. */
+  thinkingDisableParam?: string
+  thinkingDisableValue?: string
   jsonMode?: boolean
   stream?: boolean
   signal?: AbortSignal
@@ -416,6 +423,7 @@ export interface AiService {
   testConnection(providerId: string): Promise<{ connected: boolean; error?: string; note?: string }>
   testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string; note?: string }>
   testGenerationProbe(provider: ProviderLike): Promise<{ connected: boolean; error?: string; model?: string; durationMs?: number }>
+  testThinkingDisableProbe(provider: ProviderLike): Promise<ThinkingProbeResult>
 }
 
 // ── Constants ──────────────────────────────────────────────────────
@@ -2383,8 +2391,8 @@ export function createAiService(
       stream: wantStream,
       temperature,
       maxTokens,
-      thinkingDisableParam: provider.thinkingDisableParam,
-      thinkingDisableValue: provider.thinkingDisableValue,
+      thinkingDisableParam: requestParams.thinkingDisableParam ?? provider.thinkingDisableParam,
+      thinkingDisableValue: requestParams.thinkingDisableValue ?? provider.thinkingDisableValue,
       reasoning: params.reasoning?.mode === 'off' ? { mode: 'off' } : undefined,
       tools: nativeTools,
     })
@@ -4702,6 +4710,46 @@ export function createAiService(
     }
   }
 
+  async function testThinkingDisableProbe(provider: ProviderLike): Promise<ThinkingProbeResult> {
+    const caller = async (
+      probeProvider: ProviderLike,
+      override: { thinkingDisableParam?: string; thinkingDisableValue?: string }
+    ) => {
+      const result = await _rawCall(probeProvider, {
+        purpose: 'generate',
+        messages: [{ role: 'user', content: '只回复两个字：完成' }],
+        stream: false,
+        retry: false,
+        timeoutMs: 30_000,
+        maxTokens: 256,
+        thinkingDisableParam: override.thinkingDisableParam,
+        thinkingDisableValue: override.thinkingDisableValue,
+      }, 30_000)
+      return {
+        ok: true,
+        statusCode: 200,
+        text: result.text,
+        reasoning: result.reasoning,
+        usage: result.usage,
+      }
+    }
+    const result = await runThinkingProbe(provider, caller)
+    log?.addLog({
+      step: 0,
+      stepName: '禁思考能力探测',
+      mode: 'provider',
+      skillNames: [],
+      providerId: provider.id,
+      model: resolveModel(provider),
+      prompt: '禁思考能力探测',
+      result: `${result.verdict} (${result.requestsUsed} requests)`,
+      duration: 0,
+      status: result.verdict === 'effective' || result.verdict === 'not_applicable' ? 'success' : 'failed',
+      providerType: provider.providerType,
+    })
+    return result
+  }
+
   const service = {
     callAi,
     fetchModels,
@@ -4709,6 +4757,7 @@ export function createAiService(
     testConnection,
     testConnectionForProvider,
     testGenerationProbe,
+    testThinkingDisableProbe,
     providerScheduler,
     externalSchedulerSnapshotEnabled,
     _stopExternalSchedulerSnapshot: () => {

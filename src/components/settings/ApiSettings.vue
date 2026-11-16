@@ -117,9 +117,18 @@
           <button id="btn-test-generation" class="btn-sm btn-test" @click="testGeneration" :disabled="testingGeneration">
             {{ testingGeneration ? '生成探针中...' : '测试生成' }}
           </button>
+          <button
+            v-if="editingProvider.providerType === 'openai-compatible'"
+            class="btn-sm btn-secondary"
+            @click="runThinkingProbe"
+            :disabled="testingThinkingProbe"
+          >
+            {{ testingThinkingProbe ? '探测中...' : '探测禁思考' }}
+          </button>
         </div>
         <div class="fetch-feedback" v-if="fetchMsg" :class="fetchMsgClass">{{ fetchMsg }}</div>
         <div class="fetch-feedback" v-if="generationStatus" :class="generationStatusClass">{{ generationStatus }}</div>
+        <div class="fetch-feedback" v-if="thinkingProbeStatus" :class="thinkingProbeStatusClass">{{ thinkingProbeStatus }}</div>
         <div class="model-select-row" v-if="editingProvider.models && editingProvider.models.length > 0">
           <select v-model="editingProvider.selectedModel" class="input-field">
             <option value="">自动</option>
@@ -230,6 +239,7 @@
 import { ref, computed } from 'vue'
 import { useProviderStore, type Provider } from '../../stores/provider'
 import { getAiService } from '../../services/aiService'
+import { describeThinkingProbeVerdict } from '../../services/providerThinkingProbe'
 import { useAiCallTrace } from '../../composables/useAiCallTrace'
 
 const providerStore = useProviderStore()
@@ -241,6 +251,8 @@ const testingConn = ref(false)
 const connStatus = ref('')
 const testingGeneration = ref(false)
 const generationStatus = ref('')
+const testingThinkingProbe = ref(false)
+const thinkingProbeStatus = ref('')
 const fetchMsg = ref('')
 const importMessage = ref('')
 const expandedPipelineProviders = ref(new Set<string>())
@@ -354,6 +366,12 @@ const generationStatusClass = computed(() => {
   return ''
 })
 
+const thinkingProbeStatusClass = computed(() => {
+  if (thinkingProbeStatus.value.includes('已生效') || thinkingProbeStatus.value.includes('无需配置')) return 'fetch-ok'
+  if (thinkingProbeStatus.value.includes('失败') || thinkingProbeStatus.value.includes('未生效') || thinkingProbeStatus.value.includes('被供应商拒绝')) return 'fetch-fail'
+  return ''
+})
+
 const importMessageClass = computed(() => {
   if (importMessage.value.includes('失败')) return 'fetch-fail'
   if (importMessage.value.includes('未导入')) return 'fetch-fail'
@@ -447,6 +465,9 @@ function enterProviderEdit(id: string | null) {
     const p = providerStore.providers.find(item => item.id === id)
     if (p) {
       editingProvider.value = { ...p }
+      thinkingProbeStatus.value = p.thinkingProbe
+        ? `上次探测: ${p.thinkingProbe.probedAt ? new Date(p.thinkingProbe.probedAt).toLocaleString() : '时间未知'} · ${describeThinkingProbeVerdict(p.thinkingProbe)}`
+        : ''
     }
   } else {
     editingProvider.value = {
@@ -471,6 +492,49 @@ function enterProviderEdit(id: string | null) {
   showKey.value = false
   connStatus.value = ''
   fetchMsg.value = ''
+}
+
+async function runThinkingProbe() {
+  if (!editingProvider.value) return
+  if (!editingProvider.value.baseUrl || !editingProvider.value.apiKey) {
+    thinkingProbeStatus.value = '探测失败: 请先填写接口地址和API密钥'
+    return
+  }
+  testingThinkingProbe.value = true
+  thinkingProbeStatus.value = ''
+  const trace = useAiCallTrace({
+    source: 'infra',
+    stepName: '禁思考能力探测',
+    mode: 'provider',
+    providerId: editingProvider.value.id,
+    providerName: editingProvider.value.name,
+    model: editingProvider.value.selectedModel,
+    providerSource: 'none'
+  })
+  trace.begin()
+  try {
+    const service = await getAiService()
+    const result = await service.testThinkingDisableProbe(editingProvider.value)
+    thinkingProbeStatus.value = `${describeThinkingProbeVerdict(result)} · 共 ${result.requestsUsed} 次请求`
+    if (result.verdict === 'effective') {
+      editingProvider.value.thinkingDisableParam = result.param!
+      editingProvider.value.thinkingDisableValue = result.value!
+    }
+    providerStore.updateProvider(editingProvider.value.id, {
+      thinkingDisableParam: editingProvider.value.thinkingDisableParam,
+      thinkingDisableValue: editingProvider.value.thinkingDisableValue,
+      thinkingProbe: {
+        ...result,
+        probedAt: new Date().toISOString(),
+      },
+    })
+    trace.finish('success')
+  } catch (e: any) {
+    thinkingProbeStatus.value = '探测失败: ' + (e?.message || String(e))
+    trace.fail(e)
+  } finally {
+    testingThinkingProbe.value = false
+  }
 }
 
 function exitProviderEdit() {
