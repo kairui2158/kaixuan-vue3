@@ -16,6 +16,26 @@ describe('narrative completeness validation', () => {
     expect(result.missingCount).toBe(1)
   })
 
+  it('aligns persisted volume word validation with generation-time allocation', () => {
+    const validResult = validateVolumeStructure([
+      { name: '第一卷', outline: '主线起步', allocatedWords: 100000, suggestedWords: -1 },
+      { name: '第二卷', outline: '继续推进', allocatedWords: 120000 },
+      { name: '第三卷', outline: '收束冲突', suggestedWords: 80000 }
+    ])
+    expect(validResult.valid).toBe(true)
+    expect(validResult.errors).toEqual([])
+
+    const invalidResult = validateVolumeStructure([
+      { name: '非法分配', outline: '缺口防线', allocatedWords: 1.2, suggestedWords: 90000 },
+      { name: '负数回退', outline: '兜底输入', allocatedWords: 'abc', suggestedWords: -1 }
+    ])
+    expect(invalidResult.valid).toBe(false)
+    expect(invalidResult.errors).toEqual([
+      '卷「非法分配」字数不能为负数',
+      '卷「负数回退」字数不能为负数'
+    ])
+  })
+
   it('requires chapter title and plot and rejects duplicate titles', () => {
     const result = validateChapterStructure([
       { title: '雨夜', plot: '发现纸条' },

@@ -197,6 +197,8 @@ function hasVolumeArtifact(value: any): boolean {
 }
 
 export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Promise<VolumeBatchResult> {
+  // Generation-time repair judge. It validates each complete batch and feeds
+  // bounded repair; Panel validation remains a separate persistence gate.
   const attempts: VolumeBatchAttempt[] = []
   const maxRepairs = Math.max(0, Math.round(Number(input.maxRepairAttempts ?? 3)))
   const requestPolicy = input.requestPolicy ?? 'batch'

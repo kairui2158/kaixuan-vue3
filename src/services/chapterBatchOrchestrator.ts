@@ -115,6 +115,8 @@ function recordAttempt(
 }
 
 export async function generateChapterBatch(input: GenerateChapterBatchInput): Promise<ChapterBatchResult> {
+  // Single-batch repair judge. Panel validation intentionally adds cross-batch
+  // duplicate and ledger-count checks at the project persistence boundary.
   const attempts: ChapterBatchAttempt[] = []
   const maxRepairs = Math.max(0, Math.round(Number(input.maxRepairAttempts ?? 3)))
   if (!isValidChapterBatchContractInput(input.contract)) {

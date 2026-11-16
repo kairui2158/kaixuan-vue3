@@ -4040,11 +4040,15 @@ function getStepAgentConfig(step: number) {
 }
 
 function validateVolumes(vols: any[]): { valid: boolean; errors: string[] } {
+  // Persistence-boundary final review. The batch orchestrator owns generation
+  // repair; this gate blocks malformed data from entering project storage.
   const result = validateVolumeStructure(vols)
   return { valid: result.valid, errors: result.errors }
 }
 
 function validateChapters(chs: any[], expectedCount?: number): { valid: boolean; errors: string[] } {
+  // Deliberately retains cross-batch duplicate and ledger-count checks that a
+  // single-batch orchestrator cannot see.
   const result = validateChapterStructure(chs, expectedCount)
   return { valid: result.valid, errors: result.errors }
 }

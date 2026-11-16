@@ -31,8 +31,18 @@ export function validateVolumeStructure(volumes: any[], expectedCount?: number):
     const outline = text(volume?.outline) || text(volume?.summary)
     if (!name) errors.push(`第 ${index + 1} 卷缺少名称`)
     if (!outline) errors.push(`卷「${name || '?'}」缺少卷纲内容`)
-    if (volume?.suggestedWords !== undefined && Number(volume.suggestedWords) < 0) {
-      errors.push(`卷「${name || '?'}」字数不能为负数`)
+    // Persisted volume words consume allocatedWords first; this pre-save gate
+    // must judge the same field chain as the generation-time contract.
+    const words = volume?.allocatedWords ?? volume?.suggestedWords
+    if (words !== undefined) {
+      const normalized = Number(words)
+      if (
+        !Number.isFinite(normalized) ||
+        normalized < 0 ||
+        normalized !== Math.round(normalized)
+      ) {
+        errors.push(`卷「${name || '?'}」字数不能为负数`)
+      }
     }
   })
   for (const name of duplicateLabels(list, (volume) => text(volume?.name))) {

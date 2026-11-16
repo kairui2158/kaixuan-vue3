@@ -2119,3 +2119,11 @@
 - 用途：统一生成索引双口径，补齐数量达标但五字段语义失败时的修复路径，让部分交付章节批次的 run 终态不再被历史失败 API 锁死。
 - 验证：全量服务 253 files / 2784 tests PASS；type-check、build:vue、production wiring PASS；真实供应商 Electron 三层通道烟测 PASS（glm-5.3，5/5 请求成功）；3.128.3 packaging PASS。
 - 边界：不改 folder SKILL；不新增裁判、预算系统、自动调度或 UI；不落真实供应商密钥。
+
+# 2026-11-16 N3 双裁判复审 3.128.4
+
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_n3-dual-judge-review-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_n3-dual-judge-review-v1.md)
+- 交付：卷纲持久化前终审与生成期合同统一按 `allocatedWords ?? suggestedWords` 判非负整数；跨层正反向真值测试锁定；Panel 与 orchestrator 职责注释固化，防线不删。
+- 用途：消除合法分配字数被旧 `suggestedWords` 负值假阻断的漂移，同时防止未来把跨批次终审误判为冗余删除。
+- 验证：定向 3 files / 44 tests PASS；全量服务 253 files / 2785 tests PASS；type-check、build:vue、production wiring PASS；`npm run build` 与 3.128.4 packaging PASS，安装包 SHA-256 `06eb1f23821df371416ddab3a8fd0b47b330b6a85bbec25458673126ae30f0a9`；packaging finally 的 close 超时登记为观测项。
+- 边界：不抽共享校验器、不改错误文案、不删 Panel/orchestrator 任一层防线；不新增预算系统、调度器或 UI。
