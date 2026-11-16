@@ -41,6 +41,8 @@ const REAL_PROVIDER_CONFIG_PATH = process.env.SHENYI_REAL_PROVIDER_CONFIG
   : path.join(defaultPaths.getDataRoot(path.join(process.env.USERPROFILE || '', 'Documents')), 'wa_providers.json')
 const LIVE_PROVIDER_NAME = process.env.SHENYI_PROVIDER_CHANNEL_LIVE_PROVIDER || '全局'
 const LIVE_MODEL_NAME = process.env.SHENYI_PROVIDER_CHANNEL_LIVE_MODEL || 'deepseek-v4-pro'
+const LIVE_BASE_URL = process.env.SHENYI_LIVE_BASE_URL || null
+const LIVE_API_KEY = process.env.SHENYI_LIVE_API_KEY || null
 const BODY_SENTENCES = [
   '雨点在灯塔玻璃上排成细密的鼓点。',
   '王芳把纸条压进灯座，指尖停了半秒。',
@@ -233,6 +235,10 @@ async function startLiveProxy({ targetBaseUrl, apiKey }) {
 
 function decryptLiveProviderKeyOnce() {
   assert(LIVE_MODE, 'decryptLiveProviderKeyOnce only runs in live mode')
+  if (LIVE_API_KEY) {
+    assert(String(LIVE_API_KEY).length > 20, 'provided live provider key is usable; value is never logged')
+    return { sourceKeyState: 'environment', keyLength: LIVE_API_KEY.length, apiKey: LIVE_API_KEY }
+  }
   assert(fs.existsSync(REAL_PROVIDER_CONFIG_PATH),
     `live provider config exists: ${REAL_PROVIDER_CONFIG_PATH}; no new key is entered by this verifier`)
   const config = JSON.parse(fs.readFileSync(REAL_PROVIDER_CONFIG_PATH, 'utf8'))
@@ -269,6 +275,10 @@ function findSelectedLiveProvider(config) {
 }
 
 function readLiveTargetBaseUrl(config) {
+  if (LIVE_BASE_URL) {
+    assert(/^https:\/\//.test(LIVE_BASE_URL), 'provided live provider base URL is https')
+    return LIVE_BASE_URL
+  }
   const selected = findSelectedLiveProvider(config)
     || (config.providers || []).find(item => item?.id === config.generateProvider)
   assert(selected?.baseUrl, 'configured real provider exposes a base URL')
@@ -830,7 +840,7 @@ async function main() {
   let providers = null
   if (LIVE_MODE) {
     liveBridge = decryptLiveProviderKeyOnce()
-    const liveConfig = JSON.parse(fs.readFileSync(REAL_PROVIDER_CONFIG_PATH, 'utf8'))
+    const liveConfig = LIVE_BASE_URL ? {} : JSON.parse(fs.readFileSync(REAL_PROVIDER_CONFIG_PATH, 'utf8'))
     liveProxy = await startLiveProxy({
       targetBaseUrl: readLiveTargetBaseUrl(liveConfig),
       apiKey: liveBridge.apiKey,
@@ -1052,7 +1062,7 @@ async function main() {
       requestCount: requests.length,
       mode: LIVE_MODE ? 'live-single-supplier' : 'mock-four-layer-providers',
       live: LIVE_MODE ? {
-        credentialSource: REAL_PROVIDER_CONFIG_PATH,
+        credentialSource: LIVE_API_KEY ? 'environment' : REAL_PROVIDER_CONFIG_PATH,
         sourceKeyState: liveBridge.sourceKeyState,
         keyLength: liveBridge.keyLength,
         proxyBaseUrl: liveBridge.proxyBaseUrl,

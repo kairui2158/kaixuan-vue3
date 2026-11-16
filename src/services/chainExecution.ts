@@ -503,18 +503,39 @@ export function resolveBodyGeneratorStepIndex(
  * trusted only when it still matches the resolved chain truth.
  */
 export function resolveAttemptStartGeneratorIndex(input: {
-  chainTotalSteps: number
+  chainTotalSteps?: number
   composeArtifactActive: boolean
   previousState: number | null
+  templates?: BodyGeneratorTemplateLike[]
 }): ResolvedBodyGeneratorStep {
   if (input.composeArtifactActive) {
     return { index: 0, role: 'generator', source: 'compose' }
   }
-  const templates = Array.from({ length: Math.max(0, input.chainTotalSteps) }, (_, i) => ({ id: `step-${i}` }))
-  const resolved = resolveBodyGeneratorStepIndex(templates)
+  const resolvedTemplates = input.templates ?? Array.from(
+    { length: Math.max(0, input.chainTotalSteps ?? 0) },
+    (_, i) => ({ id: `step-${i}` })
+  )
+  const resolved = resolveBodyGeneratorStepIndex(resolvedTemplates)
   if (resolved.index !== null && input.previousState !== null && input.previousState === resolved.index) {
     return { ...resolved, source: 'previous_state' }
   }
   return resolved
+}
+
+/**
+ * Backward-compatible shape-only lookup for non-body callers. Body-chain
+ * callers pass real templates so a declared folder role is never erased.
+ */
+export function resolveAttemptStartGeneratorIndexByShape(input: {
+  chainTotalSteps: number
+  composeArtifactActive: boolean
+  previousState: number | null
+}): ResolvedBodyGeneratorStep {
+  const templates = Array.from(
+    { length: Math.max(0, input.chainTotalSteps) },
+    (_, i) => ({ id: `step-${i}` })
+  )
+  const resolved = resolveAttemptStartGeneratorIndex({ ...input, templates })
+  return resolved.index === null ? resolved : { ...resolved, role: null }
 }
 import { resolveProseWordContract } from './proseWordContract'

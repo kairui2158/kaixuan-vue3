@@ -399,6 +399,35 @@ describe('generateVolumeBatch', () => {
     expect(calls).toHaveLength(1)
   })
 
+  it('repairs contract semantics after the volume count is already complete', async () => {
+    const calls: string[] = []
+    const invalidVolume = {
+      ...volume('第一卷'),
+      readerExpectations: ''
+    }
+    const result = await generateVolumeBatch({
+      contract,
+      historyVolumes: [],
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      callVolumeApi: async prompt => {
+        calls.push(prompt)
+        return calls.length === 1
+          ? json(['第一卷', '第二卷', '第三卷']).replace(JSON.stringify(volume('第一卷')), JSON.stringify(invalidVolume))
+          : JSON.stringify([volume('替代第一卷')])
+      }
+    })
+
+    expect(result.status).toBe('complete')
+    expect(result.volumes.map(item => item.name)).toEqual(['第二卷', '第三卷', '替代第一卷'])
+    expect(calls).toHaveLength(2)
+    expect(calls[1]).toContain('【上一次验收失败原因】')
+    expect(calls[1]).toContain('缺少读者期待契约')
+    expect(calls[1]).toContain('【禁止重复的已有卷名】')
+    expect(result.attempts[0].errors).toContain('卷「第一卷」缺少读者期待契约')
+    expect(result.attempts[1].repairAttempt).toBe(1)
+  })
+
   it('repairs a short auto batch with only the missing volumes', async () => {
     const calls: string[] = []
     const result = await generateVolumeBatch({
@@ -488,6 +517,27 @@ describe('generateVolumeBatch', () => {
     expect(result.attempts).toHaveLength(4)
     expect(result.errors.some(item => item.includes('批次未能补齐'))).toBe(true)
     expect(result.errors.some(item => item.includes('期望3卷；最终只有2卷'))).toBe(true)
+  })
+
+  it('returns incomplete without partial volumes when semantic repairs are exhausted', async () => {
+    const invalidVolume = { ...volume('第一卷'), mainPlotLine: '' }
+    const result = await generateVolumeBatch({
+      contract,
+      historyVolumes: [],
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n暂无已生成卷',
+      callVolumeApi: async () => JSON.stringify([
+        invalidVolume,
+        volume('第二卷'),
+        volume('第三卷')
+      ])
+    })
+
+    expect(result.status).toBe('incomplete')
+    expect(result.volumes).toEqual([])
+    expect(result.attempts).toHaveLength(4)
+    expect(result.errors).toContain('批次契约校验失败：期望3卷；有效卷只有2卷')
+    expect(result.attempts.flatMap(attempt => attempt.errors).filter(item => item.includes('卷「第一卷」缺少主推线契约'))).toHaveLength(4)
   })
 
   it('does not swallow API errors', async () => {

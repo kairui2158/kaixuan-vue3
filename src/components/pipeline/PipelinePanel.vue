@@ -6168,6 +6168,7 @@ async function callChapterApi(prompt: string, traceRunId?: string | null, pipeli
 async function genChapters(mode: ChapterGenerationMode) {
   const vol = selectedVolume.value
   if (!vol) return
+  let chapterArtifactDelivered = false
   let batchStopReason: 'batch_complete' | 'all_chapters_complete' = 'all_chapters_complete'
   let plan: ReturnType<typeof planChapterGeneration> | null = null
   const volumeAgentId = getStepAgentId(3)
@@ -6436,6 +6437,7 @@ async function genChapters(mode: ChapterGenerationMode) {
         pipelineStore.updateProgress(Math.round((collected.length / totalChapters) * 100), "本批生成完成", chaptersRunId)
         appendStepLogForRun(chaptersRunId, 3, "本批生成完成：第 1-" + collected.length + " 章，共 " + totalChapters + " 章。续生成将从第 " + (collected.length + 1) + " 章继续")
       }
+      chapterArtifactDelivered = true
     } else {
       pipelineStore.failGeneration("未能解析章节JSON", chaptersRunId)
       appendStepLogForRun(chaptersRunId, 3, "AI 返回内容不是可用的章节 JSON")
@@ -6464,12 +6466,12 @@ async function genChapters(mode: ChapterGenerationMode) {
     appendStepLogForRun(chaptersRunId, 3, "API 调用失败：" + (e.message || "未知错误"))
     trace.addEvent({ type: "failed", level: "error", label: "章节运行失败", detail: e.message || "未知错误" })
   } finally {
-    const traceStatus = traceStatusFromRun(trace.runId!)
+    const outcome = traceOutcomeFromRun(trace.runId!, chapterArtifactDelivered)
     const effectiveStopReason = plan?.stopReason || batchStopReason
     const successReason = effectiveStopReason === 'batch_complete'
       ? 'chapters_batch_complete'
       : 'chapters_generation_complete'
-    trace.finish(traceStatus, traceOutcomeFromRun(trace.runId!).error, traceStatus === 'success'
+    trace.finish(outcome.status, outcome.error, outcome.status === 'success'
       ? successReason
       : 'generation_failed')
   }
@@ -6683,7 +6685,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             acceptanceState.bodyFinalStepMetadata = null
             const previousGeneratorIndex = acceptanceState.bodyGeneratorStepIndex ?? null
             const attemptStartIndex = resolveAttemptStartGeneratorIndex({
-              chainTotalSteps: bodyChainTotalSteps,
+              templates: getStepSkillTemplates(4),
               composeArtifactActive: false,
               previousState: previousGeneratorIndex
             })

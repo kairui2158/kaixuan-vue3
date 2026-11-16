@@ -2109,3 +2109,13 @@
 - 用途：阻断失败骨架、失败账本和旧断点 fallback 污染 S2/S3 的路径，同时保留 targeted-first 与应用/SKILL 裁判边界；历史失败恢复不再被终态锁存误判。
 - 验证：SCENARIO=a/c 成功恢复、SCENARIO=b 确定性失败全部符合合同；`test:services` 253 files / 2779 tests PASS；type-check、build:vue:test、production wiring、定向 Playwright 8 tests、`git diff --check` 全部 PASS。blocked 裁决修正与 E2E 断点脚本修正均在日志登记。
 - 边界：不改 folder SKILL 与历史 trace；不新增裁判、预算系统、调度器或 UI。
+
+# 2026-11-16 生成流水线 SKILL 链路审计 P1 收口 3.128.3
+
+- 文件：[_audit/DEV_LOG_2026-11-16_pipeline-skill-chain-full-audit-v1.128.3.md](_audit/DEV_LOG_2026-11-16_pipeline-skill-chain-full-audit-v1.128.3.md)
+- 方案：[_audit/PROPOSAL_2026-11-16_PIPELINE_SKILL_CHAIN_FULL_AUDIT_V1.md](_audit/PROPOSAL_2026-11-16_PIPELINE_SKILL_CHAIN_FULL_AUDIT_V1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_pipeline-skill-chain-full-audit-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-16_pipeline-skill-chain-full-audit-v1.md)
+- 交付：N1 attempt-start 消费真实模板且形状兼容入口不冒认声明角色；N2 卷纲语义失败进入既有有界修复循环并保留完整卷；N4 章节产物交付后参与终态裁决。N3 保持独立对账。
+- 用途：统一生成索引双口径，补齐数量达标但五字段语义失败时的修复路径，让部分交付章节批次的 run 终态不再被历史失败 API 锁死。
+- 验证：全量服务 253 files / 2784 tests PASS；type-check、build:vue、production wiring PASS；真实供应商 Electron 三层通道烟测 PASS（glm-5.3，5/5 请求成功）；3.128.3 packaging PASS。
+- 边界：不改 folder SKILL；不新增裁判、预算系统、自动调度或 UI；不落真实供应商密钥。

@@ -6,6 +6,7 @@ import {
 } from './volumeGeneration'
 import {
   buildVolumeHistoryFacts,
+  isCompleteVolumeContract,
   renderVolumeHistoryContext,
   validateVolumeBatch,
   type VolumeGenerationContract
@@ -210,7 +211,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
     }
   }
 
-  const accepted: any[] = []
+  let accepted: any[] = []
   const existingNames = new Set(input.historyVolumes.map(item => volumeName(item?.name)))
   const forbiddenVolumeNames = Array.from(existingNames)
   const progressVolumes: ExistingVolumeRef[] = [...input.historyVolumes]
@@ -340,12 +341,36 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
       attempts.push(attempt)
       input.onAttempt?.(attempt)
       if (!validation.valid) {
-        return {
-          status: 'incomplete',
-          volumes: [],
-          attempts,
-          errors: validation.errors
+        // Keep fully valid candidates, free rejected names for corrected
+        // replacements, and use the existing bounded repair loop instead of
+        // terminating on the first semantic defect.
+        const rejectedNames = new Set(
+          accepted
+            .filter(volume => !isCompleteVolumeContract(volume))
+            .map(volume => volumeName(volume?.name))
+            .filter(Boolean)
+        )
+        accepted = accepted.filter(isCompleteVolumeContract)
+        for (const name of rejectedNames) {
+          existingNames.delete(name)
+          if (!forbiddenVolumeNames.includes(name)) forbiddenVolumeNames.push(name)
+          const progressIndex = progressVolumes.findIndex(item => volumeName(item?.name) === name)
+          if (progressIndex >= 0) progressVolumes.splice(progressIndex, 1)
         }
+        previousErrors = [...validationErrors, ...validation.errors]
+        if (repairAttempt >= maxRepairs) {
+          return {
+            status: 'incomplete',
+            volumes: [],
+            attempts,
+            errors: [...new Set([
+              `批次契约校验失败：期望${expectedCount}卷；有效卷只有${accepted.length}卷`,
+              ...previousErrors
+            ])]
+          }
+        }
+        repairAttempt += 1
+        continue
       }
       return { status: 'complete', volumes: accepted, attempts, errors: validationErrors }
     }

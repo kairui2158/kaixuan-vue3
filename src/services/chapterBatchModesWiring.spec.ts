@@ -33,6 +33,12 @@ describe('chapter batch mode wiring', () => {
     expect(countMatches(/requiresFullLedger/g)).toBeGreaterThanOrEqual(1)
   })
 
+  it('reports delivered chapter artifacts in the terminal trace decision', () => {
+    expect(pipelineSource).toContain('let chapterArtifactDelivered = false')
+    expect(pipelineSource).toContain('chapterArtifactDelivered = true')
+    expect(pipelineSource).toContain('traceOutcomeFromRun(trace.runId!, chapterArtifactDelivered)')
+  })
+
   it('disables continue when generation is running or all chapters exist', () => {
     expect(countMatches(/canContinueChapters/g)).toBeGreaterThanOrEqual(2)
   })

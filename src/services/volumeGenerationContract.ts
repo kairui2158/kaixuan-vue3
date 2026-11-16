@@ -109,6 +109,19 @@ function validateContractSemantics(volume: unknown, volumeName: string, errors: 
   }
 }
 
+/** Retain a candidate across semantic repair only when its structure and all
+ * five contract semantics are already complete. */
+export function isCompleteVolumeContract(volume: unknown): boolean {
+  const source = (volume ?? {}) as Record<string, unknown>
+  const name = text(source.name)
+  if (!name) return false
+  if (!(text(source.outline) || text(source.summary))) return false
+  if (normalizeWords(source.allocatedWords ?? source.suggestedWords) === null) return false
+  const semanticErrors: string[] = []
+  validateContractSemantics(volume, name, semanticErrors)
+  return semanticErrors.length === 0
+}
+
 function normalizeWords(value: unknown): number | null {
   const num = Number(value)
   if (!Number.isFinite(num) || num < 0) return null

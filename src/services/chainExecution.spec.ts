@@ -10,6 +10,7 @@ import {
   isBodyContractStep,
   isGeneratorEnvelopeArtifact,
   resolveAttemptStartGeneratorIndex,
+  resolveAttemptStartGeneratorIndexByShape,
   resolveBodyGeneratorStepIndex,
   resolveFinalStepEchoRole,
   resolveFinalStepRole,
@@ -398,6 +399,33 @@ describe("body chain execution contract", () => {
       .toEqual({ index: null, role: null, source: "unresolved" })
     expect(resolveAttemptStartGeneratorIndex({ chainTotalSteps: 1, composeArtifactActive: false, previousState: null }))
       .toEqual({ index: null, role: null, source: "unresolved" })
+  })
+
+  it("preserves a declared generator role when the attempt starts from resume", () => {
+    const templates = [
+      { id: "s1" },
+      { id: "s2", meta: { chainHandoff: { role: "generator" } } },
+      { id: "s3", meta: { chainHandoff: { role: "polish" } } }
+    ]
+    expect(resolveAttemptStartGeneratorIndex({
+      chainTotalSteps: templates.length,
+      templates,
+      composeArtifactActive: false,
+      previousState: null
+    })).toEqual({ index: 1, role: "generator", source: "meta" })
+  })
+
+  it("does not let the backward-compatible shape entry claim a declared role", () => {
+    const templates = [
+      { id: "s1" },
+      { id: "s2", meta: { chainHandoff: { role: "generator" } } },
+      { id: "s3", meta: { chainHandoff: { role: "polish" } } }
+    ]
+    expect(resolveAttemptStartGeneratorIndexByShape({
+      chainTotalSteps: templates.length,
+      composeArtifactActive: false,
+      previousState: null
+    })).toEqual({ index: 1, role: null, source: "fallback" })
   })
 
   it("renders one deterministic body contract sentence without a body-only directive", () => {

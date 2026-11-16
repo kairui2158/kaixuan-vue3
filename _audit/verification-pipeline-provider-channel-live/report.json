@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-11-14T17:05:08.413Z",
+  "at": "2026-11-16T06:46:26.356Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1794675726919-1",
+      "runId": "pipeline-run-1794811497675-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -72,12 +72,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1794675726919,
+      "startedAt": 1794811497675,
       "progressPhase": "terminal",
-      "endedAt": 1794675761224
+      "endedAt": 1794811533336
     },
     "chapters": {
-      "runId": "pipeline-run-1794675727570-2",
+      "runId": "pipeline-run-1794811498133-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -131,12 +131,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1794675727570,
+      "startedAt": 1794811498133,
       "progressPhase": "terminal",
-      "endedAt": 1794675756923
+      "endedAt": 1794811508307
     },
     "body": {
-      "runId": "pipeline-run-1794675728127-3",
+      "runId": "pipeline-run-1794811498550-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -190,9 +190,9 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1794675728127,
+      "startedAt": 1794811498550,
       "progressPhase": "terminal",
-      "endedAt": 1794675906096
+      "endedAt": 1794811585324
     }
   },
   "auxiliaryMemory": {
@@ -211,10 +211,10 @@
   "requestCount": 5,
   "mode": "live-single-supplier",
   "live": {
-    "credentialSource": "D:\\神意助手数据\\wa_providers.json",
-    "sourceKeyState": "encrypted",
+    "credentialSource": "environment",
+    "sourceKeyState": "environment",
     "keyLength": 51,
-    "proxyBaseUrl": "http://127.0.0.1:7706/v1",
+    "proxyBaseUrl": "http://127.0.0.1:13437/v1",
     "model": "glm-5.3",
     "successfulRequests": 5
   }
