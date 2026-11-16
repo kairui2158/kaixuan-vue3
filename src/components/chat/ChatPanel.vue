@@ -2744,6 +2744,7 @@ async function runHomeCoCreationSkills(
         rule: report.changedOutput ? 'postProcess.output' : 'postProcess.no-change',
         count: report.issues.length
       }],
+      warnings: report.warnings || [],
       issues: report.issues.map(issue => ({
         level: issue.severity === 'blocking' ? 'error' : issue.severity === 'warning' ? 'warning' : 'info',
         code: issue.code || 'post-process-issue',

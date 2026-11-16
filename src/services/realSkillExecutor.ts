@@ -1399,6 +1399,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           })
         }
         const rawPerf = postResult.fields._perf
+        const rawWarnings = postResult.fields.warnings
         const perf: RealSkillPostProcessReport['perf'] = isPlainObject(rawPerf)
           && typeof rawPerf.warning === 'string'
           && rawPerf.warning.length > 0
@@ -1412,6 +1413,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           applied: true,
           changedOutput: candidateOutput !== postInput,
           output: candidateOutput,
+          warnings: Array.isArray(rawWarnings)
+            ? rawWarnings
+              .filter((item): item is string => typeof item === 'string')
+              .map(item => item.trim())
+              .filter(Boolean)
+            : [],
           issues: postIssues.map(issue => ({
             severity: issue.severity === 'blocking' ? 'blocking' : 'warning',
             code: issue.code || 'post-process-issue',

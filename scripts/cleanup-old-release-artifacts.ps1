@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $distPath = Join-Path (Get-Location) "dist"
-$currentVersion = "3.128.4"
+$currentVersion = "3.128.5"
 $pattern = [char]0x795E + [string][char]0x610F + [string][char]0x52A9 + [string][char]0x624B + "-Setup-"
 $candidates = Get-ChildItem -LiteralPath $distPath -File |
     Where-Object { $_.Name.StartsWith($pattern) -and $_.Name -like "*.exe" -and $_.Name -notlike "*-$currentVersion.exe" } |

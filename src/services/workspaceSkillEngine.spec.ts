@@ -338,6 +338,7 @@ describe('workspace skill engine', () => {
       applied: true,
       changedOutput: true,
       output: 'changed',
+      warnings: [],
       issues: [],
       durationMs: 2,
     })).toMatchObject({
@@ -350,6 +351,7 @@ describe('workspace skill engine', () => {
       applied: true,
       changedOutput: false,
       output: 'same',
+      warnings: [],
       issues: [{ severity: 'warning', code: 'minor', message: '轻微问题' }],
       durationMs: 2,
     })).toMatchObject({
@@ -362,6 +364,7 @@ describe('workspace skill engine', () => {
       applied: true,
       changedOutput: false,
       output: 'same',
+      warnings: [],
       issues: [{ severity: 'blocking', code: 'lost-section', message: '缺少核心章节' }],
       durationMs: 2,
     })).toMatchObject({
@@ -374,6 +377,7 @@ describe('workspace skill engine', () => {
       applied: false,
       changedOutput: false,
       output: '',
+      warnings: [],
       issues: [{ severity: 'info', code: 'degraded', message: 'postProcess 降级保留输出' }],
       durationMs: 2,
     })).toMatchObject({
@@ -1873,6 +1877,7 @@ describe('workspace skill engine', () => {
         applied: true,
         changedOutput: false,
         output: '降级保留的候选',
+        warnings: [],
         issues: [
           {
             severity: 'blocking',

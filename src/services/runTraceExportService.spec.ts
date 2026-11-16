@@ -181,4 +181,31 @@ describe('run trace export service', () => {
     expect(text).toContain('模式：folder-fingerprint')
     expect(text).toContain('目录指纹：kaixuan-s2/script.js:abc123')
   })
+
+  it('projects postProcess and processing warnings into text exports', () => {
+    const run = makeRun({
+      folderDiagnostics: [{
+        postProcessReport: {
+          warnings: ['S1 输出接近预警上限']
+        }
+      }],
+      processingReports: [{
+        id: 'report-1',
+        processor: 'postProcess',
+        stage: 'post',
+        status: 'success',
+        warnings: ['本地处理观测：候选重试'],
+        issues: [],
+        startedAt: 1,
+        endedAt: 2,
+        durationMs: 1
+      } as unknown as NonNullable<RunTrace['processingReports']>[number]]
+    })
+
+    const text = exportRunTraceToText(run)
+
+    expect(text).toContain('S1 输出接近预警上限')
+    expect(text).toContain('警告：')
+    expect(text).toContain('本地处理观测：候选重试')
+  })
 })

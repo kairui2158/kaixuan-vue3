@@ -2127,3 +2127,12 @@
 - 用途：消除合法分配字数被旧 `suggestedWords` 负值假阻断的漂移，同时防止未来把跨批次终审误判为冗余删除。
 - 验证：定向 3 files / 44 tests PASS；全量服务 253 files / 2785 tests PASS；type-check、build:vue、production wiring PASS；`npm run build` 与 3.128.4 packaging PASS，安装包 SHA-256 `06eb1f23821df371416ddab3a8fd0b47b330b6a85bbec25458673126ae30f0a9`；packaging finally 的 close 超时登记为观测项。
 - 边界：不抽共享校验器、不改错误文案、不删 Panel/orchestrator 任一层防线；不新增预算系统、调度器或 UI。
+
+# 2026-11-17 postProcess warnings 投影 3.128.5
+
+- 文件：[_audit/DEV_LOG_2026-11-17_postprocess-warnings-projection-v1.md](_audit/DEV_LOG_2026-11-17_postprocess-warnings-projection-v1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-17_postprocess-warnings-projection-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-17_postprocess-warnings-projection-v1.md)
+- 交付：SKILL postProcess 显式 warnings 全链投影到 trace、folder diagnostic、文本导出与工作台/流水线消费面；word-gap 路由核证为不属实并保持现行合同；S2 集成夹具对齐现役脚本。
+- 用途：让 advisory warning 在观测面可对账，避免 executor 返回但 trace 丢失；同时防止把纯字数失败误改成携带候选全文的结构修复。
+- 验证：定向 4 files / 136 tests PASS；全量服务 252 passed / 1 failed，唯一失败为 `de-ai-v2.spec.ts` 冷 JIT 性能预算 flake，单独重跑 14/14 PASS；type-check、build、3.128.5 packaging PASS，安装包 SHA-256 `2103f4e3b59d923fdccfc718d2c95dea46a820e02037e25d20285466502660ba`；旧安装包与避锁目录清理完成。
+- 边界：不修改 folder SKILL；不改 word-gap/candidate-anchored 策略合同；不新增裁判、预算系统、自动调度或 UI。

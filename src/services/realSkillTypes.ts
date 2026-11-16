@@ -72,6 +72,8 @@ export interface RealSkillPostProcessReport {
   applied: boolean
   changedOutput: boolean
   output: string
+  /** SKILL-authored advisory warnings retained for trace reconciliation. */
+  warnings: string[]
   issues: Array<{
     severity: 'blocking' | 'warning' | 'info'
     code: string

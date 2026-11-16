@@ -207,6 +207,9 @@ export function exportRunTraceToText(run: RunTrace): string {
       if (report.ruleHits?.length) {
         lines.push('规则命中：', JSON.stringify(report.ruleHits, null, 2))
       }
+      if (report.warnings?.length) {
+        lines.push('警告：', JSON.stringify(report.warnings, null, 2))
+      }
       if (report.issues?.length) {
         lines.push('问题：', JSON.stringify(report.issues, null, 2))
       }

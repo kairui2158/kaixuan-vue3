@@ -3463,7 +3463,8 @@ async function callValidatedSkill(
         if (traceRunId) {
           runTraceStore.appendFolderDiagnostics(traceRunId, {
             ...folderResult,
-            output: folderResult.output
+            output: folderResult.output,
+            postProcessReport: folderResult.postProcessReport
           })
         const apiMeta = folderResult.apiMeta
         if (apiMeta?.requestMessages?.length && traceCallId) {
@@ -3583,7 +3584,8 @@ async function callValidatedSkill(
       if (traceRunId) {
         runTraceStore.appendFolderDiagnostics(traceRunId, {
           ...route.folderResult,
-          output: route.folderResult.output
+          output: route.folderResult.output,
+          postProcessReport: route.folderResult.postProcessReport
         })
         const apiMeta = route.folderResult.apiMeta
         if (apiMeta?.requestMessages?.length) {

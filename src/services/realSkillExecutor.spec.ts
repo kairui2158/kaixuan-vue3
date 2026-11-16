@@ -1361,6 +1361,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
       applied: true,
       changedOutput: false,
       output: '修复后的输出',
+      warnings: [],
       issues: []
     })
     expect(result.apiMeta?.requestMessages).toEqual([
@@ -1708,13 +1709,42 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
 
     expect(result.status).toBe('success')
+    expect(result.diagnostics.some(item =>
+      item.code === 'hook-field-ignored' &&
+      item.type === 'info' &&
+      item.message.includes('未知字段')
+    )).toBe(false)
     expect(result.postProcessReport).toMatchObject({
       applied: true,
       changedOutput: false,
       output: '输出',
+      warnings: ['文风建议：保留事实，仅轻微调整节奏'],
       issues: []
     })
     expect(result.diagnostics.some(item => item.type === 'warning' && item.code.startsWith('post-process'))).toBe(false)
+  })
+
+  it('normalizes missing or malformed advisory postProcess warnings to an empty list', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        script: `module.exports = { postProcess({ output, warnings }) { return { output, valid: true, issues: [], warnings: warnings || [' ', 42, '输出预算预警'] } } }`,
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.diagnostics.some(item =>
+      item.code === 'hook-field-ignored' &&
+      item.type === 'info' &&
+      item.message.includes('未知字段')
+    )).toBe(false)
+    expect(result.postProcessReport?.warnings).toEqual(['输出预算预警'])
   })
 
   it('passes postProcess usage through and retains only a valid advisory perf observation', async () => {

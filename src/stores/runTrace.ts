@@ -614,6 +614,7 @@ export interface RunTraceProcessingReport {
   outputPreview?: string
   output?: string
   ruleHits?: Array<{ rule: string; count: number; samples?: string[] }>
+  warnings?: string[]
   issues?: Array<{
     level: 'error' | 'warning' | 'info'
     code: string
@@ -705,6 +706,7 @@ export interface RunTraceFolderDiagnostic {
     outputLength?: number
     outputPreview?: string
     outputPayloadRef?: string
+    warnings?: string[]
     issues?: Array<{ severity?: string; code?: string; message?: string }>
     durationMs?: number
     perf?:
@@ -988,6 +990,7 @@ export interface ProcessingReportInput {
   outputPreview?: string
   output?: string
   ruleHits?: RunTraceProcessingReport['ruleHits']
+  warnings?: RunTraceProcessingReport['warnings']
   issues?: RunTraceProcessingReport['issues']
   integrity?: RunTraceProcessingReport['integrity']
   startedAt: number
@@ -2287,6 +2290,7 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       outputPreview: input.outputPreview,
       output: input.output,
       ruleHits: input.ruleHits,
+      warnings: input.warnings,
       issues: input.issues,
       integrity: input.integrity,
       startedAt: input.startedAt,
