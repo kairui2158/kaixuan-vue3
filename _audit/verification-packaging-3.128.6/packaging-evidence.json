@@ -1,6 +1,6 @@
 {
   "schemaVersion": "packaging-3.128.6-v1",
-  "generatedAt": "2026-11-16T22:00:50.479Z",
+  "generatedAt": "2026-11-16T22:09:07.357Z",
   "version": "3.128.6",
   "main": "electron/main.js",
   "installer": "dist\\神意助手-Setup-3.128.6.exe",
