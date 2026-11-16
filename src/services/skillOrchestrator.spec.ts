@@ -5,7 +5,14 @@ vi.mock('./realSkillLoader', () => ({
 }))
 vi.mock('./aiService', () => ({
   getAiService: vi.fn(),
-  filterThinkingTags: vi.fn((text: string) => text)
+  filterThinkingTags: vi.fn((text: string) => text),
+  AiServiceErrorImpl: class MockAiServiceError extends Error {
+    kind: string
+    constructor(params: { kind: string; message: string }) {
+      super(params.message)
+      this.kind = params.kind
+    }
+  }
 }))
 
 const skillExecuteScriptMock = vi.fn(async (script: string, payload: { hook: string }) => {

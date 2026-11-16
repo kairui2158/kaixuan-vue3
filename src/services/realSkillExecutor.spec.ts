@@ -6,7 +6,16 @@ vi.mock('./realSkillLoader', () => ({
 }))
 vi.mock('./aiService', () => ({
   getAiService: vi.fn(),
-  filterThinkingTags: vi.fn((text: string) => text)
+  filterThinkingTags: vi.fn((text: string) => text),
+  AiServiceErrorImpl: class MockAiServiceError extends Error {
+    kind: string
+    statusCode?: number
+    constructor(params: { kind: string; statusCode?: number; message: string }) {
+      super(params.message)
+      this.kind = params.kind
+      this.statusCode = params.statusCode
+    }
+  }
 }))
 const skillExecuteScriptMock = vi.fn(async (script: string, payload: { hook: string }) => {
   const module = { exports: {} as Record<string, unknown> }
@@ -33,6 +42,7 @@ vi.stubGlobal('window', {
 })
 
 import { executeRealSkill } from './realSkillExecutor'
+import { AiServiceErrorImpl } from './aiService'
 import { buildFolderPassInputMeasurement, countRepeatedPromptBlocks } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
 import { DeAiSamples } from './deai-samples.js'
@@ -88,6 +98,34 @@ describe('realSkillExecutor single pass', () => {
         logs: []
       }
     })
+  })
+
+  it('marks provider auth failures as terminal and returns a structured failed result', async () => {
+    const callAi = vi.fn(async () => {
+      throw new AiServiceErrorImpl({
+        kind: 'auth',
+        statusCode: 403,
+        message: 'No enabled upstream credential'
+      })
+    })
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValue({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.terminalApiError).toBe(true)
+    expect(result.output).toBe('')
+    expect(result.diagnostics[0]?.code).toBe('api-terminal-auth-error')
+    expect(callAi).toHaveBeenCalledTimes(1)
   })
 
   it('fails closed on the pinned package before making a physical API call', async () => {

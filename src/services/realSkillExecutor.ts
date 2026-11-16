@@ -1,5 +1,6 @@
 import { getAiService } from './aiService'
 import type { PhysicalCallPhase } from './aiService'
+import { AiServiceErrorImpl } from './aiService'
 import {
   appendDialogueToolSurfaceDeclaration,
   buildDialogueToolSurfaceDeclarationAudit,
@@ -1623,6 +1624,45 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           traceRunId: options.traceRunId
         })
       } catch (error: any) {
+        if (
+          error instanceof AiServiceErrorImpl &&
+          (error.kind === 'auth' || error.statusCode === 401 || error.statusCode === 403)
+        ) {
+          if (isMultiPass) {
+            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })
+          } else {
+            dispatchStepEvent({ skillId: pkg.id, index: passIndex, total: passList.length, status: 'failed', traceRunId: options.traceRunId })
+          }
+          errors.push(error?.message || '供应商认证或凭证不可用')
+          diagnostics.push(diagnostic('error', 'api-terminal-auth-error', error?.message || ''))
+          return {
+            status: 'failed',
+            terminalApiError: true,
+            output: '',
+            errors,
+            diagnostics,
+            folderPackageCache: loaded.folderPackageCache === true,
+            postProcessReport,
+            apiMeta: {
+              finishReason: finishReason || 'error',
+              providerId,
+              usage,
+              maxTokens: finalMaxTokens,
+              reasoningText: finalReasoningText || '',
+              contextBudget: finalContextBudget,
+              usageReconciliation: finalUsageReconciliation,
+              textOrigin: finalTextOrigin,
+              requestMessages: capturedRequestMessages,
+              attemptRequestMessages: capturedAttemptRequestMessages,
+              toolCalls,
+              toolResults,
+              toolRequestDeltas,
+              toolAudit,
+              timingLedger: { ...timingLedger },
+              candidateLedger: candidateAuditLedger
+            }
+          }
+        }
         if (error?.budgetBlocked === true) {
           if (isMultiPass) {
             dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'failed', traceRunId: options.traceRunId })

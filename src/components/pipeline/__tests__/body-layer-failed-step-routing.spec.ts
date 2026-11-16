@@ -9,7 +9,8 @@ const pipelineSource = readFileSync(
 describe('body layer failed folder-step routing', () => {
   it('converts a body-chain folder failure into a structured result instead of discarding it', () => {
     const catchStart = pipelineSource.indexOf('} catch (error) {', pipelineSource.indexOf('onProviderQueue:'))
-    const throwEnd = pipelineSource.indexOf('throw error', catchStart)
+    const structuredFailedCheck = pipelineSource.indexOf("if (stepArtifactContext && folderResult?.status === 'failed')", catchStart)
+    const throwEnd = pipelineSource.indexOf('throw error', structuredFailedCheck)
     const catchBlock = pipelineSource.slice(catchStart, throwEnd)
 
     expect(catchBlock).toContain('if (stepArtifactContext && folderResult?.status === \'failed\')')
@@ -24,7 +25,8 @@ describe('body layer failed folder-step routing', () => {
 
   it('keeps blocked handoff routing ahead of the structured-failed fallback', () => {
     const catchStart = pipelineSource.indexOf('} catch (error) {', pipelineSource.indexOf('onProviderQueue:'))
-    const throwEnd = pipelineSource.indexOf('throw error', catchStart)
+    const structuredFailedCheck = pipelineSource.indexOf("if (stepArtifactContext && folderResult?.status === 'failed')", catchStart)
+    const throwEnd = pipelineSource.indexOf('throw error', structuredFailedCheck)
     const catchBlock = pipelineSource.slice(catchStart, throwEnd)
 
     expect(catchBlock).toContain("callerStatus: 'blocked'")

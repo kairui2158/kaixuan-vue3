@@ -91,6 +91,24 @@ describe('generateBodyArtifact', () => {
     })).rejects.toBe(error)
   })
 
+  it('treats provider terminal errors as a single-attempt terminal failure', async () => {
+    const error = new Error('No enabled upstream credential：供应商认证或凭证不可用')
+    ;(error as Error & { folderResult?: { terminalApiError?: boolean; status?: string } }).folderResult = {
+      terminalApiError: true,
+      status: 'failed'
+    }
+    let calls = 0
+    await expect(generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async () => {
+        calls += 1
+        throw error
+      }
+    })).rejects.toBe(error)
+    expect(calls).toBe(1)
+  })
+
   it('rejects an invalid contract before calling the API', async () => {
     let calls = 0
     const result = await generateBodyArtifact({

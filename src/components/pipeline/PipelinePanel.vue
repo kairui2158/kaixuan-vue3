@@ -3529,6 +3529,9 @@ async function callValidatedSkill(
       } else {
         finishFolderTrace('failed', error instanceof Error ? error.message : String(error))
       }
+      if (folderResult?.terminalApiError === true) {
+        throw error
+      }
       if (
         folderResult &&
         (folderResult.status === 'failed' || folderResult.status === 'blocked') &&
@@ -5383,6 +5386,21 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             (error as Error & { folderResult?: RealSkillExecutionResult })
               .folderResult?.diagnostics.some(item => isChapterNarrativeBlockDiagnosticCode(item.code))
           )
+        if (chainFolderResult?.terminalApiError === true) {
+          if (runId) {
+            runTraceStore.addEvent(runId, {
+              type: 'body-generator-terminal-api-error',
+              level: 'error',
+              label: `正文生成步骤 ${si + 1}/${templates.length} 供应商终端错误，禁止升级重试`,
+              detail: JSON.stringify({
+                stepIndex: si,
+                totalSteps: templates.length,
+                errors: chainFolderResult.errors
+              })
+            })
+          }
+          throw error
+        }
         if (!narrativeBlocked && si > 0 && handoffDelivery !== 'full_text') {
           try {
             if (runId) {
