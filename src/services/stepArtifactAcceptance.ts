@@ -47,6 +47,8 @@ export interface StructuredSkillStepOutput {
   output: string
   callerStatus: StepArtifactCallerStatus
   blockingGateFailed?: boolean
+  /** True for provider-level failures that must not enter body-layer repair. */
+  terminalApiError?: boolean
   errors: string[]
   stepCandidateAudit?: StepArtifactStepCandidateAudit | null
 }

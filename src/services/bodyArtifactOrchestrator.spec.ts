@@ -109,6 +109,35 @@ describe('generateBodyArtifact', () => {
     expect(calls).toBe(1)
   })
 
+  it('treats a structured terminal reasoning failure as a single-attempt terminal failure', async () => {
+    let calls = 0
+    const result = await generateBodyArtifact({
+      contract,
+      basePrompt: '生成第1章正文',
+      callBodyApi: async () => {
+        calls += 1
+        return {
+          output: '短',
+          callerStatus: 'failed',
+          blockingGateFailed: true,
+          terminalApiError: true,
+          errors: ['模型思考耗尽输出预算']
+        } as any
+      }
+    })
+
+    expect(result.status).toBe('failed')
+    expect(calls).toBe(1)
+    expect(result.metadata.terminalReason).toBe('terminal_provider_error')
+    expect(result.errors).toContain('供应商级失败已达终态，禁止进入正文修复循环')
+    expect(result.attempts[0].metadata?.structuredFailure).toMatchObject({
+      callerStatus: 'failed',
+      blockingGateFailed: true,
+      blockingVerdict: 'quality_failed',
+      terminalApiError: true
+    })
+  })
+
   it('rejects an invalid contract before calling the API', async () => {
     let calls = 0
     const result = await generateBodyArtifact({

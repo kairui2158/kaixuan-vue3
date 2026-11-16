@@ -633,6 +633,36 @@ describe('realSkillExecutor single pass', () => {
     expect(result.status).toBe('failed')
   })
 
+  it('marks reasoning exhaustion as terminal so body repair does not retry', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: '',
+      reasoning: '模型思考',
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      providerId: 'provider-1',
+      providerType: 'unsupported-provider'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      agent: { id: 'agent-1', maxTokens: 1000 }
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.terminalApiError).toBe(true)
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(result.errors[0]).toContain('模型思考耗尽输出预算')
+    expect(result.diagnostics.some(item => item.code === 'generation-invalid:reasoning_exhausted')).toBe(true)
+  })
+
   it('routes folder calls through the layer provider even when an agent binding exists', async () => {
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage(),

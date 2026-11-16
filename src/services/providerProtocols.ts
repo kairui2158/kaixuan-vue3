@@ -40,6 +40,8 @@ export interface ProviderProtocol {
     temperature: number
     maxTokens: number | null
     tools?: unknown
+    thinkingDisableParam?: string
+    thinkingDisableValue?: string
     reasoning?: {
       mode: 'off'
     }
@@ -136,7 +138,13 @@ const openAICompatibleProtocol: ProviderProtocol = {
       ...(config.maxTokens == null ? {} : { max_tokens: config.maxTokens }),
     }
     if (config.tools !== undefined) body.tools = config.tools
-    if (config.reasoning?.mode === 'off') body.reasoning_effort = 'none'
+    if (config.thinkingDisableParam) {
+      try {
+        body[config.thinkingDisableParam] = JSON.parse(config.thinkingDisableValue || '')
+      } catch {
+        body[config.thinkingDisableParam] = config.thinkingDisableValue || ''
+      }
+    } else if (config.reasoning?.mode === 'off') body.reasoning_effort = 'none'
     return body
   },
   extractText(data) {

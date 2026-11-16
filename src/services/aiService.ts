@@ -2383,6 +2383,8 @@ export function createAiService(
       stream: wantStream,
       temperature,
       maxTokens,
+      thinkingDisableParam: provider.thinkingDisableParam,
+      thinkingDisableValue: provider.thinkingDisableValue,
       reasoning: params.reasoning?.mode === 'off' ? { mode: 'off' } : undefined,
       tools: nativeTools,
     })

@@ -83,6 +83,8 @@ export interface BodyArtifactStructuredFailure {
   blockingGateFailed: boolean
   handoffNotReady: boolean
   blockingVerdict: 'none' | 'handoff_not_ready' | 'quality_failed'
+  /** True for a provider-terminal failure that must not enter the repair loop. */
+  terminalApiError?: boolean
   /** True only for a non-empty prose body in the active LHC envelope form. */
   hasRepairableBody?: boolean
 }
@@ -91,6 +93,7 @@ export function resolveBodyStructuredFailure(input: {
   output: string
   callerStatus: 'success' | 'degraded' | 'failed' | 'blocked'
   blockingGateFailed?: boolean
+  terminalApiError?: boolean
 }): BodyArtifactStructuredFailure {
   const handoffNotReady = input.callerStatus === 'blocked' &&
     resolveChapterNarrativeBlock(input.output)?.retryableInBodyLayer === true
@@ -104,6 +107,7 @@ export function resolveBodyStructuredFailure(input: {
     blockingGateFailed: input.blockingGateFailed === true,
     handoffNotReady,
     blockingVerdict,
+    terminalApiError: input.terminalApiError === true,
     hasRepairableBody: isGeneratorEnvelopeArtifact(input.output)
       ? parseGenerationResult(input.output).body.trim().length > 0
       : false
@@ -493,6 +497,21 @@ export async function generateBodyArtifact(
     }
     attempts.push(attempt)
     input.onAttempt?.(attempt)
+
+    if (callStructuredFailure?.terminalApiError === true) {
+      const terminalError = '供应商级失败已达终态，禁止进入正文修复循环'
+      return {
+        status: 'failed',
+        body: '',
+        metadata: {
+          ...generation.metadata,
+          decisionPath: buildDecisionPath(attempts, 'terminal_provider_error').decisionPath,
+          terminalReason: 'terminal_provider_error'
+        },
+        attempts,
+        errors: [...new Set([...callerErrors, terminalError, ...validation.errors])]
+      }
+    }
 
     if (validation.valid && (!callStructuredFailure || callStructuredFailure.blockingVerdict === 'none')) {
       return {

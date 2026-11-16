@@ -271,6 +271,35 @@ describe('providerTools', () => {
     expect(body.max_tokens).toBe(20_000)
   })
 
+  it('uses a provider-declared thinking-disable parameter over the default reasoning effort', () => {
+    const body = getProviderProtocol('openai-compatible').buildRequestBody({
+      model: 'test-model',
+      messages: [{ role: 'user', content: '你好' }],
+      stream: false,
+      temperature: 0.7,
+      maxTokens: 1024,
+      thinkingDisableParam: 'thinking',
+      thinkingDisableValue: '{"type":"disabled"}',
+      reasoning: { mode: 'off' },
+    })
+
+    expect(body.thinking).toEqual({ type: 'disabled' })
+    expect('reasoning_effort' in body).toBe(false)
+  })
+
+  it('keeps the default reasoning effort when no provider override is declared', () => {
+    const body = getProviderProtocol('openai-compatible').buildRequestBody({
+      model: 'test-model',
+      messages: [{ role: 'user', content: '你好' }],
+      stream: false,
+      temperature: 0.7,
+      maxTokens: 1024,
+      reasoning: { mode: 'off' },
+    })
+
+    expect(body.reasoning_effort).toBe('none')
+  })
+
   it('uses the protocol-required output limit for Anthropic when capability is unknown', () => {
     const body = getProviderProtocol('anthropic').buildRequestBody({
       model: 'claude-3-5-sonnet',

@@ -219,4 +219,30 @@ describe('ApiSettings pipeline provider channels', () => {
     expect(wrapper.text()).not.toContain('卷纲层绑定 provider-imported 未导入到现有供应商')
     createElement.mockRestore()
   })
+
+  it('saves the openai-compatible thinking-disable declaration when editing a provider', async () => {
+    const store = useProviderStore()
+    store.addProvider(providerFixture('provider-thinking', ['generate']))
+    const wrapper = await mountSettings()
+
+    await wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === 'provider-thinking')!
+      .findAll('button')
+      .find(item => item.text() === '编辑')!
+      .trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const details = wrapper.find('.provider-advanced')
+    await details.find('summary').trigger('click')
+    await details.find('#cfg-thinking-disable-param').setValue('thinking')
+    await details.find('#cfg-thinking-disable-value').setValue('{"type":"disabled"}')
+    await clickButton(wrapper, '保存').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(store.providers[0]).toMatchObject({
+      id: 'provider-thinking',
+      thinkingDisableParam: 'thinking',
+      thinkingDisableValue: '{"type":"disabled"}',
+    })
+  })
 })

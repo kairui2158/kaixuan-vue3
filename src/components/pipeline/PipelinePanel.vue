@@ -3569,6 +3569,7 @@ async function callValidatedSkill(
           output: folderResult.output,
           callerStatus: 'failed',
           blockingGateFailed: folderResult.blockingGateFailed === true,
+          terminalApiError: Boolean(folderResult.terminalApiError),
           errors: folderResult.errors,
           stepCandidateAudit: stepArtifactCandidateAudit(folderResult.apiMeta)
         }
@@ -3605,6 +3606,7 @@ async function callValidatedSkill(
             output: route.folderResult.output,
             callerStatus: folderStatus,
             blockingGateFailed: route.folderResult.blockingGateFailed === true,
+            terminalApiError: route.folderResult.terminalApiError === true,
             errors: route.folderResult.errors,
             stepCandidateAudit: stepArtifactCandidateAudit(route.folderResult.apiMeta)
           }
@@ -3621,6 +3623,7 @@ async function callValidatedSkill(
               output: route.folderResult.output,
               callerStatus: 'degraded',
               blockingGateFailed: true,
+              terminalApiError: route.folderResult.terminalApiError === true,
               errors: route.folderResult.errors,
               stepCandidateAudit: stepArtifactCandidateAudit(route.folderResult.apiMeta)
             }

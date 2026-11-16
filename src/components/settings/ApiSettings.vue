@@ -201,6 +201,16 @@
             <input id="cfg-max-tokens" type="number" v-model.number="editingProvider.maxTokens" min="0" class="input-field input-w-120" />
             <small class="form-hint">默认不发送输出上限；仅供应商协议要求或实测 400 降级时使用</small>
           </div>
+          <div class="form-group" v-if="editingProvider.providerType === 'openai-compatible'">
+            <label>禁思考参数名 (留空不传)</label>
+            <input id="cfg-thinking-disable-param" v-model="editingProvider.thinkingDisableParam" class="input-field" placeholder="例如: thinking" />
+            <small class="form-hint">OpenAI 兼容协议专用；填写供应商请求体实际支持的字段名</small>
+          </div>
+          <div class="form-group" v-if="editingProvider.thinkingDisableParam">
+            <label>禁思考参数值</label>
+            <textarea id="cfg-thinking-disable-value" v-model="editingProvider.thinkingDisableValue" class="input-field" rows="2" placeholder='例如: {"type":"disabled"}'></textarea>
+            <small class="form-hint">合法 JSON 会作为对象发送；普通字符串按原样发送；留空按原样发送</small>
+          </div>
         </div>
       </details>
       <div class="form-group">
@@ -448,6 +458,8 @@ function enterProviderEdit(id: string | null) {
       selectedModel: '',
       temperature: 0.7,
       maxTokens: 0,
+      thinkingDisableParam: '',
+      thinkingDisableValue: '',
       contextWindowTokens: 0,
       streamMode: false,
       systemPrompt: '',
@@ -471,6 +483,7 @@ function exitProviderEdit() {
 function saveAndExit() {
   if (!editingProvider.value) return
   const p = editingProvider.value
+  if (!p.thinkingDisableParam) p.thinkingDisableValue = ''
   const existing = providerStore.providers.find(item => item.id === p.id)
   if (existing) {
     providerStore.updateProvider(p.id, { ...p })

@@ -1275,7 +1275,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             retryStrategy,
             maxTokens: result.maxTokens ?? retryMaxTokens,
             })
-            throw new Error(GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind])
+            const generationError = new Error(GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind])
+            if (validity.kind === 'reasoning_exhausted') {
+              ;(generationError as Error & { generationValidityKind?: 'reasoning_exhausted' })
+                .generationValidityKind = 'reasoning_exhausted'
+            }
+            throw generationError
           }
           options.onGenerationEvent?.({
             type: 'direct-retry-finished',
@@ -1705,8 +1710,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         errors.push(error?.message || 'API 调用失败')
         diagnostics.push(diagnostic('error', 'api-failed', error?.message || ''))
+        const terminalGenerationError = (error as Error & {
+          generationValidityKind?: 'reasoning_exhausted'
+        }).generationValidityKind === 'reasoning_exhausted'
         return {
           status: 'failed',
+          ...(terminalGenerationError ? { terminalApiError: true } : {}),
           output: '',
           errors,
           diagnostics,

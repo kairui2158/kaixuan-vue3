@@ -28,6 +28,10 @@ export interface Provider {
   maxTokens: number
   /** Input context window in tokens; 0 means undeclared. */
   contextWindowTokens?: number
+  /** Provider-declared request body field that disables thinking; use with a JSON string value. */
+  thinkingDisableParam?: string
+  /** JSON value for thinkingDisableParam; a plain string is sent verbatim. */
+  thinkingDisableValue?: string
   timeoutMs?: number
   purpose: ('generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video')[]
   streamMode?: boolean

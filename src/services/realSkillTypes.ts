@@ -169,7 +169,7 @@ export interface RealSkillExecutionResult {
   status: RealSkillExecutionStatus
   /** True when folder postProcess blocked every retained candidate. */
   blockingGateFailed?: boolean
-  /** True only for provider-level auth/credential errors that must not enter body-layer repair. */
+  /** True for provider-level failures that must not enter body-layer repair. */
   terminalApiError?: boolean
   output: string
   errors: string[]

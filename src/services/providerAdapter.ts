@@ -36,6 +36,10 @@ export interface ProviderLike {
   maxTokens: number
   /** Provider input context window in tokens; 0 or missing means undeclared. */
   contextWindowTokens?: number
+  /** Provider-declared request body field that disables thinking; use with a JSON string value. */
+  thinkingDisableParam?: string
+  /** JSON value for thinkingDisableParam; a plain string is sent verbatim. */
+  thinkingDisableValue?: string
   timeoutMs?: number
   streamMode?: boolean
   systemPrompt?: string
