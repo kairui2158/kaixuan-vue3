@@ -43,7 +43,7 @@ describe('providerThinkingProbe', () => {
     expect(result.param).toBe('thinking')
     expect(result.value).toBe('{"type":"disabled"}')
     expect(result.requestsUsed).toBe(2)
-    expect(seen).toEqual([undefined, 'thinking'])
+    expect(seen).toEqual(['', 'thinking'])
     expect(result.attempts[0].outcome).toBe('effective')
   })
 
@@ -154,14 +154,41 @@ describe('providerThinkingProbe', () => {
     expect(result.attempts[0].outcome).toBe('error')
   })
 
-  it('returns undecidable when accepted candidates return no text to verify', async () => {
+  it('classifies an accepted reasoning-only response as no_effect', async () => {
     const caller: ThinkingProbeCaller = callerWith(override => {
       if (!override.thinkingDisableParam) return ok({ reasoning: 'think', text: '回答' })
       return ok({ reasoning: 'still thinking', text: '' })
     })
     const result = await runThinkingProbe(provider, caller)
+    expect(result.verdict).toBe('no_effect')
+    expect(result.attempts.every(a => a.outcome === 'no_effect')).toBe(true)
+    expect(result.attempts[0].note).toContain('无正文')
+  })
+
+  it('returns undecidable when accepted candidates carry no decodable signal', async () => {
+    const caller: ThinkingProbeCaller = callerWith(override => {
+      if (!override.thinkingDisableParam) return ok({ reasoning: 'think', text: '回答' })
+      return ok({ text: '' })
+    })
+    const result = await runThinkingProbe(provider, caller)
     expect(result.verdict).toBe('undecidable')
     expect(result.attempts.every(a => a.outcome === 'unverifiable_response')).toBe(true)
+  })
+
+  it('keeps mixed rejection with unverifiable acceptance as undecidable', async () => {
+    const caller: ThinkingProbeCaller = callerWith(override => {
+      if (!override.thinkingDisableParam) return ok({ reasoning: 'think', text: '回答' })
+      if (override.thinkingDisableParam !== 'chat_template_kwargs') {
+        const error = new Error('unknown field') as any
+        error.statusCode = 400
+        throw error
+      }
+      return ok({ text: '' })
+    })
+    const result = await runThinkingProbe(provider, caller)
+    expect(result.verdict).toBe('undecidable')
+    expect(result.attempts.filter(a => a.outcome === 'rejected_400')).toHaveLength(3)
+    expect(result.attempts[3].outcome).toBe('unverifiable_response')
   })
 
   it('returns probe_error when the baseline request itself fails', async () => {
@@ -194,7 +221,7 @@ describe('providerThinkingProbe', () => {
     const result = await runThinkingProbe(declared, caller)
     expect(result.verdict).toBe('effective')
     expect(result.param).toBe('thinking')
-    expect(seenParams).toEqual([undefined, 'thinking'])
+    expect(seenParams).toEqual(['', 'thinking'])
   })
 
   it('effective threshold requires reasoning to drop to 20% of baseline', async () => {

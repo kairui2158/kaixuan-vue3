@@ -319,4 +319,35 @@ describe('ApiSettings pipeline provider channels', () => {
     expect(wrapper.text()).toContain('上次探测:')
     expect(wrapper.text()).toContain('禁思考参数未生效')
   })
+
+  it('marks undecidable probe runs as failed in trace while retaining the verdict', async () => {
+    const store = useProviderStore()
+    store.addProvider(providerFixture('provider-thinking-probe', ['generate']))
+    const probeResult: ThinkingProbeResult = {
+      verdict: 'undecidable',
+      baselineReasoningChars: 100,
+      baselineTextChars: 2,
+      requestsUsed: 2,
+      attempts: [],
+    }
+    mockedGetAiService.mockResolvedValue({
+      testThinkingDisableProbe: vi.fn(async () => probeResult),
+    } as any)
+
+    const wrapper = await mountSettings()
+    await wrapper.findAll('.provider-card')
+      .find(card => card.find('.provider-card-name').text() === 'provider-thinking-probe')!
+      .findAll('button')
+      .find(item => item.text() === '编辑')!
+      .trigger('click')
+    await wrapper.vm.$nextTick()
+
+    await clickButton(wrapper, '探测禁思考').trigger('click')
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('无法判定，需手动声明 · 共 2 次请求')
+    expect(store.providers[0].thinkingProbe?.verdict).toBe('undecidable')
+  })
 })

@@ -101,7 +101,12 @@ export async function runThinkingProbe(
 
   let baseline: ThinkingProbeCallResult
   try {
-    baseline = await effectiveCall(provider, caller, {})
+    // '' explicitly suppresses the provider-level declaration so the baseline
+    // measures the model's undisturbed reasoning signal.
+    baseline = await effectiveCall(provider, caller, {
+      thinkingDisableParam: '',
+      thinkingDisableValue: '',
+    })
     requestsUsed += 1
   } catch (error: any) {
     return {
@@ -145,8 +150,8 @@ export async function runThinkingProbe(
         }]
       : THINKING_PROBE_CANDIDATES)
 
-  let sawAcceptedCandidate = false
-  let sawUnchangedCandidate = false
+  let sawNoEffectCandidate = false
+  let sawUnverifiableCandidate = false
   let rejectedCount = 0
 
   for (const candidate of candidates) {
@@ -228,7 +233,20 @@ export async function runThinkingProbe(
     }
 
     if (textChars === 0) {
-      sawAcceptedCandidate = true
+      if (reasoningChars > baselineReasoningChars * EFFECTIVE_REASONING_RATIO) {
+        sawNoEffectCandidate = true
+        attempts.push({
+          param: candidate.param,
+          label: candidate.label,
+          statusCode: result.statusCode,
+          reasoningChars,
+          textChars,
+          outcome: 'no_effect',
+          note: '响应无正文且思考信号未收敛',
+        })
+        continue
+      }
+      sawUnverifiableCandidate = true
       attempts.push({
         param: candidate.param,
         label: candidate.label,
@@ -260,8 +278,7 @@ export async function runThinkingProbe(
         attempts,
       }
     }
-    sawAcceptedCandidate = true
-    sawUnchangedCandidate = true
+    sawNoEffectCandidate = true
     attempts.push({
       param: candidate.param,
       label: candidate.label,
@@ -272,9 +289,9 @@ export async function runThinkingProbe(
     })
   }
 
-  const verdict: ThinkingProbeVerdict = rejectedCount > 0 && !sawAcceptedCandidate
+  const verdict: ThinkingProbeVerdict = rejectedCount === candidates.length
     ? 'rejected'
-    : sawUnchangedCandidate
+    : sawNoEffectCandidate
       ? 'no_effect'
       : 'undecidable'
   return {

@@ -2152,3 +2152,11 @@
 - 用途：避免错误禁思考参数静默失败；把候选表降级为探测预设，让最终请求只消费已验证声明。
 - 验证：定向 2 files / 20 tests PASS；全量服务 254 files / 2809 tests PASS；type-check 与 build:vue PASS。
 - 边界：探测不进生成路径，不自动挂接“测试连接”；信号不可解码时判 `undecidable` 并提示手动声明。
+
+# 2026-11-17 禁思考探测复审收口 3.128.8
+
+- 文件：[_audit/DEV_LOG_2026-11-17_thinking-disable-probe-v1.md](_audit/DEV_LOG_2026-11-17_thinking-disable-probe-v1.md)
+- 交付：探测基线改用显式空串覆盖，隔离手动声明供应商的污染基线；协议层空串不落请求体；候选无正文时按 reasoning 信号判定；`probe_error / undecidable` 在 UI trace 终态记 failed；DEV_LOG 边界措辞纠偏。
+- 用途：修复手动声明供应商被判 `not_applicable` 或 `no_effect` 的假阴性，防止观测面把探测失败记成成功。
+- 验证：定向 3 files / 26 tests PASS；全量 254 files / 2813 tests PASS；type-check PASS；3.128.8 packaging PASS，安装包 SHA-256 `40dcd216086ab225a3da452e3c3bbf8098e07bf98ec4ef4216d86d36d07b7880`。
+- 边界：不新增候选参数、不改生成路径回退语义、不动 SKILL。

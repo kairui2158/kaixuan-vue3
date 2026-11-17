@@ -30,6 +30,24 @@ describe('providerProtocols', () => {
     })
   })
 
+  it('treats an empty probe override as an explicit no-declaration request', () => {
+    const protocol = getProviderProtocol('openai-compatible')
+    const config = (params: { thinkingDisableParam?: string; thinkingDisableValue?: string; reasoning?: { mode: 'off' } }) =>
+      protocol.buildRequestBody({
+        model: 'test-model',
+        messages: [{ role: 'user', content: 'test' }],
+        stream: false,
+        temperature: 0.7,
+        maxTokens: 256,
+        ...params,
+      } as any)
+
+    expect(config({ thinkingDisableParam: '', thinkingDisableValue: '' })).not.toHaveProperty('thinking')
+    expect(config({ thinkingDisableParam: '', thinkingDisableValue: '', reasoning: { mode: 'off' } }))
+      .toHaveProperty('reasoning_effort', 'none')
+    expect(config({ reasoning: { mode: 'off' } })).toHaveProperty('reasoning_effort', 'none')
+  })
+
   it('keeps Gemini model-list authentication aligned with chat authentication', () => {
     const protocol = getProviderProtocol('gemini')
 

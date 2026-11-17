@@ -4722,8 +4722,8 @@ export function createAiService(
         retry: false,
         timeoutMs: 30_000,
         maxTokens: 256,
-        thinkingDisableParam: override.thinkingDisableParam,
-        thinkingDisableValue: override.thinkingDisableValue,
+        thinkingDisableParam: override.thinkingDisableParam ?? '',
+        thinkingDisableValue: override.thinkingDisableValue ?? '',
       }, 30_000)
       return {
         ok: true,

@@ -516,6 +516,7 @@ async function runThinkingProbe() {
     const service = await getAiService()
     const result = await service.testThinkingDisableProbe(editingProvider.value)
     thinkingProbeStatus.value = `${describeThinkingProbeVerdict(result)} · 共 ${result.requestsUsed} 次请求`
+    const probeFailed = result.verdict === 'probe_error' || result.verdict === 'undecidable'
     if (result.verdict === 'effective') {
       editingProvider.value.thinkingDisableParam = result.param!
       editingProvider.value.thinkingDisableValue = result.value!
@@ -528,7 +529,7 @@ async function runThinkingProbe() {
         probedAt: new Date().toISOString(),
       },
     })
-    trace.finish('success')
+    trace.finish(probeFailed ? 'failed' : 'success')
   } catch (e: any) {
     thinkingProbeStatus.value = '探测失败: ' + (e?.message || String(e))
     trace.fail(e)

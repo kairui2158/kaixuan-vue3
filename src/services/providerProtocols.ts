@@ -138,7 +138,7 @@ const openAICompatibleProtocol: ProviderProtocol = {
       ...(config.maxTokens == null ? {} : { max_tokens: config.maxTokens }),
     }
     if (config.tools !== undefined) body.tools = config.tools
-    if (config.thinkingDisableParam) {
+    if (config.thinkingDisableParam !== undefined && config.thinkingDisableParam !== '') {
       try {
         body[config.thinkingDisableParam] = JSON.parse(config.thinkingDisableValue || '')
       } catch {
