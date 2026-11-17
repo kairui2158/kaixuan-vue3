@@ -416,6 +416,8 @@ export interface CallAiResult {
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** Effective max_tokens after overrides, provider defaults, or a 400 downgrade. */
   maxTokens?: number | null
+  /** Persisted thinking-disable probe verdict for the resolved provider; undefined means never probed. */
+  thinkingProbeVerdict?: import('./providerThinkingProbe').ThinkingProbeVerdict
   /** Resolved capability provenance; unknown stays unknown instead of becoming a fake cap. */
   modelCapability?: ModelCapability
   /** @internal Raw provider payload; needed to continue native tool-call loops. */
@@ -4103,6 +4105,7 @@ export function createAiService(
           maxTokens: result.maxTokens ?? effectiveMaxTokens(),
           modelCapability,
           retryStrategy: params.retryStrategy,
+          thinkingProbeVerdict: provider.thinkingProbe?.verdict,
           contextBudget,
           usageReconciliation: buildUsageReconciliation({
             estimatedInputTokens: contextBudget.estimatedInputTokens,

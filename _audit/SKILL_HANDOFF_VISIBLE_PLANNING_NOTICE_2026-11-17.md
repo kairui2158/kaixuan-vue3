@@ -9,11 +9,15 @@
 1. 分类器新增 `visible_planning`。触发条件为全部满足：
    - 可见输出非空，且英文规划字符占比达到 `VISIBLE_PLANNING_RATIO_THRESHOLD = 0.6`；
    - `finishReason` 属于 `length/max_tokens/max_output_tokens`，或正文输出 tokens 已达到本次 `maxTokens`。
-2. 命中后不再把规划文本当有效产物，会执行一次 `direct_retry`：
+2. 分类器进一步拆分：
+   - `planning_only`：无足够中文正文证据，判定不可用；
+   - `mixed_planned_body`：规划文本占比较高但保留 CJK 证据不少于 200，判定可用并交给 postProcess。
+3. `planning_only` 命中后不再把规划文本当有效产物，会执行一次 `direct_retry`：
    - 供应商推理控制可用时用 `thinking_disabled`；
    - 不可用时提高输出上限；
    - 两种路径都会追加 `【直出模式】` 约束。
-3. 重试仍失败时，终态保持 `failed`，trace/diagnostic 记录 `generation-invalid:visible_planning`。
+4. 重试同型失败且正文证据没有增加不少于 200 CJK，或二次 `reasoning_exhausted`，直接短路并标记供应商级终态；trace/diagnostic 记录 `generation-invalid:visible_planning` 或 `generation-invalid:reasoning_exhausted`。
+5. 探测裁决为非 `effective` 时，重试改用 `max_tokens_raised`，不发送已证无效的禁思考参数；trace 事件携带 `thinkingProbeVerdictSource`。
 
 关键边界：只有预算耗尽证据配合高占比规划形态才判定。正常 `stop` 完成的英文正文、中文正文夹少量英文术语，不会被误判。
 

@@ -57,7 +57,7 @@ describe('PipelineRunRegistry', () => {
     const stored = registry.getRun(run.runId)
     expect(stored?.status).toBe('canceled')
     expect(stored?.progress).toBe(0)
-    expect(stored?.error).toBeUndefined()
+    expect(stored?.error).toBe('user_cancel')
   })
 
   it('cancels queued runs and prevents late activation', () => {

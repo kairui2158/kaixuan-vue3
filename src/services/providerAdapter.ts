@@ -40,6 +40,10 @@ export interface ProviderLike {
   thinkingDisableParam?: string
   /** JSON value for thinkingDisableParam; a plain string is sent verbatim. */
   thinkingDisableValue?: string
+  /** Persisted last thinking-disable probe; retry routing evidence only. */
+  thinkingProbe?: {
+    verdict: import('./providerThinkingProbe').ThinkingProbeVerdict
+  }
   timeoutMs?: number
   streamMode?: boolean
   systemPrompt?: string

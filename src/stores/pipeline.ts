@@ -158,7 +158,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
     const targetRunId = requireRunId(runId, 'cancelGeneration')
     const canceledRun = registry.getRun(targetRunId)
     const wasRunning = canceledRun?.status === 'running'
-    registry.cancel(targetRunId)
+    registry.cancel(targetRunId, 'user_cancel')
     // A queued cancellation must not activate a sibling. A running
     // cancellation frees the layer, so only the next queued run may start.
     if (wasRunning) {

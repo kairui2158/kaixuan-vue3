@@ -70,9 +70,12 @@ describe('buildSchemaRetryFeedback', () => {
 
     expect(result.strategy).toBe('word-gap')
     expect(result.scaffoldSource).toBe('candidate')
+    expect(result.anchorCount).toBe(2)
+    expect(result.previewChars).toBe(400)
+    expect(result.feedback).toContain('二、上一版候选头尾锚点（各200字符，仅用于保留叙事基底；不是候选全文）')
     expect(result.feedback).toContain('章节：第12章 王芳入局')
     expect(result.feedback).toContain('FACT_LOCK：王芳=话痨')
-    expect(result.feedback).not.toContain('正'.repeat(100))
+    expect(result.feedback).not.toContain('正'.repeat(201))
   })
 
   it('keeps the complete failed candidate for structural body failures', () => {
@@ -185,7 +188,8 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).toContain('当前净字数：1000')
     expect(result.feedback).toContain('还差净字数：1800')
     expect(result.feedback).toContain('本反馈不携带上一版正文全文')
-    expect(result.feedback).toContain('请输出覆盖全部场景的完整正文')
+    expect(result.feedback).toContain('请以上一版候选为事实与叙事基底，输出覆盖全部场景的完整正文')
+    expect(result.feedback).toContain('二、上一版候选头尾锚点（各200字符，仅用于保留叙事基底；不是候选全文）')
     expect(result.feedback).toContain('以上一版场景结构骨架为结构与事实边界完整施工')
     expect(result.feedback).toContain('交接账本必须放进 metadata.extractedMeta[0]')
     expect(result.feedback).not.toContain('正文末尾必须保留【正文交接】区块')
@@ -199,7 +203,7 @@ describe('buildSchemaRetryFeedback', () => {
     expect(result.feedback).toContain('一、上一版场景结构骨架（有界，不是候选全文）')
     expect(result.feedback).toContain('已完成场景：1. 王芳在酒馆讲出线索')
     expect(result.feedback).toContain('FACT_LOCK：王芳=话痨；账册=旧案关键物')
-    expect(result.feedback).not.toContain('正'.repeat(100))
+    expect(result.feedback).not.toContain('正'.repeat(201))
     expect(result.scaffoldFieldCount).toBeGreaterThanOrEqual(7)
     expect(result.scaffoldChars).toBeLessThanOrEqual(820)
     expect(result.feedback).not.toContain('请以上一版候选输出为基底补写缺失场景')

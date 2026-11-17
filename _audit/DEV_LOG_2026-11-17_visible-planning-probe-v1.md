@@ -30,3 +30,12 @@
 ## 边界
 
 `_audit/k92-agent-store-probe.mjs` 为本地未跟踪探针，不入库；真实供应商 live 烟测未做，以既有探测和测试基线交付。
+
+## V1.1 补登
+
+1. 可见规划拆分 `planning_only / mixed_planned_body`；混合候选 CJK 证据不少于 200 才保留，正常英文 stop 走 truncated。
+2. 探测裁决非 `effective` 时直出重试改为 `max_tokens_raised`，不再发送无效禁思考参数；事件新增 `subtype/shortCircuited/thinkingProbeVerdictSource`。
+3. 二次 `visible_planning` 且 CJK 增量小于 200，或二次 `reasoning_exhausted`，直接短路；比较使用首次候选基线。
+4. word-gap 反馈补头尾各 200 字符候选锚点，仍禁止候选全文。
+5. 取消原因透传 `user_cancel`，避免取消终态丢失可观测原因。
+6. 定向 5 文件 145 tests PASS 后进入 V1.1 全量验证。

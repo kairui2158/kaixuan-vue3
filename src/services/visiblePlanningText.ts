@@ -36,3 +36,27 @@ export function detectVisiblePlanningRatio(text: string): number {
   if (phraseHits >= 1 && structuralRatio >= 0.3) return structuralRatio + 0.2
   return structuralRatio
 }
+
+export function hasVisiblePlanningSignal(text: string): boolean {
+  const normalized = String(text ?? '')
+  if (!normalized.trim()) return false
+  const compact = normalized.toLowerCase()
+  return PLANNING_PHRASES.some(phrase => compact.includes(phrase))
+}
+
+export function hasVisiblePlanningTextSignal(text: string): boolean {
+  const normalized = String(text ?? '')
+  if (!normalized.trim()) return false
+  const compact = normalized.toLowerCase()
+  return PLANNING_PHRASES.some((phrase) => {
+    if (!compact.includes(phrase)) return false
+    const boundaryBefore = phrase.startsWith('let me')
+      ? /(^|[.!?;：，。！？])let me/.test(compact)
+      : true
+    if (!boundaryBefore) return false
+    if (phrase === 'final text' || phrase === 'final output') {
+      return /(^|[.!?;：，。！？])(the\s+|my\s+)?(final text|final output)/.test(compact)
+    }
+    return true
+  })
+}

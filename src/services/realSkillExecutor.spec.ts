@@ -641,8 +641,51 @@ describe('realSkillExecutor single pass', () => {
     expect(callAi.mock.calls[1]![0].messages[0]?.content).toContain('【直出模式】')
     expect(callAi.mock.calls[1]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised' })
     expect(callAi.mock.calls[1]![0].maxTokens).toBeGreaterThan(1000)
-    expect(result.errors[0]).toContain('模型把规划文本写进了可见输出通道')
+    expect(result.errors[0]).toContain('可见输出被英文规划文本占用，未生成可用正文；已重试 1 次仍失败')
     expect(result.diagnostics.some(item => item.code === 'generation-invalid:visible_planning')).toBe(true)
+  })
+
+  it('short-circuits a second planning-only failure with no additional usable body evidence', async () => {
+    const eventSpy = vi.fn()
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const planningText = [
+      'Let me plan the final output.',
+      'Step 1: draft the opening scene.',
+      'Step 2: establish the fact ledger.',
+      'Wait, the final text must contain a structured ledger.',
+      'Plan: generate the required body next.'
+    ].join('\n')
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: planningText,
+      reasoning: '',
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      providerId: 'provider-1',
+      providerType: 'unsupported-provider'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      agent: { id: 'agent-1', maxTokens: 1000 },
+      onGenerationEvent: eventSpy
+    })
+
+    expect(eventSpy.mock.calls[2]![0]).toMatchObject({
+      kind: 'visible_planning',
+      subtype: 'planning_only',
+      shortCircuited: true,
+      success: false
+    })
+    expect(result.status).toBe('failed')
+    expect(result.terminalApiError).toBe(true)
+    expect(callAi).toHaveBeenCalledTimes(2)
   })
 
   it('uses provider reasoning control for the direct-output retry when the provider type is known', async () => {
@@ -681,6 +724,37 @@ describe('realSkillExecutor single pass', () => {
       maxTokens: 1000
     })
     expect(result.status).toBe('failed')
+  })
+
+  it('does not send a disabled-thinking retry when the provider probe disproved it', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: '',
+      reasoning: '模型思考',
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      providerId: 'provider-1',
+      providerType: 'openai-compatible',
+      thinkingProbeVerdict: 'no_effect'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      agent: { id: 'agent-1', maxTokens: 1000 }
+    })
+
+    expect(callAi.mock.calls[1]![0]).toMatchObject({
+      retryStrategy: 'max_tokens_raised'
+    })
+    expect(callAi.mock.calls[1]![0]).not.toHaveProperty('reasoning')
+    expect(callAi.mock.calls[1]![0].maxTokens).toBeGreaterThan(1000)
   })
 
   it('marks reasoning exhaustion as terminal so body repair does not retry', async () => {

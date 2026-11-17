@@ -78,8 +78,66 @@ describe('classifyGenerationValidity', () => {
     })).toMatchObject({
       kind: 'visible_planning',
       usable: false,
-      message: '模型把规划文本写进了可见输出通道而不是正文，未生成有效内容'
+      subtype: 'planning_only',
     })
+  })
+
+  it('splits budgeted visible planning into a mixed subtype when usable Chinese body remains', () => {
+    const planning = [
+      'Let me plan the final output.',
+      'Step 1: draft the opening scene.',
+      'Step 2: establish the fact ledger.',
+      'Wait, the final text must contain a structured ledger.',
+      'Plan: generate the required body next.'
+    ].join('\n')
+    const chineseBody = [
+      '夜雨压在货舱铁皮上，她数着闸门外的灯，把手心里的旧车票折出一道硬痕。',
+      '码头广播忽然停了，只剩水声贴着船底爬。她抬眼看见熟悉的人影，喉咙里那句质问被冷风压了回去。',
+      '他撑伞走近，伞沿的水线把两人隔开。旧账没有摊开，新麻烦已经先一步站在了栈桥尽头。',
+      '雨声把通讯器里的杂音切成断续的坐标。她最后看了一眼那张被水泡皱的平面图，把今天剩下的路折进衣袋，朝着废弃闸口的铁梯走去。',
+      '铁梯口的探照灯扫过水面，她数了三拍才走进阴影。身后的脚步声没有再靠近，只留下一串被雨水冲淡的胶印，把最关键的时间线索压进了旧案卷宗的边角。'
+    ].join('\n')
+
+    expect(classifyGenerationValidity({
+      text: `${planning}\n\n${chineseBody}`,
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      maxTokens: 1000
+    })).toMatchObject({
+      kind: 'visible_planning_mixed',
+      usable: true,
+      subtype: 'mixed_planned_body',
+      message: '可见输出包含高占比规划文本，已保留其中的中文正文候选'
+    })
+  })
+
+  it('keeps planning-only output rejected when no usable Chinese body remains', () => {
+    expect(classifyGenerationValidity({
+      text: [
+        'Let me plan the final output.',
+        'Step 1: draft the opening scene.',
+        'Step 2: establish the fact ledger.',
+        'Wait, the final text must contain a structured ledger.',
+        'Plan: generate the required body next.'
+      ].join('\n'),
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      maxTokens: 1000
+    })).toMatchObject({
+      kind: 'visible_planning',
+      usable: false,
+      subtype: 'planning_only',
+      message: '可见输出被英文规划文本占用，未生成可用正文'
+    })
+  })
+
+  it('does not turn completed English prose into a planning subtype', () => {
+    expect(classifyGenerationValidity({
+      text: 'She walked along the old road and remembered everything about that summer. The lantern light made the wet stones glow.',
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      maxTokens: 1000
+    })).toMatchObject({ kind: 'truncated', usable: true })
   })
 
   it('keeps Chinese body text with incidental English terms usable', () => {

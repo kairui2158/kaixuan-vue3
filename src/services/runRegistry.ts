@@ -172,13 +172,13 @@ export class PipelineRunRegistry {
     return this.finish(runId, 'failed', undefined, error)
   }
 
-  cancel(runId: string): boolean {
+  cancel(runId: string, reason = 'user_cancel'): boolean {
     const run = this.runsById.get(runId)
     if (!run || (run.status !== 'running' && run.status !== 'queued')) return false
     // Queued runs may not have started a physical request yet, but aborting
     // their controller also closes the activation race.
     run.controller.abort()
-    return this.finish(runId, 'canceled')
+    return this.finish(runId, 'canceled', undefined, reason)
   }
 
   private finish(

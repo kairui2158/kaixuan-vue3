@@ -9,9 +9,15 @@ import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
 import { resolveChapterNarrativeBlock } from './chapterEventDensity'
 import { collectDeaiFindingsWithObservability } from './de-ai'
-import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
+import {
+  classifyGenerationValidity,
+  countCjkCharacters,
+  GENERATION_VALIDITY_MESSAGES,
+  type GenerationValidity,
+} from './generationValidity'
 import { isContinuationSelfCheckText } from './continuationSelfCheck'
 import { getProviderReasoningControl } from './providerProtocols'
+import type { ThinkingProbeVerdict } from './providerThinkingProbe'
 import { loadRealSkill } from './realSkillLoader'
 import { formatSkillFallback } from './skillRouter'
 import { REPEATED_PROMPT_BLOCK_MARKERS } from './promptBlockProtocol'
@@ -38,6 +44,10 @@ import type {
 } from './realSkillTypes'
 
 export type { RealSkillDiagnostic } from './realSkillTypes'
+
+function countVisiblePlanningBodyEvidence(validity: GenerationValidity, text: string): number {
+  return validity.subtype === 'planning_only' ? 0 : countCjkCharacters(text)
+}
 
 
 const ALLOWED_PRE_FIELDS = new Set(['input', 'template', 'samples'])
@@ -1223,11 +1233,16 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         maxTokens: result.maxTokens ?? agent?.maxTokens ?? null
         })
 
+        const firstValidity = validity
+        if (!validity.usable) {
+          ;(firstValidity as GenerationValidity & { sourceText?: string }).sourceText = result.text || ''
+        }
         if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'visible_planning' || validity.kind === 'empty')) {
           diagnostics.push(diagnostic('error', `generation-invalid:${validity.kind}`, validity.message))
           options.onGenerationEvent?.({
             type: 'generation-invalid',
             kind: validity.kind,
+            subtype: validity.subtype,
             message: validity.message,
             reasoningLength: (result.reasoning || '').length,
             textLength: result.text.length,
@@ -1235,9 +1250,17 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           const retryMessages = buildRequest(DIRECT_OUTPUT_SUFFIX)
           const retryStartedAt = Date.now()
           const reasoningControl = getProviderReasoningControl(result.providerType)
-          const retryStrategy: NonNullable<Required<RealSkillExecuteOptions>['reasoningRetry']> = reasoningControl.supported
+          const probeVerdict = (result as { thinkingProbeVerdict?: ThinkingProbeVerdict }).thinkingProbeVerdict
+          const thinkingDisabledTrusted = reasoningControl.supported
+            && (probeVerdict === 'effective' || probeVerdict === undefined)
+          const retryStrategy: NonNullable<Required<RealSkillExecuteOptions>['reasoningRetry']> = thinkingDisabledTrusted
             ? 'thinking_disabled'
             : 'max_tokens_raised'
+          const thinkingProbeVerdictSource = probeVerdict === 'effective'
+            ? 'resolved-provider-probe'
+            : probeVerdict === undefined
+              ? 'declared-protocol'
+              : 'unknown'
   const baseMaxTokens = Number(agent?.maxTokens) > 0 ? Number(agent?.maxTokens) : null
   const retryMaxTokens = retryStrategy === 'max_tokens_raised'
     ? Math.max(baseMaxTokens ?? 32_768, Math.round((baseMaxTokens ?? 32_768) * 1.5))
@@ -1245,6 +1268,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           options.onGenerationEvent?.({
             type: 'direct-retry-start',
             kind: validity.kind,
+            subtype: validity.subtype,
             message: retryStrategy === 'thinking_disabled'
               ? validity.kind === 'visible_planning'
                 ? '可见输出被规划文本占用，已关闭模型思考并切换直出模式重试'
@@ -1253,6 +1277,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
                 ? '可见输出被规划文本占用，已提高输出上限并切换直出模式重试'
                 : '正文为空，已提高输出上限并切换直出模式重试',
             retryStrategy,
+            thinkingProbeVerdictSource,
           maxTokens: retryMaxTokens ?? null,
           })
           result = await callAiOnce(retryMessages, DIRECT_OUTPUT_SUFFIX, {
@@ -1268,21 +1293,39 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           maxTokens: result.maxTokens ?? agent?.maxTokens ?? null
           })
           if (!validity.usable) {
+            const firstFailure = firstValidity.kind
+            const firstBodyChars = countVisiblePlanningBodyEvidence(
+              firstValidity,
+              String((firstValidity as { sourceText?: string }).sourceText || '')
+            )
+            const retryBodyChars = countCjkCharacters(result.text || '')
+            const planningRetryShortCircuit = firstFailure === 'visible_planning'
+              && validity.kind === firstFailure
+              && retryBodyChars < firstBodyChars + 200
+            const reasoningRetryShortCircuit = firstFailure === 'reasoning_exhausted'
+              && validity.kind === firstFailure
+            const shortCircuit = planningRetryShortCircuit || reasoningRetryShortCircuit
             options.onGenerationEvent?.({
               type: 'direct-retry-finished',
               kind: validity.kind,
+              subtype: validity.subtype,
               message: GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind],
               reasoningLength: (result.reasoning || '').length,
               textLength: result.text.length,
             durationMs: Date.now() - retryStartedAt,
             success: false,
+            shortCircuited: shortCircuit,
             retryStrategy,
+            thinkingProbeVerdictSource,
             maxTokens: result.maxTokens ?? retryMaxTokens,
             })
             const generationError = new Error(GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind])
             if (validity.kind === 'reasoning_exhausted' || validity.kind === 'visible_planning') {
               ;(generationError as Error & { generationValidityKind?: 'reasoning_exhausted' | 'visible_planning' })
                 .generationValidityKind = validity.kind
+            }
+            if (shortCircuit) {
+              ;(generationError as Error & { generationShortCircuit?: boolean }).generationShortCircuit = true
             }
             throw generationError
           }
@@ -1714,14 +1757,17 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         errors.push(error?.message || 'API 调用失败')
         diagnostics.push(diagnostic('error', 'api-failed', error?.message || ''))
-        const terminalGenerationError = (['reasoning_exhausted', 'visible_planning'] as const).includes(
-          (error as Error & { generationValidityKind?: 'reasoning_exhausted' | 'visible_planning' }).generationValidityKind as
+        const generationValidityKind = (error as Error & {
+          generationValidityKind?: 'reasoning_exhausted' | 'visible_planning'
+        }).generationValidityKind
+        const terminalGenerationError = (['reasoning_exhausted', 'visible_planning'] as const).includes(generationValidityKind as
             | 'reasoning_exhausted'
             | 'visible_planning'
         )
+        const generationShortCircuit = (error as Error & { generationShortCircuit?: boolean }).generationShortCircuit === true
         return {
           status: 'failed',
-          ...(terminalGenerationError ? { terminalApiError: true } : {}),
+          ...((terminalGenerationError || generationShortCircuit) ? { terminalApiError: true } : {}),
           output: '',
           errors,
           diagnostics,

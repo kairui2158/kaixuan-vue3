@@ -1,16 +1,25 @@
-import { detectVisiblePlanningRatio, VISIBLE_PLANNING_RATIO_THRESHOLD } from './visiblePlanningText'
+import {
+  detectVisiblePlanningRatio,
+  hasVisiblePlanningSignal,
+  hasVisiblePlanningTextSignal,
+  VISIBLE_PLANNING_RATIO_THRESHOLD,
+} from './visiblePlanningText'
 
 export type GenerationValidityKind =
   | 'usable'
   | 'truncated'
   | 'reasoning_exhausted'
   | 'visible_planning'
+  | 'visible_planning_mixed'
   | 'empty'
   | 'canceled'
   | 'error'
 
+export type VisiblePlanningSubtype = 'mixed_planned_body' | 'planning_only'
+
 export interface GenerationValidity {
   kind: GenerationValidityKind
+  subtype?: VisiblePlanningSubtype
   usable: boolean
   message: string
 }
@@ -29,7 +38,9 @@ export interface GenerationValidityInput {
 }
 
 const LENGTH_FINISH_REASONS = new Set(['length', 'max_tokens', 'max_output_tokens'])
-const VISIBLE_PLANNING_BUDGET_MESSAGE = '模型把规划文本写进了可见输出通道而不是正文，未生成有效内容'
+const VISIBLE_PLANNING_MESSAGE = '可见输出被英文规划文本占用，未生成可用正文'
+const VISIBLE_PLANNING_MIXED_MESSAGE = '可见输出包含高占比规划文本，已保留其中的中文正文候选'
+const MIXED_PLANNED_BODY_MIN_CJK = 200
 
 function normalizeFinishReason(reason?: string | null): string | undefined {
   if (reason == null) return undefined
@@ -95,6 +106,10 @@ function isLengthFinish(input: GenerationValidityInput): boolean {
   return reason != null && LENGTH_FINISH_REASONS.has(reason)
 }
 
+export function countCjkCharacters(text: string): number {
+  return text.match(/[\u3400-\u4dbf\u4e00-\u9fff\u3040-\u30ff]/g)?.length ?? 0
+}
+
 export function classifyGenerationValidity(input: GenerationValidityInput): GenerationValidity {
   if (input.canceled) {
     return { kind: 'canceled', usable: false, message: '用户取消了本次生成' }
@@ -134,13 +149,24 @@ export function classifyGenerationValidity(input: GenerationValidityInput): Gene
 
   if (text.trim().length > 0) {
     if (
-      detectVisiblePlanningRatio(text) >= VISIBLE_PLANNING_RATIO_THRESHOLD
-      && (lengthFinish || consumedOutputBudget(input))
+      (hasVisiblePlanningSignal(text) || hasVisiblePlanningTextSignal(text))
+      && detectVisiblePlanningRatio(text) >= VISIBLE_PLANNING_RATIO_THRESHOLD
     ) {
-      return {
-        kind: 'visible_planning',
-        usable: false,
-        message: VISIBLE_PLANNING_BUDGET_MESSAGE
+      if (lengthFinish || consumedOutputBudget(input)) {
+        if (countCjkCharacters(text) >= MIXED_PLANNED_BODY_MIN_CJK) {
+          return {
+            kind: 'visible_planning_mixed',
+            subtype: 'mixed_planned_body',
+            usable: true,
+            message: VISIBLE_PLANNING_MIXED_MESSAGE
+          }
+        }
+        return {
+          kind: 'visible_planning',
+          subtype: 'planning_only',
+          usable: false,
+          message: VISIBLE_PLANNING_MESSAGE
+        }
       }
     }
     if (lengthFinish || (!isDefinitiveNonLengthFinish(input) && consumedOutputBudget(input))) {
@@ -171,7 +197,8 @@ export const GENERATION_VALIDITY_MESSAGES: Record<GenerationValidityKind, string
   usable: '产物有效',
   truncated: '输出被截断，已自动续写合并；如仍不完整，请减少单步任务量或提高 maxTokens',
   reasoning_exhausted: '模型思考耗尽输出预算，未生成正文；已重试 1 次仍失败',
-  visible_planning: '模型把规划文本写进了可见输出通道而不是正文，未生成有效内容；已重试 1 次仍失败',
+  visible_planning: '可见输出被英文规划文本占用，未生成可用正文；已重试 1 次仍失败',
+  visible_planning_mixed: '可见输出包含高占比规划文本，已保留其中的中文正文候选',
   empty: '模型没有返回正文，请检查模型/供应商配置',
   canceled: '用户取消了本次生成',
   error: '生成失败，请查看运行记录中的原始错误'

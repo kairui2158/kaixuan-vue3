@@ -36,3 +36,11 @@
 ## 7. 缺口
 
 真实供应商 live 烟测未做；`de-ai-v2.spec.ts` 冷启动预算标定是既有独立观测项，未混入本任务。
+
+## 8. V1.1 对账补记
+
+1. 变更：`generationValidity.ts`、`visiblePlanningText.ts`、`realSkillExecutor.ts`、`realSkillTypes.ts`、`aiService.ts`、`runRegistry.ts`、`stores/pipeline.ts`、`schemaRetryFeedback.ts`、PipelinePanel trace 事件全量投影、对应 spec、`package.json 3.129.0`。
+2. 新语义：`mixed_planned_body` 保留 CJK>=200 的混合候选；`planning_only` 二连无新增正文证据短路；`reasoning_exhausted` 二连短路；探测 `no_effect` 改走 `max_tokens_raised`；取消原因 `user_cancel`；word-gap 头尾锚点。
+3. [DEFECT-SWEEP] 首次候选文本在分类后立即固化为短路基线，修复“用重试文本计算首次 CJK”的基线污染。
+4. [DEFECT-SWEEP] 正常英文 stop 无规划短语信号时不再进入 `visible_planning`，避免误杀。
+5. [DEFECT-SWEEP] word-gap 反馈只保留头尾 200 字符锚点，控制反馈预算且避免盲重建。

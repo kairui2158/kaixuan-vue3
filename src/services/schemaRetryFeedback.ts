@@ -28,6 +28,21 @@ export interface SchemaRetryFeedbackResult {
   suppressedCandidateChars: number
 }
 
+function buildCandidateAnchors(candidate: string, maxAnchorChars: number): {
+  head: string
+  tail: string
+  omittedChars: number
+} | null {
+  if (candidate.length <= maxAnchorChars * 2) return null
+  const head = candidate.slice(0, maxAnchorChars)
+  const tail = candidate.slice(candidate.length - maxAnchorChars)
+  return {
+    head,
+    tail,
+    omittedChars: candidate.length - head.length - tail.length
+  }
+}
+
 const DEFAULT_MAX_ERRORS = 10
 const DEFAULT_MAX_ANCHORS = 3
 const DEFAULT_MAX_ANCHOR_CHARS = 200
@@ -382,7 +397,7 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
       : '优先压缩重复说明与无效描写；不得删除场景、事实或对白回合，净字数不得低于下限。'
     const lines = [
       '【结构化重试反馈】',
-      '本反馈不携带上一版正文全文；请输出覆盖全部场景的完整正文，不要复述反馈本身，不要输出解释，不要输出补字片段。',
+      '本反馈不携带上一版正文全文，只提供头尾定位锚点；请以上一版候选为事实与叙事基底，输出覆盖全部场景的完整正文，不要复述反馈本身，不要输出解释，不要输出补字片段。',
       '',
       `目标净字数：${targetWords}`,
       `下限净字数：${minWords}`,
@@ -393,6 +408,16 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
       '',
       '一、上一版场景结构骨架（有界，不是候选全文）'
     ]
+    const anchors = buildCandidateAnchors(candidate, maxPreviewEdgeChars)
+    if (anchors) {
+      lines.push(
+        '二、上一版候选头尾锚点（各200字符，仅用于保留叙事基底；不是候选全文）',
+        anchors.head,
+        `……（省略 ${anchors.omittedChars} 字符）……`,
+        anchors.tail
+      )
+      lines.push('')
+    }
     if (scaffold.available) {
       lines.push(
         scaffold.text,
@@ -417,8 +442,8 @@ export function buildSchemaRetryFeedback(input: SchemaRetryFeedbackInput): Schem
       scaffoldSource: scaffold.source,
       candidateChars: candidate.length,
       feedbackChars: feedback.length,
-      anchorCount: 0,
-      previewChars: 0,
+      anchorCount: anchors ? 2 : 0,
+      previewChars: anchors ? anchors.head.length + anchors.tail.length : 0,
       scaffoldChars: scaffold.text.length,
       scaffoldFieldCount: scaffold.fieldCount,
       suppressedCandidateChars: 0

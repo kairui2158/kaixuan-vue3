@@ -338,12 +338,15 @@ export interface RealSkillExecuteOptions {
   onGenerationEvent?: (event: {
     type: 'generation-invalid' | 'direct-retry-start' | 'direct-retry-finished'
     kind?: string
+    subtype?: string
     message?: string
     reasoningLength?: number
     textLength?: number
     durationMs?: number
     success?: boolean
+    shortCircuited?: boolean
     retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+    thinkingProbeVerdictSource?: 'resolved-provider-probe' | 'declared-protocol' | 'unknown'
     /** null means the request intentionally omitted the output limit. */
     maxTokens?: number | null
   }) => void
