@@ -2180,9 +2180,9 @@
 - 验证：全量服务 254 files / 2827 tests PASS；type-check、build:vue、electron-builder 与 verify:packaging PASS；安装包 SHA-256 `57c9e83ae215645a936c71336034caf541387bafb93e31068ebe9bdea838e10c`。
 - 边界：不改 SKILL 裁决、修复编排策略、供应商硬编码、预算系统、调度器或 UI。
 
-## 2026-11-18 zero-usage 终局守卫补齐 3.130.0 V1.1
+## 2026-11-18 zero-usage 终局守卫补齐 3.130.1 V1.1
 
 - 文件：[_audit/DEV_LOG_2026-11-18_zero-usage-guard-v1.md](_audit/DEV_LOG_2026-11-18_zero-usage-guard-v1.md)
 - 交付：`classifyGenerationValidity` 补齐零 usage 可信产物豁免；trace `20261118-015557` 证实 8K+ 正文与坏 JSON 信封在该层被误判 empty；短占位文案保持假成功拒绝。
-- 验证：全量 254 files / 2829 tests PASS；type-check、build:vue、electron-builder 与 verify:packaging PASS；安装包 SHA-256 `8579d36fe1ef3dd0b2f1adf158cafc8750514146c64e7accdfc1bdc7a133e8e0`。
+- 验证：全量 254 files / 2829 tests PASS；type-check、build:vue、electron-builder 与 verify:packaging PASS；trace 原始候选复现 usable，真实供应商 live 通道 6 requests PASS；安装包 SHA-256 见 `verification-packaging-3.130.1`。
 - 边界：不新增裁判或预算系统，不越 SKILL 叙事裁决边界。

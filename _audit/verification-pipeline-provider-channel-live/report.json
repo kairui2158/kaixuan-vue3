@@ -1,6 +1,6 @@
 {
   "script": "verify-pipeline-provider-channel-electron.mjs",
-  "at": "2026-11-16T06:46:26.356Z",
+  "at": "2026-11-17T18:13:47.419Z",
   "result": "PASS",
   "ui": {
     "initialUi": {
@@ -18,7 +18,7 @@
   },
   "runs": {
     "volumes": {
-      "runId": "pipeline-run-1794811497675-1",
+      "runId": "pipeline-run-1794939114221-1",
       "layer": "volumes",
       "target": "all",
       "dependencyRevision": "0",
@@ -72,12 +72,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1794811497675,
+      "startedAt": 1794939114224,
       "progressPhase": "terminal",
-      "endedAt": 1794811533336
+      "endedAt": 1794939205964
     },
     "chapters": {
-      "runId": "pipeline-run-1794811498133-2",
+      "runId": "pipeline-run-1794939114666-2",
       "layer": "chapters",
       "target": "vol-provider-channel",
       "dependencyRevision": "0",
@@ -131,12 +131,12 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1794811498133,
+      "startedAt": 1794939114666,
       "progressPhase": "terminal",
-      "endedAt": 1794811508307
+      "endedAt": 1794939191296
     },
     "body": {
-      "runId": "pipeline-run-1794811498550-3",
+      "runId": "pipeline-run-1794939115055-3",
       "layer": "body",
       "target": "ch-provider-channel",
       "dependencyRevision": "0",
@@ -190,32 +190,32 @@
       "progress": 100,
       "statusText": "succeeded",
       "controller": {},
-      "startedAt": 1794811498550,
+      "startedAt": 1794939115055,
       "progressPhase": "terminal",
-      "endedAt": 1794811585324
+      "endedAt": 1794939226370
     }
   },
   "auxiliaryMemory": {
     "enabled": false
   },
   "modelAssertions": {
-    "volumes": "glm-5.3",
-    "chapters": "glm-5.3",
-    "body": "glm-5.3",
+    "volumes": "deepseek-v4-pro",
+    "chapters": "deepseek-v4-pro",
+    "body": "deepseek-v4-pro",
     "surfaces": [
       "trace-event",
       "apiCall",
       "provider-request"
     ]
   },
-  "requestCount": 5,
+  "requestCount": 6,
   "mode": "live-single-supplier",
   "live": {
-    "credentialSource": "environment",
-    "sourceKeyState": "environment",
+    "credentialSource": "D:\\神意助手数据\\wa_providers.json",
+    "sourceKeyState": "encrypted",
     "keyLength": 51,
-    "proxyBaseUrl": "http://127.0.0.1:13437/v1",
-    "model": "glm-5.3",
-    "successfulRequests": 5
+    "proxyBaseUrl": "http://127.0.0.1:14037/v1",
+    "model": "deepseek-v4-pro",
+    "successfulRequests": 6
   }
 }

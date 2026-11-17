@@ -32,7 +32,7 @@
 
 - 代码：`providerResponseContract.ts:89-100,111,129-146`；`aiService.ts:1399-1410,2525-2558`；`realSkillExecutor.ts:1768-1773`。
 - 回归：`providerResponseContract.spec.ts:157-181`、`realSkillExecutor.spec.ts:131-173`。
-- 全量：254 files / 2827 tests PASS；`vue-tsc --noEmit` PASS。
+- 全量：254 files / 2829 tests PASS；`vue-tsc --noEmit` PASS；trace 原始候选复现 usable；`verify:provider-channel-live` 6 requests PASS。
 - 打包：安装包 SHA-256 `57c9e83ae215645a936c71336034caf541387bafb93e31068ebe9bdea838e10c`；`verify:packaging` 输出 `PACKAGING 3.130.0 VERIFICATION PASSED`，rendererFiles=87，electronAPI methods=94。
 - 经验：`_audit/神意开发经验总结_v9.md:625` 新增 G2.9 条目。
 
@@ -40,4 +40,4 @@
 
 - 残留清理缺口：`dist2/`、`dist4/`、`dist5/` 初次被系统级句柄锁定并登记为环境事件；最终定位到 Codex NodeService 进程 `ChatGPT.exe:20172`，只关闭三个 asar 文件句柄后全部删除，不影响提交、安装包或封装校验。3.129.0 旧安装包主文件与 blockmap 已删除。
 - 缺陷面枚举：已排查 provider contract、stream normalization、zero-usage 分支、fakeSuccess executor 终态、terminalApiError 消费、回归语义、版本与打包校验；命中并修复 zero-usage 形态误杀与耗尽终态缺失。360 防护反复锁新建产物为环境事件，不改源码；临时 `rcedit-test.exe` 与临时探针已列入清理。
-- V1.1 漏改登记：首版只收口 transport/stream 层，漏掉 terminal `classifyGenerationValidity`；trace `20261118-015557` 中坏 JSON 信封 10,115B / CJK 8,379、重试候选 5,121B / CJK 4,260 均被判 empty。已补 `generationValidity.ts` credible gate，新增坏信封与实质正文回归，全量 2829 tests PASS 后重新封装。
+- V1.1 漏改登记：首版只收口 transport/stream 层，漏掉 terminal `classifyGenerationValidity`；trace `20261118-015557` 中坏 JSON 信封 10,115B / CJK 8,379、重试候选 5,121B / CJK 4,260 均被判 empty。已补 `generationValidity.ts` credible gate，新增坏信封与实质正文回归，全量 2829 tests PASS。补验纪律缺口：先补原始 trace 复现（002/007 usable）与真实供应商 live 通道（6 requests PASS），再升级 3.130.1 重新封装。

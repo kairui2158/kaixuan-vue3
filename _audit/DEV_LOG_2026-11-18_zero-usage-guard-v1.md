@@ -4,7 +4,8 @@
 - 用途：消除网关 usage 形态异常导致合法产物被误杀、正文编排继续空转的问题。
 - 关键代码：`src/services/providerResponseContract.ts` 结构化信封豁免与流式 delta 聚合；`src/services/aiService.ts` credible zero-usage 守卫；`src/services/realSkillExecutor.ts` fakeSuccess 终态标记。
 - V1.1：trace `20261118-015557` 证实终局 `classifyGenerationValidity` 仍沿用旧零 usage 假成功规则，坏 JSON 信封与 8K+ 可信正文被误判 empty；已为该层补齐同一内容合同豁免（`generationValidity.ts` credible artifact gate），短占位文案语义不变。
-- 验证：全量服务 `npx vitest run` 254 files / 2827 tests PASS；`npx vue-tsc --noEmit` PASS；`npm run build:vue` PASS；`npx electron-builder --win` PASS；`npm run verify:packaging` PASS，安装包 `dist/神意助手-Setup-3.130.0.exe` SHA-256 `57c9e83ae215645a936c71336034caf541387bafb93e31068ebe9bdea838e10c`。
+- 验证：全量服务 `npx vitest run` 254 files / 2829 tests PASS；`npx vue-tsc --noEmit` PASS；`npm run build:vue` PASS；`npx electron-builder --win` PASS；`npm run verify:packaging` PASS，安装包 `dist/神意助手-Setup-3.130.1.exe` SHA-256 见 `verification-packaging-3.130.1`。
+- 实测补验：trace `20261118-015557` 原始 002/007 候选复现从 `empty` 变为 `usable`；`verify:provider-channel-live` 真实供应商 6 requests PASS。临时 replay 脚本已删除，live 证据目录同步更新。
 - 边界：不改 SKILL 叙事质量裁决；不改修复编排策略；不新增供应商硬编码、预算系统、调度器或 UI。
 - 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-18_zero-usage-guard-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-18_zero-usage-guard-v1.md)
 - 缺陷面枚举：见台账第七节，命中 zero-usage 形态误杀与终态语义；打包期 360 防护锁新产物登记为环境事件，已用 Stop-Service 360rp 窗口完成构建，源码补丁已还原。
