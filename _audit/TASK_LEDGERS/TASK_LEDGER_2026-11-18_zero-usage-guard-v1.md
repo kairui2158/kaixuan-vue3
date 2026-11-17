@@ -42,4 +42,5 @@
 - 残留清理缺口：`dist2/`、`dist4/`、`dist5/` 初次被系统级句柄锁定并登记为环境事件；最终定位到 Codex NodeService 进程 `ChatGPT.exe:20172`，只关闭三个 asar 文件句柄后全部删除，不影响提交、安装包或封装校验。3.129.0 旧安装包主文件与 blockmap 已删除。
 - 缺陷面枚举：已排查 provider contract、stream normalization、zero-usage 分支、fakeSuccess executor 终态、terminalApiError 消费、回归语义、版本与打包校验；命中并修复 zero-usage 形态误杀与耗尽终态缺失。360 防护反复锁新建产物为环境事件，不改源码；临时 `rcedit-test.exe` 与临时探针已列入清理。
 - V1.1 漏改登记：首版只收口 transport/stream 层，漏掉 terminal `classifyGenerationValidity`；trace `20261118-015557` 中坏 JSON 信封 10,115B / CJK 8,379、重试候选 5,121B / CJK 4,260 均被判 empty。已补 `generationValidity.ts` credible gate，新增坏信封与实质正文回归，全量 2829 tests PASS。补验纪律缺口：先补原始 trace 复现（002/007 usable）与真实供应商 live 通道（6 requests PASS），再升级 3.130.1 重新封装。
+- 版本登记漏项：3.130.1 升级后 `package-lock.json` 仍停在 3.128.9；本轮由递归对账发现，已用 `npm install --package-lock-only` 同步，未引入依赖变化。
 - G1.3 双实现登记：`aiService.ts` 的 `hasCredibleZeroUsageStreamContent` 与 `generationValidity.ts` 的 `hasCredibleZeroUsageArtifact` 重复维护 1000 字符 + CJK 0.65 + LHC 信封豁免阈值；功能当前一致，但后续阈值演进若只改一处会产生 transport 与 terminal 分类分叉。后续应提取单一共享判定函数并双路引用；本轮不改码，避免交付面扩大。
