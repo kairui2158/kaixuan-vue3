@@ -78,7 +78,11 @@ describe('run trace payload deduplication', () => {
               physicalCallId: 'physical-attempt-1',
               seq: 1,
               requestMessages: sharedRequest,
-              responseText: '第一次尝试输出'
+              responseText: '第一次尝试输出',
+              temperature: 0.2,
+              maxTokens: 2048,
+              thinkingDisableParam: 'thinking',
+              thinkingDisableValue: '{"type":"disabled"}'
             },
             {
               id: 'physical-002',
@@ -112,7 +116,12 @@ describe('run trace payload deduplication', () => {
       apiCallId: 'api-001',
       apiCallSeq: 1,
       physicalCallId: 'physical-attempt-1',
-      physicalCallSeq: 1
+      physicalCallSeq: 1,
+      requestTemperature: 0.2,
+      requestMaxTokens: 2048,
+      requestThinkingDisableParam: 'thinking',
+      requestThinkingDisableValue: '{"type":"disabled"}',
+      firstSeenSource: 'physicalRequest'
     })
 
     const indexByRef = new Map(built.run.payloadToAttemptIndex.map(entry => [entry.payloadRef, entry]))
@@ -121,9 +130,14 @@ describe('run trace payload deduplication', () => {
       apiCallId: 'api-001',
       apiCallSeq: 1,
       physicalCallId: 'physical-attempt-1',
-      physicalCallSeq: 1
+      physicalCallSeq: 1,
+      requestTemperature: 0.2,
+      requestMaxTokens: 2048,
+      requestThinkingDisableParam: 'thinking',
+      requestThinkingDisableValue: '{"type":"disabled"}',
+      firstSeenSource: 'physicalRequest'
     })
-    expect(indexByRef.get('payload-001').firstSeenSource).toBeUndefined()
+    expect(indexByRef.get('payload-001').firstSeenSource).toBe('logicalRequest')
     expect(indexByRef.get('payload-008').firstSeenSource).toBe('promptSnapshots')
     expect(indexByRef.get('payload-009').firstSeenSource).toBe('processingReports')
     expect(indexByRef.get('payload-010').firstSeenSource).toBe('processingReports')

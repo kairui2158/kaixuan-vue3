@@ -1223,7 +1223,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         maxTokens: result.maxTokens ?? agent?.maxTokens ?? null
         })
 
-        if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'empty')) {
+        if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'visible_planning' || validity.kind === 'empty')) {
           diagnostics.push(diagnostic('error', `generation-invalid:${validity.kind}`, validity.message))
           options.onGenerationEvent?.({
             type: 'generation-invalid',
@@ -1246,8 +1246,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             type: 'direct-retry-start',
             kind: validity.kind,
             message: retryStrategy === 'thinking_disabled'
-              ? '正文为空，已关闭模型思考并切换直出模式重试'
-              : '正文为空，已提高输出上限并切换直出模式重试',
+              ? validity.kind === 'visible_planning'
+                ? '可见输出被规划文本占用，已关闭模型思考并切换直出模式重试'
+                : '正文为空，已关闭模型思考并切换直出模式重试'
+              : validity.kind === 'visible_planning'
+                ? '可见输出被规划文本占用，已提高输出上限并切换直出模式重试'
+                : '正文为空，已提高输出上限并切换直出模式重试',
             retryStrategy,
           maxTokens: retryMaxTokens ?? null,
           })
@@ -1276,9 +1280,9 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             maxTokens: result.maxTokens ?? retryMaxTokens,
             })
             const generationError = new Error(GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind])
-            if (validity.kind === 'reasoning_exhausted') {
-              ;(generationError as Error & { generationValidityKind?: 'reasoning_exhausted' })
-                .generationValidityKind = 'reasoning_exhausted'
+            if (validity.kind === 'reasoning_exhausted' || validity.kind === 'visible_planning') {
+              ;(generationError as Error & { generationValidityKind?: 'reasoning_exhausted' | 'visible_planning' })
+                .generationValidityKind = validity.kind
             }
             throw generationError
           }
@@ -1710,9 +1714,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         errors.push(error?.message || 'API 调用失败')
         diagnostics.push(diagnostic('error', 'api-failed', error?.message || ''))
-        const terminalGenerationError = (error as Error & {
-          generationValidityKind?: 'reasoning_exhausted'
-        }).generationValidityKind === 'reasoning_exhausted'
+        const terminalGenerationError = (['reasoning_exhausted', 'visible_planning'] as const).includes(
+          (error as Error & { generationValidityKind?: 'reasoning_exhausted' | 'visible_planning' }).generationValidityKind as
+            | 'reasoning_exhausted'
+            | 'visible_planning'
+        )
         return {
           status: 'failed',
           ...(terminalGenerationError ? { terminalApiError: true } : {}),

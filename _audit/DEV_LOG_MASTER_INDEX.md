@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-11-16
+更新日期：2026-11-17
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -2160,3 +2160,13 @@
 - 用途：修复手动声明供应商被判 `not_applicable` 或 `no_effect` 的假阴性，防止观测面把探测失败记成成功。
 - 验证：定向 3 files / 26 tests PASS；全量 254 files / 2813 tests PASS；type-check PASS；3.128.8 packaging PASS，安装包 SHA-256 `40dcd216086ab225a3da452e3c3bbf8098e07bf98ec4ef4216d86d36d07b7880`。
 - 边界：不新增候选参数、不改生成路径回退语义、不动 SKILL。
+
+# 2026-11-17 可见规划检测与探测语义升级 3.128.9
+
+- 文件：[_audit/DEV_LOG_2026-11-17_visible-planning-probe-v1.md](_audit/DEV_LOG_2026-11-17_visible-planning-probe-v1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-17_visible-planning-probe-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-17_visible-planning-probe-v1.md)
+- 交接：[_audit/SKILL_HANDOFF_VISIBLE_PLANNING_NOTICE_2026-11-17.md](_audit/SKILL_HANDOFF_VISIBLE_PLANNING_NOTICE_2026-11-17.md)
+- 交付：新增 `visible_planning` 有效性分类与一次直出重试；探测同步断言可见规划通道，防止禁思考假生效；物理 trace 记录 temperature、禁思考参数与逻辑请求来源快照。
+- 用途：供应商把推理耗尽后写出的英文规划文本不再被当正文消费；禁思考探测能区分真抑制与思考搬到可见通道；失败归因可对账实际请求参数。
+- 验证：P1/P2/P3 定向合计 291 tests PASS；全量 254 files / 2820 tests PASS；type-check PASS；build:vue PASS。
+- 边界：不新增裁判、预算系统、自动调度或 UI；不改 payload SHA256 去重；真实供应商 live 烟测未做。

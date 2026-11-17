@@ -154,9 +154,14 @@ export interface RunTraceApiCall {
   providerName?: string
   providerSource?: RunTraceProviderSource
   model?: string
-  temperature?: number
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
+  /** Effective temperature sent to the provider for this physical request. */
+  temperature?: number
+  /** Thinking-disable request parameter actually used for this physical request. */
+  thinkingDisableParam?: string
+  /** Thinking-disable request value actually used for this physical request. */
+  thinkingDisableValue?: string
   intent?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
@@ -348,6 +353,12 @@ export interface RunTracePhysicalCall {
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
+  /** Effective temperature sent to the provider for this physical request. */
+  temperature?: number
+  /** Thinking-disable request parameter actually used for this physical request. */
+  thinkingDisableParam?: string
+  /** Thinking-disable request value actually used for this physical request. */
+  thinkingDisableValue?: string
   /** Capability provenance so traces distinguish unknown limits from app-imposed caps. */
   modelCapability?: {
     contextWindowTokens: number
@@ -920,6 +931,9 @@ export interface PhysicalCallInput {
   retryStrategy?: RunTracePhysicalCall['retryStrategy']
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
+  temperature?: number
+  thinkingDisableParam?: string
+  thinkingDisableValue?: string
   modelCapability?: RunTracePhysicalCall['modelCapability']
   providerContextWindowTokens?: number
   estimatedInputTokens?: number
@@ -1985,6 +1999,9 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       existing.toolCallNames = input.toolCallNames ?? existing.toolCallNames
       existing.retryStrategy = input.retryStrategy ?? existing.retryStrategy
       existing.maxTokens = input.maxTokens ?? existing.maxTokens
+      existing.temperature = input.temperature ?? existing.temperature
+      existing.thinkingDisableParam = input.thinkingDisableParam ?? existing.thinkingDisableParam
+      existing.thinkingDisableValue = input.thinkingDisableValue ?? existing.thinkingDisableValue
       existing.modelCapability = input.modelCapability ?? existing.modelCapability
       existing.providerContextWindowTokens = input.providerContextWindowTokens ?? existing.providerContextWindowTokens
       existing.estimatedInputTokens = input.estimatedInputTokens ?? existing.estimatedInputTokens
@@ -2062,6 +2079,9 @@ const RETAINED_AUDIT_EVENT_TYPES = new Set([
       toolCallNames: input.toolCallNames,
       retryStrategy: input.retryStrategy,
       maxTokens: input.maxTokens,
+      temperature: input.temperature,
+      thinkingDisableParam: input.thinkingDisableParam,
+      thinkingDisableValue: input.thinkingDisableValue,
       modelCapability: input.modelCapability,
       providerContextWindowTokens: input.providerContextWindowTokens,
       estimatedInputTokens: input.estimatedInputTokens,

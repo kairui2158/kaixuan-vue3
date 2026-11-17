@@ -1,5 +1,6 @@
 import type { ProviderLike } from './providerAdapter'
 import { normalizeUsage } from './traceFieldNormalizer'
+import { VISIBLE_PLANNING_RATIO_THRESHOLD, detectVisiblePlanningRatio } from './visiblePlanningText'
 
 export type ThinkingProbeVerdict =
   | 'effective'
@@ -37,6 +38,7 @@ export interface ThinkingProbeCandidateAttempt {
   statusCode?: number
   reasoningChars: number
   textChars: number
+  visiblePlanningChars: number
   outcome: 'effective' | 'rejected_400' | 'no_effect' | 'unverifiable_response' | 'error'
   note?: string
 }
@@ -48,6 +50,7 @@ export interface ThinkingProbeResult {
   value?: string
   baselineReasoningChars: number
   baselineTextChars: number
+  baselineVisiblePlanningChars: number
   requestsUsed: number
   error?: string
   attempts: ThinkingProbeCandidateAttempt[]
@@ -82,6 +85,11 @@ function extractTextChars(result: ThinkingProbeCallResult): number {
   return typeof result.text === 'string' ? result.text.trim().length : 0
 }
 
+function extractVisiblePlanningChars(result: ThinkingProbeCallResult): number {
+  const text = typeof result.text === 'string' ? result.text : ''
+  return Math.round(detectVisiblePlanningRatio(text) * text.length)
+}
+
 function effectiveCall(
   provider: ProviderLike,
   caller: ThinkingProbeCaller,
@@ -113,6 +121,7 @@ export async function runThinkingProbe(
       verdict: 'probe_error',
       baselineReasoningChars: 0,
       baselineTextChars: 0,
+      baselineVisiblePlanningChars: 0,
       requestsUsed: 1,
       error: error?.message || '基线请求失败',
       attempts,
@@ -121,11 +130,13 @@ export async function runThinkingProbe(
 
   const baselineReasoningChars = extractReasoningChars(baseline)
   const baselineTextChars = extractTextChars(baseline)
+  const baselineVisiblePlanningChars = extractVisiblePlanningChars(baseline)
   if (baselineTextChars === 0 && baselineReasoningChars === 0) {
     return {
       verdict: 'undecidable',
       baselineReasoningChars,
       baselineTextChars,
+      baselineVisiblePlanningChars,
       requestsUsed,
       error: '基线响应无可用文本，无法判定',
       attempts,
@@ -136,6 +147,7 @@ export async function runThinkingProbe(
       verdict: 'not_applicable',
       baselineReasoningChars,
       baselineTextChars,
+      baselineVisiblePlanningChars,
       requestsUsed,
       attempts,
     }
@@ -173,6 +185,7 @@ export async function runThinkingProbe(
           statusCode: 400,
           reasoningChars: 0,
           textChars: 0,
+          visiblePlanningChars: 0,
           outcome: 'rejected_400',
           note: error?.message,
         })
@@ -184,6 +197,7 @@ export async function runThinkingProbe(
         statusCode: Number.isFinite(statusCode) ? statusCode : undefined,
         reasoningChars: 0,
         textChars: 0,
+        visiblePlanningChars: 0,
         outcome: 'error',
         note: error?.message || '探测请求失败',
       })
@@ -191,6 +205,7 @@ export async function runThinkingProbe(
         verdict: 'probe_error',
         baselineReasoningChars,
         baselineTextChars,
+        baselineVisiblePlanningChars,
         requestsUsed,
         error: error?.message || '探测请求失败',
         attempts,
@@ -199,6 +214,7 @@ export async function runThinkingProbe(
 
     const reasoningChars = extractReasoningChars(result)
     const textChars = extractTextChars(result)
+    const visiblePlanningChars = extractVisiblePlanningChars(result)
     if (!result.ok) {
       if (result.statusCode === 400) {
         rejectedCount += 1
@@ -208,6 +224,7 @@ export async function runThinkingProbe(
           statusCode: 400,
           reasoningChars,
           textChars,
+          visiblePlanningChars: extractVisiblePlanningChars(result),
           outcome: 'rejected_400',
           note: result.error,
         })
@@ -219,6 +236,7 @@ export async function runThinkingProbe(
         statusCode: result.statusCode,
         reasoningChars,
         textChars,
+        visiblePlanningChars: extractVisiblePlanningChars(result),
         outcome: 'error',
         note: result.error || '探测请求失败',
       })
@@ -226,6 +244,7 @@ export async function runThinkingProbe(
         verdict: 'probe_error',
         baselineReasoningChars,
         baselineTextChars,
+        baselineVisiblePlanningChars,
         requestsUsed,
         error: result.error || '探测请求失败',
         attempts,
@@ -241,6 +260,7 @@ export async function runThinkingProbe(
           statusCode: result.statusCode,
           reasoningChars,
           textChars,
+          visiblePlanningChars,
           outcome: 'no_effect',
           note: '响应无正文且思考信号未收敛',
         })
@@ -253,6 +273,7 @@ export async function runThinkingProbe(
         statusCode: result.statusCode,
         reasoningChars,
         textChars,
+        visiblePlanningChars,
         outcome: 'unverifiable_response',
         note: '响应无正文，无法核对',
       })
@@ -260,12 +281,29 @@ export async function runThinkingProbe(
     }
 
     if (reasoningChars <= baselineReasoningChars * EFFECTIVE_REASONING_RATIO) {
+      const planningHijackedVisibleChannel =
+        visiblePlanningChars >= textChars * VISIBLE_PLANNING_RATIO_THRESHOLD
+      if (planningHijackedVisibleChannel) {
+        sawNoEffectCandidate = true
+        attempts.push({
+          param: candidate.param,
+          label: candidate.label,
+          statusCode: result.statusCode,
+          reasoningChars,
+          textChars,
+          visiblePlanningChars,
+          outcome: 'no_effect',
+          note: '响应正文主要是规划文本，禁思考未生效',
+        })
+        continue
+      }
       attempts.push({
         param: candidate.param,
         label: candidate.label,
         statusCode: result.statusCode,
         reasoningChars,
         textChars,
+        visiblePlanningChars,
         outcome: 'effective',
       })
       return {
@@ -274,6 +312,7 @@ export async function runThinkingProbe(
         value: candidate.value,
         baselineReasoningChars,
         baselineTextChars,
+    baselineVisiblePlanningChars,
         requestsUsed,
         attempts,
       }
@@ -285,6 +324,7 @@ export async function runThinkingProbe(
       statusCode: result.statusCode,
       reasoningChars,
       textChars,
+      visiblePlanningChars,
       outcome: 'no_effect',
     })
   }
@@ -298,6 +338,7 @@ export async function runThinkingProbe(
     verdict,
     baselineReasoningChars,
     baselineTextChars,
+    baselineVisiblePlanningChars,
     requestsUsed,
     attempts,
     error: verdict === 'undecidable' ? '候选响应均无可核对正文' : undefined,

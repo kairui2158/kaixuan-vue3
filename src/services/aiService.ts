@@ -330,6 +330,12 @@ export interface PhysicalCallEvent {
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only' | 'heartbeat_recovery'
   /** Effective max_tokens after overrides or a 400 downgrade; null means intentionally omitted. */
   maxTokens?: number | null
+  /** Effective temperature sent to the provider for this physical request. */
+  temperature?: number
+  /** Thinking-disable request parameter actually used for this physical request. */
+  thinkingDisableParam?: string
+  /** Thinking-disable request value actually used for this physical request. */
+  thinkingDisableValue?: string
   /** Resolved capability provenance; unknown stays unknown instead of becoming a fake cap. */
   modelCapability?: ModelCapability
   /** Pre-request input context budget decision. */
@@ -3950,6 +3956,9 @@ export function createAiService(
             ? 'heartbeat_recovery' as const
             : params.retryStrategy,
           maxTokens: result?.maxTokens ?? effectiveMaxTokens(),
+          temperature: resolveTemperature(provider, params.temperature),
+          thinkingDisableParam: params.thinkingDisableParam ?? provider.thinkingDisableParam,
+          thinkingDisableValue: params.thinkingDisableValue ?? provider.thinkingDisableValue,
           modelCapability,
           contextBudget,
           contextCompactedMessageCount: params.contextCompactedMessageCount,

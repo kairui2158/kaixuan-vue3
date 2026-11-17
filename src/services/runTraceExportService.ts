@@ -125,6 +125,7 @@ export function exportRunTraceToText(run: RunTrace): string {
           `HTTP状态：${physical.statusCode ?? '-'}`,
           `供应商错误：${physical.providerErrorSummary ? maskRunTraceSensitiveText(physical.providerErrorSummary) : '-'}`,
           `供应商来源：${physical.providerSource || '-'}`,
+          `请求参数：temperature=${physical.temperature ?? '-'} / maxTokens=${physical.maxTokens ?? '-'} / thinkingDisable=${physical.thinkingDisableParam ? `${maskRunTraceSensitiveText(physical.thinkingDisableParam)}=${maskRunTraceSensitiveText(physical.thinkingDisableValue ?? '-')}` : '-'}`,
           `最终URL：${physical.finalUrl ? maskRunTraceSensitiveText(physical.finalUrl) : '-'}`,
           `传输通道：${physical.transport || '-'}`
         )

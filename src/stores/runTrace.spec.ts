@@ -881,6 +881,32 @@ describe('runTrace store', () => {
     expect(physical?.responseText).toBe('响应正文')
   })
 
+  it('persists request parameter snapshots on physical calls', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 3, stepName: '正文层', mode: 'single', skillNames: ['正文技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成正文' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-request-params',
+      phase: 'normal',
+      status: 'success',
+      requestMessages: [{ role: 'user', content: '生成正文' }],
+      responseText: '正文内容',
+      streamText: '',
+      temperature: 0.35,
+      maxTokens: 4096,
+      thinkingDisableParam: 'thinking',
+      thinkingDisableValue: '{"type":"disabled"}'
+    })
+
+    const physical = store.getRun(runId)?.apiCalls[0]?.physicalCalls?.[0]
+    expect(physical?.temperature).toBe(0.35)
+    expect(physical?.maxTokens).toBe(4096)
+    expect(physical?.thinkingDisableParam).toBe('thinking')
+    expect(physical?.thinkingDisableValue).toBe('{"type":"disabled"}')
+  })
+
   it('does not reopen a terminal physical call with a late running callback', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })

@@ -595,6 +595,56 @@ describe('realSkillExecutor single pass', () => {
     expect(result.diagnostics.some(item => item.code === 'generation-invalid:reasoning_exhausted')).toBe(true)
   })
 
+  it('retries visible planning output once in direct-output mode and fails if it persists', async () => {
+    const eventSpy = vi.fn()
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const planningText = [
+      'Let me plan the final output.',
+      'Step 1: draft the opening scene.',
+      'Step 2: establish the fact ledger.',
+      'Wait, the final text must contain a structured ledger.',
+      'Plan: generate the required body next.'
+    ].join('\n')
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: planningText,
+      reasoning: '',
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      providerId: 'provider-1',
+      providerType: 'unsupported-provider'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      agent: { id: 'agent-1', maxTokens: 1000 },
+      onGenerationEvent: eventSpy
+    })
+
+    expect(eventSpy.mock.calls.map(([event]) => event.type)).toEqual([
+      'generation-invalid',
+      'direct-retry-start',
+      'direct-retry-finished'
+    ])
+    expect(eventSpy.mock.calls[0]![0].kind).toBe('visible_planning')
+    expect(eventSpy.mock.calls[1]![0].kind).toBe('visible_planning')
+    expect(eventSpy.mock.calls[1]![0].message).toContain('可见输出被规划文本占用')
+    expect(eventSpy.mock.calls[2]![0].success).toBe(false)
+    expect(result.status).toBe('failed')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(callAi.mock.calls[1]![0].messages[0]?.content).toContain('【直出模式】')
+    expect(callAi.mock.calls[1]![0]).toMatchObject({ retryStrategy: 'max_tokens_raised' })
+    expect(callAi.mock.calls[1]![0].maxTokens).toBeGreaterThan(1000)
+    expect(result.errors[0]).toContain('模型把规划文本写进了可见输出通道')
+    expect(result.diagnostics.some(item => item.code === 'generation-invalid:visible_planning')).toBe(true)
+  })
+
   it('uses provider reasoning control for the direct-output retry when the provider type is known', async () => {
     const eventSpy = vi.fn()
     loadRealSkillMock.mockResolvedValueOnce({

@@ -6,6 +6,7 @@ import {
   type ThinkingProbeCallResult,
   type ThinkingProbeCaller,
 } from './providerThinkingProbe'
+import { detectVisiblePlanningRatio } from './visiblePlanningText'
 
 const provider: ProviderLike = {
   id: 'probe-test',
@@ -238,5 +239,40 @@ describe('providerThinkingProbe', () => {
     })
     const result2 = await runThinkingProbe(provider, caller2)
     expect(result2.verdict).toBe('effective')
+  })
+
+  it('rejects English planning text that hijacks the visible channel', async () => {
+    const planningText = [
+      'Let me think about the requested output.',
+      "I'll craft the final text after checking the constraints.",
+      'Plan: first satisfy the format, then produce the final text.',
+    ].join('\n')
+    const caller: ThinkingProbeCaller = callerWith(override => {
+      if (!override.thinkingDisableParam) return ok({ reasoning: 'think', text: '回答' })
+      if (override.thinkingDisableParam === 'thinking') return ok({ text: planningText })
+      return ok({ text: '完成。' })
+    })
+
+    const result = await runThinkingProbe(provider, caller)
+
+    expect(result.verdict).toBe('effective')
+    expect(result.param).toBe('enable_thinking')
+    expect(result.attempts[0].outcome).toBe('no_effect')
+    expect(result.attempts[0].visiblePlanningChars).toBeGreaterThan(0)
+    expect(result.attempts[0].note).toContain('规划文本')
+  })
+
+  it('keeps normal Chinese body output effective even with a few English terms', async () => {
+    const body = '夜色压在旧巷口，少年握着一张写着 Route 17 的票，雨水顺着伞骨落下。'
+    expect(detectVisiblePlanningRatio(body)).toBeLessThan(0.3)
+    const caller: ThinkingProbeCaller = callerWith(override => {
+      if (!override.thinkingDisableParam) return ok({ reasoning: 'think', text: '回答' })
+      return ok({ text: body })
+    })
+
+    const result = await runThinkingProbe(provider, caller)
+
+    expect(result.verdict).toBe('effective')
+    expect(result.attempts[0].outcome).toBe('effective')
   })
 })

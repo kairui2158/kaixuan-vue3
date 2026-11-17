@@ -137,7 +137,11 @@ describe('run trace export service', () => {
           statusCode: 401,
           providerErrorSummary: 'Invalid API key sk-123456789012345678',
           finalUrl: 'https://api.example.com/v1/chat/completions?key=sk-123456789012345678',
-          transport: 'renderer-fetch'
+          transport: 'renderer-fetch',
+          temperature: 0.35,
+          maxTokens: 4096,
+          thinkingDisableParam: 'thinking',
+          thinkingDisableValue: '{"type":"disabled"}'
         } as RunTracePhysicalCall]
       } as RunTrace['apiCalls'][number]]
     })
@@ -153,11 +157,16 @@ describe('run trace export service', () => {
       finalUrl: 'https://api.example.com/v1/chat/completions?key=***MASKED***',
       transport: 'renderer-fetch'
     })
+    expect(physical?.temperature).toBe(0.35)
+    expect(physical?.maxTokens).toBe(4096)
+    expect(physical?.thinkingDisableParam).toBe('thinking')
+    expect(physical?.thinkingDisableValue).toBe('{"type":"disabled"}')
     expect(serialized).not.toContain('sk-123456789012345678')
     expect(text).toContain('HTTP状态：401')
     expect(text).toContain('供应商错误：Invalid API key ***MASKED***')
     expect(text).toContain('最终URL：https://api.example.com/v1/chat/completions?key=***MASKED***')
     expect(text).toContain('传输通道：renderer-fetch')
+    expect(text).toContain('请求参数：temperature=0.35 / maxTokens=4096 / thinkingDisable=thinking={"type":"disabled"}')
   })
 
   it('exports folder fingerprint in prompt snapshot text output', () => {

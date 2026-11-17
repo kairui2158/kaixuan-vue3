@@ -63,6 +63,39 @@ describe('classifyGenerationValidity', () => {
     })).toMatchObject({ kind: 'reasoning_exhausted', usable: false })
   })
 
+  it('rejects visible planning text that consumed the output budget', () => {
+    expect(classifyGenerationValidity({
+      text: [
+        'Let me plan the final output.',
+        'Step 1: draft the opening scene.',
+        'Step 2: establish the fact ledger.',
+        'Wait, the final text must contain a structured ledger.',
+        'Plan: generate the required body next.'
+      ].join('\n'),
+      finishReason: 'length',
+      usage: { completion_tokens: 1000 },
+      maxTokens: 1000
+    })).toMatchObject({
+      kind: 'visible_planning',
+      usable: false,
+      message: '模型把规划文本写进了可见输出通道而不是正文，未生成有效内容'
+    })
+  })
+
+  it('keeps Chinese body text with incidental English terms usable', () => {
+    expect(classifyGenerationValidity({
+      text: '她的目光越过Route 17的指示牌，最后停在远处的Warehouse门口。',
+      finishReason: 'stop'
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
+  it('does not misclassify completed English prose as visible planning', () => {
+    expect(classifyGenerationValidity({
+      text: 'She walked along the old road and remembered everything about that summer.',
+      finishReason: 'stop'
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
   it('marks empty response without reasoning as empty', () => {
     expect(classifyGenerationValidity({
       text: '',

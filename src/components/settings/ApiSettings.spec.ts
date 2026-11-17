@@ -266,6 +266,7 @@ describe('ApiSettings pipeline provider channels', () => {
       param: 'thinking',
       value: '{"type":"disabled"}',
       baselineReasoningChars: 100,
+      baselineVisiblePlanningChars: 0,
       baselineTextChars: 2,
       requestsUsed: 2,
       attempts: [],
@@ -301,6 +302,7 @@ describe('ApiSettings pipeline provider channels', () => {
       thinkingProbe: {
         verdict: 'no_effect',
         baselineReasoningChars: 100,
+        baselineVisiblePlanningChars: 0,
         baselineTextChars: 2,
         requestsUsed: 5,
         attempts: [],
@@ -326,6 +328,7 @@ describe('ApiSettings pipeline provider channels', () => {
     const probeResult: ThinkingProbeResult = {
       verdict: 'undecidable',
       baselineReasoningChars: 100,
+      baselineVisiblePlanningChars: 0,
       baselineTextChars: 2,
       requestsUsed: 2,
       attempts: [],

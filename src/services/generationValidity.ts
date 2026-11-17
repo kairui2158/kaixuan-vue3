@@ -1,7 +1,10 @@
+import { detectVisiblePlanningRatio, VISIBLE_PLANNING_RATIO_THRESHOLD } from './visiblePlanningText'
+
 export type GenerationValidityKind =
   | 'usable'
   | 'truncated'
   | 'reasoning_exhausted'
+  | 'visible_planning'
   | 'empty'
   | 'canceled'
   | 'error'
@@ -26,6 +29,7 @@ export interface GenerationValidityInput {
 }
 
 const LENGTH_FINISH_REASONS = new Set(['length', 'max_tokens', 'max_output_tokens'])
+const VISIBLE_PLANNING_BUDGET_MESSAGE = '模型把规划文本写进了可见输出通道而不是正文，未生成有效内容'
 
 function normalizeFinishReason(reason?: string | null): string | undefined {
   if (reason == null) return undefined
@@ -129,6 +133,16 @@ export function classifyGenerationValidity(input: GenerationValidityInput): Gene
   }
 
   if (text.trim().length > 0) {
+    if (
+      detectVisiblePlanningRatio(text) >= VISIBLE_PLANNING_RATIO_THRESHOLD
+      && (lengthFinish || consumedOutputBudget(input))
+    ) {
+      return {
+        kind: 'visible_planning',
+        usable: false,
+        message: VISIBLE_PLANNING_BUDGET_MESSAGE
+      }
+    }
     if (lengthFinish || (!isDefinitiveNonLengthFinish(input) && consumedOutputBudget(input))) {
       return {
         kind: 'truncated',
@@ -157,6 +171,7 @@ export const GENERATION_VALIDITY_MESSAGES: Record<GenerationValidityKind, string
   usable: '产物有效',
   truncated: '输出被截断，已自动续写合并；如仍不完整，请减少单步任务量或提高 maxTokens',
   reasoning_exhausted: '模型思考耗尽输出预算，未生成正文；已重试 1 次仍失败',
+  visible_planning: '模型把规划文本写进了可见输出通道而不是正文，未生成有效内容；已重试 1 次仍失败',
   empty: '模型没有返回正文，请检查模型/供应商配置',
   canceled: '用户取消了本次生成',
   error: '生成失败，请查看运行记录中的原始错误'

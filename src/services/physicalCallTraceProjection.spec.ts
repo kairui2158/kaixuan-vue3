@@ -38,6 +38,10 @@ function makeEvent(): PhysicalCallEvent {
     providerErrorSummary: 'Invalid API key sk-123456789012345678',
     finalUrl: 'https://api.example.com/v1/chat/completions?key=sk-123456789012345678',
     transport: 'renderer-fetch',
+    maxTokens: 4096,
+    temperature: 0.35,
+    thinkingDisableParam: 'thinking',
+    thinkingDisableValue: '{"type":"disabled"}',
   }
 }
 
@@ -59,6 +63,10 @@ describe('physical call trace projection', () => {
       providerErrorSummary: 'Invalid API key sk-123456789012345678',
       finalUrl: 'https://api.example.com/v1/chat/completions?key=sk-123456789012345678',
       transport: 'renderer-fetch',
+      maxTokens: 4096,
+      temperature: 0.35,
+      thinkingDisableParam: 'thinking',
+      thinkingDisableValue: '{"type":"disabled"}',
     })
   })
 
@@ -137,6 +145,8 @@ describe('physical call trace projection', () => {
       providerErrorSummary: 'Invalid API key sk-123456789012345678',
       finalUrl: 'https://api.example.com/v1/chat/completions',
       transport: 'renderer-fetch',
+      temperature: 0.2,
+      maxTokens: 1024,
     })
 
     const json = JSON.stringify(exportRunTraceToJson(run))

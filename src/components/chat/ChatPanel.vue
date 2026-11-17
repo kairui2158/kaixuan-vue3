@@ -238,6 +238,7 @@ import {
 } from '../../services/intentCorpusCollector'
 import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
+import { detectVisiblePlanningRatio, VISIBLE_PLANNING_RATIO_THRESHOLD } from '../../services/visiblePlanningText'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { hydrateRuntimeFolderTemplates, type FolderSkillHydrationDiagnostic } from '../../services/folderSkillRuntimeHydration'
 import { formatSkillFallback } from '../../services/skillRouter'
@@ -4372,7 +4373,7 @@ async function callApi(
     toolCalls: result.toolCalls,
     canceled: activeAbortController?.signal.aborted,
   })
-  if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'empty')) {
+  if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'visible_planning' || validity.kind === 'empty')) {
     reportDirectGenerationEvent('generation-invalid', {
       kind: validity.kind,
       message: validity.message,
@@ -4381,7 +4382,9 @@ async function callApi(
     })
     reportDirectGenerationEvent('direct-retry-start', {
       type: 'direct-retry-start',
-      message: '正文为空，已切换直出模式重试',
+      message: validity.kind === 'visible_planning'
+        ? '可见输出被规划文本占用，已切换直出模式重试'
+        : '正文为空，已切换直出模式重试',
       retryStrategy: reasoningControl.supported ? 'thinking_disabled' : 'max_tokens_raised',
       maxTokens: reasoningControl.supported
         ? requestMaxTokens
@@ -4389,7 +4392,9 @@ async function callApi(
           ? 32_768
           : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5)),
     })
-    chatStore.setGenerationState('retrying', '正文为空，正在切换直出模式重试')
+    chatStore.setGenerationState('retrying', validity.kind === 'visible_planning'
+      ? '可见输出被规划文本占用，正在切换直出模式重试'
+      : '正文为空，正在切换直出模式重试')
     const retryStrategy: 'thinking_disabled' | 'max_tokens_raised' = reasoningControl.supported
       ? 'thinking_disabled'
       : 'max_tokens_raised'

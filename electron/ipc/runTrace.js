@@ -198,14 +198,26 @@ function collectPayloads(run) {
     // final role; every other request remains an intermediate chain artifact.
     var isFinalCall = isFinalApiCall(call, run)
     var callOrigin = payloadOriginFromApiCall(call)
-    add('request', call.requestMessages, isFinalCall ? 'final' : 'intermediate', callOrigin)
+    add('request', call.requestMessages, isFinalCall ? 'final' : 'intermediate', {
+      ...callOrigin,
+      requestTemperature: call.temperature,
+      requestMaxTokens: call.maxTokens,
+      firstSeenSource: 'logicalRequest'
+    })
     add('tool-delta', call.toolRequestDeltas, 'intermediate', callOrigin)
     add('response', call.responseText, isFinalCall ? 'final' : 'intermediate', callOrigin)
     add('stream', call.streamText, isFinalCall ? 'final' : 'intermediate', callOrigin)
     add('reasoning', call.reasoningText, 'intermediate', callOrigin)
     ;(call.physicalCalls || []).forEach(function(physical) {
       var physicalOrigin = payloadOriginFromApiCall(call, physical)
-      add('request', physical.requestMessages, isFinalCall ? 'final' : 'intermediate', physicalOrigin)
+      add('request', physical.requestMessages, isFinalCall ? 'final' : 'intermediate', {
+        ...physicalOrigin,
+        requestTemperature: physical.temperature,
+        requestMaxTokens: physical.maxTokens,
+        requestThinkingDisableParam: physical.thinkingDisableParam,
+        requestThinkingDisableValue: physical.thinkingDisableValue,
+        firstSeenSource: 'physicalRequest'
+      })
       add('response', physical.responseText, isFinalCall ? 'final' : 'intermediate', physicalOrigin)
       add('stream', physical.streamText, isFinalCall ? 'final' : 'intermediate', physicalOrigin)
       add('reasoning', physical.reasoningText, 'intermediate', physicalOrigin)
