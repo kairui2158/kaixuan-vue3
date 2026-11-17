@@ -4,6 +4,7 @@ import {
   hasVisiblePlanningTextSignal,
   VISIBLE_PLANNING_RATIO_THRESHOLD,
 } from './visiblePlanningText'
+import { isGeneratorEnvelopeArtifact } from './chainExecution'
 
 export type GenerationValidityKind =
   | 'usable'
@@ -106,6 +107,25 @@ function isLengthFinish(input: GenerationValidityInput): boolean {
   return reason != null && LENGTH_FINISH_REASONS.has(reason)
 }
 
+/**
+ * The same content-contract exemption must exist at terminal validity
+ * classification, not only in transport soft-failure classification.
+ * Otherwise a zero-usage gateway report kills a substantial artifact before
+ * SKILL acceptance can inspect it.
+ */
+export function hasCredibleZeroUsageArtifact(text: string): boolean {
+  const candidate = String(text || '').trim()
+  if (!candidate) return false
+  if (candidate.length >= 1000 && countCjkCharacters(candidate) / candidate.length >= 0.65) {
+    return true
+  }
+  try {
+    return isGeneratorEnvelopeArtifact(candidate)
+  } catch {
+    return false
+  }
+}
+
 export function countCjkCharacters(text: string): number {
   return text.match(/[\u3400-\u4dbf\u4e00-\u9fff\u3040-\u30ff]/g)?.length ?? 0
 }
@@ -139,7 +159,13 @@ export function classifyGenerationValidity(input: GenerationValidityInput): Gene
   // as usable lets placeholder text pollute candidate selection.
   const outputTokens = readCompletionTokens(input.usage)
   const totalTokens = readTotalTokens(input.usage)
-  if (text.trim().length > 0 && outputTokens === 0 && totalTokens != null && totalTokens > 0) {
+  if (
+    text.trim().length > 0
+    && outputTokens === 0
+    && totalTokens != null
+    && totalTokens > 0
+    && !hasCredibleZeroUsageArtifact(text)
+  ) {
     return {
       kind: 'empty',
       usable: false,

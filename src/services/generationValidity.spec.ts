@@ -174,6 +174,30 @@ describe('classifyGenerationValidity', () => {
     })
   })
 
+  it('keeps substantial zero-usage prose for content validation', () => {
+    const body = '灰绿的天光像蒙了层旧纱，斜斜地坠在废区残骸上。'.repeat(60)
+    expect(classifyGenerationValidity({
+      text: body,
+      usage: { completion_tokens: 0, total_tokens: 127240 },
+      finishReason: 'stop'
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
+  it('keeps a zero-usage malformed envelope containing body and ledger', () => {
+    const envelope = JSON.stringify({
+      body: '灰绿的天光像蒙了层旧纱，斜斜地坠在废区残骸上。',
+      metadata: {
+        extractedMeta: ['【正文交接】\nFACT_LOCK：人物状态：完整']
+      }
+    })
+    const malformed = envelope.slice(0, 120) + '\n' + envelope.slice(120)
+    expect(classifyGenerationValidity({
+      text: malformed,
+      usage: { completion_tokens: 0, total_tokens: 127240 },
+      finishReason: 'stop'
+    })).toMatchObject({ kind: 'usable', usable: true })
+  })
+
   it('keeps normal body output usable when output usage is reported', () => {
     expect(classifyGenerationValidity({
       text: '正文',
