@@ -38,5 +38,5 @@
 
 ## 7. 缺口清单
 
-- 残留清理缺口：`dist2/`、`dist4/`、`dist5/` 的 `resources/app.asar` 仍被系统级句柄锁定；进程扫描、重命名、takeown 后删除均失败。目录保持 untracked，不影响版本提交、安装包或封装校验；3.129.0 旧安装包主文件与 blockmap 已删除。
+- 残留清理缺口：`dist2/`、`dist4/`、`dist5/` 初次被系统级句柄锁定并登记为环境事件；最终定位到 Codex NodeService 进程 `ChatGPT.exe:20172`，只关闭三个 asar 文件句柄后全部删除，不影响提交、安装包或封装校验。3.129.0 旧安装包主文件与 blockmap 已删除。
 - 缺陷面枚举：已排查 provider contract、stream normalization、zero-usage 分支、fakeSuccess executor 终态、terminalApiError 消费、回归语义、版本与打包校验；命中并修复 zero-usage 形态误杀与耗尽终态缺失。360 防护反复锁新建产物为环境事件，不改源码；临时 `rcedit-test.exe` 与临时探针已列入清理。
