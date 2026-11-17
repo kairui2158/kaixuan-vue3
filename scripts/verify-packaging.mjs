@@ -92,9 +92,6 @@ console.log('[stage] launching packaged app')
 const electronApp = await _electron.launch({
   executablePath: APP_EXE,
   args: [
-    '--disable-gpu',
-    '--disable-gpu-compositing',
-    '--no-sandbox',
     `--user-data-dir=${path.join(path.dirname(INSTALLER_FILE), 'verify-user-data')}`,
   ],
   env: { ...process.env, NODE_ENV: 'production' },

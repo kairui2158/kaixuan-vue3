@@ -27,7 +27,7 @@
 3. `npm run type-check` exit 0；`npm run build:vue` PASS。
 4. UI 回归锁定探测结果持久化、声明自动填充、历史判定回显与 `undecidable` 的 failed 终态；服务回归覆盖空串基线隔离、基线无信号、400 跳过、非 400 终止、usage 兜底、阈值边界、手动声明优先、供应商错误与 mixed-rejection 语义。
 5. 复审增量：`npx vitest run src/services/providerThinkingProbe.spec.ts src/components/settings/ApiSettings.spec.ts src/services/providerProtocols.spec.ts` → 3 files / 26 tests PASS；`npx vitest run` → 254 files / 2813 tests PASS；`npm run type-check` exit 0；`npm run build:vue` PASS；3.128.8 packaging PASS，安装包 SHA-256 `40dcd216086ab225a3da452e3c3bbf8098e07bf98ec4ef4216d86d36d07b7880`。
-6. 验证器诊断：沙箱内 GPU 子进程以 `STATUS_DLL_NOT_FOUND` 崩溃；`--disable-gpu` / `--disable-gpu-compositing` 不改变该结果；直接启动暴露应用需写入 Windows 用户数据与日志目录。3.128.8 验证在用户批准的沙箱外运行并通过；`scripts/verify-packaging.mjs` 新增打包应用专用 `--user-data-dir=dist/verify-user-data`，不改变生产启动路径。
+6. 验证器诊断：沙箱内 GPU 子进程以 `STATUS_DLL_NOT_FOUND` 崩溃；`--disable-gpu` / `--disable-gpu-compositing` 不改变该结果；直接启动暴露应用需写入 Windows 用户数据与日志目录。移除禁 GPU 诊断参数、仅注入打包应用专用 `--user-data-dir=dist/verify-user-data` 后，最终验证恢复默认 GPU 启动路径并通过；不改变生产启动路径。
 
 ## 边界
 
