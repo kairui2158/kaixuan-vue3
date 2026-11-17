@@ -2170,3 +2170,12 @@
 - 用途：供应商把推理耗尽后写出的英文规划文本不再被当正文消费；禁思考探测能区分真抑制与思考搬到可见通道；失败归因可对账实际请求参数。
 - 验证：P1/P2/P3 定向合计 291 tests PASS；全量 254 files / 2820 tests PASS；type-check PASS；build:vue PASS。
 - 边界：不新增裁判、预算系统、自动调度或 UI；不改 payload SHA256 去重；真实供应商 live 烟测未做。
+
+# 2026-11-18 zero-usage 误杀守卫收口 3.130.0
+
+- 文件：[_audit/DEV_LOG_2026-11-18_zero-usage-guard-v1.md](_audit/DEV_LOG_2026-11-18_zero-usage-guard-v1.md)
+- 台账：[_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-18_zero-usage-guard-v1.md](_audit/TASK_LEDGERS/TASK_LEDGER_2026-11-18_zero-usage-guard-v1.md)
+- 交付：零 usage 不推翻合法信封或实质流式正文；短兜底文案保持 fakeSuccess；重试耗尽进入供应商级终态；版本升级 3.130.0 并完成封装校验。
+- 用途：修复网关 usage 形态异常误杀合法产物，避免正文编排空转。
+- 验证：全量服务 254 files / 2827 tests PASS；type-check、build:vue、electron-builder 与 verify:packaging PASS；安装包 SHA-256 `57c9e83ae215645a936c71336034caf541387bafb93e31068ebe9bdea838e10c`。
+- 边界：不改 SKILL 裁决、修复编排策略、供应商硬编码、预算系统、调度器或 UI。

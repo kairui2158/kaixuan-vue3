@@ -83,6 +83,22 @@ function hasAbnormalZeroUsage(usage: any): boolean {
     && outputTokens === 0
 }
 
+/**
+ * Trust a durable content contract over a provider usage field. A complete
+ * novel envelope has explicit body and handoff metadata and must not be killed
+ * by transport-layer usage anomalies; downstream acceptance owns quality.
+ */
+function hasStructuredZeroUsageArtifact(text: string): boolean {
+  try {
+    const parsed = JSON.parse(String(text || '').trim())
+    return Boolean(parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      && typeof parsed.body === 'string' && parsed.body.trim().length > 0
+      && parsed.metadata?.extractedMeta?.length > 0)
+  } catch {
+    return false
+  }
+}
+
 export function classifyProviderSoftFailure(
   contract: ProviderResponseContract,
 ): ProviderSoftFailureClassification {
@@ -95,7 +111,7 @@ export function classifyProviderSoftFailure(
   return {
     softError: Boolean(body) && !hasContent,
     quota: Boolean(body && hasProviderSoftQuotaError(extractProviderErrorSummary(body))),
-    abnormalZeroUsage,
+    abnormalZeroUsage: abnormalZeroUsage && !hasStructuredZeroUsageArtifact(contract.text),
   }
 }
 
@@ -113,8 +129,21 @@ export function normalizeProviderResponse(
     try { raw = JSON.parse(response.text) } catch { raw = undefined }
   }
   const hasBody = Boolean(response.ok && raw && typeof raw === 'object')
-  const text = hasBody ? String(protocol.extractText(raw) || '') : ''
-  const reasoning = hasBody ? String(protocol.extractReasoning(raw) || '') : ''
+  // OpenAI-compatible stream frames put the accumulated payload in delta
+  // fields, while some gateways still put it on message. Aggregate both so
+  // transport classification sees the same content contract as the renderer.
+  const streamDeltas: Array<{ content: string; reasoning: string }> = hasBody && Array.isArray(raw?.choices)
+    ? raw.choices.map((choice: any) => ({
+      content: String(choice?.delta?.content ?? ''),
+      reasoning: String(choice?.delta?.reasoning_content ?? ''),
+    }))
+    : []
+  const messageText = hasBody ? String(protocol.extractText(raw) || '') : ''
+  const streamText = streamDeltas.map(delta => delta.content).join('')
+  const messageReasoning = hasBody ? String(protocol.extractReasoning(raw) || '') : ''
+  const streamReasoning = streamDeltas.map(delta => delta.reasoning).join('')
+  const text = messageText || streamText
+  const reasoning = messageReasoning || streamReasoning
   return {
     ok: response.ok === true,
     kind: response.ok ? 'ok' : (response.kind || 'network'),

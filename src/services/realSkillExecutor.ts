@@ -1765,9 +1765,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             | 'visible_planning'
         )
         const generationShortCircuit = (error as Error & { generationShortCircuit?: boolean }).generationShortCircuit === true
+        const fakeSuccessExhausted = (error as Error & { fakeSuccess?: boolean }).fakeSuccess === true
         return {
           status: 'failed',
-          ...((terminalGenerationError || generationShortCircuit) ? { terminalApiError: true } : {}),
+          ...((terminalGenerationError || generationShortCircuit || fakeSuccessExhausted)
+            ? { terminalApiError: true }
+            : {}),
           output: '',
           errors,
           diagnostics,

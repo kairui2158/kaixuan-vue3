@@ -154,6 +154,33 @@ describe('normalizeProviderResponse', () => {
     })
   })
 
+  it('preserves a complete generator envelope from zero-usage fake-success rejection', () => {
+    const envelope = JSON.stringify({
+      body: '这是完整正文。',
+      metadata: {
+        extractedMeta: ['【正文交接】\nFACT_LOCK：人物状态：完整']
+      }
+    })
+    const contract = normalizeProviderResponse(
+      {
+        ok: true,
+        statusCode: 200,
+        data: {
+          choices: [{ delta: { content: envelope } }],
+          usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 120000 },
+        },
+        stream: true,
+      },
+      { protocolName: 'openai-compatible' }
+    )
+
+    expect(classifyProviderSoftFailure(contract)).toEqual({
+      softError: false,
+      quota: false,
+      abnormalZeroUsage: false,
+    })
+  })
+
   it('does not classify placeholder prose with reported output usage as zero usage', () => {
     const contract = normalizeProviderResponse(
       {

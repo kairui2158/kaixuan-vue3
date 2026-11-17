@@ -10,10 +10,23 @@ vi.mock('./aiService', () => ({
   AiServiceErrorImpl: class MockAiServiceError extends Error {
     kind: string
     statusCode?: number
-    constructor(params: { kind: string; statusCode?: number; message: string }) {
+    retryable?: boolean
+    softError?: boolean
+    fakeSuccess?: boolean
+    constructor(params: {
+      kind: string
+      statusCode?: number
+      message: string
+      retryable?: boolean
+      softError?: boolean
+      fakeSuccess?: boolean
+    }) {
       super(params.message)
       this.kind = params.kind
       this.statusCode = params.statusCode
+      this.retryable = params.retryable
+      this.softError = params.softError
+      this.fakeSuccess = params.fakeSuccess
     }
   }
 }))
@@ -125,6 +138,37 @@ describe('realSkillExecutor single pass', () => {
     expect(result.terminalApiError).toBe(true)
     expect(result.output).toBe('')
     expect(result.diagnostics[0]?.code).toBe('api-terminal-auth-error')
+    expect(callAi).toHaveBeenCalledTimes(1)
+  })
+
+  it('marks the provider-level fake-success budget as a terminal failure', async () => {
+    const callAi = vi.fn(async () => {
+      throw new AiServiceErrorImpl({
+        kind: 'network',
+        message: '供应商返回占位正文且输出 usage 为零，判定为假成功，已拒绝进入候选',
+        retryable: true,
+        softError: true,
+        fakeSuccess: true
+      })
+    })
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValue({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.terminalApiError).toBe(true)
+    expect(result.output).toBe('')
+    expect(result.errors[0]).toContain('usage 为零')
+    expect(result.diagnostics[0]?.code).toBe('api-failed')
     expect(callAi).toHaveBeenCalledTimes(1)
   })
 

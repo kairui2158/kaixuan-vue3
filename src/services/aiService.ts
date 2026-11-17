@@ -102,6 +102,8 @@ import { EDITOR_EDIT_PROTOCOL_VERSION } from './editorEditSemantics'
 import type { DialogueIntent } from './dialogueFoundation'
 import type { DialoguePermissionDecision } from './dialogueToolSurface'
 import { extractJsonCandidates } from './jsonExtraction'
+import { countCjkCharacters } from './generationValidity'
+import { isGeneratorEnvelopeArtifact } from './chainExecution'
 import {
   normalizeUsage as normalizeTraceUsage,
 } from './traceFieldNormalizer'
@@ -1390,6 +1392,24 @@ function looksLikePlainJsonResponseBody(json: any): boolean {
 }
 
 /**
+ * Some gateways report real streamed prose with input/output tokens as zero.
+ * Only short canned fallback prose should remain fake-success evidence; let
+ * structured novel artifacts and substantial prose reach content validation.
+ */
+export function hasCredibleZeroUsageStreamContent(text: string): boolean {
+  const candidate = String(text || '').trim()
+  if (!candidate) return false
+  if (candidate.length >= 1000 && countCjkCharacters(candidate) / candidate.length >= 0.65) {
+    return true
+  }
+  try {
+    return isGeneratorEnvelopeArtifact(candidate)
+  } catch {
+    return false
+  }
+}
+
+/**
  * Unified SSE stream parser. Handles data: prefix, [DONE],
  * reasoning_content, and thinking-tag filtering.
  */
@@ -2503,6 +2523,18 @@ export function createAiService(
           throwProviderSoftError(result.raw, provider, params.purpose, usage, Boolean(result.text))
         }
         if (streamSoftFailure.abnormalZeroUsage) {
+          if (hasCredibleZeroUsageStreamContent(result.text)) {
+            // Preserve the artifact for content validation, but keep the
+            // provider usage anomaly visible in trace evidence.
+            console.warn(
+              '[AI] zero-usage stream content preserved for validation:',
+              {
+                chars: result.text.length,
+                finishReason: result.finishReason,
+                usage,
+              }
+            )
+          } else {
           // abnormalZeroUsage without a quota phrase or error body is a fake
           // success: the gateway returned fallback prose with no completion
           // tokens. Keep the candidate out of downstream selection and let
@@ -2516,6 +2548,7 @@ export function createAiService(
             softError: true,
             fakeSuccess: true,
           })
+          }
         }
         const finishReason = resolveFinishReason(result.finishReason, usage, maxTokens, Boolean(result.text))
         return { ...result, usage, finishReason, raw: result.raw, maxTokens, modelCapability }
